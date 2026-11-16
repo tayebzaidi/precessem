@@ -1,0 +1,215 @@
+# `-e th:4` — a waveguide below cutoff: decay set by geometry, not by loss
+
+Guide for `examples/time_harmonic/04_evanescent_waveguide_decay.py`. Written to
+be followed without the source open.
+
+## 1. What this demonstrates
+
+**A field dying in a medium that absorbs nothing.** This is the counterpart to
+`th:1`: there, the wave decays because `Im ε_c` acts through the mass term. Here
+`σ = 0`, `εᵣ = μᵣ = 1` — nothing in the problem dissipates anything — and the
+field still falls off exponentially, purely because the guide is too narrow for
+the frequency. The decay is transverse geometry acting through the operator's
+**real** part.
+
+In an `a × b` PEC guide the TE₁₀ mode has transverse profile `sin(πx/a)` and
+cutoff wavenumber `k_c = π/a` (cutoff `f_c = c/2a = 2.998 GHz` at `a = 0.05 m`).
+Driven *below* cutoff the axial dependence is a real exponential rather than a
+travelling wave:
+
+```
+E(x, y, z) = ŷ · sin(πx/a) · e^{−γz},    γ = √(k_c² − k₀²)   [Np/m]
+```
+
+At 2.4 GHz that is `γ = 37.652670 Np/m`, so the amplitude falls **6.6×** over
+the `L = a` guide.
+
+Why the number is a measurement and not a restatement: the exact field is
+imposed on the whole boundary — which pins both end faces — and the **slope in
+between** is fitted. That slope is `k₀²` reaching the mass term. A solver that
+dropped `k₀²ε` entirely would still decay, and would still look completely
+plausible, but at `γ = k_c = 62.83`, **67% too fast, at every frequency**. That
+is the failure this example is shaped to catch.
+
+The fixture is *imported* from the module that closed `TH-7`
+(`tests/validation/test_waveguide_cutoff.py` — geometry, frequency, the
+exact-field factory, the probe line and its fit window).
+
+On record at `-n 2` (`20260810T020355Z_EX-7-gate.log`, 7 s harness-wall / 5.1 s
+in-example, 2026-08-09 21:00 slot; identical to the `TH-7` finer-mesh record
+`20260731T123411Z_TH-7-gate-final.log`):
+
+| Quantity | Closed form | Measured | Bound |
+| --- | --- | --- | --- |
+| Decay constant γ | 37.652670 Np/m | **37.650399** Np/m | **0.006%** vs 5% |
+| Whole-domain rel. L2 | — | **4.406648e-02** | 5% |
+| Residual `|Im E_y|/|Re E_y|` | 0 | **0.000e+00** | 1e-10 |
+| γ refitted from the raw N1curl source field (owner rule) | — | **37.650399** Np/m | **≤ 1.9e-16** from the DG-split fit (identity at round-off) vs 0.5% |
+| Transverse profile RMS vs `sin(πx/a)`, DG-split source field (owner rule) | 0 | **1.591%** at `-n 1 / 2 / 4` | 2% |
+| γ vs `k_c` | γ < k_c | **1.67× below** | asserted |
+| Exported `|E|` span | — | 5.147567e-17 … 1.000725e+00 V/m | — |
+| Mesh | — | 41 472 cells | 5.1 s in-example |
+
+**Re-sampled records (`POST-8` step 3b-ii-e3b, §9 item 580, 2026-10-21, `(1*)`).**
+The cross-check and the profile now read the source field under the owner rule
+(`owner="lowest_original_cell"`): the N1curl `fields.e_complex` for the refit,
+the DG split `fields.e_real` / `fields.e_imag` for the profile. The two rows
+above are re-recorded from `20261021T110150Z_POST-8-step3b-ii-e3b-th4-n2.log`
+(1.887e-16, 1.591%); the bands (`CG1_VS_NEDELEC_MAX`, `PROFILE_RMS_MAX`) did not
+move. The same 1.591% and a cross-check of 0.000e+00 at `-n 4`
+(`20261021T110229Z_POST-8-step3b-ii-e3b-th4-n4.log`), 1.887e-16 at `-n 1`
+(`20261021T110303Z_POST-8-step3b-ii-e3b-th4-n1.log`). The CG1 export figures are
+kept as **labelled records, printed and not asserted** (partition-dependent):
+
+| CG1 export route | Refit γ vs DG fit | Profile RMS | Source |
+| --- | --- | --- | --- |
+| `-n 2`, 2026-10-21 | 0.027% | 0.124% | `20261021T110150Z_POST-8-step3b-ii-e3b-th4-n2.log` |
+| `-n 4`, 2026-10-21 (negative control) | 0.490% | **2.249%** | `20261021T110229Z_POST-8-step3b-ii-e3b-th4-n4.log` |
+| `-n 1`, 2026-10-21 | 0.020% | 0.124% | `20261021T110303Z_POST-8-step3b-ii-e3b-th4-n1.log` |
+| `-n 2`, 2026-10-19 | 0.027% | 0.124% | `20261019T170233Z_POST-8-step3b-ii-e1b-th4-n2.log` |
+| `-n 2`, 2026-08-10 | 0.117% | 0.200% | `20260810T020325Z_EX-7-run1.log.gz:53` |
+
+The gate is `TH-7` (✅ 2026-07-31) and the 5% ceiling is the gate's own (§10 MVP
+criterion) — never tightened, never loosened. **Scope note the §9 item made
+explicit:** `TH-7` gates the **evanescent TE₁₀ decay below cutoff**, and no line
+impedance or S-parameter claim is made or implied here. `PORT-1` owns that, and
+per PROJECT_PLAN §2 the package's S-parameters are still a heuristic. This
+example closes nothing; Phase-2 §5.4 backfill.
+
+## 2. How to run it
+
+```
+./run_examples.sh -e th:4 -n 2 -t 180
+```
+
+**Complex build required** — the `th:` group sources it automatically, and a
+real build raises. Tier: **standard**; 7 s harness-wall / 5.1 s in-example on
+record for the single 41 472-cell solve.
+
+## Setup figure
+
+![th:4 setup — evanescent TE10 waveguide below cutoff (TH-7 gate fixture)](figures/time_harmonic_04_evanescent_waveguide_setup.png)
+
+`examples/time_harmonic/figures/time_harmonic_04_evanescent_waveguide_setup.png`.
+*Left:* the fixture (`_solve` → `dmesh.create_box`) — a plain PEC-walled box
+with **no cell tags at all**: one lossless homogeneous medium (`εᵣ = μᵣ = 1`,
+`σ = 0`) fills the whole guide, so there is nothing to hide and nothing to draw
+translucent here (no second conductor, no phantom, no port). *Right:* the
+slice at `y = B_M/2`, the mesh centre — the plane through the guide's own
+long axis, which carries both quantities the physics is read off: `z` is the
+propagation/decay axis the fitted `γ` is measured along (`e^{−γz}`), and `x` is
+the transverse direction the `sin(πx/a)` TE₁₀ half-arch spans, pinned to zero
+at the two PEC side walls. There is no second geometry to picture as a
+control — the negative control (step 4 below) is the cited `TH-7` frequency
+sweep on this same fixture, not re-run here, so nothing else is pictured.
+
+## 3. How to analyze it, step by step
+
+**Step 1 — γ against `√(k_c² − k₀²)`.** This is the anchor:
+
+```
+  gamma : 37.650399 Np/m   (closed form 37.652670)   0.006%, ceiling 5%
+```
+
+Four-digit agreement. Note how much margin there is: the bound is 5% and the
+measurement is 0.006%, nearly three orders inside it. That is not slack to be
+spent — it is the reason a *drift* of even 1% here would be a real finding long
+before the assertion fired.
+
+**Step 2 — the two shape claims.** The anchor is a slope through one line of
+probes; these two say the rest of the field is right as well:
+
+```
+  whole-domain rel L2      : 4.406648e-02   (bound 5%)
+  |Im E_y| / |Re E_y|      : 0.000e+00      (bound 1e-10)
+```
+
+The imaginary-part check is the sharp one. Lossless material and real boundary
+data give a real operator and a real right-hand side, so the phasor must be real
+to round-off. An exactly-zero imaginary part is what a correctly assembled real
+problem produces in a complex build; anything else means a complex quantity
+entered where none belongs.
+
+**Step 3 — γ sits strictly below `k_c`, which is the in-run half of the negative
+control.** `k_c = 62.83` and the measured γ is **1.67× below** it. A `k₀`-blind
+solver — one that dropped the `k₀²ε` mass term — returns `γ ≡ k_c` exactly, at
+any mesh and any frequency. This assertion is therefore not a sanity check but
+the discriminator: it cannot be satisfied by a solver with that defect no matter
+how fine the mesh.
+
+**Step 4 — the cited half of the negative control.** The gate swept three
+below-cutoff frequencies on one mesh and measured a **γ ratio of 2.6373** across
+the band against the closed form's 2.6383 (**0.038%**), asserted `> 2.0`. The
+`k₀`-blind solver of step 3 gives a ratio of exactly **1** — its γ does not
+respond to frequency at all. This example prints the separation and does not
+re-run the sweep.
+
+**Step 5 — the source field's cross-check, and the mode profile is a number.**
+Two checks, now on the source fields sampled under the owner rule (the CG1
+export is printed beside them, not asserted), and **both bounds were set from
+measurement rather than inherited** (`TH-7` gates neither):
+
+```
+  gamma refitted from the raw N1curl field : 37.650399 Np/m  (1.887e-16 from the DG-split fit, bound 0.5%)
+  profile RMS vs sin(pi x/a), DG split     : 1.591%          (bound 2%)
+```
+
+The first says the N1curl field and its own DG1 split carry the same mode (an
+identity at round-off for a degree-1 field, so a record-grade check). The
+second says the TE₁₀ half-arch is genuinely in the field: 25 points across the
+guide at mid-length, peak-normalised, 1.591% RMS from the closed-form profile
+at `-n 1`, `-n 2` and `-n 4` alike. The CG1 export's own 0.124% (`-n 2`) /
+2.249% (`-n 4`) is the labelled record above.
+
+The exported `|E|` spans **5.147567e-17 … 1.000725e+00** V/m, so the PEC
+side-wall zero is visible in the array, not merely in the formulation.
+
+**Step 6 — open it in ParaView.**
+`File → Open → examples/time_harmonic/paraview_output/time_harmonic_04_evanescent_waveguide_combined.xdmf`,
+then colour by `E_magnitude`.
+
+1. **What to look at first:** the bright end is the drive face at `z = 0`, and
+   the field fades along `+z`. That fade *is* `e^{−γz}` — 6.6× over the guide.
+2. **Plot Over Line** along `z`, log scale on the y-axis: the straight line
+   whose slope step 1 fitted. Curvature in that line means the fit window is
+   picking up the pinned end faces rather than the interior.
+3. **Plot Over Line** along `x` at fixed `z`: the `sin(πx/a)` half-arch, pinned
+   to zero on both PEC side walls. This is step 5's profile as a picture.
+
+**Step 7 — what a deviation means.** γ near 62.8 rather than 37.65 → the `k₀²ε`
+mass term is missing; that is step 3's failure and it is the single most likely
+defect this example exists to find. γ right but the whole-domain L2 above 5% →
+the transverse profile, not the axial decay; look at step 6's second plot.
+Nonzero `|Im E_y|/|Re E_y|` → a complex quantity in a lossless real problem.
+The CG1 refit drifting past 0.5% from the N1curl fit → the export path, not the
+solve; the anchor is still good but the picture no longer represents it. Any of
+these is a regression finding against `TH-7`: report and stop, do not raise a
+bound.
+
+**Owner-cell sampling (`POST-8` steps 3b-ii-e1 / e3b).** The decay probes, the
+N1curl cross-check and the profile all sample the source fields through
+`evaluate_vector_field_parallel` with `owner="lowest_original_cell"`. Under the
+spied run 9 calls are made (decay 2, N1curl cross-check 1, DG profile 2, CG1
+refit 2, CG1 profile 2) and 200 of 305 probes are single-incidence; the 25
+profile points of each profile call lie on the z = L/2 lattice plane and are
+multi-incidence (`E_y` is tangential there, so both incident cells agree). The
+ruled form is asserted at all three widths: (S-sb) = 0 at single-incidence
+owner-batch rows; the cross-batch (S) is printed (0 mismatches at `-n 1` / `-n 2`,
+4 at `-n 4`, max 1024 ULP, all pattern A2). `cells_ghost` per rank is printed:
+`[0]` at `-n 1`, `[578, 576]` at `-n 2`, `[559, 652, 520, 670]` at `-n 4`. (O):
+call count, line numbers, `n_inc` and owner indices exactly equal the `-n 2`
+npz at `-n 4` and `-n 1`; the printed field spread (1.691e-01 / 5.083e-02) is
+taken over all nine calls including the partition-dependent CG1 calls. Logs:
+`20261021T110150Z_POST-8-step3b-ii-e3b-th4-n2.log`,
+`20261021T110229Z_POST-8-step3b-ii-e3b-th4-n4.log`,
+`20261021T110303Z_POST-8-step3b-ii-e3b-th4-n1.log`.
+
+## Related
+
+- The gate this example runs: `tests/validation/test_waveguide_cutoff.py`
+  (`TH-7`), and PROJECT_PLAN.md §7 for its record.
+- The same exponential decay caused by **absorption** instead of geometry — the
+  contrast this example is built to draw:
+  `examples/time_harmonic/01_lossy_plane_wave.py` (`th:1`).
+- The eigenfrequencies of a closed PEC box, the same `k_c` physics with no
+  drive: `examples/time_harmonic/02_pec_cavity_resonances.py` (`th:2`).

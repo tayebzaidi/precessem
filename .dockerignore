@@ -1,0 +1,18 @@
+# Build context for docker/Dockerfile (context: repo root).
+# Every service bind-mounts the repo over /workspace, so `COPY . /workspace/`
+# only has to feed `pip install -e .` (pyproject.toml + src/). Without this file
+# the context was ≈ 5 GB and the 2026-11-14 CadQuery rebuild spent minutes
+# exporting it. Excluding the private trees also keeps AED results out of the
+# image layers.
+.git
+.worktrees
+logs
+examples
+docs/references
+docs/private
+**/__pycache__
+**/.pytest_cache
+*.bp
+*.h5
+*.xdmf
+*.msh

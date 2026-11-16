@@ -1,0 +1,553 @@
+"""Example: MRI-like two-coil + gelled saline phantom field workflow.
+
+**This is the one ungated example in the tree.** It is an end-to-end plumbing
+demonstration (`WF-1`): it shows that mesh, materials, both solvers and the
+export path connect, and nothing more. No number it prints is compared against
+a closed form or any other reference, so none of them is evidence about the
+physics — read PROJECT_PLAN.md §2 before quoting one. Every other example under
+`examples/` asserts an anchor from a gate that has closed; this one asserts
+nothing.
+
+This example demonstrates an end-to-end coarse workflow:
+1. Build coil + phantom + air mesh
+2. Apply phantom material properties
+3. Solve magnetostatic B and frequency-domain E fields
+4. Print phantom-region field metrics
+5. Export ParaView-ready outputs
+
+Since `TH-1` steps 1–3 the frequency-domain part is a real complex curl-curl
+solve, so this script needs the complex DolfinX build::
+
+    source /usr/local/bin/dolfinx-complex-mode
+
+In the real build ``TimeHarmonicSolver.solve`` raises rather than silently
+dropping the loss term.
+
+`TH-6` (the lossy plane wave, closed 2026-07-31) gates the time-harmonic
+formulation itself, and `EX-4` demonstrates it as a runnable example. That
+gate says nothing about *this* geometry: the drive here is a coarse proxy on
+an unconverged mesh, and nothing the script prints relates |E| to |B| — the
+|E|/|B| ratio carries m/s, a coil + phantom field has no single reference
+speed, so no mean-balance figure is reported (``n/a``). Treat the metrics
+below as a smoke test of the pipeline, not as fields.
+
+Since `EX-16` (2026-08-10) the frequency-domain leg solves through the
+solver's default direct path and reports ``converged=True (reason=4)``; it
+previously overrode that with GMRES+Jacobi and stopped at ``ksp_max_it``
+with ``converged=False (reason=-3)``. That fix did **not** make the printed
+centerline samples rank-stable: at `-n 2` vs `-n 4` they still spread
+**23.5539%** (vs 23.5545% unconverged), while the 493-point phantom-region
+aggregates over the same fields agreed to 0.007326%.
+
+`POST-4` (steps 1 and 3, 2026-08-11) closed that. The point-evaluation path
+was **refuted** as the cause — 0/120 multi-rank/multi-cell claims, no mask
+holes — and the locus measured one step upstream: the script was sampling the
+``("Lagrange", 1, (3,))`` interpolants it builds for the XDMF export, and a
+vertex dof of a field that is not continuous there is written by whichever
+adjacent cell writes last locally (interpolant path 97.9755% vs source path
+0.008426%, a 1.163e+04x separation). The centerline table now samples the
+fields **as solved**; measured spread across `-n 1/2/4` is **0.008613%**
+(2735x collapse from 23.5539%), the residue the magnetostatic |B| leg's own
+solve noise, and the printed values now equal the source fields (1.368268e+02
+at z = -0.045 m, where the interpolant printed 7.670127e+03 — 56x off).
+Rank-invariance is not a physics claim: no number here is gated.
+
+The exported XDMF/VTX fields are still P1 interpolants and still carry that
+vertex-convention artifact — bounding it is `POST-4` step 4.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+from datetime import datetime, timezone
+from pathlib import Path
+import subprocess
+import numpy as np
+import ufl
+from mpi4py import MPI
+from dolfinx import fem
+
+from fem_em_solver.core import (
+    HomogeneousMaterial,
+    MagnetostaticProblem,
+    MagnetostaticSolver,
+    TimeHarmonicProblem,
+    TimeHarmonicSolver,
+)
+from fem_em_solver.io.mesh import MeshGenerator
+from fem_em_solver.io.paraview_utils import write_combined_paraview_output
+from fem_em_solver.materials import GelledSalinePhantomMaterial
+from fem_em_solver.post import (
+    build_phantom_quicklook_report,
+    compute_phantom_eb_metrics_and_export,
+    evaluate_vector_field_parallel,
+    format_phantom_quicklook_report,
+    write_phantom_quicklook_report,
+)
+from fem_em_solver.post.setup_figure import write_setup_figure
+from fem_em_solver.utils.constants import MU_0
+
+FIGURE_DIR = Path(__file__).resolve().parent / "figures"
+
+
+def _print_tag_summary(cell_tags, comm: MPI.Intracomm) -> None:
+    """Print deterministic global cell counts for core domain tags."""
+    if cell_tags is None:
+        if comm.rank == 0:
+            print("[mesh] WARNING: no cell tags found")
+        return
+
+    tag_names = {1: "coil_1", 2: "coil_2", 3: "phantom", 4: "air"}
+    if comm.rank == 0:
+        print("[mesh] cell-tag summary:")
+
+    for tag, name in tag_names.items():
+        local_count = int(np.count_nonzero(cell_tags.values == tag))
+        global_count = comm.allreduce(local_count, op=MPI.SUM)
+        if comm.rank == 0:
+            print(f"  tag {tag} ({name}): {global_count} cells")
+
+
+RESOLUTION_PRESETS = {
+    "coarse": 0.02,
+    "medium": 0.015,
+    "fine": 0.01,
+}
+
+SCENARIO_PRESETS = {
+    "benchmark-lite": {
+        "resolution_preset": "fine",
+        "centerline_sample_count": 17,
+        "frequency_probe_scale_factors": [0.995, 1.0, 1.005],
+    },
+    "debug": {
+        "resolution_preset": "coarse",
+        "centerline_sample_count": 5,
+        "frequency_probe_scale_factors": [1.0],
+    },
+    "dev": {
+        "resolution_preset": "medium",
+        "centerline_sample_count": 9,
+        "frequency_probe_scale_factors": [0.999, 1.0, 1.001],
+    },
+}
+
+
+def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Run MRI-like coil+phantom field workflow and export diagnostics.",
+    )
+    parser.add_argument(
+        "--frequency-hz",
+        type=float,
+        default=127.74e6,
+        help="Drive frequency in Hz (default: 127.74e6).",
+    )
+    parser.add_argument(
+        "--preset",
+        choices=sorted(SCENARIO_PRESETS),
+        default="debug",
+        help="Scenario preset controlling mesh/detail/sweep diagnostics.",
+    )
+    parser.add_argument(
+        "--resolution-preset",
+        choices=sorted(RESOLUTION_PRESETS),
+        default=None,
+        help="Optional mesh resolution override for the selected scenario preset.",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("paraview_output"),
+        help="Directory for ParaView and phantom metric exports.",
+    )
+    return parser.parse_args(argv)
+
+
+def _resolve_git_commit_hash() -> str:
+    """Return current git commit hash, or 'unknown' when unavailable."""
+    try:
+        return (
+            subprocess.check_output(["git", "rev-parse", "HEAD"], text=True)
+            .strip()
+        )
+    except Exception:
+        return "unknown"
+
+
+def _resolve_scenario(args: argparse.Namespace) -> dict[str, object]:
+    """Build effective scenario config from preset + optional CLI overrides."""
+    preset_config = dict(SCENARIO_PRESETS[args.preset])
+
+    effective_resolution_preset = (
+        args.resolution_preset
+        if args.resolution_preset is not None
+        else str(preset_config["resolution_preset"])
+    )
+
+    if effective_resolution_preset not in RESOLUTION_PRESETS:
+        raise ValueError(
+            f"Unsupported resolution preset: {effective_resolution_preset!r}. "
+            f"Expected one of {sorted(RESOLUTION_PRESETS)}"
+        )
+
+    frequency_probe_scale_factors = [
+        float(scale) for scale in preset_config["frequency_probe_scale_factors"]
+    ]
+    frequency_probe_scale_factors = sorted(frequency_probe_scale_factors)
+
+    return {
+        "name": args.preset,
+        "resolution_preset": effective_resolution_preset,
+        "resolution_m": float(RESOLUTION_PRESETS[effective_resolution_preset]),
+        "centerline_sample_count": int(preset_config["centerline_sample_count"]),
+        "frequency_probe_scale_factors": frequency_probe_scale_factors,
+    }
+
+
+def _write_output_manifest(
+    *,
+    output_dir: Path,
+    args: argparse.Namespace,
+    scenario: dict[str, object],
+    current_a: float,
+    mesh_params: dict[str, float],
+    written_files: dict[str, str],
+    metrics: dict,
+    quicklook_artifacts: dict[str, str | None] | None = None,
+) -> Path:
+    """Write a reproducible run manifest capturing config + produced artifacts."""
+    artifact_paths = [Path(path) for path in written_files.values()]
+    phantom_metrics_json = output_dir / "mri_01_coil_phantom_phantom_metrics.json"
+    phantom_e_csv = output_dir / "mri_01_coil_phantom_phantom_E_samples.csv"
+    phantom_b_csv = output_dir / "mri_01_coil_phantom_phantom_B_samples.csv"
+    artifact_paths.extend([phantom_metrics_json, phantom_e_csv, phantom_b_csv])
+
+    if quicklook_artifacts is not None:
+        for maybe_path in quicklook_artifacts.values():
+            if maybe_path is not None:
+                artifact_paths.append(Path(maybe_path))
+
+    manifest_payload = {
+        "generated_utc": datetime.now(timezone.utc).isoformat(),
+        "git_commit": _resolve_git_commit_hash(),
+        "parameters": {
+            "frequency_hz": float(args.frequency_hz),
+            "scenario_preset": str(scenario["name"]),
+            "resolution_preset": str(scenario["resolution_preset"]),
+            "resolution_m": float(scenario["resolution_m"]),
+            "frequency_probe_hz": [
+                float(args.frequency_hz) * float(scale)
+                for scale in scenario["frequency_probe_scale_factors"]
+            ],
+            "output_dir": str(output_dir),
+            "current_per_coil_a": float(current_a),
+            "mesh": mesh_params,
+        },
+        "artifacts": [
+            {
+                "name": path.name,
+                "path": str(path),
+                "exists": path.exists(),
+            }
+            for path in sorted(artifact_paths, key=lambda p: p.name)
+        ],
+        "key_metrics": {
+            "phantom_metrics_json": str(phantom_metrics_json),
+            "e_magnitude_mean": float(metrics["E_magnitude"]["mean"]),
+            "b_magnitude_mean": float(metrics["B_magnitude"]["mean"]),
+            "e_to_b_mean_ratio": float(metrics["consistency"]["e_to_b_mean_ratio"]),
+            "consistency_warning_count": int(len(metrics["consistency"]["warnings"])),
+        },
+    }
+
+    manifest_path = output_dir / "mri_01_coil_phantom_manifest.json"
+    manifest_path.write_text(json.dumps(manifest_payload, indent=2, sort_keys=True) + "\n")
+    return manifest_path
+
+
+def main(argv: list[str] | None = None):
+    """Run MRI coil + phantom field workflow."""
+    comm = MPI.COMM_WORLD
+    args = _parse_args(argv)
+
+    print("=" * 72)
+    print("Example: MRI coil + gelled saline phantom fields")
+    print("=" * 72)
+
+    # Coarse VPS-safe geometry/mesh settings.
+    current_a = 1.0
+    frequency_hz = args.frequency_hz
+    scenario = _resolve_scenario(args)
+    resolution = float(scenario["resolution_m"])
+
+    if frequency_hz <= 0.0:
+        raise ValueError(f"--frequency-hz must be positive; received {frequency_hz}")
+
+    probe_frequencies = [
+        frequency_hz * float(scale)
+        for scale in scenario["frequency_probe_scale_factors"]
+    ]
+
+    print("\nParameters:")
+    print(f"  Current per driven coil region: {current_a:.3f} A")
+    print(f"  Frequency: {frequency_hz:.6e} Hz")
+    print(f"  Scenario preset: {scenario['name']}")
+    print(f"  Mesh resolution preset: {scenario['resolution_preset']}")
+    print(f"  Mesh resolution: {resolution:.4f} m")
+    print(f"  Centerline sample count: {scenario['centerline_sample_count']}")
+    print("  Frequency-domain solver: solver default (direct, preonly+LU/MUMPS)")
+    print(
+        "  Frequency probe points (Hz): "
+        + ", ".join(f"{freq:.6e}" for freq in probe_frequencies)
+    )
+    print(f"  Output directory: {args.output_dir}")
+
+    mesh_params = {
+        "coil_major_radius": 0.08,
+        "coil_minor_radius": 0.01,
+        "coil_separation": 0.08,
+        "phantom_radius": 0.04,
+        "phantom_height": 0.10,
+        "air_padding": 0.04,
+        "resolution": resolution,
+    }
+
+    print("\nGenerating coil + phantom mesh...")
+    mesh, cell_tags, facet_tags = MeshGenerator.coil_phantom_domain(
+        **mesh_params,
+        comm=comm,
+    )
+
+    num_cells = mesh.topology.index_map(mesh.topology.dim).size_global
+    num_vertices = mesh.topology.index_map(0).size_global
+    if comm.rank == 0:
+        print(f"  Mesh created: {num_cells} cells, {num_vertices} vertices")
+    _print_tag_summary(cell_tags, comm)
+
+    # EX-57 setup figure: both coils (tags 1/2) named so the copper colour
+    # applies (the §7 trap for wire-source magnetostatics examples), the
+    # phantom (tag 3) translucent so the coils remain visible through it, air
+    # (tag 4) hidden. Sliced through x = 0 -- a plane containing the coils'/
+    # phantom's shared z axis -- so the panel shows the Helmholtz-like stacking
+    # along the centerline the diagnostics (§3 step 5) sample. No-op unless
+    # FEM_EM_SETUP_FIGURES=1.
+    write_setup_figure(
+        mesh,
+        cell_tags,
+        FIGURE_DIR / "mri_01_coil_phantom_fields_setup.png",
+        region_names={1: "coil_1 (conductor)", 2: "coil_2 (conductor)", 3: "phantom", 4: "air"},
+        hide_tags=(4,),
+        translucent_tags=(3,),
+        slice_normal=(1.0, 0.0, 0.0),
+        slice_origin=(0.0, 0.0, 0.0),
+        title="mri:1 -- coil + gelled saline phantom (ungated end-to-end demo)",
+        comm=comm,
+    )
+
+    # Shared current source for both coil tags.
+    coil_cross_section = np.pi * (0.01 ** 2)
+    j_magnitude = current_a / coil_cross_section
+
+    def current_density(_x):
+        return ufl.as_vector([0.0, 0.0, j_magnitude])
+
+    # Magnetostatics for B field.
+    print("\nSolving magnetostatic field (A, B)...")
+    mag_problem = MagnetostaticProblem(mesh=mesh, cell_tags=cell_tags, facet_tags=facet_tags, mu=MU_0)
+    mag_solver = MagnetostaticSolver(mag_problem, degree=1)
+    # `EX-16` (the `EX-13` decision-(a) rider): gauge penalty 1e-3 -> 1.0.
+    a_field = mag_solver.solve(current_density=current_density, subdomain_ids=[1, 2], gauge_penalty=1.0)
+    b_field = mag_solver.compute_b_field()
+    if comm.rank == 0:
+        print("  Magnetostatic solve complete")
+
+    # Frequency-domain proxy E field with phantom material override.
+    print("\nSolving frequency-domain proxy E field...")
+    background = HomogeneousMaterial(sigma=0.0, epsilon_r=1.0, mu_r=1.0)
+    phantom = GelledSalinePhantomMaterial(
+        sigma=0.72,
+        epsilon_r=76.5,
+        frequency_hz=frequency_hz,
+        mu_r=1.0,
+    )
+
+    th_problem = TimeHarmonicProblem(
+        mesh=mesh,
+        frequency_hz=frequency_hz,
+        material=background,
+        cell_tags=cell_tags,
+        facet_tags=facet_tags,
+        phantom_material=phantom,
+        phantom_tag=3,
+        # `EX-16`: no `solver_petsc_options` override — the solver's default
+        # direct path (`ksp_type=preonly` + LU/MUMPS, the path every
+        # `TH-6`/`TH-7`/`TH-8` gate solves through) handles this fixture.  The
+        # GMRES+Jacobi override this replaces stopped at `ksp_max_it` with
+        # `converged=False (reason=-3)`, and `EX-13` measured that truncated
+        # iterate as 23.55% partition-dependent on the centerline.
+        collect_solver_diagnostics=True,
+    )
+    th_solver = TimeHarmonicSolver(th_problem, degree=1)
+    th_fields = th_solver.solve(current_density=current_density, subdomain_ids=[1, 2], gauge_penalty=1e-3)
+    e_field = th_fields.e_imag
+    if comm.rank == 0:
+        print("  Time-harmonic solve complete (using E_imag as reported E field)")
+        if th_fields.solve_diagnostics is not None:
+            d = th_fields.solve_diagnostics
+            print("  solve health diagnostics:")
+            print(
+                "    "
+                f"ksp={d.ksp_type}, pc={d.pc_type}, converged={d.converged} "
+                f"(reason={d.converged_reason}), iterations={d.iterations}"
+            )
+            print(
+                "    "
+                f"residual_norm={d.residual_norm:.6e}, residual_trend={d.residual_trend}, "
+                f"history_samples={len(d.residual_history)}"
+            )
+
+    # Phantom metrics + phantom-only CSV/JSON exports.
+    output_dir = args.output_dir
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    metrics = compute_phantom_eb_metrics_and_export(
+        e_field,
+        b_field,
+        cell_tags,
+        phantom_tag=3,
+        output_dir=output_dir,
+        basename="mri_01_coil_phantom",
+        comm=comm,
+    )
+
+    quicklook = build_phantom_quicklook_report(metrics)
+    quicklook_artifacts = {"json": None, "markdown": None}
+    if comm.rank == 0:
+        quicklook_artifacts = write_phantom_quicklook_report(
+            quicklook,
+            output_dir=output_dir,
+            basename="mri_01_coil_phantom",
+            write_markdown=True,
+            write_json=True,
+        )
+
+    # Interpolate to Lagrange for XDMF compatibility, then export combined outputs.
+    v_lagrange = fem.functionspace(mesh, ("Lagrange", 1, (3,)))
+
+    a_lagrange = fem.Function(v_lagrange, name="A")
+    a_lagrange.interpolate(a_field)
+
+    b_lagrange = fem.Function(v_lagrange, name="B")
+    b_lagrange.interpolate(b_field)
+
+    e_lagrange = fem.Function(v_lagrange, name="E")
+    e_lagrange.interpolate(e_field)
+
+    written_files = write_combined_paraview_output(
+        output_dir=output_dir,
+        basename="mri_01_coil_phantom_fields",
+        mesh=mesh,
+        cell_tags=cell_tags,
+        fields={
+            "A": (a_field, a_lagrange),
+            "B": (b_field, b_lagrange),
+            "E": (e_field, e_lagrange),
+        },
+        comm=comm,
+    )
+
+    manifest_path = None
+    if comm.rank == 0:
+        manifest_path = _write_output_manifest(
+            output_dir=output_dir,
+            args=args,
+            scenario=scenario,
+            current_a=current_a,
+            mesh_params=mesh_params,
+            written_files=written_files,
+            metrics=metrics,
+            quicklook_artifacts=quicklook_artifacts,
+        )
+
+    # Centerline diagnostics through phantom.
+    z_line = np.linspace(-0.045, 0.045, int(scenario["centerline_sample_count"]))
+    sample_points = np.zeros((len(z_line), 3), dtype=np.float64)
+    sample_points[:, 2] = z_line
+    # `POST-4` step 3: sample the **source** fields, not the Lagrange-P1
+    # interpolants built above for the XDMF export.  Step 1 measured, on this
+    # fixture and these same solves, that the solve is rank-invariant (source
+    # path 0.008426% across `-n 1/2/4`) while the P1 interpolants spread
+    # 97.9755% — a 1.163e+04x separation — because a vertex dof of a field that
+    # is not continuous there is written by whichever adjacent cell writes last
+    # locally.  The interpolants stay where they are load-bearing (the export
+    # path); the printed diagnostics read the fields as solved.
+    e_samples, e_valid = evaluate_vector_field_parallel(e_field, sample_points, comm=comm, owner="lowest_original_cell")
+    b_samples, b_valid = evaluate_vector_field_parallel(b_field, sample_points, comm=comm, owner="lowest_original_cell")
+
+    if comm.rank == 0:
+        print("\n" + format_phantom_quicklook_report(quicklook))
+        print("\nPhantom diagnostics:")
+        print(
+            "  |E| min/max/mean: "
+            f"{metrics['E_magnitude']['min']:.6e} / "
+            f"{metrics['E_magnitude']['max']:.6e} / "
+            f"{metrics['E_magnitude']['mean']:.6e}"
+        )
+        print(
+            "  |B| min/max/mean: "
+            f"{metrics['B_magnitude']['min']:.6e} / "
+            f"{metrics['B_magnitude']['max']:.6e} / "
+            f"{metrics['B_magnitude']['mean']:.6e}"
+        )
+        print(
+            f"  centerline samples valid (E/B): "
+            f"{np.count_nonzero(e_valid)}/{len(e_valid)} / {np.count_nonzero(b_valid)}/{len(b_valid)}"
+        )
+        consistency = metrics["consistency"]
+        print("  consistency diagnostics:")
+        print(
+            f"    |E|/|B| mean ratio: {consistency['e_to_b_mean_ratio']:.6e} "
+            f"(max ratio: {consistency['e_to_b_max_ratio']:.6e})"
+        )
+        print(
+            f"    span ratios (E/B): {consistency['e_span_ratio']:.6f} / {consistency['b_span_ratio']:.6f}"
+        )
+        balance = consistency["mean_balance_rel_diff"]
+        print(
+            "    mean-balance relative diff: "
+            + ("n/a" if balance is None else f"{balance:.6f}")
+        )
+        if consistency["warnings"]:
+            print("    warnings:")
+            for warning in consistency["warnings"]:
+                print(f"      - {warning}")
+        else:
+            print("    warnings: none")
+        print("\nCenterline sample magnitudes (z, |E|, |B|):")
+        for i, z in enumerate(z_line):
+            e_mag = np.linalg.norm(e_samples[i])
+            b_mag = np.linalg.norm(b_samples[i])
+            print(f"  z={z:+.4f} m -> |E|={e_mag:.6e}, |B|={b_mag:.6e}")
+
+        print("\nParaView output:")
+        for name, path in written_files.items():
+            print(f"  {name}: {Path(path).name}")
+        print("  phantom metrics json: mri_01_coil_phantom_phantom_metrics.json")
+        print("  phantom E csv: mri_01_coil_phantom_phantom_E_samples.csv")
+        print("  phantom B csv: mri_01_coil_phantom_phantom_B_samples.csv")
+        if quicklook_artifacts["json"] is not None:
+            print(f"  quick-look json: {Path(quicklook_artifacts['json']).name}")
+        if quicklook_artifacts["markdown"] is not None:
+            print(f"  quick-look markdown: {Path(quicklook_artifacts['markdown']).name}")
+        if manifest_path is not None:
+            print(f"  manifest json: {manifest_path.name}")
+
+    print("\n" + "=" * 72)
+    print("Example completed")
+    print("=" * 72)
+
+
+if __name__ == "__main__":
+    main()

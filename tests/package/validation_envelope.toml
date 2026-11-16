@@ -1,0 +1,740 @@
+# WF-14: public name -> gate test nodes. Node IDs only — no band, record or
+# tolerance is restated here (§7 WF-14 Done-when). Surface = fem_em_solver.__all__.
+#
+# Node IDs are relative to /workspace (pytest rootdir), function-level. A node
+# named without a "[...]" suffix matches any collected parametrisation of it.
+# Only collectability is asserted (tests/package/test_wf14_validation_envelope.py),
+# not that a node is green today.
+#
+# Not in v0's surface: the sub-package __all__ lists (core, io, materials,
+# ports, post, thermal; coils and utils declare none). Widening the surface
+# to their qualified union is a review decision, not this registry's.
+
+[names.LinearSolveDiagnostics]
+# reached via TimeHarmonicSolver.last_solve_diagnostics, never named in a test
+nodes = [
+    "tests/solver/test_convergence_diagnostics.py::test_solve_health_diagnostic_reports_the_residual_it_claims",
+    "tests/solver/test_convergence_diagnostics.py::test_time_harmonic_solver_emits_optional_solve_health_diagnostics",
+]
+
+[names.MagnetostaticProblem]
+nodes = ["tests/validation/test_helmholtz_magnitude.py::test_helmholtz_centre_field_magnitude"]
+
+[names.MagnetostaticSolver]
+nodes = ["tests/validation/test_helmholtz_magnitude.py::test_helmholtz_centre_field_magnitude"]
+
+[names.classify_residual_trend]
+nodes = [
+    "tests/solver/test_convergence_diagnostics.py::test_classify_residual_trend_is_an_exact_function_of_the_decrease_fraction",
+    "tests/solver/test_convergence_diagnostics.py::test_classify_residual_trend_negative_controls",
+]
+
+[names.HomogeneousMaterial]
+nodes = ["tests/validation/test_lossy_plane_wave.py::test_lossy_plane_wave_matches_closed_form"]
+
+[names.TimeHarmonicBoundaryCondition]
+nodes = [
+    "tests/solver/test_boundary_condition_selection.py::test_th3_boundary_mode_solves_to_its_manufactured_field",
+    "tests/solver/test_boundary_condition_selection.py::test_normalize_boundary_condition_accepts_enum_and_string_values",
+]
+
+[names.TimeHarmonicFields]
+# the return type of TimeHarmonicSolver.solve
+nodes = [
+    "tests/validation/test_lossy_plane_wave.py::test_lossy_plane_wave_matches_closed_form",
+    "tests/solver/test_single_port_excitation.py::test_unequal_terminations_keep_y_symmetric",
+]
+
+[names.TimeHarmonicProblem]
+nodes = ["tests/validation/test_lossy_plane_wave.py::test_lossy_plane_wave_matches_closed_form"]
+
+[names.TimeHarmonicSolver]
+nodes = ["tests/validation/test_lossy_plane_wave.py::test_lossy_plane_wave_matches_closed_form"]
+
+[names.build_material_fields]
+nodes = [
+    "tests/materials/test_phantom_material_model.py::test_gelled_saline_presets_match_lossy_sphere_closed_form",
+    "tests/materials/test_material_map_rank_safety.py::test_single_rank_owned_tag_is_accepted_on_every_rank",
+]
+
+[names.build_mu_r_field]
+nodes = [
+    "tests/materials/test_phantom_material_model.py::test_gelled_saline_presets_match_lossy_sphere_closed_form",
+    "tests/materials/test_material_map_rank_safety.py::test_single_rank_owned_tag_is_accepted_on_every_rank",
+]
+
+[names.normalize_boundary_condition]
+nodes = [
+    "tests/solver/test_boundary_condition_selection.py::test_th3_boundary_mode_solves_to_its_manufactured_field",
+    "tests/solver/test_boundary_condition_selection.py::test_normalize_boundary_condition_accepts_enum_and_string_values",
+    "tests/solver/test_boundary_condition_selection.py::test_normalize_boundary_condition_rejects_unknown_value",
+]
+
+[names.GelledSalinePhantomMaterial]
+nodes = ["tests/materials/test_phantom_material_model.py::test_gelled_saline_presets_match_lossy_sphere_closed_form"]
+
+[names.ColeColeMaterial]
+nodes = [
+    # MAT-3 step 1b (§9 item 648): two-pole Cole–Cole plane wave
+    "tests/validation/test_mat3_cole_cole_plane_wave.py::test_cole_cole_plane_wave_matches_k0_sqrt_eps_hat",
+    # WF-15 step 8 (§9 item 653, U92): (G-cc) through Study
+    "tests/package/test_wf15_study_cole_cole.py::test_wf15_s8_cole_cole_sphere_closed_form",
+]
+
+[names.FrequencySweepPlan]
+nodes = ["tests/ports/test_frequency_sweep_planner.py::test_port6_planner_equals_integer_lattice_bitwise"]
+
+[names.PortDefinition]
+nodes = [
+    "tests/validation/test_port_birdcage_four_port.py::test_the_four_port_network_is_reciprocal",
+    "tests/ports/test_port_definition.py::test_port_definition_rejects_invalid_values",
+]
+
+[names.PortVoltageCurrentEstimate]
+nodes = [
+    "tests/validation/test_port_lumped_sheet_sweep.py::test_the_lumped_sheet_sweep_is_reciprocal",
+    "tests/validation/test_port_lumped_sheet_sweep.py::test_the_cross_route_reading_holds_inside_the_sweep",
+]
+
+[names.SParameterSweepResult]
+nodes = [
+    "tests/io/test_touchstone_skrf_crosscheck.py::test_our_writer_read_by_skrf",
+    "tests/io/test_touchstone_export.py::test_touchstone_export_and_roundtrip_loader",
+]
+
+[names.SinglePortExcitationResult]
+nodes = [
+    "tests/ports/test_sparameter_assembly.py::test_n_port_sweep_assembles_the_known_s_matrix",
+    "tests/unit/test_port20_current_route_s.py::test_current_drive_route_s_is_the_closed_form",
+]
+
+[names.export_touchstone]
+nodes = [
+    "tests/io/test_touchstone_skrf_crosscheck.py::test_our_writer_read_by_skrf",
+    "tests/io/test_touchstone_export.py::test_touchstone_export_and_roundtrip_loader",
+]
+
+[names.load_touchstone]
+nodes = [
+    "tests/io/test_touchstone_skrf_crosscheck.py::test_skrf_writer_read_by_load_touchstone",
+    "tests/io/test_touchstone_export.py::test_touchstone_export_and_roundtrip_loader",
+]
+
+[names.plan_frequency_sweep]
+nodes = ["tests/ports/test_frequency_sweep_planner.py::test_port6_planner_equals_integer_lattice_bitwise"]
+
+[names.run_n_port_sparameter_sweep]
+nodes = [
+    "tests/validation/test_port_birdcage_four_port.py::test_the_four_port_network_is_reciprocal",
+    "tests/validation/test_port_birdcage_four_port.py::test_the_impedance_matrix_is_c4_circulant",
+    "tests/validation/test_port_package_sparameters.py::test_package_smatrix_is_symmetric_and_passive",
+]
+
+[names.run_placeholder_port_coupling_case]
+# its only reference
+nodes = ["tests/ports/test_sparameter_assembly.py::test_n_port_sweep_assembles_the_known_s_matrix"]
+
+[names.run_single_port_excitation_case]
+nodes = ["tests/solver/test_single_port_excitation.py::test_unequal_terminations_keep_y_symmetric"]
+
+[names.validate_required_port_tags_exist]
+nodes = [
+    "tests/ports/test_port_definition.py::test_validate_required_port_tags_exist_raises_for_missing_tags",
+    "tests/ports/test_port_definition.py::test_required_port_tags_collection_and_validation_success",
+]
+
+[names.QuasiStaticSphereField]
+nodes = [
+    "tests/package/test_wf15_study_lossy_sphere.py::test_wf15_imposed_field_is_mat4_wall_data_bitwise",
+    "tests/package/test_wf15_study_lossy_sphere.py::test_wf15_degree1_reproduces_mat4_record",
+]
+
+[names.SphereInBoxGeometry]
+nodes = [
+    "tests/package/test_wf15_study_lossy_sphere.py::test_wf15_degree1_reproduces_mat4_record",
+    "tests/package/test_wf15_study_lossy_sphere.py::test_wf15_default_degree2_study_leg",
+    "tests/package/test_wf15_study_lossy_sphere.py::test_wf15_default_degree2_direct_leg",
+]
+
+[names.Study]
+nodes = [
+    "tests/package/test_wf15_study_lossy_sphere.py::test_wf15_study_default_degree_is_two",
+    "tests/package/test_wf15_study_lossy_sphere.py::test_wf15_degree1_reproduces_mat4_record",
+    "tests/package/test_wf15_study_lossy_sphere.py::test_wf15_preset_leg_reproduces_mat1_record",
+    "tests/package/test_wf15_study_lossy_sphere.py::test_wf15_default_degree2_study_leg",
+    "tests/package/test_wf15_study_lossy_sphere.py::test_wf15_default_degree2_direct_leg",
+    "tests/package/test_wf16_study_four_port.py::test_wf16_s_equals_record",
+    "tests/package/test_wf1_study_yaml.py::test_wf1_cli_sphere_reproduces_wf15",
+    "tests/package/test_wf16_study_sweep.py::test_wf16_sweep_api_and_refusals",
+    "tests/package/test_wf16_study_sweep.py::test_wf16_sweep_s_equals_records",
+    "tests/package/test_wf16_study_sweep.py::test_wf16_sweep_touchstone_equals_records",
+    "tests/package/test_wf15_study_temperature.py::test_wf15_temperature_degree1_reproduces_mat10_record",
+    "tests/package/test_wf15_study_temperature.py::test_wf15_temperature_default_degree2_leg",
+    # WF-15 step 15 (§9 item 862)
+    "tests/package/test_wf15_study_sphere_transient.py::test_wf15_s15_sphere_transient_reproduces_mat12",
+    # WF-15 step 16 (§9 item 863)
+    "tests/package/test_wf15_study_sphere_transient.py::test_wf15_s16_sphere_transient_default_degree2",
+    "tests/package/test_wf15_study_probe.py::test_wf15_probe_identity_n2",
+    "tests/package/test_wf15_study_probe.py::test_wf15_probe_width_n1",
+    "tests/package/test_wf13_study_estimate.py::test_wf13_estimate_sphere_unknowns_exact_and_no_solve",
+    "tests/package/test_wf13_study_estimate.py::test_wf13_estimate_f_small_cells",
+    "tests/package/test_wf13_study_estimate.py::test_wf13_p4_cells_and_unknowns_read",
+    "tests/package/test_wf13_study_estimate.py::test_wf13_price_leave_one_out_bracket",
+    "tests/package/test_wf13_study_estimate.py::test_wf13_planted_price_fails_bracket",
+    "tests/package/test_wf13_study_estimate.py::test_wf13_n_blind_estimator_fails_bracket",
+    # WF-13 step 10 (§9 item 562)
+    "tests/package/test_wf13_estimate_f_human.py::test_wf13_s10_fh1_loo_and_controls",
+    "tests/package/test_wf13_estimate_f_human.py::test_wf13_s10_branch_reaches_build",
+    "tests/package/test_wf13_estimate_f_human.py::test_wf13_s10_f_human_files_priced",
+    # WF-13 step 11 (§9 item 585)
+    "tests/package/test_wf13_estimate_f_human_d2.py::test_wf13_s11_fh2_row_is_its_log",
+    "tests/package/test_wf13_estimate_f_human_d2.py::test_wf13_s11_fh2_loo_and_controls",
+    "tests/package/test_wf13_estimate_f_human_d2.py::test_wf13_s11_f_human_degree2_priced",
+    # WF-13 step 6 (§9 item 471a, chain U42)
+    "tests/package/test_wf4_price_rows.py::test_wf4_p3_measure",
+    "tests/package/test_wf4_price_rows.py::test_wf4_u3_unknowns_equal_row",
+    "tests/package/test_wf4_price_rows.py::test_wf4_pd_cli_prices_degree1",
+    "tests/package/test_wf4_price_rows.py::test_wf4_int_two_row_interpolation",
+    "tests/package/test_wf4_price_rows.py::test_wf4_d2_degree2_fit_unmoved",
+    "tests/package/test_wf4_price_rows.py::test_wf4_controls",
+    # WF-13 step 7 (§9 item 479, chain U55a)
+    "tests/package/test_wf13_price_t49.py::test_wf13_t49_measure",
+    "tests/package/test_wf13_price_t49.py::test_wf13_t49_u7_e_d2",
+    "tests/package/test_wf13_price_t49.py::test_wf13_t49_controls",
+    "tests/package/test_wf16_study_sar.py::test_wf16_sar_refusals_and_pins",
+    "tests/package/test_wf16_study_sar.py::test_wf16_sar_r_same_fixture",
+    "tests/package/test_wf16_study_sar.py::test_wf16_sar_i_whole_phantom_coverage",
+    "tests/package/test_wf16_study_sar.py::test_wf16_sar_ii_ten_gram_c4",
+    "tests/package/test_wf16_study_sar.py::test_wf16_sar_iii_api_equals_operator",
+    "tests/package/test_wf16_study_sar.py::test_wf16_sar_c1_mispaired_control",
+    "tests/package/test_wf16_study_b1.py::test_wf16_b1_refusal_and_tag",
+    "tests/package/test_wf16_study_b1.py::test_wf16_b1_b3_valid_point_floor",
+    "tests/package/test_wf16_study_b1.py::test_wf16_b1_b1_c4_covariance",
+    "tests/package/test_wf16_study_b1.py::test_wf16_b1_b2_api_equals_package",
+    "tests/package/test_wf16_study_b1.py::test_wf16_b1_control_mis_rotation",
+    "tests/package/test_wf15_study_transient.py::test_wf15_duty_cycle_reproduces_mat17",
+    "tests/package/test_wf15_study_transient.py::test_wf15_wall_reproduces_mat18_2b",
+    "tests/package/test_wf16_study_tune.py::test_wf16_tune_refusals",
+    "tests/package/test_wf16_study_tune.py::test_wf16_tune_r0_fixture_tie",
+    "tests/package/test_wf16_study_tune.py::test_wf16_tune_i_api_equals_modal_route",
+    "tests/package/test_wf16_study_tune.py::test_wf16_tune_a_c_mode_equals_th17_record",
+    "tests/package/test_wf16_study_tune.py::test_wf16_tune_c1_mode_index_control",
+    "tests/package/test_wf16_study_tune.py::test_wf16_tune_c2_wrong_fixture_control",
+    # WF-16 step 6(c) (§9 item 445)
+    "tests/package/test_wf16_study_tune_deg2.py::test_wf16_tune_p2_r0_fixture_tie",
+    "tests/package/test_wf16_study_tune_deg2.py::test_wf16_tune_p2_i_api_equals_modal_route",
+    "tests/package/test_wf16_study_tune_deg2.py::test_wf16_tune_p2_a_c_mode_equals_ans7_t21",
+    "tests/package/test_wf16_study_tune_deg2.py::test_wf16_tune_p2_c1_mode_index_control",
+    "tests/package/test_wf16_study_tune_deg2.py::test_wf16_tune_p2_cdeg_order_control",
+    # WF-16 step 6(d) (§9 item 452)
+    "tests/package/test_wf16_study_tune_deg2_copper.py::test_wf16_tune_p2cu_r0_fixture_tie",
+    "tests/package/test_wf16_study_tune_deg2_copper.py::test_wf16_tune_p2cu_i_api_equals_modal_route",
+    "tests/package/test_wf16_study_tune_deg2_copper.py::test_wf16_tune_p2cu_a_c_mode_equals_ans7_t21_cu",
+    "tests/package/test_wf16_study_tune_deg2_copper.py::test_wf16_tune_p2cu_c1_mode_index_control",
+    "tests/package/test_wf16_study_tune_deg2_copper.py::test_wf16_tune_p2cu_cpec_conductor_control",
+    # WF-16 step 12 (§9 item 472)
+    "tests/package/test_wf16_study_tune_f_human_copper.py::test_wf16_s12_k0_refusals_and_synthetic",
+    "tests/package/test_wf16_study_tune_f_human_copper.py::test_wf16_s12_r0_fixture_tie",
+    "tests/package/test_wf16_study_tune_f_human_copper.py::test_wf16_s12_i_api_equals_ring_mode_rows",
+    "tests/package/test_wf16_study_tune_f_human_copper.py::test_wf16_s12_a_c_mode_equals_wf12_h12c",
+    "tests/package/test_wf16_study_tune_f_human_copper.py::test_wf16_s12_c1_mode_index_control",
+    # WF-15 step 6 (§9 item 523)
+    "tests/package/test_wf15_study_probe_thermal.py::test_wf15_s6_helpers_refuse",
+    "tests/package/test_wf15_study_probe_thermal.py::test_wf15_s6_ball_probe_reproduces_mat19_gate",
+    "tests/package/test_wf15_study_probe_thermal.py::test_wf15_s6_box_probe_robin_series",
+    # U16 Palace backend (§10, weekly 2026-10-17; §9 items 517 / 517b / 533)
+    "tests/package/test_arch1_palace_backend.py::test_u16_backend_refusals",
+    "tests/package/test_arch1_palace_backend.py::test_u16_case_equals_ops61",
+    "tests/package/test_arch1_palace_backend.py::test_u16_read_path_on_recorded_output",
+    "tests/package/test_arch1_palace_backend.py::test_u16_palace_read_back",
+    # WF-16 step 13 (§9 item 588)
+    "tests/package/test_wf16_study_tune_n_slots.py::test_wf16_s13_n_slots_coding",
+    "tests/package/test_wf16_study_tune_n_slots.py::test_wf16_s13_default_bitwise_records",
+    # WF-1 step 23 (§9 item 589)
+    "tests/package/test_wf1_sweep_conductor_check.py::test_wf1_s23_python_sweep_refuses_conductor",
+    # WF-15 step 8 (§9 item 653, U92)
+    "tests/package/test_wf15_study_cole_cole.py::test_wf15_s8_resolution_refusals_and_ceilings",
+    "tests/package/test_wf15_study_cole_cole.py::test_wf15_s8_cole_cole_sphere_closed_form",
+    # WF-17 step 21 (§9 item 654, U93)
+    "tests/package/test_wf17_dispersive_sphere_tutorial.py::test_wf17_s21_dispersive_block_reproduces_u92_record",
+    # WF-16 step 14 (§9 item 661, U94): Study.load_result + LoadedPortResult
+    "tests/package/test_wf16_study_load_result.py::test_wf16_s14_load_result_coding",
+    "tests/package/test_wf16_study_load_result.py::test_wf16_s14_tune_on_loaded_result",
+    # WF-16 step 15 (§9 item 685, U100′): the saved 32-port F-human
+    "tests/package/test_wf16_load_result_f_human.py::test_wf16_s15_w0_knob_and_synthetic",
+    "tests/package/test_wf16_load_result_f_human.py::test_wf16_s15_tune_on_loaded_f_human",
+    # WF-16 step 16 (§9 item 696, U104): the saved F-clinical 64×64
+    "tests/package/test_wf16_load_result_f_clinical.py::test_wf16_s16_w0_knob_and_synthetic",
+    "tests/package/test_wf16_load_result_f_clinical.py::test_wf16_s16_tune_on_saved_f_clinical",
+    # WF-16 step 19 (§9 item 781, U117): the 3 T twin's saved 64×64, no solve
+    "tests/package/test_wf16_load_result_f_clinical_3t.py::test_wf16_s19_w0_knob_and_selector",
+    "tests/package/test_wf16_load_result_f_clinical_3t.py::test_wf16_s19_tune_on_saved_f_clinical_3t",
+    # WF-16 step 20 (§9 item 867, U129): the degree-2 1.5 T saved 64×64, no solve
+    "tests/package/test_wf16_load_result_f_clinical_d2.py::test_wf16_s20_w0_knob_and_degree",
+    "tests/package/test_wf16_load_result_f_clinical_d2.py::test_wf16_s20_tune_on_saved_f_clinical_d2",
+    # WF-17 step 20b (§9 item 671, U90b): the loaded-tune page
+    "tests/package/test_wf17_loaded_tune_tutorial.py::test_wf17_s20b_blocks_and_refusals",
+    "tests/package/test_wf17_loaded_tune_tutorial.py::test_wf17_s20b_loaded_tune_block",
+    # WF-17 step 24 (§9 item 691, U103): the saved human-scale tune page
+    "tests/package/test_wf17_loaded_tune_human_tutorial.py::test_wf17_s24_block_shape_and_inputs",
+    "tests/package/test_wf17_loaded_tune_human_tutorial.py::test_wf17_s24_loaded_tune_human_block",
+    # WF-17 step 25 (§9 item 717, U98): the implant-rod page
+    "tests/package/test_wf17_implant_rod_tutorial.py::test_wf17_s25_blocks_and_refusals",
+    "tests/package/test_wf17_implant_rod_tutorial.py::test_wf17_s25_implant_rod_blocks",
+    # WF-16 step 18 (§9 item 780, U115)
+    "tests/package/test_wf16_sweep_fields_at.py::test_wf16_s18_fields_at_refused_before_mesh",
+    "tests/package/test_wf16_sweep_fields_at.py::test_wf16_s18_fields_at_gates",
+    # WF-15 step 17 (§9 item 877)
+    "tests/package/test_wf15_study_sphere_transient.py::test_wf15_s17_sphere_duty_cycle",
+    # WF-15 step 18 (§9 item 904)
+    "tests/package/test_wf15_study_sphere_transient.py::test_wf15_s18_sphere_duty_cycle_default_degree2",
+]
+
+[names.ThermalBallGeometry]
+nodes = [
+    "tests/package/test_wf15_study_transient.py::test_wf15_transient_spec_and_refusals",
+    "tests/package/test_wf15_study_transient.py::test_wf15_duty_cycle_reproduces_mat17",
+    "tests/package/test_wf15_study_transient.py::test_wf15_wall_reproduces_mat18_2b",
+    # WF-1 step 14 (§9 item 500)
+    "tests/package/test_wf1_yaml_thermal_ball.py::test_wf1_s14_parse_and_refusals",
+    "tests/package/test_wf1_yaml_thermal_ball.py::test_wf1_s14_duty_reproduces_mat17",
+    # WF-15 step 6 (§9 item 523)
+    "tests/package/test_wf15_study_probe_thermal.py::test_wf15_s6_ball_probe_reproduces_mat19_gate",
+    # WF-1 step 19 (§9 item 545)
+    "tests/package/test_wf1_yaml_thermal_ball_probes.py::test_wf1_s19_ball_probes_reproduce_u60",
+    "tests/package/test_wf1_yaml_thermal_ball_probes.py::test_wf1_s19_duty_probes_equal_python",
+]
+
+[names.ThermalBoxGeometry]
+nodes = [
+    # WF-15 step 5 (§9 item 521a)
+    "tests/package/test_wf15_study_thermal_box.py::test_wf15_box_spec_and_refusals",
+    "tests/package/test_wf15_study_thermal_box.py::test_wf15_box_steady_reproduces_mat21_step1_m4",
+    "tests/package/test_wf15_study_thermal_box.py::test_wf15_box_duty_reproduces_mat21_p26",
+    # WF-15 step 6 (§9 item 523)
+    "tests/package/test_wf15_study_probe_thermal.py::test_wf15_s6_box_probe_robin_series",
+    # WF-1 step 15 (§9 item 521b)
+    "tests/package/test_wf1_yaml_thermal_box.py::test_wf1_s15_steady_reproduces_mat21_m4",
+    "tests/package/test_wf1_yaml_thermal_box.py::test_wf1_s15_duty_reproduces_p26",
+    # WF-1 step 16 (§9 item 528)
+    "tests/package/test_wf1_yaml_thermal_box_quadratic.py::test_wf1_s16_quadratic_steady_reproduces_p36",
+    "tests/package/test_wf1_yaml_thermal_box_quadratic.py::test_wf1_s16_quadratic_cn_reproduces_p36",
+    # WF-1 step 17 (§9 item 539)
+    "tests/package/test_wf1_yaml_thermal_box_probes.py::test_wf1_s17_box_probes_reproduce_u60",
+    "tests/package/test_wf1_yaml_thermal_box_probes.py::test_wf1_s17_transient_probes_equal_python",
+    # WF-1 step 28 (§9 item 830)
+    "tests/package/test_wf1_yaml_thermal_box_wall.py::test_wf1_s28_parse_and_refusals",
+    "tests/package/test_wf1_yaml_thermal_box_wall.py::test_wf1_s28_wall_gradient_reproduces_p63_r1",
+    # WF-1 step 30 (§9 item 878)
+    "tests/package/test_wf1_yaml_thermal_box_dose.py::test_wf1_s30_dose_reproduces_p68_gate",
+]
+
+[names.TransverseQuadraticHeatSource]
+nodes = [
+    # WF-1 step 16 / WF-15 step 7 (§9 item 528)
+    "tests/package/test_wf1_yaml_thermal_box_quadratic.py::test_wf1_s16_parse_and_refusals",
+    "tests/package/test_wf1_yaml_thermal_box_quadratic.py::test_wf1_s16_quadratic_steady_reproduces_p36",
+    "tests/package/test_wf1_yaml_thermal_box_quadratic.py::test_wf1_s16_quadratic_cn_reproduces_p36",
+    # WF-1 step 18 (§9 item 540)
+    "tests/package/test_wf1_yaml_thermal_box_quadratic_duty.py::test_wf1_s18_quadratic_duty_reproduces_p38",
+]
+
+[names.UniformHeatSource]
+nodes = [
+    "tests/package/test_wf15_study_transient.py::test_wf15_duty_cycle_reproduces_mat17",
+    "tests/package/test_wf15_study_transient.py::test_wf15_wall_reproduces_mat18_2b",
+    # WF-1 step 14 (§9 item 500)
+    "tests/package/test_wf1_yaml_thermal_ball.py::test_wf1_s14_duty_reproduces_mat17",
+    "tests/package/test_wf1_yaml_thermal_ball.py::test_wf1_s14_wall_reproduces_mat18_2b",
+    # WF-15 step 5 (§9 item 521a)
+    "tests/package/test_wf15_study_thermal_box.py::test_wf15_box_steady_reproduces_mat21_step1_m4",
+    "tests/package/test_wf15_study_thermal_box.py::test_wf15_box_duty_reproduces_mat21_p26",
+    # WF-15 step 6 (§9 item 523)
+    "tests/package/test_wf15_study_probe_thermal.py::test_wf15_s6_ball_probe_reproduces_mat19_gate",
+]
+
+[names.TransientSpec]
+nodes = [
+    "tests/package/test_wf15_study_transient.py::test_wf15_transient_spec_and_refusals",
+    "tests/package/test_wf15_study_transient.py::test_wf15_duty_cycle_reproduces_mat17",
+    "tests/package/test_wf15_study_transient.py::test_wf15_wall_reproduces_mat18_2b",
+    # WF-1 step 14 (§9 item 500)
+    "tests/package/test_wf1_yaml_thermal_ball.py::test_wf1_s14_parse_and_refusals",
+    "tests/package/test_wf1_yaml_thermal_ball.py::test_wf1_s14_duty_reproduces_mat17",
+    # WF-15 step 5 (§9 item 521a)
+    "tests/package/test_wf15_study_thermal_box.py::test_wf15_box_duty_reproduces_mat21_p26",
+    # WF-15 step 6 (§9 item 523)
+    "tests/package/test_wf15_study_probe_thermal.py::test_wf15_s6_ball_probe_reproduces_mat19_gate",
+    # WF-1 step 28 (§9 item 830)
+    "tests/package/test_wf1_yaml_thermal_box_wall.py::test_wf1_s28_parse_and_refusals",
+    "tests/package/test_wf1_yaml_thermal_box_wall.py::test_wf1_s28_wall_gradient_reproduces_p63_r1",
+    # WF-15 step 15 (§9 item 862)
+    "tests/package/test_wf15_study_sphere_transient.py::test_wf15_s15_sphere_transient_reproduces_mat12",
+    # WF-15 step 16 (§9 item 863)
+    "tests/package/test_wf15_study_sphere_transient.py::test_wf15_s16_sphere_transient_default_degree2",
+    # WF-15 step 17 (§9 item 877)
+    "tests/package/test_wf15_study_sphere_transient.py::test_wf15_s17_sphere_duty_cycle",
+    # WF-15 step 18 (§9 item 904)
+    "tests/package/test_wf15_study_sphere_transient.py::test_wf15_s18_sphere_duty_cycle_default_degree2",
+    # WF-1 step 30 (§9 item 878)
+    "tests/package/test_wf1_yaml_thermal_box_dose.py::test_wf1_s30_dose_reproduces_p68_gate",
+    # WF-1 step 29 (§9 item 873)
+    "tests/package/test_wf1_yaml_sphere_transient.py::test_wf1_s29_sphere_transient_reproduces_u131",
+]
+
+[names.DutyCycle]
+nodes = [
+    "tests/package/test_wf15_study_transient.py::test_wf15_transient_spec_and_refusals",
+    "tests/package/test_wf15_study_transient.py::test_wf15_duty_cycle_reproduces_mat17",
+    # WF-1 step 14 (§9 item 500)
+    "tests/package/test_wf1_yaml_thermal_ball.py::test_wf1_s14_parse_and_refusals",
+    "tests/package/test_wf1_yaml_thermal_ball.py::test_wf1_s14_duty_reproduces_mat17",
+    # WF-15 step 5 (§9 item 521a)
+    "tests/package/test_wf15_study_thermal_box.py::test_wf15_box_duty_reproduces_mat21_p26",
+    # WF-1 step 18 (§9 item 540)
+    "tests/package/test_wf1_yaml_thermal_box_quadratic_duty.py::test_wf1_s18_quadratic_duty_reproduces_p38",
+    # WF-15 step 17 (§9 item 877)
+    "tests/package/test_wf15_study_sphere_transient.py::test_wf15_s17_sphere_duty_cycle",
+    # WF-15 step 18 (§9 item 904)
+    "tests/package/test_wf15_study_sphere_transient.py::test_wf15_s18_sphere_duty_cycle_default_degree2",
+    # WF-15 step 19 (§9 item 937)
+    "tests/package/test_wf15_tuned_duty_refusal.py::test_wf15_s19_tuned_duty_refused_at_its_frame",
+]
+
+[names.ContainerWall]
+nodes = [
+    "tests/package/test_wf15_study_transient.py::test_wf15_wall_reproduces_mat18_2b",
+    # WF-1 step 14 (§9 item 500)
+    "tests/package/test_wf1_yaml_thermal_ball.py::test_wf1_s14_wall_reproduces_mat18_2b",
+]
+
+[names.DoseReadout]
+nodes = [
+    # WF-1 step 30 (§9 item 878)
+    "tests/package/test_wf1_yaml_thermal_box_dose.py::test_wf1_s30_parse_and_refusals",
+    "tests/package/test_wf1_yaml_thermal_box_dose.py::test_wf1_s30_dose_reproduces_p68_gate",
+]
+
+[names.RobinCooling]
+nodes = [
+    "tests/package/test_wf15_study_temperature.py::test_wf15_temperature_spec_and_refusals",
+    "tests/package/test_wf15_study_temperature.py::test_wf15_temperature_degree1_reproduces_mat10_record",
+    "tests/package/test_wf15_study_temperature.py::test_wf15_temperature_default_degree2_leg",
+    # WF-15 step 5 (§9 item 521a)
+    "tests/package/test_wf15_study_thermal_box.py::test_wf15_box_steady_reproduces_mat21_step1_m4",
+    "tests/package/test_wf15_study_thermal_box.py::test_wf15_box_duty_reproduces_mat21_p26",
+]
+
+[names.StudyConfigError]
+nodes = [
+    "tests/package/test_wf1_study_yaml.py::test_wf1_malformed_files_name_their_field",
+    "tests/package/test_wf1_installed_cli.py::test_wf1_installed_femem_refuses_the_malformed_files",
+    # WF-1 step 11 (§9 item 442)
+    "tests/package/test_wf1_yaml_tune.py::test_wf1_s11_tune_parse_and_refusals",
+    # WF-1 step 12 (§9 item 484)
+    "tests/package/test_wf1_yaml_tune_f_human.py::test_wf1_s12_parse_and_refusals",
+    # WF-1 step 13 (§9 item 496)
+    "tests/package/test_wf1_yaml_capacitors.py::test_wf1_s13_parse_and_refusals",
+    # WF-1 step 14 (§9 item 500)
+    "tests/package/test_wf1_yaml_thermal_ball.py::test_wf1_s14_parse_and_refusals",
+    # WF-1 step 15 (§9 item 521b)
+    "tests/package/test_wf1_yaml_thermal_box.py::test_wf1_s15_parse_and_refusals",
+    # WF-1 step 17 (§9 item 539)
+    "tests/package/test_wf1_yaml_thermal_box_probes.py::test_wf1_s17_parse_and_refusals",
+    # WF-1 step 18 (§9 item 540)
+    "tests/package/test_wf1_yaml_thermal_box_quadratic_duty.py::test_wf1_s18_parse_and_refusals",
+    # WF-1 step 19 (§9 item 545)
+    "tests/package/test_wf1_yaml_thermal_ball_probes.py::test_wf1_s19_parse_and_refusals",
+    # WF-1 step 20 (§9 item 564)
+    "tests/package/test_wf1_yaml_em_probes.py::test_wf1_s20_parse_and_refusals",
+    # WF-1 step 21 (§9 item 572)
+    "tests/package/test_wf1_yaml_sweep.py::test_wf1_s21_parse_and_refusals",
+    # U76 Palace output refusals (§10, weekly 2026-10-21; §9 item 590)
+    "tests/package/test_arch1_u76_palace_outputs.py::test_u76_palace_refusals_by_field",
+    # U79 Palace input refusals (§10 chain U, daily 2026-10-22 provisional; §9 item 601)
+    "tests/package/test_arch1_u79_palace_inputs.py::test_u79_hole_refused_by_field",
+    # WF-1 step 23 (§9 item 589)
+    "tests/package/test_wf1_sweep_conductor_check.py::test_wf1_s23_yaml_twin_and_cli",
+]
+
+[names.load_study]
+nodes = [
+    "tests/package/test_wf1_study_yaml.py::test_wf1_good_files_build_the_python_studies",
+    "tests/package/test_wf1_study_yaml.py::test_wf1_malformed_files_name_their_field",
+    "tests/package/test_wf1_yaml_thermal.py::test_wf1_thermal_yaml_parse_and_refusals",
+    # WF-1 step 4 (§9 item 343): `conductor:` + `geometry.as_hole` parse / refusals
+    "tests/package/test_wf1_yaml_copper.py::test_wf1_copper_yaml_parse_and_refusals",
+    # WF-1 step 5 (§9 item 344): `outputs.sar` / `outputs.b1_plus` parse / refusals
+    "tests/package/test_wf1_yaml_sar_b1.py::test_wf1_sar_b1_yaml_parse_and_refusals",
+    # WF-1 step 6 (§9 item 345): `outputs.probes` parse / refusals
+    "tests/package/test_wf1_yaml_probes.py::test_wf1_probes_yaml_parse_and_refusals",
+    # WF-1 step 7a (§9 item 390a): `f_human_birdcage` + `two_port_quadrature` parse / refusals
+    "tests/package/test_wf1_yaml_f_human.py::test_wf1_f_human_yaml_parse_and_refusals",
+    # WF-1 step 8 (§9 item 394)
+    "tests/package/test_wf1_yaml_copper_sar_b1.py::test_wf1_s8_parse_and_refusal_parity",
+    # WF-1 step 10a (§9 item 431a): the F-human `thermal:` section parse / refusals
+    "tests/package/test_wf1_yaml_f_human_thermal.py::test_wf1_fht_parse_and_refusals",
+    # WF-1 step 11 (§9 item 442)
+    "tests/package/test_wf1_yaml_tune.py::test_wf1_s11_tune_parse_and_refusals",
+    # WF-1 step 12 (§9 item 484)
+    "tests/package/test_wf1_yaml_tune_f_human.py::test_wf1_s12_parse_and_refusals",
+    # WF-1 step 13 (§9 item 496)
+    "tests/package/test_wf1_yaml_capacitors.py::test_wf1_s13_parse_and_refusals",
+    # WF-1 step 14 (§9 item 500)
+    "tests/package/test_wf1_yaml_thermal_ball.py::test_wf1_s14_parse_and_refusals",
+    # WF-1 step 15 (§9 item 521b)
+    "tests/package/test_wf1_yaml_thermal_box.py::test_wf1_s15_parse_and_refusals",
+    # WF-1 step 17 (§9 item 539)
+    "tests/package/test_wf1_yaml_thermal_box_probes.py::test_wf1_s17_parse_and_refusals",
+    # WF-1 step 18 (§9 item 540)
+    "tests/package/test_wf1_yaml_thermal_box_quadratic_duty.py::test_wf1_s18_parse_and_refusals",
+    # WF-1 step 19 (§9 item 545)
+    "tests/package/test_wf1_yaml_thermal_ball_probes.py::test_wf1_s19_parse_and_refusals",
+    # WF-1 step 20 (§9 item 564)
+    "tests/package/test_wf1_yaml_em_probes.py::test_wf1_s20_parse_and_refusals",
+    # WF-1 step 21 (§9 item 572)
+    "tests/package/test_wf1_yaml_sweep.py::test_wf1_s21_parse_and_refusals",
+    # WF-1 step 22 (§9 item 573)
+    "tests/package/test_wf1_yaml_copper_em_probes.py::test_wf1_s22_parse",
+    # WF-1 step 23 (§9 item 589)
+    "tests/package/test_wf1_sweep_conductor_check.py::test_wf1_s23_yaml_twin_and_cli",
+    "tests/package/test_wf1_sweep_conductor_check.py::test_wf1_s23_check_lists_sweep_hz",
+    # WF-1 step 30 (§9 item 878)
+    "tests/package/test_wf1_yaml_thermal_box_dose.py::test_wf1_s30_parse_and_refusals",
+    # WF-1 step 29 (§9 item 873)
+    "tests/package/test_wf1_yaml_sphere_transient.py::test_wf1_s29_parse_and_refusals",
+]
+
+[names.run_study_file]
+nodes = [
+    # U16 Palace backend (§10, weekly 2026-10-17; §9 items 517 / 517b / 533)
+    "tests/package/test_arch1_palace_backend.py::test_u16_cli_read_path_on_recorded_output",
+    "tests/package/test_arch1_palace_backend.py::test_u16_cli_palace_read_back",
+    "tests/package/test_wf1_study_yaml.py::test_wf1_cli_sphere_reproduces_wf15",
+    "tests/package/test_wf1_study_yaml.py::test_wf1_cli_f_small_reproduces_wf16",
+    "tests/package/test_wf1_installed_solve.py::test_wf1_installed_sphere_reproduces_mat4",
+    "tests/package/test_wf1_installed_solve.py::test_wf1_installed_f_small_reproduces_p1",
+    # femem run --ranks N (WF-13 step 3); cli.main is not in __all__, so no [names.main]
+    "tests/package/test_wf13_launch_helper.py::test_wf13_launch_provenance_and_width",
+    "tests/package/test_wf13_launch_helper.py::test_wf13_launch_reproduces_mat4_record",
+    # WF-1 step 3 (§9 item 295): the `thermal:` section through run_study_file
+    "tests/package/test_wf1_yaml_thermal.py::test_wf1_thermal_yaml_reproduces_mat10_record",
+    # femem run --estimate (WF-13 step 4, §9 item 325): CLI == Study.estimate(), no solve
+    "tests/package/test_wf13_cli_estimate.py::test_wf13_cli_estimate_equals_api_and_record",
+    "tests/package/test_wf13_cli_estimate.py::test_wf13_cli_estimate_degree1_passes_api_error",
+    # WF-1 step 4 (§9 item 343): the copper four-port through run_study_file
+    "tests/package/test_wf1_yaml_copper.py::test_wf1_copper_yaml_reproduces_record",
+    "tests/package/test_wf1_yaml_copper.py::test_wf1_copper_yaml_vs_python_study",
+    "tests/package/test_wf1_yaml_copper.py::test_wf1_copper_yaml_negative_control",
+    # WF-1 step 5 (§9 item 344): 10 g SAR and |B1+| through run_study_file; the
+    # `centres: {ring_radius_m}` form is an API convenience (ruling 2026-10-08 (3))
+    "tests/package/test_wf1_yaml_sar_b1.py::test_wf1_sar_b1_yaml_k_centres_bitwise",
+    "tests/package/test_wf1_yaml_sar_b1.py::test_wf1_sar_b1_yaml_r_same_fixture",
+    "tests/package/test_wf1_yaml_sar_b1.py::test_wf1_sar_b1_yaml_ii_ten_gram_c4",
+    "tests/package/test_wf1_yaml_sar_b1.py::test_wf1_sar_b1_yaml_iii_yaml_equals_api",
+    "tests/package/test_wf1_yaml_sar_b1.py::test_wf1_sar_b1_yaml_b1_covariance",
+    "tests/package/test_wf1_yaml_sar_b1.py::test_wf1_sar_b1_yaml_b2_prime",
+    "tests/package/test_wf1_yaml_sar_b1.py::test_wf1_sar_b1_yaml_c1_mispaired",
+    "tests/package/test_wf1_yaml_sar_b1.py::test_wf1_sar_b1_yaml_c2_misrotation",
+    # WF-1 step 6 (§9 item 345): ball-average probes through run_study_file (the
+    # probe θ is Study.probe's own thermal solve beside the temperature block's)
+    "tests/package/test_wf1_yaml_probes.py::test_wf1_probes_yaml_whole_ball_identity",
+    "tests/package/test_wf1_yaml_probes.py::test_wf1_probes_yaml_equals_api",
+    "tests/package/test_wf1_yaml_probes.py::test_wf1_probes_yaml_vs_python_study",
+    "tests/package/test_wf1_yaml_probes.py::test_wf1_probes_yaml_negative_control",
+    # WF-1 step 7a (§9 item 390a): the F-human branch of run_study_file on a
+    # counting fake of the tuned solve (no mesh; the real solve is item 390b)
+    "tests/package/test_wf1_yaml_f_human.py::test_wf1_f_human_yaml_run_branch_no_mesh",
+    # WF-1 step 7b (§9 item 390b): the real tuned copper F-human solve of that branch
+    "tests/package/test_wf1_yaml_f_human_solve.py::test_wf1_fh_yaml_cells_centres_once",
+    "tests/package/test_wf1_yaml_f_human_solve.py::test_wf1_fh_yaml_node_reproduces_h9p",
+    "tests/package/test_wf1_yaml_f_human_solve.py::test_wf1_fh_yaml_sar_reproduces_h9p",
+    "tests/package/test_wf1_yaml_f_human_solve.py::test_wf1_fh_yaml_b1_reproduces_h9p",
+    "tests/package/test_wf1_yaml_f_human_solve.py::test_wf1_fh_yaml_summary_json",
+    # WF-1 step 10a (§9 item 431a): the F-human thermal branch on counting fakes (no mesh)
+    "tests/package/test_wf1_yaml_f_human_thermal.py::test_wf1_fht_run_branch_no_mesh",
+    # WF-1 step 10b (§9 item 431b): the real -n 8 solve of that branch, P17's ball mean
+    "tests/package/test_wf1_yaml_f_human_thermal_solve.py::test_wf1_fht_cells_once_and_source",
+    "tests/package/test_wf1_yaml_f_human_thermal_solve.py::test_wf1_fht_ball_reproduces_p17",
+    "tests/package/test_wf1_yaml_f_human_thermal_solve.py::test_wf1_fht_series_and_six_minute",
+    "tests/package/test_wf1_yaml_f_human_thermal_solve.py::test_wf1_fht_controls",
+    "tests/package/test_wf1_yaml_f_human_thermal_solve.py::test_wf1_fht_summary_json",
+    # WF-1 step 8 (§9 item 394)
+    "tests/package/test_wf1_yaml_copper_sar_b1.py::test_wf1_s8_yaml_field_route_applies_conductor",
+    "tests/package/test_wf1_yaml_copper_sar_b1.py::test_wf1_s8_yaml_sar_reproduces_python",
+    "tests/package/test_wf1_yaml_copper_sar_b1.py::test_wf1_s8_yaml_b1_reproduces_python",
+    "tests/package/test_wf1_yaml_copper_sar_b1.py::test_wf1_s8_negative_pec_column",
+    # WF-13 step 5 (§9 item 432): the exit-gate rehearsal, our half (installed, outside the repo)
+    "tests/package/test_wf13_exit_rehearsal.py::test_wf13_exit_rehearsal_reproduces_mat4",
+    # WF-1 step 11 (§9 item 442)
+    "tests/package/test_wf1_yaml_tune.py::test_wf1_s11_r0_fixture_tie",
+    "tests/package/test_wf1_yaml_tune.py::test_wf1_s11_yaml_equals_same_study_api",
+    "tests/package/test_wf1_yaml_tune.py::test_wf1_s11_yaml_equals_python_route",
+    "tests/package/test_wf1_yaml_tune.py::test_wf1_s11_c_mode_equals_th17_record",
+    "tests/package/test_wf1_yaml_tune.py::test_wf1_s11_c1_mode_index_control",
+    # WF-1 step 12 (§9 item 484)
+    "tests/package/test_wf1_yaml_tune_f_human.py::test_wf1_s12_r0_fixture_tie",
+    "tests/package/test_wf1_yaml_tune_f_human.py::test_wf1_s12_summary_equals_same_study_tune",
+    "tests/package/test_wf1_yaml_tune_f_human.py::test_wf1_s12_a_c_mode_equals_wf12_h12c",
+    "tests/package/test_wf1_yaml_tune_f_human.py::test_wf1_s12_c1_mode_index_control",
+    # WF-1 step 13 (§9 item 496)
+    "tests/package/test_wf1_yaml_capacitors.py::test_wf1_s13_r0_fixture_tie",
+    "tests/package/test_wf1_yaml_capacitors.py::test_wf1_s13_summary_equals_same_study",
+    "tests/package/test_wf1_yaml_capacitors.py::test_wf1_s13_yaml_equals_python_study",
+    "tests/package/test_wf1_yaml_capacitors.py::test_wf1_s13_route_a_identity",
+    "tests/package/test_wf1_yaml_capacitors.py::test_wf1_s13_k2_control",
+    # WF-1 step 14 (§9 item 500)
+    "tests/package/test_wf1_yaml_thermal_ball.py::test_wf1_s14_duty_reproduces_mat17",
+    "tests/package/test_wf1_yaml_thermal_ball.py::test_wf1_s14_wall_reproduces_mat18_2b",
+    # WF-1 step 15 (§9 item 521b)
+    "tests/package/test_wf1_yaml_thermal_box.py::test_wf1_s15_steady_reproduces_mat21_m4",
+    "tests/package/test_wf1_yaml_thermal_box.py::test_wf1_s15_duty_reproduces_p26",
+    # WF-1 step 16 (§9 item 528)
+    "tests/package/test_wf1_yaml_thermal_box_quadratic.py::test_wf1_s16_quadratic_steady_reproduces_p36",
+    "tests/package/test_wf1_yaml_thermal_box_quadratic.py::test_wf1_s16_quadratic_cn_reproduces_p36",
+    # WF-1 step 17 (§9 item 539)
+    "tests/package/test_wf1_yaml_thermal_box_probes.py::test_wf1_s17_box_probes_reproduce_u60",
+    "tests/package/test_wf1_yaml_thermal_box_probes.py::test_wf1_s17_transient_probes_equal_python",
+    # WF-1 step 18 (§9 item 540)
+    "tests/package/test_wf1_yaml_thermal_box_quadratic_duty.py::test_wf1_s18_quadratic_duty_reproduces_p38",
+    # WF-1 step 19 (§9 item 545)
+    "tests/package/test_wf1_yaml_thermal_ball_probes.py::test_wf1_s19_ball_probes_reproduce_u60",
+    "tests/package/test_wf1_yaml_thermal_ball_probes.py::test_wf1_s19_duty_probes_equal_python",
+    # WF-1 step 20 (§9 item 564)
+    "tests/package/test_wf1_yaml_em_probes.py::test_wf1_s20_em_probes_n2",
+    "tests/package/test_wf1_yaml_em_probes.py::test_wf1_s20_em_probes_width",
+    # WF-1 step 21 (§9 item 572)
+    "tests/package/test_wf1_yaml_sweep.py::test_wf1_s21_sweep_file_n2",
+    "tests/package/test_wf1_yaml_sweep.py::test_wf1_s21_sweep_python_twin",
+    # WF-1 step 22 (§9 item 573)
+    "tests/package/test_wf1_yaml_copper_em_probes.py::test_wf1_s22_copper_em_probes_n2",
+    # WF-1 step 23 (§9 item 589)
+    "tests/package/test_wf1_sweep_conductor_check.py::test_wf1_s23_yaml_twin_and_cli",
+    # WF-1 step 24 (§9 item 674, U99): load_result in the YAML (anchor WF-16 step 14)
+    "tests/package/test_wf1_yaml_load_result.py::test_wf1_s24_load_result_coding_and_refusals",
+    "tests/package/test_wf1_yaml_load_result.py::test_wf1_s24_yaml_load_result_equals_api",
+    # WF-1 step 25 (§9 item 697, U105): load_result on an f_clinical_birdcage (anchor WF-16 step 16)
+    "tests/package/test_wf1_yaml_load_result_f_clinical.py::test_wf1_s25_coding_and_refusals",
+    "tests/package/test_wf1_yaml_load_result_f_clinical.py::test_wf1_s25_yaml_load_result_equals_api",
+    # WF-16 step 19 (§9 item 781, U117): WF-1's YAML half, the 3 T file at 128 MHz
+    "tests/package/test_wf16_load_result_f_clinical_3t.py::test_wf16_s19_tune_on_saved_f_clinical_3t",
+    # WF-1 step 26 (§9 item 714, U102): load_result on an f_human_birdcage (anchor WF-16 step 15)
+    "tests/package/test_wf1_yaml_load_result_f_human.py::test_wf1_s26_coding_and_refusals",
+    "tests/package/test_wf1_yaml_load_result_f_human.py::test_wf1_s26_yaml_load_result_equals_api",
+    # WF-1 step 27 (§9 item 730, U111): tune.at_hz on a multi-frequency load_result
+    "tests/package/test_wf1_yaml_load_result_sweep.py::test_wf1_s27_yaml_at_hz_equals_api",
+    # WF-17 step 23 (§9 item 681, U101): the YAML load_result page
+    "tests/package/test_wf17_loaded_tune_yaml_tutorial.py::test_wf17_s23_blocks_and_check",
+    "tests/package/test_wf17_loaded_tune_yaml_tutorial.py::test_wf17_s23_yaml_loaded_tune",
+    # WF-1 step 30 (§9 item 878)
+    "tests/package/test_wf1_yaml_thermal_box_dose.py::test_wf1_s30_dose_reproduces_p68_gate",
+    # WF-1 step 29 (§9 item 873)
+    "tests/package/test_wf1_yaml_sphere_transient.py::test_wf1_s29_sphere_transient_reproduces_u131",
+]
+
+[names.FourPortBirdcageGeometry]
+nodes = [
+    "tests/package/test_wf16_study_four_port.py::test_wf16_geometry_constants_and_refusals",
+    "tests/package/test_wf16_study_four_port.py::test_wf16_upstream_identity",
+    "tests/package/test_wf16_study_four_port.py::test_wf16_s_equals_record",
+    "tests/package/test_wf16_study_sweep.py::test_wf16_sweep_one_mesh_per_frequency_problems",
+    "tests/package/test_wf16_study_sweep.py::test_wf16_sweep_s_equals_records",
+    # F27 h-statement (§10, weekly 2026-10-12; §9 item 433)
+    "tests/validation/test_ans4_exact_strip_records.py::test_g_port11_gates_on_the_exact_rectangles",
+    "tests/unit/test_ans4_h_table.py::test_h_table",
+    # WF-15 step 10 (§9 item 709, U97′): the rod through the Study, four-port, degree 1
+    "tests/package/test_wf15_study_implant_rod.py::test_s10_generator_kwargs_identity",
+    "tests/package/test_wf15_study_implant_rod.py::test_s10_yaml_section_and_refusals",
+    "tests/package/test_wf15_study_implant_rod.py::test_s10_all_gates",
+    # WF-15 step 11 (§9 item 728, U109): the rod Study on a sweep, degree 1
+    "tests/package/test_wf15_study_rod_sweep.py::test_s11_all_gates",
+    # WF-15 step 12 (§9 item 729, U110): the two ungated rod routes refused by field
+    "tests/package/test_wf15_study_rod_refusals.py::test_s12_api_refusals_before_any_mesh",
+    # WF-15 step 13 (§9 item 802, U121): the PEC rod with CapacitorSheets, degree 1
+    "tests/package/test_wf15_study_rod_caps.py::test_s13_all_gates",
+    # WF-15 step 14 (§9 items 831 / 884, U127′): the rod's heating, drive P1, degree 1
+    "tests/package/test_wf15_study_rod_heating.py::test_s14_all_gates",
+]
+
+[names.FHumanBirdcageGeometry]
+# WF-16 step 8 (§9 item 355): the F-human 32-port S route through the Study.
+nodes = [
+    "tests/package/test_wf16_study_f_human.py::test_wf16_f_human_w0_kwargs_tags_refusals",
+    "tests/package/test_wf16_study_f_human.py::test_wf16_f_human_s_reproduces_wf7",
+    # WF-1 step 7b (§9 item 390b): the YAML-solved tuned copper F-human cell count
+    "tests/package/test_wf1_yaml_f_human_solve.py::test_wf1_fh_yaml_cells_centres_once",
+    # WF-16 step 13 (§9 item 588)
+    "tests/package/test_wf16_study_tune_n_slots.py::test_wf16_s13_n_slots_coding",
+    "tests/package/test_wf16_study_tune_n_slots.py::test_wf16_s13_default_bitwise_records",
+]
+
+[names.LeontovichWall]
+# WF-16 step 7 (§9 item 324): the copper port Study on the hole route.
+nodes = [
+    "tests/package/test_wf16_study_copper.py::test_r_class_means_reproduce_record",
+    "tests/package/test_wf16_study_copper.py::test_b_copper_surface_loss_identity",
+    "tests/package/test_wf16_study_copper.py::test_g_gates",
+    "tests/package/test_wf16_study_copper.py::test_negative_control_pec_misses_cu_record",
+    # WF-1 step 4 (§9 item 343): the same Study built from YAML
+    "tests/package/test_wf1_yaml_copper.py::test_wf1_copper_yaml_reproduces_record",
+    "tests/package/test_wf1_yaml_copper.py::test_wf1_copper_yaml_power_identity",
+    "tests/package/test_wf1_yaml_copper.py::test_wf1_copper_yaml_th14_gates",
+    "tests/package/test_wf1_yaml_copper.py::test_wf1_copper_yaml_negative_control",
+    # WF-1 step 8 (§9 item 394)
+    "tests/package/test_wf1_yaml_copper_sar_b1.py::test_wf1_s8_yaml_field_route_applies_conductor",
+    "tests/package/test_wf1_yaml_copper_sar_b1.py::test_wf1_s8_kept_field_power_identity",
+    "tests/package/test_wf1_yaml_copper_sar_b1.py::test_wf1_s8_negative_surface_blind",
+    # F26 h-rung (§10, weekly 2026-10-12; §9 item 433)
+    "tests/validation/test_ans6_exact_strip.py::test_g_gates_both_columns",
+    "tests/validation/test_ans6_exact_strip.py::test_b_copper_surface_loss_identity",
+    "tests/validation/test_ans6_exact_strip.py::test_r_class_mean_records",
+    # WF-1 step 22 (§9 item 573)
+    "tests/package/test_wf1_yaml_copper_em_probes.py::test_wf1_s22_copper_em_probes_n2",
+    # WF-1 step 23 (§9 item 589)
+    "tests/package/test_wf1_sweep_conductor_check.py::test_wf1_s23_python_sweep_refuses_conductor",
+]
+
+[names.CapacitorSheets]
+nodes = [
+    # WF-16 step 10 (§9 item 373, chain U37): series-RC sheets with ESR
+    "tests/package/test_wf16_study_capacitor_sheets.py::test_wf16_s10_cu_record",
+    "tests/package/test_wf16_study_capacitor_sheets.py::test_wf16_s10_per_sheet_identity",
+    "tests/package/test_wf16_study_capacitor_sheets.py::test_wf16_s10_r0_equals_capacitor_only",
+    "tests/package/test_wf16_study_capacitor_sheets.py::test_wf16_s10_power_identity",
+    "tests/package/test_wf16_study_capacitor_sheets.py::test_wf16_s10_planted_esr_is_seen",
+    # WF-16 step 6(b) (§9 item 463, chain U52)
+    "tests/package/test_wf16_study_tune_capacitors.py::test_wf16_s6b_r0_fixture_tie",
+    "tests/package/test_wf16_study_tune_capacitors.py::test_wf16_s6b_route_a_identity",
+    "tests/package/test_wf16_study_tune_capacitors.py::test_wf16_s6b_per_sheet_identity",
+    "tests/package/test_wf16_study_tune_capacitors.py::test_wf16_s6b_tuned_modal_by_construction",
+    "tests/package/test_wf16_study_tune_capacitors.py::test_wf16_s6b_k2_controls",
+    # WF-1 step 13 (§9 item 496)
+    "tests/package/test_wf1_yaml_capacitors.py::test_wf1_s13_route_a_identity",
+    "tests/package/test_wf1_yaml_capacitors.py::test_wf1_s13_yaml_equals_python_study",
+]
+
+[names.TwoPortQuadratureDrive]
+nodes = [
+    # WF-16 step 9 part A (§9 item 382, chain U36): the tuned copper F-human node
+    "tests/package/test_wf16_study_tuned_f_human.py::test_wf16_s9a_fixture_and_specs",
+    "tests/package/test_wf16_study_tuned_f_human.py::test_wf16_s9a_node_reproduces_h9p",
+    "tests/package/test_wf16_study_tuned_f_human.py::test_wf16_s9a_power_partition",
+    # WF-1 step 7b (§9 item 390b): the same Study driven from YAML through run_study_file
+    "tests/package/test_wf1_yaml_f_human_solve.py::test_wf1_fh_yaml_node_reproduces_h9p",
+    "tests/package/test_wf1_yaml_f_human_solve.py::test_wf1_fh_yaml_sar_reproduces_h9p",
+    "tests/package/test_wf1_yaml_f_human_solve.py::test_wf1_fh_yaml_b1_reproduces_h9p",
+    # WF-1 step 10b (§9 item 431b): the tuned drive's temperature hook, solved
+    "tests/package/test_wf1_yaml_f_human_thermal_solve.py::test_wf1_fht_cells_once_and_source",
+    "tests/package/test_wf1_yaml_f_human_thermal_solve.py::test_wf1_fht_ball_reproduces_p17",
+    "tests/package/test_wf1_yaml_f_human_thermal_solve.py::test_wf1_fht_controls",
+]
+
+[names.LumpedPortDrive]
+nodes = [
+    "tests/package/test_wf16_study_four_port.py::test_wf16_upstream_identity",
+    "tests/package/test_wf16_study_four_port.py::test_wf16_touchstone_equals_record",
+    "tests/package/test_wf16_study_four_port.py::test_wf16_port11_gates",
+    "tests/package/test_wf16_study_sweep.py::test_wf16_sweep_one_mesh_per_frequency_problems",
+    "tests/package/test_wf16_study_sweep.py::test_wf16_sweep_touchstone_equals_records",
+    "tests/package/test_wf16_study_sweep.py::test_wf16_sweep_port11_gates",
+]

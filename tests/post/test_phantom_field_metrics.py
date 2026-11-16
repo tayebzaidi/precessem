@@ -1,0 +1,216 @@
+"""Tests for phantom-region E/B extraction metrics and export (chunk D3)."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+import tempfile
+
+import numpy as np
+import ufl
+from mpi4py import MPI
+from dolfinx import fem
+
+from fem_em_solver.core import HomogeneousMaterial, TimeHarmonicProblem, TimeHarmonicSolver
+from fem_em_solver.io.mesh import MeshGenerator
+from fem_em_solver.materials import GelledSalinePhantomMaterial
+from fem_em_solver.post import compute_phantom_eb_metrics_and_export
+from fem_em_solver.post.phantom_fields import _evaluate_on_cells
+
+from tests.complex_mode import complex_only
+
+# GEO-23 step 2c (2026-08-28): the global cell count step 2b only printed,
+# now asserted.  Reference is step 1's -n 1 ladder on this generator, measured
+# on the dolfinx 0.11 image; the 0.7.2-era sizing (resolution=0.03) no longer
+# meshes at all, so there is no older count to compare against.  Step 2b
+# reproduced 5464 exactly (0.00%) at -n 1 and -n 2.
+N_CELLS_REF = 5464
+
+
+@complex_only
+def test_phantom_field_metrics_and_exports_are_finite():
+    """Compute phantom |E|/|B| stats and verify phantom-only exports are written."""
+    comm = MPI.COMM_WORLD
+
+    # GEO-23 step 2b (2026-08-28): 0.03 does not mesh on dolfinx 0.11 — gmsh
+    # throws "Invalid boundary mesh (overlapping facets)".  Step 1's -n 1
+    # ladder on this generator is monotone and its coarsest meshing rung is
+    # 0.024 (5 464 cells); the finer rungs are 0.0192 (9 330) / 0.01536
+    # (16 177) / 0.012288 (28 485).  Moved to the coarsest meshing rung.
+    mesh, cell_tags, facet_tags = MeshGenerator.coil_phantom_domain(
+        coil_major_radius=0.07,
+        coil_minor_radius=0.010,
+        coil_separation=0.08,
+        phantom_radius=0.03,
+        phantom_height=0.08,
+        air_padding=0.04,
+        resolution=0.024,
+        comm=comm,
+    )
+    # size_global is already a global quantity on every rank — do not sum
+    # size_local on top of it.
+    n_global = mesh.topology.index_map(mesh.topology.dim).size_global
+    if comm.rank == 0:
+        print(f"GEO-23 step 2b: coil_phantom_domain(resolution=0.024) -> {n_global} cells")
+    assert abs(n_global / N_CELLS_REF - 1) <= 0.01, (
+        f"coil_phantom_domain(resolution=0.024) meshed {n_global} cells, "
+        f"outside +/-1% of the GEO-23 step 1 ladder reference {N_CELLS_REF}"
+    )
+
+    background = HomogeneousMaterial(sigma=0.0, epsilon_r=1.0, mu_r=1.0)
+    phantom = GelledSalinePhantomMaterial(
+        sigma=0.72,
+        epsilon_r=76.5,
+        frequency_hz=127.74e6,
+        mu_r=1.0,
+    )
+
+    # Keep the test deterministic/lightweight by patching the magnetostatic backend.
+    from fem_em_solver.core import time_harmonic as time_harmonic_module
+
+    original_solver_cls = time_harmonic_module.MagnetostaticSolver
+
+    class DummyMagnetostaticSolver:
+        def __init__(self, *_args, degree=1, **_kwargs):
+            self.degree = degree
+
+        def solve(self, **_kwargs):
+            v = fem.functionspace(mesh, ("Lagrange", 1, (3,)))
+            a = fem.Function(v, name="A_dummy")
+            a.interpolate(lambda x: np.vstack((x[0], x[1], x[2])))
+            return a
+
+    time_harmonic_module.MagnetostaticSolver = DummyMagnetostaticSolver
+
+    try:
+        problem = TimeHarmonicProblem(
+            mesh=mesh,
+            frequency_hz=phantom.frequency_hz,
+            material=background,
+            cell_tags=cell_tags,
+            facet_tags=facet_tags,
+            phantom_material=phantom,
+            phantom_tag=3,
+        )
+        solver = TimeHarmonicSolver(problem, degree=1)
+
+        def current_density(x):
+            return ufl.as_vector([0.0, 0.0, 1.0])
+
+        fields = solver.solve(current_density=current_density, subdomain_ids=[1, 2], gauge_penalty=1e-3)
+    finally:
+        time_harmonic_module.MagnetostaticSolver = original_solver_cls
+
+    dg = fem.functionspace(mesh, ("DG", 1, (3,)))
+    b_field = fem.Function(dg, name="B_dummy")
+    b_field.interpolate(lambda x: np.vstack((np.ones_like(x[0]), -0.5 * np.ones_like(x[1]), 0.25 * np.ones_like(x[2]))))
+
+    root_output_dir = tempfile.mkdtemp(prefix="d3_phantom_metrics_") if comm.rank == 0 else None
+    output_dir = Path(comm.bcast(root_output_dir, root=0))
+
+    result = compute_phantom_eb_metrics_and_export(
+        fields.e_imag,
+        b_field,
+        cell_tags,
+        phantom_tag=3,
+        output_dir=output_dir,
+        basename="d3_test",
+        comm=comm,
+    )
+
+    e_stats = result["E_magnitude"]
+    b_stats = result["B_magnitude"]
+
+    assert e_stats["count"] > 0
+    assert b_stats["count"] > 0
+
+    for stats in (e_stats, b_stats):
+        assert np.isfinite(stats["min"])
+        assert np.isfinite(stats["max"])
+        assert np.isfinite(stats["mean"])
+        assert stats["max"] >= stats["min"] >= 0.0
+
+    assert e_stats["max"] > 0.0
+    assert b_stats["max"] > 0.0
+
+    assert e_stats["requested_cells"] >= e_stats["sampling_cells"] >= e_stats["count"] > 0
+    assert b_stats["requested_cells"] >= b_stats["sampling_cells"] >= b_stats["count"] > 0
+    assert e_stats["invalid_samples_dropped"] == 0
+    assert b_stats["invalid_samples_dropped"] == 0
+
+    if comm.rank == 0:
+        e_csv = Path(result["exports"]["E_csv"])
+        b_csv = Path(result["exports"]["B_csv"])
+        summary_json = Path(result["exports"]["summary_json"])
+
+        assert e_csv.exists(), f"Missing phantom E export: {e_csv}"
+        assert b_csv.exists(), f"Missing phantom B export: {b_csv}"
+        assert summary_json.exists(), f"Missing phantom summary export: {summary_json}"
+
+        summary = json.loads(summary_json.read_text(encoding="utf-8"))
+        assert summary["phantom_tag"] == 3
+        assert summary["E_magnitude"]["count"] > 0
+        assert summary["B_magnitude"]["count"] > 0
+        # `POST-1` step 5: the production default is the full owned tagged set.
+        # This call passes no ``prefer_interior_samples``, so the summary records
+        # what the default actually is — the one place the flip is observable
+        # from outside the module.
+        assert summary["sampling"]["prefer_interior_samples"] is False
+        assert summary["sampling"]["requested_cells"] >= summary["sampling"]["sampling_cells"]
+        assert summary["sampling"]["valid_sample_cells"] == summary["E_magnitude"]["count"]
+        assert "consistency" in summary
+        assert summary["consistency"]["e_to_b_mean_ratio"] > 0.0
+        assert summary["consistency"]["e_to_b_max_ratio"] > 0.0
+
+        print("phantom E/B diagnostics:")
+        print(
+            f"  |E| min/max/mean: {e_stats['min']:.6e} / {e_stats['max']:.6e} / {e_stats['mean']:.6e}"
+        )
+        print(
+            f"  |B| min/max/mean: {b_stats['min']:.6e} / {b_stats['max']:.6e} / {b_stats['mean']:.6e}"
+        )
+        print(f"  exports: {e_csv.name}, {b_csv.name}, {summary_json.name}")
+
+
+def test_evaluate_on_cells_fallback_skips_invalid_cell_point_pairs():
+    """Fallback path should retain valid samples when batched eval fails."""
+
+    class _DummyElement:
+        value_shape = (3,)
+
+    class _DummyFunctionSpace:
+        element = _DummyElement()
+
+    class _DummyField:
+        function_space = _DummyFunctionSpace()
+
+        def eval(self, points, cells):
+            cells = np.asarray(cells, dtype=np.int32)
+            points = np.asarray(points, dtype=np.float64)
+
+            if points.shape[0] > 1:
+                raise RuntimeError("batch evaluation failed")
+            if int(cells[0]) == 11:
+                raise RuntimeError("invalid containing cell")
+
+            x, y, z = points[0]
+            return np.asarray([[x + 1.0, y + 2.0, z + 3.0]], dtype=np.float64)
+
+    points = np.asarray(
+        [
+            [0.0, 0.0, 0.0],
+            [1.0, 0.0, 0.0],
+            [2.0, 0.0, 0.0],
+        ],
+        dtype=np.float64,
+    )
+    cells = np.asarray([10, 11, 12], dtype=np.int32)
+
+    values, valid_points, valid_cells, invalid = _evaluate_on_cells(_DummyField(), points, cells)
+
+    assert invalid == 1
+    assert valid_cells.tolist() == [10, 12]
+    assert valid_points.shape == (2, 3)
+    assert values.shape == (2, 3)
+    assert np.allclose(values[0], np.asarray([1.0, 2.0, 3.0]))
+    assert np.allclose(values[1], np.asarray([3.0, 2.0, 3.0]))

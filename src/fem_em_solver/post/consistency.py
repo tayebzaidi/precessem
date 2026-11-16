@@ -1,0 +1,103 @@
+"""Field-metric consistency diagnostics for coarse solver sanity checks.
+
+**Deprecated as the flagship consistency metric** (`POST-3`, 2026-07-31).
+``e_to_b_mean_ratio`` and its siblings here are shape indicators, not physics:
+with ``B = ∇×A`` and ``E ≈ −jωA`` the ratio is ``≈ ω|A|/|∇×A|``, i.e. a mesh
+length scale times ω.  It stays finite and unremarkable however wrong the solve
+is — the `POST-3` σ-blind negative control passes it — so it must not be quoted
+as evidence that a solve is right.
+
+Use :func:`fem_em_solver.post.power_balance.poynting_power_balance` for that:
+it compares ``−∮½Re(E×H̄)·n̂dS`` against ``½∫σ|E|²dV``, an identity with no free
+parameters that separates a correct solve (4.1% at 24³, log
+``20260731T140238Z_POST-3-probe.log``) from a σ-blind one (order 1) by two
+orders of magnitude.  The functions below are kept for the quick-look report,
+where "is the field shape suspicious?" is all they ever claimed to answer.
+"""
+
+from __future__ import annotations
+
+import math
+from typing import Mapping, Any
+
+
+def compute_field_consistency_diagnostics(
+    e_stats: Mapping[str, float],
+    b_stats: Mapping[str, float],
+    *,
+    scale_floor: float = 1e-16,
+    max_span_ratio_warn: float = 0.98,
+    max_mean_balance_rel_diff_warn: float = 0.95,
+    reference_speed_m_per_s: float | None = None,
+) -> dict[str, Any]:
+    """Build coarse consistency indicators from |E| and |B| statistics.
+
+    The diagnostics are intentionally lightweight and warning-oriented.
+    They are not strict physical acceptance checks; they flag suspicious
+    field-shape behavior for human follow-up.  See the module docstring: none
+    of these values can gate correctness — ``poynting_power_balance`` does.
+
+    ``mean_balance_rel_diff`` compares ``|E|`` (V/m) with ``v·|B|`` (T·m/s), so
+    it needs a speed: ``|E_mean − v·B_mean| / max(E_mean, v·B_mean)`` with
+    ``v = reference_speed_m_per_s`` — ``ω/|k|`` for a plane wave in a known
+    medium.  Without one the two means are not commensurable (|E| − |B| across
+    units read 0.99999996 on an exact plane wave, `POST-2`), so the key is
+    reported as ``None`` and no balance warning is raised.  A coil + phantom
+    field has no single reference speed.
+    """
+
+    e_min = float(e_stats["min"])
+    e_max = float(e_stats["max"])
+    e_mean = float(e_stats["mean"])
+    b_min = float(b_stats["min"])
+    b_max = float(b_stats["max"])
+    b_mean = float(b_stats["mean"])
+
+    e_scale = max(abs(e_max), scale_floor)
+    b_scale = max(abs(b_max), scale_floor)
+
+    e_span_ratio = (e_max - e_min) / e_scale
+    b_span_ratio = (b_max - b_min) / b_scale
+
+    e_to_b_mean_ratio = e_mean / max(b_mean, scale_floor)
+    e_to_b_max_ratio = e_max / max(b_max, scale_floor)
+    if reference_speed_m_per_s is None:
+        mean_balance_rel_diff = None
+    else:
+        speed = float(reference_speed_m_per_s)
+        if not math.isfinite(speed) or speed <= 0.0:
+            raise ValueError(
+                f"reference_speed_m_per_s must be finite and positive, got {reference_speed_m_per_s!r}"
+            )
+        scaled_b_mean = speed * b_mean
+        mean_balance_rel_diff = abs(e_mean - scaled_b_mean) / max(e_mean, scaled_b_mean, scale_floor)
+
+    warnings: list[str] = []
+    if e_span_ratio > max_span_ratio_warn:
+        warnings.append(
+            "E span ratio is near full scale; check for sharp gradients, singular samples, or coarse-mesh artifacts"
+        )
+    if b_span_ratio > max_span_ratio_warn:
+        warnings.append(
+            "B span ratio is near full scale; check for sharp gradients, singular samples, or coarse-mesh artifacts"
+        )
+    if mean_balance_rel_diff is not None and mean_balance_rel_diff > max_mean_balance_rel_diff_warn:
+        warnings.append(
+            "|E| and |B| mean magnitudes are strongly imbalanced; verify drive setup, material assignment, and units"
+        )
+
+    return {
+        "e_to_b_mean_ratio": float(e_to_b_mean_ratio),
+        "e_to_b_max_ratio": float(e_to_b_max_ratio),
+        "e_span_ratio": float(e_span_ratio),
+        "b_span_ratio": float(b_span_ratio),
+        "mean_balance_rel_diff": (
+            None if mean_balance_rel_diff is None else float(mean_balance_rel_diff)
+        ),
+        "thresholds": {
+            "scale_floor": float(scale_floor),
+            "max_span_ratio_warn": float(max_span_ratio_warn),
+            "max_mean_balance_rel_diff_warn": float(max_mean_balance_rel_diff_warn),
+        },
+        "warnings": warnings,
+    }

@@ -1,0 +1,147 @@
+# Ignore Python build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Documentation build
+docs/_build/
+site/
+
+# Data files
+*.h5
+*.xdmf
+*.pvd
+*.vtu
+*.vtk
+*.msh
+*.stl
+*.step
+*.stp
+# GEO-34 step 1d (§9 item 985): the CadQuery-authored fixture is committed
+# once and pinned by sha256; never regenerated per run.
+!tests/mesh/data/geo34_step1d_*.step
+
+# Large result files
+results/
+output/
+paraview_output/
+# Knob-tagged metrics an `ans:` override run writes beside the tracked
+# metrics.json (never committed — the OPS-59 artifact pin admits one
+# metrics.json per case). Untracked, they stop the next xl window and the
+# next slot at their dirty-tree preflights (2026-09-25 daily review).
+examples/ansys_benchmarks/*/metrics_*.json
+*.pkl
+*.npy
+*.npz
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+
+# Scheduled-automation session logs (top-level only; docs/testing/logs stays tracked)
+/logs/
+
+# Bash-sandbox masking artifacts. The sandbox shells into the repo root with the
+# user's profile, and masks personal dotfiles/config by bind-mounting /dev/null
+# over them -- they show up as untracked character devices in the repo and would
+# otherwise fail the scheduled implementer run's "git status must be clean"
+# preflight (docs/automation/implementer-run.md step 1). .vscode/ and .idea/ are
+# listed above as directories; the sandbox creates them as files, so the
+# trailing-slash patterns do not match and they need their own entries.
+/.bash_profile
+/.bashrc
+/.gitconfig
+/.gitmodules
+/.mcp.json
+/.profile
+/.ripgreprc
+/.zprofile
+/.zshrc
+/.idea
+/.vscode
+/.claude/commands
+/.claude/hooks
+/.claude/launch.json
+/.claude/loop.md
+/.claude/output-styles
+/.claude/routines
+/.claude/scheduled_tasks.json
+/.claude/settings.local.json
+/.claude/skills
+/.claude/workflows
+
+
+# Generated example output (examples write result tables into cwd;
+# tracked-output policy per d3d23c0 — example output does not live in git.
+# Unignored, these trip every implementer preflight: attempts.md 2026-08-04T00:30Z)
+# (the 2026-08-28 rename 67e4c1c prefixed the basename to
+# magnetostatics_02_circular_loop_results.txt and orphaned the bare pattern;
+# glob covers both — 2026-09-01 09:00 slot, EX-36 leg (root + mri + mat))
+*circular_loop_results.txt
+
+# Operator-provided copyrighted reference texts: readable in-repo (the
+# sandbox blocks reads outside it) but never committed or pushed.
+docs/references/*.epub
+docs/references/jin-fem-3e/
+
+# Ansys Electronics Desktop benchmark results (operator directive 2026-09-02).
+# Ansys licence terms restrict disclosure of benchmark results, so nothing
+# AED-derived is ever committed to this public repository: the operator's AED
+# exports and the results JSON live only on the operator's box, the example
+# writes the AED-filled comparison table to an untracked sibling file, and the
+# weekly review's numeric adjudication goes to docs/private/. Tracked
+# COMPARISON.md files keep their AED columns blank by construction.
+examples/ansys_benchmarks/*/aed_results/
+examples/ansys_benchmarks/*/COMPARISON_private.md
+docs/private/*
+!docs/private/README.md
+
+# Scratch commit-message files (git commit -F). Committed by a stray `git add
+# -A` twice on 2026-09-09; ignoring them is the fix, not resolving to be careful.
+/.msg*
+/.commitmsg*
+/.m
+/.m[0-9]*

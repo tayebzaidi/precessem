@@ -1,0 +1,183 @@
+# `-e 2` — magnetic field of a circular current loop
+
+Guide for `examples/magnetostatics/02_circular_loop.py`. Written to be followed
+without the source open.
+
+## 1. What this demonstrates
+
+The magnetostatic solver on a circular loop coil — 1.0 A in a torus of major
+radius 2 cm and wire radius 3 mm, inside a 6 cm air sphere — with the on-axis
+`B_z` compared against the closed form for a filamentary loop,
+`B_z(0) = μ₀I/2a`. This is the first example where the geometry is a **coil**
+rather than a wire, so it is the closest magnetostatic analogue of the birdcage
+target.
+
+Two design choices carry the accuracy, and both are visible in the source
+comments: the domain radius is **3× the loop radius**, because the natural
+`n × H = 0` wall acts as a magnetic mirror and inflates the field when it is
+close; and the outer boundary uses the **analytic Dirichlet** condition
+(`exterior_dirichlet_bc`) — the `MAG-13` treatment — rather than the natural
+wall that `-e 1` leaves in place. That is why this example lands an order of
+magnitude closer to its closed form than the straight wire does.
+
+On record at `-n 2` (`20260826T170305Z_EX-30-root2-run-mag2to4.log`,
+2026-08-26, commit `c466143`, dolfinx 0.11):
+
+| Quantity | Value |
+| --- | --- |
+| Mesh | **409 596 cells** (resolution 0.002 m) |
+| `B_z` at centre, numerical | **2.976768e-05 T** |
+| `B_z` at centre, analytic `μ₀I/2a` | **3.141593e-05 T** |
+| Relative L2 error on the axis | **6.2134%** |
+| Max relative error | **11.6541%** |
+| Magnetic energy | **2.466102e-08 J** |
+
+<!-- Re-recorded 2026-08-26 (EX-30 leg (root) completion, in-class (1*)
+     licence for un-asserted guide tables — this example carries 0 assert
+     statements). Superseded 0.7.2-image digits
+     (20260810T093203Z_EX-15-step1-refresh-allmag.log, 2026-08-10):
+     411 393 cells, B_z centre 2.974560e-05 T, relL2 6.3046%, max rel
+     13.5037% (at z = +0.0240 m), energy 2.466288e-08 J. The motion is the
+     0.11 mesh motion — 411 393 -> 409 596 cells, 0.44% — and every derived
+     figure moves sub-percent with it, except the max relative error, which
+     is a single-point statistic and moved 13.5037% -> 11.6541%. The run
+     prints no z for that maximum, so the old location is not carried
+     forward as if it had been re-measured. Analytic mu0*I/2a unmoved at
+     3.141593e-05 T. No band, tolerance or gate constant moved. -->
+
+The gate for this physics is `MAG-13` (✅, heavy tier): the loop fixture in
+`tests/validation/test_circular_loop.py` lands at **7.07%** with measured
+convergence rate **1.10** (PROJECT_PLAN.md §7). This example is the
+demonstration at its own resolution and sits in the same band — quote the
+example's numbers as the example's, and `MAG-13`'s as the gate's.
+
+## 2. How to run it
+
+```
+./run_examples.sh -e 2 -n 2 -t 180
+```
+
+Real DolfinX build; the runner selects it. Tier: **standard**. Cost is
+dominated by meshing, not solving: 411 k cells at resolution 0.002 m means
+≈48 s in the gmsh optimiser alone on the 2026-08-10 record. The source notes
+that relaxing the resolution to 0.0025 costs about 2% extra error — the trade
+is documented in the parameter comments.
+
+The VTX/`.bp` export was repaired 2026-08-10 (`EX-17`, the port of `EX-14`'s
+straight-wire fix). A healthy run prints, on rank 0,
+
+```
+  VTX round-trip check (EX-17 anchor):
+    in-memory  max|B| = 7.861367746496e-05 T
+    read-back  max|B| = 7.861367746496e-05 T
+    relative difference = 0.000e+00  (tol 1e-10)
+    control (read-back vs 0.5 x in-memory) = 1.000e+00  -- must exceed the band
+    ✓ written .bp reproduces the in-memory field
+    ✓ control separated: wrong reference reads rel ~ 1
+```
+
+— the written `magnetostatics_02_circular_loop_B.bp` read back through ADIOS2 and compared with
+the field still in memory (`20260916T094228Z_OPS-48-mag2.log`, Status 0, 136 s,
+real build, `-n 2`). A mismatch raises rather than printing a warning, and so
+does a read-back that cannot run at all. The `control` line is the negative
+control: the same comparison against a deliberately wrong reference (half the
+in-memory value) reads `1.000e+00`, i.e. 1e10× the 1e-10 band, so `0.000e+00`
+on the real comparison is evidence the file matches and not evidence that the
+comparison is inert.
+
+`OPS-48` (2026-09-16) restored this check, which is the `EX-14` port. Between
+the move to the dolfinx 0.11 image and that date the reader called the pre-2.10
+top-level `adios2.ADIOS()`, which `adios2` 2.12.1 no longer has;
+`_check_vtx_roundtrip` caught the `AttributeError`, printed
+`⚠ VTX round-trip read-back unavailable: …` and returned `False`, and the
+example still exited 0 — so the anchor did not execute on any run in that
+interval. The reader now uses `adios2.bindings` (the same low-level classes,
+moved) and the failure path raises. If you see the `⚠ unavailable` line in an
+older log, that run did not exercise this anchor. Older still, before the
+2026-08-10 `EX-17` repair, the run printed
+`⚠ VTX output failed (ADIOS2 may not be available)` on every rank and left
+`magnetostatics_02_circular_loop_A.bp` with zero ADIOS2 variables.
+
+## Setup figure
+
+![mag:2 setup — the circular loop in its air sphere](figures/magnetostatics_02_circular_loop_setup.png)
+
+`examples/magnetostatics/figures/magnetostatics_02_circular_loop_setup.png`.
+It is rendered right after `circular_loop_domain` builds the mesh
+(`FEM_EM_SETUP_FIGURES=1`). The 3-D panel hides the air and leaves the wire
+torus (copper) in the xy-plane. The slice is normal to y through the origin,
+so it cuts the torus at its two wire cross-sections at x = ±R and shows the
+plane that contains the loop axis, where the on-axis B profile lives.
+
+## 3. How to analyze it, step by step
+
+**Step 1 — check the centre field first.** `B_z(0)` numerical **2.974560e-05 T**
+against analytic **3.141593e-05 T** is a **5.32%** deficit, and it is a
+*deficit* for a physical reason: the loop is a torus of finite cross-section,
+not a filament, so the current is spread over `a/R = 0.15` and the centre field
+is biased low by `O((a/R)²)`. A centre field *above* the closed form is the
+diagnostic to worry about — that is the mirrored-wall signature, and it means
+the domain radius or the boundary condition changed.
+
+**Step 2 — read the on-axis table.** The run prints five sample points and
+writes the full sweep to `magnetostatics_02_circular_loop_results.txt` in the working directory.
+On record:
+
+| z [m] | `B_z` num [T] | `B_z` ana [T] | error |
+| --- | --- | --- | --- |
+| −0.0240 | 7.990011e-06 | 8.242617e-06 | 3.06% |
+| −0.0120 | 1.932907e-05 | 1.980804e-05 | 2.42% |
+| 0.0000 | 2.974560e-05 | 3.141593e-05 | 5.32% |
+| +0.0120 | 2.008817e-05 | 1.980804e-05 | 1.41% |
+| +0.0240 | 7.129556e-06 | 8.242617e-06 | 13.50% |
+
+What to look at: **the asymmetry between ±z.** The closed form is exactly
+symmetric, so the difference between the −0.0240 error (3.06%) and the +0.0240
+error (13.50%) is entirely numerical — mesh asymmetry plus the outer boundary,
+worst at the largest |z| where the axis comes nearest the wall. A run whose
+±z errors are equal would mean the mesh got symmetric (fine, and worth
+recording); a run where the *inner* points (±0.0120) degrade instead is a
+solver or gauge problem, since those are far from every boundary.
+
+**Step 3 — check the energy.** **2.466288e-08 J** is the global scalar that
+does not depend on where you sampled. It is the fastest check that a change was
+harmless: pointwise on-axis values can stay put while the off-axis field moves.
+
+**Step 4 — open the fields in ParaView.**
+`File → Open → paraview_output/magnetostatics_02_circular_loop_combined.xdmf` — one grid carrying
+`CellTags`, `A`, `B` and `B_analytical`.
+
+1. **Threshold** on `CellTags` to hide the conductor cells (the analytic
+   comparison is only meaningful outside the torus).
+2. **Stream Tracer** or **Glyph** on `B`, seeded on the axis. What to look at:
+   closed field loops threading the torus, symmetric about the loop plane, with
+   no flux appearing to originate at the outer wall.
+3. **Plot Over Line** along the z axis with `B` — this reproduces the table in
+   step 2 visually. (If you export it, ParaView names the CSV whatever you
+   choose; the guides call that file `lineplot.csv` illustratively.)
+4. **Calculator** `mag(B - B_analytical)`. What to look at: the error must peak
+   at the conductor surface and at the outer wall, and be smooth in between.
+   `B_analytical` here is the filamentary field, so large error *inside* the
+   torus is expected and is not a defect.
+
+**Step 5 — what a deviation means.** Centre field high → boundary/mirror;
+centre field low beyond ≈6% → wire cross-section or current density; on-axis
+errors symmetric but all larger → resolution; errors erratic point to point →
+the point-evaluation path (must be
+`post.evaluation.evaluate_vector_field_parallel`, never `B.eval(points,
+np.arange(n))`, and never a rank-local reduction).
+
+**Owner-cell sampling (`POST-8` step 3b-ii-e2a, `-n 2`).** The axis table samples
+the DG `B` through `evaluate_vector_field_parallel` with
+`owner="lowest_original_cell"`; nothing else changed and no record was
+re-recorded. Under the spied run 1 call was made, all 25 probes are
+single-incidence and bitwise equal to the legacy owner, and the mesh has no
+ghost cells (`cells_ghost` 0 on both ranks). Log:
+`20261020T213252Z_POST-8-step3b-ii-e2d-mag2-n2.log` (re-run on the e2d module).
+
+## Related
+
+- ParaView workflow for this group: `examples/magnetostatics/PARAVIEW_GUIDE.md`.
+- Combined-file layout: `examples/magnetostatics/COMBINED_XDMF_README.md`.
+- Two-coil version with a graded far field:
+  `examples/magnetostatics/04_helmholtz_analytic_comparison.md`.

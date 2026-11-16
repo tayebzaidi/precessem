@@ -1,0 +1,83 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(scripts/testing/run_and_log.sh *)",
+      "Bash(./run_tests.sh *)",
+      "Bash(docker compose *)",
+      "Bash(cd *)",
+      "Bash(git *)",
+      "Bash(date)",
+      "Bash(date *)",
+      "Bash(pwd)",
+      "Bash(crontab -l)",
+      "Edit(docker/Dockerfile)",
+      "Edit(docker/docker-compose.yml)"
+    ],
+    "ask": [
+      "Bash(git push*)",
+      "Bash(git fetch*)",
+      "Bash(git pull*)",
+      "Bash(git remote *)",
+      "Bash(git config --global*)",
+      "Bash(docker compose down*)",
+      "Bash(docker compose build*)",
+      "Bash(docker compose rm*)",
+      "Bash(crontab *)",
+      "Bash(claude *)",
+      "Bash(gh *)",
+      "Edit(.claude/**)",
+      "Edit(scripts/automation/**)",
+      "Edit(docker/.claude/**)"
+    ],
+    "deny": [
+      "Bash(curl *)",
+      "Bash(wget *)",
+      "Bash(ssh *)",
+      "Bash(scp *)",
+      "Bash(rsync *)",
+      "Bash(nc *)",
+      "Bash(ncat *)",
+      "Bash(sudo *)",
+      "Bash(su *)",
+      "Bash(apt *)",
+      "Bash(apt-get *)",
+      "Bash(pip *)",
+      "Bash(pip3 *)",
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Read(//home/user/.ssh/**)",
+      "Read(//home/user/.aws/**)",
+      "Read(//home/user/.gnupg/**)",
+      "Read(//home/user/.config/**)",
+      "Edit(//home/user/.ssh/**)",
+      "Edit(//home/user/.config/**)"
+    ],
+    "disableBypassPermissionsMode": "disable"
+  },
+  "sandbox": {
+    "excludedCommands": [
+      "docker *",
+      "scripts/testing/run_and_log.sh *",
+      "crontab -l"
+    ]
+  },
+  "env": {
+    "BASH_DEFAULT_TIMEOUT_MS": "240000",
+    "BASH_MAX_TIMEOUT_MS": "660000"
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/scripts/automation/hooks/bash_guard.py\"",
+            "timeout": 10,
+            "statusMessage": "Checking compute rules (rank ceiling, harness routing)"
+          }
+        ]
+      }
+    ]
+  }
+}

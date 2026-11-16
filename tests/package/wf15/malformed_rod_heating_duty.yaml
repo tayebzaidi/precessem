@@ -1,0 +1,39 @@
+# WF-17 step 43 (§9 item 941, §10 U152): MALFORMED on purpose. rod_heating.yaml verbatim plus a
+# `duty:` key under `thermal:`. The rod four-port thermal route has no duty cycle, so `load_study`
+# and `femem check` refuse it at field `thermal.duty` (unknown key), rc 2.
+# WF-15 step 14 (§9 items 831 / 884, §10 U127′): U97′'s PEC rod in the F-small four-port, degree 1,
+# 64 MHz, heated by port P1 at 1 V; MAT-15's gel, CN N = 40 to t* with two BE half-steps, 1 g tip balls.
+# source_scale omitted (1.0): θ is per 1 V on P1; the test scales by G = 1 / P_phantom (linear).
+femem: 1
+study:
+  frequency_hz: 64000000.0
+  degree: 1
+geometry:
+  kind: four_port_birdcage
+implant:
+  rod:
+    radius_m: 0.001
+    length_m: 0.03
+    centre_m: [0.015, 0.0, 0.0]
+    axis: [0.0, 0.0, 1.0]
+material:
+  sigma: 0.5
+  epsilon_r: 78.0
+excitation:
+  kind: lumped_port_drive
+thermal:
+  k_w_per_m_k: 0.6
+  h_w_per_m2_k: 10.0
+  t_inf_c: 20.0
+  degree: 1
+  drive: P1
+  transient:
+    dt_s: 31.35
+    n_steps: 40
+    rho_c_j_per_m3_k: 4180000.0
+    theta: 0.5
+    startup_half_steps: 2
+  balls:
+    mass_g: 1.0
+    centres: [[0.015, 0.0, 0.016], [0.015, 0.0, -0.016]]
+  duty: {period_s: 250.8, duty: 0.5}

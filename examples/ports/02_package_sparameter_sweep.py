@@ -1,0 +1,677 @@
+"""Package S-parameter sweep: ``run_n_port_sparameter_sweep`` on a solved field.
+
+`EX-20`.  The first example that drives the **package entry point**
+:func:`fem_em_solver.ports.sparameters.run_n_port_sparameter_sweep` rather than
+assembling ``Z`` by hand.  `EX-18` builds the impedance matrix itself and calls
+:func:`~fem_em_solver.ports.sparameters.sparameters_from_impedance` on it; this
+example hands the package a mesh, two :class:`PortDefinition` s and two
+:class:`~fem_em_solver.ports.gap_voltage.GapVoltagePortSpec` s and lets the sweep
+run both solves, assemble ``Z`` column by column, and convert.  That is the
+capability `PORT-1` step 4 gated on 2026-08-13 (its gate lives in
+``tests/validation/test_port_package_sparameters.py``), from the angle a user
+actually reaches for.
+
+**The negative control runs in this file, not beside it.**  The same sweep
+without ``gap_voltage_ports=`` is the retiring `PORT-0` proximity heuristic
+(known-issues 3): the example calls it on the same mesh and the same ports,
+shows its :class:`DeprecationWarning`, and asserts its S-matrix differs from the
+solved-field one.  A heuristic that happened to agree would be a finding about
+the gate, not a passing example.
+
+**Anchor.**  Every asserted number reproduces this case's **0.11-image** record
+within **1e-6 relative** (``1e-6`` *absolute* on the symmetry residual, which is
+itself only ~3.1e-05): raw mutual ``0.8945163788281``, corrected
+``0.9398215452105``, ``||S - S^T||/||S|| = 3.1121288540772e-05`` and
+``||S||_2 = 0.8613568944858``.  The two S records are `PORT-20` step 3's
+(2026-09-20): on this current-drive route ``S`` is ``z_to_s(Z)``, not the
+power-wave assembly that recorded ``4.7586341120262e-05`` / ``0.8648094567341``
+— those digits are kept in ``SUPERSEDED_POWERWAVE_RECORD`` and *asserted* to
+miss this run.  Nothing about ``Z`` moved, so the mutual-ratio records above are
+digit-identical across the correction.  All four were re-recorded by `OPS-33`
+(2026-09-03) from the current image; the superseded v0.7.2 digits are kept in
+``SUPERSEDED_V072_RECORD`` and *asserted* to fail the tightened band.  The
+raw mutual is printed **first and labelled a miss** — at -10.55% the unmoved 10%
+band would not accept it; only the two named systematics bring it inside.
+
+**What this example is not.**  Two-torus fixture only.  No birdcage ports, no
+B1+, no Touchstone export, and no ``S11`` claim (`PORT-1` step 2b localised an
+electric-energy excess on this fixture's diagonal).  ``PORT-1``'s reciprocity
+gate is closed; the *other* package S-parameter path (``ports/excitation.py``)
+remains the heuristic this file uses as its control.
+
+**A named limitation of the entry point.**  ``run_n_port_sparameter_sweep``
+returns port quantities, not fields: :class:`SParameterSweepResult` carries
+``s_matrix``/``z_matrix`` and per-port responses, and the solver's
+:class:`TimeHarmonicFields` are discarded inside it.  The ParaView export below
+therefore costs **one extra solve** of port 1's drive, run directly through
+:class:`~fem_em_solver.core.TimeHarmonicSolver` exactly as the sweep runs it.
+The example says so rather than exporting nothing or pretending the sweep
+produced the file.
+
+Run (complex build required)::
+
+    ./run_examples.sh -e ports:2
+    ./run_examples.sh -e ports:2 -n 2 -t 540
+
+Outputs ``paraview_output/ports_02_package_sparameter_sweep_combined.xdmf`` (mesh +
+CellTags + the port-1 drive's ``E`` fields; threshold on ``CellTags`` to see the
+gap boxes 101/102 and the conductors 1/2).
+"""
+
+from __future__ import annotations
+
+import time
+import warnings
+from pathlib import Path
+
+import numpy as np
+import ufl
+from mpi4py import MPI
+
+from dolfinx import default_scalar_type, fem
+
+from fem_em_solver.core import (
+    HomogeneousMaterial,
+    TimeHarmonicProblem,
+    TimeHarmonicSolver,
+)
+from fem_em_solver.io.mesh import MeshGenerator
+from fem_em_solver.io.paraview_utils import (
+    adopt_host_ownership,
+    write_xdmf_with_tags,
+)
+from fem_em_solver.ports.definitions import PortDefinition
+from fem_em_solver.ports.gap_voltage import GapVoltagePortSpec
+from fem_em_solver.ports.sparameters import run_n_port_sparameter_sweep
+from fem_em_solver.ports.systematics import mutual_systematics_ladder
+from fem_em_solver.post.setup_figure import write_setup_figure
+from fem_em_solver.utils.analytical import AnalyticalSolutions
+
+# ---------------------------------------------------------------------------
+# The fixture.  Restated from the gate module rather than imported: examples run
+# with PYTHONPATH=/workspace/src and must not depend on `tests/`.  Identical to
+# EX-18's and to tests/validation/test_port_package_sparameters.py's — the
+# anchor below is only reproducible on this geometry at this padding.
+FREQUENCY_HZ = 10.0e6
+OMEGA = 2.0 * np.pi * FREQUENCY_HZ
+MAJOR_RADIUS = 0.04  # a
+MINOR_RADIUS = 0.005  # r_wire
+SEPARATION = 0.04  # d, centre to centre along z
+AIR_PADDING = 0.08
+H_FAR = 0.03
+H_WIRE = 0.0025
+
+GAP_ANGLE = 0.30
+GAP_BURIAL = 1.0e-3
+GAP_OVERHANG = 2.0e-4
+GAP_ARC_RESOLUTION = 3.0e-4
+
+WIRE_TAGS = (1, 2)
+GAP_TAGS = (101, 102)
+
+# delta = sqrt(2/(omega*mu0*sigma)) = 5.63 mm = 1.13 r_wire: the current path is
+# inside a skin depth, which is what makes it resolvable at h_wire.
+SIGMA_WIRE_S_PER_M = 8.0e2
+DRIVE_CURRENT_A = 1.0
+REFERENCE_IMPEDANCE_OHM = 50.0
+
+# Step 3b-x's converged order for the terminal-to-terminal path integral.  The
+# gate module sweeps to measure the rate; the example takes the gated order, and
+# the raw-ratio reproduction below is what carries the precondition here.
+PATH_QUADRATURE_ORDER = 4097
+
+# ---------------------------------------------------------------------------
+# The anchor.  All four records are **0.11-image** digits, re-recorded by OPS-33
+# (2026-09-03) under the in-class (1*) example-record licence, from this case's
+# own current run: 20260902T183603Z_OPS-32.log:1395-1404 and the metrics.json
+# that run wrote (full precision; the log prints six figures of the same
+# numbers).  Before this re-record the two mutual-ratio digits were the v0.7.2
+# image's PORT-1 step-4 figures (docs/testing/logs/
+# 20260813T183606Z_PORT-1-step4-packagegate.log), which the 0.11 image misses by
+# 2.9e-05 relative — a stale record, not scatter (OPS-32's finding, the
+# OPS-27-class disposition).  The superseded digits are kept verbatim in
+# SUPERSEDED_V072_RECORD below and are used as this file's negative control.
+RECORDED_RAW_RATIO = 0.8945163788281
+RECORDED_CORRECTED_RATIO = 0.9398215452105
+# EX-30 leg (ports) re-record, 2026-08-26, under the in-class (1*) example-record
+# licence granted by the 2026-08-25 03:00 review (PROJECT_PLAN §9 item 3): the
+# two S-matrix records below are the ones the `PORT-9` leg (d3) power-wave
+# assembly moved (`S_ij = b_i/a_j` instead of converting the terminated `Z`), and
+# they are re-recorded from the gate module's *current* digits —
+# tests/validation/test_port_package_sparameters.py's
+# RECORDED_S_SYMMETRY_RATIO / RECORDED_PASSIVITY_MAX_SIGMA, which carry leg
+# (d3)'s route-tagged derivation in-comment.  The example restates rather than
+# imports them because examples run with PYTHONPATH=/workspace/src and must not
+# depend on `tests/` (same reason as the fixture block above); ans:3 imports them
+# from *here*, so this file stays the single example-side source.
+#
+# Old digits, kept: ||S - S^T||/||S|| read 2.5494e-05 on v0.7.2 / 184 919 cells
+# (the 20260813T183606Z step-4 log this block used to cite whole), 3.11213e-05 on
+# v0.11.0 / 184 176 cells through the terminated-Z conversion, and 4.758625e-05
+# on the same 184 176-cell mesh through the power-wave assembly.  ||S||_2 read
+# 0.861449 (v0.7.2), 0.861356895 (v0.11.0, terminated-Z) and 0.864809457
+# (power-wave).  Measured on current `main` this slot at 4.7586e-05 / 0.864809
+# (20260826T123139Z_EX-30-ports-run-1to2.log, the red that found the drift).
+# The physics gates (sigma_max <= 1, the gate module's unmoved 1e-3 symmetry
+# band, the 10% mutual band) are untouched by every re-record in this block.
+#
+# `PORT-20` step 3 re-record, 2026-09-20 (the chunk's own done-when; known-issues
+# 2026-09-19).  On this **current-drive (gap-voltage)** route the undriven ports
+# are open, not terminated in z0, so the power-wave assembly `S_ij = b_i/a_j`
+# that leg (d3) installed was not the 50 Ohm S-matrix at all; `PORT-20` routes
+# this branch through `sparameters_from_impedance(Z)`, i.e. S = z_to_s(Z).  `Z`
+# did not move (the two mutual-ratio records above are digit-identical, read off
+# `Z`), so only the two S records below move.  Old (power-wave) digits kept
+# beside the new in SUPERSEDED_POWERWAVE_RECORD and *asserted* to fail this
+# file's bands against the same run — the negative control that shows the
+# re-record is the thing that changed.  New digits are the gate module's `-n 2`
+# measurement (tests/validation/test_port_package_sparameters.py, step 2's
+# 20260920T095318Z_PORT-20.log:747: 3.1121288540771594e-05 /
+# 0.8613568944857581) — this file reproduces them on its own mesh to the miss
+# printed at full precision below.  No band moved.
+RECORDED_S_SYMMETRY_RESIDUAL = 3.1121288540772e-05
+RECORDED_S_SPECTRAL_NORM = 0.8613568944858
+
+# The superseded v0.7.2-image record, kept as data rather than prose so the
+# negative control below can *assert* that it fails the tightened band.
+# NB the "symmetry"/"spectral" entries here are the v0.7.2 *power-wave* digits,
+# superseded twice over (image, then `PORT-20`); only "raw"/"corrected" are
+# asserted from this dict.
+SUPERSEDED_V072_RECORD = {
+    "raw": 0.894543,
+    "corrected": 0.939849,
+    "symmetry": 4.758625e-05,
+    "spectral": 0.864809457,
+}
+
+# `PORT-20` step 3: the immediately preceding records of the two S quantities —
+# the power-wave assembly's, on this image and this mesh.  Kept as data so the
+# negative control below can *assert* that they miss the corrected run by more
+# than this file's band (predicted ~1.6e-05 absolute in the symmetry residual
+# and ~4.0e-03 relative in ||S||_2, known-issues 2026-09-19).
+SUPERSEDED_POWERWAVE_RECORD = {
+    "symmetry": 4.7586341120262e-05,
+    "spectral": 0.8648094567341,
+}
+
+# OPS-33 (2026-09-03): with the records re-based onto this image, these four
+# misses are a genuine run-to-run *reproduction* control rather than a
+# cross-image record comparison, so the band drops from EX-20's pre-stated 1%
+# to 1e-6 against EX-37's measured <= 5e-8 run-to-run Z/S scatter — >= 20x
+# headroom.  The symmetry residual gets an ABSOLUTE band instead: it is itself
+# ~4.8e-05, so a 5e-8 S-entry scatter is ~1e-3 of it *relatively* and a relative
+# 1e-6 there is arithmetically unreachable (OPS-32 watched that entry move
+# 1.71e-06 -> 1.91e-06 between two runs of identical code).  1e-6 absolute
+# against a 5e-8 scatter is the same 20x headroom.
+REPRODUCTION_BAND_RELATIVE = 1.0e-6
+REPRODUCTION_BAND_SYMMETRY_ABSOLUTE = 1.0e-6
+
+# PORT-1's own mutual band, unmoved since 3b-ii: the gate the corrected ratio
+# must sit inside and the raw ratio does not.
+MUTUAL_TOLERANCE = 0.10
+# Passivity is an inequality, not a reproduction: ||S||_2 <= 1 for a passive
+# 2-port, asserted beside the 1% reproduction of the recorded value.
+S_SPECTRAL_NORM_CEILING = 1.0
+# The negative control's floor: the heuristic S must differ from the solved
+# field's by more than this.  3.078e-01 on record — two orders of magnitude of
+# headroom, so this is a floor, not a fitted threshold.
+HEURISTIC_SEPARATION_FLOOR = 2.0e-3
+
+OUTPUT_DIR = Path(__file__).resolve().parent / "paraview_output"
+BASENAME = "ports_02_package_sparameter_sweep"
+FIGURE_DIR = Path(__file__).resolve().parent / "figures"  # committed, EX-57
+SETUP_BASENAME = "ports_02_package_sparameter_sweep_setup"
+AIR_TAG = 3  # MeshGenerator.two_torus_domain's air-box tag, cited not restated
+
+
+def _mutual_inductance(a: float, rho: float, z: float) -> float:
+    """Filamentary ``M12`` between two coaxial loops, the closed-form target."""
+    pts = np.array([[rho, 0.0, z]], dtype=float)
+    A = AnalyticalSolutions.circular_loop_vector_potential(pts, 1.0, a, loop_center=0.0)
+    return 2.0 * np.pi * rho * float(A[0, 1])
+
+
+def _gap_half_extents():
+    half_xz = MINOR_RADIUS + GAP_OVERHANG
+    half_y = MAJOR_RADIUS * np.sin(0.5 * GAP_ANGLE) + GAP_BURIAL
+    return half_xz, half_y
+
+
+def _gap_box_edge_angle() -> float:
+    _, half_y = _gap_half_extents()
+    return float(np.arcsin(half_y / MAJOR_RADIUS))
+
+
+def _azimuthal_unit(x):
+    rho = ufl.sqrt(x[0] ** 2 + x[1] ** 2 + 1e-24)
+    return ufl.as_vector([-x[1] / rho, x[0] / rho, 0.0])
+
+
+def _arc_quadrature(port_index: int, order: int):
+    """Gauss-Legendre nodes on the centreline arc, terminal to terminal.
+
+    Weights carry the arc-length factor ``a`` so the spec's contract
+    (``V = -sum(w_i (E.that)_i)``) holds.  Legendre nodes are strictly interior,
+    so the terminals themselves — where a point locates into a cell on either
+    side of the material interface — are never sampled.
+    """
+    phi_term = _gap_box_edge_angle()
+    nodes, weights = np.polynomial.legendre.leggauss(order)
+    phi = phi_term * nodes
+    z_c = (-1.0) ** (port_index + 1) * SEPARATION / 2.0
+    points = np.column_stack(
+        [
+            MAJOR_RADIUS * np.cos(phi),
+            MAJOR_RADIUS * np.sin(phi),
+            np.full_like(phi, z_c),
+        ]
+    )
+    tangents = np.column_stack([-np.sin(phi), np.cos(phi), np.zeros_like(phi)])
+    return points, tangents, MAJOR_RADIUS * phi_term * weights
+
+
+def _tag_volume(msh, cell_tags, tag: int, comm) -> float:
+    """Globally reduced meshed volume of one cell tag (rank-local otherwise)."""
+    dx = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(int(tag),))
+    one = fem.Constant(msh, default_scalar_type(1.0))
+    local = fem.assemble_scalar(fem.form(one * dx))
+    return float(np.real(comm.allreduce(local, op=MPI.SUM)))
+
+
+def _gap_drive(j_magnitude: float):
+    """Impressed current density across a gap box, along ``+yhat``.
+
+    The same drive ``run_gap_voltage_port_case`` builds internally; reproduced
+    here only for the ParaView export's extra solve.  It is not solenoidal — it
+    terminates on the arc end faces where the conduction current takes over —
+    hence ``project_source=False``.
+    """
+
+    def current_density(x):
+        return ufl.as_vector([0.0, j_magnitude, 0.0])
+
+    return current_density
+
+
+def _paraview_fields(msh, fields):
+    """CG1 ``E_real`` / ``E_imag`` / ``E_magnitude`` from the solved phasor.
+
+    XDMF cannot carry N1curl, and the writers take Lagrange interpolants only
+    (the `EX-14`/`EX-17` lesson).
+    """
+    v_cg = fem.functionspace(msh, ("Lagrange", 1, (3,)))
+    e_cg = fem.Function(v_cg, name="E_phasor")
+    e_cg.interpolate(fields.e_complex)
+    e_cg.x.scatter_forward()
+
+    e_re = fem.Function(v_cg, name="E_real")
+    e_re.x.array[:] = np.real(e_cg.x.array)
+    e_im = fem.Function(v_cg, name="E_imag")
+    e_im.x.array[:] = np.imag(e_cg.x.array)
+
+    s_cg = fem.functionspace(msh, ("Lagrange", 1))
+    e_mag = fem.Function(s_cg, name="E_magnitude")
+    components = np.abs(e_cg.x.array.reshape(-1, 3))
+    e_mag.x.array[:] = np.sqrt(np.sum(components * components, axis=1))
+
+    for f in (e_re, e_im, e_mag):
+        f.x.scatter_forward()
+    return e_re, e_im, e_mag
+
+
+def _relative_miss(measured: float, recorded: float) -> float:
+    return abs(measured - recorded) / abs(recorded)
+
+
+def _absolute_miss(measured: float, recorded: float) -> float:
+    return abs(measured - recorded)
+
+
+def main() -> None:
+    comm = MPI.COMM_WORLD
+    started = time.perf_counter()
+
+    if not np.issubdtype(np.dtype(default_scalar_type), np.complexfloating):
+        raise RuntimeError(
+            "This example needs the complex DolfinX build: "
+            "source /usr/local/bin/dolfinx-complex-mode (the runner does this "
+            "automatically for the `ports:` group)."
+        )
+
+    if comm.rank == 0:
+        print("=" * 78, flush=True)
+        print("EX-20 — run_n_port_sparameter_sweep on the solved field", flush=True)
+        print("=" * 78, flush=True)
+
+    # -- the fixture ------------------------------------------------------
+    t_mesh = time.perf_counter()
+    msh, cell_tags, _facet_tags = MeshGenerator.two_torus_domain(
+        separation=SEPARATION,
+        major_radius=MAJOR_RADIUS,
+        minor_radius=MINOR_RADIUS,
+        resolution=H_FAR,
+        air_padding=AIR_PADDING,
+        wire_resolution=H_WIRE,
+        far_resolution=H_FAR,
+        port_gap=True,
+        gap_angle=GAP_ANGLE,
+        gap_burial=GAP_BURIAL,
+        gap_overhang=GAP_OVERHANG,
+        gap_arc_resolution=GAP_ARC_RESOLUTION,
+        comm=comm,
+    )
+    t_mesh = time.perf_counter() - t_mesh
+
+    tdim = msh.topology.dim
+    ncells = comm.allreduce(msh.topology.index_map(tdim).size_local, op=MPI.SUM)
+    # Unconditionally on every rank, before any tagged form: the assembler
+    # reaches `create_entity_permutations` lazily and only on ranks owning
+    # integration entities (PORT-1 step 3b-iv, known-issues 9).
+    msh.topology.create_connectivity(tdim - 1, tdim)
+    msh.topology.create_entity_permutations()
+
+    if comm.rank == 0:
+        print(
+            f"[EX-20] mesh: {ncells} cells in {t_mesh:.1f} s "
+            f"(padding {AIR_PADDING}, gap arc {GAP_ARC_RESOLUTION:.1e})",
+            flush=True,
+        )
+
+    # EX-57 setup figure, right after the mesh is built (the one mesh the
+    # package sweep, heuristic control and export solve all reuse) and
+    # outside any printed timer. Same fixture as `ports:1` (`EX-18`):
+    # `MeshGenerator.two_torus_domain`, cell tags 1/2 the two partial-torus
+    # conductors, 101/102 the rectangular gap boxes carrying the two
+    # lumped ports, 3 the air box (hidden). Sliced normal to y (the x-z
+    # plane), the plane that shows both gap boxes (near +x) and both
+    # conductor cross-sections (near -x).
+    write_setup_figure(
+        msh,
+        cell_tags,
+        FIGURE_DIR / f"{SETUP_BASENAME}.png",
+        region_names={
+            WIRE_TAGS[0]: "loop 1 conductor",
+            WIRE_TAGS[1]: "loop 2 conductor",
+            GAP_TAGS[0]: "port 1 gap",
+            GAP_TAGS[1]: "port 2 gap",
+            AIR_TAG: "air",
+        },
+        hide_tags=(AIR_TAG,),
+        slice_normal=(0.0, 1.0, 0.0),
+        title="ports:2 -- two-torus package, n-port S sweep (PORT-1 gate)",
+        comm=comm,
+    )
+
+    problem = TimeHarmonicProblem(
+        mesh=msh,
+        frequency_hz=FREQUENCY_HZ,
+        material=HomogeneousMaterial(sigma=0.0, epsilon_r=1.0, mu_r=1.0),
+        cell_tags=cell_tags,
+        material_map={
+            tag: HomogeneousMaterial(sigma=SIGMA_WIRE_S_PER_M, epsilon_r=1.0, mu_r=1.0)
+            for tag in WIRE_TAGS
+        },
+        boundary_condition="pec_zero_tangential_a",
+    )
+
+    # -- what the package needs: definitions + gap-voltage specs -----------
+    _, half_y = _gap_half_extents()
+    ports = [
+        PortDefinition(
+            port_id=f"P{k + 1}",
+            positive_tag=GAP_TAGS[k],
+            negative_tag=WIRE_TAGS[k],
+            orientation="gap_azimuthal_plus_y",
+            z0_ohm=REFERENCE_IMPEDANCE_OHM,
+        )
+        for k in range(2)
+    ]
+    specs = []
+    for k in range(2):
+        points, tangents, weights = _arc_quadrature(k, PATH_QUADRATURE_ORDER)
+        specs.append(
+            GapVoltagePortSpec(
+                port_id=f"P{k + 1}",
+                gap_cell_tag=GAP_TAGS[k],
+                gap_length_m=2.0 * half_y,
+                conductor_cell_tag=WIRE_TAGS[k],
+                conductor_sigma_s_per_m=SIGMA_WIRE_S_PER_M,
+                conductor_direction=_azimuthal_unit,
+                conductor_cross_section_m2=float(np.pi * MINOR_RADIUS**2),
+                path_points=points,
+                path_tangents=tangents,
+                path_weights=weights,
+                drive_direction=(0.0, 1.0, 0.0),
+                drive_current_a=DRIVE_CURRENT_A,
+            )
+        )
+
+    # -- one call: two solves, Z column by column, S at Z0 -----------------
+    t_sweep = time.perf_counter()
+    solved = run_n_port_sparameter_sweep(problem, ports, gap_voltage_ports=specs)
+    t_sweep = time.perf_counter() - t_sweep
+
+    assert not solved.is_placeholder, (
+        "the solved-field route returned is_placeholder=True — the flag that "
+        "gates Touchstone export must distinguish it from the heuristic"
+    )
+    assert solved.z_matrix is not None, "the solved-field route must return its Z"
+
+    # -- the negative control, on the same mesh and the same ports ---------
+    t_heuristic = time.perf_counter()
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        heuristic = run_n_port_sparameter_sweep(problem, ports)
+        deprecations = [w for w in caught if issubclass(w.category, DeprecationWarning)]
+    t_heuristic = time.perf_counter() - t_heuristic
+
+    # -- the ladder, raw rung first ---------------------------------------
+    omega_m12 = OMEGA * _mutual_inductance(MAJOR_RADIUS, MAJOR_RADIUS, SEPARATION)
+    im_z12 = float(solved.z_matrix[1, 0].imag)
+    ladder = mutual_systematics_ladder(im_z12, omega_m12)
+
+    s = solved.s_matrix
+    s_symmetry = float(np.linalg.norm(s - s.T) / np.linalg.norm(s))
+    s_spectral = float(np.linalg.norm(s, 2))
+    z_reciprocity = float(
+        abs(solved.z_matrix[0, 1] - solved.z_matrix[1, 0]) / abs(solved.z_matrix[1, 0])
+    )
+    heuristic_delta = float(np.max(np.abs(heuristic.s_matrix - s)))
+
+    misses = {
+        "raw": _relative_miss(ladder["raw"], RECORDED_RAW_RATIO),
+        "corrected": _relative_miss(ladder["corrected"], RECORDED_CORRECTED_RATIO),
+        # absolute, not relative — see REPRODUCTION_BAND_SYMMETRY_ABSOLUTE
+        "symmetry": _absolute_miss(s_symmetry, RECORDED_S_SYMMETRY_RESIDUAL),
+        "spectral": _relative_miss(s_spectral, RECORDED_S_SPECTRAL_NORM),
+    }
+    superseded_misses = {
+        "raw": _relative_miss(ladder["raw"], SUPERSEDED_V072_RECORD["raw"]),
+        "corrected": _relative_miss(
+            ladder["corrected"], SUPERSEDED_V072_RECORD["corrected"]
+        ),
+    }
+    # `PORT-20` step 3's negative control: the power-wave records of the two S
+    # quantities, against this (corrected) run.  Same kinds as the anchors —
+    # absolute on the symmetry residual, relative on ||S||_2.
+    powerwave_misses = {
+        "symmetry": _absolute_miss(s_symmetry, SUPERSEDED_POWERWAVE_RECORD["symmetry"]),
+        "spectral": _relative_miss(s_spectral, SUPERSEDED_POWERWAVE_RECORD["spectral"]),
+    }
+
+    if comm.rank == 0:
+        print(
+            f"[EX-20] package sweep: Im Z12 = {im_z12:+.9e} Ohm, "
+            f"omega*M12 = {omega_m12:.6f} Ohm",
+            flush=True,
+        )
+        print(f"[EX-20] Z (Ohm) through the package:\n{solved.z_matrix}", flush=True)
+        print(
+            "[EX-20] systematics ladder, raw rung FIRST (the miss it is):\n"
+            f"    raw            {ladder['raw']:.6f}  "
+            f"({100.0 * ladder['raw_deviation']:+.2f}%  <- a MISS against the "
+            f"{100.0 * MUTUAL_TOLERANCE:.0f}% band)\n"
+            f"    + PEC box      {ladder['box_corrected']:.6f}\n"
+            f"    + gap physics  {ladder['corrected']:.6f}  "
+            f"({100.0 * ladder['deviation']:+.2f}%, inside the band)",
+            flush=True,
+        )
+        print(f"[EX-20] S at Z0 = {REFERENCE_IMPEDANCE_OHM:.0f} Ohm:\n{s}", flush=True)
+        print(
+            f"[EX-20] identities: |Z12 - Z21|/|Z21| = {z_reciprocity:.4e}, "
+            f"||S - S^T||/||S|| = {s_symmetry:.4e}, ||S||_2 = {s_spectral:.6f}",
+            flush=True,
+        )
+        print(
+            "[EX-20] reproduction of the 0.11-image record (band "
+            f"{REPRODUCTION_BAND_RELATIVE:.0e} relative, "
+            f"{REPRODUCTION_BAND_SYMMETRY_ABSOLUTE:.0e} absolute on symmetry): "
+            f"raw {misses['raw']:.2e}, corrected {misses['corrected']:.2e}, "
+            f"symmetry {misses['symmetry']:.2e} (abs), "
+            f"||S||_2 {misses['spectral']:.2e}",
+            flush=True,
+        )
+        print(
+            "[EX-20] negative control — the superseded v0.7.2 record misses the "
+            f"same run by raw {superseded_misses['raw']:.2e}, corrected "
+            f"{superseded_misses['corrected']:.2e}, both > the "
+            f"{REPRODUCTION_BAND_RELATIVE:.0e} band that now gates it",
+            flush=True,
+        )
+        # PORT-20 step 3: the records at the precision they are written to, plus
+        # the power-wave records they replaced and the miss that separates them.
+        print(
+            f"[EX-20] [PORT-20 step 3] S = z_to_s(Z) on this route: "
+            f"||S - S^T||/||S|| = {s_symmetry!r}, ||S||_2 = {s_spectral!r}\n"
+            f"    negative control — the superseded power-wave records miss this "
+            f"run by symmetry {powerwave_misses['symmetry']:.3e} (abs, band "
+            f"{REPRODUCTION_BAND_SYMMETRY_ABSOLUTE:.0e}), ||S||_2 "
+            f"{powerwave_misses['spectral']:.3e} (rel, band "
+            f"{REPRODUCTION_BAND_RELATIVE:.0e})",
+            flush=True,
+        )
+        print(
+            "[EX-20] negative control — the deprecated heuristic route "
+            f"({len(deprecations)} DeprecationWarning(s)):\n{heuristic.s_matrix}\n"
+            f"    max|S_heuristic - S_field| = {heuristic_delta:.6e} "
+            f"(floor {HEURISTIC_SEPARATION_FLOOR:.1e})",
+            flush=True,
+        )
+        for w in deprecations:
+            print(f"    DeprecationWarning: {w.message}", flush=True)
+
+    # -- gates -------------------------------------------------------------
+    for name, recorded, band, kind in (
+        ("raw", RECORDED_RAW_RATIO, REPRODUCTION_BAND_RELATIVE, "relative"),
+        ("corrected", RECORDED_CORRECTED_RATIO, REPRODUCTION_BAND_RELATIVE, "relative"),
+        (
+            "symmetry",
+            RECORDED_S_SYMMETRY_RESIDUAL,
+            REPRODUCTION_BAND_SYMMETRY_ABSOLUTE,
+            "absolute",
+        ),
+        ("spectral", RECORDED_S_SPECTRAL_NORM, REPRODUCTION_BAND_RELATIVE, "relative"),
+    ):
+        assert misses[name] < band, (
+            f"{name} does not reproduce the 0.11-image record {recorded:.10g} "
+            f"within {band:.0e} {kind}: {kind} miss {misses[name]:.3e} — the "
+            "example path is not the gated path"
+        )
+
+    # The negative control the band exists for: the superseded v0.7.2 digits must
+    # FAIL the tightened band against this same run, so the band is shown to bite
+    # rather than merely to be satisfied by a freshly re-based record.
+    for name in ("raw", "corrected"):
+        assert superseded_misses[name] > REPRODUCTION_BAND_RELATIVE, (
+            f"negative control failed: the superseded v0.7.2 {name} record "
+            f"{SUPERSEDED_V072_RECORD[name]:.6g} misses this run by only "
+            f"{superseded_misses[name]:.3e}, inside the "
+            f"{REPRODUCTION_BAND_RELATIVE:.0e} band — the tightened band is not "
+            "discriminating and the re-record was not the thing that fixed it"
+        )
+
+    # `PORT-20` step 3's own negative control, one per re-recorded S record: the
+    # power-wave digits must miss this run by MORE than the band that accepts the
+    # new ones, or the correction would not be measurable here.
+    for name, band, kind in (
+        ("symmetry", REPRODUCTION_BAND_SYMMETRY_ABSOLUTE, "absolute"),
+        ("spectral", REPRODUCTION_BAND_RELATIVE, "relative"),
+    ):
+        assert powerwave_misses[name] > band, (
+            f"PORT-20 negative control failed: the superseded power-wave "
+            f"{name} record {SUPERSEDED_POWERWAVE_RECORD[name]:.10g} misses this "
+            f"corrected run by only {powerwave_misses[name]:.3e} {kind}, inside "
+            f"the {band:.0e} band — S did not move when the route's assembly did"
+        )
+
+    assert abs(ladder["raw_deviation"]) >= MUTUAL_TOLERANCE, (
+        f"the raw mutual {ladder['raw']:.6f} passed the "
+        f"{100.0 * MUTUAL_TOLERANCE:.0f}% band on its own — the systematics "
+        "this example exists to show would be doing nothing"
+    )
+    assert abs(ladder["deviation"]) < MUTUAL_TOLERANCE, (
+        f"corrected mutual {ladder['corrected']:.6f} is "
+        f"{100.0 * ladder['deviation']:+.2f}% against the closed form, outside "
+        f"the unmoved {100.0 * MUTUAL_TOLERANCE:.0f}% band"
+    )
+    assert s_spectral <= S_SPECTRAL_NORM_CEILING, (
+        f"S is not passive: ||S||_2 = {s_spectral:.6f} > "
+        f"{S_SPECTRAL_NORM_CEILING:.1f}"
+    )
+    assert heuristic.is_placeholder, "the heuristic route must keep marking itself"
+    assert deprecations, (
+        "the heuristic route must emit a DeprecationWarning now that the "
+        "solved-field route exists"
+    )
+    assert heuristic_delta > HEURISTIC_SEPARATION_FLOOR, (
+        f"the retiring heuristic reproduces the solved-field S to "
+        f"{heuristic_delta:.3e} — that is a finding about the heuristic, not a "
+        "passing example"
+    )
+
+    # -- ParaView: one extra solve, because the sweep returns no fields ----
+    gap_volume = _tag_volume(msh, cell_tags, GAP_TAGS[0], comm)
+    gap_area = gap_volume / (2.0 * half_y)
+    t_export_solve = time.perf_counter()
+    fields = TimeHarmonicSolver(problem, degree=1).solve(
+        current_density=_gap_drive(DRIVE_CURRENT_A / gap_area),
+        subdomain_ids=[int(GAP_TAGS[0])],
+        project_source=False,
+    )
+    t_export_solve = time.perf_counter() - t_export_solve
+
+    OUTPUT_DIR.mkdir(exist_ok=True)
+    e_re, e_im, e_mag = _paraview_fields(msh, fields)
+    written = write_xdmf_with_tags(
+        OUTPUT_DIR / f"{BASENAME}_combined",
+        msh,
+        cell_tags,
+        {"E_real": e_re, "E_imag": e_im, "E_magnitude": e_mag},
+        comm=comm,
+    )
+    adopt_host_ownership(OUTPUT_DIR, comm=comm)
+
+    elapsed = time.perf_counter() - started
+    if comm.rank == 0:
+        if written is not None:
+            print(f"[EX-20] wrote {written[0]} (+ .h5)", flush=True)
+        print(
+            f"[EX-20] all gates green: raw {ladder['raw']:.6f} (a miss), "
+            f"corrected {ladder['corrected']:.6f} "
+            f"({100.0 * ladder['deviation']:+.2f}%, inside "
+            f"{100.0 * MUTUAL_TOLERANCE:.0f}%); ||S - S^T||/||S|| = "
+            f"{s_symmetry:.4e}; ||S||_2 = {s_spectral:.6f} <= 1; heuristic "
+            f"control separated by {heuristic_delta:.3e}",
+            flush=True,
+        )
+        print(
+            f"[EX-20] elapsed {elapsed:.1f} s (mesh {t_mesh:.1f} s, package "
+            f"sweep {t_sweep:.1f} s, heuristic control {t_heuristic:.1f} s, "
+            f"export solve {t_export_solve:.1f} s) on {comm.size} rank(s), "
+            f"{ncells} cells",
+            flush=True,
+        )
+
+
+if __name__ == "__main__":
+    main()

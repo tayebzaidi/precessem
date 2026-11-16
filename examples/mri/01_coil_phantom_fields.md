@@ -1,0 +1,336 @@
+# `-e mri:1` — coil + gelled saline phantom: the **ungated end-to-end demo**
+
+Guide for `examples/mri/01_coil_phantom_fields.py`.
+Written to be followed without the source open.
+
+## 1. What this demonstrates
+
+**Plumbing, and nothing else. This is the one ungated example in the tree.**
+Every other example under `examples/` asserts an anchor from a gate that has
+closed; this one asserts nothing. It shows that mesh generation, material
+assignment, both solvers, the phantom-metrics post path and the ParaView export
+all connect and run to completion on an MRI-shaped geometry — two coils, a
+gelled saline phantom, air — at 127.74 MHz.
+
+**No number it prints is evidence about the physics.** None is compared against
+a closed form or any other reference. Read PROJECT_PLAN.md §2 before quoting one.
+The chunk is `WF-1`, status 🧪 (end-to-end demo), and it stays 🧪.
+
+Two specific reasons the numbers are not physics, both visible in the output:
+
+- **The drive is a proxy.** A uniform `z`-directed current density is imposed
+  over both torus regions; it is not a birdcage, not a gap-voltage port, and not
+  resonant. Ports and B1+ are deliberately unscoped (`PORT-1`, §2).
+- **Nothing in the output relates `|E|` to `|B|`.** The run prints
+  `|E|/|B| mean ratio: 1.529306e+08`. That figure carries m/s (≈ 0.51 c), and a
+  coil + phantom field has no single reference speed to hold it against, so the
+  script reports no mean-balance figure (`n/a`) and raises no balance warning.
+  *(Corrected 2026-09-30.)* Until then the script subtracted `|B|` in T from
+  `|E|` in V/m, printed `1.000000` and warned, and this guide called that a
+  balance check "failing by eight orders of magnitude" because of the proxy
+  drive. That attribution was wrong: an exact lossy plane wave read 0.99999996
+  through the same formula (`POST-2`,
+  `20260930T033548Z_POST-2-W1.log:116–117`). The ratio stays what `POST-3`
+  called it, a shape indicator.
+
+What *is* real: `TH-6` (the lossy plane wave, ✅ 2026-07-31) gates the
+time-harmonic formulation itself, and `th:1` demonstrates it. That gate says
+nothing about *this* geometry — the mesh here is 9291 cells at the `debug`
+preset, unconverged by any measure.
+
+Since `EX-16` (2026-08-10) the frequency-domain leg solves through the solver's
+**default direct path** and reports `converged=True (reason=4)` in one
+iteration, at the validated magnetostatic gauge floor `gauge_penalty=1.0`. It
+previously overrode that with GMRES+Jacobi and stopped at `ksp_max_it` with
+`converged=False (reason=-3)`, `residual_norm=1.684628e+00`. A converged solve
+at the validated gauge floor is strictly better than a truncated iterate at a
+sub-floor penalty — but see the caveat below, because it did **not** fix what it
+was hypothesised to fix.
+
+### The closed caveat: the centerline block used to be rank-dependent
+
+**This is history now, but read it — it is the most instructive thing in this
+guide.** Through `EX-16` (2026-08-10) the five printed centerline `(|E|, |B|)`
+pairs spread by **23.5539%** between `-n 2` and `-n 4` — against **23.5545%**
+for the unconverged solve it replaced, a ratio of **1.0000**: converging the
+KSP moved nothing. The positive control on the *same two runs and the same
+fields* — the **493-point phantom-region** min/max/mean block — agreed across
+rank counts to **0.007326%**, **3215× tighter**. Same solve, same field, two
+samplers.
+
+The obvious suspect was the point-evaluation path
+(`evaluate_vector_field_parallel` choosing a partition-dependent cell for
+on-axis points at `x = y = 0`). `POST-4` step 1 (2026-08-11) **refuted** it:
+across `-n 1/2/4` on a byte-identical mesh the ownership census is empty —
+**0/120** multi-rank claims, 0/120 multi-cell claims, no mask holes — and an
+ε-nudge off the axis did not collapse the spread. The locus is one step
+*upstream*: the script sampled the `("Lagrange", 1, (3,))` interpolants it
+builds for the XDMF export, and a vertex dof of a field that is not continuous
+there is written by whichever adjacent cell writes last locally. Measured on
+the same points and the same solves: interpolant path **97.9755%**, source path
+**0.008426%** — a **1.163e+04×** separation.
+
+`POST-4` step 3 fixed it where it lives: the centerline table now samples the
+fields **as solved**. Measured spread across `-n 1/2/4` is **0.008613%**, a
+**2735×** collapse, and the residue is the magnetostatic `|B|` leg's own solve
+noise — the `|E|` leg reproduces every printed digit across all three rank
+counts (0.000000%). The printed values also changed, because they are now the
+source values: `|E| = 1.368268e+02` at `z = −0.045 m`, where the interpolant
+printed `7.670127e+03` — **56× off**. Logs
+`20260811T183229Z`/`…183211Z`/`…183222Z_POST-4-step3-n{1,2,4}.log` and the
+anchor `…183503Z_POST-4-step3-anchor.log` (PASS, 1 s).
+
+Two things this does **not** buy. Rank-invariance is not physics: no number in
+this example is gated, and a faithful printout of an ungated field is still an
+ungated field. And the **exported** XDMF/VTX fields are still P1 interpolants,
+so they still carry the vertex-convention artifact — bounding it on the export
+paths is `POST-4` step 4, still open. Do not read a ParaView vertex value of
+`A`/`B`/`E` as the field at that vertex.
+
+On record at `-n 2`, `debug` preset
+(`20260826T171038Z_EX-30-root2-run-mri1.log`, exit 0, 5 s harness-wall,
+2026-08-26, commit `c466143`, dolfinx 0.11). The **Rank-stable?** column is
+*not* from this run — it is `POST-4` step 3's three-width measurement
+(`20260811T183211Z_POST-4-step3-n2.log` and its `-n 4` / `-n 1` companions
+`…183222Z` / `…183229Z`), which this slot did not repeat; the percentages are
+carried forward with that provenance, not re-measured:
+
+| Quantity | Value | Rank-stable? (`POST-4`, 2026-08-11) |
+| --- | --- | --- |
+| Mesh | 9291 cells, 2083 vertices | — |
+| Cell tags | coil_1 **391**, coil_2 **349**, phantom **493**, air **8058** | — |
+| Frequency-domain KSP | `preonly` / `lu`, `converged=True (reason=4)`, 1 iteration, `residual_norm=0.000000e+00` | — |
+| Phantom `\|E\|` min/max/mean | 1.276853e+02 / 3.043725e+02 / **1.979842e+02** | **yes** — 0.007326% |
+| Phantom `\|B\|` min/max/mean | 1.371178e-07 / 2.856700e-06 / **1.294602e-06** | **yes** — 0.007326% |
+| `\|E\|/\|B\|` mean ratio | **1.529306e+08** (max 1.065469e+08) | — (non-physical by construction) |
+| Sampling coverage | 493/493/493, 0 dropped | — |
+| Centerline, `z = 0` | `\|E\| = 2.364640e+02`, `\|B\| = 6.261281e-07` | **yes** — 0.008613% across `-n 1`/`-n 2`/`-n 4` (was 23.5539% pre-`POST-4`) |
+| Centerline samples valid (E/B) | 5/5, 5/5 | — |
+| quick-look status | **OK** (no shape flag; not a physics verdict) | — |
+
+**Owner rule (`POST-8` step 3b-ii-e3b, §9 item 580, 2026-10-21).** The two
+centerline calls (`:486-487`) now pass `owner="lowest_original_cell"`. Under the
+spied `-n 2` run both calls are 5/5 single-incidence (10/10 across calls),
+`cells_ghost` `[0, 0]`, (S-sb) = 0 and cross-batch (S) 0 mismatches
+(`20261021T110204Z_POST-8-step3b-ii-e3b-mri1-n2.log`). The table row above is
+**not** re-recorded here; one printed digit moved in that run: centerline
+`z = 0` `|B|` reads `6.261265e-07` against the recorded `6.261281e-07` (`|E|`
+`2.364640e+02` unchanged); the review rules on it.
+
+<!-- Re-recorded 2026-08-26 (EX-30 leg (root) completion, in-class (1*)
+     licence for un-asserted guide tables — this example carries 0 assert
+     statements). Superseded 0.7.2-image digits
+     (20260811T183211Z_POST-4-step3-n2.log, 2026-08-11): mesh 9261 cells /
+     2077 vertices; tags coil_1 385, coil_2 350, phantom 493, air 8033;
+     |E| 1.244231e+02 / 3.150176e+02 / 1.975909e+02; |B| 8.790509e-08 /
+     2.771695e-06 / 1.292004e-06; ratio mean 1.529336e+08 (max
+     1.136553e+08); span ratios 0.605028 / 0.968283; centerline five pairs
+     (z = -0.045 .. +0.045) |E| 1.368268 / 2.315512 / 2.370446 / 2.380360 /
+     1.410509 e+02 and |B| 5.038754e-07 / 4.288120e-07 / 5.325383e-07 /
+     5.249071e-07 / 4.252024e-07. The step-1..5 transcripts further down the
+     guide are re-recorded from the same run, per the leg (th) precedent
+     (a transcript that disagrees with its own table is worse than either).
+     The 0.11 mesh motion is 9261 -> 9291 cells (0.32%) and it redistributes
+     the coil/air tags by a few cells; the phantom tag count is unmoved at
+     493, so the sampled set is the same 493 points. |E| mean moves 0.20%,
+     |B| mean 0.20%, the mean ratio 2.0e-05 relative -- all sub-percent and
+     of the mesh-motion class. Two readings move more: the |B| min
+     (8.79e-08 -> 1.37e-07) and the max |E|/|B| ratio, both single-extremum
+     statistics on a field the guide already labels non-physical by
+     construction. Nothing here is asserted; no band, tolerance or gate
+     constant moved. -->
+
+The `OK` status means no shape flag fired: finite statistics, full sampling
+coverage, span ratios under 0.98. It says nothing about the physics
+(re-recorded 2026-09-30 from `20260930T094844Z_POST-2-balance-mri1.log:430–449`;
+the status read `WARN` while the cross-unit balance was still computed).
+
+## Setup figure
+
+![mri:1 setup — the two-coil + gelled saline phantom domain](figures/mri_01_coil_phantom_fields_setup.png)
+
+`examples/mri/figures/mri_01_coil_phantom_fields_setup.png`. Rendered right
+after the mesh is built (`FEM_EM_SETUP_FIGURES=1`). Both coil regions (tags 1
+and 2, `coil_1`/`coil_2`) are named so the copper colour applies; the phantom
+(tag 3) is translucent so the coils stay visible through it; air (tag 4) is
+hidden. The slice is normal to `x` through the origin — a plane containing
+the coils' and phantom's shared `z` axis, so it cuts each coil ring twice
+(the four copper squares) and the phantom lengthwise — so the panel shows
+the Helmholtz-like stacking along the centerline the diagnostics (§3 step 5)
+sample. It is a picture of the geometry only;
+nothing in it is a claim about the fields.
+
+## 2. How to run it
+
+```
+./run_examples.sh -e mri:1 -n 2 -t 180
+```
+
+**Complex build required** — the `mri:` group sources it automatically. In the
+real build `TimeHarmonicSolver.solve` raises rather than silently dropping the
+loss term. Tier: **standard**; **6 s** harness-wall on record at `-n 2` (4 s at
+`-n 4`), at the default `debug` preset.
+
+Three presets are available via `--preset`, trading cost for detail:
+
+| Preset | Mesh resolution | Centerline samples | Frequency probes |
+| --- | --- | --- | --- |
+| `debug` (default) | 0.020 m (`coarse`) | 5 | 1 |
+| `dev` | 0.015 m (`medium`) | 9 | 3 |
+| `benchmark-lite` | 0.010 m (`fine`) | 17 | 3 |
+
+The on-record numbers in this guide are all `debug`. `benchmark-lite` is
+substantially more expensive and has no record here; size it with a cost probe
+before running it in a slot.
+
+## 3. How to analyze it, step by step
+
+**Step 1 — check the mesh is the mesh you think it is.** Before any field
+number, read the tag summary:
+
+```
+  tag 1 (coil_1): 391 cells
+  tag 2 (coil_2): 349 cells
+  tag 3 (phantom): 493 cells
+  tag 4 (air): 8058 cells
+```
+
+These are **global** counts (allreduced), so they must be identical at every
+rank count — that is the cheapest possible check that the partition is not
+changing the problem. The geometry sanity report above them prints
+`expected_volume_ratio` vs `observed_cell_ratio` per region; the coils read
+0.013 expected vs 0.042/0.038 observed because the mesher over-resolves the
+small torus volumes relative to their share of the box. That is a meshing
+artifact and is why `warnings: none` is the right verdict there.
+
+**Step 2 — confirm the frequency-domain solve converged.**
+
+```
+    ksp=preonly, pc=lu, converged=True (reason=4), iterations=1
+    residual_norm=0.000000e+00, residual_trend=unavailable, history_samples=0
+```
+
+`preonly` + LU is a direct solve, so one iteration and a zero residual are the
+correct readings, not suspicious ones — `residual_trend=unavailable` and
+`history_samples=0` follow from there being no iteration history to record.
+Anything reporting `converged=False (reason=-3)` means an iterative override has
+crept back in; `EX-16` removed exactly that, and `EX-13` measured the truncated
+iterate it produced.
+
+**Note what this does and does not buy.** `converged=True` is a *precondition*,
+not a result — a convergence flag alone closes nothing under §4. It certainly
+does not make the printed numbers physics.
+
+**Step 3 — read the phantom-region aggregates, which are the trustworthy block.**
+
+```
+  |E| min/max/mean: 1.276853e+02 / 3.043725e+02 / 1.979842e+02
+  |B| min/max/mean: 1.371178e-07 / 2.856700e-06 / 1.294602e-06
+  sampling coverage (valid/sampling/requested): 493/493/493
+  dropped samples (boundary-adjacent, invalid E, invalid B): 0, 0, 0
+```
+
+These are aggregates over all 493 phantom cells and they reproduce across rank
+counts to **0.007326%**. If you must quote a number from this example, quote one
+of these — and quote it as plumbing output, not as a field. The coverage line is
+part of the reading: `493/493/493` with zero drops means no sample was discarded
+as boundary-adjacent or invalid, so the aggregate is over the whole phantom.
+
+**Step 4 — read the consistency block, and do not read a balance into it.**
+
+```
+    |E|/|B| mean ratio: 1.529306e+08 (max ratio: 1.065469e+08)
+    span ratios (E/B): 0.580497 / 0.952001
+    mean-balance relative diff: n/a
+    warnings: none
+```
+
+<!-- The last two lines are re-recorded from
+     20260930T094844Z_POST-2-balance-mri1.log:448-449 (2026-09-30, §9 item 96);
+     the first two stay the 2026-08-26 record so the transcript agrees with the
+     table above (that run reads max ratio 1.065467e+08 and B span 0.952002,
+     the same digits to 2e-6 relative). -->
+
+`|E|/|B|` carries m/s: 1.529e8 m/s is ≈ 0.51 c. `mean-balance relative diff`
+compares `|E|` with `v·|B|` for a reference speed `v`
+(`compute_field_consistency_diagnostics(..., reference_speed_m_per_s=v)`), and
+a coil + phantom field has no single such speed, so the script passes none, the
+figure is `n/a`, and no balance warning is raised. On a field that does have
+one — `TH-6`'s lossy plane wave, `v = ω/|k|` — the same diagnostic reads
+1.6e-4 (`20260930T094718Z_POST-2-balance-W1.log:135`). The *span* ratios (0.58
+and 0.95) are the informative part here: they say both fields vary over the
+phantom by a comparable relative amount, i.e. the spatial structure is
+plausible. `warnings: none` means no shape flag, not that the field is right.
+
+**Step 5 — read the centerline block last.**
+
+```
+Centerline sample magnitudes (z, |E|, |B|):
+  z=-0.0450 m -> |E|=1.375062e+02, |B|=5.524745e-07
+  z=-0.0225 m -> |E|=2.311610e+02, |B|=5.189696e-07
+  z=+0.0000 m -> |E|=2.364640e+02, |B|=6.261281e-07
+  z=+0.0225 m -> |E|=2.375048e+02, |B|=6.235341e-07
+  z=+0.0450 m -> |E|=1.421742e+02, |B|=4.875386e-07
+```
+
+The shape is sensible — both fields peak at the mid-plane between the coils —
+and since `POST-4` step 3 these five pairs are rank-invariant to **0.008613%**
+(they used to move 23.5539%; the numbers here are also *different* from the
+pre-fix guide, because they are now the source values rather than P1
+interpolants of them). Running at `-n 4` reproduces the `|E|` digits exactly.
+The `centerline samples valid (E/B): 5/5 / 5/5` line says all five points were
+located in some cell. What this block still is **not**: physics. It is an
+ungated proxy field printed faithfully.
+
+**Step 6 — open it in ParaView.**
+`File → Open → examples/mri/paraview_output/mri_01_coil_phantom_fields_combined.xdmf`.
+
+1. **Threshold** on `CellTags` (1/2 = the two coils, 3 = phantom, 4 = air) and
+   keep 1–3 to see the geometry without the air box. That view alone is most of
+   what this example is for: it shows the coil+phantom domain the project's
+   mission geometry is built on.
+2. **Colour by `B`** (magnitude) with only the phantom kept: field is highest
+   near the mid-plane between the coils, which is the Helmholtz-like arrangement
+   doing what it should qualitatively.
+3. **Colour by `E`** on the same clip. Compare *shapes*, not scales — `|E|` in
+   V/m and `|B|` in T are different units (step 4).
+4. `mri_01_coil_phantom_fields_A.xdmf`, `mri_01_coil_phantom_fields_B.xdmf` and
+   `mri_01_coil_phantom_fields_E.xdmf` hold the same fields separately if you
+   prefer one file per quantity.
+
+**Step 7 — the machine-readable artifacts.** Alongside the XDMF the run writes
+`mri_01_coil_phantom_phantom_metrics.json` (the step-3/step-4 blocks as JSON),
+`mri_01_coil_phantom_phantom_E_samples.csv` and
+`mri_01_coil_phantom_phantom_B_samples.csv` (the 493 per-cell samples),
+`mri_01_coil_phantom_quicklook.json` / `mri_01_coil_phantom_quicklook.md` (the
+quick-look block, `status: OK`), and `mri_01_coil_phantom_manifest.json` — which records the git commit,
+every parameter, and whether each artifact exists. The manifest is the file to
+read when you need to know *which* run produced a picture.
+
+**Step 8 — what a deviation means.** `converged=False (reason=-3)` → an
+iterative solver override has returned; that is the `EX-16` regression. Cell-tag
+counts differing from 391/349/493/8058 at the `debug` preset → the mesh changed;
+nothing below is comparable to this record. Phantom aggregates moving by more
+than ≈0.01% across rank counts → a *new* defect, because that path is the
+rank-stable one; report it, it is not the old centerline issue. Centerline
+numbers differing across rank counts by more than ≈0.01% → a **regression** of
+`POST-4` step 3; the most likely cause is the block sampling the `*_lagrange`
+interpolants again instead of the source fields. `dropped samples` non-zero → the phantom sampling lost cells
+to the boundary filter and the aggregates no longer cover the whole phantom.
+`|E|/|B|` ratio near the wave impedance → something has changed that would make
+this a physics example, which it is not licensed to be; check what moved before
+celebrating.
+
+## Related
+
+- The chunk that closed the centerline caveat: `POST-4` (PROJECT_PLAN.md §7),
+  step 1 (attribution) and step 3 (this fix); step 4 still owns the export-path
+  residue.
+- The measurement that raised it: `EX-16` (PROJECT_PLAN.md §7), logs
+  `20260810T170457Z_EX-16-spread-v2.log` and the `-n 2`/`-n 4` pair.
+- The gate that makes the time-harmonic *formulation* real — which this geometry
+  does not inherit: `examples/time_harmonic/01_lossy_plane_wave.py` (`th:1`,
+  `TH-6`).
+- A SAR quantity that **is** gated, on an imposed field:
+  `examples/mri/02_mass_averaged_sar.py` (`mri:2`, `MAT-4` step 3).
+- What is and is not real project-wide: PROJECT_PLAN.md §2.

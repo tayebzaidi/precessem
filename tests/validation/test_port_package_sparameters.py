@@ -1,0 +1,923 @@
+"""`PORT-1` step 4 — the *package* entry point reads the solved field.
+
+Until this file existed, every S-matrix the package produced came from
+``ports/excitation.py``'s proximity heuristic (`PORT-0`, known-issues 3): the one
+real S-matrix in the repository lived in a test, on the two-torus fixture, and
+never travelled through :func:`run_n_port_sparameter_sweep`.  This gate drives
+that entry point with ``gap_voltage_ports=`` and asserts it reproduces the
+step-3b-xviii record:
+
+  * raw mutual within ``REPRODUCTION_BAND_RELATIVE = 1e-6`` (relative) of
+    **0.8945163786446685** x omega*M12 — printed first, as the **miss** it is
+    against the 10% band.  `OPS-37` re-based this pair and its partner onto the
+    0.11 image and tightened the band from the v0.7.2-era 2e-3; the superseded
+    v0.7.2 pair is kept as ``SUPERSEDED_V072_RECORD`` and asserted to *fail* the
+    tightened band, by 260x;
+  * corrected mutual (the two named systematics, via
+    ``ports/systematics.py``) inside the unmoved ``MUTUAL_TOLERANCE = 0.10``;
+  * ``||S - S^T||/||S|| < 1e-3`` — a measured network identity here (two solves,
+    two integrands), not an algebraic one;
+  * ``||S||_2 <= 1`` (passivity, an inequality, not a reproduction);
+  * ``is_placeholder`` False on the result the package returns.
+
+**Negative controls, both executed.**
+
+  * *The retiring heuristic on the same fixture, same mesh, same ports*: its
+    S-matrix must differ from the solved-field S beyond the reproduction band.
+    A heuristic that accidentally agreed would be a finding about the gate.
+  * *The blind fixture*: step 1's unfragmented ancestor returned ``Im Z12``
+    identically zero; the same ladder on that number is asserted to **fail** the
+    mutual band (cited, not re-solved —
+    ``20260731T213222Z_PORT-1-step1-costprobe.log``).
+
+**`PORT-5` step 1 — sweep-level sanity metrics on the field route.**  The
+three ``test_sanity_*`` cases at the bottom of this module are a separate
+chunk riding the same module-scoped fixture (the metrics are pure numpy; a
+second sweep would buy nothing but 160 s of solve).  Until they existed
+``summarize_sparameter_sanity`` had only ever seen a placeholder or a
+hand-built matrix — §10 target 3's "sweep-level path is untouched".  They
+assert the report the *sweep* returns against the step-4 records by a second
+route, and drive the warning paths with a heuristic and an asymmetrised S.
+
+**`PORT-20` step 2 (2026-09-20) — this route's ``S`` is ``z_to_s(Z)``.**  The
+sweep no longer assembles this route's S from per-port power waves: the undriven
+port is *open* here, so ``b_i/a_j`` was not an S entry (known-issues 2026-09-19,
+found by the `ANS-3` comparison — our ``Z`` agreed with an independent code, our
+tabulated ``S`` did not, our ``z_to_s(Z)`` did).
+``test_current_route_s_is_the_open_circuit_conversion`` asserts the sweep's S
+against ``ports/circuit.py``'s independent implementation of the same conversion
+at 1e-12.  Consequence: the two **S-derived** records below
+(``RECORDED_PASSIVITY_MAX_SIGMA``, ``RECORDED_S_SYMMETRY_RATIO``) are records of
+the superseded quantity.  **`PORT-20` step 3 (2026-09-20)** re-recorded exactly
+those two under the corrected definition and removed step 2's strict ``xfail``
+from ``test_sanity_report_reproduces_the_gated_metrics_on_the_field_route``; the
+power-wave digits are kept beside the new ones
+(``SUPERSEDED_POWERWAVE_*``) and *asserted* to miss this run by more than each
+record's own band.  No band moved at either step, and the physics gates (reciprocity inside 1e-3,
+``‖S‖₂ ≤ 1``, the heuristic separation, the mutual ladder off ``Z``) are
+unchanged and green in the same window.
+
+**Scope.**  Two-torus fixture only.  No birdcage ports, no B1+, no ``S11``
+claim: `PORT-1` step 2b localised an electric-energy excess on this fixture's
+diagonal, so nothing here reads ``Z_in`` or ``S11``.  The systematics are this
+geometry's at this padding.
+
+**`OPS-41` — the three digit-reproduction records are ``-n 2`` records.**
+This module is rank-width-sensitive at the 1e-4 level, four decades above its
+1e-6 reproduction bands.  Measured at `TH-15` step 2d (2026-09-07, commit
+``8ef690a``), same tree, same mesh, two widths:
+
+  * ``-n 2`` (``20260907T170838Z_TH-15.log:146``) — 17 passed in 187.37 s,
+    every record reproducing inside 1e-6;
+  * ``-n 4`` (``20260907T170528Z_TH-15.log:743-749``, 3 failed / 3 passed in
+    145.46 s) — ``raw mutual 0.8942257288323762`` vs the record
+    ``0.8945163786446685``, **missed by 3.249e-04**;
+    ``passivity_max_sigma 0.8646925685624383`` vs ``0.864809457``, **missed by
+    1.169e-04**; ``reciprocity_max_abs_delta 0.0998868189827916`` vs the
+    0.1 perturbation, **1.1e-03 relative**.
+
+No band and no physics gate moves with width: in that same ``-n 4`` run the
+mutual band (``MUTUAL_TOLERANCE``), reciprocity, passivity and the
+heuristic-vs-field separation floor are all green.  Only the digit strings
+miss.  So the three record tests below print their reading beside the record
+**first** — the reading is never silent — assert everything that is *not* a
+digit record, and then :func:`pytest.skip` when ``comm.size !=
+RECORD_RANK_WIDTH``.  Setting ``FEM_EM_RECORD_WIDTH_OVERRIDE=1`` bypasses the
+skip; at an off-record width the three then carry a **strict** ``xfail``, so
+the sensitivity is a pinned red rather than a forgotten one.
+
+The gap voltages ``V_i^(k)`` and the driven currents ``I_k`` are printed at
+``repr()`` precision beside ``Z`` on every width, so the 1e-4 can be attributed
+to one or the other across two logs.  This module declares the *domain* of its
+records; a fix (an edge-integrated or face-averaged ``_path_voltage``) is a
+separate chunk.
+"""
+
+from __future__ import annotations
+
+import os
+import warnings
+
+import numpy as np
+import pytest
+import ufl
+from mpi4py import MPI
+
+from dolfinx import default_scalar_type
+
+from fem_em_solver.core import HomogeneousMaterial, TimeHarmonicProblem
+from fem_em_solver.io.mesh import MeshGenerator
+from fem_em_solver.ports.definitions import PortDefinition
+from fem_em_solver.ports.gap_voltage import GapVoltagePortSpec
+from fem_em_solver.ports.circuit import z_to_s
+from fem_em_solver.ports.sparameters import (
+    _assemble_sparameter_matrix,
+    run_n_port_sparameter_sweep,
+    summarize_sparameter_sanity,
+)
+from fem_em_solver.ports.systematics import mutual_systematics_ladder
+from fem_em_solver.utils.analytical import AnalyticalSolutions
+
+# --- the fixture, identical to the step-3b-xviii / EX-18 geometry -----------
+FREQUENCY_HZ = 10.0e6
+OMEGA = 2.0 * np.pi * FREQUENCY_HZ
+MAJOR_RADIUS = 0.04
+MINOR_RADIUS = 0.005
+SEPARATION = 0.04
+AIR_PADDING = 0.08
+H_FAR = 0.03
+H_WIRE = 0.0025
+
+GAP_ANGLE = 0.30
+GAP_BURIAL = 1.0e-3
+GAP_OVERHANG = 2.0e-4
+GAP_ARC_RESOLUTION = 3.0e-4
+
+WIRE_TAGS = (1, 2)
+GAP_TAGS = (101, 102)
+SIGMA_WIRE_S_PER_M = 8.0e2
+DRIVE_CURRENT_A = 1.0
+REFERENCE_IMPEDANCE_OHM = 50.0
+
+# Step 3b-x's converged order; its quadrature-convergence precondition
+# (|dV|/|V| = 3.9e-4 at 4097 on the undriven port) is on record in the gate
+# module and in EX-18 — the reproduction of the raw ratio below is what carries
+# it here.
+PATH_QUADRATURE_ORDER = 4097
+
+# --- the anchor ------------------------------------------------------------
+# OPS-37 re-record, 2026-09-04 (§9 item 2; the (1*) licence — an image-dependent
+# reproduction record and its own control band move, no physics band moves).
+#
+# The pair below was recorded on image v0.7.2 (dolfinx 0.7.2, gmsh 4.11.1) from
+# 20260813T020352Z_PORT-1-step3bxviii-pairgate-n2.log as raw 0.894283 /
+# corrected 0.939581 under RAW_REPRODUCTION_BAND = 2.0e-3.  `main` has booted
+# the 0.11 image (dolfinx 0.11.0.post0, gmsh 4.15.2) since OPS-18, where the
+# two_torus mesh is 184 176 cells rather than 184 919 and this route reads
+# ~2.6e-4 away from the v0.7.2 digits — a staleness the 2e-3 band could not
+# see.  OPS-34 measured it from the example side (raw 0.8945163788281 /
+# corrected 0.9398215452105435, 20260904T003530Z_OPS-34.log:648); this module's
+# own repr()-precision print reads raw 0.8945163786446685 / corrected
+# 0.9398215450213951 (20260904T110108Z_OPS-37.log:705, -n 2, complex build,
+# 17 passed in 177.62 s), i.e. the test and the example agree to 2.1e-10
+# relative — the same route, re-based here to the module's own digits.
+#
+# The band is now RELATIVE and 1e-6.  OPS-34 measured run-to-run scatter on this
+# route at ~1e-9 (20260904T004019Z_OPS-34.log:649), three decades of headroom,
+# and the superseded v0.7.2 pair below misses the new band by 260x (2.6e-4 /
+# 1e-6) — asserted as the negative control in
+# test_package_sweep_reproduces_the_gated_mutual.  No physics band moved:
+# MUTUAL_TOLERANCE, BLIND_FIXTURE_IM_Z12_OHM, S_SYMMETRY_BAND and
+# S_SPECTRAL_NORM_CEILING are untouched and green in the same run.  The
+# historical v0.7.2 digits also remain in
+# src/fem_em_solver/ports/gap_voltage.py:31-32 as PORT-1's record.
+RECORDED_RAW_RATIO = 0.8945163786446685
+RECORDED_CORRECTED_RATIO = 0.9398215450213951
+REPRODUCTION_BAND_RELATIVE = 1.0e-6
+# The v0.7.2 pair, verbatim, kept as the negative control for the tightening.
+SUPERSEDED_V072_RECORD = (0.894283, 0.939581)
+# The heuristic-vs-field negative control at test_retiring_heuristic_... used to
+# ride RAW_REPRODUCTION_BAND.  Tightening the reproduction band 2000x would have
+# silently lowered that control's separation bar, so it keeps its own —
+# numerically the unchanged 2e-3.
+HEURISTIC_SEPARATION_FLOOR = 2.0e-3
+MUTUAL_TOLERANCE = 0.10
+S_SYMMETRY_BAND = 1.0e-3
+# `PORT-20` step 2: two implementations of one algebraic conversion on one Z —
+# a round-off band, not a physics tolerance.
+CURRENT_ROUTE_CONVERSION_BAND = 1.0e-12
+S_SPECTRAL_NORM_CEILING = 1.0
+BLIND_FIXTURE_IM_Z12_OHM = 0.0
+
+# --- PORT-5 step 1 anchors, same log ----------------------------------------
+# ||S||_2 as step 4 gated it; the sanity report's `passivity_max_sigma` is the
+# largest singular value, i.e. the same quantity reached through
+# summarize_sparameter_sanity instead of numpy.linalg.norm(..., 2).
+#
+# OPS-18 step 3a re-record, 2026-08-23 (18:00 review ruling (1), condition (b)
+# as restated (b') by the 03:00 review of 2026-08-23).  The value below is the
+# one measured on image tag v0.11.0 (dolfinx 0.11.0.post0, gmsh 4.15.2), whose
+# two_torus mesh is 184 176 cells.  The recording image was v0.7.2 (dolfinx
+# 0.7.2, gmsh 4.11.1) at 184 919 cells, where this read 0.861449 — the mesh
+# moved 4.017e-03 relative with the image's gmsh and the record moved with it.
+# No band moved: the physics gates (reciprocity inside 1e-3, sigma_max < 1) hold
+# unchanged in the same run.  (b'): across two same-slot runs the record moved
+# 1.2e-10, i.e. 1.2e-04 of its own 1e-6 band, and is written to the digits both
+# runs share.
+#
+# PORT-9 leg (d3) re-record, 2026-08-24 (ruling (2*), 2026-08-23 18:00 review):
+# the sweep now assembles S from power waves (`S_ij = b_i/a_j`) instead of
+# converting the terminated `Z`, so every field-route S moves.  Route-tagged
+# beside the old digits: terminated-Z conversion 0.861356895 (v0.11.0) /
+# 0.861449 (v0.7.2); power-wave assembly **0.864809457** on the same
+# 184 176-cell mesh, a 4.008e-03 relative move.  No band moved and the physics
+# gates are untouched: sigma_max stays well inside 1, reciprocity inside 1e-3.
+#
+# `PORT-20` step 3 re-record, 2026-09-20 (the chunk's done-when; known-issues
+# 2026-09-19): on the gap-voltage (current-drive) route the undriven ports are
+# OPEN, so leg (d3)'s power-wave assembly `S_ij = b_i/a_j` was not the 50 Ohm
+# S-matrix; `PORT-20` converts this route's open-circuit `Z` instead, S =
+# z_to_s(Z).  `Z` is untouched (the mutual-ratio records below reproduce
+# digit-identically off `Z`), so this record moves and its band does not: the
+# power-wave value 0.864809457 is kept beside the new one as
+# SUPERSEDED_POWERWAVE_PASSIVITY_MAX_SIGMA and asserted to fail the 1e-6 band
+# against the same run.  Measured this slot at `-n 2`, complex build:
+# 0.8613568944857581 (20260920T095318Z_PORT-20.log:747) — nine digits kept, the
+# same precision as the terminated-Z reading 0.861356895 this record carried
+# before leg (d3).
+RECORDED_PASSIVITY_MAX_SIGMA = 0.861356894
+SUPERSEDED_POWERWAVE_PASSIVITY_MAX_SIGMA = 0.864809457
+PASSIVITY_REPRODUCTION_BAND = 1.0e-6
+# ||S - S^T||/||S|| = 2.5494e-05 (Frobenius) is what step 4 gated.  For a 2x2,
+# S - S^T has exactly two non-zero entries of equal magnitude, so
+# ||S - S^T||_F = sqrt(2) * max|Sij - Sji| — the report's
+# `reciprocity_max_abs_delta` converts to the gated ratio exactly.  The band is
+# 2% of the record: the record carries five significant figures and the ratio
+# rides a KSP-tolerance solve, so a tighter band would gate the solver's noise.
+#
+# OPS-18 step 3a re-record, 2026-08-23, same ruling and same reason as
+# RECORDED_PASSIVITY_MAX_SIGMA above: on v0.7.2 / 184 919 cells this read
+# 2.5494e-05; on v0.11.0 (0.11.0.post0 / gmsh 4.15.2) / 184 176 cells it reads
+# 3.11213e-05.  Six significant digits, not seven: a symmetry residual is a
+# difference of near-equal quantities, so the ~3e-11 absolute run-to-run wobble
+# is amplified to 1.0e-06 relative and the 7th digit is not reproducible.  Under
+# (b') the move is 3e-11 absolute against a 5e-7 absolute band (6e-05 of band).
+# The band is unchanged, and the 1e-3 physics gate is untouched.
+#
+# PORT-9 leg (d3) re-record, 2026-08-24, same ruling: terminated-Z conversion
+# 3.11213e-05 (v0.11.0) / 2.5494e-05 (v0.7.2); power-wave assembly
+# **4.758625e-05**.  The gap-voltage route's undriven ports are not terminated
+# in `z0`, so leg (d3)'s exact `S_ij ∝ I_i(drive j)` identity — which the
+# lumped-sheet route's matched drive does satisfy, at 1.3e-16 — does not apply
+# here; this residual is the route's own, gated as before by the unmoved 1e-3.
+#
+# `PORT-20` step 3 re-record, 2026-09-20, same ruling and same reason as
+# RECORDED_PASSIVITY_MAX_SIGMA above: with the route's `S` corrected to
+# z_to_s(Z) this residual returns to the terminated-Z family — measured
+# 3.1121288540771594e-05 at `-n 2` (20260920T095318Z_PORT-20.log:747), six
+# significant digits as before (the 7th is not reproducible; see the OPS-18
+# paragraph).  Power-wave value kept beside it and asserted to fail the 5e-7
+# band against the same run.  The 1e-3 physics gate is untouched.
+RECORDED_S_SYMMETRY_RATIO = 3.112129e-05
+SUPERSEDED_POWERWAVE_S_SYMMETRY_RATIO = 4.758625e-05
+SYMMETRY_RATIO_BAND = 5.0e-7
+# The heuristic route's S is perfectly matched at every driven port (b = 0 on
+# the diagonal), so its S is numerically unitary and sigma_max sits at 1.
+# MEASURED on this fixture, 20260816T093226Z: 0.999985964171, i.e. 1 to
+# 1.4036e-05 — *not* the exact 1.000000000000 the §9 item quoted, which is the
+# reaction-route fixture's number (`PORT-1` step 2 iv, plan-archive) and the
+# hand-built unitary S of test_port_reaction_impedance.py, both different
+# matrices.  Here the off-diagonal comes from the proximity heuristic on this
+# mesh and is not exactly reciprocal-unitary.  The band below is 3.5x the
+# measured departure; the discriminating assertion is the separation, which
+# passed at its pre-stated 0.13 in the same run (measured 0.138537).
+RECORDED_HEURISTIC_MAX_SIGMA = 1.0
+HEURISTIC_MAX_SIGMA_BAND = 5.0e-5
+HEURISTIC_SIGMA_SEPARATION = 0.13
+
+# --- OPS-41: the records' rank width ----------------------------------------
+# Every reproduction record in this module was set at `mpiexec -n 2`
+# (20260904T110501Z_OPS-37.log:12, 17 passed / 171.42 s), the width CI runs.
+# The module docstring carries the measured -n 4 readings.  No band moves here:
+# this constant declares the *domain* of the records, it does not relax one.
+RECORD_RANK_WIDTH = 2
+RECORD_WIDTH_OVERRIDE = os.environ.get("FEM_EM_RECORD_WIDTH_OVERRIDE") == "1"
+_OFF_RECORD_WIDTH = MPI.COMM_WORLD.size != RECORD_RANK_WIDTH
+# Under the override at an off-record width the record asserts run and are
+# expected to fail — strict, so a module that became width-invariant reports
+# XPASS rather than quietly passing an xfail.
+record_width_xfail = pytest.mark.xfail(
+    _OFF_RECORD_WIDTH and RECORD_WIDTH_OVERRIDE,
+    reason=(
+        f"FEM_EM_RECORD_WIDTH_OVERRIDE=1 at -n {MPI.COMM_WORLD.size}: the digit "
+        f"records were set at -n {RECORD_RANK_WIDTH} and this module is "
+        "width-sensitive at 1e-4 (OPS-41)"
+    ),
+    strict=True,
+)
+
+
+def _gate_on_record_width(comm) -> None:
+    """Skip a digit-reproduction record off its record width.
+
+    Called *after* the reading has been printed beside the record and after
+    every assertion that is not a digit reproduction, so an off-record width
+    still exercises the physics bands and still leaves the numbers in the log.
+    """
+    if comm.size == RECORD_RANK_WIDTH or RECORD_WIDTH_OVERRIDE:
+        return
+    pytest.skip(
+        f"digit records set at -n {RECORD_RANK_WIDTH}; this is -n {comm.size} "
+        "(OPS-41; set FEM_EM_RECORD_WIDTH_OVERRIDE=1 to run them as a strict xfail)"
+    )
+
+
+def _print_port_quantities(result, label: str, comm) -> None:
+    """The raw ``V_i^(k)`` and ``I_k`` per drive, at ``repr()`` precision.
+
+    `OPS-41`'s attribution print: ``Z[i, k] = V_i^(k) / I_k``, so comparing
+    these across two rank widths says whether the 1e-4 width sensitivity rides
+    the point-sampled path voltage or the facet-integrated current.
+    """
+    if comm.rank != 0:
+        return
+    lines = [f"[OPS-41] {label} — raw port quantities per drive (repr precision):"]
+    for drive_id, excitation in result.excitation_results.items():
+        i_drive = excitation.responses[drive_id].current_a
+        lines.append(f"    drive {drive_id}: I_{drive_id} = {i_drive!r}")
+        for recv_id, response in excitation.responses.items():
+            lines.append(
+                f"        V_{recv_id}^({drive_id}) = {response.voltage_v!r}, "
+                f"I_{recv_id}^({drive_id}) = {response.current_a!r}"
+            )
+    print("\n".join(lines), flush=True)
+
+
+def _mutual_inductance(a: float, rho: float, z: float) -> float:
+    pts = np.array([[rho, 0.0, z]], dtype=float)
+    A = AnalyticalSolutions.circular_loop_vector_potential(pts, 1.0, a, loop_center=0.0)
+    return 2.0 * np.pi * rho * float(A[0, 1])
+
+
+def _gap_half_extents():
+    half_xz = MINOR_RADIUS + GAP_OVERHANG
+    half_y = MAJOR_RADIUS * np.sin(0.5 * GAP_ANGLE) + GAP_BURIAL
+    return half_xz, half_y
+
+
+def _gap_box_edge_angle() -> float:
+    _, half_y = _gap_half_extents()
+    return float(np.arcsin(half_y / MAJOR_RADIUS))
+
+
+def _azimuthal_unit(x):
+    rho = ufl.sqrt(x[0] ** 2 + x[1] ** 2 + 1e-24)
+    return ufl.as_vector([-x[1] / rho, x[0] / rho, 0.0])
+
+
+def _arc_quadrature(port_index: int, order: int):
+    """Gauss-Legendre nodes on the centreline arc, terminal to terminal.
+
+    Weights carry the arc-length factor ``a`` so the spec's contract
+    (``V = -sum(w_i (E.that)_i)``) holds.  Legendre nodes are strictly interior,
+    so the terminals themselves — where a point locates into a cell on either
+    side of the material interface — are never sampled.
+    """
+    phi_term = _gap_box_edge_angle()
+    nodes, weights = np.polynomial.legendre.leggauss(order)
+    phi = phi_term * nodes
+    z_c = (-1.0) ** (port_index + 1) * SEPARATION / 2.0
+    points = np.column_stack(
+        [
+            MAJOR_RADIUS * np.cos(phi),
+            MAJOR_RADIUS * np.sin(phi),
+            np.full_like(phi, z_c),
+        ]
+    )
+    tangents = np.column_stack([-np.sin(phi), np.cos(phi), np.zeros_like(phi)])
+    return points, tangents, MAJOR_RADIUS * phi_term * weights
+
+
+@pytest.fixture(scope="module")
+def package_sweep():
+    """Mesh once, then run both routes through the package entry point."""
+    if not np.issubdtype(np.dtype(default_scalar_type), np.complexfloating):
+        pytest.skip("needs the complex DolfinX build")
+
+    comm = MPI.COMM_WORLD
+    msh, cell_tags, _facet_tags = MeshGenerator.two_torus_domain(
+        separation=SEPARATION,
+        major_radius=MAJOR_RADIUS,
+        minor_radius=MINOR_RADIUS,
+        resolution=H_FAR,
+        air_padding=AIR_PADDING,
+        wire_resolution=H_WIRE,
+        far_resolution=H_FAR,
+        port_gap=True,
+        gap_angle=GAP_ANGLE,
+        gap_burial=GAP_BURIAL,
+        gap_overhang=GAP_OVERHANG,
+        gap_arc_resolution=GAP_ARC_RESOLUTION,
+        comm=comm,
+    )
+    tdim = msh.topology.dim
+    # Unconditionally on every rank, before any tagged form: the assembler
+    # reaches `create_entity_permutations` lazily and only on ranks owning
+    # integration entities (PORT-1 step 3b-iv, known-issues 9).
+    msh.topology.create_connectivity(tdim - 1, tdim)
+    msh.topology.create_entity_permutations()
+
+    problem = TimeHarmonicProblem(
+        mesh=msh,
+        frequency_hz=FREQUENCY_HZ,
+        material=HomogeneousMaterial(sigma=0.0, epsilon_r=1.0, mu_r=1.0),
+        cell_tags=cell_tags,
+        material_map={
+            tag: HomogeneousMaterial(sigma=SIGMA_WIRE_S_PER_M, epsilon_r=1.0, mu_r=1.0)
+            for tag in WIRE_TAGS
+        },
+        boundary_condition="pec_zero_tangential_a",
+    )
+
+    _, half_y = _gap_half_extents()
+    ports = [
+        PortDefinition(
+            port_id=f"P{k + 1}",
+            positive_tag=GAP_TAGS[k],
+            negative_tag=WIRE_TAGS[k],
+            orientation="gap_azimuthal_plus_y",
+            z0_ohm=REFERENCE_IMPEDANCE_OHM,
+        )
+        for k in range(2)
+    ]
+    specs = []
+    for k in range(2):
+        points, tangents, weights = _arc_quadrature(k, PATH_QUADRATURE_ORDER)
+        specs.append(
+            GapVoltagePortSpec(
+                port_id=f"P{k + 1}",
+                gap_cell_tag=GAP_TAGS[k],
+                gap_length_m=2.0 * half_y,
+                conductor_cell_tag=WIRE_TAGS[k],
+                conductor_sigma_s_per_m=SIGMA_WIRE_S_PER_M,
+                conductor_direction=_azimuthal_unit,
+                # Meshed arc length: the gap box buries into the arc ends, so
+                # a(2*pi - g) overstates the conductor by the 3.6% step 3b-i
+                # measured — the length comes from the meshed volume instead.
+                conductor_cross_section_m2=float(np.pi * MINOR_RADIUS**2),
+                path_points=points,
+                path_tangents=tangents,
+                path_weights=weights,
+                drive_direction=(0.0, 1.0, 0.0),
+                drive_current_a=DRIVE_CURRENT_A,
+            )
+        )
+
+    solved = run_n_port_sparameter_sweep(problem, ports, gap_voltage_ports=specs)
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        heuristic = run_n_port_sparameter_sweep(problem, ports)
+        deprecations = [w for w in caught if issubclass(w.category, DeprecationWarning)]
+
+    omega_m12 = OMEGA * _mutual_inductance(MAJOR_RADIUS, MAJOR_RADIUS, SEPARATION)
+    return {
+        "solved": solved,
+        "heuristic": heuristic,
+        "deprecations": deprecations,
+        "omega_m12": omega_m12,
+        "comm": comm,
+    }
+
+
+@record_width_xfail
+def test_package_sweep_reproduces_the_gated_mutual(package_sweep):
+    """The package entry point lands on the 3b-xviii record, raw first.
+
+    `OPS-41`: the reproduction pair is an ``-n 2`` record (see the module
+    docstring).  The mutual *band* and the blind-fixture control below are
+    width-independent and run at every width; the two record asserts and the
+    superseded-pair control run only at ``RECORD_RANK_WIDTH``.
+    """
+    result = package_sweep["solved"]
+    omega_m12 = package_sweep["omega_m12"]
+    comm = package_sweep["comm"]
+
+    assert result.z_matrix is not None, "the solved-field route must return its Z"
+    assert not result.is_placeholder, (
+        "the solved-field route returned is_placeholder=True — the flag that "
+        "gates Touchstone export must distinguish it from the heuristic"
+    )
+
+    im_z12 = float(result.z_matrix[1, 0].imag)
+    ladder = mutual_systematics_ladder(im_z12, omega_m12)
+    blind = mutual_systematics_ladder(BLIND_FIXTURE_IM_Z12_OHM, omega_m12)
+
+    if comm.rank == 0:
+        print(
+            f"[PORT-1 step 4] package path: Im Z12 = {im_z12:+.9e} Ohm, "
+            f"omega*M12 = {omega_m12:.6f} Ohm; ladder raw {ladder['raw']:.6f} "
+            f"({100.0 * ladder['raw_deviation']:+.2f}%, a MISS against the "
+            f"{100.0 * MUTUAL_TOLERANCE:.0f}% band) -> +PEC box "
+            f"{ladder['box_corrected']:.6f} -> +gap physics "
+            f"{ladder['corrected']:.6f} ({100.0 * ladder['deviation']:+.2f}%); "
+            f"record raw {RECORDED_RAW_RATIO:.6f}, corrected "
+            f"{RECORDED_CORRECTED_RATIO:.6f}",
+            flush=True,
+        )
+        # OPS-37 step A: the `:.6f` print above cannot resolve a 1e-6 band, and
+        # this route has no metrics.json — the re-basing digits come off this
+        # line in a footered harness log, never computed by hand.
+        print(
+            f"[OPS-37] repr ladder['raw'] = {ladder['raw']!r}, "
+            f"ladder['corrected'] = {ladder['corrected']!r}",
+            flush=True,
+        )
+        print(f"[PORT-1 step 4] Z (Ohm) through the package:\n{result.z_matrix}", flush=True)
+    _print_port_quantities(result, f"field route at -n {comm.size}", comm)
+
+    raw_miss = abs(ladder["raw"] - RECORDED_RAW_RATIO) / abs(RECORDED_RAW_RATIO)
+    corrected_miss = abs(ladder["corrected"] - RECORDED_CORRECTED_RATIO) / abs(
+        RECORDED_CORRECTED_RATIO
+    )
+    # The superseded v0.7.2 pair against the same band: the tightening's own
+    # negative control, so a 1e-6 band that nothing could fail is not claimed.
+    sup_raw, sup_corrected = SUPERSEDED_V072_RECORD
+    sup_raw_miss = abs(sup_raw - RECORDED_RAW_RATIO) / abs(RECORDED_RAW_RATIO)
+    sup_corrected_miss = abs(sup_corrected - RECORDED_CORRECTED_RATIO) / abs(
+        RECORDED_CORRECTED_RATIO
+    )
+    if comm.rank == 0:
+        print(
+            f"[OPS-37] reproduction, relative band {REPRODUCTION_BAND_RELATIVE:.1e}: "
+            f"raw miss {raw_miss:.3e}, corrected miss {corrected_miss:.3e}; "
+            f"superseded v0.7.2 pair {sup_raw:.6f}/{sup_corrected:.6f} misses by "
+            f"{sup_raw_miss:.3e}/{sup_corrected_miss:.3e}",
+            flush=True,
+        )
+
+    # Width-independent first: the physics band and its blind-fixture control
+    # are asserted at every rank width, before the record gate below.
+    assert abs(ladder["deviation"]) < MUTUAL_TOLERANCE, (
+        f"corrected mutual {ladder['corrected']:.6f} is "
+        f"{100.0 * ladder['deviation']:+.2f}% against the closed form, outside the "
+        f"unmoved {100.0 * MUTUAL_TOLERANCE:.0f}% band"
+    )
+    assert abs(blind["deviation"]) >= MUTUAL_TOLERANCE, (
+        "the blind (unfragmented) fixture's Im Z12 = 0 passed the mutual band — "
+        "the band is gating nothing"
+    )
+
+    _gate_on_record_width(comm)
+
+    assert raw_miss < REPRODUCTION_BAND_RELATIVE, (
+        f"raw mutual {ladder['raw']!r} does not reproduce the re-based 0.11 record "
+        f"{RECORDED_RAW_RATIO!r} within {REPRODUCTION_BAND_RELATIVE:.1e} relative "
+        f"(missed by {raw_miss:.3e}) — the package route is not the gated route"
+    )
+    assert corrected_miss < REPRODUCTION_BAND_RELATIVE, (
+        f"corrected mutual {ladder['corrected']!r} does not reproduce the re-based "
+        f"0.11 record {RECORDED_CORRECTED_RATIO!r} within "
+        f"{REPRODUCTION_BAND_RELATIVE:.1e} relative (missed by {corrected_miss:.3e})"
+    )
+    assert sup_raw_miss > REPRODUCTION_BAND_RELATIVE, (
+        f"the superseded v0.7.2 raw record {sup_raw:.6f} passes the tightened "
+        f"{REPRODUCTION_BAND_RELATIVE:.1e} band — the tightening gates nothing"
+    )
+    assert sup_corrected_miss > REPRODUCTION_BAND_RELATIVE, (
+        f"the superseded v0.7.2 corrected record {sup_corrected:.6f} passes the "
+        f"tightened {REPRODUCTION_BAND_RELATIVE:.1e} band — the tightening gates "
+        "nothing"
+    )
+
+
+def test_package_smatrix_is_symmetric_and_passive(package_sweep):
+    """S off the package path: reciprocity as a measured identity, passivity."""
+    result = package_sweep["solved"]
+    comm = package_sweep["comm"]
+    s = result.s_matrix
+
+    symmetry = float(np.linalg.norm(s - s.T) / np.linalg.norm(s))
+    spectral = float(np.linalg.norm(s, 2))
+    if comm.rank == 0:
+        print(
+            f"[PORT-1 step 4] S at Z0 = {REFERENCE_IMPEDANCE_OHM:.0f} Ohm:\n{s}\n"
+            f"    ||S - S^T||/||S|| = {symmetry:.4e} (band {S_SYMMETRY_BAND:.1e}), "
+            f"||S||_2 = {spectral:.6f} (ceiling {S_SPECTRAL_NORM_CEILING:.1f})",
+            flush=True,
+        )
+    assert symmetry < S_SYMMETRY_BAND, (
+        f"S is not symmetric: ||S - S^T||/||S|| = {symmetry:.4e} >= {S_SYMMETRY_BAND:.1e}"
+    )
+    assert spectral <= S_SPECTRAL_NORM_CEILING, (
+        f"S is not passive: ||S||_2 = {spectral:.6f} > {S_SPECTRAL_NORM_CEILING:.1f}"
+    )
+
+
+def test_current_route_s_is_the_open_circuit_conversion(package_sweep):
+    """`PORT-20` step 2 — on this route ``S`` *is* ``z_to_s(Z)``, to 1e-12.
+
+    The fixture drives an impressed current across one gap and leaves the other
+    port **open**, so the assembled ``Z`` is the open-circuit matrix and the
+    50 Ω S-matrix is its algebraic conversion.  The comparand is
+    ``ports.circuit.z_to_s`` — a **second, independent implementation** of the
+    same formula (it solves ``X(Z + z0 I) = Z − z0 I`` where
+    ``sparameters_from_impedance`` multiplies by an explicit inverse), which is
+    the point of asserting it: an agreement at 1e-12 says the sweep's ``S`` and
+    its own ``Z`` are one matrix, by two code paths.
+
+    **Since `OPS-57` (2026-09-21) that is no longer true:**
+    ``sparameters_from_impedance`` now *delegates* to ``z_to_s`` (one
+    impedance-to-S implementation), so this 1e-12 residual only checks that the
+    sweep's ``S`` was built from its own ``Z`` — the cross-implementation
+    reading is a tautology.  **The anchor from here on is the closed form**:
+    ``tests/unit/test_port20_current_route_s.py`` checks the route's assembly
+    against an analytic T-network and a seeded 3-port whose ``S`` it computes
+    by its own explicit inverse, independent of ``ports.circuit``.  No
+    tolerance moved.
+
+    **Printed, predicted, never asserted** (§9 standing rule (e)): the
+    magnitude the *pre-`PORT-20`* power-wave assembly tabulated for ``S₂₁`` on
+    this fixture beside the value implied by ``Z``.  known-issues 2026-09-19
+    read ≈ 0.0216 vs ≈ 0.0377 off the `ans:3` table by hand; this window prints
+    both exactly, computed here.  No band is attached to that pair — the
+    S-derived records that move with it are `PORT-20` step 3's.
+    """
+    result = package_sweep["solved"]
+    comm = package_sweep["comm"]
+    s = result.s_matrix
+    z = result.z_matrix
+
+    assert z is not None, "the current-drive route must return the Z that S came from"
+
+    independent = z_to_s(z, REFERENCE_IMPEDANCE_OHM)
+    miss = float(np.linalg.norm(s - independent) / np.linalg.norm(s))
+
+    # The route's previous assembly, on this run's own port states: the number
+    # the `ans:3` / `EX-20` tables carry today.  Reconstructed here from the
+    # returned excitation results, so no second solve is spent on it.
+    legacy_ports = [
+        PortDefinition(
+            port_id=pid,
+            positive_tag=10 * (idx + 1),
+            negative_tag=10 * (idx + 1) + 1,
+            orientation=f"legacy_readout_{pid}",
+            z0_ohm=REFERENCE_IMPEDANCE_OHM,
+        )
+        for idx, pid in enumerate(result.port_ids)
+    ]
+    legacy_s = _assemble_sparameter_matrix(
+        legacy_ports, result.excitation_results, z0_ohm=REFERENCE_IMPEDANCE_OHM
+    )
+
+    if comm.rank == 0:
+        print(
+            f"[PORT-20 step 2] S through the sweep vs z_to_s(Z) "
+            f"(independent implementation, ports/circuit.py):\n"
+            f"    S:\n{s}\n"
+            f"    z_to_s(Z):\n{independent}\n"
+            f"    ||S - z_to_s(Z)||/||S|| = {miss:.6e} "
+            f"(band {CURRENT_ROUTE_CONVERSION_BAND:.1e})",
+            flush=True,
+        )
+        print(
+            f"[PORT-20 step 2] PREDICTED, never asserted (rule (e)): "
+            f"tabulated-vs-implied |S21| — pre-PORT-20 power-wave assembly "
+            f"{abs(legacy_s[1, 0]):.6f} (known-issues 2026-09-19 read it as "
+            f"~0.0216 off the ans:3 table), Z-implied {abs(s[1, 0]):.6f} "
+            f"(predicted ~0.0377); |dS21| = {abs(legacy_s[1, 0] - s[1, 0]):.6f}",
+            flush=True,
+        )
+
+    assert miss <= CURRENT_ROUTE_CONVERSION_BAND, (
+        f"the current-drive route's S is not its own Z converted: "
+        f"||S - z_to_s(Z)||/||S|| = {miss:.6e} > "
+        f"{CURRENT_ROUTE_CONVERSION_BAND:.1e}"
+    )
+
+
+def test_retiring_heuristic_differs_from_the_solved_field(package_sweep):
+    """Negative control: the heuristic's S on the same fixture is a different S.
+
+    If these agreed, the gate above would be measuring nothing about the field.
+    """
+    solved = package_sweep["solved"]
+    heuristic = package_sweep["heuristic"]
+    comm = package_sweep["comm"]
+
+    assert heuristic.is_placeholder, "the heuristic route must keep marking itself"
+    assert package_sweep["deprecations"], (
+        "the heuristic route must emit a DeprecationWarning now that the "
+        "solved-field route exists"
+    )
+
+    delta = float(np.max(np.abs(heuristic.s_matrix - solved.s_matrix)))
+    if comm.rank == 0:
+        print(
+            f"[PORT-1 step 4] negative control — retiring heuristic S:\n"
+            f"{heuristic.s_matrix}\n    max|S_heuristic - S_field| = {delta:.6e} "
+            f"(must exceed the separation floor {HEURISTIC_SEPARATION_FLOOR:.1e})",
+            flush=True,
+        )
+    assert delta > HEURISTIC_SEPARATION_FLOOR, (
+        f"the retiring heuristic reproduces the solved-field S to {delta:.3e} — "
+        "that is a finding about the heuristic, not a passing gate"
+    )
+
+
+# --- PORT-5 step 1 ----------------------------------------------------------
+
+
+@record_width_xfail
+def test_sanity_report_reproduces_the_gated_metrics_on_the_field_route(package_sweep):
+    """The sweep's own sanity report lands on the step-4 records.
+
+    `PORT-5`'s metrics have run on placeholder and hand-built matrices since D3;
+    this is the first time the report that ``run_n_port_sparameter_sweep``
+    *returns* is checked against a gated number.  Both anchors are the step-4
+    quantities reached by a second route — ``passivity_max_sigma`` is
+    ``||S||_2`` through ``numpy.linalg.svd`` rather than
+    ``numpy.linalg.norm(s, 2)``, and ``reciprocity_max_abs_delta`` converts to
+    the gated Frobenius ratio exactly for a 2x2.
+
+    `OPS-41`: both anchors are ``-n 2`` records (module docstring).  The
+    two-implementation agreement, the no-warning assertion and the
+    column-power inequality are width-independent and run at every width.
+    """
+    result = package_sweep["solved"]
+    comm = package_sweep["comm"]
+    report = result.sanity_report
+    s = result.s_matrix
+
+    assert not result.is_placeholder, "these anchors are the field route's, not the heuristic's"
+    assert s.shape == (2, 2), "the 2x2 conversion below assumes a two-port S"
+
+    symmetry_ratio = float(
+        np.sqrt(2.0) * report.reciprocity_max_abs_delta / np.linalg.norm(s)
+    )
+    if comm.rank == 0:
+        print(
+            f"[PORT-5 step 1] sweep sanity report on the field route:\n"
+            f"    passivity_max_sigma           = {report.passivity_max_sigma:.9f} "
+            f"(record {RECORDED_PASSIVITY_MAX_SIGMA:.6f}, band "
+            f"{PASSIVITY_REPRODUCTION_BAND:.1e})\n"
+            f"    passivity_max_column_power_sum= "
+            f"{report.passivity_max_column_power_sum:.9f}\n"
+            f"    reciprocity_max_abs_delta     = "
+            f"{report.reciprocity_max_abs_delta:.6e}\n"
+            f"    reciprocity_max_rel_delta     = "
+            f"{report.reciprocity_max_rel_delta:.6e}\n"
+            f"    -> ||S-S^T||/||S|| = {symmetry_ratio:.6e} "
+            f"(record {RECORDED_S_SYMMETRY_RATIO:.4e}, band "
+            f"{SYMMETRY_RATIO_BAND:.1e})\n"
+            f"    warnings: {report.warnings or 'none'}",
+            flush=True,
+        )
+        # OPS-41: the reading beside the record, always, at every width.
+        print(
+            f"[OPS-41] reproduction at -n {comm.size}: passivity_max_sigma "
+            f"{report.passivity_max_sigma!r} vs record "
+            f"{RECORDED_PASSIVITY_MAX_SIGMA!r}, miss "
+            f"{abs(report.passivity_max_sigma - RECORDED_PASSIVITY_MAX_SIGMA):.3e} "
+            f"(band {PASSIVITY_REPRODUCTION_BAND:.1e}); symmetry ratio "
+            f"{symmetry_ratio!r} vs record {RECORDED_S_SYMMETRY_RATIO!r}, miss "
+            f"{abs(symmetry_ratio - RECORDED_S_SYMMETRY_RATIO):.3e} "
+            f"(band {SYMMETRY_RATIO_BAND:.1e})",
+            flush=True,
+        )
+
+    # Same quantity, two implementations: the report must not disagree with the
+    # spectral norm step 4 asserted on this very matrix.  Width-independent.
+    assert abs(report.passivity_max_sigma - float(np.linalg.norm(s, 2))) < 1.0e-12
+
+    assert report.warnings == (), (
+        "the field route tripped a sanity warning it must not trip: "
+        f"{report.warnings}"
+    )
+    # Passivity as an inequality, on the second metric step 4 never read.
+    assert report.passivity_max_column_power_sum <= 1.0, (
+        "a column of the field-derived S carries more power out than in: "
+        f"{report.passivity_max_column_power_sum:.9f} > 1"
+    )
+
+    _gate_on_record_width(comm)
+
+    assert abs(report.passivity_max_sigma - RECORDED_PASSIVITY_MAX_SIGMA) < (
+        PASSIVITY_REPRODUCTION_BAND
+    ), (
+        f"passivity_max_sigma {report.passivity_max_sigma:.9f} does not reproduce "
+        f"the step-4 record {RECORDED_PASSIVITY_MAX_SIGMA:.6f} within "
+        f"{PASSIVITY_REPRODUCTION_BAND:.1e}"
+    )
+    assert abs(symmetry_ratio - RECORDED_S_SYMMETRY_RATIO) < SYMMETRY_RATIO_BAND, (
+        f"the report's reciprocity delta converts to ||S-S^T||/||S|| = "
+        f"{symmetry_ratio:.6e}, not the gated {RECORDED_S_SYMMETRY_RATIO:.4e}"
+    )
+
+    # `PORT-20` step 3's negative control, one per re-recorded constant: the
+    # power-wave digits these replaced must MISS this run by more than the band
+    # that accepts the new ones, or the route's `S` did not actually move when
+    # its assembly did.  Predicted (known-issues 2026-09-19) ~3.5e-03 on
+    # sigma_max and ~1.6e-05 on the symmetry ratio.
+    sigma_powerwave_miss = abs(
+        report.passivity_max_sigma - SUPERSEDED_POWERWAVE_PASSIVITY_MAX_SIGMA
+    )
+    symmetry_powerwave_miss = abs(
+        symmetry_ratio - SUPERSEDED_POWERWAVE_S_SYMMETRY_RATIO
+    )
+    if comm.rank == 0:
+        print(
+            f"[PORT-20 step 3] negative control: the superseded power-wave "
+            f"records miss this corrected run by sigma_max "
+            f"{sigma_powerwave_miss:.3e} (band "
+            f"{PASSIVITY_REPRODUCTION_BAND:.1e}), symmetry ratio "
+            f"{symmetry_powerwave_miss:.3e} (band {SYMMETRY_RATIO_BAND:.1e})",
+            flush=True,
+        )
+    assert sigma_powerwave_miss > PASSIVITY_REPRODUCTION_BAND, (
+        f"PORT-20 negative control failed: the power-wave record "
+        f"{SUPERSEDED_POWERWAVE_PASSIVITY_MAX_SIGMA:.9f} misses this run by only "
+        f"{sigma_powerwave_miss:.3e}, inside the "
+        f"{PASSIVITY_REPRODUCTION_BAND:.1e} band"
+    )
+    assert symmetry_powerwave_miss > SYMMETRY_RATIO_BAND, (
+        f"PORT-20 negative control failed: the power-wave record "
+        f"{SUPERSEDED_POWERWAVE_S_SYMMETRY_RATIO:.4e} misses this run by only "
+        f"{symmetry_powerwave_miss:.3e}, inside the {SYMMETRY_RATIO_BAND:.1e} band"
+    )
+
+
+def test_sanity_metrics_separate_the_heuristic_from_the_field_route(package_sweep):
+    """Negative control: the same metrics on the deprecated heuristic's S.
+
+    The heuristic terminates every driven port in its own ``z0``, so ``b = 0``
+    on the diagonal and its largest singular value sits at 1 to 1.4e-05 —
+    numerically indistinguishable from a lossless network, and 0.1385 away from
+    the field route's.  A metric set that could not tell these apart would be
+    reporting on arithmetic rather than on physics.
+    """
+    field = package_sweep["solved"].sanity_report
+    heuristic = package_sweep["heuristic"].sanity_report
+    comm = package_sweep["comm"]
+
+    separation = abs(heuristic.passivity_max_sigma - field.passivity_max_sigma)
+    if comm.rank == 0:
+        print(
+            f"[PORT-5 step 1] negative control — heuristic route through the same "
+            f"metrics:\n"
+            f"    passivity_max_sigma = {heuristic.passivity_max_sigma:.12f} "
+            f"(unitary to {HEURISTIC_MAX_SIGMA_BAND:.1e})\n"
+            f"    reciprocity_max_abs_delta = "
+            f"{heuristic.reciprocity_max_abs_delta:.6e}\n"
+            f"    separation from the field route's sigma = {separation:.6f} "
+            f"(must exceed {HEURISTIC_SIGMA_SEPARATION:.2f})",
+            flush=True,
+        )
+
+    assert package_sweep["heuristic"].is_placeholder
+    assert abs(heuristic.passivity_max_sigma - RECORDED_HEURISTIC_MAX_SIGMA) < (
+        HEURISTIC_MAX_SIGMA_BAND
+    ), (
+        f"the heuristic's sigma_max moved off 1 to "
+        f"{heuristic.passivity_max_sigma:.12f} — the control's premise "
+        "(a numerically unitary heuristic S) changed"
+    )
+    assert separation > HEURISTIC_SIGMA_SEPARATION, (
+        f"the sanity metrics separate the heuristic from the solved field by only "
+        f"{separation:.6f} — they are not discriminating between the routes"
+    )
+
+
+@record_width_xfail
+def test_reciprocity_warning_fires_on_an_asymmetrised_field_smatrix(package_sweep):
+    """Negative control: the warning path is reachable, on this very matrix.
+
+    "No warnings on the field route" is only evidence if a warning *can* fire.
+    Perturbing one off-diagonal of the gated S by twice the absolute warning
+    threshold must trip it — and must trip nothing on the untouched copy.
+
+    `OPS-41`: the ``rel=1e-3`` recovery of the perturbation is a digit record —
+    the perturbed off-diagonal rides the field S's own asymmetry, which moves
+    with rank width (module docstring; ``-n 4`` reads 9.988682e-02 against 0.1,
+    1.1e-03 relative).  The warning-path assertions themselves are
+    width-independent and run at every width.
+    """
+    result = package_sweep["solved"]
+    comm = package_sweep["comm"]
+
+    perturbation = 2.0 * 5.0e-2  # 2x summarize_sparameter_sanity's abs default
+    asymmetric = result.s_matrix.copy()
+    asymmetric[0, 1] += perturbation
+    report = summarize_sparameter_sanity(asymmetric)
+
+    if comm.rank == 0:
+        print(
+            f"[PORT-5 step 1] negative control — S[0,1] perturbed by "
+            f"{perturbation:.3f}: reciprocity_max_abs_delta = "
+            f"{report.reciprocity_max_abs_delta:.6e}, warnings = {report.warnings}",
+            flush=True,
+        )
+        # OPS-41: the reading beside the record, always, at every width.
+        print(
+            f"[OPS-41] reproduction at -n {comm.size}: reciprocity_max_abs_delta "
+            f"{report.reciprocity_max_abs_delta!r} vs perturbation "
+            f"{perturbation!r}, relative miss "
+            f"{abs(report.reciprocity_max_abs_delta - perturbation) / perturbation:.3e} "
+            "(band 1.0e-03)",
+            flush=True,
+        )
+
+    assert any("reciprocity abs delta" in w for w in report.warnings), (
+        "an S asymmetric by twice the warning threshold produced no reciprocity "
+        f"warning: {report.warnings}"
+    )
+    # The untouched matrix must still be clean — the warning is about the
+    # perturbation, not about the fixture.
+    assert summarize_sparameter_sanity(result.s_matrix).warnings == ()
+
+    _gate_on_record_width(comm)
+
+    assert report.reciprocity_max_abs_delta == pytest.approx(perturbation, rel=1.0e-3), (
+        "the perturbation did not land in the reciprocity metric: "
+        f"{report.reciprocity_max_abs_delta:.6e} vs {perturbation:.6e}"
+    )

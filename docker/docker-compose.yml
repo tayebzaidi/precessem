@@ -1,0 +1,137 @@
+services:
+  fem-em-solver:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: fem-em-solver:latest
+    container_name: fem-em-solver
+    volumes:
+      - ..:/workspace
+      - fem-em-cache:/root/.cache
+    ports:
+      - "8888:8888"  # Jupyter
+    environment:
+      # OPS-18 (0.7.2 -> 0.11.0): the image's Python moved 3.10 -> 3.12. The
+      # dolfinx-{real,complex}-mode wrappers derive this tag themselves, and so
+      # does src/sitecustomize.py; this literal is the one place it is pinned.
+      - PYTHONPATH=/usr/local/dolfinx-real/lib/python3.12/dist-packages:/usr/local/lib:/workspace/src
+      - MPLBACKEND=Agg
+    working_dir: /workspace
+    command: /bin/bash
+    stdin_open: true
+    tty: true
+    deploy:
+      resources:
+        # Raised 64G -> 128G by operator directive 2026-08-24 (interactive
+        # session). The host has 754 GiB total / 743 GiB free, so this is ~17%
+        # of a shared box, not a claim on all of it. Chunks must not raise it
+        # further on their own -- see the standing constraint in PROJECT_PLAN
+        # section 9. Several adjudicated results (TH-11 step 5, TH-12, OPS-17's
+        # coil_loading_degree2 deferral) were negatives measured against the
+        # old 64 GiB wall and may now be reachable; the reviews decide that,
+        # not an implementer slot.
+        limits:
+          memory: 128G
+        reservations:
+          memory: 4G
+
+  # XL tier (operator directive 2026-09-05, interactive session): ONE run per
+  # week at up to 512 GiB and 16 ranks, 2 h ceiling, commissioned only by the
+  # weekly planning review and recorded in docs/testing/xl-ledger.md. It is a
+  # separate service so the standing 128 G / 12-rank discipline of every other
+  # run is untouched; the `xl` profile keeps it out of a plain `up -d`. Bring
+  # it up for the slot and take it down after:
+  #   docker compose -f docker/docker-compose.yml --profile xl up -d fem-em-solver-xl
+  #   docker compose -f docker/docker-compose.yml --profile xl stop fem-em-solver-xl
+  # The bash guard (scripts/automation/hooks/bash_guard.py) allows -n 13..16
+  # only against this service, only through run_and_log.sh, only with a
+  # timeout <= 14400 s (4 h since 2026-09-13), six per trailing 7 days on the ledger.
+  fem-em-solver-xl:
+    image: fem-em-solver:latest
+    container_name: fem-em-solver-xl
+    profiles: ["xl"]
+    volumes:
+      - ..:/workspace
+      - fem-em-cache:/root/.cache
+    environment:
+      - PYTHONPATH=/usr/local/dolfinx-real/lib/python3.12/dist-packages:/usr/local/lib:/workspace/src
+      - MPLBACKEND=Agg
+    working_dir: /workspace
+    command: /bin/bash
+    stdin_open: true
+    tty: true
+    deploy:
+      resources:
+        limits:
+          memory: 512G
+        reservations:
+          memory: 4G
+
+  # XXL tier (operator directive 2026-09-10): the Saturday window — 8 h, 754 GiB,
+  # once a week, for the cases the 2 h XL window cannot hold. The box is a
+  # 1.5 TB machine of which this WSL VM currently has 754 GiB; that is what the
+  # limit tracks, so raising the VM raises this.
+  #
+  # NOTE, deliberately: a container limit equal to the VM's *whole* memory is
+  # not really a limit — the kernel OOM killer reaches the run before the cgroup
+  # does, and it may take other containers with it. That is the operator's call
+  # (2026-09-10: "max available for now") and it is recorded rather than
+  # silently softened. If a run is ever OOM-killed with the VM starved rather
+  # than the cgroup capped, lowering this to ~700G is the first thing to try.
+  #
+  #   docker compose -f docker/docker-compose.yml --profile xxl up -d fem-em-solver-xxl
+  #   docker compose -f docker/docker-compose.yml --profile xxl stop fem-em-solver-xxl
+  fem-em-solver-xxl:
+    image: fem-em-solver:latest
+    container_name: fem-em-solver-xxl
+    profiles: ["xxl"]
+    volumes:
+      - ..:/workspace
+      - fem-em-cache:/root/.cache
+    environment:
+      - PYTHONPATH=/usr/local/dolfinx-real/lib/python3.12/dist-packages:/usr/local/lib:/workspace/src
+      - MPLBACKEND=Agg
+    working_dir: /workspace
+    command: /bin/bash
+    stdin_open: true
+    tty: true
+    deploy:
+      resources:
+        limits:
+          memory: 754G
+        reservations:
+          memory: 4G
+
+  # Palace (OPS-61, operator directive 2026-09-28, interactive session): AWS's
+  # open-source curl-curl FEM as an independent second reference beside AED.
+  # Never the solver -- nothing in src/ uses it. Its own image, built from
+  # docker/palace.Dockerfile (Palace v0.18.1, CMake superbuild, CPU only), and
+  # its own profile so a plain `up -d` never starts it. Same 128 G limit and
+  # 12-rank ceiling as the ordinary service; runs go through run_and_log.sh:
+  #   docker compose -f docker/docker-compose.yml --profile palace run --rm fem-em-palace ...
+  # Rebuild (network, ~16 min compile at -j6):
+  #   docker compose -f docker/docker-compose.yml --profile palace build fem-em-palace
+  fem-em-palace:
+    build:
+      context: .
+      dockerfile: palace.Dockerfile
+      args:
+        BUILD_JOBS: "6"
+    image: fem-em-palace:0.18.1
+    container_name: fem-em-palace
+    profiles: ["palace"]
+    volumes:
+      - ..:/workspace
+    working_dir: /workspace
+    command: /bin/bash
+    stdin_open: true
+    tty: true
+    deploy:
+      resources:
+        limits:
+          memory: 128G
+        reservations:
+          memory: 4G
+
+volumes:
+  fem-em-cache:

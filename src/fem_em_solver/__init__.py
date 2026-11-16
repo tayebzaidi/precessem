@@ -1,0 +1,110 @@
+"""FEM Electromagnetics Solver for MRI Coil Simulation.
+
+This package provides finite element solvers for electromagnetic simulations
+using FEniCSX/DolfinX, with a focus on MRI coil design and analysis.
+"""
+
+__version__ = "0.1.0"
+__author__ = "Awarru"
+
+# Core imports
+from .core import (
+    HomogeneousMaterial,
+    LinearSolveDiagnostics,
+    MagnetostaticProblem,
+    MagnetostaticSolver,
+    classify_residual_trend,
+    TimeHarmonicBoundaryCondition,
+    TimeHarmonicFields,
+    TimeHarmonicProblem,
+    TimeHarmonicSolver,
+    build_material_fields,
+    build_mu_r_field,
+    normalize_boundary_condition,
+)
+from .materials import ColeColeMaterial, GelledSalinePhantomMaterial
+from .ports import (
+    FrequencySweepPlan,
+    PortDefinition,
+    PortVoltageCurrentEstimate,
+    SParameterSweepResult,
+    SinglePortExcitationResult,
+    export_touchstone,
+    load_touchstone,
+    plan_frequency_sweep,
+    run_n_port_sparameter_sweep,
+    run_placeholder_port_coupling_case,
+    run_single_port_excitation_case,
+    validate_required_port_tags_exist,
+)
+from .study import (
+    CapacitorSheets,
+    ContainerWall,
+    DoseReadout,
+    DutyCycle,
+    FHumanBirdcageGeometry,
+    FourPortBirdcageGeometry,
+    LeontovichWall,
+    LumpedPortDrive,
+    QuasiStaticSphereField,
+    RobinCooling,
+    SphereInBoxGeometry,
+    Study,
+    ThermalBoxGeometry,
+    ThermalBallGeometry,
+    TransientSpec,
+    TransverseQuadraticHeatSource,
+    TwoPortQuadratureDrive,
+    UniformHeatSource,
+)
+from .study_yaml import StudyConfigError, load_study, run_study_file
+
+__all__ = [
+    "LinearSolveDiagnostics",
+    "MagnetostaticProblem",
+    "MagnetostaticSolver",
+    "classify_residual_trend",
+    "HomogeneousMaterial",
+    "TimeHarmonicBoundaryCondition",
+    "TimeHarmonicFields",
+    "TimeHarmonicProblem",
+    "TimeHarmonicSolver",
+    "build_material_fields",
+    "build_mu_r_field",
+    "normalize_boundary_condition",
+    "GelledSalinePhantomMaterial",
+    "ColeColeMaterial",
+    "FrequencySweepPlan",
+    "PortDefinition",
+    "PortVoltageCurrentEstimate",
+    "SParameterSweepResult",
+    "SinglePortExcitationResult",
+    "export_touchstone",
+    "load_touchstone",
+    "plan_frequency_sweep",
+    "run_n_port_sparameter_sweep",
+    "run_placeholder_port_coupling_case",
+    "run_single_port_excitation_case",
+    "validate_required_port_tags_exist",
+    "QuasiStaticSphereField",
+    "RobinCooling",
+    "SphereInBoxGeometry",
+    "Study",
+    "FourPortBirdcageGeometry",
+    "FHumanBirdcageGeometry",
+    "LeontovichWall",
+    "LumpedPortDrive",
+    "CapacitorSheets",
+    "TwoPortQuadratureDrive",
+    "StudyConfigError",
+    "load_study",
+    "run_study_file",
+    "ThermalBoxGeometry",
+    "ThermalBallGeometry",
+    "UniformHeatSource",
+    "TransverseQuadraticHeatSource",
+    "TransientSpec",
+    "DutyCycle",
+    "ContainerWall",
+    "DoseReadout",
+]

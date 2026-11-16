@@ -1,0 +1,385 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  launcher-exec-bit:
+    # A cron launcher without its execute bit does not fail — it silently does
+    # not run. Measured 2026-09-10: scripts/automation/xl-run.sh was committed
+    # 100644 because the chmod was in a Bash call the compute guard denied for
+    # unrelated reasons, and the 02:00 XL window simply never fired. Nothing in
+    # the logs said so, because the script that writes the log is the script
+    # that did not start.
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Every launcher and helper script is executable in git
+      run: |
+        bad=$(git ls-files -s 'scripts/**/*.sh' | awk '$1!="100755"{print $4}')
+        if [ -n "$bad" ]; then
+          echo "Not executable in git (mode should be 100755):"
+          echo "$bad" | sed 's/^/  /'
+          echo
+          echo "Fix: chmod +x <file> && git add --chmod=+x <file>"
+          exit 1
+        fi
+        echo "all $(git ls-files 'scripts/**/*.sh' | wc -l) shell scripts are 100755"
+
+  private-leak:
+    # Ansys licence terms restrict disclosure of benchmark results, so no
+    # AED-derived figure may reach a tracked file. The local pre-commit hook
+    # (scripts/testing/install_git_hooks.sh) is the first net, but .git/hooks
+    # is not tracked and cannot be installed by an agent, so this is the net
+    # that always exists. The audit step is a no-op on a runner, where the
+    # gitignored raw exports are absent: it prints SKIPPED, not clean
+    # (OPS-58). The controls step is the part of this job that tests
+    # something on a runner — synthetic figures in scratch repos, exit codes
+    # asserted exactly, plus the pre-change control (needs fetch-depth 0).
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Leak-checker controls (synthetic figures)
+      run: python3 scripts/testing/test_private_leak.py
+    - name: No Ansys figure in a tracked file or commit message
+      run: python3 scripts/testing/check_private_leak.py --audit
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        pip install black isort flake8 mypy
+    
+    - name: Check formatting with black
+      run: black --check --diff src tests
+    
+    - name: Check imports with isort
+      run: isort --check-only --diff src tests
+    
+    - name: Lint with flake8
+      run: flake8 src tests --max-line-length=100 --extend-ignore=E203,W503
+    
+    - name: Type check with mypy
+      run: mypy src
+
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: dolfinx/dolfinx:v0.11.0
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install additional dependencies
+      run: |
+        pip install gmsh pyvista meshio h5py tqdm pydantic pyyaml
+        pip install pytest pytest-xdist pytest-cov
+    
+    - name: Install package
+      run: pip install -e ".[dev]"
+    
+    - name: Run lightweight unit tests (CI-safe)
+      run: |
+        pytest tests/unit -v --tb=short -x --cov=src --cov-report=xml
+
+    - name: Upload coverage
+      uses: codecov/codecov-action@v4
+      with:
+        files: ./coverage.xml
+
+  # Magnetostatics validation against analytic solutions.
+  #
+  # This exists because ~3,400 lines of test code previously ran nowhere: CI
+  # covered only tests/unit, and tests/conftest.py auto-marks everything else
+  # `slow`. Eleven defects accumulated behind that gap -- broken point
+  # evaluation, a current density pointing the wrong way, an inverted
+  # convergence-rate sign, meshes that exhausted memory. All were found the
+  # first time the suite was actually executed. Keep this job green.
+  validation:
+    runs-on: ubuntu-latest
+    # 25 -> 45 for MAG-13 steps 4-5: the analytic-Dirichlet loop test moved to
+    # h = 0.002 (411k cells, 124 s at -n 2 on the dev box) and the convergence
+    # test to three resolutions including 383k cells, taking the two files from
+    # ~100 s to ~330 s locally. Runners are slower than the dev box, so the
+    # margin under the old ceiling was gone.
+    timeout-minutes: 45
+    container:
+      image: dolfinx/dolfinx:v0.11.0
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install additional dependencies
+      run: |
+        pip install gmsh pyvista meshio h5py tqdm pydantic pyyaml
+        pip install pytest pytest-xdist
+
+    - name: Install package
+      run: pip install -e ".[dev]"
+
+    - name: Smoke matrix
+      run: ./run_tests.sh --smoke
+
+    # TH-1 step 0. In real mode (this job's default) only the scalar-type /
+    # dolfinx-build consistency test runs; the three complex-only tests skip.
+    # That is still the guard worth having here: it catches a PETSC_ARCH that
+    # disagrees with the imported dolfinx, which is how the old hardcoded
+    # sitecustomize path handed back a real build under complex mode. The
+    # complex half of this file now runs in the `validation-complex` job below
+    # (OPS-10); keep both, they assert opposite things about the same shim.
+    - name: Complex-mode environment gate (real-mode half)
+      run: python3 -m pytest tests/environment -v --tb=short
+
+    - name: Analytic validation (magnetostatics + PEC cavity resonances)
+      # Measured 150s at 8 ranks on the dev box before MAG-13 steps 4-5; the
+      # loop and convergence fixtures are now heavy tier (167 s and 196 s at
+      # -n 2 on the dev box), so expect 15-25 min here. `slow` must be selected
+      # explicitly since conftest.py marks every non-unit test with it. The
+      # TH-9 cavity gate adds 3 s (measured at -n 2, TH-9 run of 2026-07-30).
+      run: |
+        mpiexec -n 2 python3 -m pytest \
+          tests/validation/test_straight_wire.py \
+          tests/validation/test_circular_loop.py \
+          tests/validation/test_convergence.py \
+          tests/validation/test_helmholtz_v2.py \
+          tests/validation/test_helmholtz_magnitude.py \
+          tests/validation/test_cavity_resonances.py \
+          tests/solver/test_two_cylinder.py \
+          tests/solver/test_two_torus.py \
+          tests/solver/test_energy_and_point_evaluation.py \
+          -v --tb=short
+
+    # OPS-11. Until now `tests/mesh` ran in no job except the single
+    # test_two_torus_conforming.py file `GEO-8` added (dropped from the step
+    # above, since the whole directory now runs here; its `@complex_only` half
+    # still runs in `validation-complex`). That gap is why known-issues 7 --
+    # three mesh generators failing outright -- sat undiscovered until a
+    # regression sweep tripped over it.
+    #
+    # Measured at this commit, `-n 2`, real mode, log
+    # 20260803T170132Z_OPS-11-fullsweep.log: the *unexcluded* directory is
+    # 2 failed, 18 passed, 1 skipped in 31.9 s, and the two failures are
+    # exactly the two excluded below -- nothing else fails, so neither
+    # exclusion is broader than the defect it names.
+    #
+    #   (The birdcage --ignore was removed 2026-08-03 by GEO-9 step 2b, which
+    #    fragmented the geometry: the file now generates a mesh and passes,
+    #    carrying its own V_mesh/V_box and sum(tagged)/V_mesh identities --
+    #    both 1.000000000000 -- into CI. Log 20260803T200358Z_GEO-9-step2b-bands.)
+    #   (The off-centre sizing --deselect was removed 2026-08-06 by GEO-4
+    #    step 1, which retired known-issues 5: the `assert 0.09 > 0.09`
+    #    property is unattainable for any meshable placement, and the test now
+    #    gates the containment identity instead. This step no longer excludes
+    #    anything.)
+    #
+    # Do not widen this job to make it green; add exclusions only with a
+    # known-issues entry, and remove each in the commit that fixes its entry.
+    #
+    # 85.3 s at -n 2 on the dev box (20260806T033327Z_GEO-4-step1-mesh-regression.log,
+    # 27 passed 1 skipped, exit 0) -- was 42.2 s on 2026-08-03 with the one
+    # test deselected. Carries the GEO-9 step-1/2a/2b
+    # volume-partition identities -- V_mesh/V_box and sum(tagged)/V_mesh on
+    # three fixtures, all to 1e-9 -- into CI.
+    - name: Mesh generation suite
+      run: |
+        mpiexec -n 2 python3 -m pytest tests/mesh -v --tb=short
+
+    # IO/materials/post. Two tests here used to be `--deselect`ed on the stale
+    # DummyMagnetostaticSolver double (known-issues.md entry 1); TH-1 steps 1-3
+    # deleted the `last_solve_diagnostics` read they tripped on, so the deselects
+    # were removed 2026-07-31 and both files now also run in `validation-complex`
+    # below, which is where the two `@complex_only` tests actually execute.
+    - name: IO / materials / post suites
+      run: |
+        python3 -m pytest tests/io tests/materials tests/post -v --tb=short
+
+    # The step above runs serially, where a rank-local read cannot fail. The
+    # OPS-13 gate's whole subject is ranks disagreeing about a material map, so
+    # it needs a width > 1 and a second one to catch an even/odd partition
+    # artifact. Green at -n 2 (2.45 s) and -n 4 (0.49 s) with byte-identical
+    # printed digit strings (20260808T110323Z / 20260808T110339Z_OPS-13-gate).
+    - name: Material-map rank safety (parallel widths)
+      run: |
+        mpiexec -n 2 python3 -m pytest tests/materials/test_material_map_rank_safety.py -v --tb=short
+        mpiexec -n 4 python3 -m pytest tests/materials/test_material_map_rank_safety.py -v --tb=short
+
+  # Frequency-domain validation, complex PETSc scalars.
+  #
+  # This exists because `TH-1` steps 1-3 made TimeHarmonicSolver.solve() an
+  # actual complex curl-curl solve, which cannot assemble in the real build at
+  # all. Every test that solves in the frequency domain therefore moved behind
+  # `@complex_only`, and since the `validation` job above runs real mode, CI
+  # executed *no* time-harmonic solve for the whole of TH-1: the MMS
+  # convergence gate, the lossy plane-wave closed form, and the resonance guard
+  # all skipped silently. This job is the only place they run.
+  #
+  # FEM_EM_REQUIRE_COMPLEX=1 turns those skips into failures, so the job cannot
+  # pass by skipping if the complex build fails to activate, and tests/environment
+  # is listed first so an environment regression fails before the formulation
+  # tests get blamed for it (PROJECT_PLAN §7 TH-1 step 0).
+  validation-complex:
+    runs-on: ubuntu-latest
+    # 46 s at -n 2 on the dev box for the whole list below (OPS-10 run of
+    # 2026-07-31), plus ~30 s for the POST-3 Poynting-balance file added
+    # 2026-07-31 (four solves, one at 24^3, log
+    # 20260731T140404Z_POST-3-step1-gate.log), plus ~16 s for the TH-8
+    # dielectric-sphere file added 2026-07-31 (five gmsh solves up to 40k cells,
+    # log 20260731T200457Z_TH-8-gate-final.log). Runners are slower and the
+    # meshes are gmsh-generated, so 30 minutes is generous headroom rather than
+    # a measured bound.
+    timeout-minutes: 30
+    container:
+      image: dolfinx/dolfinx:v0.11.0
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install additional dependencies
+      run: |
+        pip install gmsh pyvista meshio h5py tqdm pydantic pyyaml
+        pip install pytest pytest-xdist
+
+    - name: Install package
+      run: pip install -e ".[dev]"
+
+    # `source` sets PETSC_ARCH, PYTHONPATH and LD_LIBRARY_PATH for the complex
+    # build; unlike the container chunk commands we do not override PYTHONPATH
+    # afterwards, so src/sitecustomize.py is not involved here.
+    - name: Complex-mode frequency-domain validation
+      run: |
+        source /usr/local/bin/dolfinx-complex-mode
+        FEM_EM_REQUIRE_COMPLEX=1 mpiexec -n 2 python3 -m pytest \
+          tests/environment \
+          tests/validation/test_time_harmonic_mms.py \
+          tests/validation/test_lossy_plane_wave.py \
+          tests/validation/test_waveguide_cutoff.py \
+          tests/validation/test_dielectric_sphere.py \
+          tests/validation/test_poynting_balance.py \
+          tests/validation/test_current_divergence.py \
+          tests/validation/test_resonance_guard.py \
+          tests/validation/test_dodd_deeds_impedance.py \
+          tests/validation/test_port_reaction_impedance.py \
+          tests/validation/test_port_self_impedance_energy.py \
+          tests/validation/test_port_gradient_load.py \
+          tests/validation/test_port_solenoidal_drive.py \
+          tests/mesh/test_two_torus_conforming.py \
+          tests/solver/test_convergence_diagnostics.py \
+          tests/solver/test_time_harmonic_smoke.py \
+          tests/solver/test_boundary_condition_selection.py \
+          tests/solver/test_energy_and_point_evaluation.py \
+          tests/materials/test_phantom_material_model.py \
+          tests/materials/test_material_map_rank_safety.py \
+          tests/post/test_phantom_field_metrics.py \
+          tests/post/test_phantom_phasor_semantics.py \
+          -v --tb=short
+
+    # test_energy_and_point_evaluation.py is magnetostatic, not frequency
+    # domain, and also runs in the `validation` job above. It is listed here
+    # too because the complex build is where it used to raise (known-issues 8:
+    # an unconditional `float()` on a complex-typed energy scalar), and nothing
+    # ran it under `dolfinx-complex-mode` until a POST-3 regression sweep did by
+    # hand. `MAG-16` fixed the cast and pinned the value across builds; this
+    # line is what keeps that from regressing. 5.2 s at -n 2
+    # (20260805T213327Z_MAG-16-gate-complex.log, 10 passed with tests/environment).
+
+    # test_two_torus_conforming.py is the `GEO-8` conformity gate; its volume
+    # half runs in the `validation` job above -- as of `OPS-11` through that
+    # job's whole-directory `tests/mesh` step rather than a file listing -- and
+    # its `@complex_only` field-leakage half (one 10 MHz solve on a 22k-cell
+    # mesh, 32 s at -n 2, log 20260801T003600Z_GEO-8-field-gate-numbers.log)
+    # runs here. It stays listed by name in this job because the rest of
+    # `tests/mesh` has nothing complex in it.
+
+    # test_port_reaction_impedance.py is the `PORT-1` step-2 gate: one 119738-
+    # cell two-torus mesh (21 s) and two 10 MHz solves (19 s and 15 s), 56 s in
+    # total at -n 2 (log 20260803T003217Z_PORT-1-step2-gate.log). Complex only —
+    # the whole file asserts on a complex Z-matrix and its S conversion.
+
+    # test_port_self_impedance_energy.py is the `PORT-1` step-2b diagnosis: the
+    # same mesh (23 s) and ONE 10 MHz solve, 43.5 s in total at -n 2 (log
+    # 20260803T050252Z_PORT-1-step2b-gate.log). It gates the complex-power
+    # identity Im Z11 = 4w(W_m - W_e)/I^2 against the reaction diagonal, so it
+    # is complex only and it shares the step-2 file's constants by import.
+
+    # test_port_gradient_load.py is the `PORT-1` step-2d measurement: the same
+    # mesh (21 s), one 10 MHz curl-curl solve (18 s) and one CG1 Poisson solve
+    # (1 s), 41.5 s in total at -n 2 (log 20260803T183556Z_PORT-1-step2d-gate.log).
+    # It gates the gradient-subspace identity int E.grad(q) = (j/(w.eps0))
+    # int J.grad(q) and reports ||P_G J||^2/(w.eps0.I^2) = 48.52 Ohm, i.e. the
+    # whole of the step-2b electric-energy excess. Complex only -- the identity's
+    # discriminating content is the factor j.
+
+    # test_port_solenoidal_drive.py is the `PORT-1` step-2e fix-side measurement:
+    # the same mesh (20 s), two CG1 Poisson solves (1.9 s + 1.6 s) and ONE
+    # curl-curl solve on J' = J - P_G J (18 s), 41.8 s at -n 2 (log
+    # 20260804T050616Z_PORT-1-step2e-gate.log). It gates Im Z11 > 0 (the
+    # unprojected drive measured -41.086 Ohm on this same mesh), the
+    # complex-power identity on the new drive, ||P_G J'||^2/||J'||^2, the
+    # collapse of 4wW_e/I'^2, and Im Z11 against Grover. Complex only. It does
+    # NOT re-run the unprojected control -- that is cited from the step-2b and
+    # step-2d logs, so the file's cost is one solve, not two.
+
+    # test_current_divergence.py is the `POST-3` step-3 gate: two solves on the
+    # piecewise-σ fixture plus four Poisson solves for the dual norms, 2.7 s at
+    # -n 2 (log 20260802T213238Z_POST-3-step3-gate-final.log). It must stay in
+    # this job — the residual is complex-valued and the real build cannot score
+    # the displacement current at all.
+
+    # test_dodd_deeds_impedance.py is the `MAT-6` loading gate and costs 85 s of
+    # the total (one 138k-cell mesh, three solves, measured at -n 2 on the dev
+    # box, log 20260731T110515Z_MAT-6-step2b-gate-numbers.log). Its step-1 half
+    # runs in either build, but the file is listed only here so the FEM half is
+    # actually executed rather than skipped.
+
+    # The two phantom files were added 2026-07-31 when known-issues.md entry 1
+    # was retired; they cost 6 s at -n 2 (10 passed, log
+    # 20260731T170034Z_KI-1-precheck-complex.log).
+
+    # test_convergence_diagnostics.py was added 2026-08-08 by `OPS-12`, which
+    # retired known-issues.md entry 2. It has to run in *this* job rather than
+    # the real-build one: the file mixes a plain classifier test with an
+    # `@complex_only` solve, so only the complex build executes both halves.
+    # Under 2.4 s at -n 2 for the whole file including tests/environment — the
+    # solve is a 1405-cell `cylindrical_domain` case and gmres+jacobi takes
+    # 1409 iterations on it (18 passed, logs 20260808T050500Z_OPS-12-gate.log
+    # and 20260808T050622Z_OPS-12-gate-final.log).
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        pip install "mkdocs<2" mkdocs-material "mkdocstrings[python]"
+    
+    - name: Build documentation
+      run: mkdocs build --strict
+    
+    - name: Deploy to GitHub Pages
+      if: github.ref == 'refs/heads/main'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./site
