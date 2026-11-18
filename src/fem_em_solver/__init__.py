@@ -5,7 +5,7 @@ using FEniCSX/DolfinX, with a focus on MRI coil design and analysis.
 """
 
 __version__ = "0.1.0"
-__author__ = "Awarru"
+__author__ = "Tayeb Zaidi"
 
 # Core imports
 from .core import (

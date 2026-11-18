@@ -110,7 +110,7 @@ The project is available under the [MIT License](LICENSE).
 
 ```bibtex
 @software{fem_em_solver,
-  author = {Awarru},
+  author = {Zaidi, Tayeb},
   title = {FEM Electromagnetics Solver for MRI},
   url = {https://github.com/tayebzaidi/precessem},
   year = {2026}
