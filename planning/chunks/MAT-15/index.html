@@ -1,0 +1,1431 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>MAT-15 — history - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#mat-15-history" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              MAT-15 — history
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-145-2026-10-01-chain-p2b-queued-by-the-1030-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 145 — 2026-10-01 (chain P2b; queued by the 10:30 review)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-160-2026-10-01-chain-p2b-item-145-re-run-on-the-ruled-bar-queued-by-the-1800-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 160 — 2026-10-01 (chain P2b, item 145 re-run on the ruled bar; queued by the 18:00 review)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-168-2026-10-02-chain-p2b-item-160-re-run-with-the-argument-fix-queued-by-the-0300-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 168 — 2026-10-02 (chain P2b, item 160 re-run with the (∞) argument fix; queued by the 03:00 review)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-01-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-01 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="§7 row moved verbatim 2026-10-01 (rotate_plan_archive.py chunks)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#audit-2026-10-02-1030-daily-review-auditor-closure-caa4fab6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Audit — 2026-10-02 10:30 daily review (auditor, closure caa4fab6)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-item-236-2026-10-04-chain-p5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 236 — 2026-10-04 (chain P5)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-item-315-2026-10-08-chain-p15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 315 — 2026-10-08 (chain P15)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-item-361-2026-10-10-chain-step-p17-daily-provisional-lane-3-phase-8-8e" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 361 — 2026-10-10 (chain step P17, daily provisional; lane 3 / Phase 8 (8e))
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-item-413-2026-10-13-10-chain-p22a-lane-1-no-solve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 413 — 2026-10-13 (§10 chain P22a; lane 1, no solve)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-10-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-10 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="§7 row moved verbatim 2026-10-10 (rotate_plan_archive.py chunks)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-13-0300-daily-on-the-item-413-draft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-13 03:00 (daily) on the item 413 draft
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-item-515-2026-10-18-10-p22b-mat-15-step-6b-lane-1-chain-no-solve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 515 — 2026-10-18 (§10 P22b, MAT-15 step 6b; lane 1, chain no-solve)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-18-0300-item-515-p22b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-18 03:00 (item 515, P22b)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="mat-15-history">MAT-15 — history<a class="headerlink" href="#mat-15-history" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history moved out of PROJECT_PLAN §9 (operator directive 2026-10-01). The §7 row is the status of record. Steps 1 and 2(a) (§9 items 130, 137) are archived verbatim in <code>docs/planning/plan-archive.md</code> § "§9 digest and restock of the 2026-10-01 03:00 review".</p>
+<h3 id="9-item-145-2026-10-01-chain-p2b-queued-by-the-1030-review">§9 item 145 — 2026-10-01 (chain P2b; queued by the 10:30 review)<a class="headerlink" href="#9-item-145-2026-10-01-chain-p2b-queued-by-the-1030-review" title="Permanent link">&para;</a></h3>
+<p><code>MAT-15</code> step 2(b) — the FEM on the phantom's own mesh against the finite Robin cylinder series (implementer; standard by ceiling, <code>-n 2</code>, complex; ≈ 10 measured / ≈ 55 predicted min; depends on nothing — item 137 landed <code>0f5bb02c</code>).</p>
+<ul>
+<li><strong>Anchor.</strong> No EM solve. The mesh is <code>_build(True, phantom_resolution=h_p)</code> (<code>tests/mesh/test_birdcage_port_sheets.py:80</code>), then <code>_tag_submesh(msh, cell_tags, PHANTOM_CELL_TAG)</code> and <code>_robin_tags(sub)</code> — step 1's thermal domain (<code>test_mat15_coil_driven_heating_phantom.py:106–121,211–212</code>). Imported from the step-1 module: <code>K_GEL</code>, <code>H_GEL</code>, <code>T_INF</code>, <code>A</code>, <code>T_R</code>, <code>T_STAR</code> (1254 s), <code>N_MAIN</code>, <code>_tag_submesh</code>; from <code>MAT-12</code>: <code>RHO_C</code>, <code>E_BAND</code>, <code>INF_BAND</code>; from <code>MAT-13</code>: <code>INTERIOR_BAND</code>; from 2(a)'s test: <code>Q</code>, <code>L</code>, <code>KW</code>. Comparand: P2a's series in numpy, interpolated into P2 in chunks of 20 000 points (<code>MAT-9</code>'s <code>_exact_theta</code> pattern), r = √(x² + y²).</li>
+<li><strong>Precondition (asserted).</strong> 2(a)'s (A, L, K, H, RHO_C) equal step 1's (A, <code>PHANTOM_HEIGHT</code>/2, K_GEL, H_GEL, RHO_C). The submesh is centred and aligned, from rank-reduced bounds: z ∈ [−L, L] to 1e-9·L, max r ≤ a·(1 + 1e-9), centroid within 1e-9·a of the origin.</li>
+<li><strong>Anchors (asserted).</strong></li>
+<li>(S1) Steady P1 at h_p ∈ {0.0075, 0.005, 0.00375, 0.0025} — <code>GEO-27</code>'s rungs: 2 746 / 8 497 / 18 570 / 58 866 phantom cells (<code>20260908T033218Z_GEO-27.log.gz:1804,3573,5346,7142</code>). Whole-cylinder relative L2 on θ; the LSQ slope of log e against log h_eff, h_eff = (V_sub/N)^{1/3}, ≥ 1.7 (<code>MAT-9</code> step 1's bar; measured 2.039 on the ball, <code>20260929T034247Z_MAT-9-step1.log</code>). At 0.0025, interior relative L2 (r &lt; 0.9a, |z| &lt; 0.9L) ≤ <code>INTERIOR_BAND</code>.</li>
+<li>(S2) Gauss balance on every rung: |∮hθ dS − qV_sub|/(qV_sub) ≤ 1e-9.</li>
+<li>(T) CN with the Rannacher start, N = 40 to t* at 0.0025: interior ≤ <code>INTERIOR_BAND</code>.</li>
+<li>(E) every run's <code>max_balance_residual</code> ≤ <code>E_BAND</code>. (∞) backward Euler 20 × 5 t_R equals the steady solve to ≤ <code>INF_BAND</code>.</li>
+<li><strong>Printed (predicted).</strong> Finest steady interior ≈ 1–3e-3; θ_h at the centre beside P2a's 2.983150 K; (T) ≈ 2e-3; pairwise rates. V_sub against πa²·2L (≈ −8.7e-4 from the record 2.259978941112e-04 — the wall faceting). max |Im θ| (predicted 0).</li>
+<li><strong>Negative controls (rule (e): predicted; asserted only as misses of <code>INTERIOR_BAND</code>).</strong> (c1) the comparand with h → 2h: steady miss predicted 0.3–0.5. (c2) Dirichlet radial roots, <code>radial_roots=scipy.special.jn_zeros(0, 200)</code>, in the transient comparand at t*: miss predicted 0.05–0.5.</li>
+<li><strong>Window.</strong> W1 (≈ 4 min; rung builds 28.1 + 28.7 + 31.8 + 39.9 s, <code>GEO-27.log.gz:1807,3576,5349,7145</code>; CN at 0.0025 is 2.5 s, <code>20261001T123309Z_MAT-15-step1-W1.log:1929</code>): <code>scripts/testing/run_and_log.sh MAT-15-step2b-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 480 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_mat15_finite_cylinder_fem.py -s -v --tb=short'"</code></li>
+<li><strong>Traps.</strong> P2a's functions build (points × 400) and (points × 200 × 200) arrays: always chunk. Never evaluate the transient near t = 0. In the complex build every reduction takes <code>np.real</code> (<code>MAT-13</code>'s <code>:134–149</code>); <code>MAT-9</code>'s <code>float(np.sqrt(e/n))</code> is not complex-safe. <code>cell_tags</code> and <code>assemble_scalar</code> are rank-local. Rung cell counts other than 58 866 are printed, not asserted. A killed compile leaves 0-byte <code>.c</code> stubs: sweep them. FD ratios on summed series pre-register δ ≳ 1e-2 of the length scale (items 136 / 137). Foreground, <code>timeout: 660000</code>; no edit after the last window.</li>
+<li><strong>Scope.</strong> Uniform source, Robin walls, P1, four rungs. Not: EM, perfusion, degree 2, <code>ANS-9</code>.</li>
+<li><strong>Status it can move.</strong> §7 <code>MAT-15</code> 🟡 → ✅ (the row's 2(b) Done-when, pinned by the 10:30 review).</li>
+<li><strong>Negative result.</strong> Rate &lt; 1.7 with the finest interior green: print the pairwise rates; if only the 0.0075 pair is low (≈ 4 cells across a), do not drop the rung in-slot (rules (f), (h)) — record, park on <code>attempt/*</code>, BLOCKED; the review rules. Interior &gt; 1 % at 0.0025: report beside the faceting deficit and stop. (S2) red: a code bug.</li>
+<li><strong>Outcome 2026-10-01 (15:00 slot) — 🚫 BLOCKED, parked <code>attempt/MAT-15-step2b-20261001T203800Z</code> (<code>640f2594</code>).</strong> W1 <code>20261001T202818Z_MAT-15-step2b-W1.log</code> (<code>-n 2</code>, complex) was killed by the container <code>timeout -k 30 480</code> (exit 124, 481 s) after the (c2) line (<code>:7167</code>), inside the (∞) backward-Euler tail; no orphaned ranks; no assertion on the fixture reached. Two blockers: (1) <strong>the pre-registered centroid bar is unmeetable on this mesh</strong> — the submesh volume centroid is (2.09e-8, 6.33e-9, −5.91e-8) m, |c| = 6.3e-8 m = 2.1e-6·a against 1e-9·a (<code>:7163</code>; z ∈ [−L, L] and max r = a hold to 1e-12) — the unstructured lateral faceting is not mirror-symmetric, so the bar needs a review ruling (measurement recorded, not moved in-slot); (2) the four rung builds take 185 s and the finest-rung tail (two P2 interpolations of the 200 × 200 transient series in 1 000-point chunks, CN, BE) did not finish in the remaining ≈ 290 s — the next window needs the tail split or priced. Measured, all printed (<code>:1852,3611,5375,7162–7167</code>): cells 2 746 / 8 497 / 18 570 / 58 866; h_eff 4.340e-3 / 2.982e-3 / 2.299e-3 / 1.566e-3 m; whole relative L2 6.744e-3 / 2.943e-3 / 1.686e-3 / 7.520e-4 — LSQ slope ≈ 2.15 (computed from the printed values; the fixture's own slope line was not reached), pairwise 2.21 / 2.14 / 2.10; (S2) Gauss ≤ 1.3e-14 every rung; finest interior 7.37e-4 (predicted 1–3e-3); θ_h(0) 2.980951 K vs 2.983150 K (−7.4e-4); (T) CN N = 40 interior 3.49e-4 (predicted ≈ 2e-3), balance 7.2e-14; V_sub deficit −8.6995e-4 (predicted ≈ −8.7e-4); controls (c1) 2h 0.739 (predicted 0.3–0.5 — outside its predicted range, high), (c2) Dirichlet roots 0.779 (predicted 0.05–0.5 — outside, high), both miss 1 %. Not measured: (∞), (E) on the BE run, max |Im θ|.</li>
+</ul>
+<p><strong>Ruled 2026-10-01 18:00 review (§9 rule (f); the 10-03 weekly ratifies or reverts).</strong> (1) <strong>Centroid bar.</strong> The precondition's 1e-9·a centroid bar is the brief's own idealisation (a perfectly centred cylinder), and an unstructured lateral faceting cannot meet it: the measured |c| is 6.3e-8 m = 2.1e-6·a (<code>…202818Z_MAT-15-step2b-W1.log:7163</code>). It is re-registered by measurement at <strong>|c| ≤ 1e-5·a</strong>, 4.8× the measured value. A centroid offset δ moves the comparand by O(δ/a) ≈ 2e-6 relative on θ, four orders under <code>INTERIOR_BAND</code> 1e-2, so the bar still excludes a displaced or mis-scaled submesh (a 1 mm shift reads 3.3e-2·a). The z-extent and max-r bars stay at 1e-9 (they hold to 1e-12). (2) <strong>Window split.</strong> The four rung builds cost 36.3 / 39.2 / 37.7 / 71.5 s (<code>:1852,3611,5375,7162</code>). The tail then printed (S1), (c1), (T) (solve 2.6 s) and (c2), and was killed inside (∞) with ≈ 260 s spent past the finest rung and no per-phase clock. A backward-Euler run of 20 steps on 58 866 P1 cells is seconds, so the item splits the steady and transient halves into two windows and prints a wall clock per phase, so that a stall is located rather than re-bought. (3) <strong>Controls.</strong> (c1) 0.739 and (c2) 0.779 fell outside their predicted ranges on the high side. Both are printed predictions per rule (e), asserted only as misses of 1 %, and both missed: no ruling needed. The re-run predicts the measured values. (4) <strong>Records.</strong> The W1 log and its <code>test-results.md</code> row exist only on the parked branch. The landing takes the log by path, a new file, and appends the row <strong>by hand</strong> — never a path checkout of <code>test-results.md</code>.</p>
+<h3 id="9-item-160-2026-10-01-chain-p2b-item-145-re-run-on-the-ruled-bar-queued-by-the-1800-review">§9 item 160 — 2026-10-01 (chain P2b, item 145 re-run on the ruled bar; queued by the 18:00 review)<a class="headerlink" href="#9-item-160-2026-10-01-chain-p2b-item-145-re-run-on-the-ruled-bar-queued-by-the-1800-review" title="Permanent link">&para;</a></h3>
+<p><code>MAT-15</code> step 2(b): the FEM on the phantom's own mesh against the finite Robin cylinder series, run as two windows (implementer; heavy, <code>-n 2</code>, complex; ≈ 15 measured / ≈ 40 predicted min; depends on nothing). Family <code>MAT-15</code> step 2: 2(a) registered its records (item 137), so this is <strong>attempt 2 of 4</strong> since then.</p>
+<ul>
+<li><strong>Code.</strong> Take <code>tests/validation/test_mat15_finite_cylinder_fem.py</code> <strong>by path</strong> from <code>attempt/MAT-15-step2b-20261001T203800Z</code>, together with its W1 log <code>docs/testing/logs/20261001T202818Z_MAT-15-step2b-W1.log</code> (a new file). Append that log's <code>test-results.md</code> row by hand from the branch's diff. Then make the following edits. (1) The centroid assert becomes <code>&lt;= 1e-5 * A</code>, with a comment citing this ruling and <code>:7163</code>. (2) Split the module-scoped <code>run</code> fixture into two module-scoped fixtures. <code>steady</code> builds the four rungs and computes (S1), (S2), the precondition and (c1). <code>transient</code> builds the 0.0025 rung alone and computes (T), (E), (∞) and (c2). A pytest node only instantiates the fixtures it uses. Wrap each phase in <code>time.perf_counter()</code> and print the timing with <code>flush=True</code>: build, steady solve, the series interpolation, CN, the BE (∞) run, and each control. (3) Keep the parked chunk sizes (<code>STEADY_CHUNK</code> 20 000, <code>TRANSIENT_CHUNK</code> 1 000, <code>:67–68</code>): the (points × 200 × 200) complex einsum at 20 000 points would be ≈ 12.8 GB per rank. The per-phase clocks will say whether the transient interpolation is the cost. Assert nothing new, and move no band other than the centroid bar.</li>
+<li><strong>Anchors (asserted), unchanged from item 145 apart from the bar.</strong> Precondition: 2(a)'s constants equal step 1's; z ∈ [−L, L] to 1e-9·L; max r ≤ a(1 + 1e-9); centroid ≤ 1e-5·a. (S1) LSQ rate ≥ 1.7 over the four rungs (predicted 2.15 from W1's printed values) and interior ≤ <code>INTERIOR_BAND</code> at 0.0025 (predicted 7.37e-4). (S2) Gauss ≤ 1e-9 on every rung (predicted ≤ 1.3e-14). (T) CN N = 40 interior ≤ <code>INTERIOR_BAND</code> (predicted 3.49e-4). (E) every run's <code>max_balance_residual</code> ≤ <code>E_BAND</code>. (∞) BE 20 × 5 t_R = steady ≤ <code>INF_BAND</code>. Cell count 58 866 at 0.0025.</li>
+<li><strong>Negative controls (rule (e)).</strong> (c1) comparand at 2h: miss <strong>predicted 0.739</strong> (W1 <code>:7165</code>). (c2) Dirichlet radial roots: miss <strong>predicted 0.779</strong> (<code>:7167</code>). Each is asserted only above <code>INTERIOR_BAND</code>.</li>
+<li><strong>Printed.</strong> Pairwise rates (W1: 2.21 / 2.14 / 2.10), θ_h(0) beside 2.983150 K, the V_sub deficit, max |Im θ| (predicted 0), and every phase clock.</li>
+<li><strong>Windows</strong> (complex; foreground; Bash <code>timeout: 660000</code>).</li>
+<li>W1, steady (≈ 200–260 s; builds 185 s measured): <code>scripts/testing/run_and_log.sh MAT-15-step2b-W2-steady "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 480 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_mat15_finite_cylinder_fem.py::test_precondition_2a_constants_are_step1s tests/validation/test_mat15_finite_cylinder_fem.py::test_precondition_submesh_centred_and_aligned tests/validation/test_mat15_finite_cylinder_fem.py::test_finest_rung_cell_count tests/validation/test_mat15_finite_cylinder_fem.py::test_s1_steady_rate tests/validation/test_mat15_finite_cylinder_fem.py::test_s1_steady_interior_finest tests/validation/test_mat15_finite_cylinder_fem.py::test_s2_gauss_balance_every_rung tests/validation/test_mat15_finite_cylinder_fem.py::test_control_c1_doubled_h_misses -s -v --tb=short'"</code></li>
+<li>W2, transient (predicted 120–400 s, unmeasured past (c2); heavy ceiling): <code>scripts/testing/run_and_log.sh MAT-15-step2b-W3-transient "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 900 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_mat15_finite_cylinder_fem.py::test_t_transient_interior tests/validation/test_mat15_finite_cylinder_fem.py::test_e_every_run_balances tests/validation/test_mat15_finite_cylinder_fem.py::test_inf_long_backward_euler_is_steady tests/validation/test_mat15_finite_cylinder_fem.py::test_control_c2_dirichlet_roots_miss -s -v --tb=short'"</code></li>
+<li>The test names are the parked module's (<code>:245–305</code>). If the split renames them, use the new node IDs and say so in the journal. Never use <code>-k</code> selection inside the quoted command.</li>
+<li><strong>Traps.</strong> <strong>Run this first: <code>find /root/.cache/fenics -name '*.c' -size 0</code> in the container.</strong> W1 was killed mid-run and may have left a 0-byte stub, which is a live lock. Delete stubs only, never the whole cache. Then <code>pgrep -c python3</code> to check for orphans. Item 145's traps also stand. P2a's functions build (points × 400) and (points × 200 × 200) arrays, so always chunk. Never evaluate the transient near t = 0. Every reduction takes <code>np.real</code>. <code>cell_tags</code> and <code>assemble_scalar</code> are rank-local. If (∞) prints no phase clock within 120 s of (c2), suspect a rank-divergent collective (an <code>if</code> on a rank-local value ahead of an allreduce) before suspecting cost. Status 124 is a finding, not a retry. No edit after a file's last window (rule (i)).</li>
+<li><strong>Scope.</strong> Uniform source, Robin walls, P1, four rungs. Not covered: EM, perfusion, degree 2, <code>ANS-9</code>.</li>
+<li><strong>Status it can move.</strong> §7 <code>MAT-15</code> 🟡 → ✅ on the row's 2(b) Done-when (pinned by the 10:30 review; the centroid bar is a precondition, not a Done-when term). <code>attempt/MAT-15-step2b-20261001T203800Z</code> is deleted after the landing.</li>
+<li><strong>Negative result.</strong> W2 killed at 900 s: record which phase clock last printed, park, BLOCKED — the review prices or re-poses (∞). That would be attempt 3 of 4. A rate below 1.7 or an interior red: item 145's rule — record, park, BLOCKED, the review rules. A red centroid at the new bar means the mesh has changed under the item: stop.</li>
+</ul>
+<p><strong>Outcome 2026-10-01 (22:30 CDT slot) — 🚫 BLOCKED, parked <code>attempt/MAT-15-step2b-20261002T034707Z</code> (<code>7120eeed</code>).</strong> Slot deviation, disclosed: W2 ran at container <code>timeout -k 30 590</code>, not 900 (the foreground Bash window is 660 s; see the slot note below). Trap step: one 0-byte <code>.c</code> stub deleted, no orphans. <strong>W1 steady green</strong> — <code>20261002T033219Z_MAT-15-step2b-W2-steady.log</code> (<code>-n 2</code>, complex, 244 s, 19 passed): cells 2 746 / 8 497 / 18 570 / 58 866; LSQ slope 2.1511 (bar 1.7), pairwise 2.2106 / 2.1415 / 2.1015; finest interior 7.374e-4; Gauss ≤ 1.3e-14; centroid |c|/a 2.101e-6 (bar 1e-5), z and r exact; θ_h(0) 2.980951 vs 2.983150 K; V_sub −8.6995e-4; (c1) 0.7394 (predicted 0.739); max |Im θ| 0; phase clocks: builds 26.2 / 27.8 / 29.9 / 40.0 s, steady solves ≤ 0.6 s, steady series interpolation 0.9 / 3.4 / 5.8 / 27.8 s, (c1) 29.1 s. <strong>W2 transient, first run</strong> <code>20261002T033630Z_MAT-15-step2b-W3-transient.log</code> (286 s, 4 errors): FFCx JIT lock on <code>libffcx_forms_9f4f0568….c</code>. That was a <strong>44 345-byte</strong> <code>.c</code> with no <code>.o</code> / <code>.so</code>, written at 20:36:19 UTC, the instant item 145's W1 was killed. The brief's 0-byte sweep cannot see a killed compile that already wrote its source. Only that file was deleted and W2 re-run once (no code change). <strong>W2 re-run</strong> <code>20261002T034149Z_MAT-15-step2b-W3-transient.log</code> (273 s, 15 passed / 1 failed): (T) CN N = 40 interior 3.4945e-4 (predicted 3.49e-4), whole 4.16e-4; (c2) 0.7795 (predicted 0.779); (E) worst 7.234e-14 (CN), BE 1.3e-14; max |Im θ| 0; <strong>(∞) 0.9999999999999808 &gt; <code>INF_BAND</code> 1e-8 — red outside the predictions, so the slot stopped.</strong> Phase clocks: build 39.4 s, steady 0.6, CN 2.3, transient series interpolation 95.1, (c2) 86.1, BE (∞) 1.2 s, fixture 225.9 s (item 145's overrun was the two 1 000-point-chunk interpolations, not (∞)). <strong>Diagnosis (code reading, the arithmetic fits): a test bug, inherited verbatim from item 145's module.</strong> <code>_rel(sub, a, b)</code> returns ‖a − b‖/‖b‖, but the (∞) call passes a = T_be − T_st and b = T_st − T∞. So it reads ‖(T_be − T_st) − θ‖/‖θ‖ = 1 − ⟨T_be − T_st, θ⟩/‖θ‖², which is 1 − 1.9e-14 when T_be = T_st. The 1.9e-14 deficit is the BE-vs-steady agreement. <strong>Unblock:</strong> one line, <code>out["inf"] = _rel(sub, res_inf.temperature - T_INF, st.temperature - T_INF)</code> (<code>MAT-12</code>'s <code>:238</code> form, with T∞ ≠ 0), then re-run W1 and W2 per rule (i). Both fit (244 + 273 s). Attempt 3 of 4. Pre-register the trap as "any FFCx <code>.c</code> without a sibling <code>.so</code>", not "0-byte".</p>
+<p><strong>Slot note (2026-10-01 21:00 CDT slot, not started — no attempt spent).</strong> W2's <code>timeout -k 30 900</code> exceeds the 660 000 ms foreground Bash window. implementer-run.md caps container time at ≈ 590 s, so the call would be killed host-side mid-window. A review should re-price W2 at ≤ 590 s, or split (∞) into a third window, before a slot takes this item.</p>
+<p><strong>Read 2026-10-02 03:00 review.</strong> The diagnosis holds on the parked module (<code>7120eeed</code>): <code>_rel(sub, th_h, th_ex)</code> is ‖th_h − th_ex‖/‖th_ex‖ (<code>:125</code>), and <code>:290</code> passes th_h = T_be − T_st and th_ex = T_st − T∞. So (∞) reads ‖(T_be − T_st) − θ_st‖/‖θ_st‖ = 1 − O(‖T_be − T_st‖/‖θ_st‖), and the printed 1 − 1.9e-14 says T_be = T_st to ≈ 1.9e-14. Correcting the comparand's arguments is a bug fix, not a band move: <code>INF_BAND</code> 1e-8 and the quantity (BE(∞) against the steady solve, <code>MAT-12</code>'s <code>:238</code> form) are unchanged. Every other anchor and both controls were green on their predictions. Re-queued as item 168 (attempt 3 of 4).</p>
+<h3 id="9-item-168-2026-10-02-chain-p2b-item-160-re-run-with-the-argument-fix-queued-by-the-0300-review">§9 item 168 — 2026-10-02 (chain P2b, item 160 re-run with the (∞) argument fix; queued by the 03:00 review)<a class="headerlink" href="#9-item-168-2026-10-02-chain-p2b-item-160-re-run-with-the-argument-fix-queued-by-the-0300-review" title="Permanent link">&para;</a></h3>
+<p><code>MAT-15</code> step 2(b): the FEM on the phantom's own mesh against the finite Robin cylinder series, on item 160's split module with the one-line (∞) fix (implementer; heavy by the transient window, <code>-n 2</code>, complex; ≈ 16 measured / ≈ 25 predicted min; depends on nothing). Family <code>MAT-15</code> step 2: <strong>attempt 3 of 4</strong> since 2(a) registered its records (item 137). A red here leaves one attempt; the family cap then binds.</p>
+<ul>
+<li><strong>Code.</strong> Take <code>tests/validation/test_mat15_finite_cylinder_fem.py</code> <strong>by path</strong> from <code>attempt/MAT-15-step2b-20261002T034707Z</code> (<code>7120eeed</code>). Also take, by path, the four log files that branch adds and <code>main</code> lacks: <code>20261001T202818Z_MAT-15-step2b-W1.log</code>, <code>20261002T033219Z_MAT-15-step2b-W2-steady.log</code>, and the two <code>…W3-transient.log</code> files. Append their four <code>test-results.md</code> rows <strong>by hand</strong> from <code>git diff main...attempt/MAT-15-step2b-20261002T034707Z -- docs/testing/test-results.md</code>, and never path-checkout <code>test-results.md</code>. Then make the one edit: <code>:290</code> becomes <code>out["inf"] = _rel(sub, res_inf.temperature - T_INF, st.temperature - T_INF)</code>, with a comment citing this item and the W3 log's (∞) line. Nothing else moves: no band, no node ID, no chunk size.</li>
+<li><strong>Anchors (asserted), unchanged from item 160.</strong></li>
+<li>Precondition: 2(a)'s constants equal step 1's. z ∈ [−L, L] to 1e-9·L. max r ≤ a(1 + 1e-9). Centroid ≤ 1e-5·a.</li>
+<li>(S1): LSQ rate ≥ 1.7, predicted 2.1511. Interior ≤ <code>INTERIOR_BAND</code> at 0.0025, predicted 7.374e-4.</li>
+<li>(S2): Gauss ≤ 1e-9, predicted ≤ 1.3e-14.</li>
+<li>(T): CN N = 40 interior ≤ <code>INTERIOR_BAND</code>, predicted 3.4945e-4.</li>
+<li>(E): ≤ <code>E_BAND</code>, predicted ≤ 7.3e-14.</li>
+<li><strong>(∞): ‖T_be − T_st‖/‖θ_st‖ ≤ <code>INF_BAND</code> 1e-8, predicted ≈ 1.9e-14</strong> (the deficit item 160's misreading printed).</li>
+<li>Cell count 58 866.</li>
+<li><strong>Negative controls (rule (e)).</strong></li>
+<li>(c1): 2h comparand, <strong>asserted</strong> as a miss of 1 %, predicted 0.7394 (<code>…033219Z…W2-steady.log</code>).</li>
+<li>(c2): Dirichlet roots, <strong>asserted</strong> as a miss, predicted 0.7795 (<code>…034149Z…W3-transient.log</code>).</li>
+<li>Both are backed by item 160's measurement on this fixture.</li>
+<li>Ceiling for (∞)'s own control: the pre-fix expression <em>is</em> the broken comparand, and it reads 1.0. Print it beside the fixed value as <code>(∞-control)</code>, not asserted.</li>
+<li><strong>Windows</strong> (complex; foreground; Bash <code>timeout: 660000</code>; both container-side <code>timeout -k 30 590</code>; measured 244 s and 273 s).</li>
+<li>First: <code>pgrep -c python3</code> in the container must read 0. Then run the any-orphan sweep as one bare call: <code>scripts/testing/run_and_log.sh MAT-15-step2b-cache-sweep "docker compose exec -T fem-em-solver bash -lc 'cd /root/.cache/fenics &amp;&amp; for c in libffcx_*.c; do s=\${c%.c}; ls \$s.*.so &gt;/dev/null 2&gt;&amp;1 || { echo orphan \$s; rm -f \$s.c \$s.c.cached \$s.o; }; done; echo sweep done'"</code>.</li>
+<li>W1, steady: item 160's W1 command verbatim, with label <code>MAT-15-step2b-W4-steady</code> and <code>timeout -k 30 590</code>. Use the node IDs as the parked module names them.</li>
+<li>W2, transient: item 160's W2 command verbatim, with label <code>MAT-15-step2b-W5-transient</code> and <code>timeout -k 30 590</code>.</li>
+<li>Both windows run after the edit, as rule (i) requires: W1's nodes do not touch <code>:290</code>, but the module changed.</li>
+<li><strong>Traps.</strong> Item 160's list stands. The orphan sweep is "any <code>.c</code> without its <code>.so</code>", not 0-byte (<code>6388d5cd</code>). Every reduction takes <code>np.real</code>. Never <code>-k</code> inside the quoted command. Status 124 is a finding, not a retry. Make no edit after the last window.</li>
+<li><strong>Scope.</strong> Uniform source, Robin walls, P1, four rungs. This item does not cover EM, perfusion, degree 2, or <code>ANS-9</code>.</li>
+<li><strong>Status it can move.</strong> §7 <code>MAT-15</code> 🟡 → ✅, on the row's 2(b) Done-when, which this item matches (the centroid bar is a precondition, not a Done-when term). On the landing, delete both <code>attempt/MAT-15-step2b-*</code> branches.</li>
+<li><strong>Negative result.</strong></li>
+<li>(∞) red after the fix: the BE run does not reach the steady state. That is physics or a scheme fault, not the comparand. Record the value and the phase clocks, park, and mark the item BLOCKED. Attempt 4 of 4 is then the review's to re-pose at a higher altitude.</li>
+<li>Any other red: item 160's dispositions.</li>
+</ul>
+<p><strong>Outcome 2026-10-02 (04:30 CDT slot) — ✅ COMPLETE.</strong> Took the module and the four logs by path from <code>attempt/MAT-15-step2b-20261002T034707Z</code>, appended their four <code>test-results.md</code> rows by hand, and made the one edit: (∞) now reads <code>_rel(sub, res_inf.temperature - T_INF, st.temperature - T_INF)</code>, with the pre-fix expression printed beside it as <code>(inf-control)</code>. No band, node ID or chunk size moved. Pre-run: <code>pgrep -c python3</code> read 0, and the any-<code>.c</code>-without-<code>.so</code> sweep found no orphans (<code>20261002T093054Z_MAT-15-step2b-cache-sweep.log</code>). <strong>W4 steady</strong> <code>20261002T093152Z_MAT-15-step2b-W4-steady.log</code> (<code>-n 2</code>, complex, 252 s, 19 passed): cells 2 746 / 8 497 / 18 570 / 58 866; LSQ slope 2.1511, pairwise 2.2106 / 2.1415 / 2.1015; finest interior 7.373685e-4; Gauss ≤ 1.326e-14; centroid |c|/a 2.101e-6, z and r exact; θ_h(0) 2.980951 vs 2.983150 K; V_sub −8.6995e-4; (c1) 0.73935; max |Im θ| 0 (<code>:7171–7181</code>). <strong>W5 transient</strong> <code>20261002T093610Z_MAT-15-step2b-W5-transient.log</code> (<code>-n 2</code>, complex, 273 s, 16 passed): (T) CN N = 40 interior 3.494532e-4, whole 4.1617e-4; (c2) 0.77946; <strong>(∞) 2.204e-14</strong> (predicted ≈ 1.9e-14, bar 1e-8), (∞-control) 0.9999999999999808; (E) worst 7.234e-14 (CN), BE 1.326e-14; max |Im θ| 0 (<code>:1873–1883</code>). Every prediction landed. §7 <code>MAT-15</code> 🟡 → ✅; both <code>attempt/MAT-15-step2b-*</code> branches deleted.</p>
+<h2 id="7-row-moved-verbatim-2026-10-01-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-01 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-01-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p><em>(history and §9 briefs: <code>docs/planning/chunks/MAT-15.md</code>)</em> <strong>Coil-driven heating of the gel phantom on F-small — Phase 8 subgoal (8b)</strong> (opened 2026-09-30 by the weekly; §10 chain P1 / P2; the fixture is <code>ANS-2</code>'s 10 MHz loaded birdcage so that <code>ANS-9</code> can reuse it). <em>Step 1 (P1):</em> the coil-driven SAR of each of the four drives as the volumetric source of <code>MAT-12</code>'s transient solve on a phantom-only thermal domain with a Robin surface, gel properties, no perfusion. Asserted: the θ-scheme's discrete energy identity (stored + surface loss = deposited) to round-off; the first-step volume-mean slope against ⟨SAR⟩ / c inside <code>MAT-12</code>'s measured time-truncation bound; the four drives' temperature maps related by the C4 rotation at the imported 5 % band; a doubled-source control that misses the balance. <em>Step 2 (P2a / P2b):</em> a uniform source in the finite cylinder with Robin walls — the double eigen-series verified in numpy by residuals before any solve, then the FEM on the phantom's own mesh against it, band from <code>MAT-9</code>'s measured rate. <strong>Done-when (§4):</strong> step 1 asserted green ⇒ 🟡; step 2 ⇒ ✅. Not claimed: tissue, perfusion, an external check (<code>ANS-9</code>), human scale. <em>Pinned 2026-10-01 03:00 review (rule (j)):</em> step 1 on <code>ANS-2</code>'s 0.0025 m rung, gel constants k 0.6, ρc 4.18e6, h 10, T∞ = T(0) = 20, one normalisation G = 1 W / P₁ for all four drives; "deposited" = G·P_k from <code>mean_sar</code> on the parent mesh; the slope bound is <code>MAT-12</code>'s <code>S2_BAND</code> 1e-4 at Δt₁ = 2.5e-6 t_R with the surface-deficit estimate printed; "temperature maps" = the 10 g-ball means of θ at t* = 0.2 a²ρc/k at the four rotated centres (§9 item 130). Step 2 splits: <em>2(a)</em> the numpy double eigen-series verified by residuals — recorded, no glyph (§9 item 137); <em>2(b)</em> the FEM against it ⇒ ✅ — <em>pinned 2026-10-01 10:30 review (rule (j), §9 item 145):</em> uniform q with step 1's gel constants; P1 on the tag-3 submesh at <code>phantom_resolution</code> 0.0075 / 0.005 / 0.00375 / 0.0025 (<code>GEO-27</code>'s rungs); comparand <code>robin_finite_cylinder_{steady,transient}_temperature</code>; steady whole-cylinder L2 LSQ rate against (V/N)^{1/3} ≥ 1.7 (<code>MAT-9</code> step 1's bar); interior ≤ <code>INTERIOR_BAND</code> (1 %) at 0.0025, steady and CN N = 40 at t*; Gauss balance ≤ 1e-9 per rung; per-step balance ≤ <code>E_BAND</code>; long backward Euler = steady ≤ <code>INF_BAND</code>; controls h → 2h and Dirichlet radial roots each miss <code>INTERIOR_BAND</code>. <em>Step 1 asserted green 2026-10-01 (§9 item 130):</em> (B) ≤ 1.7e-14, (E) ≤ 8.5e-12, (E′) ≤ 1.5e-14, (S2) 5.75e-6 (= the surface deficit; κ<em>s 1.65, below the predicted 2–5), (C4) θ 10 g pairs 0.</em>20–0.049 %, controls (d) 1.000 / (f) 75.25–75.28 % (<code>20261001T123309Z_MAT-15-step1-W1.log:1924–1954</code>, <code>-n 2</code>, 218 s); step 2 open. <em>Step 2(a) recorded 2026-10-01 (§9 item 137, no glyph):* the numpy double eigen-s</em>ries verified — Robin residuals ≤ 4.3e-13·qa, Gauss balance 7.6e-15, Duhamel 3.5e-14, limits ≤ 2.3e-9, θ<strong>s(0,0) 2.983 K (<code>20261001T143248Z_MAT-15-step2a-W1b.log</code>, <code>-n 2</code>, 49 </strong> (R0) norm and (R2) δ moved with measurement, disclosed); P2b queueable. <em>Step 2(b) attempt 1 parked 2026-10-01 (15:00 slot, §9 item 145, <code>attempt/MAT-15-step2b-20261001T203800Z</code>).</em> Every anchor it measured was green: LSQ rate ≈ 2.15, finest interior 7.37e-4, (T) 3.49e-4, Gauss ≤ 1.3e-14. Two things stopped it. The pre-registered centroid bar of 1e-9·a was unmeetable (measured 2.1e-6·a). And W1 was killed at 480 s inside (∞). <strong>Ruled 18:00 review (rule (f); the weekly ratifies):</strong> the centroid bar is re-registered at 1e-5·a, because a centroid offset moves θ by O(δ/a) ≈ 2e-6 against the 1e-2 band. The z and r bars stay at 1e-9. The windows split into steady and transient with per-phase clocks. Re-queued as §9 item 160 (attempt 2 of 4); history in <code>docs/planning/chunks/MAT-15.md</code>. | 🟡 </p>
+<h3 id="audit-2026-10-02-1030-daily-review-auditor-closure-caa4fab6">Audit — 2026-10-02 10:30 daily review (<code>auditor</code>, closure <code>caa4fab6</code>)<a class="headerlink" href="#audit-2026-10-02-1030-daily-review-auditor-closure-caa4fab6" title="Permanent link">&para;</a></h3>
+<p><strong>DEMOTE(8), on the tier word only. The review relabels the row instead of demoting it</strong> (the precedent is the <code>OPS-27</code> pattern, which the 09-30 weekly overruled as "a tier word"). The row declared <code>standard</code> (180 s), but the chunk's own windows measured 252 s (<code>20261002T093152Z_MAT-15-step2b-W4-steady.log:7324–7325</code>) and 273 s (<code>20261002T093610Z_MAT-15-step2b-W5-transient.log:2022–2023</code>). Items 160 and 168 had already declared them heavy. The row's tier cell now reads heavy.</p>
+<p>Checks 1–7 are clean:
+- <strong>Digits:</strong> every claimed digit traces. The review re-read W5:1882, (∞) 2.204e-14 against the 1e-8 bound, with the pre-fix control at 0.9999999999999808.
+- <strong>Pre-fix red:</strong> <code>20261002T034149Z_MAT-15-step2b-W3-transient.log:1882</code>.
+- <strong>Bands:</strong> the imported bands are unchanged. The one loosened bar is the precondition centroid (1e-9·a → 1e-5·a), ruled 10-01 18:00 and awaiting the weekly.
+- <strong>Done-when:</strong> met across steps 1, 2(a) and 2(b). The footers are <code>20261001T123309Z_MAT-15-step1-W1.log:2131–2132</code> and <code>20261001T143248Z_MAT-15-step2a-W1b.log:275–276</code>.</p>
+<p>Caveat: the test file was untracked when the harness recorded HEAD <code>a959b466</code>. attempts.md records no edit after the windows.</p>
+<h3 id="9-item-236-2026-10-04-chain-p5">§9 item 236 — 2026-10-04 (chain P5)<a class="headerlink" href="#9-item-236-2026-10-04-chain-p5" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-04 18:00 daily review; the review reviews it.</em> Licence: §10 chain P5 (weekly 2026-10-03), quoted, not changed: "<code>MAT-15</code> step 3 — heating per accepted watt at 64 MHz on copper. <code>ANS-7</code>'s tuned fixture as the source, degree 2, exact rectangles: the energy identity, the calorimetric slope and the σ_y mirror image of the one-port drive at <code>MAT-15</code>'s imported bands. Target: identities. The first thermal figure on a tuned coil. Serial on nothing." The 2026-10-02 sheets-and-κ ruling binds: exact rectangles, κ off. No band, tolerance, Done-when or validation target moves.</p>
+<p><code>MAT-15</code> step 3: step 1's thermal identities, run once on the SAR of <code>ANS-7</code>'s tuned copper F-small birdcage, driven across C₁ at 64.0 MHz, normalised per accepted watt.
+- <strong>Executor:</strong> implementer. One new test module; no <code>src/</code> change and no edit to any existing module.
+- <strong>Tier:</strong> heavy, <code>-n 8</code>, complex build.
+- <strong>Class:</strong> chain step (solve). <strong>Time:</strong> ≈ 23 measured / ≈ 45 predicted min.
+- <strong>Depends on nothing on <code>main</code>.</strong> It needs two gitignored files that T21 wrote, <code>logs/ans7_exact/tune_p2.json</code> and <code>logs/ans7_exact/tune_inmodel_p2.json</code> (item 217 W1 / W2, 2026-10-04 09:07 / 09:11 CDT). Both were on disk when this brief was drafted. If either is absent, stop and take the next item. Do not re-create them: T21's W2 is red by pre-registration.</p>
+<p><strong>What changes against steps 1–2.</strong> Step 2 used no EM, so nothing from it is imported here.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Step 1 (§9 item 130)</th>
+<th>This step</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fixture</td>
+<td><code>ANS-2</code>'s solid-conductor F-small, <code>build_four_port_sweep(phantom_resolution=0.0025)</code>, 199 920 cells, 58 866 tag-3 cells</td>
+<td>The ×1 exact-strip <strong>hole</strong> mesh (<code>_exact_geo(th14, comm, GATED_WIDTH_FRACTION)</code>, h = 0.015), 80 798 cells (<code>ANS6_EXACT_STRIP_HOLE_CELL_RECORD</code>), default phantom sizing. The tag-3 count has never been printed on this mesh</td>
+</tr>
+<tr>
+<td>Conductor</td>
+<td>Volumetric, σ = 800 S/m</td>
+<td>Copper by Leontovich on tag 401, σ = 5.8e7 (<code>_route_a_solve(…, "cu")</code> builds the term)</td>
+</tr>
+<tr>
+<td>Sheets</td>
+<td>Ragged f = 0.5 cut, κ none</td>
+<td>Exact CAD rectangles, κ off (<code>_build_ports(width_correction_kappa=None)</code>)</td>
+</tr>
+<tr>
+<td>EM order</td>
+<td>Degree 1</td>
+<td><strong>Degree 2</strong> (thermal stays P1)</td>
+</tr>
+<tr>
+<td>Circuit</td>
+<td>Untuned: every port at 50 Ω, four single-leg drives at 10 MHz</td>
+<td>Tuned: Z_C(C_mode,Cu) on P2–P4, C₁ across the P1 port (circuit layer, lossless), <strong>one</strong> drive (P1) at 64.0 MHz</td>
+</tr>
+<tr>
+<td>Normalisation</td>
+<td>G = 1 W / P₁, one deposited watt</td>
+<td>G = 1 W / P_acc, <strong>one accepted watt</strong> at the coil terminals</td>
+</tr>
+<tr>
+<td>Map identity</td>
+<td>C4 across the four drives</td>
+<td><strong>σ_y mirror</strong> of the one drive</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Which C, and what "tuned" means here.</strong> The capacitor is <strong>C_mode,Cu = 6.358914053477356e-11 F (63.589141 pF)</strong>: the k = 1-block construction at 64 MHz on the degree-2 exact 4×4. It is read from <code>tune_p2.json["c_mode"]["cu"]</code> and never recomputed (<code>20261004T140347Z_ANS-7-item217-W1-cmode.log:2088</code>). Known-issues 2026-10-04 (T21) is open: with this C, the in-model zero of Im <code>Y_in</code> sits at 64 000 308.55 Hz, 4.82e-6 above 64 MHz against the 1e-6 <code>BANDS</code> band (<code>20261004T140738Z_ANS-7-item217-W2-inmodel.log:2049–2050</code>). Whether "tuned" means C_mode or C_in is the weekly's question. <strong>This item does not claim the coil is tuned to 64.000 MHz.</strong> It drives at 64.0 MHz at C_mode,Cu. That frequency is 308.55 Hz from the in-model zero, i.e. 9.4e-3 of the half-linewidth f₀/(2Q_A) = 32.9 kHz (Q_A 972.90). Normalising per accepted watt removes the mismatch, and the detuning moves the field shape at O((9.4e-3)²) ≈ 1e-4 (printed estimate). Every asserted anchor below is an identity that holds for any C.</p>
+<p><strong>Code.</strong> New <code>tests/validation/test_mat15_tuned_copper_heating.py</code>, <code>@complex_only</code>, with one module-scoped fixture so the EM solve runs once.
+- <strong>Opt-in knob <code>FEM_EM_MAT15_STEP3=1</code>.</strong> Unset ⇒ every test in the module skips; any other value raises <code>ValueError</code>. That keeps default suites from collecting a <code>-n 8</code> heavy job that needs gitignored inputs. No existing module, helper default or record moves, so the change is unset-identical by construction.
+- <strong>Imports only, never <code>test_*</code> names.</strong>
+  - From step 1's module: <code>_tag_submesh</code>, <code>_cell_average_dg0_tag</code>, <code>_cn</code>, <code>_be_one</code>, <code>_e_prime</code>, <code>_max_imag</code>, <code>K_GEL</code>, <code>H_GEL</code>, <code>T_INF</code>, <code>A</code>, <code>T_R</code>, <code>T_STAR</code>, <code>N_MAIN</code>, <code>DT_1</code>, <code>D_CONTROL_FLOOR</code>, <code>F_CONTROL_FLOOR</code>, <code>CAD_AREA_M2</code>.
+  - From <code>MAT-10</code>: <code>_robin_tags</code>, <code>_to_sub</code>, <code>_allsum</code>, <code>_say</code>, <code>B_BAND</code>, <code>ROBIN_TAG</code>.
+  - From <code>MAT-12</code>: <code>E_BAND</code>, <code>S2_BAND</code>, <code>RHO_C</code>.
+  - Ball means: <code>C4_COVARIANCE_BAND</code> and <code>PHANTOM_RHO_KG_PER_M3</code> (<code>test_birdcage_b1_plus_map</code>), <code>CENTRE_RADIUS_M</code>, <code>QUADRATURE_DEGREE</code>, <code>TEN_GRAM_KG</code>, <code>averaging_ball_radius</code>, <code>mean_sar</code>.
+  - From <code>TH-14</code>: the module as <code>th14</code> (for <code>_exact_geo</code> / <code>_route_a_solve</code>), plus <code>_surface_loss_w</code>, <code>DRIVEN</code>, <code>COPPER_SIGMA</code> and <code>PHANTOM_CELL_TAG</code>.
+  - From <code>test_birdcage_power_identity</code>: <code>_source_power_w</code>, <code>_sheet_field_dissipation_w</code>, <code>DISCRETE_IDENTITY_RTOL</code>.
+  - From <code>test_ans7_exact_strip</code>: <code>_exact_geo</code>, <code>_fixture_tie</code>, <code>_assert_tie</code>, <code>_route_a_solve</code>, <code>OUT_DIR</code>, <code>GATED_WIDTH_FRACTION</code>.
+  - From <code>test_ans7_sparse_route_b</code>: <code>_ANS7</code> (<code>z_cap</code>, <code>TUNING_TERMINATED_INDICES</code>), <code>NODE_S_RTOL</code>, <code>_p_inc_w</code>.
+  - <code>_sheet_azimuth_deg</code> from <code>tests.mesh.test_birdcage_leg_offset</code>, and <code>SHEET_IFACE</code>.
+- <strong>Do not edit</strong> step 1's module, <code>test_ans7_exact_strip.py</code>, <code>test_ans7_sparse_route_b.py</code> or the <code>ans:7</code> script. <code>ans:9</code> imports step 1's <code>_run_heated</code>, and item 230 has just re-issued <code>ans:7</code>. An edit to any of them owes those gates' windows under rule (a).
+- <strong>Fixture body, in this order.</strong>
+  1. Read the two T21 JSONs and fail if either is absent. Check: <code>degree == 2</code>; |<code>f_hz</code> − 64e6| &lt; 1; <code>cells == 80798</code>; <code>tune_inmodel_p2.json["tune_mhz"] == [63.9, 64.0, 64.1]</code>; and its <code>c_mode</code> equal to <code>tune_p2.json["c_mode"]["cu"]</code> bit for bit. Take <code>S11_ref = s11_a[1]</code>, the 64.0 MHz point.
+  2. <code>tie = _fixture_tie()</code>, then <code>geo, specs, cells = _exact_geo(th14, comm, GATED_WIDTH_FRACTION)</code>.
+  3. φ₁ = <code>_sheet_azimuth_deg(msh, tags_f, SHEET_IFACE + 1, comm)</code>, the bbox centre of an exact rectangle. This precondition runs <strong>before</strong> the solve.
+  4. <code>s11, fields = _route_a_solve(th14, geo, specs, 64.0e6, "cu", c_f=c_mode, return_fields=True, degree=2)</code>.
+  5. <strong>Power.</strong>
+     - Rebuild the solve's specs exactly as <code>_route_a_solve</code> does: <code>dataclasses.replace(s, port_impedance_ohm=_ANS7.z_cap(ω, c_mode))</code> for i ∈ <code>TUNING_TERMINATED_INDICES</code>.
+     - Build the sheets as <code>sp.sheet(driven=(sp.port_id == DRIVEN))</code> and set <code>acct = {"mesh": msh, "facet_tags": tags_f}</code>.
+     - Compute P_src, ΣP_sheet, P_total = ½∫σ|E|², P_phantom (both <code>_vol(dx(PHANTOM_CELL_TAG))</code> and <code>mean_sar(...)["dissipated_power_w"]</code>), and P_surf = <code>_surface_loss_w(msh, facet_tags, z_s, e, comm)</code>, with z_s = (1 + j)·<code>surface_resistance_ohm</code>(ω, <code>COPPER_SIGMA</code>). This is <code>TH-14</code>'s (b) block, <code>test_th14_birdcage_copper.py:375–407</code>, verbatim.
+     - P_acc = P_src − ΣP_sheet. C₁ is lossless, so P_acc is the power accepted at the coil terminals. Then G = 1 W / P_acc.
+  6. <strong>Thermal.</strong> Step 1's per-drive loop body (<code>test_mat15_coil_driven_heating_phantom.py:217–301</code>) for this one drive, with dep = G·P_phantom (= η W):
+     - submesh and Robin tags, q_h through <code>_cell_average_dg0_tag</code> → <code>_to_sub</code>;
+     - (B), κ_s, <code>_cn</code>, (E′) through <code>_e_prime</code>, then <code>_be_one</code> and (S2);
+     - control (d) on a doubled q_h;
+     - max|Im θ|.
+  7. <strong>Ball means at t*.</strong> Eight centres at radius <code>CENTRE_RADIUS_M</code>, azimuths φ₁ + m·45° (m = 0 … 7), with step 1's compiled ball forms (<code>:231–261</code>). Print each ball volume beside (4/3)π·a₁₀³.</p>
+<p><strong>Anchors</strong> (asserted; every band imported, none restated):
+- <strong>(F)</strong> <code>_assert_tie(cells, tie)</code>: 80 798 cells within <code>CELL_COUNT_BAND</code>, and all four N_i rectangles within <code>STRIP_BAND</code>. This is the ruling's CAD identity.
+- <strong>(Φ) precondition:</strong> |sin φ₁| ≤ 1e-9, so the mirror through the driven leg is σ_y (y → −y). Step 1 printed P1 at 360.0° on its fixture. The bbox of an exact rectangle is a set of CAD corners.
+- <strong>(W) source wiring:</strong> |S11 − S11_ref|/|S11_ref| ≤ <code>NODE_S_RTOL</code>. This is a deterministic re-solve of T21's own 64.0 MHz C_mode drive on the same mesh, at the same width and degree. It is backed by the same comparison on the same fixture, T21 (W) at 2.77e-14 (<code>…140738Z…-W2-inmodel.log:2045</code>), with S11_A printed at <code>:2047</code>.
+- <strong>(P) accepted-power identity:</strong> |P_src − ΣP_sheet − P_phantom − P_(Ω∖phantom) − P_surf|/|P_src| ≤ <code>DISCRETE_IDENTITY_RTOL</code>. This is <code>TH-14</code>'s (b) on the tuned configuration, and it ties the accepted watt to the phantom's deposited share. Item 196 measured it at degree 2 on this mesh, in the 50 Ω-terminated configuration: 1.355e-12 (<code>20261003T124111Z_ANS-7-item196-W2-p2.log:2038</code>).
+- <strong>(B)</strong> |∫_sub q_h dV − G·P_phantom|/(G·P_phantom) ≤ <code>B_BAND</code>.
+- <strong>(E)</strong> Every thermal run's <code>max_balance_residual</code> ≤ <code>E_BAND</code>.
+- <strong>(E′) the energy identity:</strong> ρc∫Δθ/Δt + ∮hθ^(n+½) = G·P<strong>hantom, **from t</strong> EM side<strong>, ≤ <code>E_BAND</code>.
+- **(S2)</strong>he calorimetric slope:<strong> |ρc·θ̄¹</strong>Δt₁·G·P_phantom/V_sub) − 1| ≤ <code>S2_BAND</code>, one BE step Δt₁ from θ = 0.
+- <strong>(M) σ_y mirror image:</strong> 10 g ball means of θ at t*. (M1) θ̄(φ₁ + 90°) against θ̄(φ₁ − 90°), and (M2) θ̄(φ₁ + 45°) against θ̄(φ₁ − 45°), each relative to the first ≤ <code>C4_COVARIANCE_BAND</code>.</p>
+<p><strong>Imported vs printed — the bands, read against rule (f).</strong>
+- <strong>Imported:</strong> <code>B_BAND</code> 1e-10 (<code>MAT-10</code>) and <code>E_BAND</code> 1e-9 (<code>MAT-12</code>) are pre-stated round-off bands. Neither depends on EM order.
+- <strong>Imported:</strong> <code>S2_BAND</code> 1e-4 is <code>MAT-12</code>'s pre-stated time-truncation bound, on the P1 thermal side. EM order enters only through κ_s. The deficit is ≈ 3.44e-6·κ_s, so the bound holds to κ_s ≈ 29.
+- <strong>Imported:</strong> <code>C4_COVARIANCE_BAND</code> 5 % was pre-registered before any reading. Its provenance was <em>measured</em> at degree 1 (CG1 |B₁⁺| 2.19 % worst, <code>WF-6</code> step 1b, <code>test_birdcage_b1_plus_map.py:108–120</code>), but the value was never registered by measurement under rule (f). It can therefore be imported at degree 2. The asymmetry it bounds here comes from the phantom's P1 mesh, which does not depend on EM order.
+- <strong>Imported:</strong> <code>DISCRETE_IDENTITY_RTOL</code> 1e-6 and <code>NODE_S_RTOL</code> 1e-9.
+- <strong>No band in <code>MAT-15</code> was registered by measurement at degree 1.</strong> The rule (f) moves in its history (2(a)'s (R0) / (R2) parameters, 2(b)'s centroid bar 1e-5·a) belong to step 2 and are not used here.
+- <strong>Printed only:</strong> step 1's <strong>records</strong> are <code>ANS-2</code>-rung numbers: <code>V_SUB_RECORD_M3</code>, <code>P1_RECORD_W</code>, κ_s 1.65, and mean θ(t*) 1.153 K per deposited watt. On this mesh they appear only as references beside the new values, never as comparands, and this item registers no new record.</p>
+<p><strong>Negative controls (rule (e)).</strong>
+- <strong>(d) doubled source:</strong> (E′) against G·P_phantom reads 1.000, by linearity on any fixture. Step 1 measured 1.000000 (<code>20261001T123309Z_MAT-15-step1-W1.log:1948</code>). Like step 1's <code>test_control_d_…</code>, it is asserted only as a miss, &gt; <code>D_CONTROL_FLOOR</code>.
+- <strong>(f′) off-mirror pair:</strong> θ̄(φ₁ + 90°) against θ̄(φ₁), relative to θ̄(φ₁).
+  - Prediction: 40–80 %. Leg currents go as cos(φ − φ₁), so the gap voltages at φ₁ ± 90° are ≈ 0, and the eddy E_z ∝ x vanishes on x = 0.
+  - Never measured, so the factor is printed beside the reading. Only the miss is asserted (&gt; <code>F_CONTROL_FLOOR</code>), as step 1's (f) was.
+  - Ceiling: ≤ 1 when θ̄(φ₁ + 90°) ≤ θ̄(φ₁), so the 5 % floor sits 20× under it.
+- <strong>(P-ctl):</strong> the identity with ΣP_sheet dropped misses by ≈ P_sheet/P_src ≈ 0.998, because R_bare ≈ 0.08 Ω sits against the 50 Ω source sheet. Predicted, printed, never asserted.</p>
+<p><strong>Predictions</strong> (written first, printed):
+- Tag-3 cells in [300, 3 000]. V_sub against πa²·2L = 2.26195e-4 m³: deficit in [−3e-2, 0].
+- (W) ≤ 1e-12. (P) ≤ 1e-10.
+- P_phantom, <code>mean_sar</code> against <code>_vol</code>: ≤ 1e-12.
+- η = P_phantom/P_acc in [0.52, 0.62]. The estimate is Q_Cu/Q_PEC at C_mode,Cu, 969.21/1664.90 = 0.582 (T21 (T1), <code>…140347Z…-W1-cmode.log:2090–2091</code>). P_surf/P_acc = 1 − η to (P).
+- L_S = 1 − |S11|² ≈ 4.05e-3 (from <code>:2047</code>'s S11_A) against L_F = P_acc/<code>_p_inc_w()</code>: |L_S − L_F| ≤ 1e-4 absolute. Printed only: in the 50 Ω configuration this is item 196's (L), and it is unmeasured here.
+- (B) ≤ 1e-13. (E), (E′) ≤ 1e-12. κ_s in [1.5, 6]: a uniform E_z ∝ x alone gives 1.73, and the gap-voltage E adds surface weight.
+- (S2) ≈ 3.44e-6·κ_s, in [5e-6, 2.1e-5].
+- <strong>The first thermal figure on a tuned coil:</strong> mean θ(t*) per accepted watt in [0.55, 0.75] K, which is η × step 1's 1.153 K per deposited watt (<code>:1929</code>). The peak 10 g θ̄ per accepted watt is printed with its azimuth.
+- (M1), (M2) ≤ 1 %. The q_h 10 g mirror pairs are printed, predicted ≤ 3 %. The C2 pair θ̄(φ₁) against θ̄(φ₁ + 180°) is not a symmetry of a one-port drive; it is printed, predicted ≤ 2 %.
+- max|Im θ| = 0.</p>
+<p><strong>Windows</strong> (<code>-n 8</code>; bare, whole, foreground; Bash <code>timeout: 660000</code>; <code>-s</code>; <code>tests/environment</code> first).
+- <strong>Price</strong>, measured at <code>-n 8</code> on this mesh:
+  - pytest start-up + <code>tests/environment</code> + <code>_fixture_tie</code> ≈ 90 s (T21 W2: 261 s window less its 171.4 s fixture, <code>:2052</code>);
+  - <code>_exact_geo</code> mesh 24.4 s;
+  - one degree-2 C_mode drive 41.8–50.3 s (<code>:2052</code>);
+  - degree-2 post-processing forms ≈ 10–40 s (first compile of the <code>mean_sar</code> and DG0-average forms at degree 2);
+  - the thermal side ≈ 5 s on ≈ 10³ phantom cells. Step 1 ran four drives plus the control on 58 866 cells in 29 s at <code>-n 2</code>.
+  - Total ≈ 200–260 s, or ≤ 365 s on item 214's ×1.4 slow box. That is inside the container's 590 s.
+- <strong>First:</strong> <code>docker compose exec -T fem-em-solver pgrep -c python3</code> must read 0. Then run the any-orphan sweep (item 160's 44 KB partial <code>.c</code> trap) as one bare call:</p>
+<p><code>scripts/testing/run_and_log.sh MAT-15-step3-cache-sweep "docker compose exec -T fem-em-solver bash -lc 'cd /root/.cache/fenics &amp;&amp; for c in libffcx_*.c; do s=\${c%.c}; ls \$s.*.so &gt;/dev/null 2&gt;&amp;1 || { echo orphan \$s; rm -f \$s.c \$s.c.cached \$s.o; }; done; echo sweep done'"</code>
+- <strong>W1</strong> (≈ 200–260 s), the closing window:</p>
+<p><code>scripts/testing/run_and_log.sh MAT-15-step3-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_ANS_SKIP_PRIVATE=1 FEM_EM_MAT15_STEP3=1 timeout -k 30 590 mpiexec -n 8 python3 -m pytest tests/environment tests/validation/test_mat15_tuned_copper_heating.py -v -s --tb=short'"</code>
+- <strong>No edit after W1</strong> (rule (i)). Any edit re-runs W1. One window and one re-run fit the hour.</p>
+<p><strong>Traps already paid for.</strong>
+- <strong>Orphan <code>.c</code>:</strong> a stem with no <code>.so</code>, not only 0-byte (item 160, 44 345 bytes). Sweep only when <code>pgrep -c python3</code> reads 0, and delete orphan stems only.
+- <strong>Never write under <code>logs/ans7_exact/</code>.</strong> This item only reads T21's two JSONs and writes nothing outside its harness log.
+- <strong>The sheet terms of (P)</strong> must use the Z_C-replaced specs. With the 50 Ω specs, P2–P4 would show a dissipation they do not have and (P) would go red on a correct field.
+- <strong>Complex build:</strong> <code>ufl.real</code> inside <code>ufl.lt</code> for the ball indicator, with no <code>sqrt</code> in any comparison (<code>WF-6</code> 4c). <code>np.real</code> before every <code>float</code>.
+- <strong>Rank-local values:</strong> <code>cell_tags.values</code> and <code>assemble_scalar</code>; every reduction goes through <code>_allsum</code> / <code>allreduce</code>.
+- <strong>No point evaluation on the submesh.</strong> <code>evaluate_vector_field_parallel</code>'s owner rule raises on <code>create_submesh</code> meshes (known-issues 2026-10-04, <code>ANS-9</code>). All θ readings are assembled ball integrals.
+- <strong>Inherited from items 195 / 196 / 217:</strong> κ <code>None</code>, <code>z_from_s</code> never applied to the sweep's <code>z_matrix</code>, and no <code>ans:7</code> <code>_stage_*</code> call.
+- <strong>Harness hygiene:</strong> harness calls are bare and whole; no <code>-k</code> selection inside the quoted command; a killed window is not a result (run <code>pgrep -c python3</code>, report, never lengthen the timeout).</p>
+<p><strong>Scope.</strong> Covered:
+- the ×1 exact-strip hole mesh, degree-2 EM, copper by Leontovich, κ off;
+- C_mode,Cu on P2–P4 and C₁ across the driven port, one drive at 64.0 MHz;
+- P1 thermal on the default-sized phantom submesh, with step 1's gel constants (k 0.6, ρc 4.18e6, h 10, T∞ = T(0) = 20), no perfusion, constant σ;
+- normalisation per accepted watt.</p>
+<p><strong>Not claimed:</strong>
+- that the coil is tuned to 64.000 MHz (T21 is open, and the weekly chooses C_mode or C_in);
+- any absolute SAR, temperature or compliance figure;
+- a closed form for the coil-driven θ, or any phantom or h convergence. The phantom is at default sizing, and the h-rung T12′ has not landed;
+- the quadrature two-port drive, 127.74 MHz, or the PEC column;
+- <code>ANS-9</code>, whose SPEC is <code>ANS-2</code>'s 10 MHz case, or any AED / Palace reading;
+- tissue, ASTM F2182.</p>
+<p><strong>Status it can move.</strong>
+- <code>MAT-15</code> is ✅ on steps 1–2 and stays ✅ whatever this step reads.
+- On green, the §7 row gains a "step 3 record" sentence: the identities asserted on the tuned copper fixture at degree 2 on exact rectangles, and the per-accepted-watt figures printed (η, mean θ(t*), the peak 10 g θ̄ and its azimuth). §10 P5 then closes; the weekly marks it.
+- <strong>Rule (j):</strong> the reviewing daily adds one Done-when clause to the row: "step 3 (§10 P5): identities green ⇒ a record, no glyph".</p>
+<p><strong>Negative result.</strong>
+- <strong>(W), (F) or (Φ) red:</strong> the fixture is not the one T21 measured, because a JSON, the mesh or <code>_route_a_solve</code> moved. Read nothing thermal, stop, BLOCKED.
+- <strong>(P) red:</strong> the tuned degree-2 Route A configuration leaks power. Print every term, open a known-issues entry and park BLOCKED. Never rescale G to absorb it.
+- <strong>(B) red:</strong> the DG0 transfer of a degree-2 field on the hole mesh. Known-issues entry, BLOCKED.
+- <strong>(E) or (E′) red:</strong> the thermal path on this submesh. BLOCKED, and step 1's ✅ stands.
+- <strong>(S2) red with (E) green:</strong> print κ_s and its estimate. If the miss equals the deficit (κ_s &gt; 29), it is a step-size finding: report it, move no band, BLOCKED.
+- <strong>(M) red:</strong> print the q_h pairs, ball volumes and tag-3 cells.
+  - If the q_h pair is also red, the EM field is not mirror-symmetric: known-issues entry, BLOCKED.
+  - If only θ is red, on fewer than ≈ 1 000 phantom cells, it is the phantom mesh: record it, BLOCKED. The review may re-pose on a phantom-refined exact hole mesh. That is a new fixture, so it needs its own C_mode.
+  - No band moves.
+- <strong>(d) or (f′) does not miss:</strong> stop.
+- No <code>PREDICTED RED:</code> line. Every asserted anchor is predicted green.</p>
+<p><strong>Outcome (2026-10-04 22:30 slot): GREEN, 13/13</strong> (<code>20261005T040135Z_MAT-15-step3-W1.log</code>, 156 s window, fixture 90.2 s, <code>-n 8</code>, complex; cache sweep <code>20261005T040008Z_MAT-15-step3-cache-sweep.log</code>, no orphans). Asserted: (F) 80 798 cells; (Φ) φ₁ = 0.000000000000°; (W) 1.293e-12; (P) 7.387e-13; (B) 7.687e-16; (E) worst 5.310e-11 (BE); (E′) 3.171e-14; (S2) 4.8742e-6; (M1) 1.3599 %, (M2) 1.8431 %; controls (d) 1.000000, (f′) 35.78 %. Printed: P_acc 1.0068e-5 W, η = 0.577681 (estimate 0.582), P_surf/P_acc = 1 − η to (P), P outside phantom 0 (copper is a surface term); (P-ctl) 0.9973; L_S − L_F 1.54e-5; tag-3 cells 537, V_sub −2.947e-2 against πa²·2L; κ_s 1.3284; <strong>mean θ(t*) 0.687806 K per accepted watt</strong>; peak 10 g θ̄ 0.9426 K at φ₁ = 0°; C2 pair 1.29 %. <strong>Predictions missed (printed, none asserted):</strong> (W) 1.29e-12 over its ≤ 1e-12; κ_s 1.33 under [1.5, 6] and so (S2) 4.87e-6 just under [5e-6, 2.1e-5] (deficit = 3.486e-6·κ_s, as derived); (M1)/(M2) over the ≤ 1 % prediction (inside the 5 % band); the q_h (M1) pair 22.7 % against ≤ 3 % — at φ₁ ± 90°, where q_h is at its minimum (665 / 817 W/m³ against 4 170 at φ₁), on 537 cells; the q_h (M2) pair 1.01 %; (f′) 35.8 % under the 40–80 % prediction. Not a tuning claim (T21 open).</p>
+<h3 id="9-item-315-2026-10-08-chain-p15">§9 item 315 — 2026-10-08 (chain P15)<a class="headerlink" href="#9-item-315-2026-10-08-chain-p15" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-08 03:00 daily review; the review reviews it.</em> Licence: §10 P15 (weekly 2026-10-07, PROJECT_PLAN.md:4669–4674), quoted, not changed: "<code>MAT-15</code> step 4 — the Pennes sink on the coil-driven phantom. <code>MAT-11</code>'s perfusion term on P1's fixture: the energy identity with the sink at <code>E_BAND</code>, w → 0 reproducing P1's ⟨θ⟩(t*) at <code>B_BAND</code>, θ monotone decreasing in w at three w values, the C4 identity; printed, ⟨θ⟩(t*) per w. Target: identities and a limit. Serial on nothing. Heavy (P11's class, 266 s)." No band, tolerance, Done-when or target moves. A record on a ✅ row: no glyph moves.</p>
+<p><code>MAT-15</code> step 4 puts the Pennes sink w(T − T∞) of <code>solve_transient_conduction(..., perfusion_w_per_m3_k=w)</code> (<code>src/fem_em_solver/thermal/transient.py:111</code>, balance with the ∫w(T^(n+θ) − T∞) term at <code>:125–128</code>; <code>MAT-11</code> / <code>MAT-13</code>) on step 1's coil-driven phantom: <code>ANS-2</code>'s F-small, four single-leg drives at 10 MHz, σ = 800 S/m, the 0.0025 m rung, 58 866 tag-3 cells, G = 1 W / P₁ (<code>_run_heated</code>, <code>tests/validation/test_mat15_coil_driven_heating_phantom.py:180</code>).
+- <strong>Executor:</strong> implementer. One new module <code>tests/validation/test_mat15_pennes_coil_driven.py</code>, <code>@complex_only</code>, one module-scoped fixture. No <code>src/</code> change (the sink is already a solver argument). <strong>Do not edit</strong> step 1's module (<code>ans:9</code> imports <code>_run_heated</code>; rule (a)) nor <code>test_mat18_wall_coil_driven.py</code>.
+- <strong>Tier:</strong> heavy, <code>-n 2</code>, complex. <strong>Time:</strong> ≈ 17 measured / ≈ 30 predicted min. <strong>Depends on nothing.</strong>
+- <strong>Template:</strong> item 270's module (<code>MAT-18</code> step 3, <code>test_mat18_wall_coil_driven.py:134–271</code>) is the same fixture with h replaced; copy its structure (local <code>_transient_h</code> → local <code>_transient_w</code>, ball-mean block <code>:162–191</code>), never import its <code>test_*</code> names.</p>
+<p><strong>The w values (fixture parameters, not bands).</strong> w ∈ {<code>W</code>/10, <code>W</code>, <code>W_STRONG</code>} = {24, 240, 2400} W/m³/K, <code>W</code> and <code>W_STRONG</code> imported from <code>test_mat11_perfusion_sphere.py:55–56</code>; and the limit value w_ε = 1e-8 W/m³/K. w_ε is non-zero on purpose: it takes the <code>perfused</code> branch of <code>_solve_transient</code> (<code>transient.py:219–220</code>), so (L0) is an independent limit, not the default-path identity item 270's (L0) turned out to be (its outcome caveat, <code>MAT-18.md:481</code>). <strong>Gel has no perfusion:</strong> these w are a numerical exercise of the sink on a coil-driven source, not a gel or tissue property.</p>
+<p><strong>Code.</strong>
+- Fixture: <code>base = _run_heated(return_fields=True)</code> once (<code>sub</code>, <code>ft</code>, <code>G</code>, <code>P</code>, <code>v_sub</code>, <code>centres</code>, <code>q_h</code>, <code>T_star</code> by k).
+- Local <code>_transient_w(sub, ft, q, w, …)</code>: step 1's <code>_transient</code> body with <code>perfusion_w_per_m3_k=w</code>, <code>h=H_GEL</code>; <code>_cn_w</code> = step 1's <code>_cn</code> (CN, N = <code>N_MAIN</code> = 40 to <code>T_STAR</code>, two BE half-steps, snapshots N−1, N).
+- Local <code>_e_prime_w(sub, ds, res, deposited, w)</code>: step 1's <code>_e_prime</code> (<code>:164–171</code>) plus perf = w∫(½(θᴺ + θᴺ⁻¹))dx. Step 1's <code>_e_prime</code> has no sink term, so using it would fail (E′) on a correct field.
+- Per drive k ∈ 0…3: CN at w_ε and at the three w; ⟨θ⟩(t*) = ∫θ/V_sub; 10 g ball means at c_k (item 270's block). Print a <code>time.perf_counter()</code> per phase, <code>flush=True</code>.</p>
+<p><strong>Anchors</strong> (asserted; bands imported by name):
+- <strong>(E′) energy identity with the sink:</strong> ρc∫(θᴺ − θᴺ⁻¹)/Δt + ∮hθ^(n+½) + ∫wθ^(n+½) = G·P_k from the EM side, ≤ <code>E_BAND</code> (1e-9, <code>test_mat12_transient_sar_heating_sphere.py:76</code>), all four drives × three w. <strong>(E):</strong> every run's <code>max_balance_residual</code> ≤ <code>E_BAND</code>.
+- <strong>(L0) w → 0:</strong> ⟨θ⟩(t*) at w_ε against the mean of <code>base["T_star"][k]</code>, relative ≤ <code>B_BAND</code> (1e-10, <code>test_mat10_sar_to_heat_sphere.py:61</code>), per drive. Predicted ≈ w_ε·t*/(2ρc) ≈ 1.5e-12 plus round-off.
+- <strong>(Mo) monotone in w:</strong> per drive, ⟨θ⟩(t*) strictly decreasing over w ∈ {0 (P1), 24, 240, 2400}, and the own-centre 10 g θ̄ likewise. Asserted as strict inequalities between consecutive values, each gap &gt; 1e-6 relative (≥ 10³× under the smallest predicted gap below).
+- <strong>(C4) with the sink:</strong> the four drives' own-centre 10 g θ̄ in step 1's cyclic pairs, ≤ <code>C4_COVARIANCE_BAND</code> (5 %, <code>test_birdcage_b1_plus_map.py:120</code>) at each w. A uniform w does not break C4; predicted the order of step 1's 0.020–0.049 % (<code>20261001T123309Z_MAT-15-step1-W1.log:1924–1954</code>).</p>
+<p><strong>Negative controls (rule (e)).</strong>
+- <strong>(d) doubled source, asserted</strong> (prior same-fixture measurement): (E′) with 2·q_h at w = <code>W</code> against G·P₁ misses; step 1 and item 270 read 1.000000 on this fixture. Asserted &gt; <code>D_CONTROL_FLOOR</code>.
+- <strong>(P-ctl) sink dropped from the identity, predicted</strong> (no prior measurement): (E′) at w = <code>W</code> with the ∫wθ term omitted misses by the perfused share ≈ w⟨θ⟩V_sub/(G·P_k) ≈ 240 × 1.11 × 2.262e-4 ≈ 0.060. Range [0.04, 0.08]; ceiling &lt; 1 (the sink cannot exceed the deposit while θ rises). Asserted only as a miss &gt; <code>D_CONTROL_FLOOR</code>.</p>
+<p><strong>Predictions</strong> (printed; lumped estimate f(x) = (1 − e⁻ˣ)/x with x = (λ_R + w/ρc)t*, λ_R t* ≈ 0.28 fitted to P1's 1.153 K against the adiabatic 1.326 K per watt, item 270's arithmetic): ⟨θ⟩(t*)/P1 ≈ 0.996–0.998 (w = 24), 0.955–0.975 (240), 0.68–0.77 (2400); the same ratios on the 10 g θ̄ within a few %. (E′), (E) ≤ 1e-13. max|Im θ| = 0. <strong>Printed records:</strong> ⟨θ⟩(t*) per w per drive and the ratio to P1, peak 10 g θ̄ per w, the perfused power at t* (<code>result.perfused_power</code>), the C4 and q_h pairs.</p>
+<p><strong>Window</strong> (bare, whole, foreground; Bash <code>timeout: 660000</code>; <code>-s</code>; <code>tests/environment</code> first).
+- <strong>Price:</strong> item 270's window on this fixture, 266 s at <code>-n 2</code> with 8 CN runs + (d) (<code>20261006T200649Z_MAT-18-step3-W1.log</code>); step 1's CN at 0.0025 is 2.5 s (<code>20261001T123309Z_MAT-15-step1-W1.log:1929</code>). This item runs 16 CN + (d) + (P-ctl, no extra solve): ≈ +20–30 s. Predicted 270–330 s.
+- <strong>First:</strong> <code>docker compose exec -T fem-em-solver pgrep -c python3</code> must read 0; then the any-orphan sweep (rubric item 4) as one bare call:</p>
+<p><code>scripts/testing/run_and_log.sh MAT-15-step4-cache-sweep "docker compose exec -T fem-em-solver bash -lc 'cd /root/.cache/fenics &amp;&amp; for c in libffcx_*.c; do s=\${c%.c}; ls \$s.*.so &gt;/dev/null 2&gt;&amp;1 || { echo orphan \$s; rm -f \$s.c \$s.c.cached \$s.o; }; done; echo sweep done'"</code>
+- <strong>W1:</strong></p>
+<p><code>scripts/testing/run_and_log.sh MAT-15-step4-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 590 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_mat15_pennes_coil_driven.py -v -s --tb=short'"</code>
+- No edit after W1 (rule (i)).</p>
+<p><strong>Traps already paid for.</strong>
+- The <code>$</code> in the sweep must stay escaped (<code>\$</code>): item 270's first sweep failed host-side on it (<code>MAT-18.md:481</code>).
+- Orphan <code>.c</code> of any size (item 160, 44 KB): sweep only at <code>pgrep</code> 0, orphan stems only.
+- Step 1's <code>_e_prime</code> and <code>_transient</code> have no w argument (above); the public solvers raise on w &lt; 0 (<code>transient.py:145</code>, <code>steady.py:190</code>; <code>MAT-11</code>'s negative-w control uses a private path) — never pass a negative w here.
+- <code>cell_tags.values</code> / <code>assemble_scalar</code> rank-local: reduce through <code>_allsum</code>. <code>np.real</code> before every <code>float</code>.
+- No point evaluation on the <code>create_submesh</code> mesh (known-issues 2026-10-04): every θ reading is an assembled integral. <code>ufl.real</code> inside <code>ufl.lt</code> for the ball indicator; no <code>sqrt</code> in a comparison (<code>WF-6</code> 4c).
+- No <code>-k</code> inside the quoted command; a killed window is not a result (<code>pgrep -c python3</code>, report, never lengthen the timeout).</p>
+<p><strong>Scope.</strong> Covered: the Pennes sink as a uniform numerical term at four w on P1's untuned 10 MHz σ = 800 S/m fixture; P1 thermal; gel constants; arterial = ambient. <strong>Not claimed:</strong> any gel or tissue perfusion value, a Pennes closed form on the cylinder, σ(T) or temperature-dependent w, a tuned-coil / copper / 64 MHz figure, an absolute temperature or compliance figure, <code>ANS-9</code>.</p>
+<p><strong>Negative result.</strong>
+- <strong>(E′) or (E) red:</strong> print stor / conv / perf / deposited. If (E) is green and only (E′) red, the local <code>_e_prime_w</code> is wrong — fix in the new module, re-run. If (E) is red too, the solver's sink path on a submesh: known-issues entry, BLOCKED; <code>MAT-15</code> ✅ stands.
+- <strong>(L0) red:</strong> the local helper is not step 1's run (args, half-steps, snapshots) — fix in the new module only. If it reads ≈ 1e-9–1e-8, report the value beside the w_ε·t*/(2ρc) estimate; no band moves.
+- <strong>(Mo) red:</strong> a sink that raises θ is a sign error — stop, known-issues entry, BLOCKED.
+- <strong>(C4) red:</strong> print the q_h pairs; red too ⇒ the fixture moved (known-issues), else BLOCKED.
+- <strong>(d) or (P-ctl) does not miss:</strong> the sink never reached the solve. Stop.
+- No <code>PREDICTED RED:</code> line; every asserted anchor is predicted green.</p>
+<p><strong>Status it can move.</strong> None: <code>MAT-15</code> stays ✅ (Done-when: step 1 ⇒ 🟡, step 2 ⇒ ✅, PROJECT_PLAN.md:2534). On green the §7 row gains a "step 4 record" sentence (the identities with the sink, ⟨θ⟩(t*)/P1 per w) and §10 P15 closes; the weekly marks it. <strong>Rule (j):</strong> the reviewing daily adds "step 4 (§10 P15): identities green ⇒ a record, no glyph" to the row's Done-when (step 3's clause, item 236, is the precedent).</p>
+<p><strong>Review rulings (2026-10-08 03:00 daily review, item 315).</strong> (6) w ∈ {0, 24, 240, 2400} accepted (<code>MAT-11</code>'s 240 / 2400 plus 24); the values are a numerical exercise, gel has no perfusion, and the brief says so. (7) No Done-when amendment: no glyph moves, so rule (j) does not apply; the outcome is recorded here and on the row's state line.</p>
+<p><strong>Outcome (2026-10-08 09:00 slot): GREEN, 42/42</strong> first run (<code>20261008T140322Z_MAT-15-step4-W1.log</code>, 303 s window, 54 passed with <code>tests/environment</code>, P1 fixture 168.8 s, sink block 62.9 s, each CN 2.7–3.1 s, <code>-n 2</code>, complex; cache sweep <code>20261008T140145Z_MAT-15-step4-cache-sweep.log</code>, no orphans). Fixture reproduced step 1: P₁ rel 2.65e-13 to record, V_sub 3.45e-13, C4 0.0403 / 0.0202 / 0.0287 / 0.0487 %. Asserted: (E′) with the sink ≤ 1.63e-14 on all 12 (k, w) runs <em>(corrected 2026-10-08 10:30 review from "1.67e-14", a transcription slip — the largest printed value is 1.623e-14 at W1 <code>:1985</code>; audit PASS)</em>; (E) worst 8.659e-14 over 16 runs (k3 at w_ε); (L0) 1.526e-12 / 1.506e-12 / 1.509e-12 / 1.522e-12 against the w_ε·t*/(2ρc) estimate 1.50e-12; (Mo) relative gaps ⟨θ⟩ 3.43e-3 / 3.03e-2 / 2.51e-1 and 10 g θ̄ 3.14e-3 / 2.78e-2 / 2.32e-1 (identical across drives to ≈ 1e-7); (C4) θ̄ pairs ≤ 0.0489 % at w = 24 / 240 / 2400 (0.0389 / 0.0187 / 0.0287 / 0.0489 % at 2400); (d) 1.000000; (P-ctl) 0.059809–0.059810 on all four drives. Printed: ⟨θ⟩(t*)/P1 = 0.996565 (w = 24), 0.966366 (240), 0.724055 (2400), all inside the predictions; 10 g θ̄ ratios 0.996856 / 0.96918 / 0.74481; perfused power at t* (k = 0) 6.166e-3 / 5.981e-2 / 0.4495 W per watt deposited; peak 10 g θ̄ on k = 0: 2.5793 / 2.5077 / 1.9272 K; q_h pairs 0.0133 / 0.0084 / 0.0466 / 0.0683 %; max|Im θ| 0. No prediction missed. Gel has no perfusion: these w are a numerical exercise, not a property.</p>
+<h3 id="9-item-361-2026-10-10-chain-step-p17-daily-provisional-lane-3-phase-8-8e">§9 item 361 — 2026-10-10 (chain step P17, daily provisional; lane 3 / Phase 8 (8e))<a class="headerlink" href="#9-item-361-2026-10-10-chain-step-p17-daily-provisional-lane-3-phase-8-8e" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-10 18:00 daily review; the review reviews it.</em> Licence: §10 chain P17, written by this review as a <strong>provisional</strong> step under §9 rule (6) (daily, 2026-10-10), toward Phase 8 subgoal (8e) "an ASTM-style gel phantom at human scale, serial on H9" (PROJECT_PLAN.md:4284; §10 "(8e) stays serial on H9′", :4765–4766). H9′ is DONE (items 358 / 359, <code>20261010T170356Z_WF-10-step2-W1.log</code>, <code>20261010T171705Z_WF-10-step2s-W1.log</code>). <strong>Target: identities — P5's set (item 236) transferred to H9′'s fixture, no new validation target.</strong> The 2026-10-02 sheets-and-κ ruling, the capacitor-ESR ruling and the 10-10 10:30 rulings on items 358 / 359 (<code>WF-10.md</code>, "Review rulings (2026-10-10 10:30 review)") bind. <strong>No band, tolerance, Done-when or validation target is set or moved; every band is imported.</strong> A record on a ✅ row: no glyph moves.</p>
+<p><code>MAT-15</code> step 5: step 3's thermal identities (item 236), run on the coil-driven SAR of H9′'s tuned copper F-human — the two-port 90° drive at C_in,F-human — heating its own gel phantom, normalised per accepted watt, with the feed-bisector mirror of the two drive senses as the map identity.
+- <strong>Executor:</strong> implementer. One new test module, <code>tests/validation/test_mat15_f_human_tuned_heating.py</code>; <strong>no <code>src/</code> change</strong> (standing rule (c) applies only if one proves necessary — disclosed, its gate re-run green in the same slot) and no edit to any existing module.
+- <strong>Tier:</strong> heavy, <code>-n 8</code>, complex build; W0 (smoke, <code>-n 1</code>), then W1. <strong>Class:</strong> chain step (solve), median 21 measured min. <strong>Cost:</strong> ≈ 21 measured / ≈ 50 predicted min (15 fixed + ≈ 25 code + W0 ≈ 1 + W1 ≈ 4–5.5 + ≈ 5 spare). <strong>If W1 has not started by minute 40, park</strong> (rule (d)).
+- <strong>Depends on nothing open.</strong> It needs two gitignored files, both on disk when this brief was drafted: <code>logs/wf12/h12c-cu-s32-a2.npz</code> (the builder asserts it, 10:30 ruling (5)) and 358's node JSON <code>logs/wf10/h9p-node-118.2437.json</code> (5 466 bytes, written 2026-10-10 12:19 CDT by item 359's builder call). Neither is tracked. <strong>If either is absent, stop and mark the item BLOCKED; never re-run 358 or re-solve the 32×32 in-slot.</strong>
+- <strong>Family:</strong> <code>MAT-15</code> step 5, attempt 1 of 4.</p>
+<p><strong>What changes against step 3.</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Step 3 (§9 item 236)</th>
+<th>This step</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fixture</td>
+<td><code>ANS-7</code>'s ×1 exact-strip hole F-small, 80 798 cells, 537 tag-3 cells</td>
+<td>H9′'s copper F-human hole mesh, <code>_build_f_human(comm, as_hole=True)</code> through <code>build_tuned_quadrature</code>, 369 387 cells (<code>HOLE_CELL_RECORD</code>), phantom at the default 0.015 m: R 64.2857 mm, H/2 85.7143 mm, meshed volume 2.210693836095e-03 m³ (<code>20261010T171705Z_WF-10-step2s-W1.log:6313, :6377</code>)</td>
+</tr>
+<tr>
+<td>EM order</td>
+<td>Degree 2</td>
+<td><strong>Degree 1</strong> (<code>DEGREE = 1</code>, <code>tests/validation/test_wf7_f_human_b1_quadrature.py:53</code>); thermal stays P1</td>
+</tr>
+<tr>
+<td>Circuit</td>
+<td>C_mode,Cu on P2–P4, C₁ across P1, lossless, one drive at 64.0 MHz</td>
+<td>C_in,F-human = 118.2437 pF with r = 0.2 Ω on all 32 gaps; P17 / P21 driven through Z_th; <strong>two senses</strong> ccw = (1, −1j), cw = (1, +1j), as superpositions of one node pair</td>
+</tr>
+<tr>
+<td>Normalisation</td>
+<td>G = 1 W / (P_src − ΣP_sheet)</td>
+<td>G = 1 W / P_acc,ccw with P_acc defined below; <strong>one G for both senses</strong> (a per-sense G would hide a power asymmetry, step 1's rule)</td>
+</tr>
+<tr>
+<td>Map identity</td>
+<td>σ_y mirror of the one drive, 10 g θ̄ pairs at ±90° / ±45°</td>
+<td><strong>Feed-bisector mirror M</strong> (plane az₁₇ + 45° = 56.25°): θ_cw(Mx, t*) = θ_ccw(x, t*), 10 g θ̄ at c*_θ and over 359's 18-point lattice</td>
+</tr>
+</tbody>
+</table>
+<p><strong>What "accepted watt" means here.</strong> P_acc,s := P_src,s − P_sheet,s(P17) − P_sheet,s(P21), i.e. ½Re Σ_feeds V_port,i I_i* with V_port,i = w_i − Z_th I_i: the power the two Thevenin feeds deliver across their sheets into the coil network. By (P_w) it equals ΣP_sheet over the 30 RC gaps + P_phantom + P_rest + P_surf. <strong>Caveat, printed:</strong> each feed gap's own r + C sits inside Z_th = 50 Ω ∥ Z_RC (<code>tests/validation/test_wf10_f_human_copper_esr_root.py:76</code>), so the two feed gaps' ESR loss is on the source side of this cut. P_acc is "accepted by the coil network beyond the feed gaps", not the 50 Ω-line accepted power. The omitted term Σ_feeds ½·r·|V_port,i/Z_RC|² is printed, together with P_acc + that term. θ is also printed per W of P_src and per W of P_phantom, so the record sits beside 359's SAR per W of P_src.</p>
+<p><strong>Time grid — a fixture choice, not a band.</strong> Step 1's helpers <code>_cn</code>, <code>_be_one</code> and <code>_e_prime</code> are imported unchanged, so the grid is step 1's <strong>in seconds</strong>: t* = <code>T_STAR</code> = 0.2·a²ρc/k at F-small's a = 0.03 m, i.e. 1 254 s (≈ 21 min); N = 40; Δt₁ = <code>DT_1</code> = 0.015675 s (<code>tests/validation/test_mat15_coil_driven_heating_phantom.py:85–89</code>). It is not rescaled to F-human's t_R,H = a_H²ρc/k ≈ 28 791 s. Rescaling would need local copies of the helpers, and no identity depends on t*. Printed: t*/t_R,H ≈ 0.044 and Bi_H = h·a_H/k ≈ 1.07.</p>
+<p><strong>Code.</strong> New <code>tests/validation/test_mat15_f_human_tuned_heating.py</code>, <code>@complex_only</code>, with one module-scoped fixture so the builder runs once.
+- <strong>Opt-in knob <code>FEM_EM_MAT15_STEP5=1</code></strong> (step 3's <code>_enabled</code> / <code>_need</code> pattern, <code>test_mat15_tuned_copper_heating.py:112–123</code>). Unset ⇒ every gated test skips; any other value raises <code>ValueError</code>.
+- <strong>Imports only, never <code>test_*</code> names.</strong>
+  - From item 358's module (<code>tests/validation/test_wf10_f_human_tuned_b1_sar.py</code>): <code>build_tuned_quadrature</code> (<code>:147</code>), <code>C_IN_F_HUMAN_PF</code> (<code>:58</code>), <code>NODE_JSON</code> (<code>:82</code>).
+  - From item 359's module (<code>tests/validation/test_wf10_f_human_tuned_sar10g.py</code>): <code>_lattice</code> (<code>:58</code>), <code>_containment</code> (<code>:85</code>), <code>_plane_distance</code> (<code>:80</code>), <code>AZ17_RECORD_DEG</code> (<code>:45</code>).
+  - From H17's module: <code>ESR_OHM</code> (<code>:53</code>), <code>_z_rc</code> (<code>:120</code>), <code>_thevenin_feed_impedance</code> (<code>:76</code>). From <code>test_wf7_f_human_b1_quadrature</code>: <code>FREQUENCY_HZ</code>, <code>DEGREE</code>.
+  - From step 1's module: <code>_tag_submesh</code> (<code>:106</code>), <code>_cell_average_dg0_tag</code> (<code>:124</code>), <code>_cn</code> (<code>:154</code>), <code>_be_one</code> (<code>:160</code>), <code>_e_prime</code> (<code>:164</code>), <code>_max_imag</code> (<code>:174</code>), <code>K_GEL</code>, <code>H_GEL</code>, <code>T_INF</code>, <code>T_R</code>, <code>T_STAR</code>, <code>N_MAIN</code>, <code>DT_1</code> (<code>:82–89</code>), <code>V_BAND</code> (<code>:98</code>), <code>D_CONTROL_FLOOR</code>, <code>F_CONTROL_FLOOR</code> (<code>:102–103</code>).
+  - From <code>MAT-10</code> (<code>tests/validation/test_mat10_sar_to_heat_sphere.py</code>): <code>_say</code> (<code>:65</code>), <code>_allsum</code> (<code>:70</code>), <code>_robin_tags</code> (<code>:92</code>), <code>_to_sub</code> (<code>:122</code>), <code>ROBIN_TAG</code> (<code>:56</code>), <code>B_BAND</code> (<code>:61</code>). From <code>MAT-12</code>: <code>RHO_C</code> (<code>:68</code>), <code>S2_BAND</code> (<code>:75</code>), <code>E_BAND</code> (<code>:76</code>).
+  - Bands and helpers: <code>C4_COVARIANCE_BAND</code>, <code>PHANTOM_RHO_KG_PER_M3</code>, <code>_relative_l2</code> (<code>tests/validation/test_birdcage_b1_plus_map.py:120, :139, :600</code>); <code>EXACT_IDENTITY_RTOL</code> (<code>tests/validation/test_birdcage_sar_mass_averaged.py:163</code>); <code>DISCRETE_IDENTITY_RTOL</code> (<code>tests/validation/test_birdcage_power_identity.py:227</code>); <code>REUSE_REPRODUCTION_RTOL</code> (<code>tests/validation/test_port_birdcage_ring_matrix.py:171</code>, = 1e-6 via <code>:164</code>); <code>UNIT_WEIGHT_CONTROL_RTOL</code> (<code>tests/validation/test_port_drive_superposition.py:303</code>); <code>Y0_CODING_BAND</code> (H17 <code>:55</code>); <code>PHANTOM_CELL_TAG</code> (<code>tests/validation/test_port_birdcage_lumped_column.py:101</code>); <code>_residual</code> (<code>tests/validation/test_port_circuit_layer_field.py:142</code>); <code>QUADRATURE_DEGREE</code>, <code>TEN_GRAM_KG</code> (<code>tests/validation/test_mass_averaged_sar_standard_masses.py:121, :124</code>); <code>_phantom_geometry</code> (<code>tests/validation/test_wf7_f_human_sar10g_hotspot.py:95</code>); <code>averaging_ball_radius</code>, <code>mean_sar</code> (<code>src/fem_em_solver/post/sar.py:214, :57</code>); <code>_rss_gib</code> (<code>tests/validation/test_wf12_f_human_hole.py:191</code>).
+- <strong>Do not edit</strong> 358's module, 359's module, H17's module (<code>test_wf10_f_human_copper_esr_root.py</code>), step 1's module (<code>ans:9</code> imports <code>_run_heated</code>; rule (a)) or step 3's module. The ball-mean block of step 3 (<code>test_mat15_tuned_copper_heating.py:251–282</code>) sits inside <code>_run</code>, so it is <strong>copied</strong> into a local helper with a provenance comment (base commit and line span), never imported.
+- <strong>Record constant (printed comparand, not a band):</strong> <code>V_PHANTOM_H9P_RECORD_M3 = 2.210693836095e-03</code>. It is the meshed tag-3 volume that 359's coverage line printed as mass / ρ (<code>…step2s-W1.log:6377</code>, 13 digits, ρ = 1000).
+- <strong>Fixture body, in this order.</strong>
+  1. <strong>Read 358's JSON before the builder</strong> (the builder rewrites it, as in 359, <code>test_wf10_f_human_tuned_sar10g.py:173–182</code>): rank 0 reads, <code>bcast</code>, assert <code>c_in_pf == C_IN_F_HUMAN_PF</code> exactly, keep <code>s_node</code>.
+  2. <code>out = build_tuned_quadrature(comm, with_z50=False)</code>. It asserts (A0), (iv), az₂₁ − az₁₇ = 90°, (P_RC) and the node NEG inside (<code>:232–234, :325, :401–402</code>), and returns <code>e</code> (per sense), <code>e17</code>, <code>e21</code>, <code>sigma</code>, <code>parts</code> (per sense, with <code>p_sheet_by_id</code>), <code>cur</code>, <code>w</code>, <code>anchors</code>, <code>az_feeds</code>, <code>az_mirror</code>, <code>ctx</code>, <code>times</code>, <code>t_window</code> (<code>:482–489</code>).
+  3. <strong>Power per sense.</strong> P_acc,s from <code>parts[s]</code> as defined above. G = 1 / P_acc,ccw, one value for all thermal runs. η_s = P_phantom,s / P_acc,s. Then (Σ_P): <code>mean_sar(e["ccw"], sigma=…, rho=PHANTOM_RHO_KG_PER_M3, cell_tags=…, subdomain_ids=PHANTOM_CELL_TAG)["dissipated_power_w"]</code> against <code>parts["ccw"]["p_phantom"]</code>. Print the feed-gap ESR term.
+  4. <strong>Thermal.</strong> <code>sub, parent_ids = _tag_submesh(msh, cell_tags, PHANTOM_CELL_TAG)</code>; <code>ft = _robin_tags(sub)</code>; V_sub, ∮ds. Print the per-rank submesh owned / ghost counts (one <code>gather</code>).
+     - For each field f ∈ {ccw, cw, P17, P21}: compute <code>W, avg = _cell_average_dg0_tag(msh, cell_tags, PHANTOM_CELL_TAG, 0.5*sigma*ufl.inner(e_f, e_f))</code> <strong>without G inside the form</strong>, then <code>avg *= G</code> (see Traps), and <code>q_f = _to_sub(W, avg, sub, parent_ids)</code>.
+     - Then (B), κ_s, <code>_cn</code>, (E′) through <code>_e_prime(sub, ds, res, G·P_phantom,f)</code>, <code>_be_one</code> and (S2), as step 3 (<code>:236–299</code>).
+     - The P_phantom of P17 / P21 comes from <code>_vol</code> on <code>e17</code> / <code>e21</code> (two assemblies) or <code>mean_sar</code>, never from the ccw partition.
+     - Control (d) runs on 2·q_ccw. Record max|Im θ|.
+  5. <strong>Ball means of θ at t*</strong> (and of q) on the submesh, through the copied step-3 forms (indicator <code>ufl.lt(ufl.real(ufl.dot(off, off)), a10**2)</code>, <code>QUADRATURE_DEGREE</code>, centre a <code>fem.Constant(sub, zeros(3))</code> whose value is set per ball):
+     - the lattice <code>_lattice(az₁₇, z_c)</code> (18 points, z_c from <code>_phantom_geometry</code>) under ccw;
+     - their images <code>_mirror_xy(·, az_mirror)</code> under cw;
+     - c*_θ = argmax of θ̄_ccw over the lattice;
+     - the controls at c*_θ and Mc*_θ.</p>
+<pre><code> Each ball volume is printed beside (4/3)πa₁₀³. Containment uses `_containment` against the measured bbox.
+</code></pre>
+<p><strong>Anchors</strong> (asserted; every band imported by name, none restated):
+- <strong>(S_rep) source wiring:</strong> <code>_residual(s_node, s_rec)</code> ≤ <code>REUSE_REPRODUCTION_RTOL</code> (1e-6). Same comparison, same fixture: 359 read 6.027e-13 (<code>…step2s-W1.log:6312</code>). Step 3's (W) analogue.
+- <strong>Builder anchors, asserted inside <code>build_tuned_quadrature</code> and re-asserted here from <code>out["anchors"]</code>:</strong> (A0) 369 387 within <code>CELL_COUNT_BAND</code> (<code>tests/mesh/test_birdcage_port_sheet_prerequisite.py:57</code>) and census none; (P_RC) ≤ <code>DISCRETE_IDENTITY_RTOL</code>; node NEG ≥ <code>BLIND_FACTOR</code> × <code>DISCRETE_IDENTITY_RTOL</code> (<code>tests/validation/test_wf12_f_human_copper_matrix.py:61</code>).
+- <strong>(P_w) accepted-power identity, both senses:</strong> ≤ <code>DISCRETE_IDENTITY_RTOL</code>, as 358 / 359 (measured 5.087e-13 / 5.968e-13, <code>:6307, :6309</code>). <strong>(Lin)</strong> ≤ <code>UNIT_WEIGHT_CONTROL_RTOL</code> / <code>Y0_CODING_BAND</code>. With P_acc defined above, (P_w) is the step-3 (P) identity on this circuit.
+- <strong>(Σ_P)</strong> P_phantom,ccw = <code>mean_sar</code> dissipated ≤ <code>EXACT_IDENTITY_RTOL</code> (1e-10); 359 read 0.0 (<code>:6378</code>).
+- <strong>(V) fixture tie:</strong> |V_sub / <code>V_PHANTOM_H9P_RECORD_M3</code> − 1| ≤ <code>V_BAND</code> (1e-10, step 1 <code>:98</code>). Predicted ≤ 1e-13 (the submesh is the tag-3 cells).
+- <strong>(B), per field:</strong> |∫_sub q_f dV − G·P_phantom,f| / (G·P_phantom,f) ≤ <code>B_BAND</code> (1e-10).
+- <strong>(E):</strong> every thermal run's <code>max_balance_residual</code> ≤ <code>E_BAND</code> (1e-9).
+- <strong>(E′) energy identity from the EM side, ccw and cw:</strong> ρc∫Δθ/Δt + ∮hθ^(n+½) = G·P<strong>hantom,s, ≤ <code>E_BAND</code>.
+- **(S2)</strong>alorimetric slope, ccw and cw:<strong> |ρc·θ̄¹ / (Δt₁·G·P_pha</strong>om,s/V<strong>ub) − 1| ≤ klzzw</strong>:0889 (1e-4). The deficit estimate is h·Δt₁·(∮ds/V<strong>ub)/ρc·κ_s ≈ 1.60</strong>6·κ_s on the CAD ratio 42.8 m⁻¹, so the band holds to κ_s ≈ 62.
+- <strong>(M_θ-a) mirror at c*_θ:</strong> |θ̄_cw(Mc*_θ) − θ̄_ccw(c*_θ)| / θ̄_ccw(c*_θ) ≤ <code>C4_COVARIANCE_BAND</code> (5 %).
+- <strong>(M_θ-b) mirror on the lattice:</strong> <code>_relative_l2(θ̄_cw(M·), θ̄_ccw(·), all-true mask)</code> over the 18 points ≤ <code>C4_COVARIANCE_BAND</code>. Every point is off the plane (≥ 15 mm·sin 45°), which meets the 2026-09-26 weekly's off-plane condition.
+- <strong>(iv) containment:</strong> every ball, lattice, images and controls, is ≤ 0 by <code>_containment</code> (1 mm margin, measured bbox). 359 read −4.881 mm worst over the same centres (<code>:6382</code>).</p>
+<p><strong>Bands, read against rule (f).</strong> Every band above is imported, and none was registered by measurement on this fixture. <code>C4_COVARIANCE_BAND</code> is the band 358 / 359 asserted on this mesh, and step 3 asserted it on θ̄ pairs. <code>B_BAND</code>, <code>E_BAND</code>, <code>V_BAND</code>, <code>EXACT_IDENTITY_RTOL</code> and <code>DISCRETE_IDENTITY_RTOL</code> are round-off bands; <code>S2_BAND</code> is <code>MAT-12</code>'s time-truncation bound. <code>V_PHANTOM_H9P_RECORD_M3</code> is a record comparand from a logged reading, not a band.</p>
+<p><strong>Negative controls (rule (e)).</strong>
+- <strong>Asserted (backed, same fixture):</strong> the builder's node NEG, the P_surf-blind miss of (P_RC). 359 read 7.0125e-3 against the bar 10 × 1e-6 (<code>:6304</code>, its NEG line). The ceiling is P_surf/P_src ≈ 7.0e-3, so the bar sits ≈ 700× under it.
+- <strong>(d) doubled source — the miss asserted against a floor, the factor predicted.</strong> (E′) on 2·q_ccw against G·P_phantom,ccw. By linearity it reads exactly |2·dep − dep|/dep = 1.000, which is also its ceiling. It is asserted only &gt; <code>D_CONTROL_FLOOR</code> (1e-3), 1 000× under the ceiling. The factor 1.000 has never been measured on this fixture; it is printed. Step 1, 3 and 4 each read 1.000000 on F-small.
+- <strong>(f′) single-feed control — the miss asserted against a floor, the factor predicted.</strong> The P17-only field with the same G, θ̄_P17(Mc*_θ) against θ̄_P17(c*_θ), relative to the latter. It is asserted only &gt; <code>F_CONTROL_FLOOR</code> (= <code>C4_COVARIANCE_BAND</code>, 5 %).
+  - <strong>Predicted ≥ 100 %, printed.</strong> The SAR analogue on this fixture read 3 675 % (359, <code>…step2s-W1.log</code>, control line). At t* the diffusion length √(k t*/ρc) ≈ 13.4 mm is ≈ a₁₀, well under the ≈ 63 mm between c* and Mc*, so θ̄ keeps most of the SAR contrast.
+  - The quantity has no ceiling above. The floor sits ≥ 20× under the prediction.
+- <strong>Printed only (no same-fixture prior):</strong>
+  - the M-partner reading θ̄<strong>21(Mcklzz</strong>h:0947_θ) against θ̄_P17(c*_θ). It is predicted ≤ 10 %; 359's SAR analogue read 7.38 %, over its own prediction.
+  - the <strong>mis-paired</strong> reading θ̄_ccw(Mc*_θ) against θ̄_ccw(c*_θ), which drops the sense swap. It is predicted at 3–25 %, from the 16.7–21.0 % azimuthal SAR spread of the z_c rows (359).
+  - the P_surf-blind miss of each (P_w), predicted ≈ 7.0e-3.</p>
+<p><strong>Predictions</strong> (written first in the module, printed):
+- Tag-3 submesh cells in [2 000, 8 000]: 537 cells on 2.26e-4 m³ at the same default sizing (step 3) scales to ≈ 5 300; 22 594 at 0.0075 m (<code>20261010T110256Z_GEO-35-s2bi-W1.log:10599</code>) scales to ≈ 2 800. V_sub against the CAD 2.225676e-3 m³: −6.73e-3, which is the coverage mass already logged. ∮ds against the CAD 2πa·2L + 2πa² = 9.521e-2 m²: deficit in [−2e-2, 0].
+- (S_rep) ≤ 1e-12. (P_w) ≤ 1e-12. (Σ_P) ≤ 1e-14. (B) ≤ 1e-13. (E), (E′) ≤ 1e-12.
+- η_ccw = P_phantom/P_acc in [0.22, 0.34]. The basis is the P17-alone node partition, 4.094e-3 / (4.094e-3 + 3.040e-4 + 1.0107e-2) = 0.282 (drafter's arithmetic on <code>…step2s-W1.log:6304</code>, unlogged). P_acc,cw / P_acc,ccw − 1 is predicted ≤ 1 %; the P_phantom pair reads 0.15 % (<code>:6307, :6309</code>).
+- κ_s in [1.2, 2.5]: q ∝ r² gives 1.73 on this cylinder, and a coarse DG0 lowers it (step 3: 1.33 against 1.73). (S2) ≈ 1.6e-6·κ_s, in [1.9e-6, 4.0e-6].
+- <strong>Mean θ(t*) per accepted watt</strong> in [0.025, 0.048] K: η × t*/(ρc·V) = η × 0.1348 K, less ≈ 5–10 % surface loss. Per deposited watt it is ≈ 0.12–0.13 K. The peak 10 g θ̄ per accepted watt and c*_θ are printed. c*_θ is predicted at r = 45 mm, z_c, az₁₇, where 359's SAR c* sat. The θ̄ peak-to-mean is predicted in [1.1, 1.35] (SAR's 1.31, smoothed).
+- (M_θ-a), (M_θ-b) in [0.2 %, 3 %]: 359's SAR10g mirror read 0.64 % / 1.28 %, and θ at t* is that source smoothed over ≈ a₁₀. The q-ball mirror pairs are printed, predicted at 0.5–3 %.
+- max|Im θ| = 0.</p>
+<p><strong>Windows.</strong> Foreground. The harness call is the whole Bash command, bare. Bash <code>timeout: 660000</code>; <code>-s</code>; <code>tests/environment/test_complex_mode.py</code> first.
+- <strong>Price, measured on this route:</strong> the builder with <code>with_z50=False</code> takes ≈ 155 s: build 112.6 s, node pair 34.4 s, superposition 6.5 s (<code>…step2s-W1.log:6384</code>), plus pytest start and the harness at ≈ 10–15 s. The new work is:
+  - four DG0 averages on the 369 387-cell parent, ≈ 1 s each;
+  - five CN runs, two BE runs and ≈ 80 ball assemblies on ≈ 5 × 10³ submesh cells, ≈ 15–25 s (step 1's CN on 58 866 cells took 2.5 s at <code>-n 2</code>);
+  - first compiles of any form not already cached, 0–60 s.</p>
+<p>Total ≈ 185–250 s, ≤ 330 s on the 1.32× box, inside the container's 590 s. Summed RSS ≈ 10 GiB (359: 9.95 GiB).
+- <strong>First:</strong> <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0. Then run the any-orphan sweep as one bare call:</p>
+<p><code>scripts/testing/run_and_log.sh MAT-15-step5-cache-sweep "docker compose exec -T fem-em-solver bash -lc 'cd /root/.cache/fenics &amp;&amp; for c in libffcx_*.c; do s=\${c%.c}; ls \$s.*.so &gt;/dev/null 2&gt;&amp;1 || { echo orphan \$s; rm -f \$s.c \$s.c.cached \$s.o; }; done; echo sweep done'"</code>
+- <strong>W0</strong> (smoke, <code>-n 1</code>, numpy only). The ungated <code>test_mat15_s5_coding</code> must be green and the gated test must skip. The coding test asserts:
+  - the knob parser: unset ⇒ off, <code>"1"</code> ⇒ on, anything else ⇒ <code>ValueError</code>, via <code>monkeypatch</code>;
+  - on <code>_lattice(AZ17_RECORD_DEG, 0.0)</code>, <code>_mirror_xy(·, AZ17_RECORD_DEG + 45)</code> is an involution to 1e-12 m, and no point lies within 15 mm·sin 45° of the plane;
+  - <code>T_STAR == 0.2*T_R</code> and <code>DT_1 == 2.5e-6*T_R</code> bit for bit.</p>
+<p>It prints t*/t_R,H and Bi_H.</p>
+<p><code>scripts/testing/run_and_log.sh MAT-15-step5-W0 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 PYTHONPATH=/workspace/src:/workspace timeout -k 30 60 python3 -m pytest tests/environment/test_complex_mode.py tests/validation/test_mat15_f_human_tuned_heating.py -v -s --tb=short'"</code>
+- <strong>W1</strong> (heavy, <code>-n 8</code>, predicted 190–330 s harness). Its durable capture is §5.1's idiom copied verbatim, trailing <code>; exit $rc</code> included, as in 358 / 359:</p>
+<p><code>scripts/testing/run_and_log.sh MAT-15-step5-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; mkdir -p /workspace/logs/wf10 &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_MAT15_STEP5=1 PYTHONPATH=/workspace/src:/workspace timeout -k 30 590 mpiexec -n 8 python3 -m pytest tests/environment/test_complex_mode.py tests/validation/test_mat15_f_human_tuned_heating.py -s -v --tb=short &gt; /workspace/logs/mat15-step5-w1-raw.log 2&gt;&amp;1; rc=\$?; echo \"[capture] rc=\$rc\" &gt;&gt; /workspace/logs/mat15-step5-w1-raw.log; cat /workspace/logs/mat15-step5-w1-raw.log; exit \$rc'"</code>
+- <strong>No edit after W0 starts</strong> (rule (i)); any edit re-runs W0 and W1. One W1 plus one re-run fit the hour. No rule (a) / (c) re-gate is owed: no <code>src/</code> file and no existing helper is edited.</p>
+<p><strong>Traps already paid for.</strong>
+- <strong>Orphan <code>.c</code> of any size</strong> (item 160, 44 KB). Sweep only when <code>pgrep -c python3</code> reads 0, and delete orphan stems only. After a kill or status 124, run <code>pgrep -c python3</code> first, then the sweep under the label above; park, and never raise the timeout or <code>-n</code>.
+- <strong>Complex build.</strong>
+  - No <code>ufl</code> ordering on complex operands, and no <code>sqrt</code> inside a comparison (<code>OPS-22</code>; <code>WF-6</code> 4c). The ball indicator compares <code>ufl.real(dot(off, off))</code> with a₁₀², as step 3 does.
+  - Ball centres go in as plain floats through <code>Constant.value</code>.
+  - Call <code>np.real</code> before every <code>float</code>.
+- <strong>A Python float inside a UFL form is a literal in the generated kernel.</strong> Step 3 put G inside the DG0-average integrand, so each G value is its own FFCx compile. Here G is applied to the averaged array instead, after the form, so the four fields share one compiled form.
+- <strong>Rank-local values.</strong> <code>cell_tags.values</code> and <code>assemble_scalar</code> are rank-local; every reduction goes through <code>_allsum</code> / <code>allreduce</code>.
+- <strong>The <code>create_submesh</code> caveats (<code>MAT-19</code>).</strong>
+  - Every θ reading is an assembled ball integral; never <code>f.eval</code> or <code>evaluate_vector_field_parallel</code> on the submesh.
+  - The phantom submesh may be owned by only some of the 8 ranks (<code>MAT-19</code> D4 at <code>-n 4</code>: owned 23 401 / 35 465 / 0 / 0, <code>20261006T005546Z_MAT-19-step2-a2-D4.log:1871–1875</code>). <strong>Every rank enters every collective</strong> — the CN / BE solves, <code>_allsum</code>, <code>mean_sar</code>, <code>_phantom_geometry</code> and each ball assembly. Never guard a collective with "owns phantom cells" (item 227's deadlock).
+  - Ghosts propagate through <code>_tag_submesh</code>, so any owned-cell loop iterates <code>size_local</code> only.
+- <strong>Sense and plane.</strong> ccw = (1, −1j) comes from the convention code (10:30 ruling (1)); never re-choose it. The mirror plane is <code>out["az_mirror"]</code> (az₁₇ + 45°), never <code>WF-7</code>'s az_ref plane. Hold E_ccw and E_cw as the builder returns them; never recombine e17 / e21 with hand-typed weights.
+- <strong>The builder rewrites <code>logs/wf10/h9p-node-118.2437.json</code>.</strong> Read it first (step 1 of the fixture body). Write nothing else outside the harness log and the raw capture file.
+- <strong>Memory.</strong> The builder holds E₁₇, E₂₁, E_ccw and E_cw (≈ 10 GiB summed). Free the DG0 parent arrays after <code>_to_sub</code>. Two heavy windows never run at once.
+- <strong>Harness hygiene.</strong> Calls are bare and whole; no <code>-k</code> inside the quoted command; no pipe; <code>-s</code> always; foreground with <code>timeout: 660000</code>; never delete a log; never path-checkout a record file.</p>
+<p><strong>Scope.</strong> Covered:
+- H9′'s fixture, unchanged: copper F-human hole mesh, degree-1 EM, κ off, r = 0.2 Ω on all 32 gaps, the two-port 90° drive at C_in,F-human = 118.2437 pF, 64 MHz;
+- the existing <strong>cylindrical</strong> F-human phantom at the default 0.015 m (≈ 1.8 cells per 10 g ball);
+- P1 thermal on its tag-3 submesh, with step 1's gel constants (k 0.6, ρc 4.18e6, h 10, T∞ = T(0) = 20), Robin on every exterior facet, no perfusion, constant σ, and step 1's time grid in seconds;
+- normalisation per accepted watt as defined above.</p>
+<p><strong>Not claimed:</strong>
+- <strong>the ASTM F2182 box phantom</strong>: that geometry is the weekly's to commission, and this step builds no new fixture;
+- <strong>(8e) closed</strong>: (8e) asks for an ASTM-style phantom, and this is a step toward it;
+- tissue, perfusion, or σ(T);
+- an absolute temperature, ΔT or compliance figure;
+- a closed form for the coil-driven θ, or h- or phantom-convergence;
+- degree 2 (the 5.50 % human-scale order caveat, <code>WF-7</code> step 0b);
+- f₀, Q, match or any tuning-accuracy figure (C_in is a record at 0.10 pF resolution);
+- C16 invariance (the drive breaks it);
+- <code>ANS-9</code>, or any AED or Palace reading.</p>
+<p><strong>Negative result.</strong> Report and stop. Park on <code>attempt/MAT-15-step5-*</code> and mark item 361 BLOCKED in the same commit (rule (d)).
+- <strong>(S_rep) red, or any builder anchor red</strong> ((A0), (P_RC), node NEG, (P_w), (Lin)): the fixture or the copper route moved since 359. Read nothing thermal and stop. For a builder anchor, file a known-issues entry. Never re-band.
+- <strong>(Σ_P) or (V) red:</strong> a defect in the SAR chain, or a phantom that is not 359's. File a known-issues entry; BLOCKED.
+- <strong>(B) red:</strong> the DG0 transfer on the F-human hole mesh. File a known-issues entry; BLOCKED.
+- <strong>(E) or (E′) red:</strong> the thermal path on this submesh partition. BLOCKED. Print the per-rank owned / ghost table. Step 1's ✅ stands.
+- <strong>(S2) red with (E) green:</strong> print κ_s and its estimate. If the miss equals the deficit (κ_s &gt; 62), it is a step-size finding: report it, move no band, BLOCKED.
+- <strong>(M_θ-a) or (M_θ-b) red:</strong> print the per-point θ̄ and q̄ tables, the ball volumes and the submesh counts.
+  - If the q̄ mirror is also red, the source is not mirror-symmetric on this phantom. That is P10's mechanism at 10 g; file a known-issues entry.
+  - If only θ̄ is red, it is the P1 thermal mesh at ≈ 1.8 cells per ball: record it.
+  - Either way BLOCKED, and no band moves. The re-pose (a refined phantom plus a re-root at C_in, an H17-class step) is the weekly's; never refine in-slot.
+- <strong>(iv) red:</strong> a lattice or bbox error that 359 did not meet. Stop.
+- <strong>(d) or (f′) does not miss:</strong> the source never reached the thermal solve, or the fields are swapped. Stop.
+- <strong>Status 124 or &gt; 590 s:</strong> BLOCKED without a result; the killed window is the price record.
+- Every η, θ, κ_s, peak, mis-paired, partner or q̄ value is a reading, never a red.</p>
+<p>No <code>PREDICTED RED:</code> line. Every asserted anchor is predicted green; a red anywhere stops the slot.</p>
+<p><strong>Status it can move.</strong>
+- <code>MAT-15</code> stays ✅: its Done-when is step 1 ⇒ 🟡, step 2 ⇒ ✅ (§7 row, PROJECT_PLAN.md:2561), and this step reads nothing that touches it.
+- <strong>On green:</strong> the §7 row gains a <strong>"Step 5 record"</strong> sentence: the identities on H9′'s tuned copper F-human at degree 1; the feed-bisector thermal mirror at c*_θ and over the lattice; and, printed, η, mean θ(t*) and the peak 10 g θ̄ with c*_θ per accepted watt, on the 0.015 m cylindrical phantom. §10 P17 gains a DONE line; the weekly marks it.
+- <strong>No Done-when amendment.</strong> No glyph moves, so rule (j) does not apply. Item 315's ruling (7) is the precedent.
+- Nothing else moves: not the <code>WF-10</code> row (🟡, the weekly's rulings), not (8e), not §2. Known-issues changes only on a red.</p>
+<p><strong>Execution order.</strong> pgrep → cache sweep → W0 → pgrep → W1 → commit (module, harness logs, the row's Step 5 record and the §10 P17 DONE line together) → journal.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Execute §9 item 361 — <code>MAT-15</code> step 5 (§10 P17, provisional) — per <code>docs/planning/chunks/MAT-15.md</code> §9 item 361. Read the brief and any review rulings beneath it first; the rulings hold. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Pass timeout: 660000 on every Bash call that runs a window; run pytest with -s. Run the cache sweep, W0, then W1, in order, foreground. Before W1, run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> and require 0. Never delete a log. No edit to the module after W0 starts. Do not edit item 358's or 359's modules, <code>tests/validation/test_wf10_f_human_copper_esr_root.py</code>, or either existing <code>MAT-15</code> module. If <code>logs/wf10/h9p-node-118.2437.json</code> or <code>logs/wf12/h12c-cu-s32-a2.npz</code> is absent, stop (BLOCKED); never re-run 358. Every rank enters every collective. You are the executor — do not spawn agents, never background a harness window. If the docker socket is denied, stop and report the exact command string. On a red, park on <code>attempt/MAT-15-step5-*</code>, mark item 361 BLOCKED in the same commit, and report."</p>
+<p><strong>Review rulings (2026-10-10 18:00 daily review, item 361).</strong> (361-1) <strong>Normalisation:</strong> per accepted watt, as step 3 (P5) did, with P_acc as the brief defines it. The feed gaps' ESR loss and the per-W-of-P_src figures are printed beside it so they compare with items 358 / 359. (361-2) <strong>The time grid is step 1's</strong> (t* = 1 254 s). No identity depends on it, and t*/t_R is printed. (361-3) <strong>(V) stands.</strong> It is a reproduction of the fixture's own logged volume (<code>20261010T171705Z_WF-10-step2s-W1.log:6377</code>, 13 significant digits) at step 1's <code>V_BAND</code>, so it is a comparand and not a new band. A red means a phantom other than 359's, and the item stops. (361-4) <strong>Applying G after the DG0 average is an execution choice.</strong> If the form compiles differently than the brief predicts, step 3's in-form construction is the fallback, and the journal says which one ran. (361-5) <strong>Scope:</strong> this is the first enumerated step toward (8e). It uses the cylindrical F-human phantom; the ASTM box geometry is a fixture the weekly commissions. <code>MAT-15</code> holds ✅ unchanged, and the result is a record in the row. The step is provisional under rule (6): the weekly ratifies or reverts it.</p>
+<p><strong>Outcome 2026-10-10 (19:30 CDT slot) — ✅ DONE, first-run green.</strong> Both inputs present; <code>pgrep -c python3</code> read 0 before the sweep and before W1. Sweep <code>20261011T003325Z_MAT-15-step5-cache-sweep.log</code> (no orphans, 97 s). <strong>W0</strong> <code>20261011T003506Z_MAT-15-step5-W0.log</code> (<code>-n 1</code>, 5 s): 5 passed, 20 skipped; involution 6.9e-18 m, min plane distance 10.6066 mm, T_STAR / DT_1 identities bit for bit, t*/t_R,H 0.0436, Bi_H 1.0714. <strong>W1</strong> <code>20261011T003520Z_MAT-15-step5-W1.log</code> (<code>-n 8</code>, complex, 25 passed, pytest 159.9 s, harness 162 s; builder 152.7 s, thermal 4.3 s, 40 balls 0.8 s, summed RSS 9.59 GiB). Ruling 361-4: G applied <strong>after</strong> the DG0 average (one form for the four fields), not step 3's in-form fallback. Anchors (<code>:6296–6383</code>): (S_rep) 2.705e-13; (A0) 369 387; (P_RC) 7.739e-13; node NEG 7.0125e-3 (7012×); (P_w) 4.965e-13 / 5.842e-13 (blind 7.040e-3 / 7.035e-3); (Lin) 4.67e-16, Y 1.0e-15 / 1.2e-15; (Σ_P) 0.0; (V) 7.749e-14; (B) 0 / 7.9e-16 / 5.9e-16 / 5.9e-16 (ccw / cw / P17 / P21); (E) worst 3.269e-10 (be_ccw) over seven runs; (E′) 2.168e-13 / 3.513e-13 (P17 / P21 5.5e-13 / 1.2e-13, printed); (S2) 2.4658e-6 both senses (estimate 1.609e-6·κ_s = 2.41e-6); (M_θ-a) 1.1599 %; (M_θ-b) 0.7623 %; (iv) −4.8813 mm over 40 balls; (d) 1.000000; (f′) 697.40 %; max|Im θ| 0. Readings: P_acc,ccw 2.905666e-2 W (cw/ccw − 1 = +4.02e-4), feed-gap ESR term 1.265e-3 W, ½Re ΣV_port I* differs from P_acc by 8.75e-3 rel (printed, not an anchor); η 0.2821 / 0.2824; sub cells 3 306, ∮ds −3.66e-3 vs CAD; κ_s 1.49; mean θ(t*) 3.553e-2 K per accepted W (1.193e-2 per W of P_src, 0.1259 per deposited W); peak 10 g θ̄ 4.926e-2 K at c*_θ = r 45 mm, z_c, az₁₇ (peak-to-mean 1.3865, over its predicted [1.1, 1.35]); q-ball mirror 1.47 % at c*, 2.35 % rel L2; M-partner 3.53 %; mis-paired 13.21 %. MAT-15 holds ✅; a record.</p>
+<h3 id="9-item-413-2026-10-13-10-chain-p22a-lane-1-no-solve">§9 item 413 — 2026-10-13 (§10 chain P22a; lane 1, no solve)<a class="headerlink" href="#9-item-413-2026-10-13-10-chain-p22a-lane-1-no-solve" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-13 03:00 daily review; the review reviews it.</em> Licence: §10 chain P, "P22a (lane 1, no solve). The degree knob on <code>MAT-15</code> step 5's module (<code>FEM_EM_MAT15_STEP5_DEGREE</code>, build-only at <code>-n 2</code>, unknowns = 2E + 2F asserted, unset bitwise) — entry 38's prerequisite (i). Serial on nothing" (PROJECT_PLAN.md:4725–4727), and <code>xl</code> entry 38 (<code>docs/testing/xl-pending.md:1819–1829</code>). The pattern is H20a, <code>WF-10</code> step 4a, §9 item 368 (<code>docs/planning/chunks/WF-10.md</code> § "§9 item 368"; <code>tests/validation/test_wf10_f_human_tuned_b1_sar.py:94–169</code>, <code>:771–845</code>). <strong>No band, tolerance, Done-when or target is set or moved.</strong></p>
+<p><strong>What H20a already did, and what is left for <code>MAT-15</code>.</strong> Step 5's module is <code>tests/validation/test_mat15_f_human_tuned_heating.py</code> (item 361; <code>MAT-20</code> step 3, item 380, added <code>FEM_EM_MAT15_STEP5_SERIES</code>). Its EM fixture is H20a's <code>build_tuned_quadrature(comm, with_z50=False)</code> (<code>:256</code>), which <strong>already reads <code>FEM_EM_WF10_DEGREE</code> at call time</strong> (<code>test_wf10_f_human_tuned_b1_sar.py:307–309</code>, <code>:332–343</code>): setting that env alone would run this module's EM at degree 2 today. What would then go wrong, and is this item's work:
+- (S_rep) (<code>:244–264</code>, asserted at <code>:607</code>) compares the degree-2 <code>s_node</code> with the <strong>degree-1</strong> record <code>NODE_JSON</code> — a guaranteed red at degree 2. H20a ruled (S_rep) a degree-1 record comparand, printed only at degree 2 (<code>DEGREE2_RECORD_GATES</code>, <code>test_wf10_f_human_tuned_b1_sar.py:111–115</code>).
+- The series knob writes <code>logs/mat15_s5/theta-series-ccw.json</code> (<code>:134</code>, <code>:589–592</code>), which <code>MAT-20</code> step 3 and <code>mat:18</code> (<code>EX-110</code> Part B) read — a degree-2 run would overwrite the degree-1 record.
+- Nothing ties the label to the build: <code>FEM_EM_WF10_DEGREE=2</code> leaking into a run of this module (entry 38 may fold into entry 35's command, which sets it) would produce degree-2 numbers under degree-1 prints.</p>
+<p><strong><code>MAT-15</code> step 6a: <code>FEM_EM_MAT15_STEP5_DEGREE</code> on step 5's module, proven by a build-only window and a degree-1 re-gate.</strong>
+- <strong>Executor:</strong> implementer. <strong>Tier:</strong> heavy — W1 build-only <code>-n 2</code>, W2 item 361's closing window <code>-n 8</code>; W0 smoke <code>-n 1</code>. <strong>Class:</strong> lane 1 (median 6) / chain no-solve (median 7). <strong>Cost:</strong> ≈ 7 measured / ≈ 40 predicted min (15 fixed + ≈ 12 code + W0 ≈ 1 + W1 ≈ 2.5 + W2 ≈ 3 + spare). <strong>If W1 has not started by minute 40, park</strong> (rule (d)).
+- <strong>Depends on nothing open.</strong> W1 and W2 read <code>logs/wf12/h12c-cu-s32-a2.npz</code> (the builder's (Z50) source, asserted present even on the build-only path, <code>test_wf10_f_human_tuned_b1_sar.py:300–301</code>) and W2 reads <code>logs/wf10/h9p-node-118.2437.json</code>; both are on the host at drafting. Absent ⇒ stop, BLOCKED; never re-run 358. <strong>Family:</strong> <code>MAT-15</code> step 6, landing.</p>
+<p><strong>Code — <code>tests/validation/test_mat15_f_human_tuned_heating.py</code> only, additive. <code>src/</code>, H20a's / 359's modules, <code>test_mat20_tuned_heating_dose.py</code> and the other <code>MAT-15</code> modules are not edited.</strong>
+- <strong>Knob.</strong> <code>DEGREE_KNOB = "FEM_EM_MAT15_STEP5_DEGREE"</code>; <code>_step5_degree()</code> read at call time: unset or empty ⇒ <code>None</code> (the degree-1 path, untouched); <code>"2"</code> ⇒ 2; anything else, <code>"1"</code> included, ⇒ <code>ValueError</code>.
+- <strong>The guard.</strong> <code>_step5_degree()</code> then reads H20a's <code>_degree_knob()</code> (private import from <code>test_wf10_f_human_tuned_b1_sar</code>, never a <code>test_*</code> name) and raises <code>ValueError</code> naming both variables unless the two agree (both unset, or both <code>2</code>). One degree, two switches that must be thrown together: entry 38's command (or entry 35's, if folded) sets both.
+- <strong><code>_series_json_path(degree)</code>:</strong> <code>None</code> ⇒ <code>SERIES_JSON</code> bit for bit; 2 ⇒ <code>logs/mat15_s5/theta-series-ccw-d2.json</code>; anything else ⇒ <code>ValueError</code>. The series write (<code>:590–594</code>) goes through it.
+- <strong><code>STEP5_DEGREE2_GATES</code>:</strong> <code>{"printed": ("(S_rep)",), "asserted": ("(A0)", "(P_RC)", "NEG node", "(P_w)", "(Lin)", "(Sigma_P)", "(V)", "(B)", "(E)", "(E')", "(S2)", "(M_theta-a)", "(M_theta-b)", "(iv)", "(d)", "(f')")}</code> — H20a's table in shape. (V) stays asserted: it is the tag-3 mesh volume against 359's logged value (ruling 361-3), degree-independent.
+- <strong><code>_run()</code>:</strong> call <code>_step5_degree()</code> first, before <code>:242</code>. At <code>None</code> the body is unchanged. At 2: read <code>_node_json_path(2)</code> (H20a, <code>:129–136</code>) before the builder if it exists and print the residual against it, else print "no degree-2 node record"; store (S_rep) as printed. <code>test_s_rep_source_wiring</code> at degree 2 calls <code>pytest.skip("(S_rep): degree-1 record comparand, printed only at degree 2 (STEP5_DEGREE2_GATES)")</code>; every other test is unchanged. The start print names the effective degree. <code>assert int(DEGREE) == 1</code> (<code>:242</code>) stays — it is the fixture's constant, which the knob does not change.
+- <strong>No <code>build_only</code> path is added to <code>_run()</code>.</strong> The build-only proof goes through the builder's existing keyword in a new test (K1).</p>
+<p><strong>Tests.</strong>
+- <strong>(K0) <code>test_mat15_step6a_degree_knob_coding</code></strong> — ungated, numpy only, <code>monkeypatch</code>, both variables cleared first:
+  - the parser: unset / <code>""</code> / <code>"  "</code> ⇒ <code>None</code>; <code>"2"</code> / <code>" 2 "</code> ⇒ 2 with <code>FEM_EM_WF10_DEGREE="2"</code>; <code>"1"</code>, <code>"3"</code>, <code>"x"</code>, <code>"2.0"</code> ⇒ <code>ValueError</code> — <strong>the rejected values are the negative control</strong>;
+  - the guard: <code>MAT15=2</code> with <code>WF10</code> unset ⇒ <code>ValueError</code>; <code>MAT15</code> unset with <code>WF10=2</code> ⇒ <code>ValueError</code>;
+  - <code>_series_json_path(None) == SERIES_JSON</code>; <code>_series_json_path(2)</code> ends <code>-d2.json</code> in the same directory and differs; <code>_series_json_path(1)</code> ⇒ <code>ValueError</code>;
+  - the gate table: printed and asserted disjoint, (S_rep) printed, (V) and every thermal identity asserted;
+  - the records' arithmetic <code>2_570_024 == 2 * 500_568 + 2 * 784_444</code> (H20a's <code>N_DOFS_D2_RECORD</code>, <code>E_RECORD</code>, <code>F_RECORD</code>, imported).
+- <strong>(K1) <code>test_mat15_step6a_build_only</code></strong> — selected by <code>FEM_EM_MAT15_STEP6A=1</code> (never <code>-k</code>); it does <strong>not</strong> request the <code>heated</code> fixture, so <code>FEM_EM_MAT15_STEP5</code> stays unset and none of the 25 step-5 tests runs. One build, both paths (H20a's K1 shape, <code>test_wf10_f_human_tuned_b1_sar.py:801–845</code>):
+  - both knobs unset: <code>_step5_degree()</code> is <code>None</code>; <code>out = build_tuned_quadrature(comm, with_z50=False, build_only=True)</code>; asserted <code>out["degree"] == 1</code>, <code>out["ctx"]["solver"] is out["solver_built"]</code>, <code>n_dofs == E</code>;
+  - <code>monkeypatch.setenv</code> both knobs to <code>"2"</code>: <code>_step5_degree() == 2</code>, then H20a's <code>_apply_degree(out["ctx"], comm)</code> on the same ctx; asserted degree 2 and <code>n_dofs == 2E + 2F</code>;
+  - prints E, F, both counts, the build time and the summed RSS after the degree-2 space (<code>_rss_gib</code>).</p>
+<p><strong>Anchors (asserted).</strong>
+- <strong>(A0)</strong> 369 387 cells within <code>CELL_COUNT_BAND</code>, (iv) none — the builder's own, in W1 and W2.
+- <strong>(Deg-1) W1:</strong> unset ⇒ degree 1, the solver <code>_build_f_human</code> created (identity, no rebuild), unknowns = E. Record E = 500 568 (<code>20261011T140313Z_WF-10-step4a-W1.log:6217</code>, same mesh), printed beside.
+- <strong>(Deg-2) W1:</strong> both knobs 2 ⇒ degree 2, unknowns = 2E + 2F exactly. Record 2 570 024 = 2·500 568 + 2·784 444 (<code>…140313Z…:6219</code>; <code>20261013T070008Z_WF-12-step4-H16.log:6532</code> at <code>-n 16</code>), printed beside; predicted equal.
+- <strong>(Bit) W2:</strong> item 361's W1, re-run verbatim on the edited module with all knobs unset, is green — 25 passed, (S_rep) ≤ <code>REUSE_REPRODUCTION_RTOL</code> against 358's JSON read before the builder (the same comparison 361 read at 2.705e-13, <code>20261011T003520Z_MAT-15-step5-W1.log:6296</code>). <strong>Printed beside</strong> 361's readings (<code>:6296–6383</code>): (M_θ-a) 1.1599 %, (M_θ-b) 0.7623 %, mean θ(t*) 3.553e-2 K and peak 10 g θ̄ 4.926e-2 K per accepted W, sub cells 3 306. "Bitwise" means reproduced at round-off (H20a's W2 reading); a printed reading off its record beyond the last printed digit is reported, not asserted.</p>
+<p><strong>Negative controls (rule (e)).</strong>
+- <strong>Asserted (backed):</strong> a degree-1 space has E unknowns, not 2E + 2F; both numbers are measured on this mesh through this builder (<code>…140313Z…:6217–6220</code>). Assert <code>n(2) != n(1)</code> and <code>n(2) * E == n(1) * (2E + 2F)</code> in exact integers; the ratio 5.134216 is also the ceiling.
+- <strong>Asserted, the parser and guard:</strong> K0's rejected values and both mismatches raise.
+- <strong>Predicted, printed:</strong> the RSS after the degree-2 space ≤ 2 GiB summed (H20a 1.10 GiB, <code>:6221</code>) — a second solver held would show here.</p>
+<p><strong>Windows.</strong> Foreground, bare, repo-relative; Bash <code>timeout: 660000</code>; <code>-s</code>; complex.
+- <strong>W0</strong> (smoke, <code>-n 1</code>; K0 and the existing coding test green, the gated tests skip — 361's W0 read 5 passed, 20 skipped):
+  <code>scripts/testing/run_and_log.sh MAT-15-step6a-W0 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 PYTHONPATH=/workspace/src:/workspace timeout -k 30 60 python3 -m pytest tests/environment/test_complex_mode.py tests/validation/test_mat15_f_human_tuned_heating.py -v -s --tb=short'"</code>
+- <strong>W1</strong> (build-only, <code>-n 2</code>). Predicted 115–180 s harness: H20a's K1 build 118.3 s, harness 121 s on the same builder at <code>-n 2</code> (<code>20261011T140313Z_WF-10-step4a-W1.log:6217</code>). §5.1 durable capture verbatim:
+  <code>scripts/testing/run_and_log.sh MAT-15-step6a-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_MAT15_STEP6A=1 PYTHONPATH=/workspace/src:/workspace timeout -k 30 590 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/validation/test_mat15_f_human_tuned_heating.py -s -v --tb=short &gt; /workspace/logs/mat15-step6a-w1-raw.log 2&gt;&amp;1; rc=\$?; echo \"[capture] rc=\$rc\" &gt;&gt; /workspace/logs/mat15-step6a-w1-raw.log; cat /workspace/logs/mat15-step6a-w1-raw.log; exit \$rc'"</code>
+- <strong>Before W2:</strong> <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0.
+- <strong>W2</strong> (the degree-1 re-gate, <code>-n 8</code>, every knob <strong>unset</strong> but the step-5 selector; item 361's W1 command (above) with the label and raw-log name changed; predicted 155–220 s, as 361's 162 s):
+  <code>scripts/testing/run_and_log.sh MAT-15-step6a-W2-regate "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; mkdir -p /workspace/logs/wf10 &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_MAT15_STEP5=1 PYTHONPATH=/workspace/src:/workspace timeout -k 30 590 mpiexec -n 8 python3 -m pytest tests/environment/test_complex_mode.py tests/validation/test_mat15_f_human_tuned_heating.py -s -v --tb=short &gt; /workspace/logs/mat15-step6a-w2-raw.log 2&gt;&amp;1; rc=\$?; echo \"[capture] rc=\$rc\" &gt;&gt; /workspace/logs/mat15-step6a-w2-raw.log; cat /workspace/logs/mat15-step6a-w2-raw.log; exit \$rc'"</code>
+- <strong>Why 361's window and not <code>MAT-20</code> step 3's</strong> (<code>20261011T183420Z_MAT-20-step3-W1.log</code>, the module's latest window, series on): that window rewrites <code>logs/mat15_s5/theta-series-ccw.json</code>, which <code>MAT-20</code> step 3's W2 and <code>EX-110</code> Part B compare against a logged print. W2 must write nothing but the builder's node JSON (reproduced values, as 359 / 361 / H20a's W2 did). The series path's unset behaviour is K0's <code>_series_json_path(None) == SERIES_JSON</code> bit for bit.
+- No module edit after W0 starts (rule (i)). Any edit ⇒ W0, W1 and W2 again.</p>
+<p><strong>Traps already paid for.</strong>
+- <strong>The degree-default trap</strong> (<code>WF-15</code> step 1); never monkeypatch <code>DEGREE</code> in <code>test_wf7_f_human_b1_quadrature</code>; never hold two solvers (H20a's <code>_apply_degree</code> deletes first).
+- <strong>The builder rewrites <code>h9p-node-118.2437.json</code></strong> (W2 does, with reproduced values). Read it before the builder; at degree 2 the builder writes the <code>-d2</code> sibling (H20a premise (a)).
+- <strong><code>build_only</code> returns before any <code>fem.form</code></strong> (no orphan <code>.c</code> risk); K1 must not request <code>heated</code>.
+- <strong>Every rank enters every collective</strong> (item 227's deadlock; the submesh may be owned by some ranks only, <code>MAT-19</code> D4).
+- <strong>Orphan <code>.c</code> of any size</strong> (item 160): after a kill, <code>pgrep -c python3</code> first; at 0, the rubric-4 sweep under label <code>MAT-15-step6a-cache-sweep</code>.
+- Never <code>-k</code>; no pipe; never delete a log; never path-checkout a record file; two heavy windows never run at once.</p>
+<p><strong>Scope.</strong> A knob, its guard, two <code>-d2</code> paths and the dof count; the degree-1 path re-gated. <strong>Not claimed:</strong> any degree-2 θ, SAR or power reading (entry 38), entry 38's command or price, whether entry 38 folds into entry 35 (the 10-14 weekly's), the ASTM box, tissue, an absolute temperature, <code>ANS-9</code>.</p>
+<p><strong>Negative result.</strong> Report and stop. Park on <code>attempt/MAT-15-step6a-*</code> and mark item 413 BLOCKED in the same commit (rule (d)).
+- <strong>(Deg-1) red:</strong> the knob leaks into the unset path. Park.
+- <strong>(Deg-2) red:</strong> the space is not N1curl degree 2 first kind on this mesh. Known-issues entry; entry 38 stays PENDING.
+- <strong>W2 red, or a 361 reading not reproduced at round-off:</strong> the edit is not bitwise. Park, revert nothing on <code>main</code>; the review rules.
+- <strong>W1 / W2 killed (status 124):</strong> not a result; park with the measured time.</p>
+<p>No <code>PREDICTED RED:</code> line. A red anywhere stops the slot.</p>
+<p><strong>Status it can move.</strong> No glyph: <code>MAT-15</code>'s Done-when is "step 1 asserted green ⇒ 🟡; step 2 ⇒ ✅" (§7, PROJECT_PLAN.md:2596), already ✅, and this item touches neither (rule (j) checked). It moves <strong>a prerequisite of <code>xl</code> entry 38, not a glyph</strong>:
+- On green the §7 row gains one sentence: "<strong>Step 6a</strong> (§9 item 413, P22a): <code>FEM_EM_MAT15_STEP5_DEGREE=2</code> (guarded with <code>FEM_EM_WF10_DEGREE</code>) on step 5's module; unknowns 2E + 2F = <n> exact on the hole mesh (build-only, <code>-n 2</code>, <W1 log>); unset path re-gated (<W2 log>)."
+- §10 P22a gains a DONE line.
+- <strong><code>docs/testing/xl-pending.md</code> entry 38, same commit,</strong> one edit only: in the Status paragraph, after "(i) §10 P22a (lane 1, no solve):", insert "<strong>MET 2026-10-13 (§9 item 413, <code>&lt;commit&gt;</code>; <code>&lt;W1 log&gt;</code>, <code>&lt;W2 log&gt;</code>)</strong> — <code>FEM_EM_MAT15_STEP5_DEGREE=2</code> must be set together with <code>FEM_EM_WF10_DEGREE=2</code> (the module raises otherwise); at degree 2 the series goes to <code>logs/mat15_s5/theta-series-ccw-d2.json</code> and (S_rep) is printed only —". <strong>The implementer does not write the command and does not mark READY</strong>; (ii) is entry 32's reading, which the 10-14 weekly reads.</p>
+<p><strong>Execution order.</strong> Code → W0 → W1 → <code>pgrep</code> → W2 → commit (module, harness logs, the §7 sentence, §10 P22a DONE, the entry 38 edit) → journal.</p>
+<p><strong>Spawn line:</strong> "Use the implementer agent to execute <code>MAT-15</code> §9 item 413 per <code>docs/planning/chunks/MAT-15.md</code> (read the latest Review ruling paragraph first). The harness call is the <strong>whole</strong> Bash command: bare, repo-relative, nothing chained or piped. Run every window in the foreground with <code>timeout: 660000</code>, pytest with <code>-s</code>, container <code>timeout -k 30</code>. Run W0, W1, then W2; before W2, <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0. Edit only <code>tests/validation/test_mat15_f_human_tuned_heating.py</code> (no <code>src/</code>, not H20a's or 359's module); never import a <code>test_*</code> name. If <code>logs/wf10/h9p-node-118.2437.json</code> or <code>logs/wf12/h12c-cu-s32-a2.npz</code> is absent, stop (BLOCKED). In <code>docs/testing/xl-pending.md</code> make only the one entry-38 insertion the brief names; never write its command or mark it READY."</p>
+<p><strong>Outcome (§9 item 413, 2026-10-13 06:00 slot, run 11:00–11:10 UTC): DONE.</strong> <code>DEGREE_KNOB</code> / <code>_step5_degree()</code> (guarded against <code>FEM_EM_WF10_DEGREE</code>), <code>_series_json_path</code>, <code>STEP5_DEGREE2_GATES</code>, (S_rep) printed-only and skipped at degree 2, K0 <code>test_mat15_step6a_degree_knob_coding</code>, K1 <code>test_mat15_step6a_build_only</code>, all in <code>tests/validation/test_mat15_f_human_tuned_heating.py</code>. No <code>src/</code> edit. W0 <code>20261013T110145Z_MAT-15-step6a-W0.log</code> (<code>-n 1</code>, 6 passed, 21 skipped). W1 <code>20261013T110156Z_MAT-15-step6a-W1.log</code> (build-only, <code>-n 2</code>, 116 s, 7 passed): (A0) 369 387 cells, (iv) none; (Deg-1) unset ⇒ degree 1, <code>_build_f_human</code>'s solver held, unknowns 500 568 = E; (Deg-2) both knobs 2 ⇒ 2 570 024 = 2·500 568 + 2·784 444 exact (record equal); NEG n(2)/n(1) = 5.134216 = (2E + 2F)/E asserted; summed RSS 1.13 GiB (predicted ≤ 2, printed). W2 <code>20261013T110401Z_MAT-15-step6a-W2-regate.log</code> (unset, <code>-n 8</code>, 166 s, 26 passed, 1 skipped = K1): (S_rep) 4.747e-13 (361: 2.705e-13; round-off), (V) 7.749e-14, (E) worst 2.608e-10, (M_θ-a) 1.1599 %, (M_θ-b) 0.7623 %, mean θ(t*) 3.553024e-2 K, peak 10 g θ̄ 4.926111e-2 K per accepted W, sub cells 3 306 — every 361 reading reproduced to its printed digits. Entry 38 (i) MET; its command is the 10-14 weekly's.</p>
+<h2 id="7-row-moved-verbatim-2026-10-10-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-10 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-10-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p>Coil-driven heating of the gel phantom on F-small | ✅ <strong>Audit PASS 2026-10-02 10:30 review; tier relabelled heavy (chunk file).</strong> 2026-10-02 (§9 item 168): step 2(b)'s P1 FEM on the phantom submesh matches the finite Robin cylinder series — LSQ rate 2.1511 (bar 1.7), finest interior 7.374e-4 and CN interior 3.4945e-4 (≤ 1 %), Gauss ≤ 1.3e-14, (∞) 2.204e-14 (≤ 1e-8), both controls miss (<code>20261002T093152Z_MAT-15-step2b-W4-steady.log</code>, 252 s; <code>20261002T093610Z_MAT-15-step2b-W5-transient.log</code>, 273 s; <code>-n 2</code>, complex). Uniform source, Robin walls, P1 only: no tissue, perfusion or external check (<code>ANS-9</code>). <strong>Step 3 record</strong> (§9 item 236, 2026-10-04, chain P5): on <code>ANS-7</code>'s copper F-small at T21's C_mode,Cu, driven across C₁ at 64.0 MHz (<strong>not</strong> a claim the coil is tuned to 64.000 MHz), degree-2 EM on the ×1 exact-strip hole mesh (80 798 cells), κ off, the identities hold per accepted watt — (W) 1.29e-12, (P) 7.39e-13, (B) 7.7e-16, (E′) 3.17e-14, (S2) 4.87e-6, σ_y mirror (M1) 1.36 % / (M2) 1.84 % (≤ 5 %), both controls miss; printed η = 0.5777, mean θ(t*) 0.688 K and peak 10 g θ̄ 0.943 K at φ₁ = 0° per accepted watt, on a 537-cell phantom submesh (<code>20261005T040135Z_MAT-15-step3-W1.log</code>, 156 s, <code>-n 8</code>). A record, no glyph. <strong>Step 4 record</strong> (§9 item 315, 2026-10-08, chain P15): the Pennes sink w(T − T∞) as a uniform numerical term (gel has no perfusion) on step 1's 10 MHz σ = 800 S/m fixture — the energy identity with the sink ≤ 1.63e-14 (four drives × w ∈ {24, 240, 2400} W/m³/K), every balance ≤ 8.7e-14, w → 0 (1e-8) reproducing P1's ⟨θ⟩(t*) to 1.53e-12, ⟨θ⟩(t*) and the 10 g θ̄ strictly decreasing in w, C4 pairs ≤ 0.049 %, both controls miss; printed ⟨θ⟩(t*)/P1 = 0.9966 / 0.9664 / 0.7241 (<code>20261008T140322Z_MAT-15-step4-W1.log</code>, 303 s, <code>-n 2</code>). A record, no glyph. <strong>Step 5 record</strong> (§9 item 361, 2026-10-10, chain P17, provisional): H9′'s tuned copper F-human (degree-1 EM, 369 387-cell hole mesh, κ off, r = 0.2 Ω on all 32 gaps, two-port 90° drive at C<strong>n,F-human </strong>118.2437 pF, 64 MHz) heats its own 0.015 m cylindrical gel phantom (3 306-cell P1 submesh), one G per accepted watt (P<em>acc,ccw = P_src − ΣP_she</em>t over the two feeds; the feed gaps' ESR term 1.27e-3 W printed beside it). The identities hold: (S_rep) 2.71e-13, (P_w) 4.97e-13 / 5.84e-13, (Σ_P) 0.0, (V) 7.7e-14 against 359's logged volume, (B) ≤ 7.9e-16 on ccw / cw / P17 / P21, (E) ≤ 3.3e-10 over seven runs, (E′) 2.2e-13 / 3.5e-13, (S2) 2.47e-6 both senses; the feed-bisector thermal mirror θ̄_cw(Mx) vs θ̄_ccw(x) reads 1.16 % at c*_θ and 0.76 % rel L2 over the 18-point lattice (≤ 5 %); both controls miss ((d) 1.000000, (f′) 697 %). Printed: η = 0.2821, mean θ(t*) 3.553e-2 K and peak 10 g θ̄ 4.926e-2 K at c*_θ = r 45 mm, z_c, az₁₇ per accepted watt (peak-to-mean 1.39), κ_s 1.49 (<code>20261011T003520Z_MAT-15-step5-W1.log</code>, 162 s, <code>-n 8</code>). A record, no glyph; not the ASTM box, no absolute temperature or compliance claim. <strong>Done-when:</strong> step 1 asserted green ⇒ 🟡; step 2 ⇒ ✅. <em>History: <code>docs/planning/chunks/MAT-15.md</code>.</em> </p>
+<h3 id="review-ruling-2026-10-13-0300-daily-on-the-item-413-draft">Review ruling 2026-10-13 03:00 (daily) on the item 413 draft<a class="headerlink" href="#review-ruling-2026-10-13-0300-daily-on-the-item-413-draft" title="Permanent link">&para;</a></h3>
+<p>Queued as drafted. <code>FEM_EM_WF10_DEGREE</code> already switches step 5's EM half to degree 2 (<code>test_wf10_f_human_tuned_b1_sar.py:307–309</code>), so the item adds a guard that the two knobs agree, a <code>-d2</code> series path (the degree-1 series that <code>mat:18</code> / <code>EX-110</code> read is never overwritten) and (S_rep) printed-only at degree 2; the re-gate is item 361's W1. The brief sits after item 361's outcome, ahead of the moved-§7-row section.</p>
+<h3 id="9-item-515-2026-10-18-10-p22b-mat-15-step-6b-lane-1-chain-no-solve">§9 item 515 — 2026-10-18 (§10 P22b, <code>MAT-15</code> step 6b; lane 1, chain no-solve)<a class="headerlink" href="#9-item-515-2026-10-18-10-p22b-mat-15-step-6b-lane-1-chain-no-solve" title="Permanent link">&para;</a></h3>
+<p><em>Written for the 2026-10-18 03:00 daily review by a read-only drafter. Every file:line was read at drafting (<code>main</code> at <code>d94320db</code>); the review checks each command against its source before it queues the item.</em></p>
+<p><strong>Licence.</strong> §10 chain P, "<strong>P22b (lane 1, no solve).</strong> Entry 42's prerequisite (rulings). Standard. Serial on nothing. <strong>Then entry 42</strong> (<code>xl</code> 10-19 or 10-20)" (<code>PROJECT_PLAN.md:4806–4807</code>). The 10-17 weekly's ruling defines the step: "the step-5 module takes its node through <code>FEM_EM_WF10_NODE</code> (H28's reader), build-only (Deg-2) at <code>-n 2</code>, the unset path bitwise" (<code>PROJECT_PLAN.md:4659–4669</code>). <code>xl</code> entry 42's Status gives the same text, plus "(the step-5 and 6a logs reproduced)" and "<strong>The implementer landing P22b marks (i) MET in the same commit and does not write the command</strong>" (<code>docs/testing/xl-pending.md:1999</code>). The pattern is H28, §9 item 511 (<code>docs/planning/chunks/WF-10.md</code> § "§9 item 511", landed <code>12df58ce</code>), applied to this module. The 2026-10-13 ruling on item 413 (above) binds. <strong>No band, tolerance, Done-when or target is set or moved.</strong></p>
+<p><strong>Deadline.</strong> The item must be on <code>main</code> before the <strong>2026-10-18 18:00 review</strong>. If it is not, that review swaps <code>xl-queue.d/20261019-MAT-15-step6-P22.env</code> with the 10-20 file, so entry 37 runs Monday and entry 42 Tuesday (<code>PROJECT_PLAN.md:4667–4669</code>). A slot that cannot finish by then parks it, and does not hurry it through.</p>
+<p><strong><code>MAT-15</code> step 6b / P22b: the step-5 module reads its node from H28's <code>_node_pf()</code> in its power bookkeeping, its (S_rep) path and its prints; a build-only window at <code>-n 2</code> with the knob proves this; both degree-1 windows of step 6a are re-gated bitwise.</strong>
+- <strong>Executor:</strong> implementer.
+- <strong>Tier:</strong>
+  - W0 smoke (<code>-n 1</code>; 5 s measured, <code>20261013T110145Z_MAT-15-step6a-W0.log</code>);
+  - W1 heavy by ceiling (<code>-n 2</code>, build-only, knobs on; 115 s measured for the same builder call at <code>d2root</code>, <code>20261017T170238Z_WF-10-H28-W1.log</code>);
+  - W2 heavy by ceiling (<code>-n 2</code>, step 6a's W1 re-gate; 116 s measured, <code>20261013T110156Z_MAT-15-step6a-W1.log</code>);
+  - W3 heavy (<code>-n 8</code>, step 6a's W2 re-gate; 166 s measured, <code>20261013T110401Z_MAT-15-step6a-W2-regate.log</code>).
+  - §10 says "Standard". The windows still carry the 590 s container ceiling that items 413 and 511 used, because 166 s is within 8 % of the 180 s standard ceiling.
+- <strong>Class:</strong> chain no-solve (median 18.6). <strong>Cost:</strong> ≈ 18.6 measured (class median; the weekly's own figure, <code>PROJECT_PLAN.md:4919</code>) / ≈ 28 predicted slot-minutes. The windows total ≈ 6.7 min (5 + 115 + 116 + 166 s), code ≈ 14 min, commit and journal ≈ 7. Item 511 ran in ≈ 13 min and item 413 in ≈ 10. <strong>If W3 has not started by minute 40, park</strong> (rule (d)).
+- <strong>Depends on:</strong>
+  - nothing in §9 (item 511 is DONE, <code>12df58ce</code>);
+  - on disk, checked at drafting: <code>logs/wf12/h12c-cu-s32-a2.npz</code> (the builder asserts it even on the build-only path, <code>test_wf10_f_human_tuned_b1_sar.py:335–336</code>) and <code>logs/wf10/h9p-node-118.2437.json</code> (W3 reads it before the builder rewrites it, <code>test_mat15_f_human_tuned_heating.py:308–317</code>);
+  - also on disk and <strong>never written here</strong>: <code>logs/wf10/h9p-node-118.2437-d2.json</code> (entry 35's, mtime 2026-10-16 02:19);
+  - <strong>absent, and correctly so:</strong> <code>logs/wf10/h9p-node-115.5209-d2.json</code>. Entry 41 writes it on 10-22, and entry 42 writes it first, on 10-19 or 10-20 (see Traps). No window here needs it.
+  - If either required file is absent, run W0 and W1, skip W2 and W3, and mark the item BLOCKED with "W2/W3 re-gate pending: <file> absent". Never re-solve to make one.
+- <strong>Family:</strong> <code>MAT-15</code> step 6 (P22 → P22a → P22b); attempt 1 of 4.</p>
+<p><strong>What the module is today</strong> (<code>tests/validation/test_mat15_f_human_tuned_heating.py</code>, 873 lines). It imports <code>C_IN_F_HUMAN_PF</code>, <code>DEGREE_ENV</code>, <code>_degree_knob</code>, <code>_node_json_path</code> and <code>build_tuned_quadrature</code> from <code>test_wf10_f_human_tuned_b1_sar</code> (<code>:127–139</code>). It does <strong>not</strong> import <code>NODE_ENV</code>, <code>C_IN_F_HUMAN_D2_PF</code> or <code>_node_pf</code>.
+- <strong>The builder already follows the knob.</strong> <code>build_tuned_quadrature</code> reads <code>c_pf = _node_pf()</code> at call time (<code>b1_sar.py:341–346</code>). It solves at that node, builds <code>out["parts"]</code> with it, and returns it as <code>out["c_in_pf"]</code> / <code>out["node_json"]</code> on both the full and the build-only path (<code>b1_sar.py:381–384</code>, <code>:639</code>). So <strong>G = 1 / P_acc,ccw and every thermal number already follow the builder's node.</strong> P_acc = P_src − ΣP_sheet over the two feeds, taken from <code>out["parts"]</code> (<code>:363–371</code>).
+- <strong>What does not follow the node:</strong>
+  - <strong>(a) <code>:360</code> <code>z_rc = _z_rc(C_IN_F_HUMAN_PF * 1e-12, FREQUENCY_HZ)</code>, and <code>z_th</code> from it at <code>:361</code>.</strong> These feed V_port = w − Z_th·I (<code>:368</code>), the printed cross-check ½ Re Σ V_port I* (<code>:369</code>) and the feed-gap ESR term (<code>:370</code>). Both are printed (<code>:377–386</code>) and written to the series payload as <code>"p_vi_w"</code> / <code>"esr_w"</code> (<code>:663</code>, <code>:665</code>). At <code>d2root</code> both would use the wrong capacitor.
+  - <strong>(b) <code>:319</code> <code>_node_json_path(step5_degree)</code>, the one-argument form.</strong> At degree 2 it reads entry 35's <strong>118.2437</strong> <code>-d2</code> record as the (S_rep) comparand (printed only), so a <code>d2root</code> run would print a meaningless residual against the wrong node.
+  - <strong>(c) the start print (<code>:301–303</code>) and the series payload (<code>:659–675</code>)</strong> name no node.
+  - <strong>(d) no Y_in print and no SAR10g print.</strong> Entry 42's readout asks for "Y_in at the node printed (an Im above 1e-3 S says the window is not at the root)" and "SAR10g(c*) per accepted watt" (<code>xl-pending.md:2005</code>). The module prints neither today. The builder holds <code>out["y_in"][sense][i]</code> (<code>b1_sar.py:589</code>), and the module computes the 10 g ball mean of q at c*_θ (<code>:542–547</code>, <code>:557</code>).
+- <strong>The existing guard.</strong> <code>_step5_degree()</code> (<code>:166–182</code>) makes <code>FEM_EM_MAT15_STEP5_DEGREE</code> and <code>FEM_EM_WF10_DEGREE</code> agree. <code>_node_pf()</code> raises on <code>d2root</code> unless <code>FEM_EM_WF10_DEGREE=2</code> (<code>b1_sar.py:147–151</code>). The degree-1 path therefore cannot carry the knob.
+- <strong>The existing build-only K1</strong> (<code>:823–873</code>) runs <code>monkeypatch.delenv(DEGREE_ENV)</code> and then calls the builder (<code>:834–838</code>). If <code>FEM_EM_WF10_NODE=d2root</code> is in the window environment, its <code>_node_pf()</code> raises, and K1 goes red. Item 511 fixed the same leak in WF-10's K1 with one <code>delenv(NODE_ENV)</code> line (<code>b1_sar.py:856</code>).</p>
+<p><strong>Code. Edit only <code>tests/validation/test_mat15_f_human_tuned_heating.py</code>, additively.</strong> Do not edit <code>src/</code>, <code>test_wf10_f_human_tuned_b1_sar.py</code>, <code>test_wf10_f_human_tuned_sar10g.py</code>, <code>test_mat20_tuned_heating_dose.py</code>, the root module, <code>tests/package/*</code>, any example, or <code>xl-queue.d/</code>. Never import a <code>test_*</code> name.
+- <strong>Imports (<code>:127–139</code>):</strong> add <code>NODE_ENV</code>, <code>C_IN_F_HUMAN_D2_PF</code> and <code>_node_pf</code>.
+- <strong>New constant:</strong> <code>STEP6B_KNOB = "FEM_EM_MAT15_STEP6B"</code>, the build-only selector. It is used in W1 only and never in entry 42.
+- <strong>New <code>_step6b_node()</code>:</strong> returns <code>(degree, c_pf)</code> with <code>degree = _step5_degree()</code> called first (the guard keeps its order) and then <code>c_pf = _node_pf()</code>. When <code>degree is None</code> it asserts <code>c_pf is C_IN_F_HUMAN_PF</code>.
+- <strong>New <code>_s_rep_path(degree, c_pf)</code>:</strong>
+  - <code>None</code> ⇒ <code>NODE_JSON</code>;
+  - <code>2</code> ⇒ <code>_node_json_path(2, c_pf=c_pf)</code>, which gives the 118.2437 <code>-d2</code> path character for character when <code>c_pf is C_IN_F_HUMAN_PF</code> (entry 38's behaviour, unchanged) and <code>h9p-node-115.5209-d2.json</code> at the root;
+  - anything else ⇒ <code>ValueError</code>.
+- <strong>New <code>_node_impedances(c_pf, z0)</code>:</strong> returns <code>(z_rc, z_th)</code> = <code>(_z_rc(c_pf * 1e-12, FREQUENCY_HZ), _thevenin_feed_impedance(z_rc, z0))</code>. It is the one place <code>:360–361</code> now live.
+- <strong><code>_run()</code>:</strong>
+  - Replace <code>:300</code> with <code>step5_degree, c_pf = _step6b_node()</code>.
+  - The start print adds the effective node, <code>NODE_ENV</code>'s raw value and the secant root.
+  - On the degree-1 branch (<code>:308–317</code>) nothing changes; <code>:315</code> still compares against <code>C_IN_F_HUMAN_PF</code>.
+  - On the degree-2 branch, <code>:319</code> becomes <code>node_json_d2 = _s_rep_path(step5_degree, c_pf)</code>. If the file is absent the branch prints "n/a" as today. <strong>It never falls back to another node's record.</strong>
+  - Directly after the builder (<code>:333</code>), assert <code>out["c_in_pf"] == c_pf</code> exactly, and that <code>comm.allgather(c_pf)</code> holds a single value.
+  - <code>:359–361</code> become <code>z0 = …; z_rc, z_th = _node_impedances(c_pf, z0)</code>. On the unset path <code>c_pf</code> is the same float object as <code>C_IN_F_HUMAN_PF</code>, so <code>z_rc</code> is bit-identical.
+- <strong>New prints (additive; every existing print stays as it is):</strong>
+  - <strong>(Y) Y_in at the node</strong> after the <code>G =</code> line (<code>:387</code>): <code>out["y_in"][s][i]</code> for both senses and both feeds, with the root reading named. That reading is P17 under cw = (1, +1j), the P17 (1, +1j) root (<code>b1_sar.py:74–78</code>). Print "|Im| &gt; 1e-3 S ⇒ not at the root" as text only. <strong>Printed, never asserted.</strong>
+  - <strong>(SAR) SAR10g at c*_θ per accepted watt</strong> in the READING block (<code>:617–618</code>): the q-ball mean at c*_θ divided by <code>PHANTOM_RHO_KG_PER_M3</code>, with per-W-of-P_src and per-deposited-W beside it as the θ readings have.
+- <strong>Series payload (<code>:659–675</code>):</strong> add the additive keys <code>"c_in_pf"</code>, <code>"node_knob"</code> and <code>"degree"</code>. The path stays <code>_series_json_path(step5_degree)</code>: no <code>-d2</code> series exists on disk, and entry 38 (the detuned node) is superseded.
+- <strong>Docstring (<code>:43–50</code>):</strong> one step-6b paragraph.
+- <strong>The existing K0 (<code>:778</code>) and K1 (<code>:823</code>)</strong> each gain one <code>monkeypatch.delenv(NODE_ENV, raising=False)</code> line next to their existing delenvs, as item 511 did. Change nothing else in them.</p>
+<p><strong>Tests added.</strong>
+- <strong>(K0b) <code>test_mat15_step6b_node_coding(monkeypatch)</code></strong>, ungated and numpy only. It first runs <code>delenv</code> on <code>NODE_ENV</code>, <code>DEGREE_ENV</code> and <code>DEGREE_KNOB</code>, then asserts:
+  - unset ⇒ <code>_step6b_node() == (None, C_IN_F_HUMAN_PF)</code>, with <code>is</code> on the float;
+  - <code>d2root</code> with both degree knobs <code>"2"</code> ⇒ <code>(2, 115.5209)</code>, <code>is C_IN_F_HUMAN_D2_PF</code>;
+  - <code>d2root</code> with both degree knobs unset ⇒ <code>ValueError</code> naming <code>DEGREE_ENV</code>;
+  - <code>d2root</code> with only <code>FEM_EM_WF10_DEGREE=2</code> ⇒ <code>ValueError</code>, the step-6a guard firing first;
+  - <code>"115.5209"</code>, <code>"x"</code> and <code>"d2"</code> ⇒ <code>ValueError</code>;
+  - <code>_s_rep_path(None, C_IN_F_HUMAN_PF) == NODE_JSON</code>;
+  - <code>_s_rep_path(2, C_IN_F_HUMAN_PF) == _node_json_path(2)</code>;
+  - <code>_s_rep_path(2, C_IN_F_HUMAN_D2_PF)</code> ends <code>h9p-node-115.5209-d2.json</code> and differs from both;
+  - <code>_s_rep_path(1, …)</code> ⇒ <code>ValueError</code>;
+  - <code>_series_json_path(None) == SERIES_JSON</code>, so the <code>tests/package</code> importers' constant is unchanged;
+  - <strong>(N2) the closed form</strong> at both nodes: <code>_node_impedances(c, z0)[0]</code> = <code>ESR_OHM − 1j/(2πf·c·1e-12)</code> to 1e-12 rel, and <code>[1]</code> = z0·z/(z0 + z) to 1e-12 rel.
+- <strong>(K1b) <code>test_mat15_step6b_build_only()</code></strong>, <code>@complex_only</code>, selected by <code>FEM_EM_MAT15_STEP6B=1</code> (never <code>-k</code>). It reads W1's command-line environment and does not monkeypatch. It does not request <code>heated</code>. It:
+  - asserts <code>_step6b_node() == (2, C_IN_F_HUMAN_D2_PF)</code>, a wiring red if the window's environment is wrong (not a skip);
+  - records the existence and mtime of <code>h9p-node-115.5209-d2.json</code> and <code>h9p-node-118.2437-d2.json</code> before the call;
+  - calls <code>out = build_tuned_quadrature(comm, with_z50=False, build_only=True)</code> and asserts:
+    - <code>out["degree"] == 2</code>;
+    - <strong>(Deg-2)</strong> <code>out["n_dofs"] == 2E + 2F == N_DOFS_D2_RECORD</code> (2 570 024) exactly;
+    - <code>out["c_in_pf"] == C_IN_F_HUMAN_D2_PF</code> exactly and <code>!= C_IN_F_HUMAN_PF</code>;
+    - <code>os.path.basename(out["node_json"]) == "h9p-node-115.5209-d2.json"</code>;
+    - <strong><code>_s_rep_path(2, _node_pf()) == out["node_json"]</code></strong>: the record <code>_run</code> would read is the one the builder writes;
+    - <code>comm.allgather(_node_pf())</code> is identical on every rank;
+    - <code>_node_impedances(out["c_in_pf"], z0)[0]</code> equals the closed form at 115.5209 pF;
+    - both files' existence and mtime are <strong>unchanged</strong> after the call. Do not assert "absent": see Traps.
+  - It prints the build time and summed RSS (H28 W1: 113.1 s, 1.10 GiB).</p>
+<p><strong>Anchors (asserted; every band imported).</strong>
+- <strong>(A0)</strong> 369 387 cells within <code>CELL_COUNT_BAND</code> (<code>tests/mesh/test_birdcage_port_sheet_prerequisite.py:57</code>), in the builder, in W1–W3.
+- <strong>(Deg-2) W1:</strong> 2 570 024 = 2·500 568 + 2·784 444 (<code>N_DOFS_D2_RECORD</code>, <code>E_RECORD</code>, <code>F_RECORD</code>, <code>b1_sar.py:109–111</code>). The same count was measured through this builder at <code>d2root</code> (<code>20261017T170238Z_WF-10-H28-W1.log:6230</code>) and on the unset-node path through this module (<code>20261013T110156Z_MAT-15-step6a-W1.log:6252</code>).
+- <strong>(N2)</strong> the series-RC closed form through <code>_z_rc</code> (<code>test_wf10_f_human_copper_esr_root.py:188–191</code>) and <code>_thevenin_feed_impedance</code> (<code>:144–146</code>).
+- <strong>(Bit-W2)</strong> step 6a's W1 re-run on the edited module with every knob unset is green, predicted 8 passed / 21 skipped (6a's 7 / 20 plus K0b and K1b). It reproduces (Deg-1) unknowns 500 568 = E with <code>_build_f_human</code>'s solver held (<code>…110156Z…:6250</code>), (Deg-2) 2 570 024 (<code>:6252</code>) and NEG n(2)/n(1) = 5.134216 (<code>:6253</code>).
+- <strong>(Bit-W3)</strong> step 6a's W2 re-run with every knob unset but <code>FEM_EM_MAT15_STEP5=1</code> is green, predicted 27 passed / 2 skipped (6a's 26 / 1, <code>…110401Z_MAT-15-step6a-W2-regate.log:6581</code>, plus K0b passing and K1b skipping). (S_rep) ≤ <code>REUSE_REPRODUCTION_RTOL</code> (<code>test_port_birdcage_ring_matrix.py:171</code>) against 358's JSON read before the builder. The following are <strong>printed beside, to the printed digit</strong>:
+  - <strong>the lines that run through the edited <code>:360</code>:</strong> ½ Re Σ V_port I* 2.931095758904e-02 / 2.932256559685e-02 W and feed-gap ESR term 1.265338e-03 / 1.265081e-03 W, ccw / cw (<code>:6299–6300</code>). These are the bitwise test of the one line this item changes;
+  - G = 3.441551785626e+01 1/W (<code>:6301</code>);
+  - (Σ_P) 0.000e+00 (<code>:6302</code>);
+  - (V) 7.749e-14 (<code>:6307</code>);
+  - (E) worst 2.608e-10 (<code>:6320</code>);
+  - (M_θ-a) 1.1599 % and (M_θ-b) 0.7623 % at <code>C4_COVARIANCE_BAND</code> (<code>test_birdcage_b1_plus_map.py:120</code>; <code>:6381–6382</code>);
+  - mean θ(t*) 3.553024e-02 K and peak 10 g θ̄ 4.926111e-02 K per accepted W (<code>:6386–6387</code>). Step 5's own window reads the same (<code>20261011T003520Z_MAT-15-step5-W1.log.gz:6379–6385</code>).
+  - The new (Y) print at degree 1 is printed beside H28 W2's four Y_in readings: P17 cw +1.172678791e-02 +2.783852943e-06j S, and the others (<code>20261017T170443Z_WF-10-H28-W2-regate.log:6328–6331</code>).
+  - "Bitwise" means reproduced at round-off, as item 413 read it. A printed reading that misses its record beyond the last printed digit is reported, not asserted.</p>
+<p><strong>Negative controls (rule (e)).</strong>
+- <strong>Asserted, by construction (closed form):</strong> a knob-blind <code>:360</code> computes Z_RC at 118.2437 pF. At the root the separation Im Z_RC(115.5209) / Im Z_RC(118.2437) = 118.2437 / 115.5209 = <strong>1.023570</strong>, asserted in K0b and K1b against 1 for a blind module. The same comparison on the same closed form is measured at 1.023570 (<code>20261017T170226Z_WF-10-H28-W0.log</code>, item 511's NEG). The ceiling is the ratio itself.
+- <strong>Asserted, wiring:</strong> K1b's <code>out["c_in_pf"] != C_IN_F_HUMAN_PF</code> and <code>_s_rep_path(2, _node_pf()) != _node_json_path(2)</code>. A module that kept the one-argument <code>:319</code> call reads the 118.2437 <code>-d2</code> path, which differs.
+- <strong>Asserted, coding:</strong> K0b's rejected values and the two guard mismatches.
+- <strong>Predicted, printed only:</strong> W1's summed RSS ≤ 2 GiB (<code>PREDICTED_RSS_D2_GIB</code>), against H28 W1's 1.10 GiB.</p>
+<p><strong>Windows.</strong> Each runs in the foreground with Bash <code>timeout: 660000</code>, with <code>-s</code>, in the complex build, with <code>tests/environment/test_complex_mode.py</code> first, and never with <code>-k</code>. <strong>The harness call is the whole Bash command.</strong>
+- <strong>W0</strong> (smoke, <code>-n 1</code>; K0, K0b and the existing coding test green, the gated tests skip; predicted 7 passed / 22 skipped, against step 6a's 6 / 21, since K0b passes and K1b skips):
+  <code>scripts/testing/run_and_log.sh MAT-15-step6b-W0 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 PYTHONPATH=/workspace/src:/workspace timeout -k 30 60 python3 -m pytest tests/environment/test_complex_mode.py tests/validation/test_mat15_f_human_tuned_heating.py -v -s --tb=short'"</code>
+- <strong>W1</strong> (build-only, <code>-n 2</code>, all four knobs on the command line; predicted 110–200 s):
+  <code>scripts/testing/run_and_log.sh MAT-15-step6b-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_WF10_DEGREE=2 FEM_EM_MAT15_STEP5_DEGREE=2 FEM_EM_WF10_NODE=d2root FEM_EM_MAT15_STEP6B=1 PYTHONPATH=/workspace/src:/workspace timeout -k 30 590 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/validation/test_mat15_f_human_tuned_heating.py -s -v --tb=short &gt; /workspace/logs/mat15-step6b-w1-raw.log 2&gt;&amp;1; rc=\$?; echo \"[capture] rc=\$rc\" &gt;&gt; /workspace/logs/mat15-step6b-w1-raw.log; cat /workspace/logs/mat15-step6b-w1-raw.log; exit \$rc'"</code>
+- <strong>W2</strong> (step 6a's W1 re-gate, <code>-n 2</code>, knobs <strong>unset</strong>; that command with only the label and raw-log name changed; predicted 110–200 s):
+  <code>scripts/testing/run_and_log.sh MAT-15-step6b-W2-regate "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_MAT15_STEP6A=1 PYTHONPATH=/workspace/src:/workspace timeout -k 30 590 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/validation/test_mat15_f_human_tuned_heating.py -s -v --tb=short &gt; /workspace/logs/mat15-step6b-w2-raw.log 2&gt;&amp;1; rc=\$?; echo \"[capture] rc=\$rc\" &gt;&gt; /workspace/logs/mat15-step6b-w2-raw.log; cat /workspace/logs/mat15-step6b-w2-raw.log; exit \$rc'"</code>
+- <strong>Before W3:</strong> <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0.
+- <strong>W3</strong> (step 6a's W2 re-gate, item 361's window, <code>-n 8</code>, knobs <strong>unset</strong>; that command with only the label and raw-log name changed; predicted 155–230 s):
+  <code>scripts/testing/run_and_log.sh MAT-15-step6b-W3-regate "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; mkdir -p /workspace/logs/wf10 &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_MAT15_STEP5=1 PYTHONPATH=/workspace/src:/workspace timeout -k 30 590 mpiexec -n 8 python3 -m pytest tests/environment/test_complex_mode.py tests/validation/test_mat15_f_human_tuned_heating.py -s -v --tb=short &gt; /workspace/logs/mat15-step6b-w3-raw.log 2&gt;&amp;1; rc=\$?; echo \"[capture] rc=\$rc\" &gt;&gt; /workspace/logs/mat15-step6b-w3-raw.log; cat /workspace/logs/mat15-step6b-w3-raw.log; exit \$rc'"</code>
+- No window sets <code>FEM_EM_MAT15_STEP5_SERIES</code>. The degree-1 series <code>logs/mat15_s5/theta-series-ccw.json</code>, which <code>MAT-20</code> step 3, <code>mat:18</code> and <code>tests/package/test_wf1_yaml_f_human_thermal*.py</code> read, is never rewritten.
+- No module edit after W0 starts (rule (i)). Any edit means W0 to W3 again.</p>
+<p><strong>Traps already paid for.</strong>
+- <strong>The builder writes <code>out["node_json"]</code> on every full call</strong> (<code>b1_sar.py:626–630</code>). W3 rewrites only the degree-1 <code>h9p-node-118.2437.json</code>, with reproduced values, the overwrite items 361, 413 and 511 accepted. W1 and W2 are build-only and return before the writer (<code>:378–384</code>). <strong>No window here writes any <code>-d2</code> file.</strong> Entry 35's <code>h9p-node-118.2437-d2.json</code> must keep its 10-16 02:19 mtime, and K1b asserts that.
+- <strong>Entry 42 writes <code>h9p-node-115.5209-d2.json</code> before entry 41 does.</strong> Entry 42 runs on 10-19 or 10-20, and entry 41 is queued for 10-22 (<code>xl-queue.d/20261022-WF-10-step4-H28.env</code>). Entry 41's degree-2 b1_sar path reads nothing before its builder (<code>b1_sar.py:672–696</code>) and overwrites the file, so its readings are unaffected. But <strong>H28's (K1n) asserts the file is absent after a build-only call</strong> (<code>b1_sar.py:983</code>, <code>assert not exists_after</code>), so it goes red on any re-run after 10-19. K1b therefore asserts "unchanged", not "absent". The WF-10 module is out of scope here (flagged for the review).
+- <strong>The node-knob leak into K1.</strong> W1's environment carries <code>d2root</code>, and K1 deletes <code>DEGREE_ENV</code> before its build. Without the new <code>delenv(NODE_ENV)</code> line, <code>_node_pf()</code> raises inside K1 if <code>FEM_EM_MAT15_STEP6A</code> were ever set beside it. W1 does not set it, but the line goes in (item 511's precedent).
+- <strong>The guard order.</strong> <code>_step5_degree()</code> runs before <code>_node_pf()</code>, so a degree mismatch is reported as one before any node error.
+- <strong>The degree-default trap</strong> (<code>WF-15</code> step 1). Never monkeypatch <code>DEGREE</code>, and keep <code>assert int(DEGREE) == 1</code> (<code>:304</code>). <strong>Never hold two solvers</strong>: <code>_apply_degree</code> deletes first.
+- <strong>The circular import.</strong> Add no module-level import from <code>b1_sar</code> anywhere except this module's existing block.
+- <strong>Every rank enters every collective</strong> (item 227); the <code>allgather</code> sits outside any <code>rank == 0</code> branch.
+- <strong>A killed window:</strong> run <code>pgrep -c python3</code> first; at 0, run the rubric-4 cache sweep as <code>MAT-15-step6b-cache-sweep</code>.
+- Never <code>-k</code>; no pipe; never delete a log; never path-checkout a record file; two heavy windows never run at once; durable capture ends in <code>; exit \$rc</code>.</p>
+<p><strong>Scope.</strong> The node knob reaches this module's Z_RC / Z_th, its (S_rep) path, its prints and its series payload. The item adds the (Y) and (SAR) prints entry 42's readout needs, a build-only proof at degree 2, and re-gates the degree-1 path. <strong>Not claimed:</strong> any degree-2 θ, SAR or Y_in reading (that is entry 42's); entry 42's command, tier or date; any <code>cem43</code> / six-minute reading on the degree-2 series; the WF-10 modules; f₀ / Q / match; the ASTM box; tissue; any absolute or compliance figure; any external comparison.</p>
+<p><strong>Negative result.</strong> Report and stop. Park on <code>attempt/MAT-15-step6b-*</code>, mark item 515 BLOCKED in the same commit, and leave entry 42 PENDING. The 18:00 review then applies the 10-19 / 10-20 swap.
+- A K0b red means the knob, guard or path logic is wrong; W0 catches it before W1.
+- A K1b red on <code>c_in_pf</code>, the path or the closed form means the module does not see the builder's node through <code>mpiexec</code>.
+- A (Deg-2) red means the import or the call site is wrong; it also gets a known-issues entry.
+- A W2 / W3 red, or a 6a or 361 reading not reproduced at round-off (above all the ½ Re Σ V_port I* and ESR lines), means the edit is not bitwise. Revert nothing on <code>main</code>; the review rules.
+- Status 124 is not a result; park with the measured time.</p>
+<p>There is no <code>PREDICTED RED:</code> line, so a red anywhere stops the slot.</p>
+<p><strong>Status it can move.</strong> No glyph. <code>MAT-15</code>'s Done-when is "step 1 asserted green ⇒ 🟡; step 2 ⇒ ✅" (§7 row, <code>PROJECT_PLAN.md:2614</code>); it is already ✅, and step 6b is not in it (rule (j) checked). On green:
+- The <code>MAT-15</code> row gains: "<strong>Step 6b</strong> (§9 item 515, P22b): <code>FEM_EM_WF10_NODE=d2root</code> (with both degree knobs at 2) reaches step 5's Z_RC / Z_th, its (S_rep) path <code>h9p-node-115.5209-d2.json</code> and its prints, with Y_in and SAR10g(c*_θ) printed; (Deg-2) 2 570 024 at <code>-n 2</code> with the knob (<W1 log>); unset path re-gated (<W2 log>, <W3 log>)."
+- §10 P22b gains a DONE line.
+- <strong><code>docs/testing/xl-pending.md</code> entry 42, in the same commit:</strong> in the Status paragraph, after "PENDING PREREQUISITE — §10 <strong>P22b</strong> (lane 1, no solve):", insert "<strong>(i) MET <date> (§9 item 515, <code>&lt;commit&gt;</code>; <W1 log>, <W2 log>, <W3 log>)</strong> —". <strong>Do not write or edit the command, do not mark READY, and do not touch <code>xl-queue.d/</code></strong>: the replacement is the review's (<code>cmp</code> against entry 42). Report the exact knob and constant names as landed (<code>FEM_EM_WF10_NODE</code>, <code>d2root</code>, <code>C_IN_F_HUMAN_D2_PF</code>).</p>
+<p><strong>Execution order.</strong> Code → W0 → W1 → W2 → <code>pgrep</code> → W3 → commit (the module, four harness logs, the §7 sentence, §10 DONE, the entry-42 edit) → journal.</p>
+<p><strong>Spawn line (if delegated):</strong> "Use the implementer agent to execute <code>MAT-15</code> §9 item 515 (P22b) per <code>docs/planning/chunks/MAT-15.md</code> (read the brief and any review ruling beneath it first). The harness call is the <strong>whole</strong> Bash command: bare, repo-relative, nothing chained or piped. Run W0, W1, W2, W3 in order, in the foreground, with <code>timeout: 660000</code>, pytest with <code>-s</code>, and container <code>timeout -k 30</code>. Before W3, run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> and require 0. Edit only <code>tests/validation/test_mat15_f_human_tuned_heating.py</code>. Make no <code>src/</code> edit, never edit either WF-10 module, the <code>MAT-20</code> module or <code>tests/package/*</code>, and never import a <code>test_*</code> name. In <code>docs/testing/xl-pending.md</code>, make only the entry-42 (i) MET insertion the brief names; never write its command, never mark READY, never touch <code>xl-queue.d/</code>. You are the executor: do not spawn agents, and never background a harness window. If the docker socket is denied, stop and report the exact command string. On a red, park on <code>attempt/MAT-15-step6b-*</code>, mark item 515 BLOCKED in the same commit, and report. The item must land before the 2026-10-18 18:00 review."</p>
+<p><strong>Outcome (2026-10-18, implementer, item 515): DONE, green.</strong> W0 7 passed / 22 skipped (<code>20261018T094401Z_MAT-15-step6b-W0.log</code>, K0b's (N2) closed form at both nodes ≤ 2.3e-16 rel, NEG Im ratio 1.023570). W1 (knob on, <code>-n 2</code>, 114 s): 8 / 21; K1b (Deg-2) 2 570 024 exact, c_in 115.5209 pF on both ranks, node_json <code>h9p-node-115.5209-d2.json</code> = <code>_s_rep_path</code>, <code>-d2</code> records unchanged (115.5209 absent before and after, 118.2437 mtime held), build 110.4 s, RSS 1.10 GiB (<code>20261018T094411Z_MAT-15-step6b-W1.log</code>). W2 (unset, <code>-n 2</code>, 113 s): 8 / 21, (Deg-1) 500 568, (Deg-2) 2 570 024, NEG 5.134216 (<code>20261018T094613Z_MAT-15-step6b-W2-regate.log</code>). W3 (unset, <code>-n 8</code>, 162 s): 27 / 2; (S_rep) 4.955e-13; ½ Re Σ V_port I* 2.931095758904e-02 / 2.932256559685e-02 W, ESR 1.265338e-03 / 1.265081e-03 W, G 3.441551785626e+01, (Σ_P) 0, (V) 7.749e-14, (M_θ) 1.1599 % / 0.7623 %, mean θ 3.553024e-02 K, peak 4.926111e-02 K: all to the printed digit. <strong>Reported, not asserted:</strong> (E) worst 3.469e-10 vs the 2.608e-10 record (band 1e-9). It does not pass through the edited line, and it already reads 3.310e-10 in <code>20261011T183420Z_MAT-20-step3-W1.log</code>, so it is thermal-solve round-off. The new (Y) P17 cw reading +1.172678791e-02 +2.783852940e-06j S sits beside H28 W2's ...943e-06j (last digits). SAR10g(c*_θ) at degree 1 is 1.698396e-01 W/kg per accepted W (printed) (<code>20261018T094815Z_MAT-15-step6b-W3-regate.log</code>).</p>
+<h3 id="review-ruling-2026-10-18-0300-item-515-p22b">Review ruling 2026-10-18 03:00 (item 515, P22b)<a class="headerlink" href="#review-ruling-2026-10-18-0300-item-515-p22b" title="Permanent link">&para;</a></h3>
+<p>Accepted as drafted. Spot-check: <code>test_mat15_f_human_tuned_heating.py:319</code> (<code>node_json_d2 = _node_json_path(step5_degree)</code>, one argument) and <code>:360</code> (<code>_z_rc(C_IN_F_HUMAN_PF * 1e-12, …)</code>) were re-read.
+- <strong>Tier: heavy</strong> (W3 measured 166 s against standard's 180 s). §10's "Standard" is a price label, and the 590 s ceiling is the safer wrapper.
+- <strong>The print-only Y_in and SAR10g lines are accepted.</strong> They are additive, print only, and are what entry 42's Readout names.
+- <strong>Not this item's:</strong>
+  - Entry 42's <code>cem43</code> / six-minute row. The command cannot produce it, because the <code>MAT-20</code> dose module reads only the degree-1 series (<code>test_mat20_tuned_heating_dose.py:47</code>). It is noted in entry 42 for the weekly.
+  - H28's build-only test, which asserts <code>h9p-node-115.5209-d2.json</code> absent after its call (<code>test_wf10_f_human_tuned_b1_sar.py:983</code>). It goes red only if <code>FEM_EM_WF10_STEP4C_BUILD</code> is set again after entry 42 has written the file. It is named for the weekly, and no slot sets that selector.
+- <strong>Deadline.</strong> If this item is not on <code>main</code> by the 18:00 review, that review swaps the 10-19 / 10-20 queue files (entry 42's rule).</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1102 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>Estimates - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#resource-estimates-for-the-shipped-study-files" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Estimates
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#measured-15-t-box-window-prices-beside-the-estimator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Measured 1.5 T box-window prices beside the estimator
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#measured-3-t-box-window-prices-beside-the-estimator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Measured 3 T box-window prices beside the estimator
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#measured-3-t-degree-2-price-beside-the-estimator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Measured 3 T degree-2 price beside the estimator
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#measured-degree-2-clinical-prices-beside-the-estimator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Measured degree-2 clinical prices beside the estimator
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<!-- GENERATED by scripts/docs/generate_estimate_page.py (`WF-17` step 30); do not edit by hand. -->
+
+<h1 id="resource-estimates-for-the-shipped-study-files">Resource estimates for the shipped study files<a class="headerlink" href="#resource-estimates-for-the-shipped-study-files" title="Permanent link">&para;</a></h1>
+<p><code>femem run --estimate &lt;file&gt;</code> on every study file under <code>examples/</code> and every study fence (<code>```yaml &lt;tag&gt;</code>) under <code>docs/guide/</code>, printed with no solve. Launch width: <code>mpiexec -n 2</code> -- <code>--estimate</code> prices the current launch width, so <code>ranks</code> and <code>predicted_seconds</code> are this width's. Each value is the CLI's printed <code>repr</code>, asserted equal to <code>Study.estimate</code> (<code>tests/package/test_wf17_estimate_table_page.py</code>).</p>
+<p>The tier is the tier <strong>by prediction</strong>: <code>xl</code> when ranks &gt; 12 or predicted seconds &gt; 1200; otherwise the smallest of smoke (30 s), standard (180 s) and heavy (1200 s) that covers the predicted seconds. It is not a measurement.</p>
+<table>
+<thead>
+<tr>
+<th>Entry</th>
+<th>Family</th>
+<th>degree</th>
+<th>cells</th>
+<th>unknowns</th>
+<th>ranks</th>
+<th>predicted_peak_gib</th>
+<th>predicted_seconds</th>
+<th>rows_used</th>
+<th>not_priced</th>
+<th>Tier</th>
+<th>Refusal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>examples/mri/09_study_from_yaml_four_port.yaml</code></td>
+<td><code>four_port_birdcage</code></td>
+<td><code>1</code></td>
+<td><code>117206</code></td>
+<td><code>140460</code></td>
+<td><code>2</code></td>
+<td><code>2.4394754719590837</code></td>
+<td><code>34.86644741521436</code></td>
+<td><code>('P1', 'P3', 'T49', 'FH1')</code></td>
+<td><code>()</code></td>
+<td>standard</td>
+<td>--</td>
+</tr>
+<tr>
+<td><code>examples/mri/09_study_from_yaml_sphere.yaml</code></td>
+<td><code>sphere_in_box</code></td>
+<td><code>1</code></td>
+<td><code>74020</code></td>
+<td><code>90209</code></td>
+<td><code>2</code></td>
+<td><code>1.5611024536595592</code></td>
+<td><code>15.301539753917746</code></td>
+<td><code>('P1', 'P3', 'T49', 'FH1')</code></td>
+<td><code>()</code></td>
+<td>smoke</td>
+<td>--</td>
+</tr>
+<tr>
+<td><code>examples/mri/13_temperature_from_yaml_sphere.yaml</code> [2]</td>
+<td><code>sphere_in_box</code></td>
+<td><code>1</code></td>
+<td><code>74020</code></td>
+<td><code>90209</code></td>
+<td><code>2</code></td>
+<td><code>1.5611024536595592</code></td>
+<td><code>15.301539753917746</code></td>
+<td><code>('P1', 'P3', 'T49', 'FH1')</code></td>
+<td><code>()</code></td>
+<td>smoke</td>
+<td>--</td>
+</tr>
+<tr>
+<td><code>examples/mri/13_temperature_from_yaml_sphere_control_2g.yaml</code> [2]</td>
+<td><code>sphere_in_box</code></td>
+<td><code>1</code></td>
+<td><code>74020</code></td>
+<td><code>90209</code></td>
+<td><code>2</code></td>
+<td><code>1.5611024536595592</code></td>
+<td><code>15.301539753917746</code></td>
+<td><code>('P1', 'P3', 'T49', 'FH1')</code></td>
+<td><code>()</code></td>
+<td>smoke</td>
+<td>--</td>
+</tr>
+<tr>
+<td><code>examples/mri/27_femem_run_bundle_reproducible_sigma_ulp.yaml</code></td>
+<td><code>four_port_birdcage</code></td>
+<td><code>1</code></td>
+<td><code>117206</code></td>
+<td><code>140460</code></td>
+<td><code>2</code></td>
+<td><code>2.4394754719590837</code></td>
+<td><code>34.86644741521436</code></td>
+<td><code>('P1', 'P3', 'T49', 'FH1')</code></td>
+<td><code>()</code></td>
+<td>standard</td>
+<td>--</td>
+</tr>
+<tr>
+<td><code>examples/presets/dev.yaml</code></td>
+<td><code>four_port_birdcage</code></td>
+<td><code>1</code></td>
+<td><code>117206</code></td>
+<td><code>140460</code></td>
+<td><code>2</code></td>
+<td><code>2.4394754719590837</code></td>
+<td><code>34.86644741521436</code></td>
+<td><code>('P1', 'P3', 'T49', 'FH1')</code></td>
+<td><code>()</code></td>
+<td>standard</td>
+<td>--</td>
+</tr>
+<tr>
+<td><code>examples/presets/debug.yaml</code></td>
+<td><code>sphere_in_box</code></td>
+<td><code>1</code></td>
+<td><code>74020</code></td>
+<td><code>90209</code></td>
+<td><code>2</code></td>
+<td><code>1.5611024536595592</code></td>
+<td><code>15.301539753917746</code></td>
+<td><code>('P1', 'P3', 'T49', 'FH1')</code></td>
+<td><code>()</code></td>
+<td>smoke</td>
+<td>--</td>
+</tr>
+<tr>
+<td><code>examples/presets/benchmark-lite.yaml</code></td>
+<td><code>four_port_birdcage</code></td>
+<td><code>2</code></td>
+<td><code>80798</code></td>
+<td><code>570332</code></td>
+<td><code>2</code></td>
+<td><code>18.242669371136586</code></td>
+<td><code>304.91306736672345</code></td>
+<td><code>('P2', 'F16', 'Cu7', 'Cu7h', 'A6', 'S4c', 'P4', 'P5', 'P6', 'FH2')</code></td>
+<td><code>()</code></td>
+<td>heavy</td>
+<td>--</td>
+</tr>
+<tr>
+<td><code>docs/guide/capacitor_sheets_from_yaml.md, fence capacitor-esr-yaml</code></td>
+<td><code>four_port_birdcage</code></td>
+<td><code>1</code></td>
+<td><code>80798</code></td>
+<td><code>111946</code></td>
+<td><code>2</code></td>
+<td><code>1.9406705121195007</code></td>
+<td><code>22.862364948541476</code></td>
+<td><code>('P1', 'P3', 'T49', 'FH1')</code></td>
+<td><code>()</code></td>
+<td>smoke</td>
+<td>--</td>
+</tr>
+<tr>
+<td><code>docs/guide/implant_rod_in_a_study.md, fence implant-rod-file</code></td>
+<td><code>four_port_birdcage</code></td>
+<td><code>1</code></td>
+<td><code>168507</code></td>
+<td><code>204156</code></td>
+<td><code>2</code></td>
+<td><code>3.5565207150545124</code></td>
+<td><code>69.90051195276759</code></td>
+<td><code>('P1', 'P3', 'T49', 'FH1')</code></td>
+<td><code>()</code></td>
+<td>standard</td>
+<td>--</td>
+</tr>
+<tr>
+<td><code>docs/guide/tuning_from_yaml.md, fence f-small-hole-pec-tune</code></td>
+<td><code>four_port_birdcage</code></td>
+<td><code>1</code></td>
+<td><code>80798</code></td>
+<td><code>111946</code></td>
+<td><code>2</code></td>
+<td><code>1.9406705121195007</code></td>
+<td><code>22.862364948541476</code></td>
+<td><code>('P1', 'P3', 'T49', 'FH1')</code></td>
+<td><code>()</code></td>
+<td>smoke</td>
+<td>--</td>
+</tr>
+<tr>
+<td><code>docs/guide/tuned_copper_birdcage_yaml.md, fence f-human-tuned-copper</code></td>
+<td><code>f_human_birdcage</code></td>
+<td><code>1</code></td>
+<td><code>369387</code></td>
+<td><code>500568</code></td>
+<td><code>2</code></td>
+<td><code>8.783964150676365</code></td>
+<td><code>370.62145174586664</code></td>
+<td><code>('P1', 'P3', 'T49', 'FH1')</code></td>
+<td><code>('thermal transient',)</code></td>
+<td>heavy</td>
+<td>--</td>
+</tr>
+<tr>
+<td><code>docs/guide/tuning_a_saved_result.md, fence swept-tune-file</code> [1]</td>
+<td><code>four_port_birdcage</code></td>
+<td><code>1</code></td>
+<td><code>80798</code></td>
+<td><code>111946</code></td>
+<td><code>2</code></td>
+<td><code>1.9406705121195007</code></td>
+<td><code>22.862364948541476</code></td>
+<td><code>('P1', 'P3', 'T49', 'FH1')</code></td>
+<td><code>()</code></td>
+<td>smoke</td>
+<td>--</td>
+</tr>
+<tr>
+<td><code>docs/guide/tuning_a_saved_result_from_yaml.md, fence loaded-yaml-file</code> [1]</td>
+<td><code>four_port_birdcage</code></td>
+<td><code>1</code></td>
+<td><code>80798</code></td>
+<td><code>111946</code></td>
+<td><code>2</code></td>
+<td><code>1.9406705121195007</code></td>
+<td><code>22.862364948541476</code></td>
+<td><code>('P1', 'P3', 'T49', 'FH1')</code></td>
+<td><code>()</code></td>
+<td>smoke</td>
+<td>--</td>
+</tr>
+</tbody>
+</table>
+<p>[1] A <code>load_result:</code> file: the row prices a mesh build and solve that <code>femem run</code> never performs (it tunes the saved result). Recorded, not fixed.</p>
+<p>[2] A file with a <code>thermal:</code> section whose <code>not_priced</code> is empty: the row prices the EM half only. Recorded, not fixed.</p>
+<h2 id="measured-15-t-box-window-prices-beside-the-estimator">Measured 1.5 T box-window prices beside the estimator<a class="headerlink" href="#measured-15-t-box-window-prices-beside-the-estimator" title="Permanent link">&para;</a></h2>
+<p>The estimator's 1.5 T row (FC1, <code>ranks</code> 16) was measured on the F-clinical-1.5T r1 mesh (no rod) and its seconds are one EM solve with the mesh build excluded; <code>xl</code> entries 48, 52 and 59 ran the rod-in-box 1.5 T mesh (tag 403 as each row states) at <code>-n 8</code>, their seconds are whole-window wall times (build, EM solve and readouts) and their GiB the cgroup <code>memory.peak</code>. The ratios therefore set two different quantities, on two meshes, at two widths, beside each other. Measured values are the strings of <code>docs/testing/xl-ledger.md</code>; the estimator values are the CLI's printed <code>repr</code> of <code>femem run --estimate tests/package/wf13/f_clinical_15t.yaml</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Row</th>
+<th>Log</th>
+<th>ranks</th>
+<th>cells</th>
+<th>tag 403</th>
+<th>peak GiB</th>
+<th>seconds</th>
+<th>ratio GiB</th>
+<th>ratio seconds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>xl</code> entry 48 (<code>GEO-36-step9-I36</code>)</td>
+<td><code>20261102T080008Z_GEO-36-step9-I36.log</code></td>
+<td>8</td>
+<td>1 217 025</td>
+<td>sigma_wire 800 S/m (arm M); gel (arm R)</td>
+<td>42.39</td>
+<td>1052</td>
+<td>1.1576</td>
+<td>0.1933</td>
+</tr>
+<tr>
+<td><code>xl</code> entry 52 (<code>GEO-38-C6</code>)</td>
+<td><code>20261103T080009Z_GEO-38-C6.log</code></td>
+<td>8</td>
+<td>1 217 025</td>
+<td>gel</td>
+<td>40.95</td>
+<td>868</td>
+<td>1.1983</td>
+<td>0.2342</td>
+</tr>
+<tr>
+<td><code>xl</code> entry 59 (<code>GEO-38-P33</code>)</td>
+<td><code>20261110T080008Z_GEO-38-P33.log</code></td>
+<td>8</td>
+<td>1 217 025</td>
+<td>gel</td>
+<td>41.70</td>
+<td>852</td>
+<td>1.1767</td>
+<td>0.2386</td>
+</tr>
+<tr>
+<td><code>Study.estimate</code> FC1</td>
+<td><code>tests/package/wf13/f_clinical_15t.yaml</code></td>
+<td><code>16</code></td>
+<td><code>1147366</code></td>
+<td>--</td>
+<td><code>49.07</code></td>
+<td><code>203.3</code></td>
+<td>--</td>
+<td>--</td>
+</tr>
+</tbody>
+</table>
+<p>Ratio = estimator / measured. A record, not a calibration; no row is fitted.</p>
+<h2 id="measured-3-t-box-window-prices-beside-the-estimator">Measured 3 T box-window prices beside the estimator<a class="headerlink" href="#measured-3-t-box-window-prices-beside-the-estimator" title="Permanent link">&para;</a></h2>
+<p>The estimator's 3 T row (FC3, <code>ranks</code> 16) was measured on the stand-in-cylinder twin and its seconds are one EM solve with the mesh build excluded; <code>xl</code> entries 58, 60 and 61 ran the rod-in-box 3 T mesh (tag 403 as each row states) at <code>-n 8</code>, their seconds are whole-window wall times (build, EM solve and readouts) and their GiB the cgroup <code>memory.peak</code>. The ratios therefore set two different quantities, on two meshes, at two widths, beside each other. Measured values are the strings of <code>docs/testing/xl-ledger.md</code>; the estimator values are the CLI's printed <code>repr</code> of <code>femem run --estimate tests/package/wf13/f_clinical_3t.yaml</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Row</th>
+<th>Log</th>
+<th>ranks</th>
+<th>cells</th>
+<th>tag 403</th>
+<th>peak GiB</th>
+<th>seconds</th>
+<th>ratio GiB</th>
+<th>ratio seconds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>xl</code> entry 58 (<code>GEO-38-C6-3T</code>)</td>
+<td><code>20261109T080008Z_GEO-38-C6-3T.log</code></td>
+<td>8</td>
+<td>1 128 430</td>
+<td>gel</td>
+<td>33.48</td>
+<td>780</td>
+<td>1.1765</td>
+<td>0.1732</td>
+</tr>
+<tr>
+<td><code>xl</code> entry 60 (<code>GEO-38-P33-3T</code>)</td>
+<td><code>20261111T080008Z_GEO-38-P33-3T.log</code></td>
+<td>8</td>
+<td>1 128 430</td>
+<td>gel</td>
+<td>32.75</td>
+<td>732</td>
+<td>1.2027</td>
+<td>0.1846</td>
+</tr>
+<tr>
+<td><code>xl</code> entry 61 (<code>GEO-36-step11-I36-3T</code>)</td>
+<td><code>20261112T080008Z_GEO-36-step11-I36-3T.log</code></td>
+<td>8</td>
+<td>1 128 430</td>
+<td>sigma_wire 800 S/m (arm M); gel (arm R)</td>
+<td>34.23</td>
+<td>848</td>
+<td>1.1507</td>
+<td>0.1593</td>
+</tr>
+<tr>
+<td><code>Study.estimate</code> FC3</td>
+<td><code>tests/package/wf13/f_clinical_3t.yaml</code></td>
+<td><code>16</code></td>
+<td><code>1057895</code></td>
+<td>--</td>
+<td><code>39.39</code></td>
+<td><code>135.1</code></td>
+<td>--</td>
+<td>--</td>
+</tr>
+</tbody>
+</table>
+<p>Ratio = estimator / measured. A record, not a calibration; no row is fitted.</p>
+<h2 id="measured-3-t-degree-2-price-beside-the-estimator">Measured 3 T degree-2 price beside the estimator<a class="headerlink" href="#measured-3-t-degree-2-price-beside-the-estimator" title="Permanent link">&para;</a></h2>
+<p><code>xl</code> entry 64 ran the F-clinical-3T r1 coil mesh (no box, tag 403 absent) at degree 2 at <code>-n 16</code>; its seconds are the whole-window wall time (build, the Z50 pair and three node pairs) and its GiB the cgroup <code>memory.peak</code>. The estimator's 3 T degree-2 row FC4 is not priced (<code>Study.estimate</code> prints its <code>not_priced</code> <code>repr</code>), so its ratios are <code>nan</code>. FC3 (degree 1) was measured on the same mesh at the same width, so its ratio sets the degree-1 estimator beside the degree-2 window: one mesh, one width, two degrees, two quantities. Measured values are the strings of <code>docs/testing/xl-ledger.md</code>; the estimator values are the CLI's printed <code>repr</code> of <code>femem run --estimate &lt;file&gt;</code> for <code>tests/package/wf13/f_clinical_3t_d2.yaml</code> and <code>tests/package/wf13/f_clinical_3t.yaml</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Row</th>
+<th>Log</th>
+<th>ranks</th>
+<th>cells</th>
+<th>tag 403</th>
+<th>peak GiB</th>
+<th>seconds</th>
+<th>ratio GiB</th>
+<th>ratio seconds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>xl</code> entry 64 (<code>GEO-38-C5f</code>)</td>
+<td><code>20261115T080008Z_GEO-38-C5f.log</code></td>
+<td>16</td>
+<td>1 057 895</td>
+<td>absent</td>
+<td>377.12</td>
+<td>8158</td>
+<td>--</td>
+<td>--</td>
+</tr>
+<tr>
+<td><code>Study.estimate</code> FC4 (degree 2)</td>
+<td><code>tests/package/wf13/f_clinical_3t_d2.yaml</code></td>
+<td><code>16</code></td>
+<td><code>1057895</code></td>
+<td>--</td>
+<td><code>nan</code></td>
+<td><code>nan</code></td>
+<td>nan</td>
+<td>nan</td>
+</tr>
+<tr>
+<td><code>Study.estimate</code> FC3 (degree 1)</td>
+<td><code>tests/package/wf13/f_clinical_3t.yaml</code></td>
+<td><code>16</code></td>
+<td><code>1057895</code></td>
+<td>--</td>
+<td><code>39.39</code></td>
+<td><code>135.1</code></td>
+<td>0.1044</td>
+<td>0.0166</td>
+</tr>
+</tbody>
+</table>
+<p>FC4's <code>not_priced</code>: <code>('degree 2 (no measured F-clinical row)', 'thermal transient')</code>.</p>
+<p>Ratio = estimator / measured. A record, not a calibration; no row is fitted.</p>
+<h2 id="measured-degree-2-clinical-prices-beside-the-estimator">Measured degree-2 clinical prices beside the estimator<a class="headerlink" href="#measured-degree-2-clinical-prices-beside-the-estimator" title="Permanent link">&para;</a></h2>
+<p>The estimator's degree-2 1.5 T row (FC2, <code>ranks</code> 16) was measured on the F-clinical-1.5T r1 mesh (no rod) and its seconds are one EM solve with the mesh build excluded; <code>xxl</code> entry 62 ran the rod-in-box 1.5 T mesh at degree 2 at <code>-n 16</code> in two calls in one window -- call 1 C6 with the box-wide grid, call 2 I36 in two arms (tag 403 as each row states). Each call's seconds are that call's window (build, EM solves and readouts), the window's seconds the harness wall time, and the GiB the cgroup <code>memory.peak</code> over the whole window, so the call rows carry no GiB and no GiB ratio. The ratios therefore set two different quantities, on two meshes, at one width, beside each other. Measured values are the strings of <code>docs/testing/xxl-ledger.md</code>; the estimator values are the CLI's printed <code>repr</code> of <code>femem run --estimate tests/package/wf13/f_clinical_15t_d2.yaml</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Row</th>
+<th>Log</th>
+<th>ranks</th>
+<th>cells</th>
+<th>tag 403</th>
+<th>peak GiB</th>
+<th>seconds</th>
+<th>ratio GiB</th>
+<th>ratio seconds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>xxl</code> entry 62 call 1 (<code>GEO-38-C19</code>, C6 degree 2 + grid)</td>
+<td><code>20261114T080009Z_GEO-38-C19.log</code></td>
+<td>16</td>
+<td>1 217 025</td>
+<td>gel</td>
+<td>--</td>
+<td>4 301.9</td>
+<td>--</td>
+<td>0.6723</td>
+</tr>
+<tr>
+<td><code>xxl</code> entry 62 call 2 (<code>GEO-38-C19</code>, I36 degree 2)</td>
+<td><code>20261114T080009Z_GEO-38-C19.log</code></td>
+<td>16</td>
+<td>1 217 025</td>
+<td>sigma_wire (arm M); gel (arm R)</td>
+<td>--</td>
+<td>6 590.9</td>
+<td>--</td>
+<td>0.4388</td>
+</tr>
+<tr>
+<td><code>xxl</code> entry 62 window (<code>GEO-38-C19</code>)</td>
+<td><code>20261114T080009Z_GEO-38-C19.log</code></td>
+<td>16</td>
+<td>1 217 025</td>
+<td>as calls 1 and 2</td>
+<td>486.57</td>
+<td>10902</td>
+<td>0.9709</td>
+<td>0.2653</td>
+</tr>
+<tr>
+<td><code>Study.estimate</code> FC2</td>
+<td><code>tests/package/wf13/f_clinical_15t_d2.yaml</code></td>
+<td><code>16</code></td>
+<td><code>1147366</code></td>
+<td>--</td>
+<td><code>472.42</code></td>
+<td><code>2892.1</code></td>
+<td>--</td>
+<td>--</td>
+</tr>
+</tbody>
+</table>
+<p>Ratio = estimator / measured. A record, not a calibration; no row is fitted. The window was lightly contended (an operator <code>GEO-34</code> window of 104 s ran inside it, <code>xxl-ledger.md:27</code>).</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

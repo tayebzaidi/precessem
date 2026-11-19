@@ -1,0 +1,721 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-101 — A sheet drawn inside a box becomes an integration surface: native interior facet tags and dS on a ghosted mesh (history) - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-101-a-sheet-drawn-inside-a-box-becomes-an-integration-surface-native-interior-facet-tags-and-ds-on-a-ghosted-mesh-history" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-101 — A sheet drawn inside a box becomes an integration surface: native interior facet tags and dS on a ghosted mesh (history)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-302-2026-10-07-54-example-example-runner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 302 — 2026-10-07 (§5.4 example; example-runner)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-101-a-sheet-drawn-inside-a-box-becomes-an-integration-surface-native-interior-facet-tags-and-ds-on-a-ghosted-mesh-history">EX-101 — A sheet drawn inside a box becomes an integration surface: native interior facet tags and <code>dS</code> on a ghosted mesh (history)<a class="headerlink" href="#ex-101-a-sheet-drawn-inside-a-box-becomes-an-integration-surface-native-interior-facet-tags-and-ds-on-a-ghosted-mesh-history" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<p>Opened 2026-10-07 by the 10:30 daily review (step 5, §5.4 ramp). §10 U11 (<code>GEO-37</code> step 2, §9 item 267, GREEN 2026-10-06): a CAD-drawn interior face reaches DolfinX's facet tags on 0.11, and <code>dS</code> over it meets closed forms at <code>STRIP_BAND</code> on a <code>shared_facet</code>-ghosted mesh. No example shows an interior facet tag. Group: <code>examples/meshing/</code> (real build, no solve; <code>mesh:1</code> … <code>mesh:12</code> exist).</p>
+<p><strong>Proposed §7 row (the review adds it in the same commit as item 302, rule (j)):</strong></p>
+<p>| <code>EX-101</code> | <strong>A sheet drawn inside a box becomes an integration surface: native interior facet tags and <code>dS</code> on a ghosted mesh</strong> <em>(history and §9 briefs: <code>docs/planning/chunks/EX-101.md</code>)</em> (<code>mesh:13</code>; <code>example-runner</code>; opened 2026-10-07 by the 10:30 daily review, §5.4 ramp; angle: geometry/mesh input for the Phase 9 (9b) external-CAD user; base step §10 U11) <strong>Done-when:</strong> <code>examples/meshing/13_interior_sheet_surface_integral.py</code> + same-stem guide; real build, <code>shared_facet</code> ghosts, <code>-n 2</code> and <code>-n 4</code>; imports <code>GEO-37</code>'s fixture, closed forms and <code>STRIP_BAND</code>, restates none; asserted in-script: the reduced owned tag-201 count equals gmsh's triangle count, and ∫1, ∫g('+'), ∫(u⁺ + u⁻) over <code>dS(201)</code> and ∫1 <code>ds(101)</code> meet their closed forms at <code>STRIP_BAND</code>; controls: <code>dS(999)</code> assembles to 0.0 while <code>validate_required_port_tags_exist</code> raises on 999, and one planted dropped facet leaves the band; the combined XDMF (planted fields, rank, facet tags) is written; census +1, docrefs green; elapsed recorded ⇒ ✅. Not claimed: a port, a STEP import (U12 BLOCKED), an unghosted multi-rank run. | ⬜ Open: the brief is §9 item 302; no example shows an interior facet tag yet. | standard (smoke by prediction) |</p>
+<h3 id="9-item-302-2026-10-07-54-example-example-runner">§9 item 302 — 2026-10-07 (§5.4 example; example-runner)<a class="headerlink" href="#9-item-302-2026-10-07-54-example-example-runner" title="Permanent link">&para;</a></h3>
+<p><strong>Outcome (2026-10-07 17:23Z, ✅):</strong> <code>mesh:13</code> green at <code>-n 2</code> (flagged, <code>20261007T172140Z_EX-101.log</code>, 6 s wall) and <code>-n 4</code> (<code>20261007T172154Z_EX-101-control-n4.log</code>, 3 s wall). (G) ghost cells 592 / 1162; (T) tags <code>[101, 201]</code>, owned 192 = <code>N_gmsh</code> 192; (A) +8.9e-16 / +2.2e-16; (F) I2 +2.2e-16 / +2.2e-16, I3 +8.9e-16 / +2.2e-16; (I) +2.0e-15 / +1.1e-15; (V) raised; (c1) 0.0; (c2) −4.48e-3 / −5.07e-3; (c3) 0.9747 / 1.0695 printed; unfiltered tag-201 sum 210 / 247 vs 192. All equal the <code>GEO-37</code> step-2 records. Census figures 93 → 94 <code>broken=0</code>, docrefs 93 → 94 <code>dead=0 guide=0</code> exit 2 (predicted; stale 56 unchanged). No band, <code>src/</code> or probe/gate edit.</p>
+<p><em>Drafted by a general-purpose agent for the 2026-10-07 10:30 daily review; the review reviews it.</em> Licence: §5.4 example ramp on a closed gate (§10 U11, PROJECT_PLAN.md:4709–4717). <strong>No band, tolerance, Done-when or validation target is set or moved</strong>; every band and closed form is imported by name.</p>
+<p><code>EX-101</code> (<code>mesh:13</code>) adds <code>examples/meshing/13_interior_sheet_surface_integral.py</code> and a same-stem guide <code>13_interior_sheet_surface_integral.md</code>. The guide carries the three required headings (<code>## 1. What this demonstrates</code>, <code>## 2. How to run it</code>, <code>## 3. How to analyze it, step by step</code>) plus <code>## Setup figure</code> and <code>## Related</code>. The setup PNG is ≤ 600 KiB (<code>scripts/testing/check_example_setup_figures.py:124</code>).</p>
+<p>What the script does, for the Phase 9 (9b) user who will draw a port as a literal 2D sheet in an external CAD tool (PROJECT_PLAN.md:4294, "Ports as literal 2D sheets"):
+- It builds <code>GEO-37</code>'s fixture by importing it: a unit box with one 0.8 × 0.6 rectangle embedded at z = 0.47 by <code>occ.fragment</code>, tagged as dim-2 physical group 201, the box faces 101, h = 0.08.
+- It reads the model through the project shim <code>_model_to_mesh</code> (<code>src/fem_em_solver/io/mesh.py:13–28</code>) <strong>with an explicit <code>shared_facet</code> cell partitioner</strong>, as step 2's probe does (<code>tests/mesh/probe_geo37_interior_dS.py:87–94</code>).
+- It shows the sheet arriving as facet tag 201, then integrates over it with <code>dS(201)</code>: area, a planted linear field, a planted two-sided DG0 field, and the exterior <code>ds(101)</code> instrument. Every integral is <code>allreduce</code>d.
+- It shows the two traps a sheet user meets: an absent tag assembles silently to zero (so tags are validated first), and <code>('+')</code> is a cell-order side, not a geometric one.</p>
+<p>Numbering and independence:
+- <code>examples/meshing/</code> holds <code>01_</code> … <code>12_</code>; this item writes <code>13_</code> only. <code>run_examples.sh</code> auto-discovers meshing examples by number (<code>.claude/agents/example-runner.md:88–89</code>), so no registry edit is needed. Items 298–301 may open other examples in the same queue; if one of them has already taken <code>mesh:13</code> when this slot starts, use the next free number and note it.
+- It imports nothing from <code>examples/</code> and depends on no other open item.</p>
+<ul>
+<li><strong>Executor:</strong> <code>example-runner</code>. The executor does not spawn agents.</li>
+<li><strong>Build:</strong> <strong>real</strong> (the meshing group runs in the default real build, <code>scripts/run_examples.sh:50–55, 273–281</code>; <code>GEO-37</code> step 2's windows ran real: <code>PETSC_ARCH='linux-gnu-real64-32' ScalarType=float64</code>, <code>20261006T185157Z_GEO-37-s2-W2.log:86</code>). Never source complex mode.</li>
+<li><strong>Tier:</strong> <strong>standard</strong> ceiling (runner <code>-t 180</code>; container <code>timeout -k 30 180</code>), smoke by prediction. Ranks <code>-n 2</code> (run of record) and <code>-n 4</code> (control run, see (3)).</li>
+<li><strong>Cost:</strong> <strong>≈ 7 measured</strong> (the example class median from today's five example items: 7 / 6 / 7 / 15 / 7 min, <code>docs/planning/reviews/2026-10-07-daily-1030.md:12–16</code>) / <strong>≈ 40 predicted</strong> min (15 fixed + ≈ 20 script and guide + ≈ 5 for eight windows of under a minute each).</li>
+<li><strong>Depends on:</strong> nothing open. <code>GEO-37</code> step 2 is recorded on <code>main</code> (<code>docs/planning/chunks/GEO-37.md:161–176</code>).</li>
+<li><strong>Spawn prompt</strong> (the slot puts these sentences in verbatim): "Use the example-runner agent to execute <code>EX-101</code>, §9 item 302 (docs/planning/chunks/EX-101.md, heading <code>§9 item 302</code>). Do not spawn agents. Run every harness window in the foreground (Bash <code>timeout: 660000</code>) and never background one; do not end the turn while a window runs. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Make no edit to the script or guide after its last window."</li>
+</ul>
+<p><strong>Imports (never restated).</strong>
+- From <code>tests.mesh.test_geo37_interior_dS</code> (the gate module): <code>STRIP_BAND</code> (its import at <code>:26</code>, defined <code>tests/validation/test_ops61_exact_strip_ports.py:58</code>), <code>I1_CF</code> (<code>:34</code>), <code>I2_CF</code> (<code>:35</code>), <code>I3_CF</code> (<code>:36</code>), <code>I4_CF</code> (<code>:37</code>). Importing the module is safe with <code>GEO37_DS_RECORD_DIR</code> unset: its <code>pytestmark</code> skip (<code>:29–31</code>) acts only under pytest collection.
+- From <code>tests.mesh.probe_geo37_interior_facet</code> (step 1's fixture, the one step 2 imports verbatim, <code>probe_geo37_interior_dS.py:41–50</code>): <code>_build_model</code> (<code>:36</code>), <code>RECT</code> (<code>:30</code>), <code>H</code> (<code>:32</code>), <code>TAG_RECT</code>, <code>TAG_BOX</code> (<code>:33</code>). The module's <code>main()</code> is guarded by <code>if __name__ == "__main__"</code>, so the import runs nothing.
+- From <code>tests.mesh.probe_geo37_interior_dS</code>: <code>_assemble</code> (<code>:55</code>, the allreduced scalar that returns <code>(value, error_text)</code>), <code>QD</code> (<code>:52</code>, quadrature degree 2), <code>TAG_ABSENT</code> (<code>:51</code>). The script asserts each returned <code>error_text is None</code> before reading the value.
+- From <code>src</code>:
+  - <code>fem_em_solver.io.mesh</code>: <code>_model_to_mesh</code>, <code>_raise_geometry_failure_on_every_rank</code>;
+  - <code>fem_em_solver.ports.definitions</code>: <code>PortDefinition</code>, <code>validate_required_port_tags_exist</code> (<code>:82</code>), used <strong>only as a tag-presence check</strong> — the guide says so and claims no port;
+  - <code>fem_em_solver.io.paraview_utils</code>: <code>write_xdmf_with_tags</code>, <code>adopt_host_ownership</code>;
+  - <code>fem_em_solver.post.setup_figure.write_setup_figure</code>.
+- <strong>No new number.</strong> The script states no area, closed form, band, tag, mesh size, triangle count or cell count as a literal. The planted field <code>g = 2 + 3x + 5y</code> and the DG0 side values 1 / 3 are the gate's (<code>probe_geo37_interior_dS.py:114, 120</code>, encoded in <code>I2_CF</code> / <code>I3_CF</code>); the script writes them <strong>exactly as the probe does</strong> and the guide says the closed forms come from <code>I2_CF</code> / <code>I3_CF</code>. If the review prefers, rule (a) allows one additive change: factor the probe's g and u construction into a helper in <code>probe_geo37_interior_dS.py</code> and import it; that edit requires the step-2 gate window re-run green in the same slot (see (3) step 6) and disclosure. <strong>Default: no helper edit; probe and gate files are imported unedited.</strong></p>
+<p><strong>Order of calls in the script.</strong> <code>gmsh.initialize()</code> on every rank → rank 0 <code>_build_model()</code> inside <code>try</code> / <code>except BaseException</code> → <code>_raise_geometry_failure_on_every_rank</code> → <code>N_gmsh = comm.bcast(...)</code> → <code>_model_to_mesh(gmsh.model, comm, 0, gdim=3, partitioner=dolfinx.mesh.create_cell_partitioner(dolfinx.mesh.GhostMode.shared_facet, 2))</code> → <code>gmsh.finalize()</code> → (G) → (T) → (V) → the integrals (A), (F), (I) → controls → XDMF → setup figure → prints → asserts.</p>
+<p><strong>(1) Anchors (asserted in-script, at every width the example runs).</strong>
+- <strong>(G) The mesh is ghosted before any <code>dS</code> is assembled:</strong> <code>comm.size == 1</code> or the reduced <code>index_map(3).num_ghosts &gt; 0</code>. Checked collectively (one <code>allreduce</code>), raising on every rank if false. Record 592 at <code>-n 2</code>, 1162 at <code>-n 4</code> (<code>20261006T185157Z_GEO-37-s2-W2.log:48</code>, <code>:55</code>; printed beside the reading). This guard is the example's protection against ever assembling <code>dS</code> unghosted at more than one rank.
+- <strong>(T) The sheet arrives as a tag, complete and unduplicated:</strong>
+  - the globally reduced facet-tag set equals <code>[TAG_BOX, TAG_RECT]</code> (record <code>[101, 201]</code>, <code>…s2-W2.log:48</code>, <code>:55</code>);
+  - the owned tag-201 count (local facets <code>&lt; index_map(2).size_local</code>, <code>allreduce</code>d) equals <code>N_gmsh</code> — an integer identity against gmsh's own triangle count on the same run (step 1's (A2), <code>GEO-37.md:46</code>). Record 192 at every width (<code>…s2-W2.log:48</code>, <code>:55</code>; <code>GEO-37.md:97–99</code>).
+- <strong>(A) Area:</strong> |I1 / <code>I1_CF</code> − 1| ≤ <code>STRIP_BAND</code>, I1 = ∫ 1 <code>dS(TAG_RECT)</code>. Records +8.9e-16 (<code>-n 2</code>) / +2.2e-16 (<code>-n 4</code>) (<code>GEO-37.md:168–169</code>).
+- <strong>(F) Planted fields:</strong> |I2 / <code>I2_CF</code> − 1| ≤ <code>STRIP_BAND</code> with I2 = ∫ g('+') <code>dS(TAG_RECT)</code>; |I3 / <code>I3_CF</code> − 1| ≤ <code>STRIP_BAND</code> with I3 = ∫ (u('+') + u('-')) <code>dS(TAG_RECT)</code>. Records I2 +2.2e-16 / +2.2e-16, I3 +8.9e-16 / +2.2e-16 (<code>GEO-37.md:168–169</code>).
+- <strong>(I) Instrument:</strong> |I4 / <code>I4_CF</code> − 1| ≤ <code>STRIP_BAND</code>, I4 = ∫ 1 <code>ds(TAG_BOX)</code>. Records +2.0e-15 / +1.1e-15 (<code>GEO-37.md:168–169</code>).
+- <strong>(V) A missing tag raises:</strong> <code>validate_required_port_tags_exist([PortDefinition("P1", TAG_RECT, TAG_BOX, ...)], tag_set)</code> passes; the same call with <code>TAG_ABSENT</code> raises <code>ValueError</code> matching <code>missing required port tags: [999]</code> — deterministic on every rank because <code>tag_set</code> is the reduced set (the test's form, <code>test_geo37_interior_dS.py:131–139</code>). Catch on every rank, never under <code>rank == 0</code>.</p>
+<p><strong>Printed, not asserted:</strong>
+- cells (record 10 150, <code>GEO-37.md:93</code>; <code>…s2-W2.log:48</code>), <code>N_gmsh</code>, per-rank owned and local tag-201 counts, per-rank one-sided count;
+- the unfiltered rank-local tag-201 sum beside the owned sum — what a user who sums <code>facet_tags</code> without the owned filter would report. Predicted from the same comparison on the same fixture: 210 vs 192 at <code>-n 2</code>, 247 vs 192 at <code>-n 4</code> (sums of <code>per_rank_local_201</code> [100, 110] / [49, 68, 34, 96], <code>…s2-W2.log:48</code>, <code>:55</code>). Printed, not asserted: no gate asserts it on a ghosted mesh;
+- seconds for mesh, import and assembly (records per width: 0.31–0.34 / 0.11–0.12 / 0.31–0.34 s, <code>…s2-W2.log</code> JSON <code>seconds_*</code> at <code>:48</code>, <code>:55</code>).</p>
+<p><strong>(2) Negative controls (rule (e)).</strong>
+- <strong>(c1) asserted — an absent tag assembles silently to zero:</strong> <code>_assemble(comm, 1 * dS(TAG_ABSENT))</code> returns exactly <code>0.0</code> with no error. Backing, the same comparison on the same fixture at <code>-n 1 / 2 / 4</code>: 0.0 (<code>GEO-37.md:167–169, 174</code>; asserted at <code>test_geo37_interior_dS.py:147</code>). <strong>Ceiling:</strong> the miss against <code>I1_CF</code> is 100 % relative (1.0 ≈ 10⁹ × <code>STRIP_BAND</code>); a blind integrator cannot do worse. This is why (V) exists: the assembly does not raise, the validator does.
+- <strong>(c2) asserted — one dropped facet leaves the band:</strong> re-tag 201 with the first owned facet of the lowest owning rank removed (the probe's construction, <code>probe_geo37_interior_dS.py:161–176</code>: a new <code>meshtags</code> built on every rank); assert |I1′ / <code>I1_CF</code> − 1| &gt; <code>STRIP_BAND</code>. Backing on the same fixture: −4.48e-3 (<code>-n 2</code>), −5.07e-3 (<code>-n 4</code>) (<code>GEO-37.md:168–169</code>). <strong>Ceiling:</strong> one facet's share of the area, ≈ 1 / <code>N_gmsh</code> = 1/192 ≈ 5.2e-3, ≈ 4.5 × 10⁶ × the band at the smaller reading; every facet has positive area, so the miss is certain. Print <code>1 / N_gmsh</code> beside it. Build the reduced <code>meshtags</code> with sorted, unique <code>int32</code> indices (the probe's mask keeps the original order).
+- <strong>(c3) printed, predicted, never asserted — <code>('+')</code> is not a geometric side:</strong> ∫ u('+') <code>dS(TAG_RECT)</code>. Records 0.9747 (<code>-n 2</code>), 1.0695 (<code>-n 4</code>) (<code>GEO-37.md:168–169</code>); predicted inside [<code>I1_CF</code> × 1, <code>I1_CF</code> × 3] = [0.48, 1.44] at any width and <strong>different between the two runs</strong>. The guide uses it to say a sheet's orientation must come from the user (an integration line, the (9b) convention), not from DolfinX's '+' side.
+- No unghosted leg. The example never constructs <code>GhostMode.none</code> and offers no option to.</p>
+<p><strong>(3) Windows.</strong> Each Bash call that runs a window is foreground with <code>timeout: 660000</code> and makes one bare, whole, repo-relative harness call. Nothing is chained or piped.
+0. <strong>Orphan check:</strong> <code>docker compose exec -T fem-em-solver pgrep -c python3</code> reads 0. Then the rubric's cache sweep (daily-review.md:426) as one bare call labelled <code>EX-101-cache-sweep</code>.
+1. <strong>Pre-censuses, before any file is written:</strong>
+   - <code>scripts/testing/run_and_log.sh EX-101-pre-figures "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_setup_figures.py'"</code>
+   - <code>scripts/testing/run_and_log.sh EX-101-pre-docrefs "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py'"</code>
+   - Census at drafting: 93 (<code>EX-97</code>'s outcome, <code>docs/planning/chunks/EX-97.md:195</code>). Use whatever the pre-census reads; items 298–301 may land first.
+2. <strong>Dry run, after the script exists:</strong> <code>scripts/testing/run_and_log.sh EX-101-dryrun "./scripts/run_examples.sh -e mesh:13 -n 2 -t 180 --dry-run"</code>. It must <strong>not</strong> print <code>(complex build)</code> (<code>run_examples.sh:281</code>).
+3. <strong>Run of record (flagged), <code>-n 2</code>,</strong> predicted [10, 60] s.
+   - Basis: step 2's five completed probe legs plus pytest fit in ≈ 11 s of the 56 s window, the rest being the killed unghosted <code>-n 4</code> leg's 45 s ceiling (<code>…s2-W2.log:135–136</code>; <code>GEO-37.md:175</code>); step 1's three widths plus pytest ran 5 s (<code>GEO-37.md:93</code>). The example adds ≈ 15 s for the setup figure and ≈ 5 s for the XDMF, plus a possible cold FFCx compile of the interpolation / XDMF forms.
+   - Command: <code>scripts/testing/run_and_log.sh EX-101 'docker compose exec -T -e FEM_EM_SETUP_FIGURES=1 fem-em-solver bash -lc "cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 180 mpiexec -n 2 python3 examples/meshing/13_interior_sheet_surface_integral.py"'</code>
+   - <code>PYTHONPATH</code> carries <code>:/workspace</code> because the script imports from <code>tests.*</code>; the dry run emits <code>/workspace/src</code> only (<code>run_examples.sh:279</code>; the <code>EX-93</code> / <code>EX-96</code> disclosure). Note any other difference.
+4. <strong>Control run, <code>-n 4</code>, without the figure flag:</strong> <code>git add</code> the PNG, then the same line with <code>mpiexec -n 4</code> and no <code>-e FEM_EM_SETUP_FIGURES=1</code>, labelled <code>EX-101-control-n4</code>, predicted [5, 40] s. <strong>The control changes the width on purpose</strong> — <code>-n 4</code> is the width whose partition runs along the sheet (step 1: 9 facets of local-copy excess, <code>GEO-37.md:99, 101</code>), where ghosting is load-bearing. Compare at the band, never bitwise (the <code>EX-91</code> ruling):
+   - integers equal: <code>N_gmsh</code>, owned count, tag set, cells;
+   - (A) / (F) / (I) each inside <code>STRIP_BAND</code> of its closed form at both widths;
+   - (c3), <code>cells_ghost</code>, per-rank counts and the unfiltered sum <strong>differ by design</strong>; printed only.
+5. <strong>Post-censuses:</strong> <code>EX-101-post-figures</code> / <code>EX-101-post-docrefs</code>, the step 1 commands with those labels. Write the prediction first:
+   - figures: <code>examples</code> N → N + 1, <code>ok</code> +1, <code>broken=0</code>;
+   - docrefs: runnable +1, <code>dead=0</code>, <code>guide=0</code>, <code>exit != 1</code>.
+6. <strong>Only if rule (a) was used:</strong> re-run the gate window green in the same slot, <code>scripts/testing/run_and_log.sh EX-101-gate-geo37-s2</code> with step 2's W2 command verbatim (<code>GEO-37.md:136</code>, with <code>tests/environment/test_complex_mode.py</code> as W2's environment path, <code>GEO-37.md:162</code>), <code>-s</code> kept. It contains the deliberate unghosted <code>-n 4</code> leg, which is killed at 45 s by design; the footer is pytest's. <code>pgrep -c python3</code> reads 0 afterwards.</p>
+<p>No pytest window is needed otherwise: the gates are re-read in-script. Any pytest window runs with <code>-s</code> (rule (g)).</p>
+<p><strong>Output.</strong>
+- <strong>Combined XDMF</strong> <code>examples/meshing/paraview_output/meshing_13_interior_sheet_surface_integral_combined.xdmf</code>, written with <code>write_xdmf_with_tags(..., facet_tags=facet_tags)</code> so tags 201 and 101 are a facet block in the same file. Fields (the example has planted fields, so the combined file is required):
+  - <code>g_planted</code>: P1, g interpolated (exact for a linear g);
+  - <code>u_side</code>: DG0, 1 below / 3 above the sheet plane (the (F) / (c3) field);
+  - <code>rank</code>: DG0, each owned cell's MPI rank (<code>x.array[:n_owned] = comm.rank</code>, then <code>scatter_forward()</code>), so a reader can see where the partition cuts the sheet.
+  - <code>adopt_host_ownership</code> after the write, as the precedents do.
+- <strong>Setup figure</strong> <code>examples/meshing/figures/meshing_13_interior_sheet_surface_integral_setup.png</code>. <code>write_setup_figure</code> draws cell regions only (<code>src/fem_em_solver/post/setup_figure.py:180–195</code>; <code>mesh:4</code> titles its sheets "not drawn"), so build a <strong>display-only</strong> cell <code>meshtags</code>: tag 2 = local cells with a facet in tag 201 (both sides, via facet-to-cell connectivity), tag 1 = the rest; sorted unique <code>int32</code> indices. Region names "air box (faces: facet tag 101)" and "tets touching the drawn sheet (facet tag 201)", tag 1 translucent, <code>slice_normal=(0, 1, 0)</code>. Title ≤ 130 characters (<code>MAX_TITLE_CHARS</code>, <code>setup_figure.py:65</code>), e.g. <code>mesh:13 -- a sheet drawn inside a box becomes facet tag 201; tets touching it shown (GEO-37)</code>. The display tags never enter an integral.
+- <strong>Guide.</strong>
+  - The CAD recipe in words and code: draw the face, <code>occ.fragment</code> the box with it so the face is embedded, one dim-2 physical group per sheet, mesh, import. Say that <code>occ.fragment</code> is what makes the face part of the volume mesh (step 1's trap: an unembedded face's triangles are not tet facets, <code>GEO-37.md:66</code>).
+  - The one line a multi-rank user must not miss: build the mesh with <code>GhostMode.shared_facet</code>; the unghosted <code>-n 4</code> assembly hung on this fixture (<code>GEO-37.md:175</code>) — stated as a record, not reproduced.
+  - Three reading rules: reduce owned facets before counting (the printed unfiltered sum shows why); an absent tag integrates to zero silently, so validate tags first; <code>('+')</code> is a cell-order side, so a one-sided integral depends on the partition (the (c3) readings differ between the two runs).
+  - Scope sentences (below), including that the face here is drawn in gmsh in-process, not imported from a STEP file.
+  - ParaView recipe: open the combined XDMF, select the facet block and Threshold on tag 201 to see the sheet; colour the cell block by <code>rank</code>, then by <code>u_side</code> with a slice through y = 0.5.
+  - <code>## Related</code> lists <code>mesh:4</code> (the cut / sliver-pair sheet route this replaces for drawn sheets), <code>tests/mesh/test_geo37_interior_dS.py</code>, <code>tests/mesh/probe_geo37_interior_dS.py</code>, <code>tests/mesh/probe_geo37_interior_facet.py</code> and <code>src/fem_em_solver/ports/definitions.py</code>. Every artifact by full filename (rule (b)).</p>
+<p><strong>(4) Traps already paid for.</strong>
+- <strong><code>dS</code> on an unghosted mesh hangs at the width whose partition runs along the sheet</strong> (<code>PORT-1</code> 3b-iv on 0.7, <code>20260805T034007Z_PORT-1-step3biv-hang-localise-fine.log</code>; reproduced on 0.11 at <code>-n 4</code>, killed at 45 s in both step-2 windows, not localised, <code>GEO-37.md:175</code>). The example passes the <code>shared_facet</code> partitioner, asserts (G) before assembling, and runs no unghosted leg at any width.
+- <strong>If a window hangs anyway</strong> (no footer before the 180 s container timeout): it is killed by <code>timeout -k 30 180</code>; then <code>docker compose exec -T fem-em-solver pgrep -c python3</code> must read 0 before anything else; clear leaked <code>/dev/shm/mpich_shm_*</code> segments (known-issues; <code>GEO-37.md:68</code>); sweep orphan <code>.c</code> only at <code>pgrep</code> 0. Then park and stop (see (6)). Never retry with a longer timeout, never drop to fewer ranks to get a green, never switch ghost mode.
+- <strong>Rank-0 gmsh throw</strong> must be broadcast before the collective import (<code>GEO-23</code>; <code>_raise_geometry_failure_on_every_rank</code>). <code>_build_model</code> already classifies the face at 1e-6 because OCC bounding boxes are padded (<code>GEO-37.md:92</code>).
+- <strong>FFCx compile on a <code>SpatialCoordinate</code> facet integral</strong> without a pinned quadrature degree ran &gt; 9 min and poisoned the cache (<code>POST-5</code> step 1): use the imported <code>QD</code> on every measure.
+- <strong>Interior facets need <code>('+')</code> / <code>('-')</code></strong>; an unrestricted coefficient in <code>dS</code> does not compile.
+- <strong>Rank-local quantities:</strong> <code>assemble_scalar</code>, <code>facet_tags.values</code> and local counts are rank-local; <code>_assemble</code> allreduces; counts use the owned filter and <code>allreduce</code>; cells use <code>size_global</code>.
+- <strong>Collectives on every rank:</strong> the import, <code>_assemble</code>, the <code>meshtags</code> builds, <code>write_xdmf_with_tags</code> and <code>write_setup_figure</code> are collective. Prints go under <code>rank == 0</code> with no collective inside (item 227's deadlock). (V)'s <code>ValueError</code> is caught on every rank.
+- <strong>Docrefs:</strong> name no scratch path or JSON record in guide prose (<code>EX-93</code>'s first post-docrefs exited 1 on a bare filename, <code>EX-97.md:149</code>); write artifacts by full repo-relative filename.
+- <strong>Bare harness calls</strong> only, repo-relative, nothing chained (<code>cd … &amp;&amp;</code>, <code>; date</code>, <code>| tail</code> and redirects are denied by <code>bash_guard.py</code>); <code>-k 30</code> on every container timeout; executors foreground, never nested; Bash <code>timeout: 660000</code>; never delete a log, including a red or footerless one.
+- <strong>Rule (i):</strong> no edit to the script or guide after its last window. Write <code>≈</code>, never <code>~</code>.</p>
+<p><strong>(5) Scope.</strong>
+- <strong>Covered:</strong> one planar rectangle drawn in gmsh in-process, embedded by <code>occ.fragment</code>, h = 0.08, the default partitioner with <code>shared_facet</code> ghosts, real build, <code>-n 2</code> and <code>-n 4</code>: tag arrival, a facet area, a linear and a two-sided piecewise-constant integrand, the exterior instrument, an absent-tag control.
+- <strong>Not claimed:</strong>
+  - <strong>a port</strong>: no port operator, voltage functional, S-parameter or orientation (the <code>PortDefinition</code> call checks tag presence only);
+  - <strong>a STEP import</strong>: U12 (<code>GEO-34</code> step 1d, the STEP with a named port face) is BLOCKED — Gmsh's STEP writer drops the names and the embedded face (PROJECT_PLAN.md:3936);
+  - an unghosted multi-rank run, or why the unghosted leg hangs;
+  - complex-build forms, curved or multi-face sheets, a sheet on a material interface or touching the boundary, other partitioners, <code>xl</code> widths;
+  - anything <code>GEO-37</code> steps 1–2 do not claim.</p>
+<p><strong>(6) Negative result.</strong> If (G), (T), (A), (F), (I), (V), (c1) or (c2) misses, or a window hangs:
+- report the measurement and stop;
+- journal it in <code>docs/testing/attempts.md</code>, park on <code>attempt/EX-101</code>, and mark item 302 BLOCKED with the unblock condition in the same commit (rule (d));
+- leave <code>EX-101</code> ⬜ and never widen a band or edit <code>src/</code> or the probe / gate files (rule (a) aside, as above).</p>
+<p>What each miss means:
+- <strong>(A) / (F) red with (I) green, or a ghosted window that hangs:</strong> contradicts U11's GREEN record at that width — a <code>GEO-37</code> step-2 finding for the review (§7 annotation on <code>GEO-37</code>, a known-issues 9 line), not an example fix.
+- <strong>(T) red:</strong> the owned count ≠ <code>N_gmsh</code> — a facet-distribution defect on the ghosted import, step 1's red branch (the sliver-pair importer, <code>GEO-37.md:77</code>); to the review.
+- <strong>(I), (c1) or (c2) red:</strong> the instrument is wrong; fix the example once before the record window, disclose; still red ⇒ park as above.
+- <strong>(V) does not raise:</strong> a <code>ports/definitions.py</code> regression; stop and report (§6).
+- <strong>Cells or <code>N_gmsh</code> differ from the printed records</strong> with every assertion green: a mesher-version event (rule (1*)), reported for <code>record-reconciler</code>; not a stop, since nothing asserts them.</p>
+<p>A run killed at 180 s is not a result: check orphans and stop. The fallback is a re-queue, never a longer timeout and never an unghosted or narrower substitute.</p>
+<p>No <code>PREDICTED RED:</code> line.</p>
+<p><strong>(7) Status it can move.</strong> The <code>EX-101</code> §7 row moves ⬜ → ✅ (Done-when met, elapsed recorded). Census <code>examples</code> +1 with <code>broken=0</code>; docrefs runnable +1, <code>dead=0</code>, <code>guide=0</code>, <code>exit != 1</code>. The review adds the §7 row in the same commit as this item (rule (j)). This is the first example of a CAD-drawn interior sheet used as an integration surface, so Phase 9 (9b)'s "ports as literal 2D sheets" and (9d)'s "tutorials drawn from <code>examples/</code>" gain a runnable demonstration of the native-tag half; the port half waits for U12.</p>
+<p><strong>Review rulings (2026-10-07 10:30 daily review, item 302).</strong> (1) <strong><code>mesh:13</code></strong>: no collision with items 298–301 (those are <code>mat:14</code> … <code>mat:16</code> and a generator knob). (2) <strong>The control window runs at <code>-n 4</code></strong> (ghosted), where the partition crosses the sheet: accepted. <strong>No unghosted multi-rank leg runs, in either window.</strong> (3) <strong>The planted fields' literals</strong> (g = 2 + 3x + 5y, DG0 values 1 / 3) are inputs, not bands or records. They are imported from the probe by name if it exposes them; otherwise they are restated with a comment citing <code>probe_geo37_interior_dS.py:114, 120</code>. The closed forms <code>I2_CF</code> / <code>I3_CF</code> and <code>STRIP_BAND</code> are always imported. (4) The cell and triangle counts are printed beside their log records, never asserted. (T) asserts the owned count against the same run's <code>N_gmsh</code>. (5) The floor counts it at the example median (7).</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

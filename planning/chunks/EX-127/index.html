@@ -1,0 +1,939 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-127 — mri:28, the 10 g lattice under the four-port drive on the tuned copper F-human: C4 holds at 10 g, the two-port misses, and the spread per radius reads drive anisotropy - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-127-mri28-the-10-g-lattice-under-the-four-port-drive-on-the-tuned-copper-f-human-c4-holds-at-10-g-the-two-port-misses-and-the-spread-per-radius-reads-drive-anisotropy" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-127 — mri:28, the 10 g lattice under the four-port drive on the tuned copper F-human: C4 holds at 10 g, the two-port misses, and the spread per radius reads drive anisotropy
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-505-2026-10-16-example-54-ramp-example-runner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 505 — 2026-10-16 (example, §5.4 ramp; example-runner)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-16-1800-item-505-overrides-the-brief-where-they-differ" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-16 18:00 (item 505; overrides the brief where they differ)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-17-0300-item-505s-block" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-17 03:00 (item 505's block)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-506-2026-10-17-example-54-ramp-re-pose-of-item-505-example-runner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 506 — 2026-10-17 (example, §5.4 ramp, re-pose of item 505; example-runner)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-17-1030-audit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-17 10:30 (audit)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-127-mri28-the-10-g-lattice-under-the-four-port-drive-on-the-tuned-copper-f-human-c4-holds-at-10-g-the-two-port-misses-and-the-spread-per-radius-reads-drive-anisotropy">EX-127 — mri:28, the 10 g lattice under the four-port drive on the tuned copper F-human: C4 holds at 10 g, the two-port misses, and the spread per radius reads drive anisotropy<a class="headerlink" href="#ex-127-mri28-the-10-g-lattice-under-the-four-port-drive-on-the-tuned-copper-f-human-c4-holds-at-10-g-the-two-port-misses-and-the-spread-per-radius-reads-drive-anisotropy" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<p><code>EX-127</code> (<code>mri:28</code>) is opened 2026-10-16 by the 18:00 daily review under daily-review.md step 5. It is the §5.4 ramp from <code>WF-10</code> step 5 (§10 H24, §9 item 422, landed <code>a11ef456</code>, 2026-10-13; <code>docs/planning/chunks/WF-10.md:773–904</code>). <code>WF-10</code> is ✅ on steps 1, 1e and 2; step 5 is a record on it (the <code>WF-10</code> §7 row, "<strong>Step 5 record</strong>").
+- <strong>Base.</strong> <code>tests/validation/test_wf10_f_human_four_port_sar10g.py</code> (the gate module). Its fixture is item 358's <code>build_tuned_quadrature</code> (<code>with_z50=False</code>): the copper (Leontovich) F-human hole mesh, 369 387 cells, degree 1, 64 MHz, κ off, r = 0.2 Ω on all 32 gaps, C at the <strong>two-port</strong> root 118.2437 pF. On it, <code>EX-75</code>'s four-port drive (feeds P17 / P21 / P25 / P29, slots 0 / 4 / 8 / 12 of the feed ring, ccw quadrature phases) runs untuned, and 359's 18-point <code>_lattice</code> is read at 10 g under both drives.
+- <strong>Run of record (gate).</strong> <code>docs/testing/logs/20261013T141801Z_WF-10-step5-W1.log</code> (heavy, <code>-n 8</code>, 6 passed, Status 0, 259 s harness / 255.0 s window, summed RSS 9.93 GiB, <code>:6405</code>, <code>:6481–6482</code>). (C4₄) m = 1 / 2 / 3: 1.8127 / 0.7215 / 0.2645 % (<code>:6395</code>); two-port control 17.3831 / 0.8080 / 16.1396 % (<code>:6396</code>); spread per radius four-port 3.2122 / 4.2668 / 0.7809 % beside two-port 16.7267 / 20.9986 / 18.6041 % (<code>:6398</code>); verdict <code>drive anisotropy</code>, <code>[True, True, True]</code> (<code>:6399</code>). W0 (<code>20261013T141749Z_WF-10-step5-W0.log</code>, <code>-n 1</code>) is the coding test only and is not re-run here.</p>
+<p><strong>Gap (grep at drafting: <code>four_port_sar10g</code>, <code>_c4_misses</code>, <code>_four_port_drive</code>, <code>C4</code> with <code>10 g</code> over <code>examples/**/*.py</code>; no example imports the gate module).</strong>
+- <code>mri:18</code> (<code>examples/mri/18_f_human_four_port_quadrature.py</code>, <code>EX-75</code>) drives this fixture with the four-port and reads only fields: its k-spectrum, <code>|B₁⁺|</code>, C4 / C16 spreads of <code>|B₁⁺|</code> and <code>Y_in</code>. Its docstring says "not 10 g SAR" (<code>:30–31</code>).
+- <code>mri:17</code> (<code>examples/mri/17_f_human_tuned_quadrature_b1_sar.py</code>, <code>EX-109</code>) reads the same 18-point 10 g lattice under the <strong>two-port</strong> drive only. It prints the azimuthal spread (16.7 / 21.0 / 18.6 %) and asserts no C4 identity, because the two-port loading has none.
+- <code>mri:4</code> (<code>examples/mri/04_f_human_sar10g_hotspot.py</code>, <code>EX-62</code>) gates C16 of 10 g SAR at c* on the <strong>σ = 800 S/m <code>WF-7</code> fixture</strong> under the ideal 32-port superposition, with a single-feed control. It is a different fixture and a different drive, with no tuned copper coil and no two-port comparand.
+- <strong>The angle (new):</strong> the drive-dependence of the 10 g C4 covariance on the tuned copper F-human. The same 12 z_c balls (one C4 orbit per radius) pass C4 under the four-port drive and miss it under the clinical two-port. Side by side, the per-radius spreads show that the two-port's 17–21 % azimuthal spread is drive anisotropy, not lattice resolution. No example shows a 10 g quantity under the four-port drive, or a C4 identity that one drive passes and another fails on one set of balls.</p>
+<h3 id="9-item-505-2026-10-16-example-54-ramp-example-runner">§9 item 505 — 2026-10-16 (example, §5.4 ramp; example-runner)<a class="headerlink" href="#9-item-505-2026-10-16-example-54-ramp-example-runner" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-16 18:00 daily review; the review reviews it.</em> <strong>This brief sets and moves no band, tolerance, record, Done-when of another chunk or validation target.</strong> Every band is imported through the gate module's own import lines (<code>test_wf10_f_human_four_port_sar10g.py:36–49</code> at module level, <code>:308–337</code> in the test body).</p>
+<p><code>EX-127</code> (<code>mri:28</code>; the runner selects <code>mri:&lt;n&gt;</code> by the <code>%02d_</code> prefix glob, <code>scripts/run_examples.sh</code>; the <code>mri:</code> group sources the complex build; no runner edit) adds exactly three tracked files and edits nothing else:
+- <code>examples/mri/28_f_human_four_port_sar10g_c4.py</code>;
+- the same-stem guide <code>examples/mri/28_f_human_four_port_sar10g_c4.md</code>, with <code>## 1. What this demonstrates</code>, <code>## 2. How to run it</code>, <code>## Setup figure</code>, <code>## 3. How to analyze it, step by step</code> and <code>## Related</code>;
+- <code>examples/mri/figures/mri_28_f_human_four_port_sar10g_c4_setup.png</code>, ≤ 600 KiB.</p>
+<p>The combined XDMF, its <code>.h5</code> and the CSV go to <code>examples/mri/paraview_output/</code>, which is gitignored (<code>.gitignore:63</code>), and are never committed.</p>
+<p><strong>Collision check (the executor repeats it before writing).</strong> At drafting, <code>ls examples/mri/</code> ends at <code>24_study_tune_then_capacitor_sheets</code>, and no §7 row or chunk file other than this one names <code>EX-127</code> or <code>mri:28</code>. Sibling items opened by this same review may hold <code>mri:25</code>–<code>mri:27</code>; a gap in the prefix numbering is harmless, because the runner globs by prefix. If <code>28_</code> is taken when the slot starts, stop and report. Never renumber in-slot.</p>
+<ul>
+<li><strong>Executor:</strong> <code>example-runner</code>. It does not spawn agents.</li>
+<li><strong>Class:</strong> example, median ≈ 8.8 measured min. <strong>Tier:</strong> heavy, <code>-n 8</code> (the gate's width; <code>comm.size == 8</code> asserted), complex build, runner <code>-t 590</code>, container <code>timeout -k 30 590</code>, durable capture.</li>
+<li><strong>Cost:</strong> ≈ 8.8 measured / ≈ 45 predicted min: 10 fixed + ≈ 12 script + ≈ 2 dry run + ≈ 7 run of record + ≈ 6 guide + ≈ 5 censuses, leak guard and commit + ≈ 3 spare. <strong>Park if window 3 has not started by minute 28</strong> (rule (d)).</li>
+<li><strong>Depends on:</strong> nothing open. Item 422's module (<code>a11ef456</code>, unchanged since) and every imported band are on <code>main</code>. It reads the gitignored <code>logs/wf10/h9p-node-118.2437.json</code> (host mtime 2026-10-13 09:20, written by the gate W1, <code>:6336</code>) and <code>logs/wf12/h12c-cu-s32-a2.npz</code>; both were present at drafting. Absent ⇒ stop, BLOCKED, never a re-solve.</li>
+<li><strong>Never beside another heavy window.</strong> No other heavy, <code>xl</code> or <code>xxl</code> window may be live (pre-check below).</li>
+<li><strong>Shared files.</strong> New paths only; nothing under <code>tests/</code> or <code>src/</code>. <strong>If anything there turns out to be needed, stop and report; do not edit it.</strong></li>
+</ul>
+<p><strong>Imports (never restated).</strong> Insert <code>_REPO_ROOT</code> into <code>sys.path</code>, then <code>import tests.validation.test_wf10_f_human_four_port_sar10g as g5</code>.
+- <strong>From <code>g5</code>'s module namespace:</strong> <code>_four_port_drive</code> (<code>:120–258</code>), <code>_c4_misses</code> (<code>:81</code>), <code>_spreads</code> (<code>:88</code>), <code>_zc_rows</code> (<code>:94</code>), <code>_spectrum_share</code>, <code>_ring_vector</code>, <code>TWO_PORT_ZC_RECORD</code>, <code>TWO_PORT_SPREADS</code>, <code>TWO_PORT_C4_MISSES</code>, <code>VERDICT_FRACTION</code>, <code>PREDICTED_C4</code>, <code>PREDICTED_SPREAD4</code>, <code>PREDICTED_TWO_PORT_REPRO</code>, <code>C4_COVARIANCE_BAND</code>, <code>_rotate_z</code>, <code>LATTICE_R_M</code>, <code>C_IN_F_HUMAN_PF</code>, <code>NODE_JSON</code>, <code>_degree_knob</code>, <code>_signed_k_shares</code>, <code>_lattice</code>, <code>_containment</code>.
+- <strong>The test body's own import lines (<code>:308–337</code>), copied verbatim to the script's module level:</strong> <code>averaging_ball_radius</code>, <code>build_density_field</code>, <code>mass_averaged_sar</code>, <code>mean_sar</code>; <code>global_cell_tag_set</code>; <code>PHANTOM_RHO_KG_PER_M3</code>; <code>F_HUMAN_RING_RADIUS</code>; <code>DISCRETE_IDENTITY_RTOL</code>; <code>EXACT_IDENTITY_RTOL</code>; <code>QUADRATURE_DEGREE</code>, <code>TEN_GRAM_KG</code>; <code>PHANTOM_CELL_TAG</code>; <code>AZIMUTH_MATCH_DEG</code>; <code>REUSE_REPRODUCTION_RTOL</code>; <code>_residual</code>; <code>UNIT_WEIGHT_CONTROL_RTOL</code>; <code>CONDUCTOR_CLEARANCE_M</code>, <code>COVERAGE_BALL_PAD_M</code>, <code>FIRST_BALL_STOP_S</code>, <code>_phantom_geometry</code>; <code>Y0_CODING_BAND</code>; <code>build_tuned_quadrature</code>; <code>_rss_gib</code>.
+- <strong>Identity asserts:</strong>
+  - <code>REUSE_REPRODUCTION_RTOL is tests.validation.test_port_birdcage_ring_matrix.REUSE_REPRODUCTION_RTOL</code> (1e-6). <strong>Two constants carry that name</strong> (<code>EX-114</code>'s 18:00 ruling); the <code>PORT-19</code> one is never imported.
+  - <code>g5.C4_COVARIANCE_BAND is tests.validation.test_birdcage_b1_plus_map.C4_COVARIANCE_BAND</code>.
+- <strong>From <code>src</code> and <code>mri:17</code> / <code>mri:18</code>'s import lines:</strong> <code>write_setup_figure</code>, <code>write_xdmf_with_tags</code>, <code>adopt_host_ownership</code>; <code>PORT_LOWER</code> / <code>PORT_UPPER</code>, <code>CONDUCTOR_CELL_TAG</code> as <code>mri:18</code> imports them. <code>_dg0_vec</code> is copied from <code>mri:17</code> (<code>:190–196</code>, example to example).
+- <strong>Rules.</strong> Never import a <code>test_*</code> name, and never call <code>test_wf10_step5_four_port_sar10g</code>. The script <strong>repeats that body's sequence</strong> (<code>:342–565</code> at <code>a11ef456</code>) through the imported helpers, with a provenance comment naming the commit and span, as <code>mri:17</code> repeats 358 / 359 (<code>mri:17</code> docstring <code>:10–18</code>). Raise if <code>default_scalar_type</code> is not complex.</p>
+<p><strong>Structural asserts at start-up.</strong> <code>comm.size == 8</code>; <code>_degree_knob() is None</code> (<code>FEM_EM_WF10_DEGREE</code> unset: degree 1 only); <code>os.path.exists(NODE_JSON)</code>. Read <code>NODE_JSON</code> on rank 0 <strong>before</strong> the builder and <code>bcast</code> it (<code>:345–354</code>), and assert <code>rec["c_in_pf"] == C_IN_F_HUMAN_PF</code> exactly.</p>
+<p><strong>Record checks (the 2026-10-14 10:30 ruling's form).</strong> Record digits go only into an example-local <code>REC</code> dict, each entry commented with its <code>20261013T141801Z_WF-10-step5-W1.log:&lt;line&gt;</code>. <code>cells</code> is exact (369 387, <code>:6324</code>). Every other string record is compared at a relative tolerance of <code>10^-(d−2)</code>, where d is its printed significant digits. <strong>A record off by more than its tolerance stops the item.</strong></p>
+<table>
+<thead>
+<tr>
+<th>Record</th>
+<th>Value (W1)</th>
+<th>d ⇒ tol</th>
+<th>Line</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>four-port SAR10g, 12 z_c points</td>
+<td>e.g. 9.391419740e-04 … 6.554475109e-03 W/kg</td>
+<td>10 ⇒ 1e-8</td>
+<td><code>:6376–6387</code></td>
+</tr>
+<tr>
+<td>two-port ccw SAR10g, same 12 points</td>
+<td>6.830007305e-04 … 4.063626880e-03 W/kg</td>
+<td>10 ⇒ 1e-8</td>
+<td><code>:6376–6387</code> (= <code>g5.TWO_PORT_ZC_RECORD</code>)</td>
+</tr>
+<tr>
+<td>four-port SAR10g, 6 off-plane points</td>
+<td><code>:6388–6393</code></td>
+<td>10 ⇒ 1e-8</td>
+<td><code>:6388–6393</code></td>
+</tr>
+<tr>
+<td>ball masses</td>
+<td>e.g. 9.994606 g</td>
+<td>7 ⇒ 1e-5</td>
+<td><code>:6339–6368</code></td>
+</tr>
+<tr>
+<td>(C4₄) per m</td>
+<td>1.8127 / 0.7215 / 0.2645 %</td>
+<td>5 / 4 / 4 ⇒ 1e-3 / 1e-2 / 1e-2</td>
+<td><code>:6395</code></td>
+</tr>
+<tr>
+<td>control per m</td>
+<td>17.3831 / 0.8080 / 16.1396 %</td>
+<td>6 / 4 / 6</td>
+<td><code>:6396</code></td>
+</tr>
+<tr>
+<td>spread per radius, four-port</td>
+<td>3.2122 / 4.2668 / 0.7809 %</td>
+<td>5 / 5 / 4</td>
+<td><code>:6398</code></td>
+</tr>
+<tr>
+<td>spread per radius, two-port in-window</td>
+<td>16.7267 / 20.9986 / 18.6041 %</td>
+<td>6</td>
+<td><code>:6398</code></td>
+</tr>
+<tr>
+<td>verdict</td>
+<td><code>drive anisotropy</code>, <code>[True, True, True]</code></td>
+<td>exact string</td>
+<td><code>:6399</code></td>
+</tr>
+<tr>
+<td>c*₄ label and SAR10g(c*₄)</td>
+<td><code>r=45 dz=+0 az17+270</code>, 6.554475109e-03 W/kg</td>
+<td>exact / 10</td>
+<td><code>:6394</code></td>
+</tr>
+<tr>
+<td>P_src,4 / P_phantom,4</td>
+<td>2.102028870e-01 / 1.204416570e-02 W</td>
+<td>10</td>
+<td><code>:6371</code></td>
+</tr>
+<tr>
+<td>four-port k = 0 / bin 15 share</td>
+<td>4.5411e-07 / 0.999450</td>
+<td>5 / 6</td>
+<td><code>:6374</code></td>
+</tr>
+<tr>
+<td>per watt, peak-to-mean, P_phantom/P_src,4</td>
+<td>3.118166e-02 / 1.2031 / 5.729781e-02</td>
+<td>7 / 5 / 7</td>
+<td><code>:6404</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Excluded</strong> from record equality (round-off readings, asserted at their bands only and printed beside their line): (S_rep) 2.578446e-13 (<code>:6337</code>), (X4-P) 3.286e-13 (<code>:6371</code>), (X4-L) 6.920e-16 (<code>:6372</code>), (Σ_P)₄ 0.000e+00 (<code>:6401</code>), (i)₄ 4.219e-15 / 6.994e-15 (<code>:6400</code>), the two-port (P_w) / (Lin) (<code>:6402</code>), and the in-window-vs-359 reproduction 1.912e-10 (<code>:6397</code>). Wall times and RSS are never records. The <code>Y_in</code> row (<code>:6373</code>) is printed at ≤ 6 significant digits and is not a record.</p>
+<p><strong>(1) Anchor — the gate's, asserted at the imported bands.</strong> The assert lines are copied from <code>:546–565</code>, one printed line per anchor, beside its <code>REC</code> entry.</p>
+<table>
+<thead>
+<tr>
+<th>Anchor</th>
+<th>Assertion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(C4₄), the gate</td>
+<td>max over m = 1, 2, 3 of <code>_c4_misses(_zc_rows(sar4, lattice))</code> ≤ <code>C4_COVARIANCE_BAND</code> (5 %)</td>
+</tr>
+<tr>
+<td>builder</td>
+<td>(A0), census, (P_RC) and node NEG, asserted inside <code>build_tuned_quadrature</code></td>
+</tr>
+<tr>
+<td>(S_rep)</td>
+<td><code>_residual(s_node, s_rec)</code> ≤ <code>REUSE_REPRODUCTION_RTOL</code></td>
+</tr>
+<tr>
+<td>two-port</td>
+<td>(P_w) ≤ <code>DISCRETE_IDENTITY_RTOL</code>, (Lin) ≤ <code>UNIT_WEIGHT_CONTROL_RTOL</code>, Y_in ≤ <code>Y0_CODING_BAND</code>, per sense</td>
+</tr>
+<tr>
+<td>four-port construction</td>
+<td>κ off on every sheet; feeds 90° apart within <code>AZIMUTH_MATCH_DEG</code>; feeds 0 / 1 equal the two-port feeds; (X4-K) kinds <code>['solve','held','held','held']</code>; (X4-P) ≤ <code>DISCRETE_IDENTITY_RTOL</code>; (X4-L) ≤ <code>UNIT_WEIGHT_CONTROL_RTOL</code></td>
+</tr>
+<tr>
+<td>(Σ_P)₄, (i)₄</td>
+<td>P_phantom,4 against <code>mean_sar</code>; coverage-ball power and mass; all ≤ <code>EXACT_IDENTITY_RTOL</code>; coverage radius &lt; <code>F_HUMAN_RING_RADIUS − CONDUCTOR_CLEARANCE_M</code></td>
+</tr>
+<tr>
+<td>(iv)</td>
+<td>worst containment ≤ 0 over every ball</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example-side anchors (asserted; imported bands only).</strong> Each is an exact identity.
+- <strong>(O) The 12 z_c balls are one C4 orbit per radius.</strong> For the in-window <code>_lattice(az17, z_c)</code>, max over m of <code>|_rotate_z(row 0, m·π/2) − row m|</code> / max(<code>LATTICE_R_M</code>) ≤ <code>EXACT_IDENTITY_RTOL</code>. This is the gate's coding check (L4)(a) on the actual centres, and the precondition for (C4₄) meaning anything. Predicted ≤ 1e-15.
+- <strong>(X1)₄ / (X1)₂ The DG0 loss maps sum to the phantom power.</strong> <code>loss4 = _dg0_vec(0.5·σ·⟨E₄, E₄⟩·v̄·dx(PHANTOM_CELL_TAG))</code>, summed over owned cells and reduced, equals <code>d4["parts"]["p_phantom"]</code> ≤ <code>EXACT_IDENTITY_RTOL</code>. The same holds for the ccw field against <code>out["parts"]["ccw"]["p_phantom"]</code>. This is <code>mri:17</code>'s (X1) (<code>:396–399</code>), which read round-off on this mesh under the two-port drive; under the four-port drive it is unmeasured, so a red there stops the slot.</p>
+<p><strong>(2) Negative controls (rule (e)).</strong>
+- <strong>Asserted (backed: same comparison, same fixture, same node, same 12 balls):</strong> <code>max(_c4_misses(two-port z_c rows)) &gt; C4_COVARIANCE_BAND</code>. W1 read 17.3831 % at m = 1 (<code>:6396</code>), 3.5× the band, and 359 read the same table (<code>g5.TWO_PORT_C4_MISSES</code>). Only "&gt; band" is asserted, never a factor.
+- <strong>Printed, not asserted — the 180° blindness (predicted):</strong> at m = 2 alone, <strong>both</strong> drives sit inside the band. The prediction is four-port ≈ 0.72 % and two-port ≈ 0.81 % (<code>:6395–6396</code>), so a 180°-only C4 check cannot tell the drives apart, and the gate takes the max over m = 1, 2, 3. The printed line is labelled <code>PREDICTED inside band (printed only)</code>; outside that prediction it is reported, with no status effect.
+- <strong>Printed, not asserted:</strong> the in-window two-port table against <code>g5.TWO_PORT_ZC_RECORD</code>, max rel, beside <code>g5.PREDICTED_TWO_PORT_REPRO</code> (1e-9; W1 1.912e-10).</p>
+<p><strong>Printed only (predictions written in the script before window 3; no band).</strong>
+- <strong>The record: spread per radius</strong>, four-port beside two-port in-window and <code>g5.TWO_PORT_SPREADS</code>, and ⅓ of the latter (5.58 / 7.00 / 6.20 %). Below it the verdict line, built exactly as the gate does (<code>:463–465</code>, <code>g5.VERDICT_FRACTION</code>): predicted <code>drive anisotropy</code> at all three radii. The ratio spread₄ / spread₂ per radius is predicted ≈ 0.19 / 0.20 / 0.04.
+- The 18-point four-port table, and c*₄ (predicted r = 45 mm, z_c).
+- SAR10g(c*₄) per W of P_src,4 beside the two-port's 5.607e-02; peak-to-mean beside 1.309; P_phantom/P_src,4 beside 0.0947 (<code>:6404</code>).
+- The four-port k = 0 / k = −1 shares beside <code>EX-75</code>'s 4.54e-07 / 0.99945.
+- <strong>Price:</strong> build, node pair, four-port solves, ball count, per-ball mean / max, SAR phase, DG0 maps, figure, XDMF, <code>_rss_gib</code> summed, window. Labelled "degree 1, untuned four-port at the two-port root: per-W SAR values are not an absolute or tuned-coil SAR".</p>
+<p><strong>Outputs.</strong>
+- <strong>Setup figure</strong> with <code>mri:18</code>'s call (<code>:267–290</code>): air hidden, phantom translucent, <code>slice_normal=(0, 0, 1)</code> at z_c. The labels come from <code>d4["feeds4"]</code> ("feed P17 (0 deg)" … "feed P29 (270 deg)"; other gaps "C_in + 0.2 Ohm gap"), so the figure is drawn after <code>_four_port_drive</code> returns. Title ≤ 130 characters, e.g. "mri:28 -- tuned copper F-human, four feeds 0 / 90 / 180 / 270 deg at the two-port root: 10 g C4 orbit (WF-10 step 5)". The hole route draws the coil as a void, and the guide says so. Over 600 KiB ⇒ re-render once with <code>show_edges_on_slice=False</code>.
+- <strong>Combined XDMF</strong> <code>examples/mri/paraview_output/mri_28_f_human_four_port_sar10g_c4_combined.xdmf</code> via <code>write_xdmf_with_tags(path, msh, cell_tags, export, comm=comm)</code>. DG0, real, each key equal to its Function's <code>name</code>:
+  - <code>SAR_local_4port_per_W</code> and <code>SAR_local_2port_ccw_per_W</code>: loss / (ρ·vol) on phantom cells with loss &gt; 0, divided by the drive's own P_src, <code>mri:17</code>'s <code>:593–594</code>;
+  - <code>SAR_local_4p_over_2p_per_W</code>: their ratio where both &gt; 0, else 0;
+  - <code>ZcBall</code>: 1–12 = 1 + 3m + radius index on cells whose midpoint is within a₁₀ of a z_c centre, <code>mri:17</code>'s marker loop <code>:596–611</code>;
+  - <code>C4Orbit</code>: 1 / 2 / 3 = radius index on the same cells.
+  - Then call <code>adopt_host_ownership(OUTPUT_DIR, comm=comm)</code>.
+- <strong>CSV</strong> <code>…_zc_rows.csv</code> in the same <code>paraview_output/</code>: label, r, az offset (0 / 90 / 180 / 270), x, y, z, SAR10g four-port, SAR10g two-port, both per W of P_src, mass. Written on rank 0 after every collective.
+- <strong>Guide.</strong>
+  - Why the four-port loading is C4-invariant in CAD (four feeds at Z_th 90° apart, 28 gaps at Z_RC, and ccw weights that pick up a common phase under a 4-slot rotation) and the two-port's is not.
+  - Why each radius's four z_c balls are one C4 orbit, and why the max over m matters (the 180° blindness).
+  - The spread per radius as the record, and how the verdict reads H18's 17–21 % as drive anisotropy rather than lattice resolution (≈ 1.8 cells per 10 g ball on the 0.015 m phantom).
+  - That the four-port drive runs <strong>untuned</strong> at the two-port root, as in <code>EX-75</code>, so its per-W values compare shapes, not tuned SARs.
+  - A ParaView recipe: threshold <code>ZcBall</code> ≥ 1 coloured by <code>SAR_local_4port_per_W</code>, then the same for <code>SAR_local_2port_ccw_per_W</code> on one colour scale; slice z = z_c on <code>SAR_local_4p_over_2p_per_W</code>; group by <code>C4Orbit</code>.
+  - One sentence in <code>## 2</code>: <code>./scripts/run_examples.sh -e mri:28 -n 8 -t 590</code>, heavy, the measured wall time.
+  - <strong><code>Related</code></strong>, by full filename: <code>examples/mri/18_f_human_four_port_quadrature.md</code>, <code>examples/mri/17_f_human_tuned_quadrature_b1_sar.md</code>, <code>examples/mri/04_f_human_sar10g_hotspot.md</code>, then <code>tests/validation/test_wf10_f_human_four_port_sar10g.py</code>, <code>tests/validation/test_wf10_f_human_tuned_sar10g.py</code>.
+  - States plainly: degree 1, one fixture, an untuned four-port, no absolute SAR, no tuning, no compliance claim. Write <code>≈</code>, never a tilde.
+- <strong>Docrefs (the <code>EX-115</code> item 477 lesson).</strong> The checker reduces every <code>.xdmf</code> / <code>.h5</code> / <code>.csv</code> / <code>.json</code> / <code>.png</code> / <code>.msh</code> token to its basename and looks only in the guide's <code>paraview_output/</code> and <code>figures/</code> and the shared <code>paraview_output/</code>. The guide names no output file but the combined XDMF, its <code>.h5</code>, the CSV and the setup PNG. <strong>The node record is named as <code>NODE_JSON</code> in prose, never by its <code>.json</code> filename</strong>, and the npz likewise. Before the census windows, <code>grep -nE "\.(json|msh|bp|npz)\b" examples/mri/28_f_human_four_port_sar10g_c4.md</code> must read nothing.</p>
+<p><strong>(3) Tier and windows.</strong> Heavy, <code>-n 8</code>, complex build.</p>
+<p><strong>Price (from the gate log).</strong> The gate window was 255.0 s (<code>:6405</code>): build 113.5 s, node pair 34.1 s, superposition 7.0 s, four-port solves 29.2 s, partitions 3.5 s, and 30 balls + coverage in a SAR phase of 60.6 s at 1.96 s mean / 2.10 s max per ball. On top of that:
+- two DG0 loss vectors plus their JIT, ≈ 15 s;
+- the five-field DG0 XDMF on 369 387 cells, ≈ 10 s;
+- the setup figure (flagged only), ≈ 20 s (<code>mri:18</code>'s flagged 206 s against its 194 s control);
+- start-up, ≈ 10 s.</p>
+<p><strong>The run of record is predicted at ≈ 310 s harness, range [250, 500] s</strong>, runner <code>-t 590</code>. Summed RSS is predicted ≈ 10.2 GiB (W1 9.93 GiB), ≤ 14 GiB. On 10-15 / 10-16 the host ran ≈ 1.4–2× slow (<code>EX-122</code>'s note), and 1.9× reaches 590 s, <strong>so window 3 uses §5.1's durable-capture idiom</strong> verbatim inside the container command, with the trailing <code>; exit $rc</code>.</p>
+<p><strong>Windows.</strong> Each runs in the foreground with Bash <code>timeout: 660000</code>, as one bare, whole, repo-relative harness call.
+0. <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0 (two heavy windows never at once). Confirm no <code>xl</code> / <code>xxl</code> window is live by reading the last rows of <code>docs/testing/xl-ledger.md</code> / <code>xxl-ledger.md</code> with the Read tool, never a shell command naming that service. Confirm <code>examples/mri/28_*</code> does not exist.
+1. Pre-censuses, run before any file is written:
+   - <code>scripts/testing/run_and_log.sh EX-127-pre-figures "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_setup_figures.py'"</code>
+   - <code>scripts/testing/run_and_log.sh EX-127-pre-docrefs "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py'"</code></p>
+<p>The last reading on <code>main</code> was <code>examples=119 ok=119 missing=0 broken=0</code> (<code>20261016T184441Z_EX-122-post-figures.log:155</code>) and <code>dead=0 guide=0 stale=129</code> exit 2 (<code>20261016T184443Z_EX-122-post-docrefs.log:169</code>). Use what the pre-census reads, because sibling 10-16 items may land first. Exit 2 is staleness information; exit 1 is a failure.
+2. Dry run, after the script exists: <code>scripts/testing/run_and_log.sh EX-127-dryrun "./scripts/run_examples.sh -e mri:28 -n 8 -t 590 --dry-run"</code>. It must print <code>(complex build)</code>.
+3. Run of record, labelled <code>EX-127</code>, flagged. This is the emitted inner command, with <code>-T</code>, the flag and the durable capture:
+   <code>scripts/testing/run_and_log.sh EX-127 "docker compose exec -T -e FEM_EM_SETUP_FIGURES=1 fem-em-solver bash -lc 'cd /workspace &amp;&amp; mkdir -p /workspace/logs &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src timeout -k 30 590 mpiexec -n 8 python3 examples/mri/28_f_human_four_port_sar10g_c4.py &gt; /workspace/logs/EX-127-raw.log 2&gt;&amp;1; rc=\$?; echo [capture] rc=\$rc &gt;&gt; /workspace/logs/EX-127-raw.log; cat /workspace/logs/EX-127-raw.log; exit \$rc'"</code></p>
+<p>Pass means all of the following:
+   - Status 0 and <code>[capture] rc=0</code>;
+   - every gate anchor, (O), (X1)₄ / (X1)₂ and the asserted control green;
+   - every covered record inside its tolerance;
+   - the closing "All assertions hold" line.</p>
+<p>If the dry run's inner string differs from the above in anything but the flag and the capture, use the dry run's and say so.
+4. <code>git add</code> the PNG and check that it is ≤ 600 KiB. <strong>No unflagged control re-run</strong> (<code>EX-122</code>'s ruling: the template asks for one only when a figure is retrofitted, and a second ≈ 5-minute window buys no identity).
+5. Write the guide from window 3's log and run the docrefs grep above. Then <code>EX-127-post-figures</code> and <code>EX-127-post-docrefs</code> (the window 1 commands, relabelled). <strong>Prediction first:</strong> figures N → N + 1, <code>missing=0 broken=0</code>; docrefs <code>dead=0</code>, exit ≠ 1. Any dead reference naming <code>mri_28_*</code> or <code>28_f_human_four_port_sar10g_c4.md</code> fails the item.
+6. <code>git status --porcelain examples/ tests/ src/</code> lists exactly the three new <code>examples/</code> paths.
+7. The pre-commit leak guard runs on the staged logs.</p>
+<p><strong>(4) Traps already paid for.</strong>
+- <strong>Read <code>NODE_JSON</code> before the builder.</strong> <code>build_tuned_quadrature</code> rewrites it (<code>:6336</code>), and (S_rep) compares against the pre-build copy. <code>FEM_EM_WF10_DEGREE</code> must be unset (asserted): at degree 2 the node path becomes <code>-d2</code> and the build is a different, ≈ 5× larger problem (item 459, <code>xl</code> entry 35).
+- <strong>Never hold a factor across an impedance change</strong> (<code>PORT-19</code>). <code>_four_port_drive</code> factorises on its first feed (with the wall) and holds only the next three. Call it unchanged; never reorder it.
+- <strong>Memory:</strong> <code>del out["e"]["cw"], out["e17"], out["e21"]</code> before <code>_four_port_drive</code>, as the gate does (<code>:381–382</code>), and keep <code>out["e"]["ccw"]</code> for the control balls and <code>(X1)₂</code>.
+- <strong>The 180° trap.</strong> m = 2 alone passes <strong>both</strong> drives (0.72 / 0.81 %). The gate and the control take the max over m = 1, 2, 3; never print a single-m verdict.
+- <strong>The gate and the record read the same 12 balls.</strong> A C4 green at 5 % rel L2 still allows spreads up to ≈ 10 %, so the gate does not pre-decide the ⅓ record. Never tighten anything to "help" the verdict.
+- <strong><code>FIRST_BALL_STOP_S</code> (25 s)</strong> reduces the four-port lattice to its 12 z_c points if the first ball trips it. That is pre-registered and not a red; the off-plane records are then reported as not read.
+- <strong>Collectives.</strong> Every rank enters every <code>mass_averaged_sar</code> / <code>mean_sar</code> call (item 227's deadlock). Ball centres go in as plain floats. Wall times are MAX-reduced, so the STOP decision is collective. DG0 sums are owned-only and reduced. No collective goes inside a <code>rank == 0</code> branch (the <code>EX-115</code> item 456 crash). A rank-local exception hangs the job, and Status 124 is a finding, never a retry.
+- <strong>The complex build.</strong> <code>.x.array</code> is complex: masks and ratios are built in numpy, <code>np.real</code> comes before every <code>float</code>, and there is no UFL comparison, <code>max_value</code> or <code>sqrt</code>. Every Function is named (<code>EX-79</code>).
+- <strong>Subscripts (the <code>EX-114</code> <code>KeyError: -1</code>).</strong> <code>sar4</code> / <code>sar2</code> are dicts keyed by lattice label; <code>_zc_rows</code> returns shape (4, 3); <code>_c4_misses</code> returns a dict keyed 1 / 2 / 3. No negative index on a mapping. Read every subscript in the tail against its type before window 3, because the output section runs after every assertion.
+- <strong>The private-leak guard (<code>EX-112</code>).</strong> The copper F-human has private AED counterparts (<code>ANS-8</code>). Print every new value at ≤ 6 significant digits; only the record reprints carry the gate log's digits, which are already tracked. Never print an S, Z or Y array with <code>repr</code>. If the guard fires: never bypass it and never edit a log; move the flagged logs unchanged into <code>logs/leak-held/</code>, commit the rest, mark item 505 BLOCKED, journal the <code>log:line</code> (never the figure), and stop.
+- <strong>Harness shape.</strong> Bare, whole command. <code>./scripts/run_examples.sh</code> runs host-side; take its line from <code>--dry-run</code>, and never wrap the script itself in <code>docker compose exec</code>. A docker-socket denial ⇒ stop and report the exact string. Never raise a timeout or <code>-n</code>. After Status 124 or a kill, run <code>pgrep -c python3</code> first, and only if it reads 0, the orphan-<code>.c</code> cache sweep (daily-review.md rubric 4) labelled <code>EX-127-cache-sweep</code>.
+- <strong>Rule (i):</strong> no script edit after window 3 starts, and no guide edit after window 5 starts. Check mtimes before committing.</p>
+<p><strong>(5) Scope boundary.</strong> One fixture: the copper (Leontovich) F-human hole, 369 387 cells, κ off, degree 1, 64 MHz, <code>-n 8</code>, the 0.015 m phantom, r = 0.2 Ω on all 32 gaps, C at the <strong>two-port</strong> root 118.2437 pF (the four-port drive untuned, as in <code>EX-75</code>). c*₄ is a lattice argmax.</p>
+<p>Not claimed:
+- a four-port tuning, f₀, Q, match, <code>S₁₁</code> / <code>Z_in</code>;
+- an absolute, tuned-coil or pointwise SAR;
+- compliance;
+- an h-statement, or the lattice's own resolution;
+- degree 2 (H27's degree-2 table is not run here);
+- any AED or external check;
+- that the clinical fixture should change (it stays two-port, operator 2026-10-01).</p>
+<p><code>WF-10</code>, <code>EX-75</code> and <code>EX-109</code> do not move.</p>
+<p><strong>(6) What a negative result means.</strong> Report and stop: journal it in <code>docs/testing/attempts.md</code>, park on <code>attempt/EX-127-&lt;UTC&gt;</code>, and mark item 505 BLOCKED with the unblock condition in the same commit (rule (d)). <code>EX-127</code> stays ⬜. Never widen a band, never edit <code>tests/</code> or <code>src/</code>, and never re-record from the example side.
+- <strong>(C4₄) red with (X4-*) green:</strong> <code>main</code> no longer reproduces the gate. Print the 12-point tables beside <code>:6376–6387</code> and file a known-issues entry; never re-band.
+- <strong>Control inside the band:</strong> the in-window two-port field did not reproduce 359's. Print both tables.
+- <strong>A covered record off its tolerance, (S_rep), (A0) or (X4-*) red:</strong> an example / gate divergence or a drifted <code>main</code>. Print the first differing value beside its <code>log:line</code>.
+- <strong>(O), (X1)₄ or (X1)₂ red:</strong> an example-side finding about the lattice centres or the DG0 assembly. Print both sides.
+- <strong>Leak guard fires:</strong> BLOCKED as in the traps, not ✅.
+- <strong>A defect after every assertion is green</strong> (figure, XDMF or CSV; the <code>EX-114</code> shape): BLOCKED with the <code>log:line</code>, returned to the review. No in-slot fix after window 3.
+- <strong>Status 124, over 590 s, or past minute 28 before window 3:</strong> park with the last line of the raw capture log. The shrink is the review's (drop the six off-plane balls and the figure into a separate item); never raise <code>-t</code>.
+- <strong>A verdict other than <code>drive anisotropy</code> with every assertion green</strong> is not possible with the records inside tolerance. If the records hold and the verdict string differs, that is a coding defect in the example's verdict line: BLOCKED.</p>
+<p>There is no <code>PREDICTED RED:</code> line, so any red stops the slot.</p>
+<p><strong>(7) Status it can move.</strong> <code>EX-127</code> ⬜ → ✅ under the §7 Done-when that the review pastes in the same commit as this item (rule (j)). The census rises by one with <code>broken=0</code>, and docrefs read <code>dead=0</code>. <code>WF-10</code> (its step-5 record stands), <code>EX-75</code>, <code>EX-109</code> and §2 are unchanged.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Use the example-runner agent to execute <code>EX-127</code>, §9 item 505 (<code>docs/planning/chunks/EX-127.md</code>, heading <code>§9 item 505</code>).
+- Read the brief and any review ruling beneath it first; the rulings hold.
+- You are the executor — do not spawn agents. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Never background a window. Run every window in the foreground, pass <code>timeout: 660000</code> on every harness Bash call, and never delete a log.
+- Window 3 uses §5.1's durable-capture idiom verbatim inside the container command, with container <code>timeout -k 30 590</code>. An overrun parks the item — never raise a timeout or <code>-n</code>.
+- Before window 1, run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> and require 0. Confirm no heavy, <code>xl</code> or <code>xxl</code> window is live (read the ledgers with the Read tool). Run both pre-censuses before writing any file. Check that <code>examples/mri/28_*</code> is free.
+- Edit nothing under <code>tests/</code> or <code>src/</code>. Import <code>tests/validation/test_wf10_f_human_four_port_sar10g.py</code> as a module and call <code>_four_port_drive</code>, <code>_c4_misses</code>, <code>_spreads</code>, <code>_zc_rows</code>, <code>_lattice</code> and <code>_containment</code> unchanged. Never import a <code>test_*</code> name; repeat the test body's sequence with provenance. Take every band through the gate's import lines, and assert nothing at a band the gate did not use.
+- <code>FEM_EM_WF10_DEGREE</code> stays unset. Read <code>NODE_JSON</code> before <code>build_tuned_quadrature</code>. Delete the cw, E17 and E21 fields before the four-port drive.
+- Every rank enters every ball call. Every count and sum is owned-only and reduced. No UFL comparison or <code>sqrt</code>; no collective inside a <code>rank == 0</code> branch.
+- Print every new value at ≤ 6 significant digits. If <code>check_private_leak.py</code> blocks a log, move it unchanged to <code>logs/leak-held/</code>, mark item 505 BLOCKED (not ✅) and stop. The guide names the node record only as <code>NODE_JSON</code>, never by its filename.
+- Emit the runner line with <code>--dry-run</code> and pass it to the harness. Never wrap <code>run_examples.sh</code> in <code>docker compose exec</code>.
+- No edit to the script after window 3 starts, or to the guide after window 5 starts.
+- If the docker socket is denied, stop and report the exact command string. On a red, park on <code>attempt/EX-127-*</code>, mark item 505 BLOCKED in the same commit, and report.
+- Return the windows' log names, every asserted and printed value beside its record (log:line) or prediction, the census before / after with the docrefs <code>dead=</code> list, peak memory and elapsed."</p>
+<p><strong>Outcome 2026-10-17 03:44Z (22:30 CDT slot): BLOCKED, a defect after every assertion was green (§(6)).</strong>
+- Window 3 (<code>docs/testing/logs/20261017T033328Z_EX-127.log</code>) passed every assertion: (C4₄) 1.8127 / 0.7215 / 0.2645 % (<code>:6222</code>), the control 17.3831 % &gt; band (<code>:6223</code>), verdict <code>drive anisotropy</code> (<code>:6228</code>), (O) 3.084e-16, (X1)₄ / (X1)₂ 2.220e-16 / 6.661e-16, and 68/68 records at max rel 7.962e-05 (<code>:6237</code>). Rank 0 printed "all assertions hold … 263.4 s" (<code>:6293</code>).
+- The tail then crashed. Ranks 1–7 hit an <code>AttributeError</code> at script <code>:603</code>, which formats <code>xdmf_path.name</code> outside <code>if rank0:</code> (<code>:6278–6287</code>). Rank 0 hung to Status 124.
+- Parked on <code>attempt/EX-127-20261017T034400Z</code> (script + PNG). No guide or post-census was written.
+- Unblock: move that print under <code>if rank0:</code>, re-run window 3, then write the guide and run the post-censuses.</p>
+<h3 id="review-ruling-2026-10-16-1800-item-505-overrides-the-brief-where-they-differ">Review ruling 2026-10-16 18:00 (item 505; overrides the brief where they differ)<a class="headerlink" href="#review-ruling-2026-10-16-1800-item-505-overrides-the-brief-where-they-differ" title="Permanent link">&para;</a></h3>
+<p>(1) <strong>Queued:</strong> no example asserts a 10 g quantity under the four-port drive or C4 on the lattice with one drive passing and the other failing (<code>mri:18</code> fields only, <code>mri:17</code> two-port without C4). (2) Heavy, <code>-n 8</code>, <code>-t 590</code>, durable capture, pgrep = 0 first; a timeout parks the item (never a raised limit) and the next review re-poses it (off-plane balls and figure split out). (3) The private-leak rules of <code>EX-118</code> hold: new values at ≤ 6 significant digits; a leak-held log ⇒ BLOCKED. (4) The guide names the node record as <code>NODE_JSON</code>, never by filename.</p>
+<h3 id="review-ruling-2026-10-17-0300-item-505s-block">Review ruling 2026-10-17 03:00 (item 505's block)<a class="headerlink" href="#review-ruling-2026-10-17-0300-item-505s-block" title="Permanent link">&para;</a></h3>
+<p>The 22:30 slot's diagnosis stands, re-read from the log: every assertion green and rank 0's closing line at <code>20261017T033328Z_EX-127.log:6293</code> (263.4 s of script body); ranks 1–7 raise <code>AttributeError: 'NoneType' object has no attribute 'name'</code> at script <code>:603</code> (<code>:6270–6287</code>), because <code>write_xdmf_with_tags</code> returns a path on rank 0 only and the f-string is evaluated on every rank before <code>P</code> filters it; mpiexec then held rank 0 to the 590 s kill (Status 124, <code>:6309–6313</code>). The 591 s is the hang, not the work — no shrink is owed. Not a log-pathologist case: the reading changes no status. <strong>Family count: <code>EX-127</code>, attempt 2 of 4 is item 506</strong> (the two NOT STARTED entries were never attempts). Re-posed as §9 item 506 below.</p>
+<h3 id="9-item-506-2026-10-17-example-54-ramp-re-pose-of-item-505-example-runner">§9 item 506 — 2026-10-17 (example, §5.4 ramp, re-pose of item 505; example-runner)<a class="headerlink" href="#9-item-506-2026-10-17-example-54-ramp-re-pose-of-item-505-example-runner" title="Permanent link">&para;</a></h3>
+<p><strong>Outcome 2026-10-17 09:47Z (04:30 CDT slot): DONE.</strong> One-line rank-0 fix at script <code>:603</code>; window 3 <code>20261017T093909Z_EX-127.log</code> Status 0, 376 s, all assertions and 68 / 68 records green (<code>:6222–6244</code>); figures 123 → 124 <code>broken=0</code>; docrefs <code>dead=0</code>. <code>EX-127</code> ✅ pending audit.</p>
+<p><em>Written by the 2026-10-17 03:00 daily review.</em> Everything in item 505's brief and its 10-16 18:00 ruling holds except where this section differs.</p>
+<ul>
+<li><strong>What changes.</strong> (1) Take the parked script and setup PNG by path from <code>attempt/EX-127-20261017T034400Z</code> (<code>git checkout attempt/EX-127-20261017T034400Z -- examples/mri/28_f_human_four_port_sar10g_c4.py examples/mri/figures/mri_28_f_human_four_port_sar10g_c4_setup.png</code> — code and a figure, not an append-only record, so a path checkout is safe). (2) <strong>The one fix:</strong> put the <code>[output] {xdmf_path.name}</code> print (script <code>:603</code>) under <code>if rank0:</code>. Then read script <code>:584–613</code> line by line for any other expression on a rank-0-only value outside <code>if rank0:</code> (<code>csv_path</code> is built on every rank and is safe; <code>xdmf_path</code> is not) and fix those the same way. Nothing else in the script changes — no anchor, band, record, prediction or print text. Disclose the diff in the commit (expected: one indentation block).</li>
+<li><strong>Windows.</strong> Item 505's windows 1–7 in order, relabelled only where the label must be new: pre-censuses (<code>EX-127-pre-figures-2</code>, <code>EX-127-pre-docrefs-2</code>; <code>main</code> read <code>examples=123 ok=123 missing=0 broken=0</code> and <code>dead=0 stale=132</code> exit 2 after <code>EX-125</code>, <code>20261017T051854Z_EX-125-post-figures.log:159</code>, <code>…051857Z_EX-125-post-docrefs.log:172</code> — use what the pre-census reads), dry run, window 3 with item 505's exact command, PNG check, guide, post-censuses, leak guard. The PNG is regenerated by window 3 (<code>FEM_EM_SETUP_FIGURES=1</code>); commit the regenerated one.</li>
+<li><strong>Price.</strong> Window 3's measured script body is 263.4 s at <code>-n 8</code> (<code>:6293</code>); predicted harness ≈ 280 s, range [250, 500] s, <code>-t 590</code> unchanged. ≈ 8.8 measured / ≈ 35 predicted slot-minutes (no script to write; guide ≈ 6, censuses and commit ≈ 5). Park if window 3 has not started by minute 25.</li>
+<li><strong>Anchor (unchanged).</strong> (C4₄) max over m ≤ <code>C4_COVARIANCE_BAND</code> on the gate's 12 z_c balls; the two-port control &gt; band (asserted, backed by W1 <code>:6395–6396</code>); (O), (X1)₄ / (X1)₂; 68 records. Window 3 of item 505 read them green; this run must reproduce them to the records' tolerances.</li>
+<li><strong>Traps (added).</strong> A path that is <code>None</code> on ranks ≠ 0 must never be dereferenced outside <code>if rank0:</code> — f-strings evaluate before a rank-filtering print helper sees them (this item's cause). Every other trap of item 505 holds.</li>
+<li><strong>Negative result.</strong> Any red other than a repeat of the <code>:603</code> defect: park on <code>attempt/EX-127-*</code>, mark item 506 BLOCKED in the same commit with the <code>log:line</code>, report — attempt 3 of 4 is the next review's. A second tail defect after all-green: the same, and name it.</li>
+<li><strong>Status it can move.</strong> <code>EX-127</code> ⬜ → ✅ under its §7 Done-when (unchanged); figure census +1, <code>broken=0</code>; docrefs <code>dead=0</code>.</li>
+</ul>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Use the example-runner agent to execute <code>EX-127</code>, §9 item 506 (<code>docs/planning/chunks/EX-127.md</code>, headings <code>§9 item 505</code> and <code>§9 item 506</code>; item 506 and the review rulings override item 505 where they differ). You are the executor — do not spawn agents. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Never background a window; pass <code>timeout: 660000</code> on every harness Bash call; never delete a log. Before window 1, run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> and require 0, and confirm no heavy, <code>xl</code> or <code>xxl</code> window is live (read the ledgers and <code>logs/inflight/</code> with the Read tool / ls). Take the script and PNG from <code>attempt/EX-127-20261017T034400Z</code> by path; make only the rank-0 fix(es) item 506 names, and disclose the diff. Edit nothing under <code>tests/</code> or <code>src/</code>. Window 3 is item 505's exact command with durable capture and <code>timeout -k 30 590</code>; an overrun parks the item — never raise a timeout or <code>-n</code>. No edit to the script after window 3 starts, or to the guide after window 5 starts. Print every new value at ≤ 6 significant digits; if <code>check_private_leak.py</code> blocks a log, move it unchanged to <code>logs/leak-held/</code>, mark item 506 BLOCKED and stop. If the docker socket is denied, stop and report the exact command string. On a red, park on <code>attempt/EX-127-*</code>, mark item 506 BLOCKED in the same commit, and report. On success, delete the branch <code>attempt/EX-127-20261017T034400Z</code> in the same slot after the commit. Return the windows' log names, every asserted and printed value beside its record (log:line), the census before / after with the docrefs <code>dead=</code> list, peak memory and elapsed."</p>
+<h3 id="review-ruling-2026-10-17-1030-audit">Review ruling 2026-10-17 10:30 (audit)<a class="headerlink" href="#review-ruling-2026-10-17-1030-audit" title="Permanent link">&para;</a></h3>
+<p><strong>PASS</strong> (<code>auditor</code>; the review re-read <code>20261017T093909Z_EX-127.log:6222–6223</code> and <code>:6249</code>). The run of record has Status 0 in 376 s. (C4₄) max is 1.8127 % ≤ <code>C4_COVARIANCE_BAND</code>; the asserted two-port control is 17.3831 %; 68 / 68 records hold. The fix is one hunk against the parked <code>575ee94c</code>. Census 123 → 124 <code>broken=0</code>; docrefs <code>dead=0</code>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

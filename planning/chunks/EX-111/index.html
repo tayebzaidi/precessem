@@ -1,0 +1,759 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-111 — imp:08, the PEC oblate spheroid (disc edge) in the gel - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-111-imp08-the-pec-oblate-spheroid-disc-edge-in-the-gel" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-111 — imp:08, the PEC oblate spheroid (disc edge) in the gel
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-405-2026-10-12-example-54-ramp-from-imp-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 405 — 2026-10-12 (example, §5.4 ramp from IMP-6 ✅)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-12-1800-daily-on-the-item-405-draft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-12 18:00 (daily) on the item 405 draft
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#closure-audit-2026-10-13-0300-daily-pass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Closure audit 2026-10-13 03:00 (daily) — PASS
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-111-imp08-the-pec-oblate-spheroid-disc-edge-in-the-gel">EX-111 — imp:08, the PEC oblate spheroid (disc edge) in the gel<a class="headerlink" href="#ex-111-imp08-the-pec-oblate-spheroid-disc-edge-in-the-gel" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<p><code>EX-111</code> (<code>imp:08</code>) is opened 2026-10-12 by the 18:00 daily review under daily-review.md step 5 (§5.4 ramp from <code>IMP-6</code> ✅). Its base is <code>IMP-6</code> step 1 (§9 item 404, 2026-10-12 13:30 slot, audit PASS): <code>tests/validation/test_imp6_oblate_fem.py</code>, run of record for aspect 5 <code>docs/testing/logs/20261012T184537Z_IMP-6-step1-W1b.log</code> (heavy, <code>-n 2</code>, 126 s, 13 passed). On <code>IMP-2</code>'s hole route with <code>spheroid_in_box_domain(oblate=True)</code> (a = 6 mm equatorial, c = 1.2 mm, box half-extents (10.5, 10.5, 6) mm, <code>IMP-1</code>'s host σ 0.57 S/m, εᵣ 78, 64 MHz, degree 2), it holds at aspect 5:
+- min SICN 0.3707 after the Netgen pass (<code>:187</code>); 32 676 cells, 41.9 s, 4.06 GiB summed, rim-mask cells 4 905, h_rim/ρ_r 0.665, body-volume deficit −5.777e-03 (<code>:189</code>);
+- (i) β = 1.006343, |β − 1| 0.6343 % ≤ <code>TH15_BETA_BAND</code> 4.886 %; |Im E|/|Re E| 8.516e-03 (<code>:190</code>);
+- (ii) Φ_rim,h = 23.024938 against Φ_rim,cf,h = 22.702995, miss 1.4181 % ≤ <code>MAT4_BAND</code> 10 %; pointwise rim (1/L_x)² = 64.25 (<code>:191</code>);
+- (iii) cavity 19 952 dofs at max |E| 0 (<code>:192</code>);
+- control, same aspect-5 mesh, axial drive (<code>20261012T184748Z_IMP-6-step1-W2.log</code>): β on the in-plane basis −0.001796, |β − 1| 1.0018; β_axial 1.005469 (record); Φ_rim,h 0.491473 against 22.702995, miss 97.8352 % (<code>:189–191</code>).</p>
+<p><strong>Proposed §7 row</strong> (to paste right after the <code>EX-110</code> row; ≤ 2 KB):</p>
+<p>| <code>EX-111</code> | <strong>A disc-edge stand-in in the gel: a flat PEC body's rim concentrates the field only under an in-plane drive, and less than a rod tip of the same curvature</strong> <em>(history and §9 briefs: <code>docs/planning/chunks/EX-111.md</code>)</em> (<code>imp:08</code>; <code>example-runner</code>; opened 2026-10-12 by the 18:00 daily review, §5.4 ramp from <code>IMP-6</code> ✅, §9 item 405; <code>imp:02</code> is the prolate tip, no example builds a flat body) <strong>Done-when:</strong> <code>examples/implants/08_pec_oblate_disc_edge_in_gel.py</code> + same-stem guide (three required headings + <code>## Setup figure</code> + <code>## Related</code>, PNG ≤ 600 KiB); complex, degree 2, <code>-n 2</code>, aspect 5, a = 6 mm; rule (a) lift <code>_solve_oblate(…, *, return_fields=False)</code> in <code>tests/validation/test_imp6_oblate_fem.py</code> (additive), module re-gated green in-slot; every band imported, none restated, no <code>src/</code> edit. Asserted through the imported helper: |β − 1| ≤ <code>TH15_BETA_BAND</code>, rim-ball |Φ_rim,h/Φ_rim,cf,h − 1| ≤ <code>MAT4_BAND</code>, cavity dofs &gt; 0 at max |E| &lt; 1e-12, each beside <code>20261012T184537Z_IMP-6-step1-W1b.log:189–192</code>; the axial drive on the same mesh misses both (&gt; band; W2 <code>:190–191</code>). Printed only: oblate 1/L_x against <code>imp:02</code>'s prolate 1/L_z at aspect 5 and the same 6 mm long semi-axis. Outputs: combined XDMF (DG0 SAR ratios in-plane / closed form / difference / axial, rim mask, CG1 E) and a rim-line CSV of |E| against the closed form. Census +1, <code>broken=0</code>, docrefs <code>dead=0</code>; elapsed recorded ⇒ ✅. Not claimed: a square-edged plate, aspect 2, a coil, finite k, SAR averaging, heating, convergence. | ⬜ Queued §9 item 405. | heavy (<code>-n 2</code>, ≈ 110 s per run, <code>-t 400</code>; re-gate ≈ 250 s, <code>-t 590</code>) |</p>
+<p><strong>Gap.</strong> No example builds a flat body or shows an edge.
+- <code>examples/implants/</code> holds 01 (sphere), 02 (the prolate tip, <code>EX-77</code>), 03–07 (rod in the coil, lead transfer function, lead shaft, insulated lead, lead in the coil). None imports <code>test_imp6_oblate_fem.py</code> or calls <code>pec_oblate_spheroid_field</code>.
+- <code>imp:02</code> shows the tip of an elongated body under an axial field; the edge of a flat body under an in-plane field is the other half of §10's "wires, rods, plates", and the only one with no example.</p>
+<h3 id="9-item-405-2026-10-12-example-54-ramp-from-imp-6">§9 item 405 — 2026-10-12 (example, §5.4 ramp from IMP-6 ✅)<a class="headerlink" href="#9-item-405-2026-10-12-example-54-ramp-from-imp-6" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-12 18:00 daily review; the review reviews it.</em> <strong>This brief sets and moves no band, tolerance, record, Done-when of another chunk or validation target.</strong> Every band is imported from <code>IMP-6</code> step 1's module (which imports them from <code>IMP-1</code>'s).</p>
+<p><code>EX-111</code> (<code>imp:08</code>; <code>examples/implants/</code> holds 01–07, and the runner selects <code>imp:&lt;n&gt;</code> by the <code>%02d_</code> prefix, <code>scripts/run_examples.sh:201–219, :251–252</code>, so <code>08_</code> is <code>imp:8</code> = <code>imp:08</code>; the <code>imp:</code> group sources the complex build, <code>:273–274</code>; no runner edit) adds three tracked files and edits one gate module:
+- <code>examples/implants/08_pec_oblate_disc_edge_in_gel.py</code>;
+- the same-stem guide <code>examples/implants/08_pec_oblate_disc_edge_in_gel.md</code>, with <code>## 1. What this demonstrates</code>, <code>## 2. How to run it</code>, <code>## Setup figure</code>, <code>## 3. How to analyze it, step by step</code> and <code>## Related</code>;
+- <code>examples/implants/figures/implants_08_pec_oblate_disc_edge_in_gel_setup.png</code>, ≤ 600 KiB;
+- the rule (a) lift in <code>tests/validation/test_imp6_oblate_fem.py</code> (below).</p>
+<p><strong>The angle: the edge of a flat body, and how it compares with a tip.</strong> <code>imp:02</code> showed the prolate tip (1/L_z, a point-like hot spot that appears only for the field along the long axis). This example adds three things no example has:
+1. <strong>A flat body's hot spot is its edge, and only under an in-plane field.</strong> Under E₀x̂ the rim field is E₀/L_x (1/L_x = 8.015515 at aspect 5); driven face-on (E₀ẑ) the same disc gives only E₀/L_z = 1.332474 at its flat faces and almost nothing at the rim (W2: Φ_rim 0.49). The asserted control is that axial drive.
+2. <strong>The edge is two hot arcs, not a ring.</strong> Under E₀x̂ the rim's normal field goes as cos φ: maximal at (±a, 0, 0) and zero at (0, ±a, 0) (step 0 records |E(0, ±a, 0)| ≤ 2.2e-16, <code>20261012T183435Z_IMP-6-step0-W1.log:83</code>). Printed on four azimuths, visible in ParaView.
+3. <strong>Edge against tip at the same size and curvature (closed form, printed, not gated).</strong> At aspect 5 with the same 6 mm long semi-axis, <code>imp:02</code>'s prolate tip and this disc rim have the same hot-spot curvature radius (ρ_r = c²/a = ρ_t = a_pro²/c_pro = 0.24 mm) and the same averaging-ball radius (2c²/a = 2a_pro²/c_pro = 0.48 mm). The depolarisation factors are scale-free, so the comparison is a function of aspect alone. Predicted: 1/L_z^pro / 1/L_x^obl = 17.914415 / 8.015515 = <strong>2.2350</strong>, pointwise squares 320.9 / 64.25 = <strong>4.995</strong>; the gate records' ball means 49.805748 / 23.024938 = <strong>2.1631</strong>; ball-mean / pointwise retained fraction 0.155 (tip) against <strong>0.358</strong> (rim). The guide explains it as the edge being curved sharply in one direction only (the rim is line-like, so the field falls off more slowly away from it), and states this as explanation, not a claim.</p>
+<ul>
+<li><strong>Executor:</strong> <code>example-runner</code>. It does not spawn agents.</li>
+<li><strong>Class:</strong> example. <strong>Tier:</strong> heavy, <code>-n 2</code> (the gate's record width), complex build (the <code>imp:</code> group sources it).</li>
+<li><strong>Cost:</strong> ≈ 10 measured (example class median, 10:30 restock table) / ≈ 40 predicted min (10 fixed + ≈ 2 lift + ≈ 12 script + ≈ 8 windows + ≈ 6 guide + ≈ 2 censuses / journal / commit). <strong>Park if the re-gate (window 2) has not started by minute 15, the flagged run (window 4) by minute 28, or the control (window 5) by minute 40</strong> (rule (d)). Price basis:</li>
+<li>The gate's aspect-5 in-plane solve took <strong>41.9 s</strong> including the mesh (W1b <code>:189</code>); the mesh alone is 4.7 s (<code>20261012T184107Z_IMP-6-step1-W0.log:604</code>). The axial control took 41.7 s in its own process (W2 <code>:189</code>), so ≈ 37 s on the cached mesh. Each pytest window is dominated by complex <code>tests/environment</code> (≈ 75 s of W1b's 126 s).</li>
+<li>The nearest example analogue is <code>imp:02</code> (<code>EX-77</code>): two solves of 53 s on 44 304 cells, setup figure 247 KiB, <strong>113 s</strong> flagged / <strong>110 s</strong> control (<code>20261002T052321Z_EX-77.log.gz:117, :123, :133</code>; <code>…052535Z_EX-77-control.log.gz:126</code>). This mesh has 32 676 cells.</li>
+<li>This example adds the rim-line evaluation (2 × 200 points through <code>evaluate_vector_field_parallel</code>, &lt; 2 s), four azimuth points, closed-form DG0 at midpoints (&lt; 2 s) and the XDMF (≈ 3–5 s).</li>
+<li><strong>Flagged run predicted ≈ 100 s, range [70, 220] s; control ≈ 95 s, range [65, 210] s.</strong> Runner <code>-t 400</code> (the <code>EX-77</code> value), container <code>timeout -k 30 400</code>.</li>
+<li><strong>The axial control is kept.</strong> It is the gate's own control (rule (e)-backed by W2), costs ≈ 37 s on the cached mesh (≈ +35 % of the run, not a doubling of the window), and it is the output that shows angle 1 (<code>sar_ratio_axial</code>). A cheaper closed-form-only control (step 0's (c1)) would control the closed form, not the FEM path, and is not substituted.</li>
+<li><strong>Re-gate</strong> (window 2, the whole module at <code>-n 2</code>): <code>tests/environment</code> ≈ 75 s + census ≈ 15 s + aspect-2 solve ≈ 70 s (W1a <code>:428</code>) + aspect 5 ≈ 37 s + axial ≈ 37 s + overhead. <strong>Predicted ≈ 250 s, range [200, 400] s</strong>, container <code>timeout -k 30 590</code>.</li>
+<li>Dry run plus four census windows: ≈ 1 min. Total compute ≈ 8 min. Every window is under 10 min, so the plain runner form is used (no durable capture).</li>
+<li><strong>Depends on:</strong> nothing open. Item 404 is DONE on <code>main</code> (<code>51011ae7</code>). <code>08_</code> is free in <code>examples/implants/</code>, and no row or chunk names <code>EX-111</code>.</li>
+<li><strong>Shared files.</strong> One gate-module edit (the lift), the three new paths, nothing under <code>src/</code>. <strong>If anything under <code>src/</code> turns out to be needed, stop and report; do not edit it.</strong> Never beside another heavy window.</li>
+</ul>
+<p><strong>Code: the rule (a) lift</strong> (standing rule (a): additive, gate re-run green in-slot, disclosed; the <code>EX-77</code> <code>return_fields</code> precedent on <code>_solve_spheroid</code>, <code>tests/validation/test_imp2_spheroid_fem.py:213, :280–295</code>). In <code>tests/validation/test_imp6_oblate_fem.py</code>:
+1. <code>def _solve_oblate(aspect, drive):</code> (<code>:225</code>) → <code>def _solve_oblate(aspect, drive, *, return_fields=False):</code>.
+2. <code>return dict(</code> … <code>)</code> (<code>:290–304</code>) → <code>out = dict(</code> … <code>)</code> with the same keys and values, then <code>if return_fields:  # additive (EX-111, rule (a)): the example reads the solved field</code> / <code>out["fields"] = fields</code>, then <code>return out</code>.
+- Nothing else moves: no band, assertion, print format, test body or helper. <code>git diff</code> on the module shows the signature, the <code>out =</code> rename and the three added lines.
+- The mesh is not lifted: <code>_mesh(aspect)</code> is module-level and cached (<code>:81–97</code>), so the example calls <code>m6._mesh(5.0)</code> and <code>_solve_oblate</code> reuses the same object.</p>
+<p><strong>Imports (never restated).</strong> Use module aliases: both gate modules define <code>SEMI_MAJOR</code>, <code>_mesh</code>, <code>_semi_minor</code>, <code>_probe_points</code>, <code>_owned_masked_cells</code> and <code>_numpy_quadrature_mean</code>.
+- <code>import tests.validation.test_imp6_oblate_fem as m6</code>: <code>SEMI_MAJOR</code>, <code>BOX_HALF_EXTENTS</code>, <code>_semi_minor</code>, <code>_rho_r</code>, <code>_mesh</code>, <code>_rim_mask</code>, <code>_field</code>, <code>_solve_oblate</code>, <code>_rss_gib</code>, and the names it imports (<code>TH15_BETA_BAND</code>, <code>MAT4_BAND</code>, <code>E0</code>, <code>DEGREE</code>, <code>CAVITY_TAG</code>, <code>OUTER_BOUNDARY_TAG</code>, <code>EPSILON_R_HOST</code>, <code>FREQUENCY_HZ</code>, <code>SIGMA_HIGH</code>, <code>oblate_spheroid_depolarisation</code>).
+- <code>import tests.validation.test_imp2_spheroid_fem as m2</code> (closed form only, no solve): <code>SEMI_MAJOR</code>, <code>_semi_minor</code>, <code>_axial_field</code> (the prolate PEC field, <code>:107</code>).
+- From <code>src</code>: <code>prolate_spheroid_depolarisation</code> (<code>fem_em_solver.utils.analytical</code>), <code>write_setup_figure</code>, <code>write_xdmf_with_tags</code>, <code>adopt_host_ownership</code>, <code>evaluate_vector_field_parallel</code>.
+- Insert <code>_REPO_ROOT</code> into <code>sys.path</code> (<code>examples/implants/02_pec_spheroid_tip_in_gel.py:58–60</code>). Raise if <code>default_scalar_type</code> is not complex (<code>:133–138</code>).
+- <strong>Structural asserts at start-up</strong> (the <code>mat:15</code> / <code>mat:18</code> precedent):
+  - <code>m6.TH15_BETA_BAND is m2.TH15_BETA_BAND</code> and <code>m6.MAT4_BAND is m2.MAT4_BAND</code> (both re-exports of <code>IMP-1</code>'s);
+  - <code>m6.SEMI_MAJOR == m2.SEMI_MAJOR == 0.006</code>;
+  - <code>math.isclose(m6._rho_r(5.0), m2._semi_minor(5.0) ** 2 / m2.SEMI_MAJOR, rel_tol=1e-12)</code> (the matched curvature radius the comparison rests on).
+- Record digits go only into an example-local <code>REC</code> dict, each entry commented with its <code>log:line</code> (<code>EX-89</code> item 332 (Q1)). Never assert a record by equality; print it beside the reading.</p>
+<p><strong>(1) Anchor.</strong> <code>ASPECT = 5.0</code>. <code>msh, cell_tags, facet_tags = m6._mesh(ASPECT)</code>; then the setup figure; then <code>d = m6._solve_oblate(ASPECT, "inplane", return_fields=True)</code> and <code>fields = d.pop("fields")</code>. Printed on rank 0, each beside its W1b record at the gate's format spec:
+- <strong>Re-asserted at the imported bands</strong> (the gate's own three assertions, <code>test_imp6_oblate_fem.py:378–382</code>, with example-side messages naming an example/test divergence):
+  - (i) <code>abs(d["beta"] - 1.0) &lt;= m6.TH15_BETA_BAND</code>, record β = 1.006343, 0.6343 % (<code>:190</code>);
+  - (ii) <code>abs(d["phi_h"] / d["phi_cf_h"] - 1.0) &lt;= m6.MAT4_BAND</code>, record 23.024938 / 22.702995, 1.4181 % (<code>:191</code>);
+  - (iii) <code>d["n_cavity"] &gt; 0</code> and <code>d["cavity_max"] &lt; 1e-12</code>, record 19 952 / 0 (<code>:192</code>).
+- <strong>Records, printed, predicted equal at the printed digits</strong> (same code, same width, same image): cells 32 676, rim-mask cells 4 905, h_rim/ρ_r 0.665, body-volume deficit −5.777e-03 (<code>:189</code>); |Im E|/|Re E| 8.516e-03 (<code>:190</code>); the mesher's min SICN line 0.3707 (<code>:187</code>, printed by <code>spheroid_in_box_domain</code> itself). A last-digit difference is reported, not red. A difference beyond the last two printed digits stops the item (Negative result).
+- <strong>Closed form, printed</strong> (<code>oblate_spheroid_depolarisation</code>, <code>prolate_spheroid_depolarisation</code>): at aspect 5, L_x = 0.124758, 1/L_x = 8.015515, (1/L_x)² = 64.25, 1/L_z^obl = 1.332474 (records <code>20261012T183435Z_IMP-6-step0-W1.log:53, :83</code>); the pointwise rim (1/L_x)² beside the ball mean Φ_rim,h, retained fraction Φ_rim,h·L_x² (predicted 0.358).</p>
+<p><strong>(2) Negative control (rule (e), asserted, backed by W2 on the same fixture).</strong> <code>ctl = m6._solve_oblate(ASPECT, "axial", return_fields=True)</code> on the cached mesh, after the in-plane outputs are built (free the in-plane <code>fields</code> first to cap RSS).
+- <code>abs(ctl["beta"] - 1.0) &gt; m6.TH15_BETA_BAND</code>, record β −0.001796, |β − 1| 1.0018 (W2 <code>:190</code>);
+- <code>abs(ctl["phi_h"] / d["phi_cf_h"] - 1.0) &gt; m6.MAT4_BAND</code>, record Φ_rim,h 0.491473, miss 97.8352 % (W2 <code>:191</code>). The miss saturates at 100 %, so only "&gt; band" is asserted (the gate's form is "&gt; 10 %", <code>:422</code>; <code>MAT4_BAND</code> is that 10 %).
+- Printed: β_axial (axial basis) 1.005469 (record, not asserted), cavity dofs and max |E|.</p>
+<p><strong>Printed only (no band; predicted beside measured).</strong>
+- <strong>Edge against tip (closed form; angle 3).</strong> At aspect 5: 1/L_x^obl = 8.015515, 1/L_z^pro = 17.914415 (<code>IMP-2</code> W0 record <code>20261001T201413Z_IMP-2-step1-W0.log:96</code>, as <code>imp:02</code> cites it); ratio predicted 2.2350; squares 64.25 / 320.9, ratio predicted 4.995. Ball means: this run's Φ_rim,h against <code>imp:02</code>'s Φ_tip,h record 49.805748 (<code>EX-77</code> guide; <code>IMP-2</code> W1), ratio predicted 2.1631. Retained fractions predicted 0.358 (rim) / 0.155 (tip). Print ρ_r, ρ_t, 2c²/a and 2a_pro²/c_pro in mm beside them (all predicted 0.24 / 0.24 / 0.48 / 0.48).
+- <strong>Trend table (closed form)</strong>, aspects 1.01 / 2 / 5 / 20 / 100: 1/L_x^obl beside step-0 records 3.0120 / 4.2301 / 8.0155 / 27.0935 / 128.9466 (<code>…183435Z_IMP-6-step0-W1.log:49–57</code>) and 1/L_z^pro beside <code>imp:02</code>'s W0 records 3.024038 / 5.761564 / 17.914415 / 148.168897 (aspect 100: computed, "no record"). Predicted: the prolate tip pulls away with aspect (the disc rim grows ≈ linearly, 4a/(πc); the tip faster).
+- <strong>Azimuth samples (angle 2).</strong> Four points at r = a + ρ_r/2, z = 0, φ = 0°, 30°, 60°, 90°, through <code>evaluate_vector_field_parallel</code> on <code>fields.e_real</code> / <code>e_imag</code>, |E|/E₀ beside <code>m6._field(ASPECT, "inplane")</code> at the same points. Predicted: FEM within a few % of the closed form at each; the closed form falls monotonically from φ = 0° to 90°. A reading, not a red.
+- <strong>Rim line (output 2 and its print).</strong> 200 points on y = z = 0 at x = a + s, s log-spaced in [ρ_r/10, 0.7a] (0.024 → 4.2 mm, so x ≤ 1.7a = 10.2 mm, inside the 10.5 mm wall). FEM |E|/E₀ (from <code>e_real</code>, <code>e_imag</code>) beside the closed form <code>m6._field(ASPECT, "inplane")</code>. Also the prolate closed form along its tip axis at the same s: <code>m2._axial_field(ASPECT)</code> at (0, 0, m2.SEMI_MAJOR + s). Print five rows (s/ρ_r ≈ 0.1, 0.5, 1, 2, 10) and max |rel diff| for s ≥ 2ρ_r. <strong>Predicted</strong>: rel diff largest at s = ρ_r/10 (in [−30 %, +10 %], the faceted rim at h_rim/ρ_r 0.665) and ≤ 2 % for s ≥ 2ρ_r. No assertion; a value outside the prediction is reported, with no status effect.</p>
+<p><strong>Output.</strong>
+- <strong>Setup figure</strong> <code>examples/implants/figures/implants_08_pec_oblate_disc_edge_in_gel_setup.png</code>: <code>imp:02</code>'s <code>write_setup_figure</code> call (<code>02_pec_spheroid_tip_in_gel.py:178–188</code>) on the cached mesh, right after <code>_mesh</code>: host cell tag only (confirm the host tag <code>spheroid_in_box_domain</code> gives the oblate path; <code>imp:02</code> used 2), <code>clip_normal=(0, -1, 0)</code>, <code>slice_normal=(0, 1, 0)</code>, <code>slice_origin=(0, 0, 0)</code> — the x–z slice shows the disc edge-on with both rims graded. Title ≤ 130 characters, e.g. "imp:8 -- PEC oblate spheroid (a = 6 mm, aspect 5) cut out of a gel host: x-z slice, rim graded". If over 600 KiB, re-render once with <code>show_edges_on_slice=False</code> (predicted ≈ 250 KiB, as <code>imp:02</code>'s 247 KiB).
+- <strong>Combined XDMF</strong> <code>examples/implants/paraview_output/implants_08_pec_oblate_disc_edge_in_gel_combined.xdmf</code> through <code>write_xdmf_with_tags(…, msh, cell_tags, fields, comm=comm, facet_tags=facet_tags)</code>:
+  - DG0 <code>sar_ratio_inplane</code> (|E|²/E₀² by <code>fem.Expression(ufl.real(ufl.inner(e, e)) / E0**2, …)</code>, <code>imp:02</code>'s <code>_dg0_sar</code>), <code>sar_ratio_closed_form</code> (numpy at <code>tabulate_dof_coordinates()</code>, <code>m6._field(ASPECT, "inplane", "continue")</code>), <code>sar_ratio_minus_closed_form</code> (the difference, not a ratio: the closed form vanishes near (0, ±a, 0)), <code>sar_ratio_axial</code> (the control), <code>rim_mask</code> (a named copy of <code>m6._rim_mask</code>);
+  - CG1 <code>E_real_inplane</code>.
+- <strong>CSV</strong> <code>examples/implants/paraview_output/implants_08_pec_oblate_disc_edge_in_gel_rim_line.csv</code>, rank 0, one row per point: <code>s_m</code>, <code>s_over_rho_r</code>, <code>x_m</code>, <code>absE_fem_over_E0</code>, <code>absE_closed_form_over_E0</code>, <code>rel_diff</code>, <code>Ex_re_fem_over_E0</code>, <code>Ex_closed_form_over_E0</code>, <code>absE_prolate_tip_closed_form_over_E0</code>.
+- Write the CSV, then the XDMF, then <code>adopt_host_ownership(OUTPUT_DIR, comm=comm)</code> on every rank. Only the PNG is tracked.
+- <strong>Guide.</strong> The required headings, <code>## Setup figure</code> and <code>## Related</code>. <code>Related</code> lists, by full filename (rule (b)): <code>examples/implants/02_pec_spheroid_tip_in_gel.md</code> first, then <code>examples/implants/01_pec_sphere_in_gel.md</code>; <code>tests/validation/test_imp6_oblate_fem.py</code>, <code>tests/validation/test_imp6_oblate_closed_form.py</code>, <code>tests/validation/test_imp1_pec_sphere_lossy_host.py</code>. The guide explains:
+  - the rim enhancement 1/L_x and why the ball mean (≈ 23) sits below the pointwise (1/L_x)² = 64.25;
+  - why face-on drive leaves the rim cold (the axial normal field vanishes at z = 0) and the two hot arcs under in-plane drive;
+  - edge against tip at matched long axis, curvature radius and ball radius (2.235× in field, ≈ 5× pointwise, ≈ 2.16× in ball mean), as explanation;
+  - that a real square-edged plate carries a wedge singularity the smooth spheroid does not, so this is a stand-in, not a plate;
+  - a ParaView recipe: open the combined file, cut y = 0 and z = 0, colour by <code>sar_ratio_inplane</code>, compare <code>sar_ratio_closed_form</code> and <code>sar_ratio_minus_closed_form</code>, then <code>sar_ratio_axial</code>; open the CSV in a Line Chart View and plot <code>absE_fem_over_E0</code> and <code>absE_closed_form_over_E0</code> against <code>s_over_rho_r</code> (log x), with <code>absE_prolate_tip_closed_form_over_E0</code> beside them.
+  - One sentence in <code>## 2. How to run it</code>: <code>./run_examples.sh -e imp:8 -n 2 -t 400</code>, complex build sourced by the runner, heavy, the measured wall time and summed RSS.
+  - Write <code>≈</code>, never a tilde (below).</p>
+<p><strong>(3) Windows.</strong> Each one is foreground with <code>timeout: 660000</code>, and each is one bare, whole, repo-relative harness call, nothing chained or piped.
+0. Orphan check: <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0.
+1. <strong>Pre-censuses, before any file is written:</strong>
+   - <code>scripts/testing/run_and_log.sh EX-111-pre-figures "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_setup_figures.py'"</code>
+   - <code>scripts/testing/run_and_log.sh EX-111-pre-docrefs "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py'"</code></p>
+<p>The last reading was <code>examples=107 ok=107 missing=0 broken=0</code> (<code>20261012T171706Z_EX-110-post-figures.log:143</code>) and docrefs <code>dead=0 guide=0 stale=90 exit=2</code> (<code>…171707Z_EX-110-post-docrefs.log:130</code>). Use what the pre-census reads. Exit 2 is staleness info; exit 1 is a failure.
+2. <strong>The lift, then the re-gate</strong> (the W1b command shape, whole module), predicted ≈ 250 s, range [200, 400] s:
+   <code>scripts/testing/run_and_log.sh EX-111-imp6-regate "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 590 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_imp6_oblate_fem.py -s -v --tb=short'"</code>
+   - Pass: Status 0, every test passed. The census, the two in-plane lines and the control lines equal W0 <code>:501–605</code>, W1a <code>:428–431</code>, W1b <code>:189–192</code> and W2 <code>:189–192</code> at the printed digits (seconds and RSS excepted).
+3. <strong>Dry run</strong>, after the script exists: <code>scripts/testing/run_and_log.sh EX-111-dryrun "./scripts/run_examples.sh -e imp:8 -n 2 -t 400 --dry-run"</code>. It must print <code>(complex build)</code>. Copy its emitted string for windows 4–5, adding only <code>-T</code> (and the flag in window 4). Note its <code>PYTHONPATH=/workspace/src</code> (no <code>:/workspace</code>; the script inserts <code>_REPO_ROOT</code> itself).
+4. <strong>Run of record (flagged)</strong>, predicted ≈ 100 s, range [70, 220] s. The expected form, which must match the dry run apart from <code>-T</code> and the flag:
+   <code>scripts/testing/run_and_log.sh EX-111 'docker compose exec -T -e FEM_EM_SETUP_FIGURES=1 fem-em-solver bash -lc "cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src timeout -k 30 400 mpiexec -n 2 python3 examples/implants/08_pec_oblate_disc_edge_in_gel.py"'</code>
+   - Pass: Status 0; (i)–(iii) and both control asserts green; the records as in (1) and (2); the closing "All assertions hold" line.
+5. <strong>Control:</strong> <code>git add</code> the PNG window 4 wrote, then run the same line without <code>-e FEM_EM_SETUP_FIGURES=1</code>, label <code>EX-111-control</code>. ≈ 95 s, range [65, 210] s. Compare at the bands, never bitwise.
+6. <strong>The guide</strong>, written from window 4's log. Then the post-censuses <code>EX-111-post-figures</code> / <code>EX-111-post-docrefs</code> (window 1's commands with those labels).
+   - <strong>Write the prediction first:</strong> figures N → N + 1, <code>missing=0 broken=0</code>; docrefs <code>dead=0</code>, no new dead reference, exit ≠ 1.
+   - Any dead reference naming an <code>implants_08_*</code> file or <code>08_pec_oblate_disc_edge_in_gel.md</code> fails the item.
+7. <code>git status --porcelain examples/ tests/</code> lists exactly the three new <code>examples/</code> paths and the modified <code>tests/validation/test_imp6_oblate_fem.py</code>.</p>
+<p><strong>(4) Traps already paid for.</strong>
+- <strong>Empty owned slices (<code>EX-110</code> attempt 1, 2026-10-12 06:00).</strong> At <code>-n 2</code> one rank owned no P1 dof of the phantom submesh; <code>np.max(F[-1][:n_own])</code> raised on that rank, and the other rank waited in <code>allreduce</code> until the container kill (Status 124 at 591 s, <code>20261012T110746Z_EX-110.log</code>, parked on <code>attempt/EX-110-item389-20261012T1118Z</code>). <strong>Every owned-slice <code>np.max</code> / <code>np.min</code> in this script carries <code>initial=-np.inf</code> / <code>initial=np.inf</code>; every <code>argmax</code> / <code>argmin</code> / <code>[0]</code> on an owned slice is guarded by a size check; no collective sits inside a <code>rank == 0</code> branch.</strong> Do not assume rank 0 owns cells. A rank-local exception hangs the job instead of failing it. Status 124 is a finding, never a retry.
+- <strong>The SICN trap and the Netgen pass (<code>IMP-6</code> step 1).</strong> Without <code>gmsh.model.mesh.optimize("Netgen")</code> the oblate path gave min SICN 0.0247 at aspect 2 (<code>20261012T183906Z_IMP-6-step1-W0.log</code>); the committed mesher runs the pass on the oblate path, and aspect 5 reads 0.3707. Use <code>m6._mesh(5.0)</code> only. Never call <code>spheroid_in_box_domain</code> with other resolutions, never re-mesh. If window 4 prints a min SICN off 0.3707 beyond its last digit, report it; under 0.1, stop (the mesher moved).
+- <strong>The basis trap is inside the gate.</strong> β is the least-squares amplitude on the <strong>in-plane</strong> scattered field minus E₀<strong>x̂</strong>; <code>IMP-2</code>'s <code>uniform[:, 0 if drive == "transverse" else 2]</code> is inverted for this body. The example takes β from <code>_solve_oblate</code> and never re-derives it.
+- <strong>Points never on a wall.</strong> The rim line starts at s = ρ_r/10 off the true surface (the faceted surface lies inside it) and stops at 1.7a, inside the 1.75a wall. If <code>evaluate_vector_field_parallel</code> returns any point not found, raise with the point (as the gate does, <code>:245–246</code>); do not drop it silently.
+- <strong>No UFL comparisons, no <code>sqrt</code> comparisons.</strong> Masks are numpy (<code>_rim_mask</code> already is). The DG0 SAR expression is <code>imp:02</code>'s, which compiled in the complex build.
+- <strong>Rank safety.</strong> <code>_mesh</code>, <code>_solve_oblate</code>, <code>_rss_gib</code>, <code>write_setup_figure</code>, <code>evaluate_vector_field_parallel</code>, <code>write_xdmf_with_tags</code> and <code>adopt_host_ownership</code> are collective: call them on every rank. <code>_rss_gib</code> stays outside the rank-0 branch (<code>IMP-2</code>'s pre-W0 failure). Only prints and the CSV write are rank-0.
+- <strong>Name every Function</strong>, each XDMF key equal to its Function's <code>name</code> (<code>EX-79</code>'s HDF5 collision cost a window).
+- <strong>Import collisions.</strong> Module aliases <code>m6</code> / <code>m2</code>; never import another example's module (<code>EX-37</code>).
+- <strong>The complex build.</strong> <code>.x.array</code> is complex: CSV and DG0 closed-form arrays take <code>np.real(...)</code> copies; <code>scatter_forward</code> after assigning.
+- <strong>Tildes in the gate's prints.</strong> <code>test_imp6_oblate_fem.py</code> prints <code>predicted &lt;~1.5 %</code>, <code>&lt;~3 %</code> and <code>~0</code> (<code>:368</code>, <code>:375</code>, <code>:412</code>). When quoting them in the guide or the journal, write <code>≲</code> / <code>≈</code>, never a bare tilde. The script's own prints use <code>≈</code> or words.
+- <strong>Harness shape.</strong> Every harness call is the whole Bash command: bare, repo-relative, no <code>cd … &amp;&amp;</code>, no <code>; date</code> / <code>| tail</code>, no redirect (<code>bash_guard</code> rule 3). <code>./scripts/run_examples.sh</code> is host-side: emit it with <code>--dry-run</code> and pass the string to the harness; never wrap it in <code>docker compose exec</code> (Status 127). A docker-socket denial means stop and report the exact command string.
+- <strong>Timeouts and foreground.</strong> Bash <code>timeout: 660000</code> on every window; container <code>timeout -k 30 400</code> (example) / <code>-k 30 590</code> (re-gate); pytest with <code>-s</code>. Never background a harness window (the 2026-09-01 <code>example-runner</code> orphan). Never raise a timeout or <code>-n</code>. After a kill, <code>pgrep -c python3</code> first; only at 0, run the orphan-<code>.c</code> cache sweep (daily-review.md rubric item 4) as one bare call labelled <code>EX-111-cache-sweep</code>.
+- <strong>Re-gate before the example</strong> (rule (a)), and <strong>rule (i)</strong>: no edit to the module after window 2 starts, to the script after window 4 starts, or to the guide after window 6 starts. Check file mtimes against window starts before committing.
+- <strong>PNG ≤ 600 KiB.</strong></p>
+<p><strong>(5) Scope.</strong> One aspect (5), one a (6 mm), degree 2, quasi-static imposed closed-form trace, <code>IMP-1</code>'s homogeneous gel host, one mesh, <code>-n 2</code>. The edge-against-tip comparison is closed form plus two gate records, printed. Not claimed:
+- a square-edged plate (a wedge singularity the spheroid does not carry), a thin plate (aspect ≥ 20 in FEM), aspect 2 in this example;
+- a plate in the coil-driven phantom, finite k, tissue;
+- 1 g / 10 g SAR averaging, heating, ASTM F2182;
+- convergence, or the rim-line pointwise agreement as a gate.
+- <code>IMP-6</code> and <code>IMP-2</code> do not move.</p>
+<p><strong>(6) Negative result.</strong> Report and stop. Journal in <code>docs/testing/attempts.md</code>, park on <code>attempt/EX-111-&lt;UTC&gt;</code>, and mark item 405 BLOCKED with the unblock condition in the same commit (rule (d)). <code>EX-111</code> stays ⬜. Never widen a band, never edit <code>src/</code>, never re-record from the example side.
+- <strong>The re-gate red, or a gate record off W0 / W1a / W1b / W2 beyond its last two printed digits:</strong> the lift moved behaviour, or <code>main</code> drifted. Revert the lift, file a known-issues entry, park.
+- <strong>(i) / (ii) / (iii) red in the example with the re-gate green:</strong> an example/test divergence (wrong mesh object, wrong drive, fields popped before the gate's reductions). Print the first differing value, file the known-issues entry, park.
+- <strong>A control inside its band:</strong> the drive or basis is mislabelled. Stop.
+- <strong>Status 124, over 400 s, or the slot past its park minutes:</strong> park with the last printed line.
+- <strong>A printed value outside its prediction</strong> (rim-line rel diff, azimuth samples, ratios): report it; no status effect.</p>
+<p>No <code>PREDICTED RED:</code> line. A red anywhere stops the slot.</p>
+<p><strong>(7) Status it can move.</strong> <code>EX-111</code> ⬜ → ✅ under the §7 Done-when the review pastes in the same commit as this item (rule (j); this brief matches the row). Census <code>examples</code> +1, <code>broken=0</code>; docrefs <code>dead=0</code>. <code>IMP-6</code> stays ✅. No §2 sentence moves; the §10 Phase 7 "plates" canonical gains its example, which the weekly reads.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Use the example-runner agent to execute <code>EX-111</code>, §9 item 405 (<code>docs/planning/chunks/EX-111.md</code>, heading <code>§9 item 405</code>). Read the brief and any review ruling beneath it first; the rulings hold. You are the executor — do not spawn agents, never background a harness window. Pass <code>timeout: 660000</code> on every Bash call that runs a harness window, run pytest with <code>-s</code>, and never delete a log. The harness call is the whole Bash command — bare, repo-relative, nothing chained or piped. Before window 1, run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> and require 0. Run both pre-censuses before writing any file. The only gate-module edit is the additive rule (a) lift in <code>tests/validation/test_imp6_oblate_fem.py</code> (<code>_solve_oblate(…, *, return_fields=False)</code>), re-gated green (window 2) before the example runs; edit nothing under <code>src/</code> — if something there is needed, stop and report. Use <code>m6._mesh(5.0)</code> only, never re-mesh. Guard every owned-slice reduction with <code>initial=</code>. Emit the runner line with <code>--dry-run</code> and pass it to the harness; never wrap <code>run_examples.sh</code> in <code>docker compose exec</code>. No edit to the module after window 2 starts, to the script after window 4 starts, or to the guide after window 6 starts. If the docker socket is denied, stop and report the exact command string. Return the windows' log names, every asserted and printed value beside its record (log:line) or prediction, the census before / after with the docrefs <code>dead=</code> list, and elapsed."</p>
+<p><strong>Outcome 2026-10-12 19:30 slot — DONE (<code>example-runner</code>).</strong> Pre-census <code>examples=107 missing=0 broken=0</code>, docrefs <code>dead=0 stale=90 exit=2</code>. Lift re-gated: <code>20261013T003042Z_EX-111-imp6-regate.log</code>, Status 0, 16 passed, 237 s, aspect-5 and axial lines equal W1b / W2. Flagged run <code>20261013T003602Z_EX-111.log</code> (Status 0, 86 s): min SICN 0.3707; 32 676 cells / 4 905 rim / 0.665 / −5.777e-03; (i) β 1.006343, 0.6343 %; (ii) 23.024938 / 22.702995, 1.4181 %; (iii) 19 952 / 0 — every record equal at the printed digits; control β −0.001796 (|β − 1| 1.0018), Φ_rim,h 0.491473 (miss 97.8352 %), β_axial 1.005469. Printed: edge-vs-tip 2.2350 / 4.995 / 2.1631, retained 0.358 / 0.155, ρ 0.240 / 0.240 mm — all as predicted. <strong>Outside prediction (reported, no status effect):</strong> rim-line max |rel diff| for s ≥ 2ρ_r 4.51 % (predicted ≤ 2 %; at s = ρ_r/10 +3.75 %, inside [−30, +10] %); azimuth FEM-vs-closed-form +0.59 / +8.66 / +9.65 / +4.63 % at 0 / 30 / 60 / 90° (predicted "a few %"). Control run <code>20261013T003736Z_EX-111-control.log</code> (84 s) reproduces the readings. PNG 233 KiB. Post-census <code>examples=108 ok=108 missing=0 broken=0</code>, docrefs <code>dead=0 guide=0 stale=90 exit=2</code>.</p>
+<h3 id="review-ruling-2026-10-12-1800-daily-on-the-item-405-draft">Review ruling 2026-10-12 18:00 (daily) on the item 405 draft<a class="headerlink" href="#review-ruling-2026-10-12-1800-daily-on-the-item-405-draft" title="Permanent link">&para;</a></h3>
+<p>(Q1) <strong>Opened</strong> under daily-review.md step 5 (§5.4 ramp): <code>IMP-6</code> closed a quantitative gate today (audit PASS, 18:00 review), and no example builds a flat body (<code>imp:02</code> is the prolate tip). The §7 row goes in with this commit. (Q2) <strong>The edge-against-tip comparison matches the two bodies on the 6 mm long semi-axis</strong> (the drafter's reading, accepted): the depolarisation factors depend on aspect only, and the 6 mm match keeps <code>imp:02</code>'s own body and curvature radius. It is printed, never asserted. (Q3) <strong>The rule (a) lift</strong> <code>_solve_oblate(…, *, return_fields=False)</code> is licensed (additive; <code>EX-77</code>'s lift on <code>_solve_spheroid</code> is the precedent); the whole <code>test_imp6_oblate_fem.py</code> module is re-gated green in-slot before the example window. No <code>src/</code> edit. (Q4) <strong>Quality trap (binding, 18:00 ruling R2 in <code>IMP-6.md</code>):</strong> if the cached aspect-5 mesh reads min SICN &lt; 0.1, park; no in-slot mesher fix is licensed. (Q5) <strong>Cost:</strong> ≈ 13 measured (the example class median, five landings) / 40 predicted.</p>
+<h3 id="closure-audit-2026-10-13-0300-daily-pass">Closure audit 2026-10-13 03:00 (daily) — PASS<a class="headerlink" href="#closure-audit-2026-10-13-0300-daily-pass" title="Permanent link">&para;</a></h3>
+<p><code>auditor</code> on <code>459331f0</code> (item 405). Anchors executed in <code>examples/implants/08_pec_oblate_disc_edge_in_gel.py:298–309</code> (controls <code>:377–383</code>) against imported <code>TH15_BETA_BAND</code> / <code>MAT4_BAND</code>; readings at <code>20261013T003602Z_EX-111.log:156–161</code> equal W1b (<code>20261012T184537Z_IMP-6-step1-W1b.log:187–192</code>), axial control <code>:180–181</code>; Exit <code>:190–191</code> (86 s); control run <code>20261013T003736Z_EX-111-control.log:183–184</code> (84 s); re-gate <code>20261013T003042Z_EX-111-imp6-regate.log:313–322, :409, :497–498</code> (16 passed, 237 s); census 107 → 108 (<code>…003031Z…pre-figures.log:143</code>, <code>…003930Z…post-figures.log:144</code>), docrefs <code>dead=0</code> both sides. The rule (a) lift is 7 additive lines, no band touched. Rule (i) holds on mtimes. Caveats accepted: two printed readings outside their predictions (rim-line max 4.51 %, azimuth +9.65 % at 60°), disclosed in the guide, no status effect — they are item 408 / 426's question.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

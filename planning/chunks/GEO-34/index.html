@@ -1,0 +1,1311 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>GEO-34 — STEP import through Gmsh/OpenCASCADE with named-group tagging and a case config file - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#geo-34-step-import-through-gmshopencascade-with-named-group-tagging-and-a-case-config-file" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              GEO-34 — STEP import through Gmsh/OpenCASCADE with named-group tagging and a case config file
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-289-2026-10-06-chain-u12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 289 — 2026-10-06 (chain U12)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-333-2026-10-08-chain-u12a-geo-34-step-1d-probe-mesh-probe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 333 — 2026-10-08 (chain U12a — GEO-34 step 1d probe; mesh-probe)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-985-2026-11-14-10-u12-chain-u-rule-4-the-weeklys-enumerated-step-geo-34-step-1d-re-posed-chain-step-no-solve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 985 — 2026-11-14 (§10 U12′, chain U — rule (4), the weekly's enumerated step; GEO-34 step 1d re-posed; chain step (no solve))
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-996-2026-11-15-geo-34-1e-lane-1-the-11-14-weeklys-target-mesh-probe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 996 — 2026-11-15 (GEO-34 1e, lane 1 — the 11-14 weekly's target; mesh-probe)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="geo-34-step-import-through-gmshopencascade-with-named-group-tagging-and-a-case-config-file">GEO-34 — STEP import through Gmsh/OpenCASCADE with named-group tagging and a case config file<a class="headerlink" href="#geo-34-step-import-through-gmshopencascade-with-named-group-tagging-and-a-case-config-file" title="Permanent link">&para;</a></h1>
+<p><strong>STEP import through Gmsh/OpenCASCADE with named-group tagging and a case config file</strong> — the CAD-input path: complex designs come in as STEP, materials / boundaries / ports are declared on named CAD groups in one config beside the file, and the generator's own tag scheme comes out the other end (operator directive 2026-09-20: no native modeller, ever — CAD in, preflight view, solve) | 🟡 <strong>Step 1a landed 2026-09-23</strong> (<code>20260923T110405Z_GEO-34.log</code>): <code>io/step_import.import_step</code> + JSON group map re-import the Gmsh-OCC-written F-small STEP with the generator's tag census, all four sheet areas at <code>SHEET_AREA_M2</code> to ≤ 2.2e-16, conductor meshed/CAD 0.970165 ≥ 0.95, and both unmapped/empty-group controls raising; 116 662 cells vs the primitive 116 085 (printed, not gated). Steps 1b (<code>PORT-9</code> gates on the import) and 1c (independent kernel) open. <strong>Step 1b attempted 2026-09-25 — negative result, parked</strong> (<code>attempt/GEO-34-step1b-20260925T094541Z</code>, <code>20260925T094541Z_GEO-34-step1b.log</code>, 114 s standard <code>-n 2</code>): on the imported mesh the cyclic pre-gate (iv), reciprocity (i) 1.897e-14 and passivity (ii) σ_max 0.999992218 pass and the P2/P3-swapped control fails (iv) as asserted, but C4 gate (iii′) misses — self 3.3151 %, adjacent 1.1102 %, opposite 2.2713 % against 0.5 %, separation 3.0514× against 10×. The miss is two-fold (x-axis legs ≠ y-axis legs; narrowed sheets 26/26/29/26 facets), so the STEP round trip changes port-level physics beyond the bands. Leading hypothesis: the import loses the port-box triangulation congruence of <code>GEO-19</code> step B (known-issues 2026-09-25). <strong>Rescoped 2026-09-26 03:00 review (family "step 1b": one attempt since 1a's gate; two more queued, so at most one letter remains after them).</strong> Two independent items, bands unmoved: <strong>1b-probe</strong> (§9 item 46, <code>mesh-probe</code>, no solve) reads <code>GEO-31</code>'s sheet-congruence metrics — facet counts, per-facet area vectors, the centroid / boundary-vertex Hausdorff distance to sheet 1 rotated by 90°·(i − 1) — on the primitive ×1 rung and on the import side by side, so the known-issues entry's <em>Cause</em> cell gets a measurement; <strong>1b′</strong> (§9 item 47) is the decisive experiment and the candidate fix: an additive config key through which <code>import_step</code> binds the four imported gap sheets to sheet 1 with <code>gmsh.model.mesh.setPeriodic</code> under <code>_z_rotation_affine</code> — <code>GEO-32</code>'s congruent cut, which took the primitive's 10 MHz degree-2 self spread from 0.4451 to 0.0303 % (<code>ANS-4</code> 3c → 3f) — and then re-runs the parked module on it. A second mechanism is named for a reading of 1b′'s negative, not queued: the import's background field is the conductor Threshold alone (<code>io/step_import.py:224–245</code>), whereas the primitive's is a <code>Min</code> of the conductor Threshold and a phantom <code>Box</code> field (<code>io/mesh.py:4541–4604</code>), so the <em>volume</em> mesh differs too (116 662 vs 116 085 cells). <strong>1b-probe landed 2026-09-26 (item 46, 🧪, <code>20260926T093153Z_GEO-34-step1b-probe.log</code>, 65 s standard <code>-n 2</code>, self-checks (A)/(B) green):</strong> the import keeps the sheets' support and boundary (≤ 3.0e-14 m) but cuts them 66 / 58 / 66 / 58 facets against the primitive's 58 × 4 — a C2 count split matching the Z split, though P1 and P3 are not mutually congruent (d₃ 0.71 ℓ); readout (b) by the numbers, (a) excluded (known-issues 2026-09-25 <em>Cause</em> cell). <strong>Step 1b ✅ 2026-09-26 via 1b′ (§9 item 47, <code>20260926T093715Z_GEO-34-step1bprime.log</code>, 186 s standard <code>-n 2</code>, complex, 19 passed <code>:7643</code>):</strong> <code>import_step</code> gained the additive <code>congruent_sheets</code> config key (each lower/upper pair's post-heal shared face bound to P1's by <code>setPeriodic</code> under the snapped <code>_z_rotation_affine</code>; key absent ⇒ unchanged, rule (c) <code>20260926T094036Z_GEO-34-step1bprime-ruleC.log</code> 4 passed). On the congruent import (116 685 cells, printed): binding held — facet counts 66 × 4, centroid Hausdorff to rotated P1 ≤ 1.001e-14 m against 1e-12 (<code>:5698</code>); (iv) azimuths exact; (i) 4.286e-14; (ii) σ_max 0.999991299; <strong>(iii′) self 0.0349 % / adjacent 0.0223 % / opposite 0.0131 %, separation 259.86×</strong> (<code>:5687</code>), bands unmoved. Asserted negative control: 1a's config on the same STEP reproduces 1b's miss digit for digit (66/58/66/58, self 3.3151 %, <code>:7577–7578</code>); P2/P3-swap control fails (iv) at P2, P3 (<code>:5678</code>). <strong>The sheet cut was the mechanism; the volume-sizing difference is not needed to pass.</strong> Licence: the congruent cut is the import's port convention for <code>PORT-9</code>-class gates — the unconstrained import is not licensed. Rule (a) <code>20260926T094204Z_GEO-34-step1bprime-ruleA.log</code>: 116 085 cells, 0.0553 / 0.0353 / 0.0214 %, 166.6766× identical; ‖S − Sᵀ‖/‖S‖ read 1.065649875e-14 against the 1.044255156e-14 record — a round-off digit this fixture has printed in six earlier logs on unchanged code (8 distinct values across 28 logged readings), not moved by this item (the four-port module's code is 1b's). Steps 1c / 2 / 3 open. <strong>Step 2 ✅ 2026-09-30 (§9 item 118, standard <code>-n 2</code>, real build, no solve):</strong> <code>scripts/run_step_case.py STEP CONFIG --preflight --out DIR</code> → <code>io/step_preflight.write_step_preflight</code> writes <code>preflight.xdmf</code> / <code>.h5</code> (cell tags + one <code>facet_tags</code> grid: wall 1 and sheets 211–214 from the new <code>port_sheets</code> key) and <code>preflight_setup.png</code> on the congruent config. Census read back with xml / h5py / numpy equals C_solve (a second <code>import_step</code> + the solve path's sheet rebuild): counts exact on the 11 cell tags, the wall (3310 facets) and 211–214 (66 × 4), cells 116 685 (printed; primitive 116 085); worst volume / area rel diff 3.553e-15 against 1e-9 (<code>20260930T201605Z_GEO-34-step2-W1.log:5716–5722</code>); file sheet areas / <code>SHEET_AREA_M2</code> − 1 ≤ 1.11e-16 (<code>:5726–5729</code>); (n2) written without <code>facet_tags=</code>, 1 grid, 0 facet grids (<code>:5734</code>); 4 passed, 117 s. (n1, asserted) the preflight from 1a's config is unequal: 116 662 vs 116 685 cells, sheets 66 / 58 / 66 / 58 vs 66 × 4, 13 count mismatches, areas equal to 3.8e-15 (<code>20260930T201805Z_GEO-34-step2-W2.log:5597–5598</code>; 1 passed, 110 s). Stage seconds: export ≈ 28, import + tag ≈ 37, write 0.02, render ≈ 2.7. <strong>Finding (known-issues 2026-09-30):</strong> <code>import_step</code> returns <code>facet_tags = None</code> — its <code>outer_boundary_tag</code> group is empty on this STEP (first W1 <code>20260930T201313Z_GEO-34-step2-W1.log</code>, 2 errors). The preflight therefore tags the wall dolfinx-side as the exterior facets, and prints that it did. The test counts the wall independently (3310 = 3310); the wall area of 0.3072 m² is printed against the model bbox, rel −1.77e-6. Not ratified: the review's † readings. The fallback is <strong>removed; the import's wall group written</strong> (§9 item 119: exterior skin of all volumes, no tolerance; 6 surfaces, 3310 = 3310 owned exterior facets on both configs, ∫ds(1) = 0.3072 m² rel −3.3e-16; <code>20261001T003201Z_GEO-34-wall-W1.log</code>, W2 <code>20261001T003338Z_GEO-34-wall-W2.log:5718–5722</code>), so the wall re-enters step 2's identity. <em>(<strong>Ruled 2026-09-30 18:00 review:</strong> step 2 ✅ stands on the solve path's own groups — the 11 cell tags and sheets 211–214 — with (ii), (n1) and (n2). <strong>The wall leg is a record, not part of the identity</strong> (rule (h)): the solve path's wall group is empty, so "3310 = 3310" compares the preflight's exterior-facet fallback with the test's own exterior-facet count — a writer round trip, not C_file = C_solve. The fallback is kept as a disclosed workaround until the <code>import_step</code> wall predicate is fixed (§9 item 119, which restores the wall to the identity and removes the fallback); the † readings go to the weekly as before.)</em> <strong>Step 2 Done-when (written 2026-09-30 10:30 review, rule (j); §9 item 118; the readings marked † are the review's and are named in the dashboard for ratification):</strong> <code>scripts/run_step_case.py STEP CONFIG --preflight --out DIR</code> († "the runner" is this new entry point, preflight-only — no STEP runner exists today and a solve mode is not step 2's), in the real build and with no solve, writes the combined <code>.xdmf</code> / <code>.h5</code> (cell tags; the outer wall and the four gap sheets as facet tags, † declared by one new config key <code>port_sheets</code>) and the setup PNG for the F-small STEP under the congruent config; the census read back from that file — owned cells and volume per cell tag, facets per facet tag, area per sheet — equals that of an independent <code>import_step</code> on the same STEP and config with the solve path's sheet rebuild (<code>tests/validation/test_port_birdcage_four_port.py:349–352</code>), counts exactly and volumes and areas to 1e-9 relative; each sheet's area in the file is <code>SHEET_AREA_M2</code> within <code>SHEET_AREA_TOL</code>; and the preflight run from 1a's config fails that equality (asserted control). † The file carries the full gap sheet (66 facets), not the f = 0.5 narrowed drive sheet, which is test-level. <strong>Why:</strong> every fixture so far is built from Gmsh primitives inside <code>io/mesh.py</code>; the research coil, implants and anything an HFSS user would bring exist as CAD. The space of open solvers without a CAD path is full; the differentiator is a path that keeps the gates. <strong>Step 1 — import + tag map (standard):</strong> <code>io/step_import.py</code> (additive): <code>import_step(path, config)</code> runs <code>gmsh.model.occ.importShapes</code>, synchronises, and maps the config's named groups — CAD entity names where the STEP carries them, else geometric selectors (bounding box / centroid / axis, the same predicates the generator already uses) — to the project's physical-group tags (volumes: conductor / phantom / air / implant; surfaces: PEC, impedance, port sheets with drive direction and reference impedance); sizing fields per group; returns the same <code>(mesh, cell_tags, facet_tags, diagnostics)</code> tuple the primitive generators return. Config is one YAML/JSON file next to the STEP — the same shape as a Palace config and what an HFSS user thinks in. <strong>Gate (asserted):</strong> the F-small four-leg birdcage rebuilt from a STEP that a new CadQuery/build123d emitter writes from the <em>same</em> parameters (<code>geo/step_emit.py</code>, additive) reproduces, through <code>import_step</code>, the <code>GEO-18</code> CAD identities (meshed/CAD conductor mass ≥ 0.95, terminal-area ratios in the imported band) and <code>PORT-9</code>'s four-port gates at 10 MHz (reciprocity / passivity / C4 spread, imported bands) — <strong>the same identities, not the same cell count</strong>: a STEP round-trip changes the CAD kernel's tessellation, so cell-count records are <em>printed beside the primitive rung's and not asserted</em> (the (1*) licence question is named in the row: mesher-dependent records become routine under STEP, and a re-record needs the reconciler, never this step). <strong>Negative control (asserted):</strong> the config with the port-sheet group deliberately unmapped fails the import with a message naming the missing group — a silent untagged port is the failure a config invites. <strong>Step 2 — preflight export (standard):</strong> <code>--preflight</code> on the runner: mesh, tag, and write the combined XDMF plus the setup figure with materials, boundaries and ports as coloured regions and <em>no solve</em>; gate: the preflight's tag census equals the solve path's on the same STEP. This is the "see what I am doing before I solve" the operator asked for; an interactive viewer (pyvista/trame) is a later <code>EX</code> item, not a product surface. <strong>Step 3 — an external STEP (heavy by prediction, cost probe first):</strong> a STEP not written by our emitter — a 16-leg high-pass birdcage drawn in FreeCAD or CadQuery by the operator with named groups — imported, meshed, port-gated at 10 MHz; the first design that did not come from <code>io/mesh.py</code>. <strong>Not in scope:</strong> editing, a GUI, IGES/STL (STL has no CAD entities to name; a later step if needed). <strong>Sequencing:</strong> independent of the physics chains; step 1 is a slot item once the review costs it (the emitter and importer are pure Gmsh/OCC — measured in seconds on F-small); <code>GEO-33</code>'s strip coil is the first consumer. <strong>Costed and split by the 2026-09-23 03:00 review (§9 item 37):</strong> step <strong>1a</strong> = the STEP round trip, the config's group map and the <em>mesh-level</em> gates only (tag census, <code>GEO-18</code>'s analytic sheet area, the CAD-mass gate; the unmapped-group control) — no solve; step <strong>1b</strong> = <code>PORT-9</code>'s four-port gates at 10 MHz on the imported mesh; step <strong>1c</strong> = the independent-kernel emitter. <strong>Emitter substitution in 1a:</strong> CadQuery / build123d are not in the image (<code>docker/Dockerfile</code>), and adding them is an operator rebuild; 1a emits the STEP with Gmsh's own OCC writer (<code>gmsh.write("….step")</code> on the generator's model before meshing), which exercises the STEP reader, entity renumbering and the group map but not an independent CAD kernel — that independence is 1c's, when the image carries one (the weekly / operator decides). </p>
+<h3 id="9-item-289-2026-10-06-chain-u12">§9 item 289 — 2026-10-06 (chain U12)<a class="headerlink" href="#9-item-289-2026-10-06-chain-u12" title="Permanent link">&para;</a></h3>
+<p><strong>Outcome 2026-10-07 03:30 slot — 🚫 BLOCKED at W0, branches (b) and (c) together</strong> (<code>20261007T034333Z_GEO-34-step1d-W0-names.log</code>, Status 0, 1 s, one rank, gmsh 4.15.2, probe <code>tests/mesh/probe_geo34_step_names.py</code>). The writer reported 396 STEP entities, 18 597 bytes; the strings <code>PortSheet</code> and <code>AirBox</code> occur <strong>0</strong> times in the file text, although both were set by <code>setEntityName</code> and as named physical groups. On re-import the one volume is named with the translator's label (<code>Shapes/Open CASCADE STEP translator 7.6 1/…</code>), every dim-2 name is empty, and there are no physical groups (<code>:47–60</code>). <strong>The embedded 0.48 m² rectangle is gone too:</strong> after import there are only 6 faces, each of area 1.0 (the box skin), <code>getEmbedded</code> is empty, and nothing changes after <code>removeAllDuplicates</code> (<code>:61–74</code>). So Gmsh's own writer cannot author this fixture on this image, whether by name or by geometry. No <code>src/</code> edit and no test were written. There is no geometric-selector substitute (brief rule). Unblock: a STEP from a kernel that writes named, embedded faces, for example <code>cq-python</code> (dashboard item 10, step 1c). After that the weekly re-poses U12. Known-issues entry 2026-10-07.</p>
+<p><em>Drafted by a general-purpose agent for the 2026-10-06 18:00 daily review; the review reviews it.</em> Licence: §10 U12 (grep "U12. <code>GEO-34</code> step 1d"), quoted, not changed: "A STEP from Gmsh's own OCC kernel (the operator's independent-kernel STEP is step 1c, dashboard item 10, and stays open): one box, one named interior rectangle; the config maps the name to <code>port</code>; the importer tags it natively (U11) and the meshed area equals the CAD rectangle at <code>STRIP_BAND</code> at <code>-n 1 / 2 / 4</code>. Target: CAD identity. Serial on U11." U11 landed green as item 267 (<code>f0144df2</code>): the native interior tag works <strong>on a <code>shared_facet</code>-ghosted mesh</strong>, and the unghosted <code>-n 4</code> leg hangs. <strong>No band, tolerance, Done-when or validation target is set or moved.</strong></p>
+<p><strong><code>GEO-34</code> step 1d: a named interior STEP face becomes a port tag through <code>import_step</code>.</strong>
+- <strong>Executor:</strong> implementer. It makes an additive <code>src/</code> change (<code>io/step_import.py</code>) and adds tests. Spawn prompt: "Use the implementer agent to execute <code>GEO-34</code> step 1d (§9 item 289) per <code>docs/planning/chunks/GEO-34.md</code> § '§9 item 289'; W0 first, before any code."
+- <strong>Tier:</strong> standard by ceiling (180 s), smoke-sized by prediction. The fixture is item 222's: 10 150 tets, import 0.14 s, item 267's W2 56 s for seven launches. <code>-n 1 / 2 / 4</code>, real build (every integrand is real).
+- <strong>Class:</strong> chain step (solve). <strong>Time:</strong> ≈ 9 measured / ≈ 45 predicted min (15 fixed + ≈ 20 code + W0 ≈ 1 + W1 ≈ 1.5 + W2 ≈ 2 + ≈ 5 spare).
+- <strong>Depends on:</strong> U11 (item 267), landed. Nothing open.</p>
+<p><strong>The importer today</strong> (<code>src/fem_em_solver/io/step_import.py</code>, read 2026-10-06).
+- <code>import_step</code> claims <strong>volumes only</strong>, by geometric selectors (<code>claim_volumes</code>, <code>:108</code>).
+- The only surface groups it writes are the optional <code>outer_boundary_tag</code> (<code>:196–240</code>) and the <code>congruent_sheets</code> binding (<code>:328</code>). It reads <strong>no STEP entity names</strong>.
+- It already distributes through <code>_model_to_mesh</code> with <code>GhostMode.shared_facet</code> (<code>:411–417</code>), so U11's ghost requirement holds by construction. The step must not add a path that meshes unghosted.
+- The preflight's <code>port_sheets</code> key (<code>io/step_preflight.py:12</code>) rebuilds sheets dolfinx-side from volume pairs (<code>between</code>). It is not a native tag and is not touched here.</p>
+<p><strong>W0 — name survival (decides the item; run before any code).</strong> It is unknown whether Gmsh 4.15.2's OCC STEP writer carries a face's name, and whether <code>importShapes</code> surfaces it through <code>gmsh.model.getEntityName</code>. Nothing in the repo has measured this; <code>scripts/maintenance/install_cadquery_image.sh:111</code> prints names only for a CadQuery file.
+- Probe <code>tests/mesh/probe_geo34_step_names.py</code> (not collected; committed as the record). On one rank:
+  1. Item 222's box plus rectangle: import <code>RECT</code> / <code>RECT_AREA</code> / <code>H</code> from <code>tests/mesh/probe_geo37_interior_facet.py</code>; <code>occ.fragment([(3, box)], [(2, rect)])</code>.
+  2. Name the rectangle <code>PortSheet</code> <strong>both</strong> ways: <code>gmsh.model.setEntityName(2, s, "PortSheet")</code> and a dim-2 physical group <code>setPhysicalName(2, 201, "PortSheet")</code>. Name the volume <code>AirBox</code> the same two ways.
+  3. <code>gmsh.write(&lt;tempfile.mkdtemp(prefix="geo34_1d_")&gt;/box_port.step)</code>, then finalize.
+  4. Re-open with a fresh session and <code>occ.importShapes</code>. Print <code>getEntityName</code> for every dim-2 / dim-3 entity, the face count, and each face's bbox and <code>getMass</code> area, both <strong>before and after</strong> <code>occ.removeAllDuplicates()</code>. Also print whether the 0.48 m² face is in the volume's <code>getBoundary</code> (embedded) or free.
+- Command:</p>
+<p><code>scripts/testing/run_and_log.sh GEO-34-step1d-W0-names "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 10 30 python3 tests/mesh/probe_geo34_step_names.py'"</code>
+- <strong>Branches:</strong>
+  - <strong>(a)</strong> A face named <code>…PortSheet</code> (exact, or as the last <code>/</code>-separated component, since OCC labels can carry an assembly path) exists after import, with area 0.48 to 1e-12. Proceed. Record which naming route survived and whether the name also survives <code>removeAllDuplicates</code>.
+  - <strong>(b)</strong> No name survives. <strong>Stop:</strong> commit the probe and log as a record, journal the attempt, mark BLOCKED. The finding is that Gmsh's writer cannot author a named STEP on this image. A geometric selector is not "a named face", so the review re-poses U12 (for example onto <code>cq-python</code> once dashboard item 10 lands). Do not substitute a bbox selector.
+  - <strong>(c)</strong> The name survives but the face is not re-embedded after <code>removeAllDuplicates</code> (free face, or two faces). Stop as in (b), with that finding.</p>
+<p><strong>Code (on W0 branch (a) only).</strong>
+1. <strong><code>io/step_import.py</code>, additive config key <code>surface_groups</code>:</strong> <code>[{"name": "port_1", "step_name": "PortSheet", "role": "port", "tag": 201}, …]</code>. If the key is absent, the import is byte-identical (rule (c), W2).
+   - <strong>Resolve names before healing.</strong> Right after <code>importShapes</code> + <code>synchronize</code> and <strong>before</strong> <code>removeAllDuplicates</code>, map each <code>step_name</code> to its dim-2 entities by <code>getEntityName</code> (exact, or last path component), and record each face's bbox and <code>occ.getMass(2, ·)</code> area. Entity tags renumber under <code>removeAllDuplicates</code>, so a pre-heal tag is never used afterwards.
+   - <strong>After the heal,</strong> re-find each face among the post-heal dim-2 entities: bbox equal per coordinate to 1e-6 (the OCC padding trap, item 222 W1) and area equal to 1e-12 relative. Require exactly one match.
+   - <strong>Errors</strong> are <code>ValueError</code>, raised on the building rank and re-raised on every rank by the existing broadcast. They cover:
+     - a <code>step_name</code> absent from the file (the message names it and lists the names present);
+     - zero or several post-heal matches;
+     - a <code>role</code> other than <code>"port"</code> (the only role this step licenses);
+     - a tag colliding with a volume tag or <code>outer_boundary_tag</code>.
+   - Then <code>addPhysicalGroup(2, [s], tag)</code> and <code>setPhysicalName(2, tag, name)</code>.
+   - <strong>Diagnostics</strong> gain <code>surface_groups: {name: {"tag", "role", "step_name", "surface", "cad_area", "n_triangles"}}</code>. <code>n_triangles</code> is read after <code>generate(3)</code> from <code>gmsh.model.mesh.getElements(2, s)</code>.
+   - The module docstring's config block gains the key.
+2. <strong>Config</strong> <code>tests/mesh/data/geo34_step1d_port_sheet.json</code>:
+   - <code>resolution</code> = item 222's <code>H</code> (0.08; the test asserts equality, as <code>test_config_sizes_are_the_gates</code> does);
+   - one volume group <code>air</code> (tag 1, <code>bbox_contains</code> the unit box's interior point box);
+   - <code>outer_boundary_tag</code> 101;
+   - <code>surface_groups</code> <code>[{"name": "port_1", "step_name": "PortSheet", "role": "port", "tag": 201}]</code>.
+3. <strong>Test</strong> <code>tests/mesh/test_step_import_port_sheet.py</code>, real build, any width.
+   - A module fixture writes the STEP on rank 0 into a <code>tempfile.mkdtemp(prefix="geo34_1d_")</code> directory, broadcast as <code>test_step_import.py:113–117</code> does. The writer is W0's naming route, factored into a function and imported from the probe. The STEP is never written into the tree.
+   - Then <code>import_step(step, CONFIG, comm)</code>.</p>
+<p><strong>Anchors (asserted at every width; <code>STRIP_BAND</code> = 1e-9 imported from <code>tests/validation/test_ops61_exact_strip_ports.py:58</code>).</strong>
+- <strong>(P0) ghosts:</strong> <code>comm.allreduce(index_map(3).num_ghosts)</code> is &gt; 0 at <code>-n 2 / 4</code> and 0 at <code>-n 1</code>. The width's <code>cells_ghost</code> is printed. This is U11's precondition, checked on the imported mesh.
+- <strong>(P1) CAD identity:</strong> the owned tag-201 facet area (numpy triangle areas over facets with index &lt; <code>index_map(2).size_local</code>, <code>allreduce</code>d) satisfies |A/<code>RECT_AREA</code> − 1| ≤ <code>STRIP_BAND</code> and |A/diagnostics <code>cad_area</code> − 1| ≤ <code>STRIP_BAND</code>.
+- <strong>(P2) completeness:</strong> the reduced owned tag-201 facet count equals diagnostics <code>n_triangles</code> exactly. Every tag-201 facet has two incident cells on the ghosted mesh: the one-sided count, reduced, is 0. That proves the face is embedded, not a skin.
+- <strong>(P3) the port form (U11):</strong> <code>assemble_scalar(form(1 * dS(201)))</code>, allreduced, with <code>metadata={"quadrature_degree": 2}</code>, satisfies |I/<code>RECT_AREA</code> − 1| ≤ <code>STRIP_BAND</code>.
+- <strong>(P4) the role reaches the port layer:</strong> the globally reduced facet-tag set is {101, 201}, and <code>validate_required_port_tags_exist</code> (<code>ports/definitions.py:82</code>) passes on 201 with that set.</p>
+<p><strong>Negative controls (rule (e)).</strong>
+- <strong>(n1) asserted, unknown name:</strong> the same STEP with <code>step_name</code> <code>"PortSheetX"</code> raises <code>ValueError</code> on every rank, and the message contains <code>PortSheetX</code>. This is the "silent untagged port" failure the config invites (1a's unmapped-group control, for faces).
+- <strong>(n2) asserted, the mapping makes the tag:</strong> the same STEP with <code>surface_groups</code> removed imports, and its reduced tag set lacks 201. So the tag comes from the config, not from any physical group or label the STEP carries (W0 records which ones survive).
+- <strong>(n3) asserted, the comparator is not blind:</strong> re-tag 201 without its first owned facet on the lowest owning rank (item 267's (c2)). |A′/<code>RECT_AREA</code> − 1| &gt; <code>STRIP_BAND</code>. The ceiling is ≈ 1/<code>n_triangles</code> (item 267: −4.5e-3 / −5.1e-3), ≈ 10⁶ × the band.</p>
+<p><strong>Predictions</strong> (printed): (P1) / (P3) residuals ≤ 1e-14 (item 267: ≤ 1.6e-15); <code>n_triangles</code> near 192 (item 222's count on the primitive). The count is printed, not asserted against 192, because a STEP round trip may move the tessellation (1a's licence). There is no <code>PREDICTED RED:</code> line.</p>
+<p><strong>Windows</strong> (each bare, whole and foreground; Bash <code>timeout: 660000</code>; <code>-s</code>; pytest is the last command of each launch).
+- <strong>W0:</strong> above (≈ 5–15 s).
+- <strong>W1</strong> (closing). Widths are chained with <code>&amp;&amp;</code> so the footer carries the first failure. <strong><code>tests/environment</code> is narrowed to <code>test_complex_mode.py</code></strong>: item 267's W1 lost its whole 30 s pytest ceiling to <code>test_dolfinx_api_migration.py</code>'s repository scan.</p>
+<p><code>scripts/testing/run_and_log.sh GEO-34-step1d-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 10 60 mpiexec -n 1 python3 -m pytest tests/environment/test_complex_mode.py tests/mesh/test_step_import_port_sheet.py -v -s --tb=short &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 10 60 mpiexec -n 2 python3 -m pytest tests/mesh/test_step_import_port_sheet.py -v -s --tb=short &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 10 60 mpiexec -n 4 python3 -m pytest tests/mesh/test_step_import_port_sheet.py -v -s --tb=short'"</code></p>
+<p>Predicted 25–60 s.
+- <strong>W2, rule (c): the key-absent path is unchanged.</strong> It runs 1a's module at <code>-n 2</code>. The precedent is the 1b′ rule-(c) window, 85 s, 4 passed (<code>20260926T094036Z_GEO-34-step1bprime-ruleC.log</code>).</p>
+<p><code>scripts/testing/run_and_log.sh GEO-34-step1d-W2-ruleC "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/mesh/test_step_import.py -v -s --tb=short'"</code>
+- No edit after W1 starts (rule (i)). If W2 must follow an edit, W1 is re-run.</p>
+<p><strong>Traps already paid for.</strong>
+- <strong>Unghosted <code>dS</code> hangs at <code>-n 4</code></strong> (item 267 (c3); 2026-08 <code>PORT-1</code> 3b-iv). Mesh only through <code>import_step</code>, which ghosts. Never call <code>_model_to_mesh</code> with the default partitioner in this test.
+- <strong>OCC bbox padding ≈ 1e-7:</strong> match at 1e-6 and guard with the exact area (item 222 W1).
+- <strong>Pre-heal tags die in <code>removeAllDuplicates</code>:</strong> resolve names before the heal, then re-find faces by geometry.
+- <strong>Rank-local reads:</strong> <code>allreduce</code> every count, area and <code>assemble_scalar</code>. Gather the tag set before the validator (<code>OPS-14</code>). Use the owned filter <code>index_map(2).size_local</code>.
+- <strong>A rank-0 gmsh throw must reach every rank before the collective:</strong> reuse <code>import_step</code>'s broadcast, never a rank-0-only raise (<code>GEO-23</code>).
+- <strong>A <code>SpatialCoordinate</code>-free measure still needs a pinned quadrature degree</strong> on gmsh meshes (<code>POST-5</code>).
+- <strong>One gmsh session at a time in a process:</strong> finalize the writer's session before <code>import_step</code> initializes its own.
+- <strong>After a kill:</strong> run <code>pgrep -c python3</code> first, then clear <code>/dev/shm/mpich_shm_*</code> (known-issues). Run the orphan-<code>.c</code> sweep only at <code>pgrep</code> 0.
+- No pipes. <code>PYTHONPATH</code> carries <code>:/workspace</code>. Write ≈, never <code>~</code>.</p>
+<p><strong>Scope.</strong> Covered: one planar rectangle in one box from Gmsh's own OCC writer; a name-to-<code>port</code> mapping; the native tag on the ghosted import at <code>-n 1 / 2 / 4</code>; area, completeness and <code>dS</code> against the CAD rectangle. <strong>Not claimed:</strong>
+- an independent-kernel STEP (1c);
+- any port solve, S or F14 integration line;
+- roles other than <code>port</code> (PEC / copper / lumped sheets);
+- curved, multi-face or interface sheets;
+- the F-small STEP (U13);
+- the preflight's facet grid for <code>surface_groups</code>;
+- <code>xl</code> widths.</p>
+<p><strong>Status it can move.</strong>
+- <strong>Green:</strong> the <code>GEO-34</code> §7 row gains a "step 1d" record clause (the name route that survived, P1–P3 residuals per width, elapsed). §10 U12 is marked DONE and U13 (the <code>Study</code> on a STEP-imported F-small) is unblocked.
+- <strong>No glyph:</strong> steps 1c and 3 stay open (row read 2026-10-06), so <code>GEO-34</code> stays 🟡.
+- <strong>Rule (j):</strong> the row has no step-1d Done-when. The review adds this one at queueing: "a Gmsh-OCC STEP of one box with one named interior rectangle, mapped by <code>surface_groups</code> to <code>port</code>, imports with the rectangle as a native facet tag whose owned area equals the CAD rectangle at <code>STRIP_BAND</code>, count equal to gmsh's triangles, <code>dS</code> at <code>STRIP_BAND</code>, at <code>-n 1 / 2 / 4</code> in one logged window; unknown-name control raises".
+- <strong>W0 (b) / (c):</strong> a known-issues entry ("Gmsh 4.15.2's STEP writer drops entity names", or "does not keep an embedded face"), and U12 goes back to the weekly for re-posing.</p>
+<p><strong>Negative result.</strong> Report and stop. Never substitute a geometric selector, and never widen a band.
+- <strong>(P1) / (P3) red with (P2) and (n3) green:</strong> the imported tag is wrong on 0.11. Open a known-issues entry and park on <code>attempt/GEO-34-step1d-&lt;UTC&gt;</code>, BLOCKED.
+- <strong>(P0) zero ghosts at <code>-n 2 / 4</code>, or a 60 s kill at <code>-n 4</code>:</strong> this contradicts U11 on an imported mesh. Record it and mark BLOCKED.
+- <strong>(n1) / (n2) / (n3) red:</strong> the instrument is wrong and the verdict void. Fix it once in the new test, re-run in-slot and disclose. If it is still red, park and mark BLOCKED (rule (d)).
+- <strong>W2 red:</strong> the key-absent path moved. Revert the <code>src/</code> edit and mark BLOCKED.</p>
+<h3 id="9-item-333-2026-10-08-chain-u12a-geo-34-step-1d-probe-mesh-probe">§9 item 333 — 2026-10-08 (chain U12a — GEO-34 step 1d probe; mesh-probe)<a class="headerlink" href="#9-item-333-2026-10-08-chain-u12a-geo-34-step-1d-probe-mesh-probe" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-08 10:30 daily review; the review reviews it.</em> Licence: §10 U12a (grep "U12a. <code>GEO-34</code> step 1d probe"), quoted, not changed: "<code>mesh-probe</code>: the box-and-rectangle model exported as a compound (solid + the face as its own shell) and as a shell-only STEP; after <code>importShapes</code>, the number of dim-2 bodies and their areas against 0.48 m², names present or not, at <code>-n 1</code>. Measurement only; green ⇒ U12′ gains a same-kernel rehearsal branch, red ⇒ 9b waits on item 10. Serial on nothing." <strong>No band, tolerance, Done-when or validation target is set or moved.</strong> Measurement only (§3): nothing is asserted, and <code>GEO-34</code> stays 🟡.</p>
+<p><strong><code>GEO-34</code> step 1d probe: can Gmsh's own OCC kernel carry an interior face through a STEP file in any export form?</strong>
+- <strong>Executor:</strong> <code>mesh-probe</code>. It produces a table and one probe script. There is no <code>src/</code> change, no test, and no assertion. Spawn prompt: "Use the mesh-probe agent. Generator: Gmsh 4.15.2's OCC STEP writer and <code>occ.importShapes</code> on <code>GEO-37</code> item 222's box-and-rectangle fixture. Swept parameter: the export form (F-frag / F-solid / F-comp / F-shell / F-two) × the <code>importShapes</code> read (default / <code>highestDimOnly=False</code>). Question: does the 0.48 m² rectangle come back as exactly one face embedded in the one volume after <code>removeAllDuplicates</code>? Brief: <code>docs/planning/chunks/GEO-34.md</code> § '§9 item 333'. The harness call is the <strong>whole</strong> Bash command: bare, repo-relative, nothing chained or piped. Pass <code>timeout: 660000</code> and run in the foreground."
+- <strong>Tier:</strong> smoke (30 s), by prior measurement. W0 wrote and re-read this exact fixture in one process in <strong>1 s</strong> elapsed (<code>20261007T034333Z_GEO-34-step1d-W0-names.log:79</code>). This item runs five child processes, so predict ≈ 5–10 s per window. Width <code>-n 1</code>, plain <code>python3</code> with no <code>mpiexec</code>: a gmsh throw on rank 0 at <code>-n 2</code> deadlocks the command (mesh-probe rule). Real build; no DolfinX object is built.
+- <strong>Class:</strong> chain step (no solve). <strong>Time:</strong> ≈ 7 measured / ≈ 30 predicted min (15 fixed + ≈ 10 script + 2 windows ≈ 1 + ≈ 4 journal / table).
+- <strong>Depends on:</strong> nothing.
+- <strong>Family:</strong> the 03:00 review counted the <code>GEO-34</code> 1d family at 1 of 4 (item 289's W0 BLOCKED). The review rules whether a measurement-only probe counts. If it does, this item makes it 2 of 4 and leaves U12′ at 3.</p>
+<p><strong>What exists today.</strong>
+- <strong>The importer:</strong> <code>src/fem_em_solver/io/step_import.py:154–166</code> (<code>_build</code>). It runs <code>gmsh.model.occ.importShapes(str(path))</code> <strong>with the default arguments</strong> (<code>:164</code>), then <code>occ.removeAllDuplicates()</code> (<code>:165</code>), then <code>synchronize</code>. It sets no <code>Geometry.OCC*</code> option except the optional <code>OCCTargetUnit</code> (<code>:159–161</code>).
+- <strong>The fixture:</strong> <code>RECT = (0.1, 0.2, 0.47, 0.8, 0.6)</code>, <code>RECT_AREA = 0.48</code>, in <code>tests/mesh/probe_geo37_interior_facet.py:30–31</code>.
+- <strong>W0's writer:</strong> <code>write_named_box_port_step</code> in <code>tests/mesh/probe_geo34_step_names.py:28–64</code>. It fragments the box with the rectangle, names both entities two ways, writes, and finalizes.
+- <strong>What W0 already paid for:</strong> neither name string occurs in the file (<code>:45–46</code>). On re-import there is 1 volume and 6 faces, each of area 1.0. No 0.48 face exists, nothing is embedded, and <code>removeAllDuplicates</code> changes nothing (<code>:47–74</code>). The OCC bbox carries ±1e-7 padding (<code>:49–56</code>).</p>
+<p><strong>Probe:</strong> <code>tests/mesh/probe_geo34_step1d_export_forms.py</code> (new; not collected; committed as the record). It imports <code>RECT</code> / <code>RECT_AREA</code> from <code>probe_geo37_interior_facet</code> and <code>write_named_box_port_step</code>, <code>PORT_NAME</code> and <code>VOL_NAME</code> from <code>probe_geo34_step_names</code>. It restates none of them.
+- <strong>Fresh process per form.</strong> The driver runs <code>subprocess.run([sys.executable, __file__, "--form", F])</code> once per form. Each child writes its STEP in one gmsh session, finalizes it, and reads the file back in a second session that it also finalizes.
+- <strong>Exit code.</strong> The driver prints each child's stdout. A crashed child becomes a <code>FAIL</code> cell holding the last stderr lines. The driver exits with the largest child return code, so the footer is honest.
+- <strong>Scratch files.</strong> STEP files go to <code>/workspace/logs/geo34_step1d_probe/&lt;form&gt;/</code>, which is the gitignored <code>/logs/</code>. They are never written into the tracked tree.
+- <strong>The forms.</strong> Wherever a form has them, the face is named <code>PortSheet</code> and the volume <code>AirBox</code>, both by <code>setEntityName</code> and by a named physical group, exactly as in W0.
+  - <strong>F-frag (control, W0 reproduction):</strong> <code>write_named_box_port_step</code>, unchanged.
+  - <strong>F-solid (control):</strong> the unfragmented unit box only.
+  - <strong>F-comp (the compound):</strong> the unfragmented box plus <code>addRectangle(*RECT)</code> as a free face, in one model with no <code>fragment</code>, and one <code>gmsh.write</code>.
+  - <strong>F-shell (shell-only):</strong> the rectangle alone.
+  - <strong>F-two (two-file merge):</strong> F-solid's file and F-shell's file are both passed to <code>importShapes</code> in one reader session.
+- <strong>The two reads.</strong> Each file is read (r1) with the default <code>importShapes(path)</code>, which is how the importer reads at <code>:164</code>, and (r2) with <code>importShapes(path, highestDimOnly=False)</code>.
+- <strong>What each child prints:</strong>
+  - first, <code>inspect.signature(gmsh.model.occ.importShapes)</code>;
+  - the value of every <code>Geometry.OCC*</code> option the reader can read: <code>OCCImportLabels</code>, <code>OCCSewFaces</code>, <code>OCCMakeSolids</code>, <code>OCCFixDegenerated</code>, <code>OCCFixSmallEdges</code>, <code>OCCFixSmallFaces</code>. These are read, never set;
+  - the file's size and the number of STEP entities the writer reports;
+  - how often <code>PortSheet</code> and <code>AirBox</code> occur in the file text;
+  - the rest <strong>before and after</strong> <code>removeAllDuplicates()</code>: the dim-3 and dim-2 entity counts, and for every face its <code>getEntityName</code>, <code>occ.getMass</code>, bbox and upward adjacencies;
+  - the counts of faces with |A/0.48 − 1| ≤ 1e-12 and bbox equal to RECT's per coordinate to 1e-6, of <strong>free</strong> faces (no upward adjacency), and of <strong>embedded</strong> faces (upward adjacency equal to the one volume);
+  - <code>mesh.getEmbedded(3, v)</code> and the physical groups.
+- <strong>The table.</strong> The last line block is one row per form × read × stage, in the mesh-probe format.</p>
+<p><strong>Windows</strong> (each bare, whole and foreground; Bash <code>timeout: 660000</code>).
+- <strong>W1:</strong> <code>scripts/testing/run_and_log.sh GEO-34-step1d-probe "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 30 python3 tests/mesh/probe_geo34_step1d_export_forms.py'"</code>
+- <strong>W2 (repeat, the mesh-probe determinism rule):</strong> the same command under the ID <code>GEO-34-step1d-probe-repeat</code>. Only a bit-identical table licenses the word "deterministic".</p>
+<p><strong>The anchor: fixed comparands, read as brackets in the readout, never asserted.</strong>
+- A_rect = 0.8 × 0.6 = <strong>0.48 m²</strong> (<code>RECT_AREA</code>), matched at |A/0.48 − 1| ≤ 1e-12, with the bbox matched at 1e-6 (the padding trap). Box faces are 1.0 m² and the volume is 1.0 m³.
+- <strong>Expected counts per form</strong> (dim-3 / dim-2 / 0.48-faces / free / embedded, after the heal). Rule (e) labels:</p>
+<table>
+<thead>
+<tr>
+<th>Form</th>
+<th>Read</th>
+<th>Expected</th>
+<th>Label</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F-frag</td>
+<td>r1</td>
+<td>1 / 6 / 0 / 0 / 0</td>
+<td><strong>backed</strong>: W0 <code>:47–74</code>, same writer, same fixture</td>
+</tr>
+<tr>
+<td>F-frag</td>
+<td>r2</td>
+<td>1 / 6 / 0 / 0 / 0</td>
+<td>predicted (the face is not in the file, by W0)</td>
+</tr>
+<tr>
+<td>F-solid</td>
+<td>r1, r2</td>
+<td>1 / 6 / 0 / 0 / 0</td>
+<td>predicted</td>
+</tr>
+<tr>
+<td>F-comp</td>
+<td>r1</td>
+<td>1 / 6 / 0 / 0 / 0, the free face dropped by <code>highestDimOnly=True</code></td>
+<td>predicted, from the Gmsh API's documented default; unverified on this image</td>
+</tr>
+<tr>
+<td>F-comp</td>
+<td>r2</td>
+<td>before the heal 1 / 7 / 1 / 1 / 0; after it 1 / 7 / 1 / 0 / 1</td>
+<td>predicted</td>
+</tr>
+<tr>
+<td>F-shell</td>
+<td>r1, r2</td>
+<td>0 / 1 / 1 / 1 / 0</td>
+<td>predicted</td>
+</tr>
+<tr>
+<td>F-two</td>
+<td>r2</td>
+<td>after the heal 1 / 7 / 1 / 0 / 1</td>
+<td>predicted</td>
+</tr>
+<tr>
+<td>all</td>
+<td>—</td>
+<td><code>PortSheet</code> / <code>AirBox</code> occurrences 0 / 0</td>
+<td>backed for F-frag (W0 <code>:45–46</code>), predicted for the rest</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Decision rule (§10, unchanged).</strong>
+- <strong>Green</strong> means that F-comp (under either read) or F-two leaves <strong>exactly one</strong> 0.48 face, <strong>embedded</strong> in the one volume, after <code>removeAllDuplicates</code>. Then U12′ gains a same-kernel rehearsal branch. The readout names the form and the read. If the face survives only under r2, the readout says so: the rehearsal (and any CadQuery-assembly STEP) then needs an additive <code>import_step</code> read option, which is U12′'s change, not this item's.
+- <strong>Red</strong> means no form returns an embedded 0.48 face. Then 9b waits on dashboard item 10.
+- <strong>Amber</strong> means the face survives free but is not embedded after the heal (W0's branch-(c) shape). It is read as red for the decision; the review rules.
+- <strong>Names do not enter green.</strong> They are recorded. U12′'s name-to-<code>port</code> map still needs a kernel that writes labels, and a geometric-selector substitute stays forbidden.</p>
+<p><strong>Negative control.</strong> F-frag reproduces W0's 6-face, no-0.48 reading. F-solid shows zero free dim-2 bodies and zero 0.48 faces. If F-frag departs from W0 <code>:47–74</code>, the instrument or the image has moved: the window is void, and the executor stops and reports without taking a decision. If F-solid shows a 0.48 face or a free face, the face-matching code is wrong; the same applies.</p>
+<p><strong>Traps already paid for.</strong>
+- <strong><code>highestDimOnly</code> (new, unmeasured).</strong> The importer's default read may silently drop a free face that sits beside a solid. That is why every file is read both ways and the signature is printed. Do not "fix" <code>step_import.py:164</code>.
+- <strong>One gmsh session per process.</strong> Finalize the writer before the reader initializes (item 289 trap). Use one child process per form.
+- <strong>Healing:</strong> <code>removeAllDuplicates</code> renumbers tags. Identify the face by area plus bbox, never by a pre-heal tag (item 289). Print the <code>OCCSewFaces</code> / <code>OCCMakeSolids</code> / fix options and never toggle them, because a sew could merge the free face into a shell.
+- <strong>Names:</strong> W0 found that the <em>writer</em> emits no label string at all (<code>:45–46</code>), so no reader option (<code>OCCImportLabels</code>) can recover a name. No writer-side label option is known to the repo. Toggling one is a follow-up for the review, not this item.
+- <strong>OCC bbox padding ≈ 1e-7:</strong> match at 1e-6 and use the exact area (item 222 W1; W0 <code>:49–56</code>).
+- <strong>Harness and shell:</strong>
+  - The harness call is the whole Bash command (<code>bash_guard</code> rule 3). Container-side <code>timeout -k 30</code>, ceiling 30 s.
+  - No pipe, no <code>tee</code>, no redirect. <code>PYTHONPATH</code> carries <code>:/workspace</code>.
+  - STEP scratch goes under <code>/workspace/logs/</code>, never <code>/tmp</code> in the tree, and never as a committed artifact. Never delete a log.
+- <strong>After a kill:</strong> <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> comes first. A kill at 30 s is not a result. Shrink to one <code>--form</code> per window, never a longer timeout.
+- Write ≈, never <code>~</code>.</p>
+<p><strong>Scope.</strong> Covered: Gmsh 4.15.2's OCC writer and reader on one unit box and one planar rectangle; five export forms × two reads; counts, areas, adjacency and name strings at <code>-n 1</code>. <strong>Not claimed:</strong>
+- any gate, Done-when or glyph (<code>GEO-34</code> stays 🟡; steps 1c, 3 and U12′ stay open);
+- a name route;
+- a mesh, a facet tag, <code>dS</code>, or any multi-rank reading;
+- a CadQuery STEP;
+- the F-small STEP (U13).</p>
+<p>U12′ stays serial on the operator's <code>cq-python</code> install. This item cannot make U12′ runnable on its own: a green opens only a <em>rehearsal</em> branch beside it, which the review or the weekly would write.</p>
+<p><strong>Negative-result disposition.</strong> Report the table and stop. The probe and both logs are committed as the record. Nothing in <code>src/</code> is touched, and no option is changed to make a face appear. A crashed child is a <code>FAIL</code> cell holding its message. It is not retried in-slot.</p>
+<p><strong>Status it can move.</strong>
+- <strong>§10 U12′:</strong> a green adds the same-kernel rehearsal branch, naming the form and read. A red adds "9b waits on dashboard item 10, measured: no Gmsh-OCC export form carries the face".
+- <strong>Dashboard item 10:</strong> its wording gains the measured clause ("Gmsh's own writer keeps no face names <strong>and no interior face in any export form</strong>", or "…keeps no names; a compound export carries the face, so a same-kernel rehearsal runs meanwhile").
+- <strong>Known-issues 2026-10-07</strong> (the "Gmsh 4.15.2's OCC STEP writer drops entity names…" entry): a <em>Scope</em> addendum on which forms keep the face. It does <strong>not</strong> retire, because names are still dropped.
+- <strong><code>highestDimOnly</code>:</strong> if r1 drops a free face that r2 keeps, the readout flags it to the review as a finding against U12′'s importer read and against <code>scripts/maintenance/install_cadquery_image.sh:111–120</code> (step 4b's <code>len(faces) &gt;= 7</code> read with the default). The review decides whether that is a known-issues entry.
+- <strong>The <code>GEO-34</code> §7 row</strong> gains a one-clause U12a record (🧪 measurement, glyph unchanged). This chunk file gains the outcome paragraph.</p>
+<p><strong>Outcome (2026-10-08 16:30 slot): AMBER, read as red. A measurement record; <code>GEO-34</code> stays 🟡; 1d family 2 of 4.</strong> Executor: mesh-probe. The probe is <code>tests/mesh/probe_geo34_step1d_export_forms.py</code>. W1 <code>20261008T214725Z_GEO-34-step1d-probe.log</code> and W2 <code>20261008T214738Z_GEO-34-step1d-probe-repeat.log</code> each ran Status 0 in 5 s at <code>-n 1</code>, with tables bit-identical (deterministic). Each cell below reads dim-3 / dim-2 / 0.48 / free / embedded. The heal changed nothing, so pre and post are equal everywhere.
+- <strong>Controls valid.</strong> F-frag reproduces W0 (1 / 6 / 0 / 0 / 0 under both reads), and F-solid is clean (1 / 6 / 0 / 0 / 0).
+- <strong>Compound (F-comp).</strong> r1 reads 1 / 6 / 0 / 0 / 0: the free face is dropped and <code>importShapes</code> returns <code>[(3, 1)]</code>. r2 reads 1 / 7 / 1 / <strong>1 / 0</strong>.
+- <strong>Shell only and two-file merge.</strong> F-shell reads 0 / 1 / 1 / 1 / 0 under both reads. F-two, which goes beyond §10's two forms, reads 1 / 7 / 1 / 1 / 0 under <strong>both</strong> reads, because <code>highestDimOnly</code> applies per file.
+- <strong>Departure from the prediction.</strong> The brief predicted that <code>removeAllDuplicates</code> would embed the free face (1 / 7 / 1 / 0 / 1). It does not on this image: <code>getEmbedded(3, v)</code> is <code>[]</code>, upward adjacency is <code>[]</code>, and <code>OCCSewFaces</code> / <code>OCCMakeSolids</code> are 0, read and never set.
+- <strong>Names and options.</strong> <code>PortSheet</code> / <code>AirBox</code> occur 0 times in every file. <code>OCCImportLabels</code> is 1; the other OCC* options are 0.
+- <strong>Decision.</strong> The result is W0's branch-(c) shape in every form, so 9b waits on dashboard item 10.
+- <strong><code>highestDimOnly</code> finding.</strong> r1 drops F-comp's free face. Known-issues entry 2026-10-08 is opened per ruling (Q4), naming <code>step_import.py:164</code> and <code>install_cadquery_image.sh:111–120</code>. The dashboard line is the next review's.</p>
+<p><strong>Review rulings (2026-10-08 10:30 daily review, item 333).</strong> (Q1) ≈ 7 measured: the chain no-solve median recalibrated this review to 7 (316, 327, 308, 313, 298). (Q2) <strong>The probe counts as an attempt in the <code>GEO-34</code> 1d family</strong> (2 of 4), because it is a lettered sub-step of the family that lands no gate; U12′ would be 3 of 4. The cap stays honest either way. (Q3) Yes: the rehearsal branch, if green, rehearses embed → native tag → <code>dS</code> only, and names stay U12′'s gate. The weekly decides whether that branch is worth a slot. (Q4) No warning before measurement. If read r1 drops the free face as predicted, the slot opens a known-issues entry naming <code>step_import.py:164</code> and <code>install_cadquery_image.sh:111–120</code>, and the next review adds a line to dashboard item 10. (Q5) Keep F-two (≈ 1 s), printed and labelled "beyond §10's two forms". (Q6) No writer-option sweep in this item.</p>
+<h3 id="9-item-985-2026-11-14-10-u12-chain-u-rule-4-the-weeklys-enumerated-step-geo-34-step-1d-re-posed-chain-step-no-solve">§9 item 985 — 2026-11-14 (§10 U12′, chain U — rule (4), the weekly's enumerated step; GEO-34 step 1d re-posed; chain step (no solve))<a class="headerlink" href="#9-item-985-2026-11-14-10-u12-chain-u-rule-4-the-weeklys-enumerated-step-geo-34-step-1d-re-posed-chain-step-no-solve" title="Permanent link">&para;</a></h3>
+<p><em>Written by the 2026-11-14 10:30 daily review under §9 rule (4); drafted by a <code>general-purpose</code> agent and reviewed here. Corrections made at review:</em>
+- <em>the cost uses the current class median;</em>
+- <em>no Done-when is added to the §7 row (a daily never sets one);</em>
+- <em>the module hold is checked.</em></p>
+<p><em>It does not count against rule (6). The target is the weekly's U12′ (<code>docs/planning/plan-archive.md:39275–39281</code>), quoted, not changed: "a CadQuery-authored STEP with a named interior face … the config maps the name to <code>port</code>, the importer tags it natively (U11, <code>shared_facet</code> ghosts) and the meshed area equals the CAD rectangle at <code>STRIP_BAND</code> at <code>-n 1 / 2 / 4</code>. Target: CAD identity." <strong>The serial prerequisite has landed:</strong> the operator's CadQuery install, 2026-11-14 (<code>fa4a6e7f</code>). <strong>Family <code>GEO-34</code> 1d: attempt 3 of 4.</strong> Item 289 was attempt 1 (BLOCKED at W0), and U12a / item 333 was attempt 2 (ruling Q2 above). A red here leaves one attempt.</em></p>
+<p><strong>Facts verified (by reading).</strong>
+- <strong>Install log</strong> (operator directive (b); gitignored <code>logs/maintenance/cadquery_image_20261114T091828Z.log</code>):
+  - step 4a is green: <code>cadquery 2.8.0</code>, then <code>wrote …cq_sample_…step</code> (<code>:381–382</code>);
+  - step 4b <strong>FAILED</strong> on <code>-noenv</code> (<code>:434</code>, <code>:478</code>), and the log stops there;
+  - the corrected read (1 volume, 7 faces, both names) is in <code>fa4a6e7f</code>'s message only. <strong>No log records it, so W0b re-measures it in a logged window.</strong>
+- <strong>The 4d log does not test interior facets.</strong> <code>20261114T093413Z_GEO-34-cadquery-image-4d.log</code> reads 5 passed, 13 skipped, 104 s, Status 0. The passes are all <code>test_step_import.py</code>'s. Every <code>test_geo37_interior_facet.py</code> node skipped because <code>GEO37_RECORD_DIR</code> is unset. Cite this log for the image, not for interior facets.
+- <strong>The sample's sheet is a free face, not an embedded one.</strong> It is its own product, <code>PRODUCT('PortSheet')</code> → <code>OPEN_SHELL</code>, beside the <code>AirBox</code> solid. U12a measured that <code>removeAllDuplicates</code> does not embed a free face. So the importer must embed it explicitly, as item 222 did with <code>occ.fragment([(3, box)], [(2, rect)])</code> (<code>probe_geo37_interior_facet.py:40</code>).
+- <strong>Units.</strong> The STEP declares millimetres but holds the numbers as drawn. Leave <code>occ_target_unit</code> unset.
+- <strong>The importer</strong> (<code>src/fem_em_solver/io/step_import.py</code>):
+  - <code>_build</code> calls <code>importShapes(str(path))</code> with defaults (<code>:164</code>), then <code>removeAllDuplicates</code> (<code>:165</code>);
+  - it claims volumes only, and the wall is the combined boundary of every volume;
+  - it ghosts with <code>shared_facet</code>;
+  - unknown config keys are ignored (<code>step_preflight.py:14</code>), so additive keys have a seam.
+- <strong>Fixture.</strong> <code>RECT = (0.1, 0.2, 0.47, 0.8, 0.6)</code>, <code>RECT_AREA = 0.48</code>, <code>H = 0.08</code> (<code>probe_geo37_interior_facet.py:30–32</code>). <code>STRIP_BAND = 1.0e-9</code> (<code>tests/validation/test_ops61_exact_strip_ports.py:58</code>).
+- <strong>U11.</strong> The native-tag <code>dS</code> passed at <code>STRIP_BAND</code> only on a ghosted mesh. Unghosted <code>-n 4</code> was killed at 45 s (<code>GEO-37.md:165–176</code>).
+- <strong>Ignore rules.</strong> <code>*.step</code> is gitignored (<code>.gitignore:57–58</code>).
+- <strong>Hold (checked at review).</strong> No queued window (64, 65) imports <code>io/step_import.py</code>; <code>io/mesh.py</code> names it only in a docstring (<code>:4385</code>). The importer is free.</p>
+<p><strong>Code</strong> (scripts, tests, one committed STEP, two additive importer keys).
+1. <strong><code>tests/mesh/cq_author_geo34_step1d.py</code></strong> (new; not collected). It runs under <code>cq-python</code>, which clears <code>PYTHONPATH</code> (<code>Dockerfile:41</code>), so it restates <code>RECT</code> as literals.
+   - Build the box with <code>cq.Workplane("XY").box(1, 1, 1, centered=False)</code>.
+   - Build the sheet as an explicit polygon with corners (0.1, 0.2, 0.47) … (0.1, 0.8, 0.47). Do not use <code>makePlane</code>: its orientation is ambiguous.
+   - Assemble the products <code>AirBox</code> and <code>PortSheet</code>, as the sample did.
+   - Assert, CadQuery-side, face area 0.48 to 1e-12 and the bbox.
+   - Export with <code>asm.export(out)</code>; 2.8 warns that <code>save</code> is going. If <code>export</code> is absent, fall back to <code>save</code> and disclose it.
+   - Print the <code>sha256</code> and the byte count.
+2. <strong>Commit the STEP</strong> as <code>tests/mesh/data/geo34_step1d_port_sheet.step</code>, with a narrow <code>!tests/mesh/data/geo34_step1d_*.step</code> negation after <code>.gitignore:58</code>. Never regenerate it per run:
+   - pytest runs in the DolfinX interpreter, which never imports CadQuery;
+   - only <code>fem-em-solver</code> carries the venv, so other services would skip, and a skip hides a failure;
+   - the STEP header carries a timestamp;
+   - an externally authored file is what 9b's user brings.</p>
+<p>The test pins W0a's logged <code>sha256</code> for custody. This departs from item 289's "never in the tree", which was written for an in-process Gmsh STEP.
+3. <strong><code>io/step_import.py</code>, two additive keys.</strong> With both absent, behaviour is byte-identical (rule (c)).
+   - <strong><code>"highest_dim_only": false</code></strong> makes the call <code>importShapes(str(path), highestDimOnly=False)</code>. When the key is absent, <code>:164</code> stays verbatim.
+   - <strong><code>"surface_groups": [{"name": "port_1", "step_name": "PortSheet", "role": "port", "tag": 201}]</code>.</strong>
+     - Resolve each <code>step_name</code> by <code>getEntityName</code>: an exact match, or the last <code>/</code> component. Exactly one dim-2 entity must match. Resolve before or after the heal, whichever W0b shows the names survive.
+     - Then call <code>out, out_map = occ.fragment(&lt;all dim-3&gt;, &lt;named faces&gt;)</code> and trace each named face's children through <code>out_map</code>. <strong>This is identity by name plus topological lineage. A bbox or centroid selector stays forbidden.</strong>
+     - Require exactly one child, with area equal to the pre-fragment <code>getMass</code> to 1e-12, and upward adjacency equal to the volume. If W0b shows the child in the wall set, remove the named faces from the wall group by tag.
+     - Raise <code>ValueError</code> through the existing broadcast for: a name absent (list the names present), a non-unique match, a non-embedded child, <code>role != "port"</code>, or a tag collision.
+     - Add diagnostics <code>surface_groups[name] = {tag, role, step_name, surface, cad_area, n_triangles, route}</code>, and document both keys in the docstring.
+4. <strong>Config</strong> <code>tests/mesh/data/geo34_step1d_port_sheet.json</code>:
+   - <code>resolution</code> 0.08, asserted equal to <code>H</code>;
+   - <code>air</code> tag 1 (<code>bbox_contains</code>);
+   - <code>outer_boundary_tag</code> 101;
+   - <code>highest_dim_only</code> false;
+   - the <code>surface_groups</code> above.
+5. <strong>Probe and test.</strong> <code>tests/mesh/probe_geo34_step1d_cq_read.py</code> (W0b; not collected) and <code>tests/mesh/test_step_import_cq_port_sheet.py</code> (a real build, at any width).</p>
+<p><strong>W0b prints</strong> (one rank, both reads):
+- per-entity names and dims, before and after <code>removeAllDuplicates</code>;
+- the <code>fragment</code> map, with each child's area, bbox and upward adjacency;
+- whether the child is in <code>getBoundary(getEntities(3), combined=True, oriented=False, recursive=False)</code>;
+- the bbox and the <code>sha256</code>.</p>
+<p><strong>Decision:</strong>
+- Name found and the fragment child embedded ⇒ write the importer code.
+- No name, or no embedded child ⇒ <strong>stop, BLOCKED</strong> (family 3 of 4), with no in-slot workaround.</p>
+<p><strong>Anchors</strong> (asserted at every width; every count reduced).
+- <strong>(P0)</strong> <code>allreduce(index_map(3).num_ghosts)</code> is &gt; 0 at <code>-n 2 / 4</code> and 0 at <code>-n 1</code>.
+- <strong>(P1) CAD identity.</strong> <code>allreduce</code> the owned tag-201 triangle areas (filter by <code>index_map(2).size_local</code>). Assert |A / <code>RECT_AREA</code> − 1| ≤ <code>STRIP_BAND</code> and |A / <code>cad_area</code> − 1| ≤ <code>STRIP_BAND</code>, with <code>cad_area</code> = 0.48 to 1e-12.
+- <strong>(P2)</strong> The reduced owned 201 count equals <code>n_triangles</code> exactly, and the reduced count of one-sided 201 facets is 0 (embedded, not a skin).
+- <strong>(P3)</strong> <code>allreduce(assemble_scalar(form(1*dS(201))))</code>, with <code>quadrature_degree</code> pinned at 2, is within <code>STRIP_BAND</code> of 0.48.
+- <strong>(W)</strong> The instrument check: the <code>ds(101)</code> area is within <code>STRIP_BAND</code> of 6.0.
+- <strong>(P4)</strong> The gathered tag set is {101, 201}, and <code>validate_required_port_tags_exist</code> (<code>ports/definitions.py:82</code>) passes on 201.
+- <strong>Custody.</strong> The file's <code>sha256</code> equals W0a's logged value.
+- <strong>Printed, not asserted:</strong> the residuals (predicted ≤ 1e-14; item 267 read ≤ 1.6e-15) and <code>n_triangles</code>.</p>
+<p><strong>Negative controls.</strong>
+- <strong>(n-hDO)</strong> The same config without <code>highest_dim_only</code> raises <code>ValueError</code> naming <code>PortSheet</code>. This is <em>predicted</em> from U12a's r1 reading (<code>20261008T214725Z_GEO-34-step1d-probe.log</code>), and <em>asserted</em> once W0b prints it on this fixture, with that line cited in the docstring (rule (e)).
+- <strong>(n1)</strong> <code>step_name</code> <code>"PortSheetX"</code> raises on every rank, and the message contains the name.
+- <strong>(n2)</strong> Without <code>surface_groups</code>, the reduced tag set lacks 201.
+- <strong>(n3)</strong> Drop the first owned 201 facet on the lowest owning rank. Then |A′ / 0.48 − 1| &gt; <code>STRIP_BAND</code>. The ceiling is ≈ 1 / <code>n_triangles</code> ≈ 5e-3 (item 267: −4.48e-3 / −5.07e-3), ≈ 5×10⁶ × the band. The factor is printed and labelled predicted.</p>
+<p><strong>Windows.</strong> Bare, foreground, Bash <code>timeout: 660000</code>. <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0 first. No complex build is needed, because every integrand is real.
+- <strong>W0a (author):</strong> <code>scripts/testing/run_and_log.sh GEO-34-U12p-W0a-author "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 cq-python tests/mesh/cq_author_geo34_step1d.py tests/mesh/data/geo34_step1d_port_sheet.step'"</code> (≈ 6 s; the sample took 6 s).
+- <strong>W0b (read):</strong> <code>scripts/testing/run_and_log.sh GEO-34-U12p-W0b-read "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 30 python3 tests/mesh/probe_geo34_step1d_cq_read.py tests/mesh/data/geo34_step1d_port_sheet.step'"</code> (≈ 1–5 s).
+- <strong>W1 (closing):</strong> <code>scripts/testing/run_and_log.sh GEO-34-U12p-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 60 mpiexec -n 1 python3 -m pytest tests/environment/test_complex_mode.py tests/mesh/test_step_import_cq_port_sheet.py -v -s --tb=short &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 60 mpiexec -n 2 python3 -m pytest tests/mesh/test_step_import_cq_port_sheet.py -v -s --tb=short &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 60 mpiexec -n 4 python3 -m pytest tests/mesh/test_step_import_cq_port_sheet.py -v -s --tb=short'"</code>. Predicted 25–60 s (item 267: 56 s for seven launches). The <code>&amp;&amp;</code> stops at the first red width.
+- <strong>W2a (rule (c)):</strong> the 4d command (that log's <code>:12</code>), labelled <code>GEO-34-U12p-W2a-ruleC</code>, plus <code>-v -s</code> and <code>tests/environment/test_complex_mode.py</code> on the path (104 s on record).
+- <strong>W2b (rule (c)):</strong> the same command, labelled <code>GEO-34-U12p-W2b-preflight</code>, with path <code>tests/mesh/test_step_preflight.py</code> (117 s on record).</p>
+<p><strong>Tier.</strong> Standard by ceiling (180 s), smoke-sized by prediction; <code>-n 1 / 2 / 4</code>. <strong>Class:</strong> chain step (no solve). <strong>Cost:</strong> ≈ 10.8 measured (the class median) / ≈ 50 predicted min. About 20 min goes on code; the windows take ≈ 6 min.</p>
+<p><strong>Traps already paid for.</strong>
+- <strong>Harness discipline:</strong>
+  - <code>timeout -k 30</code> on every window;
+  - every harness call is the whole Bash command (<code>bash_guard</code>): no pipes, <code>tee</code> or redirects;
+  - <code>PYTHONPATH</code> carries <code>:/workspace</code>, and pytest runs with <code>-s</code>.
+- <strong>Parallel correctness:</strong>
+  - rank-local values (<code>assemble_scalar</code>, facet tag values) are <code>allreduce</code>d, and the tag set is gathered before the validator;
+  - pytest verdicts are counted per rank, by token;
+  - never delete a log.
+- <strong>Unghosted <code>dS</code> hangs at <code>-n 4</code>:</strong> mesh only through <code>import_step</code>.
+- <strong><code>fa4a6e7f</code>'s two check bugs:</strong> gmsh 4.15.2 has no <code>-noenv</code>, and the default <code>highestDimOnly=True</code> drops a free sheet (known-issues 2026-10-08). Change <code>:164</code> only through the key.
+- <strong>Gmsh tags:</strong>
+  - <code>removeAllDuplicates</code> and <code>fragment</code> renumber tags: never carry a pre-heal tag past them, and trace through <code>out_map</code>;
+  - OCC bbox padding is ≈ 1e-7: print bboxes, never select by them;
+  - one gmsh session per process.
+- <strong>Forms and ranks:</strong> pin <code>quadrature_degree</code> (<code>POST-5</code>), and broadcast a rank-0 throw to every rank (<code>GEO-23</code>).
+- <strong>Ownership:</strong> files the container writes are owned by <code>nobody</code> on the host, so author only from inside the container.
+- <strong>Commit hygiene:</strong>
+  - after a kill, <code>pgrep -c python3</code> first;
+  - no edit after W1 (rule (i));
+  - never <code>--no-verify</code>. If the hook refuses the STEP, stop and report.</p>
+<p><strong>Scope.</strong> One planar rectangle in one box, authored by CadQuery 2.8.0: a name-to-<code>port</code> map, a native tag, and area, completeness and <code>dS</code> at three widths. <strong>Not claimed:</strong>
+- U13 (the <code>Study</code> on a STEP-imported F-small);
+- step 1c's F-small emitter;
+- 9b closure;
+- any port solve, S-parameter or band;
+- roles other than <code>port</code>;
+- multi-face or interface sheets;
+- the preflight's facet grid.</p>
+<p><strong>Negative result.</strong> Report and stop. Park on <code>attempt/GEO-34-U12p-&lt;UTC&gt;</code> and mark the item BLOCKED with the unblock condition in the same commit (rule (d)). Open a known-issues entry.
+- W0b finds no name or no embedded child ⇒ BLOCKED. The review may re-pose to a CadQuery-side fragment with a named sub-shape (the family's last attempt); this slot does not try it.
+- (P1) or (P3) red with (P2), (n3) and (W) green ⇒ an import-tag defect: BLOCKED.
+- Any (n·) or (W) red ⇒ the instrument is void. Fix it once and re-run in-slot; if it is still red, BLOCKED.
+- W2 red ⇒ revert <code>src/</code>, then BLOCKED.
+- No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong>
+- §10 U12′ → DONE, and U13 opens for the weekly to queue.
+- The <code>GEO-34</code> §7 row gains a step-1d record clause. <strong>The glyph stays 🟡</strong> (1c's F-small emitter and step 3 stay open). No Done-when is added by this review.
+- Known-issues 2026-10-08 (<code>highestDimOnly</code>) retires through its "Resolves with" clause if that clause names this read option; otherwise the review decides.
+- Either outcome: dashboard item 10 retires, because the operator's install is done.</p>
+<p><strong>Depends on:</strong> nothing open. Independent of 983 / 984.</p>
+<p><strong>Executor spawn prompt (verbatim, if delegated).</strong> "Execute §9 item 985 — <code>GEO-34</code> step 1d / U12′ — per <code>docs/planning/chunks/GEO-34.md</code> § '§9 item 985'. Read <code>logs/maintenance/cadquery_image_20261114T091828Z.log</code> first and cite its 4a lines. Run W0a, then W0b, before any <code>src/</code> edit; if W0b finds no named face or no embedded fragment child, stop, BLOCKED. Identify the face by STEP name and the <code>fragment</code> map only — never a geometric selector. Both new config keys are additive, and key-absent behaviour is byte-identical (W2a / W2b). Mesh only through <code>import_step</code>. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped; foreground, Bash <code>timeout: 660000</code>. Never delete a log. Never <code>--no-verify</code>. Do not spawn agents."</p>
+<p><strong>Outcome (2026-11-14 12:00 CST slot): DONE, green (family 1d attempt 3 of 4).</strong> Install log 4a: <code>cadquery 2.8.0</code> and <code>wrote …cq_sample_…step</code> (<code>cadquery_image_20261114T091828Z.log:381–382</code>). W0a (<code>20261114T181641Z_GEO-34-U12p-W0a-author.log:35–39</code>): <code>Assembly.export</code> exists, polygon face area 0.4800000000000001, 21468 B, sha256 <code>f729d87d88fee04de4f44524fe0edc204f273bf00123e99a6c37fce3c3fde392</code>. W0b (<code>20261114T181729Z_GEO-34-U12p-W0b-read.log</code>): the default read drops <code>PortSheet</code> (<code>:60–67</code>); <code>highestDimOnly=False</code> names face 7 <code>Shapes/geo34_step1d/PortSheet/PortSheet</code> before and after <code>removeAllDuplicates</code> (<code>:136</code>, <code>:174</code>); <code>fragment</code> maps (2,7) → [(2,7)] with the area unchanged, outside the wall set (<code>:182–183</code>). Upward adjacency reads <code>[]</code>, but <code>getEmbedded(3,1)=[(2,7)]</code> (<code>:184</code>) and all 115 sheet nodes lie in tets (<code>:237</code>); the importer checks embedding with <code>getEmbedded</code>. <strong>Disclosed <code>src/</code> change:</strong> the first W1 (<code>20261114T181903Z_GEO-34-U12p-W1.log:110–116</code>) died with SEGV in <code>optimize("Netgen")</code> ("456 illegal tets") on the embedded face, so with <code>surface_groups</code> set the Netgen pass is skipped; the key-absent path is unchanged. W1 (<code>20261114T181927Z_GEO-34-U12p-W1.log</code>, 11 s): at -n 1 / 2 / 4, (P1) +2.2e-16, (P3) ≤ 8.9e-16, (W) ≤ 5.2e-15, (P2) 192 = 192 and 0 one-sided, (P0) ghosts 0 / 581 / 1152, (n3) −4.06e-3 / −5.74e-3 / −5.48e-3 (predicted ≈ 5e-3), (n-hDO) / (n1) / (n2) green. Rule (c): W2a <code>20261114T181947Z_GEO-34-U12p-W2a-ruleC.log</code> (6 passed, 85 s) and W2b <code>20261114T182116Z_GEO-34-U12p-W2b-preflight.log</code> (5 passed, 141 s). Known-issues 2026-10-08 retired. U13 opens for the weekly.</p>
+<p><strong>Not verified at review</strong> (W0a / W0b measure these):
+- the CadQuery 2.8.0 calls (<code>Assembly.export</code>, the polygon-to-face route);
+- which dimension carries the product name after the gmsh import;
+- whether names survive <code>removeAllDuplicates</code>;
+- whether <code>occ.fragment</code> embeds an imported free face, and whether its child leaks into the wall group;
+- the pre-commit hook's handling of a STEP file.</p>
+<h3 id="9-item-996-2026-11-15-geo-34-1e-lane-1-the-11-14-weeklys-target-mesh-probe">§9 item 996 — 2026-11-15 (GEO-34 1e, lane 1 — the 11-14 weekly's target; mesh-probe)<a class="headerlink" href="#9-item-996-2026-11-15-geo-34-1e-lane-1-the-11-14-weeklys-target-mesh-probe" title="Permanent link">&para;</a></h3>
+<p><em>Posed by the 11-14 weekly at <code>PROJECT_PLAN.md:4995–4998</code> (the Netgen workaround "accepted as disclosed under rule (c), with its diagnosis posed as <code>GEO-34</code> 1e") and <code>:5300–5305</code> (lane 1: "the Netgen SEGV on the 1d fixture across a mesh-size ladder and with / without the embedded face — the illegal-tet count and whether the crash reproduces, a table and a probe script, no fix; it resolves known-issues 2026-11-14 or names its scope"). Brief drafted 2026-11-15 as execution detail. <strong>Measurement only: no gate, no assertion, no band; a mesh-probe is 🧪 by §3 until a gate lands.</strong> Family <code>GEO-34</code> 1e, attempt 1 of 4. <strong>Executor:</strong> <code>mesh-probe</code> (spawned by the slot).</em></p>
+<p><strong>What the step is.</strong> U12′'s first W1 (<code>20261114T181903Z_GEO-34-U12p-W1.log</code>) died inside <code>gmsh.model.mesh.optimize("Netgen")</code> on the 1d fixture: "Remove Illegal Elements" / "456 illegal tets" (<code>:111–112</code>), "Caught signal number 11 SEGV" (<code>:116</code>), Status 15, 2 s. The workaround skips the pass whenever <code>surface_groups</code> is set (<code>src/fem_em_solver/io/step_import.py:320–330</code>). Nobody has measured whether the crash depends on h, on the embedded face, or on the CadQuery route. 1e runs the same mesh-then-optimise sequence on the 1d fixture over an h ladder, with and without the embedded face, and tabulates per rung: whether Netgen crashes, the illegal-tet count it reports, and the pre-optimise quality.</p>
+<p><strong>Facts verified against the tree (this review, by <code>grep</code> / reading; unlogged, not a record).</strong>
+- <strong>Fixture:</strong> <code>tests/mesh/data/geo34_step1d_port_sheet.step</code> (sha256 <code>f729d87d…de392</code>, <code>tests/mesh/test_step_import_cq_port_sheet.py:38</code>), unit box <code>AirBox</code> + free face <code>PortSheet</code> = rectangle x 0.1, y 0.2, z 0.47, 0.8 × 0.6, area 0.48 (<code>tests/mesh/cq_author_geo34_step1d.py:19–20</code>). Config <code>tests/mesh/data/geo34_step1d_port_sheet.json</code>: <code>resolution</code> 0.08, <code>outer_boundary_tag</code> 101, <code>highest_dim_only: false</code>, one <code>surface_groups</code> entry <code>PortSheet</code> → 201.
+- <strong>The crash path:</strong> <code>import_step</code> → <code>_build</code> (<code>importShapes</code>, <code>removeAllDuplicates</code>, synchronise; <code>step_import.py:154–166</code>) → fragment embeds the face (<code>getEmbedded(3,1)=[(2,7)]</code>, W0b <code>20261114T181729Z_GEO-34-U12p-W0b-read.log:184</code>) → <code>generate(3)</code> → <code>optimize("Netgen")</code> (now skipped under <code>surface_groups</code>, <code>:320–330</code>; key-absent path unchanged).
+- <strong>Without the face:</strong> the same STEP with <code>surface_groups</code> removed takes the key-absent path and runs Netgen (U12′'s (n2), <code>test_step_import_cq_port_sheet.py:176–184</code>, green in W1 <code>20261114T181927Z_GEO-34-U12p-W1.log</code> at <code>-n 1/2/4</code>). So the "without" arm already ran Netgen once at h = 0.08 without a crash — with <code>highest_dim_only: false</code> the face is still read; whether it is still embedded on that path is a thing the probe prints, not assumes.
+- <strong>Known-issues 2026-11-14</strong> (<code>docs/testing/known-issues.md:895–902</code>): cause "not diagnosed"; the slot's comment ("Netgen's optimiser does not respect an embedded face") is a hypothesis. <strong>Resolves with:</strong> "a measured quality reading on the un-optimised named-sheet mesh with the step's gates green [U13a, item 993], or an optimiser route that keeps the embedded face. Never by re-enabling the pass on the key-absent path."
+- <strong>A quality helper exists:</strong> <code>_tet_quality(x)</code> (<code>tests/mesh/probe_wf6_sheet_facet_census.py:83–110</code>) — radius ratio and min dihedral per tet. In a gmsh-only probe use <code>gmsh.model.mesh.getElementQualities(tags, "minSICN")</code> / <code>"gamma"</code> instead (no DolfinX object needed); print which.
+- <strong>The 1d probe precedent:</strong> <code>tests/mesh/probe_geo34_step1d_cq_read.py</code> (W0b), plain <code>python3</code>, <code>-n 1</code>, no <code>mpiexec</code> — "a gmsh throw on rank 0 at <code>-n 2</code> deadlocks the command" (<code>docs/planning/chunks/GEO-34.md:122</code>).</p>
+<p><strong>The probe.</strong> <code>tests/mesh/probe_geo34_step1e_netgen_ladder.py</code> (not collected), gmsh only, no DolfinX. One invocation = <strong>one rung</strong> <code>(h, arm)</code> given on argv, so a SEGV kills exactly one rung's process and the harness records its status. It replicates <code>import_step</code>'s gmsh sequence directly (<code>importShapes(highestDimOnly=False)</code>, <code>removeAllDuplicates</code>, synchronise; arm E then <code>occ.fragment</code> of the volume with the named face and synchronise), sets <code>Mesh.MeshSizeMin/Max = h</code>, <code>General.Terminal = 1</code> (so gmsh's own "illegal tets" line reaches stdout before a crash), runs <code>generate(3)</code>, prints the pre-optimise census (tets, min / p1 of minSICN, count with minSICN ≤ 0, <code>getEmbedded(3, vol)</code>), then <code>flush</code>, then <code>optimize("Netgen")</code>, then the post census. It <strong>calls gmsh, never <code>import_step</code></strong>, so no <code>src/</code> file is touched and the workaround cannot mask the result. It prints <code>gmsh.__version__</code> and the OCC version.</p>
+<p><strong>Arms × ladder (10 rungs + 2 repeats).</strong>
+- <strong>Arms:</strong> <strong>E</strong> — the face fragmented into the box (1d's embedded face, the crashing configuration); <strong>N</strong> — the same STEP read, face discarded before meshing (box only). Optional third arm, only if the first ten windows sum ≤ 120 s: <strong>S</strong> — the face extended to span the box (x 0..1, y 0..1 at z 0.47), splitting it into two volumes sharing the face, which is how a port sheet sits in an F-small port box (scope for U13a/U13b).
+- <strong>h ladder:</strong> 0.16, 0.12, 0.08 (1d's), 0.06, 0.04. Stop going finer in an arm once a rung's <code>generate(3)</code> exceeds 60 s.
+- <strong>Repeats:</strong> (E, 0.08) twice more — does the crash reproduce bit-for-bit (same illegal-tet count)?</p>
+<p><strong>Table (the deliverable).</strong> One row per rung: arm, h, tets pre, min minSICN pre, # tets minSICN ≤ 0 pre, embedded (Y/N from <code>getEmbedded</code>), Netgen "illegal tets" count (from the log line, <code>—</code> if none printed), crashed (Y/N; harness Status, 139/15/–11 named as printed), tets post and min minSICN post (if survived), elapsed s, <code>log:line</code>. Written into the probe's own stdout as a final block <strong>and</strong> into <code>docs/planning/chunks/GEO-34.md</code>'s Outcome paragraph.</p>
+<p><strong>Windows</strong> (bare and foreground, Bash <code>timeout: 660000</code>; <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0 first; <strong>and again after every rung that crashed</strong> — a SEGV can leave a half-dead rank; container-side ≤ 600 s; <code>timeout -k 30</code> mandatory). <strong>Each rung its own window</strong>, <code>-n 1</code>, plain <code>python3</code>, never <code>mpiexec</code>:</p>
+<p><code>scripts/testing/run_and_log.sh GEO-34-1e-&lt;arm&gt;-h&lt;h&gt; "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 90 python3 tests/mesh/probe_geo34_step1e_netgen_ladder.py --arm &lt;E|N|S&gt; --h &lt;h&gt;'"</code></p>
+<p>Label examples: <code>GEO-34-1e-E-h0p08</code>, <code>GEO-34-1e-E-h0p08-r2</code>. A crashed rung's non-zero Status is the measurement, not a failure of the window; do not re-run it to "get it green". <strong>Rule (i):</strong> no probe edit after its first rung's window (an edit restarts the ladder from rung 1, every earlier log kept).</p>
+<p><strong>Price / Tier / Class / Cost.</strong>
+- <strong>Smoke-to-standard by ceiling (90 s per rung)</strong>, <code>-n 1</code>, real build, no DolfinX, no solve.
+- Measured anchors: 1d's crashing window 2 s (<code>20261114T181903Z_…:126</code>), its green W1 11 s for six launches (<code>20261114T181927Z_…:729</code>); h = 0.04 is (0.08/0.04)³ ≈ 8× the tets, so ≈ 5–15 s per rung at worst. 12 windows ≈ 2–3 min of compute.
+- <strong>Class:</strong> mesh-probe. <strong>Cost:</strong> <strong>≈ 35 predicted</strong> min (probe + 12 windows + table + journal).</p>
+<p><strong>Traps already paid for.</strong>
+- <strong>Bare harness only</strong> (CLAUDE.md, <code>bash_guard.py</code>): the whole Bash command is the <code>run_and_log.sh</code> call; no <code>cd … &amp;&amp;</code>, no <code>| tail</code>, no <code>; date</code>, no redirect outside the container string.
+- <strong>No <code>mpiexec</code>:</strong> a gmsh throw / SEGV on rank 0 at <code>-n 2</code> deadlocks (1d brief); <code>-n 1</code> plain <code>python3</code>.
+- <strong>A SEGV loses buffered stdout:</strong> <code>flush=True</code> on every print and <code>General.Terminal = 1</code> before <code>optimize</code>; otherwise the illegal-tet line is lost with the process (the 1d log kept it, <code>:111–112</code>).
+- <strong>Never call <code>import_step</code></strong> for arm E: its named-surface branch skips Netgen by design, so it would read "no crash" by construction.
+- <strong>Never edit <code>src/fem_em_solver/io/step_import.py</code></strong>; never re-enable the pass on the key-absent path (known-issues "Never by …").
+- Orphans: after a crashed rung, <code>pgrep -c python3</code> must read 0 before the next; if not, <code>docker compose -f docker/docker-compose.yml up -d --force-recreate</code> per known-issues, journal it.
+- In tracked Markdown write <code>≈</code>, never a tilde.</p>
+<p><strong>Scope.</strong> Whether Netgen's optimiser crashes on the 1d fixture as a function of h and of the embedded face, with its illegal-tet count and the pre-optimise quality. <strong>Not claimed:</strong> a cause inside Netgen; a fix or an optimiser route (that is a second "Resolves with" half — posed by the review if the table points to one); anything about the F-small mesh (U13a, item 993); any assertion.</p>
+<p><strong>Negative result / readouts (pre-registered).</strong>
+- <strong>(a) E crashes at every h, N never:</strong> the embedded face is necessary on this fixture; the known-issues <em>Cause</em> cell gets "embedded face, h-independent over 0.04–0.16"; the workaround's scope (every named-sheet import) stands as written.
+- <strong>(b) E crashes only at some h:</strong> the scope is h-dependent; the cell names the band; U13a's F-small resolution is checked against it by the review.
+- <strong>(c) N also crashes at some h:</strong> the face is not necessary — the crash is Netgen on this CAD; the key-absent path is exposed too; the review files that as a new known-issues line (the probe does not).
+- <strong>(d) No rung crashes, including (E, 0.08) repeats:</strong> the 11-14 crash does not reproduce; report the gmsh version and the 1d log's header side by side and stop — that is the finding.
+- Any of these is a complete outcome. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>GEO-34</code> 1e → 🧪 (probe landed). Known-issues 2026-11-14: its <em>Cause</em> and <em>Scope</em> cells gain the measured table (the review writes them). It <strong>does not retire</strong> the entry: the entry's own "Resolves with" names U13a's quality reading with gates green, or an optimiser route that keeps the face — 1e is neither. (The weekly's "resolves … or names its scope" therefore lands on "names its scope" unless the review rules (d) a resolution.)</p>
+<p><strong>Depends on:</strong> nothing open. Independent of item 993 (no shared file edited); may share a slot with it.</p>
+<p><strong>Outcome commit.</strong> The 12 (or up to 17) logs, the probe, the table in <code>docs/planning/chunks/GEO-34.md</code>, and the §9 line marked DONE with the local (CST) slot, in one commit through the hook. Known-issues is the review's edit.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "mesh-probe: <code>GEO-34</code> 1e, §9 item 996, per <code>docs/planning/chunks/GEO-34.md</code> "§9 item 996". Generator: gmsh on <code>tests/mesh/data/geo34_step1d_port_sheet.step</code> (the 1d fixture), replicating <code>import_step</code>'s read (<code>highestDimOnly=False</code>, <code>removeAllDuplicates</code>) — never calling <code>import_step</code>. Swept: h ∈ {0.16, 0.12, 0.08, 0.06, 0.04} × arm {E: face fragmented into the box, N: box only}, plus (E, 0.08) twice more; arm S only if the first ten windows sum ≤ 120 s. Question: does <code>optimize(\"Netgen\")</code> after <code>generate(3)</code> crash, and what illegal-tet count and pre-optimise minSICN does each rung show? Write <code>tests/mesh/probe_geo34_step1e_netgen_ladder.py</code> (one rung per invocation from argv, <code>flush=True</code>, <code>General.Terminal=1</code>, prints gmsh version). Each rung its own window: the harness call is the whole Bash command, bare and foreground, Bash <code>timeout: 660000</code>, container <code>timeout -k 30 90</code>, <code>-n 1</code> plain <code>python3</code>, never <code>mpiexec</code>; <code>pgrep -c python3</code> reads 0 before every window and after every crash. A crashed rung's Status is the measurement — never re-run to get it green. Edit no <code>src/</code> file and no test; no assertion, no band, no fix. Return the table with <code>log:line</code> per row and which readout (a)–(d) it supports. Never delete a log. Never <code>--no-verify</code>. Do not spawn agents."</p>
+<p><strong>Outcome (2026-11-15 16:30 CST slot): DONE, probe landed, readout (a) (family 1e attempt 1 of 4; executor <code>mesh-probe</code>; 🧪 by §3, measurement only).</strong> The probe is <code>tests/mesh/probe_geo34_step1e_netgen_ladder.py</code>, on gmsh <code>4.15.2-git-657c8e9</code> (OpenCASCADE, <code>20261115T223140Z_GEO-34-1e-E-h0p16.log:36–38</code>). It ran 17 windows: 5 E, 5 N, 2 E repeats and 5 S. Arm S ran because the first ten summed ≈ 20 s, under the 120 s limit. Each window was <code>-n 1</code>, plain <code>python3</code>, <code>timeout -k 30 90</code>. <code>pgrep -c python3</code> read 0 before every window and after every crash, so no recreate was needed. The probe's one edit came before rung 1's window, so rule (i) holds. Statuses were read by the slot from every log's footer; the E h = 0.08 and N h = 0.08 lines were re-read by the slot.</p>
+<table>
+<thead>
+<tr>
+<th>arm</th>
+<th>h</th>
+<th>tets pre</th>
+<th>minSICN min pre</th>
+<th>n ≤ 0 pre</th>
+<th>embedded</th>
+<th>Netgen illegal tets (first pass)</th>
+<th>first badmax</th>
+<th>Status</th>
+<th>tets post</th>
+<th>minSICN min post</th>
+<th>log:line</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E</td>
+<td>0.16</td>
+<td>1714</td>
+<td>0.3012</td>
+<td>0</td>
+<td><code>[(2,7)]</code></td>
+<td>241</td>
+<td>1e+24</td>
+<td>139</td>
+<td>—</td>
+<td>—</td>
+<td><code>20261115T223140Z_GEO-34-1e-E-h0p16.log:98,104,106,110</code></td>
+</tr>
+<tr>
+<td>E</td>
+<td>0.12</td>
+<td>3637</td>
+<td>0.2942</td>
+<td>0</td>
+<td><code>[(2,7)]</code></td>
+<td>314</td>
+<td>1e+24</td>
+<td>139</td>
+<td>—</td>
+<td>—</td>
+<td><code>20261115T223154Z_GEO-34-1e-E-h0p12.log:99,105,107,111</code></td>
+</tr>
+<tr>
+<td>E</td>
+<td>0.08</td>
+<td>10316</td>
+<td>0.2627</td>
+<td>0</td>
+<td><code>[(2,7)]</code></td>
+<td>456</td>
+<td>1e+24</td>
+<td>139</td>
+<td>—</td>
+<td>—</td>
+<td><code>20261115T223203Z_GEO-34-1e-E-h0p08.log:100,106,108,112</code></td>
+</tr>
+<tr>
+<td>E</td>
+<td>0.06</td>
+<td>23675</td>
+<td>0.2993</td>
+<td>0</td>
+<td><code>[(2,7)]</code></td>
+<td>604</td>
+<td>1e+24</td>
+<td>139</td>
+<td>—</td>
+<td>—</td>
+<td><code>20261115T223211Z_GEO-34-1e-E-h0p06.log:105,111,113,117</code></td>
+</tr>
+<tr>
+<td>E</td>
+<td>0.04</td>
+<td>73087</td>
+<td>0.2976</td>
+<td>0</td>
+<td><code>[(2,7)]</code></td>
+<td>900</td>
+<td>2.68605e+32</td>
+<td>139</td>
+<td>—</td>
+<td>—</td>
+<td><code>20261115T223220Z_GEO-34-1e-E-h0p04.log:118,124,126,130</code></td>
+</tr>
+<tr>
+<td>E r2</td>
+<td>0.08</td>
+<td>10316</td>
+<td>0.2627</td>
+<td>0</td>
+<td><code>[(2,7)]</code></td>
+<td>456</td>
+<td>1e+24</td>
+<td>139</td>
+<td>—</td>
+<td>—</td>
+<td><code>20261115T223323Z_GEO-34-1e-E-h0p08-r2.log:100,106,108,112</code></td>
+</tr>
+<tr>
+<td>E r3</td>
+<td>0.08</td>
+<td>10316</td>
+<td>0.2627</td>
+<td>0</td>
+<td><code>[(2,7)]</code></td>
+<td>456</td>
+<td>1e+24</td>
+<td>139</td>
+<td>—</td>
+<td>—</td>
+<td><code>20261115T223331Z_GEO-34-1e-E-h0p08-r3.log:100,106,108,112</code></td>
+</tr>
+<tr>
+<td>N</td>
+<td>0.16</td>
+<td>1564</td>
+<td>0.3104</td>
+<td>0</td>
+<td><code>[]</code></td>
+<td>236 → 0</td>
+<td>13.59</td>
+<td>0</td>
+<td>1801</td>
+<td>0.4836</td>
+<td><code>20261115T223231Z_GEO-34-1e-N-h0p16.log:93,99,136,143</code></td>
+</tr>
+<tr>
+<td>N</td>
+<td>0.12</td>
+<td>3411</td>
+<td>0.3025</td>
+<td>0</td>
+<td><code>[]</code></td>
+<td>308 → 0</td>
+<td>16.31</td>
+<td>0</td>
+<td>3615</td>
+<td>0.4529</td>
+<td><code>20261115T223238Z_GEO-34-1e-N-h0p12.log:94,100,137,144</code></td>
+</tr>
+<tr>
+<td>N</td>
+<td>0.08</td>
+<td>10194</td>
+<td>0.2981</td>
+<td>0</td>
+<td><code>[]</code></td>
+<td>452 → 0</td>
+<td>16.44</td>
+<td>0</td>
+<td>9906</td>
+<td>0.4833</td>
+<td><code>20261115T223246Z_GEO-34-1e-N-h0p08.log:96,102,139,146</code></td>
+</tr>
+<tr>
+<td>N</td>
+<td>0.06</td>
+<td>22668</td>
+<td>0.2966</td>
+<td>0</td>
+<td><code>[]</code></td>
+<td>599 → 0</td>
+<td>17.14</td>
+<td>0</td>
+<td>21057</td>
+<td>0.4802</td>
+<td><code>20261115T223255Z_GEO-34-1e-N-h0p06.log:99,105,142,149</code></td>
+</tr>
+<tr>
+<td>N</td>
+<td>0.04</td>
+<td>72230</td>
+<td>0.3002</td>
+<td>0</td>
+<td><code>[]</code></td>
+<td>884 → 0</td>
+<td>16.20</td>
+<td>0</td>
+<td>65197</td>
+<td>0.4494</td>
+<td><code>20261115T223306Z_GEO-34-1e-N-h0p04.log:113,119,156,163</code></td>
+</tr>
+<tr>
+<td>S</td>
+<td>0.16</td>
+<td>1853</td>
+<td>0.3472</td>
+<td>0</td>
+<td><code>[]</code> (2 vols)</td>
+<td>188 / 200 → 0</td>
+<td>finite</td>
+<td>0</td>
+<td>2279</td>
+<td>0.4635</td>
+<td><code>20261115T223359Z_GEO-34-1e-S-h0p16.log:111,118,188,196</code></td>
+</tr>
+<tr>
+<td>S</td>
+<td>0.12</td>
+<td>3690</td>
+<td>0.3153</td>
+<td>0</td>
+<td><code>[]</code> (2 vols)</td>
+<td>248 / 260 → 0</td>
+<td>finite</td>
+<td>0</td>
+<td>4235</td>
+<td>0.5069</td>
+<td><code>20261115T223407Z_GEO-34-1e-S-h0p12.log:111,118,192,200</code></td>
+</tr>
+<tr>
+<td>S</td>
+<td>0.08</td>
+<td>10501</td>
+<td>0.2895</td>
+<td>0</td>
+<td><code>[]</code> (2 vols)</td>
+<td>368 / 380 → 0</td>
+<td>finite</td>
+<td>0</td>
+<td>10620</td>
+<td>0.4328</td>
+<td><code>20261115T223415Z_GEO-34-1e-S-h0p08.log:114,121,195,203</code></td>
+</tr>
+<tr>
+<td>S</td>
+<td>0.06</td>
+<td>23519</td>
+<td>0.2978</td>
+<td>0</td>
+<td><code>[]</code> (2 vols)</td>
+<td>489 / 501 → 0</td>
+<td>finite</td>
+<td>0</td>
+<td>22656</td>
+<td>0.4721</td>
+<td><code>20261115T223425Z_GEO-34-1e-S-h0p06.log:117,124,194,202</code></td>
+</tr>
+<tr>
+<td>S</td>
+<td>0.04</td>
+<td>73861</td>
+<td>0.2699</td>
+<td>0</td>
+<td><code>[]</code> (2 vols)</td>
+<td>730 / 759 → 0</td>
+<td>finite</td>
+<td>0</td>
+<td>67925</td>
+<td>0.4801</td>
+<td><code>20261115T223434Z_GEO-34-1e-S-h0p04.log:130,137,211,219</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Readout (a).</strong>
+- <strong>E crashes at every h over 0.04–0.16, with SIGSEGV</strong> (Status 139, "the monitored command dumped core"). N and S never crash.
+- <strong>The crash reproduces bit for bit.</strong> (E, 0.08) gave identical tets, minSICN, 456 illegal tets and <code>badmax</code> three times, and 456 equals the 11-14 crash's count (<code>20261114T181903Z_GEO-34-U12p-W1.log:111–112</code>). The 11-14 crash read Status 15 under <code>mpiexec</code>; plain <code>python3</code> reads 139.</p>
+<p><strong>Readings, not gated (for the review's <em>Cause</em> cell):</strong>
+- <strong>The pre-optimise mesh is healthy in every arm.</strong> No tet has minSICN ≤ 0, and the minimum is 0.26–0.35.
+- <strong>"Illegal tets" is printed by every arm.</strong> E's first-pass count is within ≈ 2 % of N's at the same h. N and S drive it to 0 within six passes. So the count is Netgen's own criterion, not the crash signature.
+- <strong>What only E shows is a non-finite-scale first-pass <code>badmax</code></strong> (1e+24, and 2.68605e+32 at h = 0.04), immediately followed by the core dump. N's first badmax is 13.6–17.1.
+- <strong>The embedded face's triangles may not reach Netgen.</strong> At h = 0.16 its <code>CalcLocalH</code> reports the same surface-element count in E as in N (708; <code>E-h0p16.log:102</code>, <code>N-h0p16.log:97</code>). This suggests Netgen does not see the embedded face's triangles as boundary. It is an inference, not a measurement.
+- <strong>Arm S is the F-small port-box shape</strong> (a face that splits the box into two volumes sharing it). It survives Netgen at every h, which bears on U13a's option (a) / (b) (item 993).</p>
+<p><strong>Caveats.</strong>
+- The N arm deletes the face before meshing. The importer's key-absent path keeps it as an unembedded free face, so the two are related but not identical.
+- The crashed rungs print no final ROW block; their rows come from the census and Netgen lines cited.</p>
+<p><strong>Not claimed:</strong> a cause inside Netgen, a fix or an optimiser route. Known-issues 2026-11-14 is not retired; its <em>Cause</em> and <em>Scope</em> cells are the review's edit. No <code>src/</code> or test edit.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

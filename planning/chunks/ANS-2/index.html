@@ -1,0 +1,621 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>ANS-2 — Coil-driven SAR in the loaded four-leg birdcage at 10 MHz: pointwise SAR, whole-phantom power, mass-averaged SAR - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ans-2-coil-driven-sar-in-the-loaded-four-leg-birdcage-at-10-mhz-pointwise-sar-whole-phantom-power-mass-averaged-sar" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              ANS-2 — Coil-driven SAR in the loaded four-leg birdcage at 10 MHz: pointwise SAR, whole-phantom power, mass-averaged SAR
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#2026-09-18-step-3-landed-and-adjudicated-agree-interactive-operator-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-09-18 — step 3 landed and adjudicated AGREE (interactive operator session)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-01-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-01 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ans-2-coil-driven-sar-in-the-loaded-four-leg-birdcage-at-10-mhz-pointwise-sar-whole-phantom-power-mass-averaged-sar">ANS-2 — Coil-driven SAR in the loaded four-leg birdcage at 10 MHz: pointwise SAR, whole-phantom power, mass-averaged SAR<a class="headerlink" href="#ans-2-coil-driven-sar-in-the-loaded-four-leg-birdcage-at-10-mhz-pointwise-sar-whole-phantom-power-mass-averaged-sar" title="Permanent link">&para;</a></h1>
+<p><strong>Coil-driven SAR in the loaded four-leg birdcage at 10 MHz: pointwise SAR, whole-phantom power, mass-averaged SAR</strong> — the first benchmark that can attack the <em>absolute</em> SAR claim (every coil-driven SAR number we hold is a C4 symmetry identity, and a SAR wrong by a constant factor passes one exactly). <strong>Commissioned 2026-09-09 02:15 weekly review</strong> on §10's reserved trigger ("subgoal 4", fired by <code>MAT-4</code> steps 4 and 5b); authoritative spec <code>examples/ansys_benchmarks/ans2_birdcage_coil_driven_sar_10MHz/SPEC.md</code>. Geometry, materials, ports and boundary condition are byte-for-byte <code>ANS-4</code>'s — one AED session replicates it. Three scoping judgements are the weekly's, in the spec: the <strong>shape-free</strong> rows (pointwise SAR, whole-phantom power) adjudicate; the mass-averaged rows carry a pre-registered <strong>sphere-vs-cube</strong> systematic (ours averages over a sphere of equal mass, IEC 62704-1 and hence HFSS over a cube) so a rows-4–6 miss cannot read as a false disagreement; normalisation is <strong>carried explicitly, never matched</strong> (ours 5.0e-03 W incident, HFSS's default 1 W — the one error mode that passes every self-check on both sides). <strong>Step 1 — the runnable half at SPEC rows 1–3, 7 and 8, scoped and queued by the 2026-09-09 03:00 daily review (§9 item 4)</strong>: example script + same-stem guide through <code>./run_examples.sh</code>, combined-XDMF, <code>metrics.json</code>, and a <code>COMPARISON.md</code> regenerated by the script with the AED columns blank (<code>ANS-1</code>'s rule — a benchmark cannot drift from the gate), asserting only bands and records imported from <code>MAT-4</code>'s gate modules (the 1 g and 10 g C4 pairs at the unmoved 5% <code>C4_COVARIANCE_BAND</code>, the whole-phantom coverage identity, the rung's 199 920 / 58 866 cell records at 1%), with the mis-paired 1 g control at 87.01–87.06% as the asserted negative control (≈ 17× separation, <code>20260908T200629Z_MAT-4-step5b.log:1990–1993</code>). <strong>Step 2</strong> — SPEC rows 4–6 (mass-averaged and peak-over-phantom), held until rows 1–3 have adjudicated, per the spec. <strong>Step 3</strong> — the operator's AED replication; the case reaches the dashboard's Waiting-on-you when step 1 closes and <strong>not before</strong> (sending a spec whose runnable half does not exist wastes an AED session). Numbers private, verdict public, as every other case. <strong>Step 1 EXECUTED GREEN 2026-09-09 09:00 slot</strong> (<code>20260909T140558Z_ANS-2-step1.log</code>, <code>Status: 0</code> <code>:1929</code>, <code>Elapsed (s): 233</code> <code>:1930</code>, <code>-n 4</code>, heavy by ceiling): <code>examples/ansys_benchmarks/ans2_birdcage_coil_driven_sar_10MHz/02_birdcage_coil_driven_sar_10MHz.py</code> + same-stem guide, emitted by <code>./scripts/run_examples.sh -e ans:2 -n 4 -t 560 --dry-run</code> and run through the harness; <code>metrics.json</code>, <code>COMPARISON.md</code> (AED columns verbatim blank) and combined XDMF regenerated by the script. Readings — row 1 pointwise SAR 4×4 at <code>:1902–1905</code> (diagonal 5.878191741e-07 / 5.079232898e-07 / 5.287007744e-07 / 5.763100136e-07 W/kg); rows 2–3 whole-phantom power 5.503204729e-08 … 5.496862019e-08 W and average SAR 2.435069030e-07 … 2.432262495e-07 W/kg at <code>:1907–1910</code>; row 7 excitation at <code>:1911–1915</code> — <strong>incident 5.0000000e-03 W printed explicitly against HFSS's 1 W, carried never matched</strong>, accepted Re P ≈ 2.1052e-03 W, <code>|Im P|/Re P</code> ≈ 0.337 printed and never gated; row 8 metadata at <code>:1916</code> (199 920 cells / 58 866 tag-3, four drives 18.15 + 17.59 + 17.06 + 17.41 s). Anchors at <code>:1918–1923</code>, every band and record <strong>imported</strong> from <code>MAT-4</code>'s gate modules and none restated or moved: the four 10 g C4 pairs 0.0309 / 0.0060 / 0.0394 / 0.0644% and the four 1 g pairs <strong>0.0957 / 0.1199 / 0.1305 / 0.1065%</strong> — reproducing <code>MAT-4</code> step 5b (<code>20260908T200629Z_MAT-4-step5b.log:1990–1993</code>) to the digit — asserted ≤ the unmoved 5% <code>C4_COVARIANCE_BAND</code>; the coverage identity power <strong>7.771561e-14</strong> / mass 5.284662e-14 asserted ≤ 1e-10; the two mesh records 199 920 / 58 866 at ratio 1.000000 asserted inside 1% <code>CELL_COUNT_BAND</code>; negative control, the mis-paired 1 g reading <strong>87.0143 / 87.0546 / 87.0506 / 87.0592%</strong>, asserted ≥ 10× the band (≈ 17× measured). No imported gate went red, so the negative-result clause did not fire. Docrefs census <code>dead=0 guide=0 stale=87 exit=2</code> (<code>20260909T141114Z_ANS-2-step1-census.log:126</code>), the informational stale-only code — <code>stale=87</code> is <code>OPS-42</code>'s business. One executor judgement, disclosed: the control is asserted as a <strong>floor</strong> (10 × the imported band, i.e. ≥ 50%) rather than against step 5b's measured 87.0x%, because an example must not re-record a gate digit (<code>ANS-1</code>'s rule); the measured value is printed, in <code>metrics.json</code> and in <code>COMPARISON.md</code> with its provenance. <strong>Nothing absolute is licensed:</strong> §2's absolute-SAR clause does not move, the row stays 🟡 pending step 2 (SPEC rows 4–6) and step 3 (the operator's AED replication), and the case now qualifies for the dashboard's Waiting-on-you. | 🟡 <em>(spec written 2026-09-09; <strong>step 1 runnable half executed green 2026-09-09</strong>; steps 2–3 open)</em> </p>
+<h2 id="2026-09-18-step-3-landed-and-adjudicated-agree-interactive-operator-session">2026-09-18 — step 3 landed and adjudicated AGREE (interactive operator session)<a class="headerlink" href="#2026-09-18-step-3-landed-and-adjudicated-agree-interactive-operator-session" title="Permanent link">&para;</a></h2>
+<ul>
+<li>AED half: the operator's HFSS 2026 R1 replication via the untracked <code>aed/ans2_hfss_pyaedt.py</code> (Zero and First Order). Numbers in the gitignored <code>aed_results/</code> and <code>COMPARISON_private.md</code>.</li>
+<li>The first reading found a near-constant factor of two; traced to the example's own incident-power line (<code>V²/(4Z₀)</code>, RMS form) against the package's peak-phasor convention (<code>ports/superposition.py</code>, <code>|V_src|²/(8Z₀)</code>). Example, guide and SPEC corrected (<code>e4697e9</code>); <code>src/</code> untouched. Re-run <code>20260919T001707Z_ANS-2-normalisation-fix.log</code>.</li>
+<li>Ruling (qualitative; numbers in <code>docs/private/ans2-adjudication-2026-09-18.md</code>): AGREE on rows 1–3 — whole-phantom power at the 5 % level, pointwise SAR within ±10 % with the scatter ours; residual attributed to the feed systematic by normalising to accepted power. Row 6 artefact. Step 4 (phantom h-halving, heavy, cost probe first, not XL) opened in §7 / §9.</li>
+</ul>
+<h2 id="7-row-moved-verbatim-2026-10-01-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-01 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-01-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p>Coil-driven SAR in the loaded four-leg birdcage at 10 MHz: pointwise SAR, whole-phantom power, mass-averaged SAR | ✅ <strong>Adjudicated AGREE 2026-09-18 (interactive operator session in the weekly's form; the 2026-09-19 weekly may amend; numeric ruling in the gitignored <code>docs/private/ans2-adjudication-2026-09-18.md</code>).</strong> <strong>Step 4 ran 2026-09-25 (<code>xl</code>, <code>20260925T070008Z_ANS-2-step4.log</code>, Status 0, 1315 s, 39.91 GiB, orphans 0 / 0; <code>log-pathologist</code> reading, ledger row) and the 2026-09-25 03:00 review rules it branch (a) by the pre-registered rule:</strong> at <code>phantom_resolution</code> 0.00125 m (719 769 cells, 452 228 phantom) the driven-point C4 spread falls <strong>15.730 % → 4.528 %</strong> (&lt; 5 %) and the four phantom powers move −0.27 / −0.14 / −0.30 / −0.06 % (&lt; 2 %; (b) fails on size, so no private reading was needed), every example assert green (10 g pairs ≤ 0.1751 %, coverage identity ≤ 6.82e-14). ⇒ the residual against HFSS is the feed; <strong>the verdict's ±10 % pointwise band tightens to the measured 4.53 % spread and row 2's 5 % band stands.</strong> Caveats the weekly may weigh: the margin is 0.47 pp on one rung; individual driven-point values moved −6.7 … +9.9 % between the rungs, so the pointwise samples are not themselves converged; the two rungs ran at different widths (<code>-n 4</code> / <code>-n 8</code>). The weekly carries the band into the private adjudication file. <code>metrics_h0.00125.json</code> is kept local under the gitignored <code>paraview_output/</code>, not committed: the <code>OPS-59</code> artifact pin admits one <code>metrics.json</code> per <code>ans:</code> case. The halved rung's cell counts are a candidate record, not asserted. Step 1 (runnable half) green with its control as a floor; step 3 (the operator's HFSS 2026 R1 replication, Zero and First Order) landed 2026-09-18 and the Linux half re-ran after the incident-power correction (<code>20260919T001707Z_ANS-2-normalisation-fix.log</code>, 201 s, anchors green). <strong>Ruling on the shape-free rows 1–3:</strong> the coil-driven whole-phantom dissipated power agrees with HFSS at the <strong>5 % level</strong> (AED lower) and pointwise SAR at the four ball centres within <strong>±10 %</strong> with the scatter on our side; normalised to each code's own accepted power the phantom dissipation agrees to ≈ 1–2 %, so the residual is the lumped-port feed systematic already named (<code>PORT-1</code>, <code>ANS-4</code> at 10 MHz), not the SAR computation; the two HFSS orders agree with each other. Rows 4–5 are records; row 6 (HFSS peak averaged SAR) is a cube-averaging boundary artefact and is not read. <strong>Licensed:</strong> the first absolute, externally checked coil-driven SAR statement in the repo, and <code>MAT-4</code>'s C4 identity gains an external anchor. <strong>Not licensed:</strong> any compliance (C95.3), homogeneity, B₁⁺, Larmor or quadrature claim. <strong>Step 2</strong> (rows 4–6, sphere-vs-cube) is now an optional record step. <strong>Step 4 (i) executed 2026-09-19, 04:30 slot — the cost probe fired its own pre-registered STOP rule; step 4 re-prices to XL and is BLOCKED on a commissioning review.</strong> The phantom h-halving diagnostic (does our 15.7 % driven-point C4 sampling scatter collapse toward HFSS's own (private) figure, and does the integral move (mesh) or not (feed); pre-registered decision rule in the gitignored adjudication file) was priced at ≈ 610 k cells and "minutes at <code>-n 8</code>". <strong>Measured</strong> (<code>20260919T093241Z_ANS-2.log:2033–2038</code>, Status 0, 566 s wall at <code>-n 8</code>): the 0.00125 m rung meshes to <strong>719 769 cells / 452 228 phantom cells / 845 188 unknowns</strong>, the mesh alone takes <strong>359.8 s</strong>, one drive <strong>188.4 s</strong>, and <code>ru_maxrss</code> sums to <strong>40.89 GiB</strong> across the eight ranks (max 5.76 GiB/rank). Four drives therefore extrapolate to <strong>1 114 s = 18.6 min</strong> <em>before</em> the 21 mass-averaged ball integrals and the point evaluations — over the item's 15 min ceiling, over the 40 GiB ceiling, and over §5.1's hard 20-min-per-command cap. Both stop criteria fire independently, so the pre-registered branch is unambiguous: <strong>nothing else in the item ran</strong>, no anchor was measured, and the ±10 % pointwise band on the verdict above is <strong>unmoved</strong>. The mesher, not the solver, is the surprise — 360 s of the 566 s is meshing, which the ≈ 610 k-cell prediction (scaled from <code>WF-7</code> step 0's <em>solve</em>) did not carry. Measurement-only probe committed as <code>tests/validation/probe_ans2_phantom_h_halving.py</code> (no assertion, no band). <strong>Unblock:</strong> a review pre-registers the four-drive halved-rung run in <code>docs/testing/xl-pending.md</code> under licence class "cost probe"/"priced family" — implementers never commission one. <strong>Step 4a ✅ 2026-09-19 (the XL prerequisite):</strong> the example reads <code>FEM_EM_ANS2_PHANTOM_RESOLUTION</code> — unset is byte-identical to the 0.0025 rung; when set it tags <code>metrics_h&lt;res&gt;.json</code> / <code>..._h&lt;res with p for the point&gt;.xdmf</code>, skips the two 0.0025-rung mesh-record assertions with a printed <code>[ANS-2 step 4] MESH-RECORD ASSERTIONS SKIPPED</code> line (every other imported band still asserted), never rewrites <code>COMPARISON.md</code> / <code>COMPARISON_private.md</code>, and prints the <code>[ANS-2 step 4]</code> readout beside the tracked rung's own <code>metrics.json</code>. Anchors: unset vs the tracked <code>metrics.json</code> and knob-<code>0.0025</code> vs unset both digit-identical on every primary leaf at <code>EXACT_IDENTITY_RTOL</code> (worst 8.187289e-11 / 8.167942e-11 of 145 leaves), negative control at 0.004 m prints the skip line and exits 0; the C4 sampling spread reads <strong>15.730%</strong> on the 0.0025 rung (reproducing the adjudication's 15.7%) and <strong>7.392%</strong> at 0.004 m — printed, never gated. <code>20260919T141006Z_ANS-2-step4a-unset-control.log</code>, <code>20260919T142050Z_ANS-2-step4a-knob-identity.log</code> (Status 0, 330 s). <strong><code>xl-pending.md</code> entry 10 is now READY</strong> and its "meshes once vs per drive" branch is settled (once). Details and the two side measurements (derived C4-miss leaves reproduce only to 2.16e-8; <code>write_xdmf_with_tags</code> ate the resolution tag's decimals) in §9 item 9. <em>History: <code>docs/planning/chunks/ANS-2.md</code>.</em> </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

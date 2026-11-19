@@ -1,0 +1,724 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>PORT-2 — Port data model and tagging contract - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#port-2-port-data-model-and-tagging-contract" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              PORT-2 — Port data model and tagging contract
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-247-2026-10-05-lane-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 247 — 2026-10-05 (lane 1)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="port-2-port-data-model-and-tagging-contract">PORT-2 — Port data model and tagging contract<a class="headerlink" href="#port-2-port-data-model-and-tagging-contract" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<h3 id="9-item-247-2026-10-05-lane-1">§9 item 247 — 2026-10-05 (lane 1)<a class="headerlink" href="#9-item-247-2026-10-05-lane-1" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-05 03:00 daily review; the review reviews it.</em></p>
+<p><strong><code>PORT-2</code> step 1: the port tagging contract as a round trip on the exact-strip fixture.</strong> This is the lane-1 target the 10-03 weekly named (PROJECT_PLAN.md:4645–4646): "the port tagging contract as a round-trip test on the exact-strip fixture ⇒ ✅".
+- <strong>Executor:</strong> implementer.
+- <strong>Tier:</strong> standard by measurement of the same build. The row's "smoke" is the pure-Python unit module's word and is re-labelled (see the row amendment). No solve. Complex env, because the fixture's records are tagged to the complex 0.11 image. Two windows: W1 at <code>-n 2</code>, W2 at <code>-n 1</code>.
+- <strong>Class:</strong> lane 1. The median is ≈ 8 min. <strong>Cost:</strong> ≈ 8 measured / ≈ 30 predicted min (15 fixed, ≈ 10 code, two windows of ≈ 1.5 min each).
+- <strong>Depends on nothing.</strong> No <code>src/</code> change: one new test module.</p>
+<p><strong>The contract, read off the code.</strong>
+- <code>src/fem_em_solver/ports/definitions.py</code> contains:
+  - the tagging contract comment, <code>:14–22</code> (facets primary, edges fallback, name template <code>port_&lt;id&gt;_&lt;suffix&gt;</code>);
+  - <code>PortDefinition</code>, <code>:28–61</code>;
+  - <code>required_port_tags</code>, <code>:72–79</code>;
+  - <code>validate_required_port_tags_exist</code>, <code>:82–111</code>. Its warning (<code>:88–97</code>) requires a <strong>globally reduced</strong> tag set: <code>OPS-14</code> measured a rank-local read raising on 4/4 ranks at <code>-n 4</code>.
+  - <code>validate_port_ordering</code>, <code>:114–135</code>, and <code>run_port_calibration_checks</code>, <code>:224–246</code>.
+- On the birdcage the definitions are built in <code>_four_port_rung</code> (<code>tests/validation/test_port_birdcage_leg_offset_sweep.py:394–405</code>):
+  - <code>positive_tag = SHEET_IFACE + i</code>. This is a <strong>facet</strong> tag, rebuilt on the dolfinx side by <code>_interface_facet_tags</code> (<code>src/fem_em_solver/io/mesh.py:290–373</code>) and narrowed by <code>_narrowed_radial</code> (<code>:166–196</code>).
+  - <code>negative_tag = CONDUCTOR_CELL_TAG</code>. This is a <strong>cell</strong> tag.
+  - <code>orientation = "leg_gap_axial_plus_z"</code>, and <code>z0_ohm = REFERENCE_IMPEDANCE_OHM</code>.
+  - The matching <code>LumpedSheetPortSpec</code> objects are built at <code>:380–391</code>.
+- <strong>Nothing on the lumped-sheet route checks that a <code>PortDefinition</code>'s <code>positive_tag</code> equals its spec's <code>facet_tag</code>.</strong> <code>run_n_port_sparameter_sweep</code> checks only validity and uniqueness of IDs (<code>src/fem_em_solver/ports/sparameters.py:394–402</code>).
+- <code>tests/ports/test_port_definition.py</code> exercises the model on literal integers only. No test has read a mesh's tags back through it. The round trip is that test.</p>
+<p><strong>Code (tests only): new <code>tests/validation/test_port2_exact_strip_tag_roundtrip.py</code>.</strong>
+- <strong>Fixture (module scope).</strong>
+  - Call <code>_build(np.zeros(4), leg_sheet_strip_fraction=GATED_WIDTH_FRACTION)</code> (<code>tests/mesh/test_birdcage_leg_offset.py:107</code>).
+  - Then run <code>_sheet_areas</code> and, per port, <code>_sheet_azimuth_deg</code> / <code>_port_frame</code> / <code>_projected_extents</code> / <code>_narrowed_radial</code>. This is the sequence of <code>_rung</code> (<code>tests/validation/test_ops61_exact_strip_ports.py:79–117</code>) and of <code>_four_port_rung</code> (<code>:297–333</code>), imported, never retyped.
+  - Build the <code>PortDefinition</code> objects and the specs exactly as <code>:380–405</code> does. The specs are constructed only so that their <code>facet_tag</code> can be read; there is no solve.
+- <strong>Reduced tag sets.</strong>
+  - <code>facet_set</code> = the sorted union of <code>comm.allgather(np.unique(tags.values).tolist())</code>, the idiom at <code>src/fem_em_solver/ports/excitation.py:271–275</code>.
+  - <code>cell_set</code> is built the same way from <code>cell_tags.values</code>.
+- <strong>Helper <code>_roundtrip(port_defs, specs, msh, tags, comm)</code>.</strong> It runs every collective on every rank and returns per-port records. It then raises <code>ValueError("port tag/geometry mismatch: …")</code> naming every port for which either:
+  - the spec's <code>facet_tag ≠ positive_tag</code>, or
+  - the tagged facet set's quarter-turn index <code>round(az/90) mod 4 ≠ i − 1</code>.</p>
+<p><strong>Anchors (asserted, both widths).</strong>
+- <strong>(T0) Premise.</strong>
+  - <code>0.5·dx·dz</code> equals <code>SPEC_AREA_M2</code> (<code>tests/validation/test_ans4_exact_strip_records.py:131–133</code>, the 0.007 × 0.008 CAD rectangle) within <code>STRIP_BAND</code> (<code>test_ops61_exact_strip_ports.py:58</code>, 1e-9).
+  - Cells vs <code>ANS4_EXACT_STRIP_CELL_RECORD</code> (<code>:64</code>) within <code>CELL_COUNT_BAND</code>.
+- <strong>(T1) Existence, and the right dimension.</strong>
+  - <code>validate_required_port_tags_exist(port_defs, facet_set ∪ cell_set)</code> returns.
+  - Stricter, and asserted separately because the validator does not know about dimensions: every <code>positive_tag ∈ facet_set</code> and <code>negative_tag ∈ cell_set</code>.
+- <strong>(T2) Non-empty, with an exact owned-count reduction.</strong> Per port:
+  - <code>n_i</code> = the allreduced count of facets <code>&lt; index_map(2).size_local</code> carrying the tag (<code>_owned_facet_count</code>, <code>test_ops61_exact_strip_ports.py:72–76</code>).
+  - Assert <code>n_i &gt; 0</code>.
+  - Assert <code>n_i == |⋃_ranks local_to_global(all local facets carrying the tag)|</code>. This is an integer identity: a reduction that counts ghost copies, or loses one, fails it.
+  - Print <code>n_i</code> beside the 40 triangles recorded at <code>-n 1</code> and <code>-n 2</code> (<code>20261001T215942Z_OPS-61-F10a-W1.log:3576–3579</code>; <code>20261001T220051Z_OPS-61-F10a-W2.log:3591–3594</code>). This is printed only: a mesher record, never registered as a constant.
+- <strong>(T3) Area.</strong> <code>|A_i / SPEC_AREA_M2 − 1| ≤ STRIP_BAND</code> per port, with <code>A_i</code> from <code>_interface_area_or_zero</code>.
+  - <em>Asserted</em>: +1.110e-15 … +1.554e-15 on this fixture at <code>-n 2</code> (<code>…220051Z…:3591–3594</code>).
+- <strong>(T4) Bijection.</strong>
+  - <code>port_id → positive_tag</code> is injective, and its image equals <code>{SHEET_IFACE + i}</code> ⊂ <code>facet_set</code>.
+  - Each spec's <code>(port_id, facet_tag)</code> equals its definition's <code>(port_id, positive_tag)</code>.
+  - The quarter-turn index of P_i's tagged set is <code>i − 1</code>. This is an integer test with no band. P1 reads ≈ 360.0000° (<code>20261001T220154Z_OPS-61-F10a-W0-regate.log:5313</code>), so the <code>mod 4</code> is load-bearing.
+  - <code>validate_port_ordering(..., expected_port_order=["P1", "P2", "P3", "P4"])</code> returns.
+  - <code>run_port_calibration_checks</code> passes on <code>port_face_areas = {P_i: A_i}</code> at its own default ratio of 1.25. Print the ratio.</p>
+<p><strong>Negative controls (asserted, by construction; every rank).</strong>
+- <strong>(C1) Missing tag.</strong>
+  - Drop every facet of <code>SHEET_IFACE + 3</code> from the tags on every rank, and rebuild <code>meshtags</code> with sorted indices (<code>_narrowed_radial</code>'s argsort idiom).
+  - Re-reduce the tag set. <code>validate_required_port_tags_exist</code> must raise <code>ValueError</code> matching <code>r"missing required port tags: \[&lt;SHEET_IFACE+3&gt;\]"</code>.
+  - The raise is deterministic and identical on every rank, because the set is reduced.
+- <strong>(C2) Swapped tag.</strong> Relabel the facets of <code>SHEET_IFACE + 2</code> ↔ <code>SHEET_IFACE + 4</code>.
+  - Assert that <code>validate_required_port_tags_exist</code> <strong>passes</strong>. The existence contract is blind to a swap; this is a set identity.
+  - Assert that (T3) also passes. The areas are equal, as the backing above shows.
+  - Assert that <code>_roundtrip</code> raises <code>"port tag/geometry mismatch"</code> with both <code>P2</code> and <code>P4</code> in the message. Their quarter-turn indices are off by 2, so the failure is arithmetically certain.
+  - This is the control that shows why (T4) exists.
+- <strong>(c3) Printed, predicted, never asserted.</strong> The rank-local read <code>OPS-14</code> paid for: whether each rank's <code>np.unique(tags.values)</code> alone holds all four sheet tags, gathered and printed.
+  - At <code>-n 1</code> it does trivially. At <code>-n 2</code> it depends on the partition.
+  - Compute it with no validator call inside a rank-divergent branch.</p>
+<p><strong>Windows</strong> (foreground, Bash <code>timeout: 660000</code>; each harness call is the whole Bash command, bare and repo-relative; <code>-s</code>; no pipes; no <code>-k</code> selection). The existing unit module runs in the same window.</p>
+<p><code>scripts/testing/run_and_log.sh PORT-2-step1-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment tests/ports/test_port_definition.py tests/validation/test_port2_exact_strip_tag_roundtrip.py -s -v --tb=short'"</code></p>
+<p><code>scripts/testing/run_and_log.sh PORT-2-step1-W2 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 180 mpiexec -n 1 python3 -m pytest tests/environment tests/ports/test_port_definition.py tests/validation/test_port2_exact_strip_tag_roundtrip.py -s -v --tb=short'"</code></p>
+<p><strong>Cost, from logs.</strong>
+- One exact ×1 rung builds in 26.62 s at <code>-n 2</code> (<code>20261001T220051Z_OPS-61-F10a-W2.log:3590</code>) and 27.05 s at <code>-n 1</code> (<code>…215942Z…W1.log:3575</code>). The two-rung <code>OPS-61</code> module took 57 s at either width.
+- <code>tests/environment</code> plus two pure ports modules took 51 s at <code>-n 1</code> (<code>20261002T201726Z_PORT-3-W2.log</code>).
+- Predicted ≈ 70–100 s per window: standard, inside the 180 s ceiling.
+- <strong>Box-speed gate:</strong> a rung print over 60 s means a slow box, which is a price. A kill at 180 s stops the item BLOCKED with the reading; never lengthen the timeout.</p>
+<p><strong>Traps.</strong>
+- <strong>Rank-local data:</strong> <code>cell_tags.values</code> and <code>facet_tags.values</code> are rank-local; this is the very <code>OPS-14</code> defect the validator's docstring names. Filter facets by <code>index_map(2).size_local</code> before counting.
+- <strong>Reductions:</strong> <code>_projected_extents</code> / <code>_sheet_azimuth_deg</code> reduce through <code>allgather</code>, elementwise (<code>PORT-9</code> 3c: <code>allreduce</code> on arrays falls through to Python's <code>min</code>).
+- <strong>Collectives:</strong> every rank runs every collective, and asserts come after them. <code>pytest.raises</code> runs on every rank. A <code>comm.</code> call under <code>if comm.rank == 0:</code> deadlocks (item 227).
+- <strong><code>meshtags</code></strong> needs sorted, unique indices.
+- <strong>Azimuth wrap:</strong> 360° ≡ 0°.
+- <strong>No UFL form beyond <code>_interface_area_or_zero</code>'s <code>dS</code>.</strong> It ran green at <code>-n 2</code> on this fixture (<code>OPS-61</code> W2).
+- <strong>Compiles:</strong> sweep orphan <code>.c</code> stems only with <code>pgrep -c python3</code> reading 0.
+- <strong>Run hygiene:</strong> rule (i).</p>
+<p><strong>Scope.</strong>
+- One fixture (exact ×1, zero offsets), one mesh, no solve.
+- <strong>Not exercised:</strong>
+  - physical-group names (<code>PORT_TAG_NAME_TEMPLATE</code>, <code>definitions.py:22</code>). The birdcage carries integer tags only; named CAD ports are (9b)'s and <code>GEO-37</code>'s;
+  - the edge fallback;
+  - ragged fixtures;
+  - a displaced-leg layout.
+- The contract is silent on dimension. On this fixture the negative terminal is a cell region; that is recorded, not ruled on.
+- A geometry-aware swap check in <code>src/</code> would be a feature, not this lane's. The test-local helper is the deliverable.</p>
+<p><strong>Negative result.</strong>
+- <strong>(T1) or (T4) red on the unplanted fixture:</strong> the port-ID ↔ sheet contract that every four-port record relies on is broken.
+  - Stop. Open a known-issues entry naming the port(s), and park on <code>attempt/PORT-2-step1-&lt;UTC&gt;</code>, BLOCKED in the same commit (rule (d)).
+- <strong>(T2) red:</strong> this is a rank-safety defect in the tag reduction; known-issues entry, same disposition.
+- <strong>(T3) or (T0) red:</strong> the exact-strip build regressed. Re-run <code>tests/validation/test_ops61_exact_strip_ports.py</code> in-slot to tell which; stop.
+- <strong>(C1) / (C2) red (a plant that does not fire):</strong> the instrument is wrong. Fix it once, disclose, and re-run. If it is still red, BLOCKED.
+- There is no PREDICTED RED line; the drafter predicts green.</p>
+<p><strong>Status it can move.</strong> <code>PORT-2</code> 🧪 → ✅.
+- <strong>Row amendment (rule (j)), in the review's own commit.</strong> The §7 row (PROJECT_PLAN.md:2667) has no Done-when. The review writes:</p>
+<blockquote>
+<p><strong>Done-when (2026-10-05 03:00 review, rule (j); the 10-03 weekly's lane-1 target, §9 item 247):</strong> on the exact-strip ×1 birdcage (<code>leg_sheet_strip_fraction = GATED_WIDTH_FRACTION</code>), the <code>PortDefinition</code>s built as <code>_four_port_rung</code> builds them round-trip at <code>-n 2</code> and <code>-n 1</code>:
+- <code>validate_required_port_tags_exist</code> passes on the globally reduced tag set, with positive tags among the facet tags and the negative tag among the cell tags;
+- every port's facet set is non-empty, with an exact owned-count reduction;
+- every area equals the 0.007 × 0.008 CAD rectangle within <code>STRIP_BAND</code>;
+- port IDs ↔ tags are bijective and place P_i on leg i;
+- a planted missing tag raises "missing required port tags", and a planted swap passes the existence check but fails the round trip, naming both ports;
+- <code>tests/ports/test_port_definition.py</code> is green in the same window ⇒ 🧪 → ✅.
+- The Tier cell becomes "smoke (unit module); standard (round trip, measured)".</p>
+</blockquote>
+<p><strong>§9 line 2:</strong> → docs/planning/chunks/PORT-2.md#§9-item-247</p>
+<p><strong>Outcome — ✅ DONE 2026-10-05 09:00 CDT slot (implementer; <code>PORT-2</code> 🧪 → ✅).</strong> New <code>tests/validation/test_port2_exact_strip_tag_roundtrip.py</code> (complex_only), no <code>src/</code> change; every helper and band imported (<code>_build</code>, <code>_sheet_areas</code>, <code>_sheet_azimuth_deg</code>, <code>_port_frame</code>, <code>_projected_extents</code>, <code>_narrowed_radial</code>, <code>_owned_facet_count</code>, <code>STRIP_BAND</code>, <code>CELL_COUNT_BAND</code>, <code>ANS4_EXACT_STRIP_CELL_RECORD</code>, <code>SPEC_AREA_M2</code>). W1 <code>-n 2</code> 27 passed, Status 0, 86.9 s (<code>20261005T140943Z_PORT-2-step1-W1.log</code>); W2 <code>-n 1</code> 27 passed, Status 0, 90.8 s (<code>20261005T141117Z_PORT-2-step1-W2.log</code>). First run of each, no edits between them. Rung 26.07 s / 27.30 s (box-speed gate 60 s: normal box).</p>
+<p><strong>Step 1 narrative (2026-10-05).</strong>
+- (T0) cells 117 206 = record at both widths; 0.5·dx·dz = <code>SPEC_AREA_M2</code> within <code>STRIP_BAND</code>.
+- (T1) reduced facet set [211, 212, 213, 214], cell set [1, 2, 3, 101…104, 201…204]; <code>validate_required_port_tags_exist</code> returns; every positive tag is a facet tag and the negative tag 1 (<code>CONDUCTOR_CELL_TAG</code>) a cell tag.
+- (T2) n_i = 40 owned facets on every port and 40 = |⋃ local_to_global| at both widths (the mesher's 40-triangle record reproduced, printed only).
+- (T3) areas 5.600000000000e-05, relative +1.110e-15 / +1.554e-15 / +1.110e-15 / +1.332e-15 at <code>-n 2</code>, +1.110e-15 / +1.110e-15 / +8.882e-16 / +1.110e-15 at <code>-n 1</code> (band 1e-9).
+- (T4) positives injective with image {SHEET_IFACE + i}; spec <code>facet_tag</code> = <code>positive_tag</code> for every port; azimuths 360.0000 / 90 / 180 / 270°, quarter-turn indices [0, 1, 2, 3] (the <code>mod 4</code> carried P1); ordering and <code>run_port_calibration_checks</code> pass, max face-area ratio 1.000000000000000.
+- (C1) dropping 213 raises <code>missing required port tags: [213]</code> on every rank.
+- (C2) swapping 212 ↔ 214 passes the existence check and the area band; <code>_roundtrip</code> raises naming P2 (quarter 3 vs 1, az 270°) and P4 (quarter 1 vs 3, az 90°) and neither P1 nor P3.
+- (c3), printed: at <code>-n 2</code> the per-rank local facet tag sets each lack at least one sheet tag ([False, False]); at <code>-n 1</code> [True]. A rank-local <code>tags.values</code> handed to the validator would have raised on both ranks of this partition — the <code>OPS-14</code> defect, here on facets.
+- Not exercised (scope as briefed): named physical groups, the edge fallback, ragged or displaced fixtures. The contract stays silent on dimension; on this fixture the negative terminal is a cell region (recorded, not ruled on).</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

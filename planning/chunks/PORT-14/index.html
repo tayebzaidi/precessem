@@ -1,0 +1,1714 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>PORT-14 - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#port-14" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              PORT-14
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#narrative-moved-verbatim-from-project_planmd-7-ops-47" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Narrative — moved verbatim from PROJECT_PLAN.md §7 (OPS-47)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ruling-appended-2026-09-13-1800-daily-review-step-3-anchor-i-re-registered" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ruling appended 2026-09-13 18:00 daily review — step 3 anchor (i) re-registered
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-landed-2026-09-13-1930-slot-on-the-re-registered-anchor-i" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3 landed 2026-09-13 19:30 slot — ✅ on the re-registered anchor (i)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-01-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-01 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="port-14">PORT-14<a class="headerlink" href="#port-14" title="Permanent link">&para;</a></h1>
+<h2 id="narrative-moved-verbatim-from-project_planmd-7-ops-47">Narrative — moved verbatim from PROJECT_PLAN.md §7 (OPS-47)<a class="headerlink" href="#narrative-moved-verbatim-from-project_planmd-7-ops-47" title="Permanent link">&para;</a></h2>
+<p><strong><code>PORT-14</code> — lumped RLC sheets (HFSS <em>Lumped RLC</em>)</strong> 🟡 <em>(step 1 executed
+2026-09-05, 21:00 implementer slot — <strong>the code lands, the gate does not
+close.</strong> <code>series_rlc_impedance</code> and a complex <code>Z_p</code> on the sheet, plus
+<code>src/fem_em_solver/ports/circuit.py::reduce_terminated_ports</code>, are in and
+solve; the 50 Ω baseline reproduces <code>PORT-9</code> on the run's own mesh
+(<code>‖S−Sᵀ‖/‖S‖ = 1.464324816e-14</code>, <code>σ_max = 0.999992805</code>); the reduction
+identity reads <strong>1.595580e-03 (C = 100 pF), 3.370512e-03 (L = 1 µH),
+7.249519e-04 (R = 200 Ω)</strong> against the pre-stated <strong>1e-3</strong>, i.e. the lumped
+sheet is single-mode to 3.4e-03, not 1e-3. Band <strong>not</strong> widened, per §9
+item 2's negative-result protocol; known-issues 🟡, test deliberately red on
+<code>main</code>. The ceiling-first Γ = 0 control passes with room (Δ = 0.322 / 0.325 /
+0.211, misses 0.322 / 0.327 / 0.212 = 200–330× the band), so the gate is
+resolving the termination. The residual <strong>tracks |Γ|</strong>, not the element type —
+the hypothesis a step 1b would test is sheet/interior-width resolution, not
+the complex arithmetic. <code>20260905T020428Z_PORT-14.log</code>, heavy tier by ceiling,
+<code>-n 2</code>, 105 s, 13 solves on one 116 085-cell mesh.)</em> <em>(<strong>feature ladder
+A2</strong>, operator directive 2026-09-04; serial on nothing; <code>TH-17</code> is serial on
+it.)</em> The <code>PORT-9</code> sheet term carries <code>Z_p = 50 Ω</code>; let it carry
+<code>Z_p(ω) = R + jωL + 1/(jωC)</code> per sheet, so a capacitor in a ring gap is a
+boundary condition rather than a circuit afterthought. Gate (an algebraic
+identity, no closed form needed): <strong>the field-solved S-matrix with port <em>k</em>
+terminated in <code>Z_p</code> equals the circuit reduction of the 50 Ω S-matrix by
+that termination</strong> (<code>S' = S_aa + S_ab Γ (I − S_bb Γ)⁻¹ S_ba</code>, Γ the
+termination's reflection coefficient) to ≤ 1e-3 on the 4-leg fixture at 10
+and 64 MHz, for a capacitor, an inductor and a resistor each. That is also
+<code>PORT-15</code>'s gate seen from the field side, which is why the two are one
+lineage. Standard tier.</p>
+<blockquote>
+<ul>
+<li><strong>Step 1b (the |Γ| ordering, measured on resolution; scoped
+  2026-09-05 03:00 review, §9 item 4).</strong> The slot's hypothesis — the
+  residual tracks |Γ| (1.6e-3 and 3.4e-3 at |Γ| = 1, 7.2e-4 at
+  |Γ| = 0.6), i.e. total reflection re-excites the sheet's non-single-mode
+  content — predicts that the residual falls with sheet resolution and
+  is indifferent to the element type. Measure it on the <strong>L = 1 µH</strong>
+  case (the worst) and the <strong>C = 100 pF</strong> case, on two refined rungs of
+  the same fixture: <code>conductor_resolution</code> × 0.75 and × 0.5 through an
+  additive <code>conductor_resolution=None</code> keyword on
+  <code>tests/mesh/test_birdcage_port_sheets.py::_build</code> (the <code>WF-6</code> step 3f₀
+  <code>phantom_resolution</code> precedent — <code>None</code> leaves every gate's mesh
+  bit-identical, and <code>test_port_birdcage_four_port.py</code> is re-run green
+  in the same slot as its gate). Per rung: the 50 Ω 4×4 (4 solves) with
+  the imported reciprocity / passivity asserts, then the two terminated
+  3×3s (6 solves), residuals <strong>printed</strong> beside the 116 085-cell record
+  with the cell count. <strong>Pre-registered readings:</strong> monotone decrease on
+  both cases is the hypothesis confirmed and step 2 (64 MHz) is queued
+  on the finer rung; flat or rising residuals refute it and the next
+  suspect is the sheet law's <code>sheet_width_m</code> (the area-based effective
+  width, <code>lumped.py:353</code>) — a <code>PORT-14</code> step 1c, not a band change.
+  <code>REDUCTION_BAND</code> stays 1e-3 either way; the row stays 🟡; nothing is
+  asserted on the residuals in this step. Heavy by ceiling.</li>
+<li><strong>Step 1b executed 2026-09-05, 09:00 implementer slot — the hypothesis is
+  REFUTED, and the refutation names the next suspect.</strong> Two refined rungs,
+  one window each, band untouched, row still 🟡. The residual is <strong>not</strong>
+  monotone in sheet resolution:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><code>conductor_resolution</code></th>
+<th>cells</th>
+<th><code>sheet_width_m</code> per port</th>
+<th>C = 100 pF</th>
+<th>L = 1 µH</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>×1 (step 1's record)</td>
+<td>116 085</td>
+<td>7.294123600e-03 ×4</td>
+<td>1.595580e-03</td>
+<td>3.370512e-03</td>
+</tr>
+<tr>
+<td>×0.75</td>
+<td>161 695</td>
+<td><strong>6.884098695e-03 / 7.649794837e-03 alternating</strong></td>
+<td>4.187955e-03 (×2.6247)</td>
+<td>8.875487e-03 (×2.6333)</td>
+</tr>
+<tr>
+<td>×0.6</td>
+<td>209 604</td>
+<td>7.674817764e-03 ×4</td>
+<td>1.490415e-03 (×0.9341)</td>
+<td>3.144877e-03 (×0.9331)</td>
+</tr>
+</tbody>
+</table>
+<p>(<code>20260905T140449Z_PORT-14-step1b-r075.log:1886–1888, 1892–1893, 1897–1898</code>,
+  Status 0, 149 s, <code>-n 2</code>; <code>20260905T140738Z_PORT-14-step1b-r060.log:1877–1879,
+  1885–1886, 1892–1893</code>, Status 0, 136 s, <code>-n 4</code> — licensed because the first
+  window came in under 300 s. Both heavy by ceiling; a <code>--collect-only</code>
+  import smoke first, <code>20260905T140432Z_PORT-14-step1b-smoke.log:76–77</code>,
+  Status 0, 5 s.) <strong>Asserted and green on both rungs</strong> (imported bands, none
+  moved): reciprocity <code>‖S−Sᵀ‖/‖S‖</code> = <strong>2.392912949e-14</strong> (×0.75) and
+  <strong>1.574340894e-14</strong> (×0.6) against 1e-3; <code>σ_max</code> = <strong>0.999992054</strong> and
+  <strong>0.999992924</strong> against 1 + 1e-9; cell count strictly above the record on
+  both; and the ceiling-first Γ = 0 control asserted on both terminations of
+  both rungs (Δ = 0.3202 / 0.3232 and 0.3217 / 0.3252, missing by 0.3204 /
+  0.3267 and 0.3218 / 0.3264 — 200–330× the band, as step 1). So each rung is
+  a valid 4×4 and its residual means something.
+  <strong>Reading.</strong> The residual rises 2.6× on the ×0.75 rung and falls 0.93× on
+  the finer ×0.6 rung — not monotone, so the slot's |Γ|-plus-resolution
+  hypothesis is refuted; and step 2 (64 MHz) is <strong>not</strong> queued on "the finer
+  rung" as the pre-registration would have had it. What the residual <em>does</em>
+  track is the pre-registered next suspect, <code>sheet_width_m</code> (<code>lumped.py:353</code>,
+  the area-based effective width off the <strong>measured</strong> extents): the ×0.75
+  rung is the only one whose four narrowed sheets do not share one width —
+  they alternate 6.884e-03 / 7.650e-03, a C4 break of ±5.3% — and it is the
+  only rung whose residual rises. The two elements move by the <em>same</em> factor
+  on each rung to 4 significant figures (2.6247 / 2.6333; 0.9341 / 0.9331),
+  i.e. the residual is a common geometric factor times a per-element
+  constant, not an element-type effect — which is the same conclusion step 1
+  drew from the |Γ| ordering, now with the geometry named.
+  <strong><code>PORT-14</code> step 1c is therefore the live branch:</strong> the sheet law's
+  effective width, not mesh density. Note the C4 break is invisible to
+  <code>PORT-9</code>'s reciprocity/passivity/C4 gates — all three pass on the ×0.75
+  rung — so it is a defect only the reduction identity can see. Code from
+  this step is additive and gate-neutral: <code>conductor_resolution=None</code> on
+  <code>tests/mesh/test_birdcage_port_sheets.py::_build</code> and on
+  <code>build_four_port_sweep</code> (<code>None</code> ⇒ the module <code>CONDUCTOR_RESOLUTION</code>, every
+  gate's mesh bit-identical), and three rung tests in
+  <code>tests/validation/test_port_lumped_rlc_termination.py</code> that <strong>skip</strong> unless
+  <code>FEM_EM_PORT14_CONDUCTOR_RESOLUTION_FACTOR</code> is set, so the gate rung (and
+  its deliberately red gate test) is untouched and was not re-run here.
+* <strong>Step 1c (the width law, measured on a fixed mesh; scoped 2026-09-05
+  10:30 review, §9 item 4).</strong> Step 1b's table has one clean discriminator
+  in it: the ×0.75 rung is the only rung whose four <code>sheet_width_m</code> values
+  are not equal (6.884e-03 / 7.650e-03 alternating, ±5.3% about their
+  mean) and the only rung whose residual <em>rose</em>. Hold the <strong>×1 mesh</strong>
+  (116 085 cells, the gate rung — no new mesh) fixed and perturb the width
+  the sheet law is <em>told</em>, per port, through the <code>LumpedSheetPortSpec</code>
+  rebuild the module already does in <code>_terminated_three_port</code>
+  (<code>test_port_lumped_rlc_termination.py:101–125</code>): three configurations,
+  each a full 50 Ω 4×4 (4 solves) plus the L and C terminated 3×3s (6
+  solves) with the 4×4 reduced by the <em>nominal</em> Γ exactly as step 1 —
+  <strong>(A) common +5%</strong>, <strong>(B) common −5%</strong>, <strong>(C) alternating ±5.3%</strong>
+  (P1, P3 at +5.3%, P2, P4 at −5.3% — step 1b's ×0.75 rung reproduced on
+  the gate mesh). Baseline is step 1's record (1.595580e-03 / 3.370512e-03),
+  imported not re-run. <strong>The pre-stated readings.</strong> The sheet resistivity
+  is <code>Z_p · w/h</code> (<code>lumped.py:111</code>), so a <em>common</em> factor <code>(1+ε)</code> on <code>w</code>
+  scales every sheet's effective <code>Z</code> by <code>(1+ε)</code> while the reduction's Γ is
+  built from the nominal <code>Z_p/z0</code> ratio, which the common factor leaves
+  invariant; the field-solved S is referenced to the nominal <code>z0 = 50</code>
+  through <code>_power_waves</code>, which it does not. Hence: (1) if the residual
+  under (A)/(B) moves <strong>linearly in ε and in opposite directions</strong> with
+  a common zero-crossing <code>ε*</code> for C and L (both elements moved by the
+  same factor per rung in step 1b to 4 s.f., so the crossing must be
+  common), the width law is the lever and <code>(1+ε*)</code> is the correction
+  the area-based <code>A/h</code> is missing — a step 1d re-derives the effective
+  width (edge-based, or from the sheet's own 50 Ω self-consistency) and
+  then, and only then, re-runs the gate; (2) if (A)/(B) leave the
+  residual <strong>flat</strong> (&lt; 10% change) while (C) moves it by the step 1b
+  factor (×2.6-class), the <em>uniformity</em> of the widths is what the
+  identity sees and the law's absolute value is exonerated — the suspect
+  becomes the sheet's non-single-mode content itself, which is a
+  resolution-of-the-<em>sheet</em> question the ×0.75 rung's C4 break masked,
+  and step 2 (64 MHz) waits on a sheet-refinement rung, not a conductor
+  one; (3) if none of (A)/(B)/(C) moves the residual by more than 10%,
+  <code>sheet_width_m</code> is exonerated entirely, the ×0.75 rise is a mesh
+  artefact, and the next suspect is the reduction's assumption that the
+  terminated sheet is the <em>same</em> port (same <code>I</code>, same <code>V</code> definition) the
+  50 Ω sweep measured — a <code>sheet_terminal_current</code> question. <strong>Anchors
+  (asserted, all imported, none moved):</strong> per configuration, reciprocity
+  ≤ <code>RECIPROCITY_BAND</code> and <code>σ_max ≤ 1 + PASSIVITY_SIGMA_TOLERANCE</code> on the
+  4×4 — a perturbed width must still give a valid passive reciprocal
+  network or its residual means nothing; cell count = the 116 085 record
+  (same mesh, bitwise). <strong>Negative control, ceiling first:</strong> the Γ = 0
+  control on each configuration as step 1 did (Δ from the 4×4 first,
+  assert ≥ 5× the band only where Δ ≥ 5e-3; step 1 measured 0.32 / 0.33).
+  <strong>Printed, not asserted:</strong> the six residuals, each beside the record
+  and as a factor of it; the per-port <code>sheet_width_m</code> actually passed.
+  <strong>Tier / ranks / cost:</strong> 30 solves on the gate mesh; step 1's 13 solves
+  ran 105 s at <code>-n 2</code> ⇒ ≈ 240 s, one window, <code>timeout -k 30 600</code>, <code>-n 2</code>
+  (this is a fixed-mesh measurement, so <code>-n 4</code> is licensed if the first
+  configuration passes 100 s — split into two windows rather than
+  overrun). <strong>Traps:</strong> step 1's list; the width goes into the spec and
+  <em>only</em> the spec — the mesh, the facet tags and the measured extents are
+  untouched, so print the widths passed per port and per configuration;
+  the gate rung's red test is not re-run here; <code>abs</code>/<code>.real</code> before any
+  comparison; <code>FEM_EM_REQUIRE_COMPLEX=1</code>, <code>tests/environment</code> first,
+  pytest <code>-s</code>; the new tests <strong>skip</strong> unless <code>FEM_EM_PORT14_WIDTH_SWEEP</code>
+  is set, so <code>main</code>'s red set does not change. <strong>Scope:</strong> a measurement
+  on the gate mesh at 10 MHz; <code>REDUCTION_BAND</code> stays 1e-3, the row stays
+  🟡, no record moves, no §2 change, no <code>src/</code> change. <strong>Negative result:</strong>
+  reading (3) is itself the finding — §7 annotation naming the
+  <code>sheet_terminal_current</code> suspect, stop; a configuration whose 4×4 fails
+  reciprocity/passivity is a fixture finding (known-issues with its
+  widths, stop).
+* <strong>Step 1c executed 2026-09-05, 21:30 implementer slot — the data select
+  pre-registered reading (1): <code>sheet_width_m</code> IS the lever, and the
+  zero-crossing is common to both elements.</strong> One window, one mesh, band
+  untouched, row still 🟡, no record moved, no <code>src/</code> change.
+  <code>20260905T213322Z_PORT-14-step1c.log</code>, heavy tier by ceiling
+  (<code>timeout -k 30 570</code>), <code>-n 2</code>, complex build, <strong><code>9 passed, 6 deselected
+  in 230.46s</code>, Status 0, 258 s</strong> (<code>:2132</code>, <code>:2138–2139</code>) — 34 solves on the
+  one 116 085-cell gate mesh (baseline 4×4 + 3 × (4 + 3 + 3)); a
+  <code>--collect-only</code> import smoke first, <code>20260905T213309Z_PORT-14-step1c-smoke.log:55</code>
+  (<code>9/15 tests collected (6 deselected)</code>), Status 0, 4 s.</p>
+<p>The baseline rung reproduces step 1b's ×1 row exactly: <strong>116 085 cells</strong>,
+  <code>sheet_width_m</code> = <strong>7.294123600e-03 m ×4</strong> (<code>:1924</code>). Per configuration,
+  the residuals <strong>printed, not asserted</strong>, beside step 1's record:</p>
+<table>
+<thead>
+<tr>
+<th>config</th>
+<th>ε per port (P1…P4)</th>
+<th>widths told (m)</th>
+<th>C = 100 pF</th>
+<th>L = 1 µH</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>— (step 1's record)</td>
+<td>0</td>
+<td>7.294123600e-03 ×4</td>
+<td>1.595580e-03</td>
+<td>3.370512e-03</td>
+</tr>
+<tr>
+<td><strong>A</strong> common +5%</td>
+<td>+.05 ×4</td>
+<td>7.658829780e-03 ×4</td>
+<td><strong>9.260556e-03 (×5.803881)</strong></td>
+<td><strong>1.965102e-02 (×5.830276)</strong></td>
+</tr>
+<tr>
+<td><strong>B</strong> common −5%</td>
+<td>−.05 ×4</td>
+<td>6.929417420e-03 ×4</td>
+<td><strong>5.980286e-03 (×3.748033)</strong></td>
+<td><strong>1.255208e-02 (×3.724086)</strong></td>
+</tr>
+<tr>
+<td><strong>C</strong> alt. ±5.3%</td>
+<td>+.053/−.053/+.053/−.053</td>
+<td>7.680712151e-03 / 6.907535049e-03 alternating</td>
+<td><strong>8.990276e-03 (×5.634488)</strong></td>
+<td><strong>1.914418e-02 (×5.679903)</strong></td>
+</tr>
+</tbody>
+</table>
+<p>(<code>:1976–1981, 1985–1986</code> (A); <code>:2045–2050, 2054–2055</code> (B);
+  <code>:2114–2119, 2123–2124</code> (C).)
+  <strong>Asserted and green on all three</strong> (imported bands, none moved, all nine
+  tests pass): cell count <strong>116 085 bitwise</strong> on every configuration — the
+  perturbation enters the <code>LumpedSheetPortSpec</code> and nothing else, through
+  <code>build_four_port_sweep</code>'s existing <code>reuse</code> route with <code>sheets[k]["w"]</code>
+  scaled; reciprocity <code>‖S−Sᵀ‖/‖S‖</code> = <strong>1.891254889e-14 / 4.829117353e-15 /
+  7.780907717e-15</strong> against 1e-3; <code>σ_max</code> = <strong>0.999988336 / 0.999997273 /
+  0.999996814</strong> against 1 + 1e-9 — so each perturbed 4×4 is a valid passive
+  reciprocal network and its residual means something. The ceiling-first
+  Γ = 0 control is asserted on all six terminations (Δ = 0.3254 / 0.3281,
+  0.3177 / 0.3221, 0.3060 / 0.3081, all above the 5e-3 floor; misses 0.3259 /
+  0.3361, 0.3175 / 0.3173, 0.3064 / 0.3157 — 200–330× the band, as step 1)
+  (<code>:1990–1991</code>, <code>:2059–2060</code>, <code>:2128–2129</code>).</p>
+<p><strong>Reading — outcome (1), with one qualification.</strong> (A) and (B) both move
+  the residual by far more than the 10% the pre-registration set as "flat":
+  ×5.80 and ×3.75. So outcomes (2) and (3) are excluded and <code>sheet_width_m</code>
+  is <strong>not</strong> exonerated: the width the law is told is the lever, on a mesh
+  that did not move by a single cell. The qualification is that the two
+  directions do <strong>not</strong> move the residual in opposite directions — both
+  <em>raise</em> it — so the zero-crossing lies <strong>inside</strong> ±5%, not outside it, and
+  the nominal <code>A/h</code> is already near the optimum rather than off by a
+  discoverable factor. Post-hoc arithmetic on the three printed residuals
+  (<em>a three-point fit done by hand on the log's numbers, not a measurement,
+  and nothing in code depends on it</em>): modelling the residual as
+  <code>|r₀ + kε|</code> and solving for the vertex of <code>r²(ε)</code> gives
+  <strong>ε* = −0.01074 (C = 100 pF)</strong> and <strong>ε* = −0.01097 (L = 1 µH)</strong> with a
+  fitted minimum of <strong>zero to within the fit's own error</strong> (both <code>r²(ε*)</code>
+  come out marginally negative, −1.4e-07 and −1.2e-06 in <code>r²</code>). That is
+  exactly the pre-registered signature of reading (1): a <strong>common</strong>
+  zero-crossing for the two elements — the two agree to 2% of each other —
+  at an effective width ≈ <strong>1.1% below</strong> the area-based <code>A/h</code>, and the
+  sensitivity <code>|k|</code> is 0.153 (C) / 0.323 (L) per unit ε, i.e. a 1% width
+  error alone produces a residual of order the whole 1.6e-03 / 3.4e-03 miss.
+  As in step 1b, the two elements move by the <strong>same factor</strong> on each
+  configuration to 3 s.f. (5.804 / 5.830; 3.748 / 3.724; 5.634 / 5.680) — a
+  common geometric factor times a per-element constant, not an element-type
+  effect.</p>
+<p><strong>Step 1b's "uniformity" framing is superseded by this.</strong> Configuration
+  (C) — the ×0.75 rung's C4 break reproduced on the gate mesh, mean width
+  nominal — is <strong>not</strong> distinguishable from the common +5% configuration (A)
+  at the 3% level (5.634 / 5.680 vs 5.804 / 5.830), so the <em>uniformity</em> of
+  the four widths is not what the identity sees; the ×0.75 rung's ×2.6 rise
+  is the width <strong>magnitude</strong> effect, as its ∓5.6% / +4.9% departures from
+  nominal predict. Consistent with the terminated port P1's own width
+  dominating the sensitivity (it is the port whose sheet law and whose Γ
+  both enter the reduction), though these three configurations do not
+  separate the four ports and no per-port claim is made here.</p>
+<p><strong>Not claimed.</strong> <code>REDUCTION_BAND</code> stays <strong>1e-3</strong> and is not widened; the
+  gate test stays deliberately red on <code>main</code> and <strong>was not re-run in this
+  slot</strong> (<code>-k width_sweep</code>, 6 deselected); the row stays 🟡; no §2 change; no
+  <code>src/</code> change; 10 MHz only. The ε* arithmetic above is a reading of three
+  points, not a re-derived width law — what would license a step 1d is a
+  review's call, not this slot's.
+  Code is additive and gate-neutral: <code>tests/validation/test_port_lumped_rlc_termination.py</code>
+  gains <code>WIDTH_CONFIGURATIONS</code>, a <code>width_sweep_baseline</code> fixture, a
+  parametrised <code>width_sweep_case</code> fixture and three tests, all of which
+  <strong>skip</strong> unless <code>FEM_EM_PORT14_WIDTH_SWEEP</code> is set.
+* <strong>Step 1d (the origin of ε*, measured; scoped 2026-09-05 18:00 review
+  under step 1c's own pre-registration — "linear with a common
+  zero-crossing ⇒ the <code>A/h</code> law needs a correction" — and it tunes
+  nothing).</strong> Step 1c's fit says the sheet law closes the reduction
+  identity if told a width <strong>1.07–1.10% below</strong> the area-based <code>A/h</code>,
+  one number common to C and L. Step 1d does two things on the fixed
+  116 085-cell gate mesh. <strong>(a) Name a geometric origin.</strong>
+  <code>build_four_port_sweep</code> already measures per sheet <code>area</code>, <code>h</code> (the
+  bounding-box extent along the drive, <code>h_bbox</code>), <code>w_bbox</code>,
+  <code>w = area/h</code>, <code>facets</code>, <code>out_of_plane</code>
+  (<code>tests/validation/test_port_birdcage_four_port.py:319–337</code>). Print,
+  per port: <code>w/w_bbox − 1</code> (the ragged-edge fraction step 2b measured at
+  14–15% on the <em>full</em> width), <code>area/(w_bbox·h) − 1</code>, the reduced <em>mean</em>
+  height <code>area/w_bbox</code> against <code>h_bbox</code>, and the gap length the
+  generator was told beside <code>h_bbox</code>. The law uses
+  <code>R = Z_p·w/h = Z_p·A/h_bbox²</code>, so a facet set whose mean terminal
+  separation is 0.5% under its bounding box already produces a 1%
+  impedance offset — to first order <code>Z_eff = Z_p·h_actual/h_bbox</code>, from
+  <code>I = (1/R)∫(E·ĥ)dS/h</code> with <code>E ≈ V/h_actual</code>. Each candidate ratio is a
+  <strong>prediction of ε*</strong>; the pre-registered comparison is
+  <code>|ε_geom − ε\*| ≤ 0.3·|ε\*|</code> (≈ 0.3 pp) for <em>one</em> candidate — none there
+  means the origin is not geometric. <strong>(b) Test the fit on a fourth
+  point.</strong> Carry step 1c's six residuals as constants
+  (<code>STEP1C_RESIDUALS</code>, the log's printed digits: C 1.595580e-03 /
+  9.260556e-03 / 5.980286e-03 and L 3.370512e-03 / 1.965102e-02 /
+  1.255208e-02 at ε = 0 / +0.05 / −0.05), recompute ε* per element in
+  code from the <code>|r₀ + kε|</code> model (never typed in), then run the two
+  lossless terminated 3×3s once more through the existing <code>reuse</code> route
+  with every told width scaled by <code>(1 + ε\*)</code> (configuration <strong>D</strong>, 10
+  solves) and print the residuals beside step 1's record <em>and</em> beside
+  <code>REDUCTION_BAND</code>. The fit predicts ≈ 0; whether both land ≤ 1e-3 is
+  <strong>printed, not asserted</strong>, because the width was fitted to the
+  residual — asserting it would be circular. <strong>Anchors (asserted,
+  imported, unmoved):</strong> D's 4×4 reciprocity ≤ <code>RECIPROCITY_BAND</code>,
+  <code>σ_max ≤ 1 + PASSIVITY_SIGMA_TOLERANCE</code>, cells 116 085 bitwise.
+  <strong>Negative control (asserted — backed by step 1 / 1c's measurement of
+  the same comparison on this mesh, Δ = 0.31–0.33):</strong> Γ = 0 on D, Δ
+  from the 4×4 first, the miss asserted ≥ 5× the band only where
+  Δ ≥ 5e-3. <strong>Pre-registered readings (constants in code, printed, none
+  asserted):</strong> (1) D ≤ 1e-3 on both <em>and</em> one <code>ε_geom</code> within 0.3 pp of
+  ε* ⇒ <strong>step 1e</strong>, review-scoped: the fixture — geometry belongs to
+  the fixture, <code>lumped.py:351–357</code> — supplies the law that geometric
+  quantity instead of <code>h_bbox</code>, the red gate is re-run, and a residual
+  ≤ 1e-3 on <em>unfitted</em> input is what closes step 1; (2) D ≤ 1e-3 but no
+  geometric candidate predicts ε* ⇒ the offset is a field effect of the
+  sheet (edge fringing — the single-mode residual proper); the
+  known-issues entry records it and <strong>no</strong> constant enters the law —
+  re-registering the band on measured evidence is the weekly's call;
+  (3) D not ≤ 1e-3 ⇒ the linear model fails beyond three points — print
+  <code>r(ε\*)</code> and stop. <strong>Tier / ranks / cost:</strong> step 1c's 34 solves took
+  258 s at <code>-n 2</code> (<code>20260905T213322Z_PORT-14-step1c.log:2138</code>); (b) is
+  14 solves (baseline 4 + 10) ≈ 110 s and (a) is geometry on the built
+  mesh ⇒ heavy by ceiling, one window, <code>timeout -k 30 400</code>, <code>-n 2</code>,
+  complex build, <code>tests/environment</code> first, pytest <code>-s</code>, behind
+  <code>FEM_EM_PORT14_WIDTH_SWEEP</code> like 1c with <code>-k step1d</code> so 1c's nine tests
+  are deselected. <strong>Traps already paid for:</strong> 1c's list —
+  <code>sheets[k]["w"]</code> is the only thing <code>reuse</code> reads, perturb it and
+  nothing else; <code>abs</code>/<code>.real</code> before <code>&lt;=</code>; the red gate test is not
+  re-run; a mean-height candidate needs the facet <em>vertices</em> gathered
+  across ranks, not one rank's bounding box. <strong>Scope:</strong> a measurement at
+  10 MHz; <code>REDUCTION_BAND</code> stays 1e-3, the row stays 🟡, no <code>src/</code>
+  change, no §2 change. <strong>Negative result:</strong> every reading is
+  pre-registered — record it in this entry and in the known-issues
+  disposition and stop; a D whose 4×4 fails reciprocity/passivity is a
+  fixture finding (known-issues with its widths, stop).
+* <strong>Step 1d executed 2026-09-05, 19:30 implementer slot — the data select
+  pre-registered reading (2): the three-point fit holds on a fourth point,
+  and the origin of ε* is <em>not</em> one of the measured geometric ratios.</strong>
+  One window, one mesh, band untouched, row still 🟡, no record moved, no
+  <code>src/</code> change. <code>20260906T003627Z_PORT-14-step1d.log</code>, heavy tier by
+  ceiling (<code>timeout -k 30 400</code>), <code>-n 2</code>, complex build,
+  <code>FEM_EM_PORT14_WIDTH_SWEEP=1</code>, <code>-k step1d</code>: <code>tests/environment</code>
+  <strong><code>11 passed … 24.23s</code></strong> (<code>:116</code>) then <strong><code>4 passed, 15 deselected in
+  110.42s</code>, Status 0, 137 s</strong> (<code>:2114</code>, <code>:2120–2121</code>) — 14 solves on the
+  one 116 085-cell gate mesh (baseline 4×4 + D's 4×4 + 2 × 3 terminated);
+  a <code>--collect-only</code> smoke first, <code>20260906T003614Z_PORT-14-step1d-smoke.log</code>
+  (<code>4/19 tests collected (15 deselected)</code>), Status 0, 4 s.</p>
+<p><strong>(b) The fit on a fourth point.</strong> ε* is recomputed <strong>in code</strong> from
+  <code>STEP1C_RESIDUALS</code> (step 1c's six printed digits) by solving the exact
+  parabola through the three <code>(ε, r²)</code> points — never typed in:
+  <strong>ε* = −0.010735 (C = 100 pF)</strong>, <strong>−0.010970 (L = 1 µH)</strong>, fitted minima
+  −1.375055e-07 / −1.178493e-06 in <code>r²</code>, mean <strong>ε* = −0.010852</strong>
+  (<code>:2005–2007</code>). Configuration <strong>D</strong> — all four told widths
+  7.294123600e-03 → <strong>7.214965819e-03 m</strong>, ratio <strong>0.989147732</strong>
+  (<code>:2094–2098</code>) — through the same <code>reuse</code> route on the same mesh gives,
+  <strong>printed not asserted</strong> (the width was fitted <em>to</em> these residuals, so
+  asserting them would be circular):</p>
+<table>
+<thead>
+<tr>
+<th>element</th>
+<th>residual at ε*</th>
+<th>vs step 1's record</th>
+<th>vs <code>REDUCTION_BAND</code> = 1e-3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C = 100 pF</td>
+<td><strong>5.756561e-05</strong></td>
+<td>1.595580e-03 → <strong>×0.036078</strong></td>
+<td><strong>0.057566×</strong> the band</td>
+</tr>
+<tr>
+<td>L = 1 µH</td>
+<td><strong>1.196780e-04</strong></td>
+<td>3.370512e-03 → <strong>×0.035507</strong></td>
+<td><strong>0.119678×</strong> the band</td>
+</tr>
+</tbody>
+</table>
+<p>(<code>:2103–2105</code>.) The linear model predicted ≈ 0 at a point 5% outside the
+  fitted interval's centre and the measurement lands 17× / 28× below the
+  record — <strong>reading (3) is excluded</strong>: <code>|r₀ + kε|</code> holds beyond step 1c's
+  three points. It does not go to zero (5.8e-05 / 1.2e-04 remain), which is
+  the residual the width constant cannot explain.</p>
+<p><strong>(a) No geometric origin.</strong> Every sheet is identical to nine digits
+  (26 facets, area 5.835298880e-05 m², <code>h_bbox</code> 8.000000000e-03 m,
+  <code>w = A/h</code> 7.294123600e-03 m, <code>w_bbox</code> 9.167340025e-03 m, mean height
+  <code>A/w_bbox</code> 6.365313018e-03 m, out-of-plane 0.0) (<code>:2001–2004</code>, all from
+  <code>build_four_port_sweep</code>'s own comm-reduced <code>area</code>/<code>_sheet_extents</code>, so
+  nothing rank-local is read). Against the pre-registered window
+  <strong>±0.003256</strong> (0.3 × |ε*|), the candidates read (<code>:2008–2040</code>, the same
+  on all four ports): <code>area/(w_bbox·h_bbox) − 1</code> = <code>w/w_bbox − 1</code> =
+  <code>h_mean/h_bbox − 1</code> = <strong>−0.204336</strong> (miss 0.193484; step 2b's ragged edge,
+  here 20.4% on the narrowed sheet), its inverse <strong>+0.256812</strong> (miss
+  0.267664), <code>h_bbox/port_box_z_told − 1</code> = <strong>−0.200000</strong> / <strong>+0.250000</strong>,
+  and the told gap length <strong>matched exactly</strong> — <code>h_bbox</code> = the generator's
+  <code>leg_gap_length</code> = 8.000000000e-03 m to nine digits, ε_geom = <strong>+0.000000</strong>,
+  miss <strong>0.010852</strong>. Nearest candidate 0.010852 = 3.3× the window. So the
+  1.09% is <strong>not</strong> a mis-measured terminal separation and not the ragged
+  edge: <strong>reading (2)</strong> — a field effect of the sheet (edge fringing, the
+  single-mode residual proper). Per the pre-registration <strong>no constant
+  enters the law</strong>, there is no step 1e, and re-registering the band on this
+  evidence is the weekly's call.</p>
+<p><strong>Asserted and green</strong> (imported bands, none moved): cells <strong>116 085
+  bitwise</strong>, reciprocity <strong>9.998294990e-15</strong> vs 1e-3, <code>σ_max</code> =
+  <strong>0.999993774</strong> vs 1 + 1e-9 (<code>:2099</code>) — D is a valid passive reciprocal
+  four-port, so its residual means something. The ceiling-first Γ = 0
+  control is asserted on both terminations: Δ = <strong>0.321025 / 0.324791</strong>
+  (above the 5e-3 floor), miss <strong>0.321023 / 0.324743</strong> = 321× / 325× the
+  band (<code>:2110–2111</code>) — the same 0.31–0.33 step 1 and 1c measured.</p>
+<p><strong>Not claimed.</strong> <code>REDUCTION_BAND</code> stays <strong>1e-3</strong>; the gate test stays
+  deliberately red on <code>main</code> and <strong>was not re-run</strong> (15 deselected); the row
+  stays 🟡; no §2 change; no <code>src/</code> change; 10 MHz only. D's residual is a
+  <strong>fitted</strong> number and closes nothing — what would close step 1 is a
+  residual ≤ 1e-3 on <em>unfitted</em> input. Code is additive and gate-neutral:
+  <code>tests/validation/test_port_lumped_rlc_termination.py</code> gains
+  <code>STEP1C_RESIDUALS</code>, <code>_epsilon_star</code>, <code>_geometric_candidates</code>, three
+  fixtures and four <code>step1d</code> tests, all skipping unless
+  <code>FEM_EM_PORT14_WIDTH_SWEEP</code> is set.
+* <strong>Step 1e executed 2026-09-11, 07:30 implementer slot — F-small's
+  single-mode floor registered as a (1*) record; the deliberate red
+  retires.</strong> The 2026-09-06 weekly ruling (§10 Phase 6), tests only, no
+  <code>src/</code>. <code>REDUCTION_BAND</code> = 1e-3 keeps its value and comment and is <strong>not</strong>
+  re-registered. <code>tests/validation/test_port_lumped_rlc_termination.py</code>
+  gains <code>REDUCTION_FLOOR_F_SMALL</code> (C 1.595580e-03 / L 3.370512e-03 / R
+  7.249519e-04, cited to <code>20260905T020428Z_PORT-14.log:1858, 1865, 1872</code>),
+  <code>REDUCTION_FLOOR_RTOL</code> = 1e-3 and <code>RECORD_RANK_WIDTH</code> = 2. On the <code>OPS-41</code>
+  precedent the record assertion skips off <code>-n 2</code>, after the readings are
+  printed. The gate now asserts <code>|r/record − 1| ≤ 1e-3</code> per element and
+  prints each residual against the band as "systematic, not gated".
+  <code>STEP1_RESIDUAL_RECORD</code> takes its C/L entries from the new dict; R stays
+  out so <code>STEP1B_TERMINATIONS</code> is unchanged. <code>c4_congruent_sheets</code> off; the
+  <code>GEO-19</code> record mesh.
+  <code>20260911T123334Z_PORT-14-step1e.log</code>, standard tier (<code>timeout -k 30 300</code>),
+  <code>-n 2</code>, complex build, <code>-s</code>, no step 1b/1c/1d env var set:
+  <strong><code>15 passed, 16 skipped … 110.80s</code></strong> (<code>:2050</code>), <strong>Status 0, 113 s</strong>
+  (<code>:2118–2119</code>). Collect-only smoke first,
+  <code>20260911T123311Z_PORT-14-step1e-smoke.log</code> (31 collected <code>:81</code>, Status 0,
+  4 s).</p>
+<table>
+<thead>
+<tr>
+<th>element</th>
+<th>residual</th>
+<th>record</th>
+<th>ratio</th>
+<th><code>|ratio − 1|</code></th>
+<th>vs band (printed)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C = 100 pF</td>
+<td>1.595580e-03</td>
+<td>1.595580e-03</td>
+<td>0.999999762</td>
+<td><strong>2.380e-07</strong></td>
+<td>1.595580×</td>
+</tr>
+<tr>
+<td>L = 1 µH</td>
+<td>3.370512e-03</td>
+<td>3.370512e-03</td>
+<td>1.000000106</td>
+<td><strong>1.065e-07</strong></td>
+<td>3.370512×</td>
+</tr>
+<tr>
+<td>R = 200 Ω</td>
+<td>7.249519e-04</td>
+<td>7.249519e-04</td>
+<td>0.999999966</td>
+<td><strong>3.391e-08</strong></td>
+<td>0.724952×</td>
+</tr>
+</tbody>
+</table>
+<p>(<code>:1888, :1895, :1902</code>.) Every record reproduces ≥ 4 000× inside the rtol.
+  <strong>Negative control (asserted, backed by the step 1 log):</strong> held against
+  another element's record, each residual fails reproduction.
+  <code>|r_C/rec_L − 1|</code> = <strong>0.526606</strong> (pre-registered 0.527), and
+  <code>|r_R/rec_C − 1|</code> = <strong>0.545650</strong> (pre-registered 0.546) (<code>:1913, :1917</code>).
+  Every off-diagonal pair is asserted &gt; 100× the rtol, so a swapped or
+  mis-keyed record cannot pass.
+  <strong>Unmoved anchors, green:</strong>
+  - 50 Ω baseline: reciprocity 1.044255156e-14 vs 1e-3, σ_max 0.999992805
+    vs 1 + 1e-9 (<code>:1884</code>; step 1 read 1.464e-14, the 1-ULP class).
+  - Γ = 0 control: Δ = 0.3218888 / 0.3254627 / 0.2112830, miss
+    0.3219520 / 0.3267853 / 0.2120063 (<code>:1922–1924</code>), step 1's digits
+    exactly.</p>
+<p><strong>Not claimed:</strong> no absolute-accuracy or single-mode-accuracy claim. The
+  residual <em>is</em> the sheet's named systematic (edge fringing, step 1d
+  reading (2)) on F-small at 10 MHz. <code>TH-17</code> may not gate a mode frequency
+  tighter than it without saying so. The row stays 🟡: step 2 (64 MHz) is
+  open and now unblocked. Known-issues 2026-09-05 <code>PORT-14</code> step 1 entry
+  retired in the same commit.</p>
+<p><strong>Step 2 executed 2026-09-11 (13:30 slot) — negative result: at 64 MHz the
+capacitor's residual is above the item's 1e-2 stop line.</strong> Env
+<code>FEM_EM_PORT14_STEP2_64MHZ=1</code> drives the same fixture, sweep and
+terminations at 64 MHz on the 116 085-cell record mesh (<code>c4_congruent_sheets</code>
+off). The 10 MHz record tests print their readings and then skip. The default
+path is unchanged. Anchor <code>20260911T183201Z_PORT-14-step2.log</code>, <code>-n 2</code>, standard:
+13 passed, 18 skipped in 113.60 s (<code>:2053</code>), Status 0, Elapsed 115 s (<code>:2122</code>).</p>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Z_p at 64 MHz</th>
+<th>Γ</th>
+<th>residual</th>
+<th>× 10 MHz record</th>
+<th>× band</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C = 100 pF</td>
+<td>−j24.86796 Ω</td>
+<td>−0.603378−0.797455j</td>
+<td><strong>1.354202e-02</strong></td>
+<td>8.487</td>
+<td>13.54</td>
+</tr>
+<tr>
+<td>L = 1 µH</td>
+<td>+j402.1239 Ω</td>
+<td>+0.969550+0.244893j</td>
+<td>5.021261e-04</td>
+<td>0.149</td>
+<td>0.50</td>
+</tr>
+<tr>
+<td>R = 200 Ω</td>
+<td>200 Ω</td>
+<td>+0.600000</td>
+<td>7.445387e-04</td>
+<td>1.027</td>
+<td>0.74</td>
+</tr>
+</tbody>
+</table>
+<p>(<code>:1882–1884, :1891, :1898, :1905</code>.)
+- <strong>Anchors (asserted, imported, unmoved), green.</strong> 50 Ω reciprocity
+  9.950176195e-16 against 1e-3, σ_max 0.999721388 against 1 + 1e-9 (<code>:1885</code>).
+  Γ = 0 control asserted on all three: Δ = 0.4806 / 0.2390 / 0.1829, miss
+  0.4940 / 0.2393 / 0.1836 (<code>:1924–1926</code>). The identity is resolved and no
+  coupling skip fired.
+- <strong>Proof the sweep was rebuilt.</strong> S₁₁ is +4.488964206e-02+5.803022759e-01j
+  against 10 MHz −3.712480826e-01+1.417750480e-01j, and S₂₁ moved by 1.915e-01
+  (<code>:1886–1887</code>). The <code>reuse=</code> route is mesh-only and the problem is rebuilt at
+  <code>frequency_hz</code>.
+- <strong>Routes.</strong> The 50 Ω 4×4 rides <code>PORT-19</code>'s reuse-on default; the terminated
+  3×3s go through <code>run_lumped_sheet_port_case</code> directly.
+- <strong>Default-path control.</strong> <code>20260911T183421Z_PORT-14-step2-default.log</code>
+  (flag unset): 15 passed, 16 skipped, Status 0, 111 s. The 10 MHz records
+  reproduce to |ratio − 1| = 2.380e-07 / 1.065e-07 / 3.391e-08
+  (<code>:1888, :1895, :1903</code>).</p>
+<p><strong>Reading.</strong> L and R stay under the 1e-3 band; C does not, and it is above
+1e-2. Both C and L have |Γ| = 1, yet C rose ×8.5 while L fell ×0.15, so
+10 MHz's ordering does not carry over. Per the item's negative-result clause
+the three residuals are recorded here and the step stopped.</p>
+<p><strong>Not changed.</strong> No 64 MHz record is registered, no band moves, and <code>PORT-15</code>
+gate (i) is not opened. <code>PORT-15</code> gate (i) and <code>TH-17</code> must not assume a 64 MHz
+floor ≤ 1e-2 for a capacitive termination. The row stays 🟡.</p>
+<p><strong>Hypothesis for the next step (unqueued).</strong> The residual may follow the
+terminated sheet's current. −j24.9 Ω may partly cancel the leg reactance and
+re-excite the sheet's fringing content. The next step would print |I_P1| per
+element and cond(I − S_bb Γ) at 10 and 64 MHz from the solves the module
+already returns.</p>
+<p><strong>Ruled and scoped 2026-09-11 18:00 review — steps 2b and 2c (§9 items 2
+and 5), both measure-only.</strong> The review's arithmetic on step 2's printed
+64 MHz S₁₁ (<code>:1886</code>) gives <code>|D| = |1 − S₁₁Γ|</code> = 0.6837 / 1.2393 / 1.0335 for
+C / L / R. So the reduction's first-order sensitivity to the terminated
+column, <code>|Γ|²/|D|²</code> = 2.1395 / 0.6511 / 0.3371, spreads C:L by only 3.3×
+against the measured 27× residual spread. <em>Predicted:</em> amplification through
+S₁₁ does not carry the C residual, and the slot's cond(I − S_bb Γ) reading
+alone would not discriminate. <strong>Step 2b</strong> therefore fits the termination the
+field solve actually realised. For one terminated port the reduction is
+<code>S′ − S_aa = t·M</code> with the rank-1 <code>M = S_a1 S_1a</code> and <code>t = Γ/(1 − S₁₁Γ)</code>.
+The least-squares <code>t</code> is a closed-form projection, <code>Γ_eff = t/(1 + S₁₁t)</code>,
+and <code>Z_eff = z0(1 + Γ_eff)/(1 − Γ_eff)</code>. Printed at 10 and 64 MHz per
+element: <code>ΔZ = Z_eff − Z_p</code>, <code>Z_eff/Z_p − 1</code>, and the non-rank-1 remainder.
+A <strong>common ΔZ</strong> across C/L/R that scales with ω would read as unmodelled
+series reactance. A <strong>common Z_eff/Z_p − 1</strong> would read as step 1c's
+proportional width law. <strong>Step 2c</strong> runs step 1c's width configurations at
+64 MHz. Neither step registers a record or moves a band, and <code>PORT-15</code> gate
+(i) stays closed until a 64 MHz record exists.</p>
+<p><strong>Step 2b executed 2026-09-11 (21:00 slot). One realised termination carries
+the whole residual at both frequencies.</strong> Tests only, no <code>src/</code> change:
+<code>_realised_termination</code> and <code>test_step2b_the_realised_termination_is_printed</code>
+were added, and the fixture now keeps <code>results</code>. Four windows, all <code>-n 2</code>,
+standard, <code>timeout -k 30 300</code>, each Status 0:
+- <code>20260912T020247Z_PORT-14-step2b.log</code> (64 MHz, 14 passed / 18 skipped,
+  122 s);
+- <code>20260912T020500Z_PORT-14-step2b-default.log</code> (10 MHz, 16 / 16, 118 s);
+- the same two re-run with one added post-hoc κ print:
+  <code>20260912T020824Z_PORT-14-step2b-w2.log</code> (116 s) and
+  <code>20260912T021021Z_PORT-14-step2b-default-w2.log</code> (118 s).</p>
+<p>The nominal residuals, <code>Z_eff</code> and <code>t</code> reproduced to every printed digit in the
+re-runs, and the remainders to ≤ 3e-6 relative. Readings (w2 logs, 64 MHz
+<code>:1927–1954</code>, 10 MHz <code>:1927–1955</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>f</th>
+<th>|Z_eff/Z_p − 1|</th>
+<th>Re ΔZ (Ω)</th>
+<th>Im ΔZ/ω (H)</th>
+<th>remainder / nominal</th>
+<th>κ_k = ΔZ/(Z_p − z0)</th>
+<th>|I_P1|/|I_drive| (P2/P3/P4)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C</td>
+<td>10 MHz</td>
+<td>1.109475e-02</td>
+<td>−0.5294121</td>
+<td>−2.681e-08</td>
+<td>2.2e-7</td>
+<td>1.058471e-02</td>
+<td>0.180 / 0.166 / 0.180</td>
+</tr>
+<tr>
+<td>L</td>
+<td>10 MHz</td>
+<td>1.353422e-02</td>
+<td>−0.5292585</td>
+<td>+1.059e-08</td>
+<td>2.3e-7</td>
+<td>1.059024e-02</td>
+<td>0.355 / 0.338 / 0.355</td>
+</tr>
+<tr>
+<td>R</td>
+<td>10 MHz</td>
+<td>7.941857e-03</td>
+<td>+1.588371</td>
+<td>−1.543e-11</td>
+<td>2.5e-7</td>
+<td>1.058914e-02</td>
+<td>0.120 / 0.112 / 0.120</td>
+</tr>
+<tr>
+<td>C</td>
+<td>64 MHz</td>
+<td>2.374962e-02</td>
+<td>−0.5295059</td>
+<td>−6.506e-10</td>
+<td>1.7e-6</td>
+<td>1.057617e-02</td>
+<td>0.811 / 0.727 / 0.811</td>
+</tr>
+<tr>
+<td>L</td>
+<td>64 MHz</td>
+<td>1.073146e-02</td>
+<td>−0.5278062</td>
+<td>+1.065e-08</td>
+<td>2.1e-6</td>
+<td>1.064945e-02</td>
+<td>0.084 / 0.064 / 0.084</td>
+</tr>
+<tr>
+<td>R</td>
+<td>64 MHz</td>
+<td>7.940094e-03</td>
+<td>+1.588007</td>
+<td>−1.527e-11</td>
+<td>2.1e-6</td>
+<td>1.058671e-02</td>
+<td>0.159 / 0.120 / 0.159</td>
+</tr>
+</tbody>
+</table>
+<p>The κ_k imaginary parts are ≤ 4.1e-05. Pooled post-hoc κ is
+1.058709e-02 − 3.6e-06j at 10 MHz (per-element misfit ≤ 3.4e-4, <code>:1948–1951</code>)
+and 1.064081e-02 − 1.5e-05j at 64 MHz (misfit ≤ 6.2e-3, <code>:1947–1950</code>).
+- <strong>Anchors (asserted), green in all four windows.</strong>
+  - (a) Recovery from the exact (C2) reduction: ≤ 1.227e-15 against 1e-9.
+  - (b) The ×1.01 reduction: ≤ 7.856e-16 against 1e-6.
+  - (c) Reproduction of step 2's 64 MHz residuals: 2.827e-07 / 7.581e-08 /
+    4.728e-08 against rtol 1e-5. <em>Disclosed extension:</em> the same assertion
+    also runs at 10 MHz against <code>REDUCTION_FLOOR_F_SMALL</code> (2.380e-07 /
+    1.065e-07 / 3.391e-08). That is additive and backed by
+    <code>20260911T183421Z_PORT-14-step2-default.log:1888, :1895, :1903</code>.
+- <strong>Negative control (asserted).</strong> Held against the other frequency's reading,
+  every residual misses by ≥ 2 631× the rtol (R, 10 MHz) against the 100× bar.
+- <strong>Pre-registered predictions (printed only).</strong>
+  - Remainder ≪ nominal: <strong>held</strong>, ≤ 2.5e-6 of nominal everywhere, so no
+    error lives in the kept block.
+  - Common <code>Im ΔZ/ω</code> within 2×: <strong>failed</strong> at both frequencies (signs differ).
+    The unmodelled-series-inductance reading is refuted.
+  - Common <code>Z_eff/Z_p − 1</code> within 2×: <strong>held at 10 MHz</strong> (1.70×), <strong>failed
+    at 64 MHz</strong> (2.99×; C:L 2.21×).
+- <strong>Observation, not asserted.</strong> The six nominal residuals order exactly as
+  <code>|I_P1|/|I_drive|</code> does. C at 64 MHz carries 0.81 of the drive current and
+  the largest residual.</p>
+<p><strong>Reading: slot derivation, a hypothesis for the review.</strong> The post-hoc fit
+<code>ΔZ = κ(Z_p − z0)</code> with a single real κ holds on all six readings. Suppose
+every sheet realises <code>(1+κ)·Z_told</code> while the port voltage is still reported
+as <code>V_src − I·Z_told</code>. Then the 50 Ω 4×4 is the network plus a series <code>κ·z0</code>
+at each port, and a terminated sheet presents <code>Z_p + κ(Z_p − z0)</code> to it. That
+is the printed form. So step 1c's proportional law, applied to <em>all four</em>
+sheets, would explain C's 64 MHz jump as the same κ reached through a larger
+sheet current, not a new mechanism. It would also explain why the literal
+<code>Z_eff/Z_p − 1</code> test is not common, since that quantity is <code>κ(1 − z0/Z_p)</code>.
+Three independent numbers agree to about three figures:
+- κ at 10 MHz, 1.0587e-2;
+- step 1c's −ε* ≈ 1.07 / 1.10e-2;
+- <code>PORT-16</code>'s C/terminal − 1 = 1.0592e-2 on the same <code>build_four_port_sweep()</code>
+  fixture (<code>20260907T051231Z_PORT-16.log:1895–1910</code>).</p>
+<p>That points at the Cauchy–Schwarz sheet-field non-uniformity as κ's origin.
+This is unproven here.</p>
+<p><strong>§9 item 5 (step 2c).</strong> Its literal skip condition fires: at 64 MHz C and
+L's <code>Z_eff/Z_p − 1</code> differ by 2.21× &gt; 2×. But the reading above says that
+observable is the wrong test of the proportional law, so whether 2c is
+BLOCKED or re-pointed at κ is the review's ruling. <strong>Not changed:</strong> no
+record, no band, no <code>Z_p</code> correction; <code>PORT-15</code> gate (i) stays closed and the
+row stays 🟡.</p>
+<p><strong>Ruled 2026-09-12 03:00 review.</strong> Step 2b accepted (re-read
+<code>…step2b-w2.log:1947–1951</code>, <code>…step2b-default-w2.log:1948–1951</code>). Step 2c is
+<strong>re-pointed at κ, not BLOCKED</strong>: <code>Z_eff/Z_p − 1</code> is <code>κ(1 − z0/Z_p)</code> under
+the proportional law, so the 18:00 skip condition tested the wrong
+observable. 2c now predicts ε* = −κ_k at 64 MHz (§9 item 4). Step 2d (§9
+item 3) tests κ's origin: the <code>PORT-16</code> module driven at 64 MHz through the
+existing <code>frequency_hz</code> keyword prints C/terminal − 1 beside κ(64 MHz) =
+1.0641e-2. If they agree as they do at 10 MHz (1.0592e-2 against 1.0587e-2),
+a single multiplicative correction on the told sheet impedance is the
+candidate route to a 64 MHz record for <code>PORT-15</code> gate (i) — the weekly's to
+scope, never an in-slot change.</p>
+<p><strong>Step 2d executed 2026-09-12 (07:30 slot). At 64 MHz, C/terminal − 1 reads
+κ(64) to −0.3 %.</strong> Tests only, in the <code>PORT-16</code> module
+(<code>test_birdcage_power_identity.py</code>), additive: env <code>FEM_EM_PORT16_64MHZ</code>, and
+new <code>test_step2d_c_over_terminal_is_printed</code>. When the flag is on, (iv) prints
+and skips. Two windows, <code>-n 2</code>, standard, <code>timeout -k 30 300</code>, <code>rc=0</code>:
+- <code>20260912T123236Z_PORT-14-step2d-64mhz.log</code>: 16 passed / 1 skipped, 93 s;
+- <code>20260912T123429Z_PORT-14-step2d-10mhz.log</code>: 17 passed, 92 s.</p>
+<ul>
+<li><strong>Anchors (asserted).</strong></li>
+<li>(i) closes at 64 MHz: 3.3e-15 to 7.0e-15 on P1–P4 and 4.3e-15 on the ×2
+    control, against 1e-6 (<code>…64mhz.log:1882–1891, :1922</code>). (ii) and (iii)
+    are green at 64 MHz.</li>
+<li>Flag off, C/terminal − 1 reproduces the 10 MHz readings to ≤ 1.45e-10
+    against rtol 1e-5 (<code>…10mhz.log:1938–1944</code>). The references are computed
+    from the ten-digit C and gap values at <code>20260907T051231Z_PORT-16.log:1917–1920</code>.</li>
+<li><strong>Negative control (asserted).</strong> S₁₁ at 64 MHz sits 6.045e-01 from
+  <code>STEP1E_S11_S21_10MHZ</code> (<code>…64mhz.log:1940</code>), so the sweep was rebuilt.</li>
+<li><strong>Readings (printed, <code>…64mhz.log:1942–1949</code>).</strong> C/terminal − 1 =
+  1.060762e-02 / 1.060916e-02 / 1.061032e-02 / 1.060766e-02 on P1–P4.</li>
+<li>Against pooled κ(64) = 1.064081e-02, that is 0.99688–0.99714×. The
+    predicted 5 % window holds; the 20 % negative-result bar is far away.</li>
+<li>The readings sit between κ_C (+0.30 %) and κ_L (−0.39 %).</li>
+<li>The per-sheet spread is 1.06040e-02 to 1.06123e-02.</li>
+<li><strong>Frequency shift (printed).</strong> From 10 to 64 MHz, C/terminal − 1 moves by
+  +0.15 % (1.059204e-02 → 1.060762e-02 on P1), while κ moves by +0.51 %
+  (1.058709e-02 → 1.064081e-02). The predicted sign held; the size is
+  ≈ 0.3× κ's. So κ − (C/terminal − 1) grows from ≈ 5e-6 at 10 MHz to
+  ≈ 3.3e-5 at 64 MHz.</li>
+<li><strong>Other printed readings.</strong> The ×2 control's sheet factor at 64 MHz is
+  0.349799, outside the predicted [0.5, 2]. That window is printed only.</li>
+</ul>
+<p><strong>Reading.</strong> κ is the terminal form's Cauchy–Schwarz deficit to ≤ 0.5 % at
+both frequencies. A frequency-growing ≈ 0.3 % remainder is not in that
+deficit. <strong>Not changed:</strong> no record, no band, no <code>Z_p</code> correction. The row
+stays 🟡, <code>PORT-16</code> stays ✅, and <code>PORT-15</code> gate (i) stays closed. The
+multiplicative-correction route is the weekly's to scope; item 4 (step 2c's
+width lever at 64 MHz) is the independent read.</p>
+<p><strong>Step 2c (re-pointed) executed 2026-09-12 (09:00 slot). At 64 MHz the told
+width's zero-crossing reads −κ_k to +3.1 % (C) and −4.2 % (L).</strong> Tests only,
+additive, in <code>test_port_lumped_rlc_termination.py</code>. <code>width_sweep_baseline</code> and
+<code>width_sweep_case</code> take <code>_rlc_frequency_hz()</code> for both
+<code>build_four_port_sweep</code> and <code>series_rlc_impedance</code> (flag unset ⇒
+<code>FREQUENCY_HZ</code>, bit-identical arithmetic); the step-1c print lines name the
+frequency; new <code>test_the_width_sweep_epsilon_star_fit_is_printed</code> fits
+through (0, step 2's ε = 0 residual), (+5 %, A), (−5 %, B) once all three
+configurations are in. One window:
+<code>20260912T140430Z_PORT-14-step2c.log</code>, <code>FEM_EM_PORT14_WIDTH_SWEEP=1
+FEM_EM_PORT14_STEP2_64MHZ=1</code>, <code>-n 2</code>, <code>-s</code>, <code>-k "width_sweep or
+environment"</code>, <code>timeout -k 30 590</code>, durable capture: <strong>23 passed,
+12 deselected in 183.45 s</strong> (<code>:2163</code>), <code>[capture] rc=0</code> (<code>:2229</code>), Status 0,
+<strong>185 s</strong> (<code>:2232–2233</code>). Heavy by ceiling.</p>
+<ul>
+<li><strong>Anchors (asserted, unmoved), green.</strong> f = 6.400000e+07 Hz on every line
+  (<code>:1880, :1932, :2003, :2074</code>); 116 085 cells bitwise on A / B / C;
+  reciprocity 1.351536152e-15 / 2.238321049e-15 / 1.934662477e-15 against
+  1e-3; σ_max 0.999535567 / 0.999907252 / 0.999839277 against 1 + 1e-9
+  (<code>:1937, :2008, :2079</code>).</li>
+<li><strong>Negative control (asserted).</strong> Γ = 0 on all six terminations: Δ =
+  0.4671 / 0.2400, 0.4928 / 0.2377, 0.4516 / 0.2319; misses 0.5454 / 0.2416,
+  0.4431 / 0.2366, 0.5331 / 0.2335 — ≥ 234× the band against the 5× bar
+  (<code>:1946–1947, :2017–2018, :2088–2089</code>).</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>config</th>
+<th>C = 100 pF residual (× ε = 0)</th>
+<th>L = 1 µH residual (× ε = 0)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ε = 0 (step 2, <code>…step2.log:1891, :1898</code>)</td>
+<td>1.354202e-02</td>
+<td>5.021261e-04</td>
+</tr>
+<tr>
+<td>A common +5 %</td>
+<td>7.879573e-02 (×5.818610)</td>
+<td>2.862518e-03 (×5.700796)</td>
+</tr>
+<tr>
+<td>B common −5 %</td>
+<td>5.047888e-02 (×3.727574)</td>
+<td>1.895173e-03 (×3.774297)</td>
+</tr>
+<tr>
+<td>C alt. ±5.3 %</td>
+<td>8.205738e-02 (×6.059464)</td>
+<td>2.859601e-03 (×5.694986)</td>
+</tr>
+</tbody>
+</table>
+<p>(<code>:1941–1942, :2012–2013, :2083–2084</code>.)
+- <strong>Fit (printed, <code>:2093–2098</code>).</strong> ε*(C) = <strong>−0.010908</strong> (10 MHz −0.010735),
+  ε*/(−κ_C) = <strong>1.031340</strong>; ε*(L) = <strong>−0.010199</strong> (10 MHz −0.010970),
+  ε*/(−κ_L) = <strong>0.957693</strong>.
+- <strong>Predictions (printed only).</strong> Within 10 % of −κ_k: <strong>held</strong> on both
+  (3.1 %, 4.2 %). C/L within 2 %: <strong>failed</strong>, ε*(C)/ε*(L) = 1.069490.
+  Both ±5 % directions raise L's residual: <strong>held</strong> (×5.70, ×3.77).
+- <strong>Negative-result bars: none fires.</strong> Off −κ_k by &gt; 30 %: clear. C vs L by</p>
+<blockquote>
+<p>2×: clear. All residuals within ±10 % of ε = 0: clear (factors 3.7–6.1).
+- <strong>Observation, not asserted.</strong> C's parabola dips below zero,
+  r²(ε*) = −1.626e-05 against r₀² = 1.834e-04 (≈ 9 %; at 10 MHz it was
+  −1.4e-07). So C's three 64 MHz points are not exactly <code>|r₀ + kε|</code>. L's
+  minimum is +1.74e-08 against 2.52e-07. The ε = 0 point comes from step 2's
+  window, which reproduced to ≤ 3e-7 across runs (step 2b anchor (c)).</p>
+</blockquote>
+<p><strong>Reading.</strong> The width lever reaches the proportional law at 64 MHz. Each
+element's zero-crossing sits within 5 % of its own −κ_k, as at 10 MHz. The
+C/L split grew from 2 % at 10 MHz to 7 % at 64 MHz, and that is the only
+pre-registered prediction that missed. It is the same order as C's
+departure from the linear model above. <strong>Not changed:</strong> no record, no band,
+no <code>Z_p</code> correction. The row stays 🟡 and <code>PORT-15</code> gate (i) stays closed.
+Whether a <code>(1+κ)</code> correction becomes a registered route is the weekly's.</p>
+<p><strong>Step 2e executed 2026-09-12 (13:30 slot). Configuration D at 64 MHz takes
+both lossless residuals under <code>REDUCTION_BAND</code>.</strong> Tests only, additive, same
+module. Under <code>FEM_EM_PORT14_STEP2_64MHZ</code>, <code>step1d_baseline</code> and
+<code>step1d_configuration_d</code> take <code>_rlc_frequency_hz()</code>, and <code>step1d_fit</code> fits
+<code>STEP2C_RESIDUALS</code> (step 2's ε = 0 plus 2c's A/B). Two new tests skip with the
+flag off: <code>test_step1d_step2e_the_64mhz_fit_reproduces_step2c</code> and
+<code>test_step1d_step2e_the_baseline_was_built_at_64mhz</code>. The terminated-solve
+test stores its in-window ε = 0 residuals before its 64 MHz skip. One window:
+<code>20260912T183330Z_PORT-14-step2e.log</code>, <code>WIDTH_SWEEP=1 STEP2_64MHZ=1</code>,
+<code>-n 2</code>, <code>-s</code>, <code>-k "step1d or terminated_solve_matches or environment"</code>,
+<code>timeout -k 30 590</code>, durable capture: <strong>17 passed, 1 skipped, 19 deselected
+in 189.13 s</strong> (<code>:3897</code>), <code>[capture] rc=0</code> (<code>:3963</code>), Status 0, <strong>191 s</strong>
+(<code>:3966–3967</code>). Heavy by ceiling.</p>
+<ul>
+<li><strong>Anchors and controls (asserted), green.</strong></li>
+<li>The fit reproduces 2c's printed ε* to 3.38e-05 (C) and 9.36e-06 (L)
+    against rtol 1e-4 (<code>:3756–3757</code>). The mean is −0.010553268 against the
+    09:00 journal's hand-rounded −0.010554 (6.94e-05, <code>:3758</code>).</li>
+<li>The baseline was rebuilt at 64 MHz: S₁₁ sits 6.045467e-01 from the
+    10 MHz record (<code>:3762</code>), equal to step 2d's to every printed digit.</li>
+<li>D (widths × 0.989446732): 116 085 cells bitwise, reciprocity
+    1.897246132e-15, σ_max 0.999760614 (<code>:3816–3821</code>).</li>
+<li>Γ = 0 on D: Δ 0.4833 / 0.2388, misses 0.4832 / 0.2388, ≥ 239× the band
+    (<code>:3831–3832</code>).</li>
+<li><strong>Negative control by reproduction (predicted rtol 1e-6): held.</strong> In-window
+  ε = 0 is 1.354202e-02 / 5.021261e-04, |ratio − 1| = 2.827e-07 / 7.581e-08
+  against step 2 (<code>:1886, :1893, :3825–3826</code>). 2c's mixed-window fit is not
+  undermined by drift.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>element</th>
+<th>D residual</th>
+<th>D/(ε = 0), 64 MHz</th>
+<th>step 1d D/(ε = 0), 10 MHz</th>
+<th>fit's prediction at the mean ε*</th>
+<th>vs band 1e-3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C = 100 pF</td>
+<td>1.190127e-04</td>
+<td>0.008788</td>
+<td>0.036078</td>
+<td>≈ 0 (r² = −1.605e-05)</td>
+<td>0.119×, UNDER</td>
+</tr>
+<tr>
+<td>L = 1 µH</td>
+<td>9.581734e-07</td>
+<td>0.001908</td>
+<td>0.035507</td>
+<td>1.331180e-04</td>
+<td>0.00096×, UNDER</td>
+</tr>
+</tbody>
+</table>
+<p>(<code>:3825–3827</code>; printed, never asserted — the width was fitted to these.)</p>
+<p><strong>Reading.</strong> The negative-result table selects "both under ⇒ record".
+The (1 + mean ε*(64)) width undoes κ at 64 MHz on the gate mesh by a larger
+factor than at 10 MHz. L's residual lands 139× below its own fit's floor and
+C's ≈ 4× below what a zero at 2c's ε*(C) would give (slot arithmetic,
+k = √a). So both true zero-crossings sit nearer the common mean than the
+three-point fits placed them. 2c's 7 % C/L split is within those fits'
+resolution (≈3e-4 in ε*), not evidence of element-dependent physics.
+<strong>Not changed:</strong> no record, no band, no <code>src/</code>, no <code>Z_p</code> correction. The
+row stays 🟡 and <code>PORT-15</code> gate (i) stays closed. Whether a κ-derived (not
+fitted) width becomes a registered route is the weekly's; 128 MHz would be
+its out-of-sample point.</p>
+<p><strong>Ruled 2026-09-12 18:00 review — step 2e accepted; the step-2 family is
+frozen under the four-attempt rule and its question is closed as
+measured.</strong> Re-read <code>20260912T183330Z_PORT-14-step2e.log:3825–3827</code> (D
+residuals 1.190127e-04 / 9.581734e-07) and <code>:1886, :1893</code> (the in-window
+ε = 0 reproduction). Step 2 has now run five attempts (2, 2b, 2c, 2d, 2e)
+and none registered a record or moved a band, so under §9's family cap (the
+operator directive of 2026-09-12, enacted by this review) no 2f is queued.
+The banked reading: at 64 MHz on the gate mesh, κ is the terminal form's
+Cauchy–Schwarz deficit to 0.3 % (2d) and a (1 + κ)-corrected width takes
+both lossless residuals under 1e-3 (2e). What would move the row from 🟡
+is a <strong>registered</strong> 64 MHz route — a κ-<em>derived</em> width, not a fitted one,
+with 128 MHz as its out-of-sample point — and that is the 2026-09-13
+weekly's to specify as a numbered step 3, not a sixth letter under step 2.</p>
+<p><strong>Step 3 scoped 2026-09-13 (weekly review) — the κ-derived width route,
+registered at 64 MHz, out-of-sample at 128 MHz.</strong> One additive opt-in on
+the sheet law scaling the told width by <code>(1 + κ)</code> with κ computed in-run
+from the ε = 0 solve's <code>C/terminal − 1</code> (<code>PORT-16</code>'s <code>_exact_shares</code>),
+never fitted; asserted: κ(64) reproduces 2d's 1.0641e-2 at rtol 1e-3, both
+64 MHz lossless residuals ≤ <code>REDUCTION_BAND</code> 1e-3 on the gate mesh, the
+uncorrected 10 MHz floor record unmoved; negative control by record the
+uncorrected 64 MHz miss (1.354202e-02); the corrected 10 MHz pair and the
+128 MHz pair with in-run κ(128) printed and <em>predicted</em> under, never
+asserted. Moves the row 🟡 → ✅ with κ carried as the sheet's named
+systematic. Full item in §10 (the three frozen families).</p>
+<p><strong>Step 3 executed 2026-09-13 12:00 slot — 🚫 incomplete on a
+mis-registered anchor; code parked on
+<code>attempt/PORT-14-step3-20260913T172330Z</code> (<code>86c93f6</code>).</strong> (0) lifted
+<code>C/terminal − 1</code> = test helper bitwise; (ii) corrected 64 MHz lossless
+residuals <strong>5.359129e-05 / 1.998404e-06</strong> ≤ 1e-3; (iii) the 10 MHz floor
+reproduces unmoved; negative control green; printed κ(128)
+1.064828193e-02 with corrected 4.013e-05 / 5.599e-06 under 1e-3. <strong>(i)
+red:</strong> derived κ(64) 1.060762155e-02 vs "2d's 1.0641e-2" misses by
+3.119e-03 — but 1.0641e-2 is 2b's <em>pooled fit</em>; 2d's <code>C/terminal − 1</code> is
+1.060762e-02 on P1 (reproduced to 1.457e-07), and the step-2d text above
+already records the 0.99688–0.99714× gap. The comparand, not the route,
+is wrong. <strong>Sign:</strong> 2e's fitted ×0.989446732 is <code>1/(1 + κ)</code>, not
+<code>(1 + κ)</code>; the parked code implements <code>1/(1 + κ)</code>. Not loosened; a review
+re-registers (i). Logs <code>20260913T171434Z_PORT-14-step3-64mhz.log</code>
+(Status 1, 114 s), <code>…171649Z_…-10mhz.log</code> (197 s),
+<code>…172026Z_…-128mhz.log</code> (114 s), all <code>-n 2</code>.</p>
+</blockquote>
+<h2 id="ruling-appended-2026-09-13-1800-daily-review-step-3-anchor-i-re-registered">Ruling appended 2026-09-13 18:00 daily review — step 3 anchor (i) re-registered<a class="headerlink" href="#ruling-appended-2026-09-13-1800-daily-review-step-3-anchor-i-re-registered" title="Permanent link">&para;</a></h2>
+<p>The parked step-3 run (<code>attempt/PORT-14-step3-20260913T172330Z</code>, <code>86c93f6</code>) is
+ruled correct in its route and wrong only in its comparand: anchor (i) named
+step 2b's pooled fit 1.064081e-02, which the step-2d record above
+(<code>:602–605</code>) already puts at 0.99688–0.99714× the <code>C/terminal − 1</code> the
+derived κ actually computes. (i) is re-registered as <em>the in-run derived
+κ(64) reproduces 2d's P1 <code>C/terminal − 1</code> record 1.060762e-02 at rtol 1e-3</em>
+(<code>20260912T123236Z_PORT-14-step2d-64mhz.log:1942–1949</code>; the parked window
+read 1.457e-07). The scoping text's "scale the told width by <code>(1 + κ)</code>" is
+sign-inverted — 2e's fitted ×0.989446732 is <code>1/(1 + κ)</code>, which the parked
+code implements; the §10 sentence is corrected, this history is not
+rewritten. No band moved. Re-queued as §9 item 1 of the 18:00 review.</p>
+<h2 id="step-3-landed-2026-09-13-1930-slot-on-the-re-registered-anchor-i">Step 3 landed 2026-09-13 19:30 slot — ✅ on the re-registered anchor (i)<a class="headerlink" href="#step-3-landed-2026-09-13-1930-slot-on-the-re-registered-anchor-i" title="Permanent link">&para;</a></h2>
+<p>Code from <code>attempt/PORT-14-step3-20260913T172330Z</code> (<code>86c93f6</code>) checked out
+by path only: <code>src/fem_em_solver/ports/lumped.py</code>, <code>ports/shares.py</code>,
+<code>tests/validation/test_port_lumped_rlc_termination.py</code>,
+<code>tests/validation/test_port_birdcage_four_port.py</code>. None of the four had
+changed on <code>main</code> since the branch point <code>8ad4548</code>. One edit in the step-3 block:
+anchor (i)'s comparand is the new constant
+<code>STEP2D_C_OVER_TERMINAL_64MHZ_P1 = 1.060762e-02</code>
+(<code>20260912T123236Z_PORT-14-step2d-64mhz.log:1942–1949</code>), replacing the
+parked module's printed-only <code>STEP2D_C_OVER_TERMINAL_P1_64MHZ</code>. The
+<code>STEP2B_KAPPA_64MHZ_POOLED</code> comparison is now a printed ratio against the
+predicted 0.9969–0.9971. <code>STEP3_KAPPA_RTOL</code> stays 1e-3. The block header gains
+the sign sentence <code>w/(1 + κ)</code>, i.e. the width scaled by <code>1/(1 + κ)</code>, and the
+assert message names 2d. Nothing was edited after the first window, so all
+four windows ran the module as committed (rule (i)).</p>
+<p>Windows, all <code>-n 2</code>, <code>timeout -k 30 590</code>, <code>-s</code>, complex build, no pipe;
+<code>pgrep -c python3</code> = 0 before and after:</p>
+<ul>
+<li><code>20260914T003252Z_PORT-14-step3-64mhz.log</code>: 17 passed, 112.57 s, Status 0, <strong>114 s</strong>.</li>
+<li><code>20260914T003503Z_PORT-14-step3-10mhz.log</code>: 17 passed / 2 skipped, 194.48 s, Status 0, <strong>196 s</strong>.</li>
+<li><code>20260914T003827Z_PORT-14-step3-128mhz.log</code>: 15 passed / 2 skipped, 113.75 s, Status 0, <strong>115 s</strong>.</li>
+<li>
+<p><code>20260914T004031Z_PORT-14-step3-port9-gate.log</code> (rule (c), <code>PORT-9</code>'s gate
+  module after <code>build_four_port_sweep</code> gained the default-<code>None</code>
+  <code>width_correction_kappa</code> keyword, the 8-line additive diff): 16 passed,
+  63.61 s, Status 0, <strong>66 s</strong>.</p>
+</li>
+<li>
+<p><strong>Anchors (asserted), green.</strong></p>
+</li>
+<li>(0) The lifted <code>C/terminal − 1</code> equals the test helper: |ratio − 1| = 0.000e+00
+    on the pooled value and on P1–P4 at 64 MHz (<code>…64mhz.log:1943–1948</code>), 10 MHz
+    (<code>…10mhz.log:3775</code>) and 128 MHz.</li>
+<li><strong>(i)</strong> The derived κ(64) = <strong>1.060762155e-02</strong> against 2d's 1.060762e-02:
+    |ratio − 1| = <strong>1.457e-07</strong> ≤ 1e-3 (<code>…64mhz.log:1937, :1951</code>).</li>
+<li>(ii) The corrected 64 MHz lossless residuals are <strong>5.359129e-05 / 1.998404e-06</strong>
+    ≤ <code>REDUCTION_BAND</code> 1e-3 (<code>:1958–1959</code>). The corrected 4×4 has 116 085 cells,
+    reciprocity 9.856306924e-16 and σ_max 0.999760402 (<code>:1954</code>).</li>
+<li>(iii) The uncorrected 10 MHz floor is unmoved: C / L / R 1.595580e-03 /
+    3.370512e-03 / 7.249519e-04, |ratio − 1| ≤ 2.380e-07 against the record
+    (<code>…10mhz.log:1888, :1895, :1902</code>).</li>
+<li><strong>Negative control (asserted, by record), green:</strong> the uncorrected 64 MHz
+  C = 100 pF miss is 1.354202e-02 (13.542× band); L is 5.021261e-04
+  (<code>…64mhz.log:84</code>).</li>
+<li><strong>Printed, predicted under 1e-3, never asserted:</strong></li>
+<li>10 MHz: in-run κ(10) 1.059204217e-02; corrected pair 1.099275e-06 /
+    1.396651e-06, <strong>held</strong> (<code>…10mhz.log:3768, :3789–3790</code>).</li>
+<li>128 MHz: in-run κ(128) 1.064828193e-02; corrected pair 4.012884e-05 /
+    5.599266e-06, <strong>held</strong> (<code>…128mhz.log:1937, :1955–1956</code>). Reciprocity
+    1.325493719e-15, σ_max 0.999139628 (<code>:1951</code>). This is the out-of-sample
+    reading; a review decides on it.</li>
+<li>Width factor <code>1/(1 + κ)</code> at 64 MHz is 0.989503719, 5.699e-05 from 2e's fitted
+    0.989446732, inside the 3e-4 window.</li>
+<li><strong>Printed prediction MISSED (predicted, not asserted; reported, not decided
+  in-slot, rule (e)):</strong> κ(64) / 2b's pooled fit reads <strong>0.996881</strong> against the
+  item's predicted 0.9969–0.9971 (<code>…64mhz.log:1951</code>). The miss is 1.9e-05
+  below the lower edge. It is the same number as 2d's record 0.996881
+  (<code>20260912T123236Z_PORT-14-step2d-64mhz.log:1942</code>), whose 0.99688 the item
+  rounded to 0.9969, so it is a rounding miss in the prediction, not a drift.
+  The 10 MHz (0.995417) and 128 MHz (1.000702) prints of the same ratio compare
+  the in-run κ with the 64 MHz fit, and the window was never meant for them.</li>
+</ul>
+<p><strong>Reading.</strong> The κ-derived, unfitted <code>1/(1 + κ)</code> told width takes both
+lossless reduction residuals under 1e-3 at 64 MHz on the gate mesh. The
+derived κ reproduces the 2d record to 1.5e-7, and the parked branch's digits
+reproduce exactly. <strong>Status:</strong> <code>PORT-14</code> 🟡 → ✅ on (0)–(iii), with κ carried as
+the sheet's named systematic and <code>TH-17</code> barred from gating a mode frequency
+tighter than it. <code>PORT-15</code> step 2 unblocks. No tuning, resonance or <code>TH-17</code>
+claim; 128 MHz stays printed. The attempt branch is deleted after this commit.</p>
+<h2 id="7-row-moved-verbatim-2026-10-01-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-01 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-01-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p><strong>Lumped RLC sheets</strong> — HFSS <em>Lumped RLC</em> boundary: the <code>PORT-9</code> sheet law generalised from 50 Ω to <code>Z_p(ω) = R + jωL + 1/(jωC)</code>, so capacitors live in the model — <strong>feature ladder A2</strong> (operator directive 2026-09-04; serial on nothing) | ✅ <strong>Closed 2026-09-13 19:30 slot (step 3): the κ-derived width route (told width <code>w/(1 + κ)</code>, κ = in-run <code>C/terminal − 1</code> through <code>ports/shares.py</code>) is registered at 64 MHz — (0) lift 0.000e+00, (i) κ(64) 1.060762155e-02 vs 2d's 1.060762e-02 at 1.457e-07, (ii) corrected residuals 5.359129e-05 / 1.998404e-06 ≤ 1e-3, (iii) and the by-record control green, 116 085 cells, <code>-n 2</code> (<code>20260914T003252Z_PORT-14-step3-64mhz.log:1937–1959</code>, 114 s; <code>…003503Z_…-10mhz.log:1888–1902</code>, 196 s; <code>PORT-9</code> gate module re-run green <code>…004031Z_…-port9-gate.log:1971</code>, 66 s). κ is carried as the sheet's named systematic and <code>TH-17</code> may not gate a mode frequency tighter than it; the 128 MHz pair (4.013e-05 / 5.599e-06, <code>…003827Z_…-128mhz.log:1955–1956</code>) stays a printed out-of-sample reading. <em>History: <code>docs/planning/chunks/PORT-14.md</code>.</em></strong> Prior state: 🟡 *(step 1 executed 2026-09-05, 21:00 slot — complex <code>Z_p</code> + <code>ports/circuit.py</code> land and solve; the reduction identity misses the pre-stated 1e-3 band at 1.596e-03 / 3.371e-03 / 7.250e-04 for C / L / R, band not widened, known-issues 🟡; 64 MHz is step 2. *<em>Step 1b executed 2026-09-05, 09:00 slot: the residual is non-monotone in sheet resolution — 1.5956e-03/3.3705e-03 at ×1 (116 085 cells), 4.1880e-03/8.8755e-03 at ×0.75 (161 695), 1.4904e-03/3.1449e-03 at ×0.6 (209 604), reciprocity ≤ 2.4e-14 and σ_max ≤ 0.99999292 on both refined rungs — so the resolution hypothesis is refuted and <code>sheet_width_m</code> (the ×0.75 rung is the one whose four sheet widths break C4) is the step-1c suspect; band untouched. <strong>Step 1c executed 2026-09-05, 21:30 slot on the fixed 116 085-cell gate mesh — reading (1): the width the law is told is the lever. Residual ×5.803881 / ×5.830276 at ε = +5%, ×3.748033 / ×3.724086 at −5%, ×5.634488 / ×5.679903 at alternating ±5.3% (C / L); all three perturbed 4×4s reciprocal to ≤ 1.891254889e-14 with σ_max ≤ 0.999997273, cells 116 085 bitwise, the Γ = 0 control asserted on all six terminations. Both directions <em>raise</em> the residual, so the zero-crossing lies inside ±5%: a three-point fit puts it at ε* ≈ −0.0107 (C) / −0.0110 (L), common to the two elements, with fitted minimum ≈ 0. Step 1b's uniformity framing is superseded — configuration C is not distinguishable from A. Band untouched, the red gate test not re-run</strong>)</em> <strong>Step 3 ruled 2026-09-13 18:00 review — anchor (i) re-registered, parked branch unblocked.</strong> The 12:00 slot's parked route (<code>attempt/PORT-14-step3-20260913T172330Z</code>, <code>86c93f6</code>) had (0), (ii) <strong>5.359129e-05 / 1.998404e-06 ≤ 1e-3</strong> at 64 MHz, (iii) and the by-record control green and (i) red only because its comparand was step 2b's <em>pooled fit</em> 1.064081e-02, which this row's own 2d reading puts at 0.99688–0.99714× the <code>C/terminal − 1</code> it is meant to reproduce (<code>docs/planning/chunks/PORT-14.md:602–605</code>). (i) is therefore <strong>re-registered as: the in-run derived κ(64) reproduces 2d's P1 <code>C/terminal − 1</code> record 1.060762e-02 at rtol 1e-3</strong> (<code>20260912T123236Z_PORT-14-step2d-64mhz.log:1942–1949</code>; the parked run read it to 1.457e-07) — the same quantity on the same fixture, not a widened band; and the sign sentence is corrected to <code>1/(1 + κ)</code> (2e's fitted ×0.989446732), which is what the parked code implements. Re-queued as §9 item 1: land the branch's <code>src/</code> + tests by path, edit the one constant, re-run all three windows plus the <code>PORT-9</code> gate module (rule (c): <code>build_four_port_sweep</code> gained a default-<code>None</code> keyword). </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

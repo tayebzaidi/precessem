@@ -1,0 +1,660 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>OPS-54 — XL / XXL windows run against an immutable checkout - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ops-54-xl-xxl-windows-run-against-an-immutable-checkout" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              OPS-54 — XL / XXL windows run against an immutable checkout
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-487-2026-10-15-lane-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 487 — 2026-10-15 (lane 1)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-15-1800-item-487-not-queued" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-15 18:00 (item 487 — NOT queued)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ops-54-xl-xxl-windows-run-against-an-immutable-checkout">OPS-54 — XL / XXL windows run against an immutable checkout<a class="headerlink" href="#ops-54-xl-xxl-windows-run-against-an-immutable-checkout" title="Permanent link">&para;</a></h1>
+<h3 id="9-item-487-2026-10-15-lane-1">§9 item 487 — 2026-10-15 (lane 1)<a class="headerlink" href="#9-item-487-2026-10-15-lane-1" title="Permanent link">&para;</a></h3>
+<p><strong>Step 1: the scratch-repo clause of the Done-when, behind an opt-in key, with the default path byte-identical.</strong> Implementer; smoke; no MPI, no container, no compute.</p>
+<p><strong>Why it is queueable now.</strong>
+- The §7 row says "do not queue until a measured window has actually overlapped a slot, or the weekly decides the risk warrants it". The weekly has decided twice:
+  - "<code>OPS-54</code> — queue it; it is the right use of a drained slot" (<code>plan-archive.md:34768</code>);
+  - "<code>OPS-54</code> step 1 if assertable in a slot", in the current lane-1 list (<code>PROJECT_PLAN.md</code> §10, "Lane 1 and lane 2, targets for the daily").
+- The earlier "the operator's (a compose mount)" (<code>plan-archive.md:35131</code>) is answered by keeping the mount change a default-preserving interpolation. The review rules on that reading.
+- <strong>Rule (j):</strong> the Done-when has two clauses: (i) the scratch-repo test, (ii) one real XL window through the new path. This step meets (i) only.</p>
+<p><strong>Construction (additive).</strong>
+- <code>xl-run.sh</code> reads a new queue-entry key, <code>XL_IMMUTABLE_CHECKOUT=1</code>, beside <code>XL_OUTPUTS</code>. Unset leaves today's path untouched.
+- When the key is set, <code>xl-run.sh</code>:
+  - records the window's start <code>HEAD</code> sha;
+  - runs <code>git worktree add --detach &lt;gitignored path, e.g. .xl-worktree/&gt; &lt;sha&gt;</code>;
+  - exports <code>FEM_EM_XL_WORKSPACE</code> to that path before its existing <code>up -d --force-recreate</code>;
+  - runs the queued command against that view;
+  - after the window, copies the declared <code>XL_OUTPUTS</code> and any in-tree raw-capture files back into the main tree before its existing staging step (<code>xl-run.sh:199–245</code>);
+  - removes the worktree (<code>git worktree remove --force</code>, then <code>git worktree prune</code>).
+- In <code>docker/docker-compose.yml</code> the xl and xxl services' <code>..:/workspace</code> becomes <code>${FEM_EM_XL_WORKSPACE:-..}:/workspace</code>. Edit it with the Edit tool (see traps).
+- The gitignore entry goes in <code>.gitignore</code>. The scratch test copies that file (<code>test_xl_window_isolation.sh:53</code>).</p>
+<ol>
+<li><strong>Anchor (byte identity).</strong> In a new window 7 of <code>scripts/testing/test_xl_window_isolation.sh</code>, the queued probe:</li>
+<li>reads <code>src.txt</code> in its own view (<code>$PWD</code> under the stub, i.e. the worktree);</li>
+<li>commits a change to <code>src.txt</code> on <code>main</code> in <code>$REPO</code> mid-window (a real <code>git commit</code>, not an edit);</li>
+<li>re-reads its view.</li>
+</ol>
+<p>Asserted:
+   - the view's sha256 after the concurrent commit equals <code>git show &lt;start-sha&gt;:src.txt</code>'s sha256;
+   - <code>main</code>'s <code>src.txt</code> does carry the change;
+   - after the window, the worktree path is gone and <code>git worktree list</code> has one entry;
+   - a declared output written inside the view is present in the xl-run commit.
+2. <strong>Negative control.</strong> Window 7′: the same probe and the same concurrent commit with the key <strong>unset</strong>. Assert that the view's sha256 <strong>differs</strong> from the start blob, i.e. the live tree moved under the window, which is the defect. This is a planted boolean control, asserted as OPS-64's windows 5–6 are. Rule (e) governs factors, and no factor is claimed. <strong>Regression:</strong> windows 1–6 stay green unmodified. This is the evidence that the default path is unchanged.
+3. <strong>Tier, ranks, wall clock.</strong> Smoke, no ranks. Priced from <code>20260920T004915Z_OPS-XL-ISOLATION.log</code> (23 s) and <code>OPS-64</code>'s three windows of 24 / 24 / 47 s (<code>docs/testing/test-results.md:2430–2432</code>). Predicted ≈ 45 slot-minutes, mostly script work. The window is one bare whole command: <code>scripts/testing/run_and_log.sh OPS-54-step1 "timeout -k 30 120 bash scripts/testing/test_xl_window_isolation.sh"</code>.
+4. <strong>Traps.</strong>
+   - <code>bash_guard.py</code> denies any Bash text that names the XL service (weekly-review mechanics). Edit compose and read it with Read/Edit/Grep tools, never with a shell command naming the service. The test file's existing strings are fine, because the harness command does not contain them.
+   - A git worktree's <code>.git</code> is a <em>file</em> holding an absolute host path. In-container <code>git</code> cannot resolve it. The harness runs host-side, so step 1 is unaffected. Name this as a step-2 check, not a step-1 claim.
+   - <code>mktemp</code> must honour <code>$TMPDIR</code> (<code>:37</code> already does). <code>/tmp/claude</code> is denied in headless sessions.
+   - The real <code>xl-run.sh</code> is live at 02:00 tonight. Never run it against the real repo or docker. Never write to <code>docs/testing/xl-queue.d/</code> (implementers never commission). The key must default off, so tonight's window is byte-identical in behaviour.
+   - Durable-capture raw files and <code>--capture-orphan</code> read repo-relative paths. Under the key they land in the worktree, so copy them back before the worktree is removed, or the window loses its record.
+   - Never pipe the test's output inside the harness command.
+5. <strong>Scope boundary.</strong>
+   - Clause (ii) is not attempted: no real XL window, and no flip of the default to the key. Both belong to the weekly, which commissions the step-2 window with <code>XL_IMMUTABLE_CHECKOUT=1</code> in its queue entry.
+   - No change to <code>bash_guard.py</code>'s budget arithmetic, to the XXL cadence, or to any compute.
+6. <strong>Negative result.</strong>
+   - Window 7 red (the view moved, or the worktree left behind), or any of windows 1–6 red: report and stop. Park the work on <code>attempt/OPS-54-step1-…</code>, mark the item BLOCKED in the same commit, and leave <code>main</code>'s <code>xl-run.sh</code> and compose untouched.
+   - If 7′ does <strong>not</strong> differ, the probe is not reading the window's view. The control is broken and nothing is claimed.
+7. <strong>Status it can move.</strong> <code>OPS-54</code> ⬜ → 🟡 on clause (i). ✅ waits on clause (ii), the weekly's real window.</p>
+<h3 id="review-ruling-2026-10-15-1800-item-487-not-queued">Review ruling 2026-10-15 18:00 (item 487 — NOT queued)<a class="headerlink" href="#review-ruling-2026-10-15-1800-item-487-not-queued" title="Permanent link">&para;</a></h3>
+<p><strong>Declined; the draft above is banked for the operator.</strong> It edits <code>docker/docker-compose.yml</code>'s <code>volumes:</code> (<code>..:/workspace</code> → <code>${FEM_EM_XL_WORKSPACE:-..}:/workspace</code>). §9's standing constraint on the compose allow says: "Edit only <code>environment:</code> keys. Do not touch <code>volumes:</code>, do not add a mount, do not widen a path". It also says "A chunk that believes it needs a mount change is a <strong>blocked finding for the operator</strong>". A default-preserving interpolation still makes the mounted host path settable from the environment, which is a widening. Only the operator can authorize it. The dashboard carries it as the operator's (carried item "<code>OPS-54</code> is yours (a compose mount)"). Number 487 is spent and is not reused.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

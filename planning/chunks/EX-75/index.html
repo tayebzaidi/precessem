@@ -1,0 +1,687 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-75 — Four-port quadrature on the tuned copper F-human (history) - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-75-four-port-quadrature-on-the-tuned-copper-f-human-history" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-75 — Four-port quadrature on the tuned copper F-human (history)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-379-2026-10-11-h19-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 379 — 2026-10-11 (H19; example)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#row-text-moved-2026-10-11-0300-daily-review-7-row-2-kb-the-row-keeps-a-short-title-the-rule-j-done-when-and-the-tier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Row text moved 2026-10-11 (03:00 daily review, §7 row ≤ 2 KB; the row keeps a short title, the rule-(j) Done-when and the tier)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-75-four-port-quadrature-on-the-tuned-copper-f-human-history">EX-75 — Four-port quadrature on the tuned copper F-human (history)<a class="headerlink" href="#ex-75-four-port-quadrature-on-the-tuned-copper-f-human-history" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row in <code>PROJECT_PLAN.md</code> §7 is the status of record.</p>
+<p><strong>Review ruling being executed (weekly 2026-10-10, ruling H9′ (e), §10 H19).</strong> <code>EX-109</code> is kept as the two-port example. <code>EX-75</code> is re-posed on H9′'s fixture as the four-port side branch, with the §7 row rewritten. Its earlier H8b fixture (σ = 800 S/m, circuit-layer <code>C_mode</code>) was never on <code>main</code> and is retired with step 1d (§10 epitaph 2026-10-10).</p>
+<h3 id="9-item-379-2026-10-11-h19-example">§9 item 379 — 2026-10-11 (H19; example)<a class="headerlink" href="#9-item-379-2026-10-11-h19-example" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-11 03:00 review; the review reviews it.</em> Licence: §10 H19 and the §7 <code>EX-75</code> row as the weekly rewrote it, quoted, not changed: "the in-model root C_in,F-human = 118.2437 pF with 0.2 Ω ESR on all 32 gaps … driven at four feed gaps 0° / 90° / 180° / 270° with quadrature phases, beside the two-port drive: feed-ring k-spectrum per drive …, <code>|B₁⁺|</code> maps of both drives on the same colour scale. Imports H9′'s gates and records (… never restates them) and re-asserts them on the two-port drive; the four-port drive's figures are printed, not gated." <strong>No band, tolerance, record, Done-when of another chunk or validation target is set or moved; every band is imported.</strong></p>
+<p><code>EX-75</code> (<code>mri:18</code>, the next free number; <code>examples/mri/</code> ends at <code>17_…</code>, and no other row or chunk names <code>mri:18</code>): <strong><code>examples/mri/18_f_human_four_port_quadrature.py</code> + <code>.md</code>.</strong> One build of H9′'s fixture (369 387-cell copper hole mesh, Leontovich wall, κ off, degree 1, 64 MHz, phantom at 0.015 m). Then two loadings at the same C:
+- <strong>two-port:</strong> <code>build_tuned_quadrature(comm, with_z50=False)</code>, unchanged: P17 / P21 at Z_th, 30 gaps at Z_RC, the <code>ccw</code> / <code>cw</code> superpositions;
+- <strong>four-port:</strong> feeds at slots 0 / 4 / 8 / 12 on the feed ring at Z_th, the other 28 gaps at Z_RC, one factorisation plus three held solves, superposed with <code>quadrature_phase_weights([0, 1, 2, 3], "ccw")</code> normalised to its first entry.</p>
+<p>Per drive, the reader sees the feed-ring k-spectrum (k = 0 leak, k = +1 and k = −1 shares), <code>|B₁⁺|</code> and <code>|B₁⁻|</code> on one colour scale, and why the four-port drive excites no k = 0: its weights sum to zero, and its loading is C4-symmetric.</p>
+<ul>
+<li><strong>Executor:</strong> <code>example-runner</code>. It does not spawn agents. <strong>Class:</strong> example. <strong>Tier:</strong> heavy, <code>-n 8</code> (H9′'s record width), complex.</li>
+<li><strong>Depends on:</strong> nothing open. Items 358 / 359 / 362 are DONE. The gitignored inputs <code>logs/wf12/h12c-cu-s32-a2.npz</code> (asserted by the builder, <code>tests/validation/test_wf10_f_human_tuned_b1_sar.py:208</code>) and <code>logs/wf10/h9p-node-118.2437.json</code> ((S_rep)) were checked present on the host at drafting (≈ 03:10). <strong>Absent ⇒ stop, mark BLOCKED; never re-solve the 32×32 or re-run 358.</strong> Independent of items 367a / 367b, which write only <code>h18-*</code>. Never beside another heavy window.</li>
+<li><strong>Cost:</strong> ≈ M measured (example class median) / ≈ 60 predicted min: 15 fixed + ≈ 22 script + ≈ 8 guide + ≈ 6 flagged run + ≈ 6 control + ≈ 3 dry run and censuses. <strong>If the flagged run has not started by minute 35, park</strong> (rule (d)). Price basis:</li>
+<li><code>mri:17</code> on the same build and two-port node, <strong>with</strong> the 10 g phase: 241 s flagged, 234 s control (<code>20261011T004348Z_EX-109.log</code>, <code>…T004801Z_EX-109-control.log</code>);</li>
+<li>10 g phase (dropped here) 138.6 s (<code>20261010T171705Z_WF-10-step2s-W1.log:6384</code>);</li>
+<li>four-port: one factorisation plus three held solves. The node pair (factorise + held) costs 34.4–49.9 s (<code>20261010T170356Z_WF-10-step2-W1.log:6342</code>; <code>…step2s-W1.log</code>); the Z50 pair, 33.1 s. Predicted ≈ 45–70 s;</li>
+<li>B projections and evaluations for two more fields ≈ 4 s;</li>
+<li><strong>predicted ≈ 241 − 139 + 60 + 10 ≈ 175 s flagged; range [150, 320] s</strong> at up to 1.32×. Runner <code>-t 590</code>, container <code>timeout -k 30 590</code>. Under 10 min, so the plain runner line is the form (<code>mri:17</code>'s). Summed RSS ≤ 12 GiB (358: 10.38 GiB).</li>
+</ul>
+<p><strong>Code: no gate-module edit, no <code>src/</code> edit, no rule (a) lift</strong> (10-10 18:00 ruling (362-2), the <code>EX-109</code> precedent). <code>build_tuned_quadrature</code> already returns <code>ctx</code>, <code>built</code>, <code>order</code>, <code>slots</code>, <code>feeds</code>, <code>e</code>, <code>e17</code>, <code>e21</code>, <code>sigma</code>, <code>parts</code>, <code>cur</code>, <code>y_in</code>, <code>anchors</code>, <code>say</code>, <code>omega</code> (<code>:482–489</code>). The four-port solve re-states, in the script, 358's <code>_drive</code> closure sequence (<code>:254–303</code>), with a provenance comment citing the span at the base commit. The wall term is rebuilt as the builder builds it (<code>_leontovich_term(msh, built["facets"], (1 + 1j)·surface_resistance_ohm(omega, COPPER_SIGMA), omega)</code>, <code>:236–237</code>), and goes first in the factorising call. The loads come from <code>_respec(base_specs, None, imp)</code> (<code>tests/validation/test_wf10_f_human_tuned_circuit.py:64</code>) with <code>_z_rc</code>, <code>_thevenin_feed_impedance</code> and <code>_source_voltage</code> (<code>tests/validation/test_wf10_f_human_copper_esr_root.py:120, :76, :81</code>) at <code>C_IN_F_HUMAN_PF</code>. The <code>|B₁⁺|</code> reads re-state 358's test-body sequence through the imported helpers (<code>EX-109</code>'s pattern).</p>
+<p><strong>Imports (never restated).</strong> <code>EX-109</code>'s list (<code>docs/planning/chunks/EX-109.md</code> item 362, "Imports"), minus the 10 g names, plus <code>quadrature_phase_weights</code> (<code>tests/validation/test_birdcage_b1_quadrature.py:175</code>), <code>_ring_quadrature_slots</code> (<code>tests/validation/test_port_drive_superposition.py</code>), <code>_respec</code>, <code>QUADRATURE_SLOT_OFFSET</code> (<code>test_wf10_f_human_tuned_circuit.py</code>), <code>_leontovich_term</code>, <code>_surface_loss_w</code> (<code>tests/validation/test_th14_birdcage_copper.py:160, :174</code>), <code>COPPER_SIGMA</code> (<code>tests/validation/test_wf12_f_human_copper_matrix.py</code>), <code>lumped_port_bilinear_term</code>, <code>lumped_port_linear_term</code>, <code>sheet_terminal_current</code> (<code>fem_em_solver.ports.lumped</code>), <code>surface_resistance_ohm</code> (<code>fem_em_solver.core.cavity</code>), <code>_sheet_field_dissipation_w</code>, <code>_source_power_w</code> (<code>tests/validation/test_birdcage_power_identity.py:253, :296</code>). Record digits go only into an example-local <code>REC</code> dict, each entry commented with its <code>log:line</code> (<code>EX-89</code> item 332 (Q1)).</p>
+<p><strong>(1) Anchor.</strong>
+- <strong>The two-port gates, re-asserted at their imported bands, each printed beside its W1 line</strong> (<code>EX-109</code>'s anchor minus the 10 g part): from the builder, (A0) 369 387 = <code>HOLE_CELL_RECORD</code>, census none, feeds 90° apart, (P_RC) ≤ <code>DISCRETE_IDENTITY_RTOL</code>, node NEG ≥ <code>BLIND_FACTOR</code>×; (S_rep) against the JSON read before the builder; per sense (P_w) and (Lin); (Σ_P) ≤ <code>EXACT_IDENTITY_RTOL</code>; (Sense) &gt; 1; <strong>(M_B)</strong> ≤ <code>C4_COVARIANCE_BAND</code> (1.9647e-03, <code>…step2-W1.log:6335</code>). Record rows equal 358's W1 log at the printed digits (<code>:6308–6342</code>).
+- <strong>Four-port construction identities (example-side, asserted, <code>EX-109</code> (X1)'s status).</strong> These check the script's own solve and superposition; they gate no physics claim.
+  - (X4-P) the power partition of the superposed four-port field, all four feeds driven at V_src = w_i via <code>dataclasses.replace</code> (P_src − ΣP_sheet − P_vol − P_surf)/P_src, ≤ <code>DISCRETE_IDENTITY_RTOL</code>;
+  - (X4-L) the 32 terminal currents read off the superposed field equal Σ w_i I_i within <code>UNIT_WEIGHT_CONTROL_RTOL</code>;
+  - (X4-K) the four-port factorisation reports kinds <code>["solve", "held", "held", "held"]</code>.</p>
+<p>Predicted ≤ 1e-12 / ≤ 1e-13. <em>Open question for the review:</em> demote these three to printed if it reads the row's "not gated" as covering construction identities too.
+- <strong>(W0) drive-pattern coding (ungated numpy, asserted):</strong> on a 16-slot vector, the four-port <code>ccw</code> weights at slots 0 / 4 / 8 / 12 give FFT bin 0 = 0 and bin 1 = 0 (≤ 1e-12), with bin 15 equal to 4 (the k = −1 alias family is bins 3 / 7 / 11 / 15). The two-port <code>ccw</code> weights at 0 / 4 give bin 0 = |1 − j| = √2 (≤ 1e-12). That bin is the k = 0 term the two-port drive feeds and the four-port drive does not.</p>
+<p><strong>(2) Negative controls (rule (e)).</strong>
+- <em>Asserted, backed on this fixture:</em> (N1) the mis-paired sense on the two-port drive &gt; <code>C4_COVARIANCE_BAND</code> (9.5476e-01, <code>…step2-W1.log:6336</code>; <code>EX-109</code> window 3); the node P_surf-blind miss inside the builder.
+- <em>Asserted (coding):</em> (W0)'s two-port bin 0 ≠ 0.
+- <em>Predicted, printed only (no prior four-port measurement on this fixture):</em>
+  - the four-port feed-ring k = 0 share, predicted ≤ 1e-4 (mesh asymmetry only), beside the two-port's;
+  - the four-port k = −1 (lag under <code>ccw</code>) share, predicted ≥ the two-port's 0.9963 / 0.9917 (<code>…step2-W1.log:6330</code>; the row's "circuit layer predicts a larger k = ±1 share for four-port");
+  - the four-port C4 spread of |B₁⁺|_ccw at 90° rotations (the loading is C4-symmetric), predicted ≤ 1 %;
+  - C16 worst for both drives;
+  - |B₁⁺|_ccw / √P_src for both drives, and the four-port / two-port ratio, predicted ≈ 1 (± 10 %);
+  - the four feeds' <code>Y_in</code> at C_in. The coil is not retuned for four Z_th loads, so these are printed as untuned readings.</p>
+<p><strong>Output.</strong>
+- Setup figure <code>examples/mri/figures/mri_18_f_human_four_port_quadrature_setup.png</code>: <code>mri:17</code>'s <code>write_setup_figure</code> call (<code>examples/mri/17_f_human_tuned_quadrature_b1_sar.py</code>), with <code>region_names</code> labelling the four feeds "feed P.. (0° / 90° / 180° / 270°)" and the other gaps "C_in + 0.2 Ω gap". PNG ≤ 600 KiB; if over, re-render once with <code>show_edges_on_slice=False</code>.
+- Combined XDMF <code>examples/mri/paraview_output/mri_18_f_human_four_port_quadrature_combined.xdmf</code>. All fields DG0, real, each named once: <code>B1_plus_2port</code>, <code>B1_minus_2port</code>, <code>B1_plus_4port</code>, <code>B1_minus_4port</code>, <code>E_magnitude_2port</code>, <code>E_magnitude_4port</code>, <code>FeedMarker</code> (1–4 on the four feeds' port-box cells; 1–2 for the two-port subset in <code>FeedMarker2</code>).
+- <strong>One colour scale:</strong> the script prints the common [min, max] of <code>B1_plus_2port ∪ B1_plus_4port</code> (allreduced), and the guide's ParaView recipe sets both to it.
+- CSV <code>examples/mri/paraview_output/mri_18_f_human_four_port_quadrature_kspectrum.csv</code>, per drive and ring: bins 0–15 power share, lead, lag, k = 0.
+- XDMF / H5 / CSV are gitignored; only the PNG is tracked.
+- Guide <code>examples/mri/18_f_human_four_port_quadrature.md</code> with <code>## 1. What this demonstrates</code>, <code>## 2. How to run it</code>, <code>## 3. How to analyze it, step by step</code>, <code>## Setup figure</code>, <code>## Related</code>. <strong>Name the gitignored inputs by directory (<code>logs/wf12/</code>, <code>logs/wf10/</code>), never by full file path</strong> — <code>EX-109</code>'s first post-docrefs read <code>dead=1</code> on a full path to a gitignored JSON (<code>20261011T005230Z_EX-109-post-docrefs.log</code>). <code>## Related</code> uses full filenames (rule (b)): <code>examples/mri/17_f_human_tuned_quadrature_b1_sar.md</code>, <code>tests/validation/test_wf10_f_human_tuned_b1_sar.py</code>, <code>tests/validation/test_wf10_f_human_copper_esr_root.py</code>. The guide says the clinical fixture stays two-port (operator 2026-10-01) and this is a side branch.</p>
+<p><strong>(3) Windows.</strong> Each one is foreground with <code>timeout: 660000</code>, and each is one bare, whole, repo-relative harness call, nothing chained or piped.
+0. Orphan check: <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0.
+1. Pre-censuses before any file is written: <code>scripts/testing/run_and_log.sh EX-75-pre-figures "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_setup_figures.py'"</code>, and the same with <code>check_example_doc_references.py</code>, label <code>EX-75-pre-docrefs</code>. Last reading: figures 105, <code>missing=0 broken=0</code> (<code>20261011T005315Z_EX-109-post-figures-r2.log</code>); docrefs <code>dead=0</code> (<code>…T005311Z_EX-109-post-docrefs-r2.log</code>). Use what the pre-census reads.
+2. Dry run: <code>scripts/testing/run_and_log.sh EX-75-dryrun "./scripts/run_examples.sh -e mri:18 -n 8 -t 590 --dry-run"</code>. It must print <code>(complex build)</code>.
+3. Run of record (flagged), predicted [150, 320] s: <code>scripts/testing/run_and_log.sh EX-75 'docker compose exec -T -e FEM_EM_SETUP_FIGURES=1 fem-em-solver bash -lc "cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src timeout -k 30 590 mpiexec -n 8 python3 examples/mri/18_f_human_four_port_quadrature.py"'</code>
+4. Control: <code>git add</code> the PNG, then the same line without <code>-e FEM_EM_SETUP_FIGURES=1</code>, label <code>EX-75-control</code>. Compare at the band, never bitwise.
+5. The guide, written from window 3's log.
+6. Post-censuses <code>EX-75-post-figures</code> / <code>EX-75-post-docrefs</code>. Prediction first: figures +1, <code>missing=0 broken=0</code>; docrefs runnable +1, no new dead reference.
+7. <code>git status --porcelain examples/</code> lists only the script, guide and PNG.</p>
+<p><strong>(4) Traps already paid for.</strong> All of <code>EX-109</code>'s (item 362 (4)) apply: the builder rewrites <code>h9p-node-118.2437.json</code>, so read it first on rank 0 and <code>bcast</code>; the sense code fixes <code>ccw</code>; B goes through <code>project_to_cg1</code> and point reads through <code>evaluate_vector_field_parallel</code>; collectives on every rank; no complex <code>ufl</code> comparison; rank-local tags; name every Function; never import a <code>test_*</code> function or another example. Plus:
+- <strong>Never hold a factor across an impedance change</strong> (<code>PORT-19</code>). The builder's last factor is the two-port loading, so the first four-port solve must factorise (<code>solver.solve(…, extra_bilinear_terms=[wall] + sheet terms)</code>) and only the next three may be held.
+- <strong>On a superposed drive, every feed is a driven sheet at its own V_src = w_i</strong> (<code>dataclasses.replace</code>, <code>LumpedPortSheet</code> is frozen, <code>src/fem_em_solver/ports/lumped.py:184</code>); undriven sheets carry 0. V_src = 1 on every feed reads the wrong P_src.
+- <strong>r is on the feeds too:</strong> Z_th and V_s come from Z_RC; read currents, not the <code>_drive</code> closure's 50 Ω <code>s</code>.
+- <strong>Feed slots from <code>_ring_quadrature_slots(built["sheets"])</code> on the feed ring (P17's ring sign)</strong>, at k = 0, 4, 8, 12. Assert the four measured azimuths are 90° apart within <code>AZIMUTH_MATCH_DEG</code>; never hard-code port names.
+- Keep only E₁₇, E₂₁, the four four-port fields and the superpositions; <code>del</code> the rest (≈ 10.4 GiB summed RSS already at the two-port stage).
+- Rule (i): the script is frozen once window 3 starts, and the guide before window 6. Write <code>≈</code>, never a tilde. No AED value or comparison.
+- Status 124: run <code>pgrep -c python3</code> first; only at 0, the orphan sweep labelled <code>EX-75-cache-sweep</code>. Never raise the timeout or <code>-n</code>.</p>
+<p><strong>(5) Scope.</strong> Degree 1, 64 MHz, κ off, one copper hole fixture, one phantom at 0.015 m, r = 0.2 Ω on all 32 gaps, C fixed at the <strong>two-port</strong> root for both drives. <strong>Not claimed:</strong> a four-port tuning (C is not re-rooted for four Z_th loads); <code>f₀</code>, Q, match, <code>S₁₁</code> / <code>Z_in</code> or tuning accuracy; homogeneity; an absolute <code>|B₁⁺|</code>; C16 or C4 invariance as a gate; 10 g SAR (<code>mri:17</code> has it); degree 2; any AED comparison; compliance. <code>WF-10</code> and <code>EX-109</code> do not move.</p>
+<p><strong>(6) Negative result.</strong> Report and stop; journal in <code>docs/testing/attempts.md</code>; park on <code>attempt/EX-75-&lt;UTC&gt;</code>; mark item 379 BLOCKED with the unblock condition in the same commit (rule (d)). <code>EX-75</code> stays ⬜. Never widen a band or edit a gate module or <code>src/</code>.
+- A two-port gate red, or a record row off its W1 digits with an anchor red: an example/test divergence or a fixture move; file a known-issues entry.
+- (X4-*) red: an example defect in the four-port solve. Fix once in-slot before window 3 if the cause is shown; otherwise park.
+- (N1) inside the band: the sense did not reach the reading; stop.
+- A four-port k = 0 share above 1e-4, or a k = −1 share below the two-port's, is a reading (predicted, printed), not a red.</p>
+<p>No <code>PREDICTED RED:</code> line. A red anywhere stops the slot.</p>
+<p><strong>(7) Status it can move.</strong> <code>EX-75</code> ⬜ → ✅ on the Done-when the review writes into the row in the same commit as this item (rule (j); the rewritten row has no Done-when clause; the recommended text is in the review's return). Census <code>examples</code> +1, <code>broken=0</code>; docrefs no new dead reference.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Use the example-runner agent to execute <code>EX-75</code>, §9 item 379 (<code>docs/planning/chunks/EX-75.md</code>, heading <code>§9 item 379</code>). Read the brief and any review rulings beneath it first; the rulings hold. You are the executor — do not spawn agents, never background a harness window. Pass <code>timeout: 660000</code> on every Bash call that runs a harness window, and never delete a log. The harness call is the whole Bash command — bare, repo-relative, nothing chained or piped. Before window 3, run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> and require 0. Edit no gate module and no <code>src/</code> file; if <code>logs/wf12/h12c-cu-s32-a2.npz</code> or <code>logs/wf10/h9p-node-118.2437.json</code> is absent, stop. Name gitignored inputs in the guide by directory only. No edit to the script after window 3 or to the guide after window 6. If the docker socket is denied, stop and report the exact command string. Return the windows' log names, every asserted and printed value beside its W1 record, the census before / after, and elapsed."</p>
+<h3 id="row-text-moved-2026-10-11-0300-daily-review-7-row-2-kb-the-row-keeps-a-short-title-the-rule-j-done-when-and-the-tier">Row text moved 2026-10-11 (03:00 daily review, §7 row ≤ 2 KB; the row keeps a short title, the rule-(j) Done-when and the tier)<a class="headerlink" href="#row-text-moved-2026-10-11-0300-daily-review-7-row-2-kb-the-row-keeps-a-short-title-the-rule-j-done-when-and-the-tier" title="Permanent link">&para;</a></h3>
+<p>| <code>EX-75</code> | <strong>Four-port quadrature on the tuned copper F-human — the k = 0-free drive, for completeness</strong> (operator 2026-10-01: the fixture stays two-port 90°, this is a side branch; <strong>re-posed 2026-10-10 by the weekly on H9′'s fixture — §10 H19</strong>) — the in-model root C_in,F-human = 118.2437 pF with 0.2 Ω ESR on all 32 gaps (<code>WF-10</code> step 1e / step 2, items 354 / 358) driven at four feed gaps 0° / 90° / 180° / 270° with quadrature phases, beside the two-port drive: feed-ring k-spectrum per drive (the circuit layer predicts a larger k = ±1 share for four-port than the two-port's; printed), <code>\|B₁⁺\|</code> maps of both drives on the same colour scale. Imports H9′'s gates and records (the feed-bisector mirror, (P_w), (P_RC), (Σ_P); never restates them) and re-asserts them on the two-port drive; the four-port drive's figures are printed, not gated. Example + same-stem guide (<code>example-runner</code>). | ⬜ Queueable now (H9′ landed 2026-10-10; <code>EX-109</code> is the two-port example, this is the drive-angle side branch). Not claimed: a tuning, absolute-field or homogeneity statement. | heavy (<code>-n 8</code>) |</p>
+<p><strong>Review ruling 2026-10-11 (03:00 daily) on item 379.</strong> The four-port construction identities (X4-P) / (X4-L) are asserted, as <code>EX-109</code>'s (X1) was: they are identities of the superposition, not gates on the four-port drive's physics, which stays printed (the weekly's "not gated"). The four-port drive runs untuned at the two-port root C; the guide says so.</p>
+<p><strong>Outcome 2026-10-11 (12:00 CDT slot, <code>example-runner</code>) — complete, ✅.</strong> <code>examples/mri/18_f_human_four_port_quadrature.py</code> + <code>.md</code> + <code>examples/mri/figures/mri_18_f_human_four_port_quadrature_setup.png</code> (435 KiB). Flagged run <code>20261011T171722Z_EX-75.log</code> 206 s (exit 0, 10.44 GiB summed RSS, <code>-n 8</code>; build 113.6 s, node pair 32.7 s, four-port solves 29.6 s), unflagged control <code>20261011T172104Z_EX-75-control.log</code> 194 s, identical printed values. Two-port rows equal the W1 log at the printed digits except Im Y17 under <code>cw</code> (2.783852943e-06 against 2.783852939e-06, the <code>EX-109</code> round-off row; reported, not asserted). (M_B) 1.9647e-03, (N1) 9.5476e-01 (19.1x band), (S_rep) 5.029626e-13, (P_RC) 7.728e-13, (P_w) 4.861e-13 / 6.048e-13, (Lin) 4.670e-16 / 6.196e-16, (Σ_P) 0. Four-port: kinds <code>solve, held, held, held</code> (28.23 / 0.45 / 0.46 / 0.48 s), (X4-P) 3.274e-13, (X4-L) 4.161e-16; feed-ring k = 0 share 4.5411e-07 (two-port 4.7394e-03), k = −1 share 0.999450 (two-port 0.991672); C4 spread max 1.6992e-03; worst C16 1.7287e-03 at m = 13 (two-port 8.0260e-03 at m = 8); |B₁⁺|/√P_src four-port / two-port 0.7789 (outside the predicted 1 ± 0.1: a printed reading at the untuned C, not a red). Common colour range [1.931607e-10, 4.544279e-06] T. (W0) bins: four-port 1.7e-16 / 1.2e-16 / 4, two-port bin 0 = √2. Censuses: figures 105 → 106 <code>missing=0 broken=0</code> (<code>20261011T171440Z_EX-75-pre-figures.log</code>, <code>20261011T172451Z_EX-75-post-figures.log</code>); docrefs <code>dead=0 guide=0 stale=85</code> exit 2 before and after, runnable 105 → 106 (<code>…T171443Z_EX-75-pre-docrefs.log</code>, <code>…T172453Z_EX-75-post-docrefs.log</code>). Dry run <code>20261011T171718Z_EX-75-dryrun.log</code>. Script not edited after window 3, guide not edited after window 6.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

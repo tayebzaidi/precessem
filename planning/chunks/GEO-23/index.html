@@ -1,0 +1,583 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>GEO-23 — The 0.11 "Invalid boundary mesh (overlapping facets)" family: one owner for the three OPS-26 census reds (coil+phantom generator, birdcage_port_domain … - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#geo-23-the-011-invalid-boundary-mesh-overlapping-facets-family-one-owner-for-the-three-ops-26-census-reds-coilphantom-generator-birdcage_port_domain" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              GEO-23 — The 0.11 "Invalid boundary mesh (overlapping facets)" family: one owner for the three OPS-26 census reds (coil+phantom generator, birdcage_port_domain …
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="geo-23-the-011-invalid-boundary-mesh-overlapping-facets-family-one-owner-for-the-three-ops-26-census-reds-coilphantom-generator-birdcage_port_domain">GEO-23 — The 0.11 "Invalid boundary mesh (overlapping facets)" family: one owner for the three <code>OPS-26</code> census reds (coil+phantom generator, <code>birdcage_port_domain</code> …<a class="headerlink" href="#geo-23-the-011-invalid-boundary-mesh-overlapping-facets-family-one-owner-for-the-three-ops-26-census-reds-coilphantom-generator-birdcage_port_domain" title="Permanent link">&para;</a></h1>
+<p>The 0.11 "Invalid boundary mesh (overlapping facets)" family: one owner for the three <code>OPS-26</code> census reds (coil+phantom generator, <code>birdcage_port_domain</code> partition test, and the <strong>rank-dependent</strong> <code>test_boundary_condition_selection.py</code> deadlock) plus the dead <code>test_cylindrical_domain.py</code> module — classify each as geometry-deterministic or partition-dependent, ladder the resolution, land no fix (commissioned 2026-08-27 03:00 review; four known-issues entries of 2026-08-27). <em><strong>Step 1 ✅ 2026-08-28 (09:00 slot)</strong> — all four sites are <strong>geometry-deterministic</strong>, red at <code>-n 1</code> (2–4 s, Status 1); the two "rank-dependent" claims are <strong>log-interleave artifacts, withdrawn by measurement</strong>; the <code>-n 2</code> deadlock is a <strong>raise-path</strong> property (row 2's wrapped re-raise footers at Status 1 in 5 s where the three unwrapped sites cost 120 s each); both laddered generators are <strong>monotone</strong>, each failing exactly one 0.8-step above a meshing sizing (<code>cylindrical_domain</code> 0.040 → meshes 0.032/1 213 cells; <code>coil_phantom_domain</code> 0.030 → meshes 0.024/5 464 cells); the four sites are <strong>three generators</strong> (the two phantom modules share one byte-identical call); the recorded <code>IndexError … size 0</code> signature is <strong>in-process gmsh contamination, not a second defect</strong>; control green at unmoved bands; the dead module is now one asserting 1e-9 partition test. Step 2 (a review's call) has two measured, separable levers — sizing and raise-path.</em> <em><strong>Step 2a ✅ 2026-08-28 (12:00 slot)</strong> — the raise-path lever landed: one shared <code>_raise_geometry_failure_on_every_rank</code> helper wraps the rank-0 gmsh build in <code>straight_wire_domain</code>, <code>cylindrical_domain</code> and <code>coil_phantom_domain</code> (<code>git diff -w</code> = +76 lines, 0 deletions — the rest is indentation). All three deadlocking rows of the step-1 table now footer at <strong>Status 1 in 2–3 s</strong> where step 1 recorded <strong>Status 124 at 120–121 s</strong>, summaries unchanged, each non-building rank's traceback ending in the wrapped <code>RuntimeError</code> naming generator and <code>resolution</code>; <code>GEO-22</code>'s gate (<code>tests/mesh/test_geometry_failure_is_collective.py</code>, the <code>allreduce</code>d caught flag at <code>h = 0.00875</code>) is <code>1 passed in 0.91s</code> at <code>-n 2</code>. Controls green and unmoved: the three modules at <code>-n 1</code> exactly as step 1, <code>mag:1</code> at <strong>21 830 cells / 6.666667e-05 T</strong>, <code>test_cylindrical_domain.py</code> 1 passed, <code>test_coil_phantom_mesh.py</code> 3 passed, the <code>GEO-21</code> control 36.76 s. Twelve windows, 72 s. The three census reds stay red (geometry reds, step 2b's) but cost seconds to observe. <strong>Step 2b (sizing) is the only step left.</strong></em> <em><strong>Step 2b ✅ 2026-08-28 (13:30 slot) ⇒ chunk ✅</strong> — the sizing lever landed and <strong>all three census reds are green</strong>: three call sites moved to step 1's coarsest measured meshing rung (<code>test_boundary_condition_selection.py:26</code> 0.04 → <strong>0.032</strong>, <code>test_phantom_material_model.py:110</code> and <code>test_phantom_field_metrics.py:35</code> 0.03 → <strong>0.024</strong>), each with the step-1 ladder in-comment and a reduced global cell-count print. Every module green at <strong>both</strong> widths: bcsel <code>3 passed, 1 skipped</code> at <code>-n 1</code> (0.94 s) and <code>-n 2</code> (0.80 s) real, phantom-material <code>4 passed</code> at <code>-n 1</code> (2.66 s) and <code>-n 2</code> (1.63 s) complex, phantom-metrics <code>2 passed</code> at <code>-n 1</code> (1.71 s) and <code>-n 2</code> (1.67 s) complex — against the census reds' <code>1 failed, 2 passed, 1 skipped</code> / <code>1 failed, 3 passed</code> / <code>1 failed, 1 passed</code>. The printed counts are <strong>1213</strong> and <strong>5464 / 5464</strong>, reproducing the step-1 ladder's 1 213 / 5 464 <strong>exactly</strong> (0.00% against the pre-stated ±1%), so the sizing is stable run-to-run and across rank width. <strong>No physics assertion moved</strong> — the negative result this step existed to expose did not occur, and since no module pins a cell count the only assertions at risk were physics ones. Controls: <code>test_cylindrical_domain.py</code> at its unmoved 0.02 <code>1 passed in 1.29s</code> at <code>-n 2</code>, and the complex <code>tests/environment</code> gate <code>11 passed</code> before the complex windows. <code>src/</code> untouched; <code>git diff --stat</code> is three test files plus docs. Eight footered windows, 40 s recorded elapsed, FFCx stub sweep clean before window 1 and no exit 124 in the slot. The three geometry known-issues entries are <strong>RETIRED</strong> (both halves closed — 2a's deadlock, 2b's geometry). <strong>Residual, and a review's call, not this chunk's:</strong> the fourth site the chunk was commissioned over — <code>test_birdcage_volumes_partition_the_box</code> on <code>birdcage_port_domain</code> — is <strong>still red</strong> and was never laddered here, because its resolution floor is already <code>GEO-21</code>'s open entry and its fixture is <code>GEO-20</code>'s; no <code>GEO-23</code> step remains for it.</em> <em><strong>Demoted ✅ → 🧪 by the 2026-08-28 18:00 review audit (§4 clause 3).</strong> The step-2b anchor — 1213 / 5464 cells reproducing step 1's ladder at ±1% — is a <code>print</code> at each of the three call sites, compared by the reader against a comment; no test asserts it. The only assertion 2a/2b <em>added</em> (<code>test_geometry_failure_is_collective.py:60</code>, <code>total_caught == comm.size</code>) is a did-raise property, and the three re-greened modules' own gates are finiteness/positivity except a pre-existing σ/ε DG0 identity (<code>test_phantom_material_model.py:139,185</code>) that 2b did not add. Logs, agent execution and elapsed all check out (20 footered windows, 112 s); nothing was loosened; <code>src/</code> untouched. <strong>Step 2c (queued, §9 item 1):</strong> turn each of the three prints into an asserted <code>abs(n_global / N_REF − 1) ≤ 0.01</code> against the step-1 ladder value (a documented reference from a prior run, §4 3(iv)), <code>allreduce</code>d before the assert; on green the chunk returns to ✅.</em> <em><strong>Step 2c ✅ 2026-08-29 (19:30 slot, 2026-08-28 local) ⇒ chunk back to ✅</strong> — the anchor is now asserted, not printed. Each of the three moved call sites carries a module constant <code>N_CELLS_REF</code> (1213 / 5464 / 5464, the step-1 <code>-n 1</code> ladder values, version-tagged in-comment with the 0.7.2-era sizing that no longer meshes) and one gate <code>abs(n_global / N_CELLS_REF - 1) &lt;= 0.01</code>, where <code>n_global</code> is <code>mesh.topology.index_map(dim).size_global</code> — already global on every rank, so the step-2b <code>comm.allreduce(size_local)</code> was <strong>removed rather than kept under the assert</strong> (summing a global would have read <code>size * n</code> and the gate would have failed at <code>-n 2</code> for the wrong reason). Six windows green at both widths: bcsel <code>3 passed, 1 skipped</code> at <code>-n 1</code> (3 s) and <code>-n 2</code> (3 s) real, phantom-material <code>4 passed</code> at <code>-n 1</code> (3 s) and <code>-n 2</code> (4 s) complex, phantom-metrics <code>2 passed</code> at <code>-n 1</code> (3 s) and <code>-n 2</code> (3 s) complex, every one printing its reference count <strong>exactly</strong> (1213 / 5464 / 5464, 0.00% against the ±1% band) on both rank streams. <strong>Negative control executed and footered:</strong> <code>N_CELLS_REF</code> 1213 → 1300 (7.2% off) gives <code>1 failed, 2 passed, 1 skipped</code> / Status 1 / 2 s at <code>-n 2</code>, the new <code>AssertionError</code> naming generator, measured count and reference on <strong>both</strong> ranks while the modules' pre-existing assertions stay green — so the gate is load-bearing and rank-symmetric; the constant was restored and re-run green (<code>3 passed, 1 skipped</code>, Status 0, 2 s). Complex <code>tests/environment</code> gate <code>11 passed</code> (21 s) before the complex windows; FFCx 0-byte stub sweep clean before window 1, zero stray <code>python3</code>, no exit 124 in the slot. <code>src/</code> untouched; the diff is the three test modules. Nine footered windows, <strong>44 s</strong> recorded elapsed. The <code>GEO-21</code> residual (<code>test_birdcage_volumes_partition_the_box</code>) is unchanged and still not this chunk's.</em> | ✅ </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

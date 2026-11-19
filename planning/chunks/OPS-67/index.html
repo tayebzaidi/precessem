@@ -1,0 +1,628 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>OPS-67 — known-issues: retire three live entries whose resolutions have already landed - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ops-67-known-issues-retire-three-live-entries-whose-resolutions-have-already-landed" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              OPS-67 — known-issues: retire three live entries whose resolutions have already landed
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-303-2026-10-07-lane-1-known-issues-housekeeping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 303 — 2026-10-07 (lane 1, known-issues housekeeping)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ops-67-known-issues-retire-three-live-entries-whose-resolutions-have-already-landed">OPS-67 — known-issues: retire three live entries whose resolutions have already landed<a class="headerlink" href="#ops-67-known-issues-retire-three-live-entries-whose-resolutions-have-already-landed" title="Permanent link">&para;</a></h1>
+<p><em>Opened 2026-10-07 by the 10:30 daily review, under §9 rule (5) lane 1 ("open known-issues entries whose own 'Resolves with' a slot can execute"). Found by the review's supply sweep. Documentation only: no solve and no <code>src/</code> change.</em></p>
+<p><strong>Proposed §7 row.</strong> <code>OPS-67</code> | known-issues: retire three live entries whose resolutions already landed | ⬜ The <code>PORT-13</code> transverse-ring-sheet entry (<code>known-issues.md</code> ≈ :503), the <code>_DummyComm</code> / <code>allgather</code> entry (≈ :1224) and the <code>test_coil_loading_degree2.py</code> runtime entry (≈ :730) are still in the live file, although <code>GEO-26</code> ✅, <code>OPS-28</code> ✅ and <code>TH-13</code> step 3a‴ (archive ≈ :3280) appear to have resolved them. <strong>Done-when:</strong> for each entry, either (i) its own "Resolves with" condition is shown met by a cited landed log (Status 0, the named identity), its heading is re-marked <code>✅ RETIRED &lt;date&gt;</code> with a retired-by line naming that commit and log, and the rotation dry-run lists it as closed; or (ii) the condition is shown <em>not</em> met, and the entry gets a dated annotation saying what is still owed and stays OPEN. No rotation is run (that is the weekly's, <code>OPS-66</code>) ⇒ ✅. | smoke</p>
+<h3 id="9-item-303-2026-10-07-lane-1-known-issues-housekeeping">§9 item 303 — 2026-10-07 (lane 1, known-issues housekeeping)<a class="headerlink" href="#9-item-303-2026-10-07-lane-1-known-issues-housekeeping" title="Permanent link">&para;</a></h3>
+<p><strong>Executor:</strong> implementer. <strong>Tier:</strong> smoke, one harness window (<code>-n 1</code>, no MPI). <strong>Cost:</strong> ≈ 5 measured / 25 predicted min. This uses the ops / docs class (uncalibrated, n = 4): 25 predicted × the 03:00 → 10:30 interval's measured / predicted ratio of 0.18 (52 / 285).</p>
+<p><strong>Anchor.</strong> For each of the three entries, the entry's own <strong>"Resolves with"</strong> text is the condition. Its evidence is a harness log that already exists on <code>main</code>, read at its footer (Status 0) and at the line carrying the named identity:
+1. <strong><code>PORT-13</code> ring sheets</strong> (2026-09-03, ≈ :503). It retires with "<code>GEO-26</code> step 2's 16-leg record (the control <code>PORT-13</code> step 1 re-opens on), which must point its retired-by row here". Find <code>GEO-26</code> step 2's 16-leg record log in <code>docs/planning/chunks/GEO-26.md</code>, and check that <code>PORT-13</code>'s row (§7, ≈ :2702) is ✅ on longitudinal sheets.
+2. <strong><code>_DummyComm</code> / <code>allgather</code></strong> (2026-08-17, ≈ :1224). Read its own Resolves-with. <code>OPS-28</code> (§7 ≈ :1335, ✅ 2026-08-28) added <code>allgather</code>, <strong>but its row says the S-matrix assertion then reached its check "and is red there"</strong>. So check whether that red was itself resolved and by what, and whether the archive's retired entry (<code>known-issues-archive.md</code> ≈ :588) is <strong>the same entry</strong>. If the two are the same, the live copy is a stale duplicate. If they differ, the live entry is judged on its own condition. If its condition is not met, use branch (ii).
+3. <strong><code>test_coil_loading_degree2.py</code> runtime</strong> (≈ :730). The archive carries "✅ RETIRED 2026-09-01 … by <code>TH-13</code> step 3a‴" (≈ :3280). Decide whether the live text is a stale copy of that entry or a distinct one, with a <code>diff</code> of the two bodies printed in the window.</p>
+<p><strong>The window</strong> is a bare harness call, repo-relative, with nothing chained:
+<code>scripts/testing/run_and_log.sh OPS-67-W1 "timeout -k 30 30 python3 scripts/maintenance/rotate_plan_archive.py known-issues 2026-10-07 --dry-run"</code>
+Check the exact argv form in <code>rotate_plan_archive.py</code> (≈ :810–820) before running. Run it <strong>after</strong> the heading edits. Its listing of closed entries must contain exactly the entries you marked RETIRED (no more, no fewer) plus whatever it listed before. Also run it once <strong>before</strong> the edits (<code>OPS-67-W0</code>): the difference W1 − W0 is the asserted set. The comparison of the two lists is the item's quantitative identity: an exact set equality, printed in the journal.</p>
+<p><strong>Negative control.</strong> W0 is the control. Before the edits, none of the three appears in the dry-run's closed list (their headings carry no RETIRED marker). If W0 already lists one, the premise is wrong: stop and report.</p>
+<p><strong>Traps.</strong>
+- The harness call is the <strong>whole</strong> Bash command: bare, repo-relative, no <code>cd</code>, nothing chained or piped. Pass <code>timeout: 660000</code>. Never delete a log.
+- <code>python3</code> on the host is denied except through the harness. This window needs no container (if the harness denies a host <code>python3</code>, use <code>docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; …'</code> as the whole harness argument).
+- <strong>Never run the rotation itself</strong> (no <code>--dry-run</code> omitted); <code>OPS-66</code> made rotation the weekly's.
+- Known-issues discipline: an entry leaves only with the commit that fixes it. Here, the fixes landed earlier. This item <strong>re-marks</strong> the headings (in place, the text kept verbatim) and adds retired-by lines. It deletes a live body only when it is shown byte-identical to an archived one, and says so.
+- Write <code>≈</code>, never <code>~</code>.</p>
+<p><strong>Scope.</strong> No code, no test, no solve. No §7 glyph other than <code>OPS-67</code>'s moves. If an entry's condition is not met, nothing moves for it except the dated annotation.</p>
+<p><strong>Negative result.</strong> If none of the three conditions is met, the item still closes ✅ on branch (ii): three dated annotations, W0 = W1. That is a finding (the sweep's premise was wrong), stated in the journal. If the dry-run tool errors, park on <code>attempt/OPS-67-…</code>, mark §9 BLOCKED, and report.</p>
+<p><strong>Status it can move.</strong> <code>OPS-67</code> ⬜ → ✅. Up to three known-issues entries change OPEN → RETIRED and become ready for the weekly's rotation. <code>PORT-13</code>'s and <code>GEO-26</code>'s rows gain the retired-by pointer the entry asked for, if it is missing.</p>
+<p><strong>Outcome (2026-10-07, 13:30 CDT slot, third item, executed by the slot directly): ✅ DONE.</strong> Control W0 (<code>20261007T185729Z_OPS-67-W0.log</code>, Status 0) listed one closed entry (the 2026-09-19 <code>ANS-4</code> entry) and none of the three — premise holds. All three conditions met (branch (i)); each heading re-marked <code>✅ RETIRED 2026-10-07 (OPS-67)</code> in place with a retired-by line, bodies verbatim:
+1. <strong><code>PORT-13</code> ring sheets:</strong> <code>GEO-26</code> step 1 <code>41cd5c84</code>, step 2's 16-leg record <code>1ad8ba3c</code> (<code>20260903T170351Z_GEO-26.log</code>, the terminal-class STOP), step 3's band green <code>2445b9ed</code> (<code>20260904T034441Z_GEO-26.log</code>, 4 passed, Status 0); <code>GEO-26</code> ✅ and <code>PORT-13</code> ✅.
+2. <strong><code>_DummyComm</code> / <code>allgather</code>:</strong> the archive's ≈ :588 entry is the same defect under a different heading (found again by <code>OPS-26</code>'s census) — so the live copy was a stale duplicate. Its own condition was met by <code>OPS-28</code> <code>fd1479ca</code> (double repaired, entry 3 re-dated in the same commit), bracketed by <code>20260828T033037Z_OPS-28-red-baseline.log</code> / <code>20260828T033055Z_OPS-28-gate.log</code> (no <code>AttributeError</code>; its Status 1 is entry 3's two reds alone). The module was later rewritten without the double (<code>PORT-8</code>, <code>5418f66b</code>).
+3. <strong><code>test_coil_loading_degree2.py</code> runtime:</strong> diff in <code>20261007T185802Z_OPS-67-diff.log</code> — the live text is the original open body, the archive (≈ :3278) holds the retirement summary; not byte-identical, so nothing deleted. Resolved by <code>TH-13</code> step 3a‴ <code>f494dc75</code> (three footered windows <code>20260901T033335Z</code> / <code>T033434Z</code> / <code>T034059Z_TH-13-step3a3-*.log</code>).</p>
+<p>W1 (<code>20261007T185849Z_OPS-67-W1.log</code>, Status 0) lists 4 closed: W1 − W0 = exactly the three re-marked headings (set equality). No rotation run. The <code>PORT-13</code> / <code>GEO-26</code> §7 rows were not given a retired-by pointer (both ✅ with history files; the pointer lives in the known-issues retired-by line).</p>
+<p><strong>Audit (2026-10-07 18:00 daily review): PASS</strong> (<code>auditor</code>; W0 <code>20261007T185729Z_OPS-67-W0.log:35–36</code>, W1 <code>20261007T185849Z_OPS-67-W1.log:35–39</code>, set identity W1 − W0 = the three re-marked headings; every retired-by log exists with a footer, e.g. <code>20260904T034441Z_GEO-26.log.gz:26418,26421</code>). <strong>Two bookkeeping notes for the weekly's rotation (<code>OPS-66</code>), no item queued:</strong> (1) the <code>PORT-13</code> entry's Resolves-with asks the <code>GEO-26</code> record to point its retired-by row at the entry; that back-pointer sits in the entry's retired-by line instead of the §7 rows. (2) The <code>test_coil_loading_degree2.py</code> retired-by line says all three <code>TH-13</code> 3a‴ windows carried the identity red; the probe window (<code>20260901T033335Z_…-original-probe.log.gz:476,500</code>) is green — only the loaded and free windows carry it.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,721 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-193 — the field-strength lever on one page: F-clinical at 1.5 T and 3 T per accepted watt (mri:41) - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-193-the-field-strength-lever-on-one-page-f-clinical-at-15-t-and-3-t-per-accepted-watt-mri41" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-193 — the field-strength lever on one page: F-clinical at 1.5 T and 3 T per accepted watt (mri:41)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-924-2026-11-09-daily-2026-11-09-provisional-chain-c-step-c47" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 924 — 2026-11-09 (daily, 2026-11-09 — provisional; chain C step C47)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-193-the-field-strength-lever-on-one-page-f-clinical-at-15-t-and-3-t-per-accepted-watt-mri41">EX-193 — the field-strength lever on one page: F-clinical at 1.5 T and 3 T per accepted watt (mri:41)<a class="headerlink" href="#ex-193-the-field-strength-lever-on-one-page-f-clinical-at-15-t-and-3-t-per-accepted-watt-mri41" title="Permanent link">&para;</a></h1>
+<p><em>History file for the §7 <code>EX-193</code> row (<code>OPS-46</code>). Opened by the 2026-11-09 10:30 daily review as §10 C47, chain C (daily, provisional under §9 rule (6)). It is a §5.4 ramp from <code>GEO-38</code> C33 (§9 item 917) on <code>xl</code> entries 52 and 58.</em></p>
+<ul>
+<li><strong>The records it draws on</strong> (all tracked; every digit below is a log print or unlogged review arithmetic on log prints, ≤ 7 significant digits):</li>
+<li><strong>Entry 52</strong> (1.5 T, 64 MHz, node 193.5996 pF, degree 1): <code>20261103T080009Z_GEO-38-C6.log</code>. The lattice is at <code>:12289–12306</code>. The normalisers are at <code>:12310</code>: SAR10g(c*) per box watt 4.303111e-02, per P_acc 2.274234e-03, per P_src 1.668025e-03 W/kg/W, and mean |B1+|_ccw per √W box 3.692558e-07, per P_acc 8.488944e-08 T.</li>
+<li><strong>Entry 58</strong> (3 T, 128 MHz, node 44.0525 pF, degree 1): <code>20261109T080008Z_GEO-38-C6-3T.log</code>. The lattice is at <code>:12238–12255</code>. The normalisers are at <code>:12259</code>: per box watt 4.778381e-02, per P_acc 9.327634e-03, per P_src 3.269910e-03 W/kg/W, and per √W box 2.582372e-07, per P_acc 1.140944e-07 T.</li>
+<li><strong>C33</strong> (item 917), the 3 T / 1.5 T ratio table: <code>20261109T103601Z_GEO-38-C33-W1-n1-r2.log:126–135</code>. Lattice mean |B1+| per √P_acc 1.410682, centroid mean 1.344035, SAR10g(c*) per P_acc 4.101440, P_box / P_acc 3.693500. c* x−105 mm dz−50 mm → x+105 mm dz+50 mm.</li>
+<li><strong>Why an example.</strong> No page reads entry 58, and no page sets the two field strengths side by side.</li>
+<li><strong>Gap check, run at this review:</strong> <code>grep -rln "C6-3T\|c33_field_strength\|GEO-38-C6-3T" examples/</code> is empty (exit 1).</li>
+<li>The <code>ans:11</code> page reads entry 52 alone. <code>mesh:15</code> / <code>mesh:16</code> are build-only.</li>
+<li>C33's table lives in a test log, which a user does not read.</li>
+<li><strong>Its angle</strong> (new; no existing page or log prints these). The 4.10× SAR lever per accepted watt <strong>factors</strong> into how much more of the accepted power the gel box takes (P_box / P_acc, 3.6935×) and how much more SAR each box watt makes at c* (≈ 1.110×, review arithmetic: 4.778381e-02 / 4.303111e-02). The |B1+| lever factors the same way: ≈ 0.6993× per √(box watt), times √3.6935.</li>
+<li><strong>The hotspot "move" is measured as a margin.</strong><ul>
+<li>At 1.5 T, c* (x−105 mm dz−50 mm, 1.378897e-04 W/kg) leads the mirror ball x+105 mm dz−50 mm (1.378033e-04, <code>:12303</code>) by ≈ 6.27e-04 relative.</li>
+<li>At 3 T the lead is ≈ 8.24e-03 over x+105 mm dz−50 mm (<code>:12252</code>).</li>
+<li>At a fixed ball (1.5 T's c*) the SAR ratio reads ≈ 4.021, against 4.101 at each side's own c*.</li>
+</ul>
+</li>
+</ul>
+<p><strong>Done-when.</strong>
+- <code>examples/mri/41_f_clinical_field_strength_lever.py</code> and its same-stem guide <code>.md</code> exist. <code>mri:41</code> is the next free number (<code>mri:40</code> was the last, <code>EX-187</code>). Verify at census-pre, and if it is taken, use the next free number and say so.
+- The closing window <code>./scripts/run_examples.sh -e mri:41 -n 2 -t 120</code> exits 0 with every gate in item 924 asserted. Helpers and constants are imported by name. There is no gate-module edit, no page edit and no <code>src/</code> edit.
+- The setup figure is a byte-identical copy of <code>mesh:16</code>'s committed render (disclosed, the <code>ans:11</code> precedent).
+- Census +1, docrefs <code>dead=0</code> and <code>guide=0</code>.</p>
+<h3 id="9-item-924-2026-11-09-daily-2026-11-09-provisional-chain-c-step-c47">§9 item 924 — 2026-11-09 (daily, 2026-11-09 — provisional; chain C step C47)<a class="headerlink" href="#9-item-924-2026-11-09-daily-2026-11-09-provisional-chain-c-step-c47" title="Permanent link">&para;</a></h3>
+<p><strong>Licence.</strong> §9 rule (6), toward chain C's subgoal: two viable clinical body-coil models; ladder step (6), the box loaded, <code>|B₁⁺|</code>, 10 g SAR and the located hotspot; F-clinical as the fixture for "the Phase 9 examples that claim clinical relevance" (PROJECT_PLAN §10, "Clinical-scale coil fixtures"). It also serves entry 58's own first branch ("printed beside entry 52's 1.5 T figures (the 1.5 T / 3 T ratio of the mean and of the hotspot, a record)", <code>xl-pending.md</code> entry 58). No band, tolerance or target is set or moved. Family <code>EX-193</code>, attempt 1 of 4. Chain C's rule-(6) count since the 11-07 weekly: 4 of 6 with this item. <strong>Executor:</strong> <code>example-runner</code>, spawned in the foreground, with the bare-call sentence verbatim in the spawn prompt.</p>
+<p><strong>Serial on the 11-09 weekly (21:00 tonight).</strong> The decision rule's branch on entry 58 is the weekly's (item 917). This page is a user-facing record of that branch, so it does not run before the weekly reads it.
+- Take the item only if the weekly has read entry 58 as its <strong>first branch</strong> (every assertion green ⇒ a record) and has not reverted C47. The <code>xl-pending.md</code> entry 58 Status reads "READ … first branch", or §10 chain C says so.
+- Otherwise skip at no cost, and say which condition failed.</p>
+<p><strong>What the example does.</strong> Everything is written out in <code>main()</code>. It is a no-solve record page, like <code>ans:11</code>.
+- <strong>Reader.</strong> Import from <code>tests/validation/test_geo38_c33_field_strength_reader.py</code> by name: <code>_load_page</code>, <code>find_log</code>, <code>side</code>, <code>check_side</code>, <code>ratios</code>, <code>ENTRY52_NODE_PF</code>, <code>ENTRY58_NODE_PF</code> and <code>ENTRY58_GLOB</code>.
+  - The page module is loaded through <code>_load_page()</code>, so it is the same <code>sys.modules["ans11_record_page"]</code> object C33 uses. Use its <code>parse_c6_log</code>, <code>_read_log</code> and <code>SOURCE_LOG</code>.
+  - Never call <code>_c33_body</code>, <code>print_table</code>, <code>custody_json</code> or any <code>test_*</code> function. Never re-implement a log regex.
+- <strong>Rank safety.</strong> Parse on rank 0, then bcast (C33's <code>_on_root</code> shape). Only rank 0 prints.
+- <strong>Reads:</strong>
+  - entry 52 is <code>SOURCE_LOG</code>;
+  - entry 58 is <code>find_log(ENTRY58_GLOB)</code>, which must read <code>"tracked"</code>;
+  - C33's closing log is <code>docs/testing/logs/20261109T103601Z_GEO-38-C33-W1-n1-r2.log</code>, gzip-tolerant via <code>_read_log</code>. A local regex reads its four "C33 table" ratio rows (the third <code>|</code> field) and its c* row. The four row titles are disclosed local copies of C33's <code>print_table</code> titles.
+- <strong>Derived (floats from parsed strings; never a literal):</strong>
+  - C33's four ratios, through <code>ratios(side(p52), side(p58))</code>;
+  - the per-box-watt ratios <code>sar_per_box_w</code> and <code>b1_per_sqrt_box_w</code> (the page's <code>normalisers</code> fields);
+  - the 18-row per-point table: |B1+|_ccw / √P_acc and SAR10g / P_acc at each lattice label on each side, with their ratio;
+  - each side's runner-up ball (the second-largest lattice SAR10g) and the c* margin (c* − runner-up) / runner-up;
+  - the SAR ratio at each side's c* label, read at the same label on both sides;
+  - SAR10g(c*) per P_acc ratio / (|B1+| ratio)² for the lattice mean and for the centroid mean;
+  - P_acc / P_src on each side.</p>
+<p><strong>Gates (asserted; all collected first, then asserted).</strong>
+- <strong>(X)</strong> Both logs parse. The node strings equal <code>ENTRY52_NODE_PF</code> / <code>ENTRY58_NODE_PF</code>. There are 18 lattice lines per side, and the labels are equal in order across the two sides.
+- <strong>(D)</strong> <code>check_side</code> is green on both sides at C33's own half-unit bounds: (D-Pacc), (D-box), (D-sar), (D-cen), argmax = c*, the c* string equals its lattice string, S₁₂ = S₂₁, and (Node). C33 recorded these as green (<code>…C33-W1-n1-r2.log:108–125</code>).
+- <strong>(R33) The reproduction (anchor).</strong> Each of the four ratios formatted <code>.6e</code> equals the C33 closing log's printed string, and both c* labels equal its c* row (<code>:127–131</code>). String equality, no tolerance.
+- <strong>(Dec-S) The SAR lever factored (identity).</strong> R(<code>sar_per_p_acc</code>) equals R(<code>sar_per_box_w</code>) × R(<code>p_box_over_p_acc</code>). The bound is Σ half-units of the six tokens, C33's <code>_half_ulp_rel</code>, imported. This review's arithmetic, unlogged: 1.110448 × 3.693500 = 4.101440 against 4.101440, rel ≈ 7.7e-08, against a bound of ≈ 8.5e-07.
+- <strong>(Dec-B) The |B1+| lever factored (identity).</strong> R(<code>b1_per_sqrt_p_acc</code>) equals R(<code>b1_per_sqrt_box_w</code>) × √R(<code>p_box_over_p_acc</code>) at the same kind of bound. Review arithmetic: 0.6993450 × 1.921848 = 1.344035.
+- <strong>(Lat) The lattice mean from its parts.</strong> The mean of the 18 parsed |B1+| tokens / √P_acc on each side equals <code>side()</code>'s <code>lattice_mean_per_sqrt_p_acc</code>, rel ≤ 1e-12. It is the same arithmetic, so this checks that the per-point table and the record share their inputs.
+- <strong>(Arg)</strong> The runner-up ball is not c* on either side, and the margin is &gt; 0 (strict; argmax by construction).</p>
+<p><strong>Controls (asserted).</strong>
+- <strong>(N-norm), the wrong normaliser.</strong> Substitute R(<code>sar_per_p_src</code>) for R(<code>sar_per_box_w</code>) in (Dec-S). It goes red.
+  - Review arithmetic: 1.960348 × 3.693500 / 4.101440 − 1 = 0.7654 rel, against a bound of ≈ 8.5e-07.
+  - The miss is fixed by the records, so its ceiling is ≈ 9e5× the bound. Assert only "red": the residual exceeds the bound.
+- <strong>(N-plant), one digit.</strong> Plant one digit in the 4th significant place of the 3 T <code>sar_per_box_w</code> string, in memory. (Dec-S) goes red (≈ 2.1e-04 rel against ≈ 8.5e-07), and (R33) stays green, which shows the two gates are independent.
+- <strong>(N-swap), the sides swapped.</strong> <code>ratios(side(p58), side(p52))</code> misses (R33)'s strings on all four rows. The (Node) check of <code>check_side(p58, ENTRY52_NODE_PF, …)</code> is red.</p>
+<p><strong>Printed only (≤ 7 significant digits; never a raw 10-digit log token).</strong>
+- C33's table, with each row's two factors beside it (per box watt, and the P_box / P_acc share).
+- The 18-row per-point table.
+- The c* labels, the runner-ups and the margins.
+- The SAR ratio at a fixed ball.
+- SAR per |B1+|², for the lattice and the centroid.
+- P_acc / P_src at each side.
+- Im Y_in under both senses at both feeds, side by side, never as a ratio (cw P33 first, C33's order).
+- The ω²σ quasi-static scaling (4 at equal σ) is <strong>named in the guide only</strong>, as context. It is never printed as a comparand and never asserted. The guide says why it need not hold: 128 MHz in gel is far from quasi-static on a 650 mm box.</p>
+<p><strong>Guide.</strong> Use <code>ans:11</code>'s headings. Related: <code>ans:11</code>, <code>mesh:15</code>, <code>mesh:16</code>, <code>mri:17</code>. Say plainly:
+- these are degree-1 internal records, each at its own unloaded in-model root (Im Y_in with the box loaded is printed, not zero);
+- the lattice is 18 balls, and c* is the lattice argmax, not a box-wide maximum;
+- <strong>the 1.5 T c* leads its mirror ball by ≈ 6e-04</strong>, so "the hotspot moves" means a near-tie resolved differently, not a moved hot region;
+- the per-box-watt factor is the physics-facing split: the box takes ≈ 3.7× more of the accepted power, and each box watt makes ≈ 1.11× the c* SAR;
+- no tuning, absolute, compliance, homogeneity or external claim; no <code>ANS</code> case (a 3 T case is the weekly's to pose); not degree 2 (<code>xxl</code> entry 62 / C37).</p>
+<p>Quote only closing-log digits, or arithmetic on them. Write <code>≈</code>, never a tilde.</p>
+<p><strong>Windows.</strong> Pre-check: <code>pgrep -c python3</code> in the container reads 0, otherwise skip the slot. Every harness call is the whole command, foreground, Bash timeout 660000 ms.
+1. <strong>Census-pre and docrefs-pre</strong>, as <code>EX-190</code>'s. Read both; never assume them. Expected: 185 at <code>EX-190</code>'s close, plus any example that has landed since (<code>EX-191</code> / <code>imp:28</code> may land first).
+2. <strong>W1 <code>EX-193-W1</code></strong> (closes nothing): <code>scripts/testing/run_and_log.sh EX-193-W1 "docker compose exec -T fem-em-solver bash -lc \"cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 120 mpiexec -n 2 python3 examples/mri/41_f_clinical_field_strength_lever.py\""</code>
+3. <strong>Setup figure:</strong> a byte-identical copy of <code>examples/meshing/figures/meshing_16_f_clinical_3t_coil_astm_box_setup.png</code> (62 827 B) to <code>examples/mri/figures/mri_41_f_clinical_field_strength_lever_setup.png</code>. The guide's caption says it is <code>mesh:16</code>'s render of the 3 T twin; the 1.5 T twin is <code>mesh:15</code>. Entry 58's mesh is C20's, with the rod mapped to gel.
+4. <strong>Closing window:</strong> <code>scripts/testing/run_and_log.sh EX-193 "./scripts/run_examples.sh -e mri:41 -n 2 -t 120"</code>. Nothing is edited after it, the guide included.
+5. <strong>Census-post, figures and docrefs</strong>, as <code>EX-190</code>'s.</p>
+<p><strong>Tier.</strong> Standard, complex (the <code>mri:</code> group sources the complex build; the page imports C6a, which imports dolfinx), <code>-n 2</code>, <code>-t 120</code>, no solve, no mesh. <strong>Class:</strong> example. <strong>Cost:</strong> ≈ 8.3 measured (the example class median at the 10:30 review) / 30 predicted min. The windows are priced from:
+- the <code>ans:11</code> page's closing window, 2 s (<code>20261108T152642Z_ANS-11-C43-page.log</code>, <code>Elapsed (s): 2</code>);
+- C33's window, 4 s (<code>…C33-W1-n1-r2.log</code>, <code>Elapsed (s): 4</code>).</p>
+<p>The hour goes on the page and the guide. If the closing window is not green by minute 45, park.</p>
+<p><strong>Traps already paid for.</strong>
+- <strong>The leak hook</strong> (<code>MIN_SIGNIFICANT_DIGITS = 8</code>): print ≤ 7 significant digits and never echo a parsed 10-digit token. If the hook refuses the closing log, move it unchanged to <code>logs/leak-held/</code>, report it, and never use <code>--no-verify</code>.
+- Pytest-interleaved log lines: use <code>re.search</code>, as the page does. Retention gzips logs: read either suffix, and cite the base name.
+- <strong>Never write under <code>/workspace/logs/geo38</code>.</strong> It holds C33's JSON and entry 62's outputs. Never call C33's gated body.
+- Wrap <code>main()</code> so that a raise calls <code>MPI.COMM_WORLD.Abort(1)</code>; a raising rank otherwise hangs its peer to the ceiling (<code>imp:26</code>).
+- Do not import a <code>test_*</code> name. Importing the C33 module imports pytest, which is present in the image.
+- A kill parks the item. Never raise <code>-t</code>.
+- Never delete a log, a red one included (item 907's breach).</p>
+<p><strong>Scope.</strong> One record page on two tracked logs and one tracked reader log. <strong>Not claimed:</strong>
+- the decision rule's branch (the weekly's) and any 3 T <code>ANS</code> case;
+- degree 2, a box-wide maximum, homogeneity, compliance or an absolute figure;
+- a quasi-static law or any band on a ratio.</p>
+<p><strong>Negative result.</strong>
+- <strong>(X) or (D) red:</strong> the page's parser or a log has moved. Read C33's last closing log first. Stop, mark BLOCKED, and keep the log.
+- <strong>(R33) red alone:</strong> this page's route is not C33's. Print both strings and stop. Never loosen string equality.
+- <strong>(Dec-S) / (Dec-B) red:</strong> a printed normaliser token does not follow from its siblings, which is a finding on C6a's writer for the weekly. Stop and mark BLOCKED.
+- No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong>
+- <code>EX-193</code> ⬜ → ✅ and the census +1.
+- §10 C47 DONE.
+- Chain C's first example page at 3 T: the 11-09 weekly's first-branch record, put in front of a user with its normaliser split and the hotspot near-tie stated.
+- No glyph on <code>GEO-38</code> / <code>ANS-11</code> moves.</p>
+<p><strong>Depends on:</strong> the 11-09 weekly's reading of entry 58 (see "Serial on" above). Items 917 / 918 are on <code>main</code>. Independent of <code>EX-191</code>.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Execute §9 item 924 — <code>EX-193</code> / <code>mri:41</code> — per <code>docs/planning/chunks/EX-193.md</code> "§9 item 924". First confirm the 11-09 weekly read entry 58 as its first branch and did not revert C47; else skip. One new example script + same-stem guide + a byte-identical figure copy; edit no existing file. No solve, no mesh. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped; foreground, Bash <code>timeout: 660000</code>. Never delete a log. Never <code>--no-verify</code>. Do not spawn agents."</p>
+<p><strong>Outcome (2026-11-09, 22:30 CST slot, attempt 1 of 4) — DONE, green.</strong> Precondition checked by the slot: §10 C47 reads "serial on nothing — entry 58 read first branch tonight", and the weekly (<code>01a005b4</code>) ratified all 21 provisional steps, C47 included. Executor: <code>example-runner</code>, spawned in the foreground. Foreground windows only.
+- <strong>Windows:</strong>
+  - Census-pre <code>20261110T043111Z_EX-193-census-pre.log</code> and docrefs-pre <code>20261110T043113Z_EX-193-docrefs-pre.log</code>: 187 runnable, exit 2 (staleness only).
+  - W1 (closes nothing): three red debugging runs, all kept. <code>20261110T043240Z_EX-193-W1.log</code> and <code>20261110T043254Z_EX-193-W1.log</code> hung-peer shape: the <code>ans:11</code> page import is collective, so <code>_load_page()</code> on rank 0 alone truncated the bcast. <code>20261110T043304Z_EX-193-W1.log</code>: two C33 tables matched, because C33's log also carries its self-test table on a renamed copy. Then green: <code>20261110T043320Z_EX-193-W1.log</code>, 35 of 35.
+  - A docrefs trial <code>20261110T043358Z_EX-193-docrefs-trial.log</code> (<code>dead=0 guide=0</code>).
+  - <strong>The closing window <code>20261110T043404Z_EX-193.log</code></strong>: Status 0, 4 s, 35 of 35 gates green. The script and the guide predate it (rule (i)).
+  - Census-post <code>20261110T043418Z_EX-193-census-post.log</code>, docrefs-post <code>20261110T043420Z_EX-193-docrefs-post.log</code> (188 runnable, +1 as predicted, <code>dead=0 guide=0 stale=121</code>, exit 2), figures <code>20261110T043422Z_EX-193-figures-post.log</code> (<code>examples=188 ok=188 missing=0 broken=0</code>).
+- <strong>Readings (closing log):</strong> (X) and (D) green on both sides, node strings 193.5996 / 44.0525, 18 lattice lines each. (R33) the four ratio strings 1.410682 / 1.344035 / 4.101440 / 3.693500 and both c* labels equal C33's. (Dec-S) rel 9.601e-08 ≤ 8.450e-07. (Dec-B) rel 3.249e-07 ≤ 1.177e-06. (Lat) rel 0 on both sides. (Arg) runner-up x+105 mm dz−50 mm on both sides, c* margin 6.269068e-04 (1.5 T) / 8.236925e-03 (3 T). Controls: (N-norm) residual 7.653669e-01, (N-plant) 2.091799e-04 with (R33) green on the planted copy, (N-swap) 4 of 4 rows miss and (Node) red.
+- <strong>Setup figure:</strong> <code>examples/mri/figures/mri_41_f_clinical_field_strength_lever_setup.png</code>, 62 827 B, <code>cmp</code>-identical to <code>mesh:16</code>'s render.
+- <strong>Deviations from the brief, disclosed:</strong> (1) the C33 reader picks the single table block whose header names both real log basenames, since the log holds two; (2) <code>_load_page()</code> runs on every rank before the rank-0 parse (the page import does MPI collectives); (3) <code>_on_root</code> broadcasts the traceback text, not the exception object, and the <code>Abort(1)</code> wrapper around <code>main</code> is kept; (4) the (D-cstar), (D-S12) and (D-Pacc) details do not echo 10-digit tokens. The leak hook refused nothing. No gate-module, page or <code>src/</code> edit.</p>
+<p><strong>Review note — 2026-11-10 03:00 daily: audit PASS</strong> (<code>auditor</code>; re-traced here: <code>20261110T043404Z_EX-193.log:99–101</code>, <code>:111</code>, <code>:116–117</code>; <code>20261110T043420Z_EX-193-docrefs-post.log:159</code>, 188 runnable). Every gate goes through <code>gate()</code> and a red returns exit 1 (<code>examples/mri/41_f_clinical_field_strength_lever.py:183–185</code>, <code>:322</code>, <code>:330</code>). Caveats, not demoting: the guide's "How to run it" calls the run "smoke tier" where §7 declares standard (4 s fits either; wording only, the guide stays unedited past its closing window); the guide's 650 mm box is <code>mesh:16</code>'s geometry constant, not a closing-log digit.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

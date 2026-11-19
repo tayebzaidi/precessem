@@ -1,0 +1,810 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-114 — mri:20, femem run thermal on the tuned copper F-human from YAML: one EM solve, the file's thermal knobs, and the temperature field the API does not return - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-114-mri20-femem-run-thermal-on-the-tuned-copper-f-human-from-yaml-one-em-solve-the-files-thermal-knobs-and-the-temperature-field-the-api-does-not-return" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-114 — mri:20, femem run thermal on the tuned copper F-human from YAML: one EM solve, the file's thermal knobs, and the temperature field the API does not return
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-447-2026-10-14-example-54-ramp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 447 — 2026-10-14 (example, §5.4 ramp)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-14-0300-item-447" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-14 03:00 (item 447)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-14-1030-item-447-item-449" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-14 10:30 (item 447 → item 449)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-449-2026-10-14-example-54-ramp-re-lift-of-item-447" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 449 — 2026-10-14 (example, §5.4 ramp; re-lift of item 447)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-14-1800-item-449-item-453" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-14 18:00 (item 449 → item 453)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-453-2026-10-14-example-54-ramp-re-lift-of-item-449" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 453 — 2026-10-14 (example, §5.4 ramp; re-lift of item 449)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-14-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-14 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-114-mri20-femem-run-thermal-on-the-tuned-copper-f-human-from-yaml-one-em-solve-the-files-thermal-knobs-and-the-temperature-field-the-api-does-not-return">EX-114 — mri:20, <code>femem run</code> thermal on the tuned copper F-human from YAML: one EM solve, the file's thermal knobs, and the temperature field the API does not return<a class="headerlink" href="#ex-114-mri20-femem-run-thermal-on-the-tuned-copper-f-human-from-yaml-one-em-solve-the-files-thermal-knobs-and-the-temperature-field-the-api-does-not-return" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<p><code>EX-114</code> (<code>mri:20</code>) is opened 2026-10-14 by the 03:00 daily review under daily-review.md step 5 (§5.4 ramp from <code>WF-1</code> step 10b, §9 item 431b, landed <code>f09673f7</code>). Its base is <code>tests/package/test_wf1_yaml_f_human_thermal_solve.py</code> on the tracked file <code>tests/package/wf1/f_human_tuned_copper_thermal.yaml</code> (item 431a). The run of record is <code>docs/testing/logs/20261014T020254Z_WF-1-s10b-W1.log</code> (heavy, <code>-n 8</code>, 147 s, 10 passed). On the tuned copper F-human (369 387-cell Leontovich hole mesh, degree 1, 64 MHz, C_in 118.2437 pF, r = 0.2 Ω, ccw; gel k 0.6, h 10, ρc 4.18e6, CN 40 × 31.35 s; 10 g ball at c*_θ; 360 s window) it holds:
+- <code>run_study_file</code> 140.5 s at <code>-n 8</code> (build 107.7 s, node pair 28.6 s), one solve (<code>:6282</code>);
+- (A0) cells 369 387 (<code>:6283</code>); (S_rep) 4.663415e-12 (<code>:6284</code>); (V) V_sub 2.210693836095e-03 m³, n_sub 3 306 (<code>:6285</code>); (B) source power 2.821343985102460e-01 W, rel 3.935e-16 (<code>:6286</code>); (E) 1.608e-12 (<code>:6287</code>); η 0.282134 (<code>:6288</code>);
+- (T*) θ̄(c*_θ, 1254 s) 4.926110849651e-02 K, rel 8.005e-14 (<code>:6297</code>);
+- (Ser) 2.588e-13 / 3.998e-13 (<code>:6307</code>); (6min) peak 4.277005459539e-02 K at 1254.0 s, rel 1.423e-13 (<code>:6308</code>); API vs operator 0.000e+00 (<code>:6309</code>); volume-mean six-minute peak 3.070252443e-02 K (<code>:6310</code>);
+- (N1) mirror ball 4.275342672e-02 K, miss 1.321059e-01 (<code>:6319</code>); (N2) short window miss 1.348831e-02 (<code>:6320</code>); (N3) 2G miss 1.000000, 1.3 s (<code>:6321</code>).</p>
+<p><strong>Proposed §7 row</strong> (to paste right after the <code>EX-113</code> row, or after <code>EX-112</code> if item 446 has not landed; ≤ 2 KB):</p>
+<p>| <code>EX-114</code> | <strong><code>femem run</code> thermal on the tuned copper F-human from YAML: one EM solve answers the file's thermal knobs, and the temperature field the API keeps to itself</strong> <em>(history and §9 briefs: <code>docs/planning/chunks/EX-114.md</code>)</em> (<code>mri:20</code>; <code>example-runner</code>; opened 2026-10-14 by the 03:00 daily review, §5.4 ramp from <code>WF-1</code> step 10b, §9 item 447; <code>mri:13</code> is the steady sphere YAML, <code>mri:17</code> this fixture's B₁⁺ / SAR, no example heats it) <strong>Done-when:</strong> <code>examples/mri/20_f_human_thermal_from_yaml.py</code> + same-stem guide (three required headings + <code>## Setup figure</code> + <code>## Related</code>, PNG ≤ 600 KiB); complex, <code>-n 8</code>, <code>run_study_file</code> on the tracked YAML in place; no <code>tests/</code> or <code>src/</code> edit; every band imported. Asserted at the imported bands beside <code>20261014T020254Z_WF-1-s10b-W1.log:6282–6321</code>: (A0), (V), (B), (E), (T*), (Ser), (6min); one EM solve after every read; controls (N1), (N2), (N3) miss. Example-side (≤ <code>REUSE_REPRODUCTION_RTOL</code>): 2G doubles θ̄ and the six-minute peak; a two-ball call's ball 0 equals the one-ball series; the copied API thermal block's volume-mean series equals the summary's; the one-sample-shifted copy misses. Printed: h = 1 / 10 / 100 against the adiabatic line, the hottest vertex against the 10 g ball. Outputs: combined XDMF on the phantom (θ(t*), per-vertex six-minute peak, q, ball indicators) and a series CSV. New values at ≤ 6 significant digits; a leak-blocked log ⇒ BLOCKED, not ✅. Census +1, <code>broken=0</code>, docrefs <code>dead=0</code>; elapsed recorded ⇒ ✅. Not claimed: the console script, cw, CEM43, an absolute temperature or compliance figure, tissue, perfusion, degree 2, an external check. | 🚫 §9 item 447 BLOCKED 2026-10-14 06:00 slot: window 3 red on the script's own source-power record check (rel 4.368e-14 vs 1e-14; brief clauses conflict), parked on <code>attempt/EX-114-20261014T112814Z</code>. | heavy (<code>-n 8</code>, ≈ 185 s per run, <code>-t 590</code>) |</p>
+<p><strong>Gap.</strong> No example runs a transient thermal YAML on the F-human.
+- <code>mri:13</code> (<code>EX-97</code>) runs <code>femem run</code> thermal on the <strong>sphere</strong>, steady. <code>mri:17</code> (<code>EX-109</code>) builds this tuned fixture through <code>build_tuned_quadrature</code> and writes B₁⁺ / SAR, no temperature. <code>mat:18</code> (<code>EX-110</code>) Part B <em>reads</em> the tuned F-human's six-minute numbers from <code>logs/mat15_s5/</code>, it solves nothing on this fixture. None imports <code>test_wf1_yaml_f_human_thermal_solve.py</code> or runs <code>f_human_tuned_copper_thermal.yaml</code> (<code>grep -rn 'f_human_tuned_copper_thermal\|wf1_yaml_f_human' examples/</code> is empty at drafting).
+- <code>TunedTemperatureResult</code> carries series only (<code>study.py:2449–2468</code>); no example shows the temperature <em>field</em> of this run, or what the YAML's <code>h</code>, <code>source_scale</code> and <code>balls</code> knobs do once the EM solve is paid for.</p>
+<h3 id="9-item-447-2026-10-14-example-54-ramp">§9 item 447 — 2026-10-14 (example, §5.4 ramp)<a class="headerlink" href="#9-item-447-2026-10-14-example-54-ramp" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-14 03:00 daily review; the review reviews it.</em> <strong>This brief sets and moves no band, tolerance, record, Done-when of another chunk or validation target.</strong> Every band is imported from the gate module, which imports them from <code>MAT-10</code> / <code>MAT-12</code> / <code>MAT-15</code> / <code>MAT-20</code> / <code>PORT-*</code> / <code>WF-12</code> modules.</p>
+<p><code>EX-114</code> (<code>mri:20</code>; <code>20_</code> is <code>mri:20</code> by the <code>%02d_</code> prefix, <code>scripts/run_examples.sh:201–219, :239–240</code>; the <code>mri:</code> group sources the complex build; no runner edit) adds three tracked files and edits nothing else:
+- <code>examples/mri/20_f_human_thermal_from_yaml.py</code>;
+- the same-stem guide <code>examples/mri/20_f_human_thermal_from_yaml.md</code>, with <code>## 1. What this demonstrates</code>, <code>## 2. How to run it</code>, <code>## Setup figure</code>, <code>## 3. How to analyze it, step by step</code> and <code>## Related</code>;
+- <code>examples/mri/figures/mri_20_f_human_thermal_from_yaml_setup.png</code>, ≤ 600 KiB.</p>
+<p>The YAML is read <strong>in place</strong> (<code>g.FHT_FILE</code>); no copy, no new YAML.</p>
+<p><strong>The angle: one EM solve, many thermal questions.</strong> The gate reproduces item 380's series through the file. This example keeps the one solved Study (<code>run.study</code>) and asks it what a user editing the file's <code>thermal:</code> section would ask, without a second EM solve (counted):
+1. <strong>Linearity in <code>source_scale</code></strong> (asserted identity). θ starts at T∞ and the CN step is linear, so 2G doubles every sample exactly.
+2. <strong>What <code>h</code> buys in a 21-minute run</strong> (printed). h ∈ {1, 10, 100} W/m²K: the ball's six-minute peak and the volume mean at t*, beside the adiabatic line P_src·t/(ρc·V_sub) (predicted ≈ 0.03829 K at t* from <code>:6285–6286</code>; the h = 10 volume mean predicted within [0.86, 1.0] of it — first measurement).
+3. <strong>Several balls in one call</strong> (asserted identity, printed lattice). <code>balls.centres = [c*_θ, M(c*_θ)]</code> in one <code>temperature</code> call: ball 0 equals the one-ball run's series; ball 1 is the gate's (N1) mirror reading.
+4. <strong>The field the API does not return</strong> (asserted identity, then written). The example re-runs the API's own thermal set-up — copied verbatim from <code>_tuned_quadrature_temperature</code> (<code>study.py</code>, from <code>res = _tuned_result(study, comm)</code> through <code>snaps = run.snapshots</code>) with module-qualified private names — and asserts that its volume-mean series equals the API's. It then writes θ(t*) and the per-vertex six-minute peak to XDMF, and prints the hottest vertex's six-minute peak against the 10 g ball's (a pointwise quantity, no compliance claim).</p>
+<ul>
+<li><strong>Executor:</strong> <code>example-runner</code>. It does not spawn agents.</li>
+<li><strong>Class:</strong> example. <strong>Tier:</strong> heavy, <code>-n 8</code> (<code>RECORD_RANK_WIDTH</code>, asserted), complex build.</li>
+<li><strong>Cost:</strong> ≈ 10 measured (example class) / ≈ 45 predicted min: 10 fixed + ≈ 15 script + ≈ 9 windows + ≈ 6 guide + ≈ 5 censuses / journal / commit. <strong>Park if the flagged run (window 3) has not started by minute 28, or the control (window 4) by minute 40</strong> (rule (d)). Price basis:</li>
+<li>The gate's own clocks: <code>run_study_file</code> 140.5 s (<code>:6282</code>), each extra <code>temperature</code> call ≈ 1.3 s (<code>:6321</code>), window 147 s.</li>
+<li>This example adds: five extra <code>temperature</code> calls (2G, h = 1, h = 100, two-ball; h = 10 is the file's run) ≈ 7–10 s; the copied thermal solve ≈ 1.5 s; <code>mean_sar</code> for (B) ≈ 2 s; the per-vertex six-minute map on the 3 306-cell submesh &lt; 2 s; the XDMF on the submesh &lt; 2 s; the setup figure ≈ 8 s (flagged only; <code>mri:17</code> on this mesh); start-up ≈ 15 s.</li>
+<li>Nearest analogue: <code>mri:17</code> (<code>EX-109</code>), this fixture at <code>-n 8</code>: 241 s flagged / 234 s control (<code>20261011T004348Z_EX-109.log</code>), summed RSS ≤ 12 GiB.</li>
+<li><strong>Flagged run predicted ≈ 185 s, range [150, 400] s; control ≈ 175 s, range [140, 380] s.</strong> Runner <code>-t 590</code>, container <code>timeout -k 30 590</code>. Under 10 min, so the plain runner form is used.</li>
+<li><strong>Depends on:</strong> nothing open. <code>WF-1</code> step 10b is on <code>main</code> (<code>f09673f7</code>). The comparand <code>logs/mat15_s5/theta-series-ccw.json</code> (<code>SERIES_JSON</code>, gitignored, 4 422 bytes, <code>:135</code>) must be on disk; absent ⇒ BLOCKED (rule (d)). <code>20_</code> is free in <code>examples/mri/</code>; no row or chunk names <code>EX-114</code>. Independent of item 446 (<code>EX-113</code>); never beside it or any other heavy window.</li>
+<li><strong>Shared files.</strong> Three new paths, nothing under <code>tests/</code> or <code>src/</code>. <strong>If anything under <code>tests/</code> or <code>src/</code> turns out to be needed, stop and report; do not edit it.</strong></li>
+</ul>
+<p><strong>Imports (never restated).</strong> <code>import tests.package.test_wf1_yaml_f_human_thermal_solve as g</code> and use its names: <code>FHT_FILE</code>, <code>SERIES_JSON</code>, <code>RECORD_RANK_WIDTH</code>, <code>HOLE_CELL_RECORD</code>, <code>CELL_COUNT_BAND</code>, <code>V_PHANTOM_H9P_RECORD_M3</code>, <code>V_BAND</code>, <code>B_BAND</code>, <code>E_BAND</code>, <code>REUSE_REPRODUCTION_RTOL</code>, <code>D_CONTROL_FLOOR</code>, <code>W_B2</code>, <code>AVG_BAR</code>, <code>PHANTOM_RHO_KG_PER_M3</code>, <code>PHANTOM_CELL_TAG</code>, <code>_mirror_xy</code>, <code>running_average</code>, <code>mean_sar</code>, <code>_load</code>, <code>run_study_file</code>, <code>study_mod</code>. From <code>src</code>: <code>write_setup_figure</code>, <code>write_xdmf_with_tags</code>, <code>adopt_host_ownership</code>. Insert <code>_REPO_ROOT</code> into <code>sys.path</code>; raise if <code>default_scalar_type</code> is not complex. Read <code>SERIES_JSON</code> on rank 0 only and <code>bcast</code> it (the gate's <code>_inputs</code> pattern, <code>:105–121</code>; do not call <code>_inputs</code>, which also requires two inputs this example does not use). Record digits go only into an example-local <code>REC</code> dict, each commented with its <code>log:line</code>.
+- <strong>Structural asserts at start-up:</strong> <code>comm.size == g.RECORD_RANK_WIDTH</code>; <code>_load(FHT_FILE)</code> gives kind <code>f_human_birdcage</code> and <code>fh.cooling.source_scale == float(series["G_per_w"])</code> (the gate's file checks at <code>:135–138</code>); <code>fh.window_s == g.W_B2</code>.
+- <strong>Example-local inputs (cited, not records):</strong> h ∈ {1.0, 100.0} W/m²K beside the file's 10.0. Name them as inputs in the guide.</p>
+<p><strong>(1) Anchor.</strong> The gate's run through the same call, mirroring its <code>solved</code> fixture (<code>:141–171</code>; the fixture is not callable).
+- Wrap <code>study_mod._study_solve_tuned_quadrature</code> in a counting call-through (assign, <code>try/finally</code> restore — no pytest <code>MonkeyPatch</code>), then <code>run = run_study_file(FHT_FILE, output_dir=OUTPUT_DIR / "mri_20_run", comm=comm)</code>.
+- Re-asserted at the imported bands, each beside its <code>log:line</code>: (A0) <code>|cells/HOLE_CELL_RECORD − 1| &lt;= CELL_COUNT_BAND</code>, <code>run.result is run.study.result</code>; (V) <code>&lt;= V_BAND</code>, n_sub == the JSON's; (B) <code>&lt;= B_BAND</code> (<code>mean_sar</code> on <code>res.fields["ccw"]</code>, the gate's call at <code>:192–196</code>); (E) <code>&lt;= E_BAND</code>; (T*) <code>&lt;= REUSE_REPRODUCTION_RTOL</code> against the JSON's last ball sample; (Ser) times to 1e-12 s and both series within <code>REUSE_REPRODUCTION_RTOL</code>; (6min) <code>&lt;= REUSE_REPRODUCTION_RTOL</code>, t_max exact, API vs <code>running_average</code> on its own series <code>&lt;= AVG_BAR</code>. (S_rep) is the gate's and is not repeated (it needs the node JSON).
+- <strong>Records predicted equal at the printed digits:</strong> cells, V_sub, source power, η, (T*) 4.926110849651e-02 K, six-minute peak 4.277005459539e-02 K, volume-mean peak 3.070252443e-02 K, (N1) 4.275342672e-02 K, (N3) 9.852221699e-02 K. <strong>Excluded:</strong> (E) and every rel at ≤ 1e-12 (round-off floor), asserted at their bands only.
+- <strong>(Once)</strong> the solve count reads 1 after every read in this script, including the copied thermal solve (it calls <code>_tuned_result</code>, which reuses the kept field).</p>
+<p><strong>Example-side anchors (asserted, imported bands only).</strong>
+- <strong>(Lin)</strong> <code>n3 = run.study.temperature(replace(fh.cooling, source_scale=2G), …)</code>: <code>|θ̄_ball(t*; 2G) / (2 θ̄_ball(t*; G)) − 1| &lt;= REUSE_REPRODUCTION_RTOL</code>, the same for the six-minute peak and the volume mean. Predicted ≤ 1e-13.
+- <strong>(Balls)</strong> the two-ball call's ball 0 series equals the one-ball run's elementwise within <code>REUSE_REPRODUCTION_RTOL</code> of its maximum; its ball 1 θ̄(t*) equals the gate's (N1) record at its printed digits (printed beside <code>:6319</code>). Predicted bitwise.
+- <strong>(Copy)</strong> the copied thermal set-up's volume-mean series (<code>_red(θ·dx)/v_sub</code> over all 41 snapshots, the API's expression) equals <code>run.summary["temperature"]["volume_mean_k"]</code> within <code>REUSE_REPRODUCTION_RTOL</code> of its maximum, and its <code>source_power</code> equals the summary's within <code>B_BAND</code>. Predicted bitwise. <strong>This is the check that the field written to XDMF is the API's.</strong></p>
+<p><strong>(2) Negative controls (rule (e)).</strong>
+- (N1), (N2), (N3): the gate's three, re-asserted (<code>:6319–6321</code>): the mirror ball misses (T*) by &gt; <code>REUSE_REPRODUCTION_RTOL</code> (record 1.321059e-01); the window one sample short misses (6min) by &gt; the band (1.348831e-02); the 2G θ̄ misses by &gt; <code>D_CONTROL_FLOOR</code> (1.000000). (N1) is read off (Balls)' ball 1 — no extra call.
+- (Copy-c), example-side, asserted only as a miss: the copied series shifted one sample (m[n + 1] against API[n]) misses by &gt; <code>REUSE_REPRODUCTION_RTOL</code>. <strong>Predicted max|Δ|/max ≈ 0.025–0.05</strong> (≈ 1/40 of a near-linear rise), range [0.015, 0.08]; first measurement. It shows (Copy) is not vacuous.</p>
+<p><strong>Printed only (no band; a value outside its prediction is reported, with no status effect).</strong>
+- The h table (angle 2): per h, the ball's θ̄(t*), its six-minute peak and t_max, the volume mean at t*, and volume-mean / adiabatic. Predicted monotone non-increasing in h; ball peak change between h = 1 and 100 below a few % (first measurement).
+- The hottest vertex's six-minute peak and its position, beside the 10 g ball's 4.277005e-02 K (predicted above it; first measurement), and the volume-mean of the per-vertex θ(t*) against the API's last volume-mean sample.</p>
+<p><strong>Output.</strong>
+- <strong>Setup figure</strong> <code>examples/mri/figures/mri_20_f_human_thermal_from_yaml_setup.png</code>, through <code>write_setup_figure</code> with <code>mri:17</code>'s call on this mesh (<code>17_f_human_tuned_quadrature_b1_sar.py:254–</code>; its PNG is 435 KiB) on <code>run.result.mesh</code> / <code>run.result.cell_tags</code>, region names labelling the gel phantom and the two feeds; title ≤ 130 characters, e.g. "mri:20 -- femem run thermal on the tuned copper F-human from YAML: gel phantom, 10 g ball at c*_theta (WF-1 step 10b)". Over 600 KiB ⇒ re-render once with <code>show_edges_on_slice=False</code>.
+- <strong>Combined XDMF</strong> <code>examples/mri/paraview_output/mri_20_f_human_thermal_from_yaml_combined.xdmf</code>, on the phantom submesh (<code>write_xdmf_with_tags(path, sub, None, fields, comm=comm)</code>): CG1 <code>theta_tstar_K</code> and <code>theta_six_minute_peak_K</code> (per vertex, <code>running_average</code> on each owned dof's 41-sample series); DG0 <code>q_source_W_per_m3</code> (the copied, <code>source_scale</code>-applied source), <code>ball10g_cstar</code>, <code>ball10g_mirror</code> (indicators, numpy on cell midpoints).
+- <strong>CSV</strong> <code>examples/mri/paraview_output/mri_20_f_human_thermal_from_yaml_series.csv</code>, rank 0: <code>t_s</code>, ball c*, ball mirror, volume mean, volume mean h = 1 / 100, ball h = 1 / 100, adiabatic line.
+- Write the CSV, then the XDMF, then <code>adopt_host_ownership(OUTPUT_DIR, comm=comm)</code> on every rank. The <code>run_study_file</code> output directory sits under the gitignored <code>paraview_output/</code>. Only the PNG is tracked.
+- <strong>Guide.</strong> <code>Related</code> lists, by full filename: <code>examples/mri/13_temperature_from_yaml.md</code> first, then <code>examples/mri/17_f_human_tuned_quadrature_b1_sar.md</code> and <code>examples/materials/18_six_minute_window_coil_heating.md</code>; then <code>tests/package/wf1/f_human_tuned_copper_thermal.yaml</code>, <code>tests/package/test_wf1_yaml_f_human_thermal_solve.py</code>, <code>tests/package/test_wf1_yaml_f_human_thermal.py</code>, <code>tests/validation/test_mat15_f_human_tuned_heating.py</code>, <code>tests/validation/test_mat20_running_average.py</code>. The guide walks through the YAML's <code>thermal:</code> block key by key; explains that <code>femem run &lt;file&gt;</code> calls <code>run_study_file</code> (the console path itself is not exercised here, as in the gate); why doubling <code>source_scale</code> doubles θ exactly; why <code>h</code> matters little to a ball deep in a gel phantom over 21 minutes; why the hottest vertex exceeds the 10 g ball; a ParaView recipe (colour <code>theta_six_minute_peak_K</code>, threshold <code>ball10g_cstar</code>, compare with <code>q_source_W_per_m3</code>; open the CSV in a Line Chart View). One sentence in <code>## 2</code>: <code>./scripts/run_examples.sh -e mri:20 -n 8 -t 590</code>, heavy, the measured wall time. Write <code>≈</code>, never a tilde.</p>
+<p><strong>(3) Windows.</strong> Each one is foreground with Bash <code>timeout: 660000</code>, and each is one bare, whole, repo-relative harness call, nothing chained or piped.
+0. Orphan check: <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0.
+1. <strong>Pre-censuses, before any file is written:</strong> <code>EX-114-pre-figures</code> / <code>EX-114-pre-docrefs</code>, the commands of <code>EX-113.md</code> window 1 with these labels. Last reading <code>examples=109 ok=109 missing=0 broken=0</code>, docrefs <code>dead=0 stale=90 exit=2</code> (<code>…T033627Z_EX-112-post-*</code>); use what the pre-census reads (item 446 may land first).
+2. <strong>Dry run</strong>, after the script exists: <code>scripts/testing/run_and_log.sh EX-114-dryrun "./scripts/run_examples.sh -e mri:20 -n 8 -t 590 --dry-run"</code>. It must print <code>(complex build)</code>. Copy its emitted string for windows 3–4, adding only <code>-T</code> (and the flag in window 3).
+3. <strong>Run of record (flagged)</strong>, predicted ≈ 185 s, range [150, 400] s, of the form <code>scripts/testing/run_and_log.sh EX-114 'docker compose exec -T -e FEM_EM_SETUP_FIGURES=1 fem-em-solver bash -lc "cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src timeout -k 30 590 mpiexec -n 8 python3 examples/mri/20_f_human_thermal_from_yaml.py"'</code>. Pass: Status 0; every anchor, (Once), (Lin), (Balls), (Copy) and the four controls green; covered records as in (1); the closing "All assertions hold" line.
+4. <strong>Control:</strong> <code>git add</code> the PNG, then the same line without the flag, label <code>EX-114-control</code>. Compare at the bands, never bitwise.
+5. <strong>The guide</strong>, written from window 3's log. Then <code>EX-114-post-figures</code> / <code>EX-114-post-docrefs</code>. <strong>Write the prediction first:</strong> figures N → N + 1, <code>missing=0 broken=0</code>; docrefs <code>dead=0</code>, exit ≠ 1. A dead reference naming <code>mri_20_*</code> or <code>20_f_human_thermal_from_yaml.md</code> fails the item.
+6. <code>git status --porcelain examples/ tests/ src/</code> lists exactly the three new <code>examples/</code> paths.</p>
+<p><strong>(4) Traps already paid for.</strong>
+- <strong>The private-leak guard (<code>EX-112</code>, attempts.md 2026-10-14T03:38Z).</strong> <code>check_private_leak.py</code> refuses any staged figure sharing an <strong>8-significant-digit prefix</strong> with a raw AED export (figures already tracked at HEAD are subtracted). <code>EX-112</code>'s two run logs were blocked on our own gel-box θ and the item was demoted 🧪 for custody. This fixture has a private AED counterpart (<code>ANS-8</code> / <code>ANS-9</code>), so: <strong>print every new value (h table, hottest vertex, Lin / Balls / Copy residuals, CSV echoes) at ≤ 6 significant digits</strong>; only the reproduced records may carry their gate-log digits (already tracked). The gate prints centres at full <code>repr</code> — print c*_θ and M(c*_θ) at 6 digits. <strong>If the guard still fires: never bypass it and never edit a log</strong> — move the flagged logs unchanged into the gitignored <code>logs/leak-held/</code>, commit everything else, mark item 447 <strong>BLOCKED</strong> (not ✅; a ✅ needs its run logs committed), journal the flagged <code>log:line</code> (never the figure), and stop.
+- <strong>Pytest fixtures are not callable</strong>, and <code>pytest.MonkeyPatch</code> is a test-only tool here: use a plain wrapper with <code>try/finally</code> restore. The wrapper must be installed on <code>study_mod</code> (the module attribute the gate patched), before <code>run_study_file</code>.
+- <strong>The copied block is copied, not improved.</strong> Same operation order, <code>study_mod.</code>-qualified private names (<code>_tuned_result</code>, <code>_tag_submesh</code>, <code>_exterior_robin_tags</code>, <code>_dg0_cell_average</code>, <code>_dg0_to_submesh</code>, <code>_ROBIN_TAG</code>), <code>snapshot_steps</code> of all 41 steps, <code>degree=int(cooling.degree)</code>, the <code>source_scale</code> applied <strong>after</strong> the cell average (ruling 361-4). A changed order shows as a (Copy) red, not a finding about the API.
+- <strong><code>T_INF</code> offsets.</strong> Snapshots carry T∞ = 20 °C; θ = T − t<strong>nf for every comparison and every written fiel</strong>
+- <strong>Empty owned slic</strong> (<code>EX-110</code> attempt 1).<strong> At <code>-n 8</code></strong>ost ranks own no phantom cell of a 3 306-cell submesh (or no ball cell). Every owned-slice <code>np.max</code> / <code>np.min</code> / <code>argmax</code> carries <code>initial=</code> or a size guard; the hottest-vertex position is an <code>allreduce</code> of (value, rank) followed by a <code>bcast</code>; no collective inside a <code>rank == 0</code> branch. Status 124 is a finding, never a retry.
+- <strong>Rank-local sums.**</strong>olumes, powers and means through <code>allreduce</code> of <code>assemble_scalar</code>; per-vertex maps on owned dofs only (<code>index_map.size_local · bs</code>), then <code>scatter_forward</code>.
+- <strong>Pinned quadrat</strong>e.<strong> Any ball-indicator or </strong>zzwxh:0334 integral in the script carries <code>metadata={"quadrature_degree": study_mod.SAR_QUADRATURE_DEGREE}</code> (<code>POST-5</code>); numpy indicators on cell midpoints need no form.
+- <strong>The complex build.** klzz</strong>h:0337 is complex: <code>np.real</code> copies for CSV / maps; no UFL ordering comparison, none containing a <code>sqrt</code> (<code>OPS-22</code>, <code>WF-6</code> step 4c); name every Function, each XDMF key equal to its <code>name</code> (<code>EX-79</code>).
+- <strong>Harness s</strong>pe.** Every harness call is the whole Bash command: bare, repo-relative, no <code>cd … &amp;&amp;</code>, no <code>; date</code> / <code>| tail</code>, no redirect (<code>bash_guard</code> rule 3). <code>./scripts/run_examples.sh</code> is host-side: emit it with <code>--dry-run</code>, pass the string to the harness, never wrap it in <code>docker compose exec</code> (Status 127). A docker-socket denial means stop and report the exact command string.
+- <strong>Timeouts and foreground.</strong> Bash <code>timeout: 660000</code> on every window; container <code>timeout -k 30 590</code>. <strong>Spawn executors foreground</strong>, and never background a harness window (the 2026-09-01 <code>example-runner</code> orphan). Never raise a timeout or <code>-n</code>. After a kill, <code>pgrep -c python3</code> first; only at 0, the orphan-<code>.c</code> cache sweep (daily-review.md rubric item 4) as one bare call labelled <code>EX-114-cache-sweep</code>.
+- <strong>Rule (i):</strong> no edit to the script after window 3 starts, or to the guide after window 5 starts.</p>
+<p><strong>(5) Scope.</strong> One fixture (tuned copper F-human hole mesh, degree-1 EM, 64 MHz, κ off), one gel phantom, ccw only, P1 thermal, CN 40 × 31.35 s, one 10 g ball centre and its mirror, <code>-n 8</code>. The h table, the hottest vertex and the adiabatic comparison are printed readings. Not claimed: the installed console script (<code>WF-13</code> step 5 covers it), the cw sense, CEM43, an absolute temperature or any compliance / limit figure (the 1 W-normalised <code>source_scale</code> is a record), tissue, perfusion, degree 2, <code>ANS-9</code> or any external check. <code>WF-1</code> does not move.</p>
+<p><strong>(6) Negative result.</strong> Report and stop. Journal in <code>docs/testing/attempts.md</code>, park on <code>attempt/EX-114-&lt;UTC&gt;</code>, and mark item 447 BLOCKED with the unblock condition in the same commit (rule (d)). <code>EX-114</code> stays ⬜. Never widen a band, never edit <code>tests/</code> or <code>src/</code>, never re-record from the example side.
+- <strong>A re-asserted anchor red, or a covered record off W1 beyond its last two printed digits:</strong> an example/gate divergence or <code>main</code> drifted; print the first differing value beside its <code>log:line</code>, file a known-issues entry, park.
+- <strong>(Once) reads 2:</strong> a read re-solved the EM; report which call and stop.
+- <strong>(Lin) / (Balls) / (Copy) red:</strong> the API is not linear / not ball-independent as the brief says, or the copy diverged; print the residual and stop.
+- <strong><code>SERIES_JSON</code> absent:</strong> BLOCKED, unblock condition "re-run <code>MAT-20</code> step 3 W1 or restore <code>logs/mat15_s5/</code>".
+- <strong>The leak guard fires:</strong> BLOCKED as in Traps, not ✅.
+- <strong>Status 124, over 590 s, or past the park minutes:</strong> park with the last printed line.
+- <strong>A printed value outside its prediction:</strong> report it; no status effect.</p>
+<p>No <code>PREDICTED RED:</code> line. A red anywhere stops the slot.</p>
+<p><strong>(7) Status it can move.</strong> <code>EX-114</code> ⬜ → ✅ under the §7 Done-when the review pastes in the same commit as this item (rule (j)). Census <code>examples</code> +1 (109 → 110, or 110 → 111 after item 446), <code>broken=0</code>; docrefs <code>dead=0</code>. <code>WF-1</code> unchanged. No §2 sentence moves. The §10 Phase 9 (9a) and Phase 8 ramps gain a YAML-driven F-human heating example, which the weekly reads.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Use the example-runner agent to execute <code>EX-114</code>, §9 item 447 (<code>docs/planning/chunks/EX-114.md</code>, heading <code>§9 item 447</code>). Read the brief and any review ruling beneath it first; the rulings hold. You are the executor — do not spawn agents, and never background a harness window. Pass <code>timeout: 660000</code> on every Bash call that runs a harness window, run every window in the foreground, and never delete a log. The harness call is the <strong>whole</strong> Bash command: bare, repo-relative, nothing chained or piped. Before window 1, run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> and require 0. Run both pre-censuses before writing any file. Edit nothing under <code>tests/</code> or <code>src/</code>; call the gate module's helpers unchanged and copy the thermal block of <code>_tuned_quadrature_temperature</code> verbatim. Guard every owned-slice reduction with <code>initial=</code>; at <code>-n 8</code> most ranks own no phantom cell. Print every new value at ≤ 6 significant digits; if <code>check_private_leak.py</code> blocks a log, move it unchanged to <code>logs/leak-held/</code>, mark item 447 BLOCKED (not ✅) and stop. Emit the runner line with <code>--dry-run</code> and pass it to the harness; never wrap <code>run_examples.sh</code> in <code>docker compose exec</code>. No edit to the script after window 3 starts, or to the guide after window 5 starts. If the docker socket is denied, stop and report the exact command string. Return the windows' log names, every asserted and printed value beside its record (log:line) or prediction, the census before / after with the docrefs <code>dead=</code> list, and elapsed."</p>
+<h3 id="review-ruling-2026-10-14-0300-item-447">Review ruling 2026-10-14 03:00 (item 447)<a class="headerlink" href="#review-ruling-2026-10-14-0300-item-447" title="Permanent link">&para;</a></h3>
+<p>Accepted as <code>mri:20</code>.
+- <strong>BLOCKED if the input is missing.</strong> If the gitignored <code>logs/mat15_s5/theta-series-ccw.json</code> is missing at the slot, the item is BLOCKED; it is not regenerated in-slot.
+- <strong>The copied thermal block.</strong> It is disclosed as a copy of the API's thermal block. Its tie to the summary's series is the example's (Copy) assertion, with the one-sample-shift control.
+- <strong>Serial.</strong> Never run beside item 446.
+- <strong>Leak guard.</strong> The brief's leak-guard clause binds.</p>
+<p><strong>Outcome 2026-10-14 06:00 slot — BLOCKED.</strong> Window 3 (<code>20261014T112508Z_EX-114.log</code>, on <code>attempt/EX-114-20261014T112814Z</code>) stopped at the script's own source-power record check: rel 4.368e-14 to <code>20261014T020254Z_WF-1-s10b-W1.log:6286</code> against a 1e-14 check. (A0) / (V) / (B) / (E) green before it; the rest unreached. The brief's "predicted equal at the printed digits" list and its "Excluded: every rel at ≤ 1e-12" clause conflict at 16 printed digits — returned to the review for a ruling (attempts.md 2026-10-14T11:30Z).</p>
+<h3 id="review-ruling-2026-10-14-1030-item-447-item-449">Review ruling 2026-10-14 10:30 (item 447 → item 449)<a class="headerlink" href="#review-ruling-2026-10-14-1030-item-447-item-449" title="Permanent link">&para;</a></h3>
+<p><strong>The record-check tolerance (the clause conflict).</strong> The brief's own <strong>Excluded</strong> clause governs: every covered record is compared at <strong><code>max(10^-(d−2), g.REUSE_REPRODUCTION_RTOL)</code></strong>, where d is the record's printed significant digits and <code>REUSE_REPRODUCTION_RTOL</code> (1e-12) is imported from the gate module, never restated. Integer records (cells, <code>n_sub</code>) stay exact. "Beyond its last two printed digits" in (6) reads the same way.
+- <strong>Why this is not a loosened assertion.</strong> The red check was not an imported gate band. It was the script's own reading of "equal at the printed digits", and the same brief puts every rel ≤ 1e-12 at the round-off floor. The 03:00 review wrote both clauses, so the conflict is the review's.
+- <strong>The reading.</strong> V_sub (7.749e-14, limit 1e-11, <code>20261014T112508Z_EX-114.log:6185</code>) and the source power (4.368e-14, <code>:6186</code>) moved together from the 10b gate run. (B) inside the same run ties to 5.9e-16. That is run-to-run iterative round-off at <code>-n 8</code>, not example/gate divergence.
+- <strong>The bar stays meaningful.</strong> Under the ruling a record that misses by more than 1e-12 still stops the slot, as does every imported gate band.
+- <strong>Records only.</strong> The ruling binds this item's record checks only. It moves no band, gate or Done-when.</p>
+<h3 id="9-item-449-2026-10-14-example-54-ramp-re-lift-of-item-447">§9 item 449 — 2026-10-14 (example, §5.4 ramp; re-lift of item 447)<a class="headerlink" href="#9-item-449-2026-10-14-example-54-ramp-re-lift-of-item-447" title="Permanent link">&para;</a></h3>
+<p><strong>Item 449 — the re-lift (example, §5.4 ramp; <code>example-runner</code>; heavy, <code>-n 8</code>; ≈ 10 measured / 20 predicted min).</strong> Item 447's brief, imports, windows, traps, scope, negative result and status it can move all hold unchanged, with these amendments:
+1. <strong>Lift by path, never by record-file checkout.</strong> Take <code>examples/mri/20_f_human_thermal_from_yaml.py</code>, its setup PNG and the four logs from <code>attempt/EX-114-20261014T112814Z</code> by path. Append the branch's four <code>test-results.md</code> rows <strong>by hand</strong>, and check that <code>git diff --stat</code> shows only insertions on record files (the <code>8d4cf58</code> trap).
+2. <strong>One edit before window 3.</strong> In <code>rec_check</code>, set <code>tol = max(10.0 ** (-(_digits(want) - 2)), g.REUSE_REPRODUCTION_RTOL)</code> for string records and keep 0 for exact ones. Update the docstring to say so. Make no other edit. Rule (i): the script is frozen from window 3 on.
+3. <strong>Windows.</strong> Re-run window 0 (orphan check), then window 2 (dry run, label <code>EX-114-dryrun-r2</code>), then window 3 (flagged), 4 (control), 5 and 6.
+   - The branch's pre-census logs stand as window 1: <code>20261014T112302Z_EX-114-pre-figures.log</code> and <code>…112303Z_EX-114-pre-docrefs.log</code>. Their census already counts <code>mri:19</code>.
+   - The red <code>20261014T112508Z_EX-114.log</code> lands as the record of attempt 1, and is never cited as the run of record.
+4. <strong>Predicted.</strong>
+   - Every record check reads ≤ 1e-12, with V_sub and the source power at round-off as in window 3 of attempt 1.
+   - Census figures 110 → 111 and docrefs <code>dead=0</code>.
+   - Window 3 ≈ 150–200 s (attempt 1 measured 148 s to the stop, run_study_file 141.7 s).
+5. <strong>Executor spawn prompt.</strong> Item 447's prompt verbatim, with "§9 item 447" replaced by "§9 item 449" and this sentence added: "Read the 2026-10-14 10:30 review ruling in <code>EX-114.md</code> first; it amends the record-check tolerance and the window list." <strong>Status it can move:</strong> <code>EX-114</code> ⬜ → ✅ under the §7 Done-when as written.</p>
+<p><strong>Outcome 2026-10-14 12:00 slot — BLOCKED.</strong> Window 3 (<code>20261014T171401Z_EX-114.log</code>, Status 1, 156 s, flagged; on <code>attempt/EX-114-20261014T171651Z</code>, <code>2d3b44d6</code>) was green through every record check at the ruled tolerance (V_sub 7.749e-14, source power 1.456e-14, (T*) 5.029e-14, six-minute peak 1.298e-15; <code>:6184–6201</code>), (Lin), (Balls), (N1), (Copy) and (Copy-c) 0.0268437 (predicted 0.025–0.05; <code>:6195–6207</code>). It then raised <code>KeyError: -1</code> at script line 396, <code>snaps[-1]</code>: <code>TransientResult.snapshots</code> is a <code>Dict[int, Function]</code> keyed by step (<code>src/fem_em_solver/thermal/transient.py:85</code>). A script defect, frozen by rule (i); returned to the review (attempts.md 2026-10-14T17:20Z).</p>
+<h3 id="review-ruling-2026-10-14-1800-item-449-item-453">Review ruling 2026-10-14 18:00 (item 449 → item 453)<a class="headerlink" href="#review-ruling-2026-10-14-1800-item-449-item-453" title="Permanent link">&para;</a></h3>
+<p><strong>The licence.</strong> One edit, at script line 396: <code>snaps[-1]</code> → <code>snaps[steps[-1]]</code>. <code>steps = tuple(range(n_steps + 1))</code> (line 340), so <code>steps[-1]</code> is the last snapshot key, the one the loops above already use. It is the only <code>[-1]</code> on <code>snaps</code> in the script (<code>snaps[0]</code> at lines 350 / 373 is a real key, step 0). This touches no assertion, record, band or printed reading above line 396.
+- <strong>The unrun tail.</strong> Lines 396 to the end (the per-vertex maps' last sample, the indicators, the CSV, the XDMF, <code>adopt_host_ownership</code>) have never executed. Before window 3, the executor reads that tail once against the signatures it calls (<code>write_xdmf_with_tags(filename, mesh, cell_tags, functions, comm=…)</code>, <code>src/fem_em_solver/io/paraview_utils.py:132</code>; <code>adopt_host_ownership(output_dir, comm=…)</code>, <code>:11</code>; <code>compute_midpoints</code>; DG0 <code>dofmap.list</code>). It may fix a defect there <strong>only if it would raise</strong> (a wrong key, name, argument or shape). Each such fix is named in the journal and the commit. Nothing that changes a printed or asserted value is licensed.
+- <strong>Not a gate change.</strong> No band, record, Done-when or tolerance moves.
+- <strong>Correction to the 10:30 ruling (found by item 456's drafter, checked by this review).</strong> The gate module's <code>REUSE_REPRODUCTION_RTOL</code> is <strong>1e-6</strong>, not 1e-12. <code>tests/package/test_wf1_yaml_f_human_thermal_solve.py</code> imports it from <code>tests/validation/test_port_birdcage_ring_matrix.py:171</code> (<code>= STEP2_COLUMN_POWER_RTOL = 1.0e-6</code>); the 1e-12 constant of the same name is <code>test_port19_factor_reuse.py:82</code>. Attempt 2's log prints <code>limit 1e-06</code> on every string record (<code>20261014T171401Z_EX-114.log:6185–6195</code>, on the branch).
+  - The ruling stands, with its two "1e-12" sentences corrected: covered records compare at <code>max(10^-(d−2), g.REUSE_REPRODUCTION_RTOL)</code> = at least 1e-6, which is <strong>the gate's own imported band for the same quantities</strong> ((T*), (Ser), (6min) are asserted at it, <code>:6188–6190</code>). So a record check is never looser than the gate it reproduces. A record that misses by more than 1e-6 stops the slot.
+  - Nothing in the script changes: it imports the name and does not restate a value. The measured record residuals are ≤ 5.1e-11 (<code>:6185–6195</code>), five decades inside the floor.
+- <strong>Attempt count.</strong> Item 453 is <code>EX-114</code>'s third attempt. A third block returns the example to the weekly with its two parked logs; the review does not queue a fourth.
+- <strong>Branches.</strong> <code>attempt/EX-114-20261014T112814Z</code> is deleted by this review. Its script, setup PNG, four logs and four <code>test-results.md</code> rows are all on <code>attempt/EX-114-20261014T171651Z</code>, which differs from it only by the 10:30 <code>rec_check</code> edit (checked with <code>git diff</code> of the two branches).</p>
+<h3 id="9-item-453-2026-10-14-example-54-ramp-re-lift-of-item-449">§9 item 453 — 2026-10-14 (example, §5.4 ramp; re-lift of item 449)<a class="headerlink" href="#9-item-453-2026-10-14-example-54-ramp-re-lift-of-item-449" title="Permanent link">&para;</a></h3>
+<p><strong>Item 453 — the second re-lift (example, §5.4 ramp; <code>example-runner</code>; heavy, <code>-n 8</code>; ≈ 9 measured / 20 predicted min; depends on nothing).</strong> Item 447's brief and item 449's amendments hold unchanged, with these amendments:
+1. <strong>Lift by path, never by record-file checkout.</strong> Take <code>examples/mri/20_f_human_thermal_from_yaml.py</code>, its setup PNG and all eight logs from <code>attempt/EX-114-20261014T171651Z</code> by path. Append the branch's eight <code>test-results.md</code> rows <strong>by hand</strong>, and check that <code>git diff --stat</code> shows only insertions on record files (the <code>8d4cf58</code> trap).
+2. <strong>Edits before window 3.</strong> The line-396 fix above. Then the read of the unrun tail, with any fix it licenses. Then nothing more: rule (i) freezes the script from window 3 on.
+3. <strong>Windows.</strong> Window 0 (orphan check), window 2 (dry run, label <code>EX-114-dryrun-r3</code>), window 3 (flagged), window 4 (control), then windows 5 and 6.
+   - Attempt 2's pre-census logs stand as window 1: <code>20261014T171329Z_EX-114-r2-pre-figures.log</code> (<code>examples=110 ok=110 missing=0 broken=0</code>) and <code>…171330Z_EX-114-r2-pre-docrefs.log</code> (<code>dead=0</code>, exit 2).
+   - The red logs <code>20261014T112508Z_EX-114.log</code> and <code>20261014T171401Z_EX-114.log</code> land as the records of attempts 1 and 2. Neither is ever cited as the run of record.
+4. <strong>Predicted.</strong>
+   - Every record and anchor as in attempt 2's window 3: records ≤ 1e-12, (Copy-c) ≈ 0.0268.
+   - The hottest vertex above the 10 g ball (first measurement, printed).
+   - Census figures 110 → 111 and docrefs <code>dead=0</code>.
+   - Window 3 ≈ 160–220 s (attempt 2 measured 156 s to the stop).
+5. <strong>Executor spawn prompt.</strong> Item 447's prompt verbatim, with "§9 item 447" replaced by "§9 item 453" and this sentence added: "Read the 2026-10-14 10:30 and 18:00 review rulings in <code>EX-114.md</code> first; they amend the record-check tolerance, license the line-396 fix and the read of the unrun tail, and set the window list."</p>
+<p><strong>Status it can move:</strong> <code>EX-114</code> ⬜ → ✅ under the §7 Done-when as written. A block parks on a new <code>attempt/EX-114-&lt;UTC&gt;</code> and returns the example to the weekly.</p>
+<p><strong>Outcome 2026-10-15 00:30 slot — DONE.</strong> Flagged run <code>20261015T004827Z_EX-114.log</code> (Status 0, 154.3 s; <code>run_study_file</code> 144.0 s, solve calls 1) and control <code>20261015T005111Z_EX-114-control.log</code> (Status 0, 143.4 s), on <code>main</code> after the line-396 fix <code>snaps[steps[-1]]</code> (the read of the unrun tail found nothing else that would raise). Every anchor, (Once), (Lin) ≤ 2.2e-13, (Balls) 1.4e-13, (Copy) 6.0e-14, controls (N1)–(N3) and (Copy-c) 0.0268437 green; hottest vertex 0.056091 K beside the 10 g ball's 0.0427701 K (ratio 1.31145). Census <code>20261015T005409Z_EX-114-post-figures.log</code> examples 110 → 111 <code>broken=0</code>; <code>…005411Z_EX-114-post-docrefs.log</code> <code>dead=0</code>, exit 2.</p>
+<h2 id="7-row-moved-verbatim-2026-10-14-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-14 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-14-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p><strong><code>femem run</code> thermal on the tuned copper F-human from YAML: one EM solve answers the file's thermal knobs, and the temperature field the API keeps to itself</strong> <em>(history and §9 briefs: <code>docs/planning/chunks/EX-114.md</code>)</em> (<code>mri:20</code>; <code>example-runner</code>; opened 2026-10-14 by the 03:00 daily review, §5.4 ramp from <code>WF-1</code> step 10b, §9 item 447; <code>mri:13</code> is the steady sphere YAML, <code>mri:17</code> this fixture's B₁⁺ / SAR, no example heats it) <strong>Done-when:</strong> <code>examples/mri/20_f_human_thermal_from_yaml.py</code> + same-stem guide (three required headings + <code>## Setup figure</code> + <code>## Related</code>, PNG ≤ 600 KiB); complex, <code>-n 8</code>, <code>run_study_file</code> on the tracked YAML in place; no <code>tests/</code> or <code>src/</code> edit; every band imported. Asserted at the imported bands beside <code>20261014T020254Z_WF-1-s10b-W1.log:6282–6321</code>: (A0), (V), (B), (E), (T*), (Ser), (6min); one EM solve after every read; controls (N1), (N2), (N3) miss. Example-side (≤ <code>REUSE_REPRODUCTION_RTOL</code>): 2G doubles θ̄ and the six-minute peak; a two-ball call's ball 0 equals the one-ball series; the copied API thermal block's volume-mean series equals the summary's; the one-sample-shifted copy misses. Printed: h = 1 / 10 / 100 against the adiabatic line, the hottest vertex against the 10 g ball. Outputs: combined XDMF on the phantom (θ(t*), per-vertex six-minute peak, q, ball indicators) and a series CSV. New values at ≤ 6 significant digits; a leak-blocked log ⇒ BLOCKED, not ✅. Census +1, <code>broken=0</code>, docrefs <code>dead=0</code>; elapsed recorded ⇒ ✅. Not claimed: the console script, cw, CEM43, an absolute temperature or compliance figure, tissue, perfusion, degree 2, an external check. | ✅ 2026-10-15 §9 item 453 (<code>20261015T004827Z_EX-114.log</code> flagged 154 s, <code>20261015T005111Z_EX-114-control.log</code> 143 s, both Status 0; census 110 → 111, <code>broken=0</code>, docrefs <code>dead=0</code>). Earlier: §9 items 447 and 449 BLOCKED 2026-10-14 (the record-check tolerance, ruled at 10:30; then <code>KeyError: -1</code> on <code>snaps[-1]</code> after every record and anchor was green); the 18:00 review licensed the one-line fix and re-queued it as §9 item 453 on <code>attempt/EX-114-20261014T171651Z</code> (<code>EX-114.md</code>). </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

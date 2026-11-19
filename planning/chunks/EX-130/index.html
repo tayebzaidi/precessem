@@ -1,0 +1,901 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-130 — The F2182 gel box through the Study API: ThermalBoxGeometry → Study.temperature → Study.probe at the six F2182 positions (mat:24) - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-130-the-f2182-gel-box-through-the-study-api-thermalboxgeometry-studytemperature-studyprobe-at-the-six-f2182-positions-mat24" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-130 — The F2182 gel box through the Study API: ThermalBoxGeometry → Study.temperature → Study.probe at the six F2182 positions (mat:24)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-534-2026-10-18-example-54-ramp-example-runner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 534 — 2026-10-18 (example, §5.4 ramp; example-runner)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-18-1030-item-534" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-18 10:30 (item 534)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-130-the-f2182-gel-box-through-the-study-api-thermalboxgeometry-studytemperature-studyprobe-at-the-six-f2182-positions-mat24">EX-130 — The F2182 gel box through the <code>Study</code> API: <code>ThermalBoxGeometry</code> → <code>Study.temperature</code> → <code>Study.probe</code> at the six F2182 positions (<code>mat:24</code>)<a class="headerlink" href="#ex-130-the-f2182-gel-box-through-the-study-api-thermalboxgeometry-studytemperature-studyprobe-at-the-six-f2182-positions-mat24" title="Permanent link">&para;</a></h1>
+<p>Opened by the 2026-10-18 10:30 daily review under the §5.4 ramp, from <code>WF-15</code> step 5 (§9 item 521a, U59 part 1, <code>f437514a</code>) and step 6 (§9 item 523, U60, <code>2c63c914</code>). The 10-17 weekly's examples list names the thermal-box route after U59. Gap evidence (drafter, checked 2026-10-18):
+- No <code>examples/**/*.py</code> uses <code>ThermalBoxGeometry</code>.
+- No example calls <code>Study.probe</code>. <code>mat:13</code> / <code>16</code> / <code>21</code> build <code>ProbeBall</code> directly.
+- Every box example (<code>mat:19</code>, <code>mat:20</code>, <code>mat:23</code>) calls module helpers, not the <code>Study</code>.</p>
+<h3 id="9-item-534-2026-10-18-example-54-ramp-example-runner">§9 item 534 — 2026-10-18 (example, §5.4 ramp; example-runner)<a class="headerlink" href="#9-item-534-2026-10-18-example-54-ramp-example-runner" title="Permanent link">&para;</a></h3>
+<p><em>Drafted read-only for the 2026-10-18 10:30 daily review; the review reviews it (ruling below). It sets and moves no band, record or Done-when.</em></p>
+<p><strong>Licence.</strong> §5.4 example ramp from <code>WF-15</code> step 5 (item 521a) and step 6 (item 523), both DONE 2026-10-18.</p>
+<p><strong>Angle.</strong> The package's own route on the F2182 box: <code>ThermalBoxGeometry</code> → <code>Study.temperature</code> → <code>Study.probe</code>, with a probe table at P37's six named positions.</p>
+<p><strong>Executor and files.</strong> <code>example-runner</code>, which spawns no agents. It adds exactly three files and edits nothing under <code>tests/</code> or <code>src/</code>:
+- <code>examples/materials/24_f2182_gel_box_study_api_probes.py</code>;
+- the same-stem guide, with <code>## 1. What this demonstrates</code>, <code>## 2. How to run it</code>, <code>## Setup figure</code>, <code>## 3. How to analyze it, step by step</code> and <code>## Related</code>;
+- <code>examples/materials/figures/materials_24_f2182_gel_box_study_api_probes_setup.png</code>, ≤ 600 KiB.</p>
+<p><strong>API used</strong> (<code>src/fem_em_solver/study.py</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Line</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ThermalBoxGeometry(half_widths_m, divisions)</code></td>
+<td><code>:1408</code></td>
+</tr>
+<tr>
+<td>box steady branch <code>_study_box_temperature</code> (does not cache)</td>
+<td><code>:1445–1472</code></td>
+</tr>
+<tr>
+<td>dispatch</td>
+<td><code>:1301–1302</code></td>
+</tr>
+<tr>
+<td><code>RobinCooling(k, h, t_inf, degree=1)</code></td>
+<td><code>:1165</code></td>
+</tr>
+<tr>
+<td><code>UniformHeatSource</code></td>
+<td><code>:1476</code></td>
+</tr>
+<tr>
+<td><code>Study.probe(probes, cooling, *, levels=3, transient=None, duty=None)</code> → <code>ProbeStudyResult(values, volumes, nominal_volumes, theta, thermal)</code></td>
+<td><code>:1640</code>, <code>:1628</code>, <code>:1688</code></td>
+</tr>
+<tr>
+<td><code>ProbeBall(centre, radius)</code>, <code>thermal/probe.py</code></td>
+<td><code>:40</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>ball_average</code> requires P1 (<code>thermal/probe.py:103</code>), so the cooling is built with <code>degree=1</code>.</p>
+<p><strong>Build.</strong> <code>mat:</code> runs in the complex build (<code>scripts/run_examples.sh:274</code>, <code>:281</code>). Step 5's steady gate was recorded in complex (<code>test_wf15_study_thermal_box.py:83</code>), but step 6's box-probe gate in the real build (<code>test_wf15_study_probe_thermal.py:120</code>). So step 6's digits are printed only, and the example asserts only its bands.</p>
+<p><strong>Imports (never restated).</strong> <code>_REPO_ROOT</code> goes on <code>sys.path</code>, then:</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Names</th>
+<th>Lines</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/package/test_wf15_study_thermal_box.py</code> (<code>s5</code>)</td>
+<td><code>STEP1_M4_WHOLE</code>, <code>STEP1_M4_CELLS</code>, <code>STEP1_M4_P1_DOFS</code></td>
+<td><code>:63–65</code></td>
+</tr>
+<tr>
+<td>same module's imports</td>
+<td><code>_on</code>, <code>_theta_owned_rel</code>, <code>L0_BAND</code>, <code>_rel</code>, <code>_max_imag</code>, <code>S2_GAUSS_BAND</code></td>
+<td><code>:40–46</code></td>
+</tr>
+<tr>
+<td><code>tests/package/test_wf15_study_probe_thermal.py</code> (<code>s6</code>)</td>
+<td><code>A_BOXPROBE</code>, <code>BOX_CENTRES</code>, <code>BOX_PROBES</code>, <code>WHOLE_BOX</code>, <code>BOX_DIVISIONS</code>, <code>S5_C_WALL</code>, <code>_domain_mean</code>, <code>_series_at</code></td>
+<td><code>:79</code>, <code>:85–95</code>, <code>:128–138</code></td>
+</tr>
+<tr>
+<td><code>tests/validation/test_mat21_box_probe_points_fem.py</code> (<code>p37</code>)</td>
+<td><code>PROBE_PTS</code>, <code>PROBE_LABELS</code>, <code>_probe_vals</code></td>
+<td><code>:72–81</code>, <code>:106–113</code></td>
+</tr>
+<tr>
+<td><code>test_mat21_box_fem.py</code></td>
+<td><code>BASE</code>, <code>_steady_ex</code>, <code>_exact</code>, <code>_interior_chi</code></td>
+<td><code>:71–111</code></td>
+</tr>
+<tr>
+<td><code>test_mat21_box_closed_form.py</code></td>
+<td><code>HALF</code>, <code>SERIES_TERMS</code>, <code>Q</code>, <code>K</code>, <code>H</code></td>
+<td><code>:35</code>, <code>:38</code></td>
+</tr>
+<tr>
+<td><code>test_mat10_sar_to_heat_sphere.py</code></td>
+<td><code>B_BAND</code>, <code>ROBIN_TAG</code>, <code>_allsum</code></td>
+<td><code>:56–70</code></td>
+</tr>
+<tr>
+<td><code>test_mat13_transient_perfusion_sphere.py</code></td>
+<td><code>INTERIOR_BAND</code></td>
+<td><code>:64</code></td>
+</tr>
+<tr>
+<td><code>test_mat15_coil_driven_heating_phantom.py</code></td>
+<td><code>K_GEL</code>, <code>H_GEL</code>, <code>T_INF</code></td>
+<td><code>:82–84</code></td>
+</tr>
+</tbody>
+</table>
+<p>The uniform series comes from <code>robin_box_steady_temperature(..., n_terms=SERIES_TERMS)</code> (<code>utils/analytical.py:2116</code>), called as <code>p37:175–176</code> does. Never call either <code>_require_solve_env</code>: s5's asserts complex (<code>:83</code>), s6's asserts real (<code>:120</code>). Never import a <code>test_*</code> name.</p>
+<p><strong>Records.</strong> An example-local <code>REC</code> holds each value with its <code>log:line</code>. Each is printed beside its reading, at ≤ 6 significant digits, and never asserted by equality:</p>
+<table>
+<thead>
+<tr>
+<th>Source log</th>
+<th>Lines</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>s5 W1 <code>20261018T112154Z_WF-15-s5-W1-steady.log</code></td>
+<td><code>:66</code></td>
+<td>(UT) cell counts</td>
+</tr>
+<tr>
+<td></td>
+<td><code>:67</code></td>
+<td>(I-dir) 5.918e-16</td>
+</tr>
+<tr>
+<td></td>
+<td><code>:69</code></td>
+<td>interior 3.2236e-03, Gauss 2.708e-13</td>
+</tr>
+<tr>
+<td></td>
+<td><code>:70</code></td>
+<td>(c-wall) 3.8048e-01</td>
+</tr>
+<tr>
+<td>s6 W2 <code>20261018T123416Z_WF-15-s6-W2-box.log</code> (real build)</td>
+<td><code>:63</code></td>
+<td>(A-box) 2.495e-13 / 2.509e-13</td>
+</tr>
+<tr>
+<td></td>
+<td><code>:64–69</code></td>
+<td>(R-box) per centre, max 2.7066e-03</td>
+</tr>
+<tr>
+<td></td>
+<td><code>:71</code></td>
+<td>(c-mv) 6.0750e-02 K</td>
+</tr>
+<tr>
+<td></td>
+<td><code>:72</code></td>
+<td>(c-wall) 3.5712e-01</td>
+</tr>
+</tbody>
+</table>
+<p><strong>(1) Anchors.</strong> All asserted at the imported bands. One <code>Study(ThermalBoxGeometry(HALF, BOX_DIVISIONS), None, UniformHeatSource(Q))</code>, cooled by <code>RobinCooling(K_GEL, H_GEL, T_INF)</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Anchor</th>
+<th>Assertion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(K)</td>
+<td><code>IS_COMPLEX</code>; <code>comm.size == 2</code>; <code>BOX_DIVISIONS == tuple(4 * b for b in BASE)</code></td>
+</tr>
+<tr>
+<td>(S1-m4) via <code>Study.temperature</code></td>
+<td>global cells <code>== STEP1_M4_CELLS</code>; P1 dofs <code>== STEP1_M4_P1_DOFS</code>; whole <code>_rel</code> against <code>_exact(msh, _steady_ex())</code> gives <code>f"{:.4e}" == STEP1_M4_WHOLE</code> (same build as the record); interior ≤ <code>INTERIOR_BAND</code>; Gauss ≤ <code>S2_GAUSS_BAND</code> (s5 <code>:162–187</code>)</td>
+</tr>
+<tr>
+<td>(I-rep), example-side identity</td>
+<td>the θ inside <code>probe(...).thermal</code> against <code>temperature()</code>'s θ, through <code>_theta_owned_rel(_on(...))</code>, ≤ <code>L0_BAND</code>. The box branch re-solves on every call. Predicted 0 to 1e-15.</td>
+</tr>
+<tr>
+<td>(A-box)</td>
+<td><code>WHOLE_BOX</code> ≤ <code>B_BAND</code> on value and volume (s6 <code>:246–253</code>)</td>
+</tr>
+<tr>
+<td>(R-box)</td>
+<td>each of the five <code>BOX_PROBES</code> within ≤ <code>INTERIOR_BAND</code> of <code>_series_at(c) − Q·A_BOXPROBE²/(10·K_GEL)</code>. Its c₀ ball <strong>is</strong> F2182 position P0.</td>
+</tr>
+<tr>
+<td>(V)</td>
+<td>the six <code>PROBE_PTS</code> are valid on the owner route and every owner is ≥ 0 (<code>p37:263–268</code>)</td>
+</tr>
+<tr>
+<td>(M)</td>
+<td>each inset centre c_j = p_j − a·n̂_j has |c_i| + a ≤ hw_i + 1e-12 for every axis i</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Printed only, with predictions (rule (e)):</strong>
+- The six point values <code>_probe_vals(T, PROBE_PTS)</code> beside the uniform series, with e_p. Predicted ≈ 3e-3, range [1e-4, 1e-2]. Step-0 series text at <code>p37:221</code>.
+- The six inset ball means beside the exact ball mean. Predicted ≤ 5e-3, range [1e-4, 1e-2]. Five of the six positions are on the walls, where a centred ball would average only the gel half, and step 6's exact comparand holds only for a ball inside the box (<code>WF-15.md:497</code>). So the wall balls are moved inward until they touch the wall from inside, and their means are printed, never asserted.</p>
+<p><strong>(2) Negative controls.</strong>
+- <strong>(c-wall), backed, asserted &gt; <code>INTERIOR_BAND</code>.</strong> s6's own call (<code>:273–277</code>) with h doubled at c₀. Backed by 3.5712e-01 (s6 W2 <code>:72</code>); <code>S5_C_WALL</code> is printed beside it. Ceiling &lt; 1.
+- <strong>(c-half), predicted.</strong> A ball centred exactly on P1 (+y wall). Its |V/V_nom − 1| is predicted ≈ 0.5, range [0.45, 0.55]. Only &gt; <code>INTERIOR_BAND</code> is asserted; ceiling 1. Its mean is printed beside θ_h(P1).
+- <strong>(c-mv), printed.</strong> Point series against ball mean at c₀.</p>
+<p><strong>Outputs.</strong>
+- <strong>Setup figure:</strong> z = 0 slice, as <code>23_…py:185–200</code> but with <code>slice_normal=(0, 0, 1)</code>.
+- <strong>Combined XDMF:</strong> <code>paraview_output/materials_24_…_combined.xdmf</code>. All fields P1, names equal to their dict keys, real parts taken:
+  - <code>theta_study_steady</code>;
+  - <code>theta_series_steady</code> (<code>_exact</code> P2 → P1);
+  - <code>theta_minus_series</code>;
+  - <code>theta_wall_2h</code> (moved onto this mesh with <code>_on</code>);
+  - <code>probe_balls</code> (P1 indicator, j + 1 inside inset ball j).</p>
+<p>Pass the Robin facet tags, then call <code>adopt_host_ownership</code> last (<code>23_…py:408–456</code>).
+- <strong>CSV:</strong> <code>…_probe_table.csv</code>.</p>
+<p><strong>Guide.</strong>
+- ParaView recipe: <code>probe_balls</code> threshold over <code>theta_study_steady</code>, then Plot Over Line along y.
+- <code>## 2</code>: <code>./scripts/run_examples.sh -e mat:24 -n 2 -t 180</code>, with the measured time.
+- <code>Related</code>: <code>19_f2182_gel_box_slab_and_faces.md</code>, <code>examples/mri/25_study_transient_duty_and_wall.md</code>, the three gate modules.</p>
+<p><strong>(3) Tier, price, windows.</strong> Standard, <code>-n 2</code>, complex, <code>-t 180</code>.</p>
+<p><strong>Price inputs (measured):</strong>
+- s5 W1: Study steady 0.8 s, P2 series interpolation 4.2 s, harness 11 s (<code>:63–68</code>, <code>:94</code>).
+- s6 W2: <code>Study.probe</code> with 6 balls 7.7 s, harness 12 s (<code>:61</code>, <code>:106</code>).
+- Setup figure 2.9 s (<code>20261017T110217Z_EX-129.log:50</code>).</p>
+<p><strong>Prediction:</strong> run of record ≈ 40 s, range [25, 120] s (a host ≈ 2× slow is included).</p>
+<p><strong>Item minutes:</strong> ≈ 9 measured (example class median) / ≈ 40 predicted (windows ≈ 4, code ≈ 18, guide ≈ 9, fixed ≈ 9).</p>
+<p><strong>Windows.</strong> Each runs in the foreground with Bash <code>timeout: 660000</code>, as one bare, whole, repo-relative call.
+0. <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0. Confirm <code>examples/materials/24_*</code> does not exist.
+1. Pre-censuses: <code>EX-130-pre-figures</code> / <code>EX-130-pre-docrefs</code>, which are EX-129's window-1 commands relabelled (<code>EX-129.md:165–166</code>). Exit 2 means stale; exit 1 is a failure.
+2. <strong>Import check (complex):</strong>
+   <code>scripts/testing/run_and_log.sh EX-130-import "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 10 60 python3 -c \"import tests.package.test_wf15_study_probe_thermal as a, tests.package.test_wf15_study_thermal_box as b, tests.validation.test_mat21_box_probe_points_fem as c; print(a.A_BOXPROBE, b.STEP1_M4_WHOLE, len(c.PROBE_PTS))\"'"</code>
+3. <strong>Dry run:</strong> <code>scripts/testing/run_and_log.sh EX-130-dryrun "./scripts/run_examples.sh -e mat:24 -n 2 -t 180 --dry-run"</code>. It must print <code>(complex build)</code>.
+4. <strong>Run of record, <code>EX-130</code>:</strong> the emitted line with <code>-T -e FEM_EM_SETUP_FIGURES=1</code> added. Pass means all of:
+   - Status 0;
+   - every anchor and (c-wall) green;
+   - the closing "All assertions hold" line.
+5. <code>git add</code> the PNG and check it is ≤ 600 KiB. Write the guide from window 4's log. Then <code>EX-130-post-figures</code> / <code>EX-130-post-docrefs</code>: N → N + 1 with <code>broken=0</code>, and <code>dead=0</code>.
+6. <code>git status --porcelain examples/ tests/ src/</code> lists only the three new paths. Run <code>scripts/testing/check_private_leak.py</code> on the staged logs.</p>
+<p>After Status 124: <code>pgrep</code> first, then the rubric-4 sweep as <code>EX-130-cache-sweep</code>.</p>
+<p><strong>(4) Traps already paid for.</strong>
+- <strong>Leak guard.</strong> Print every θ and series value at ≤ 6 significant digits (<code>.5e</code>, or <code>.4f</code> for values ≥ 10 K). P37's 6-decimal print collided with a private export (<code>p37:204–207</code>); the guard matches at 8 digits (<code>check_private_leak.py:76</code>).
+- <strong>Rank 0.</strong> Everything that exists only on rank 0, including the return of <code>write_xdmf_with_tags</code>, is used only under <code>if rank0:</code> (the <code>EX-127</code> failure). Read every tail f-string before window 4. No collective inside <code>if rank0:</code>.
+- <strong>Mesh mixing.</strong> Each Study call builds a new mesh, and UFL cannot mix meshes. Use <code>_on</code> only.
+- <strong>Comparands.</strong> Evaluate through <code>_exact</code> in chunks; never <code>interpolate(callable)</code> on the series.
+- <strong>XDMF needs P1.</strong> <code>np.real</code> before every <code>float</code>.
+- <strong>No cross-build digit or hex comparison.</strong>
+- <strong>No raised <code>-t</code> / <code>-n</code>, no background window, no script edit after window 4 starts.</strong></p>
+<p><strong>(5) Scope.</strong>
+- Covered: the steady uniform box at m = 4, P1, through the <code>Study</code>; ball probes and point values at the six F2182 positions; complex build, <code>-n 2</code>.
+- <strong>Not claimed:</strong>
+  - transient or duty probes on the box (no exact ball mean is posed there);
+  - the quadratic source;
+  - the YAML route (item 521b, and the weekly's <code>mri:</code> thermal-box file);
+  - a real probe's volume or self-heating;
+  - an h-rate;
+  - EM, a coil, a container wall or perfusion;
+  - compliance or an external check.</p>
+<p><strong>(6) Negative result.</strong> Park on <code>attempt/EX-130-&lt;UTC&gt;</code>, mark the item BLOCKED in the same commit, and journal it.
+- <strong>An (S1-m4) digit red with its band green:</strong> environment drift. Hand to <code>record-reconciler</code>.
+- <strong>(R-box) or (A-box) red in complex:</strong> file a known-issues entry against <code>WF-15</code> step 6, recorded in the real build.
+- <strong>A printed prediction missed:</strong> report it in the guide and the journal. It has no status effect.</p>
+<p>There is no <code>PREDICTED RED:</code> line.</p>
+<p><strong>(7) Status it can move.</strong>
+- <code>EX-130</code> ⬜ → ✅, with the census rising by one, <code>broken=0</code> and docrefs <code>dead=0</code>.
+- <code>WF-15</code>, <code>MAT-21</code> and §2 do not move.
+- If a review demotes step 5 or step 6, <code>EX-130</code> is withdrawn.</p>
+<p><strong>Spawn prompt (verbatim).</strong> "Use the example-runner agent to execute <code>EX-130</code>, §9 item 534 (<code>docs/planning/chunks/EX-130.md</code>, heading <code>§9 item 534</code>).
+- Read the brief and the review ruling beneath it first; the rulings hold.
+- You are the executor: do not spawn agents.
+- The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Run every window in the foreground with <code>timeout: 660000</code>, never in the background.
+- Run <code>pgrep -c python3</code> (require 0) before windows 1 and 4.
+- Edit nothing under <code>tests/</code> or <code>src/</code>. Import every record and band. Never call either <code>_require_solve_env</code>, and never import a <code>test_*</code> name.
+- Print θ at ≤ 6 significant digits. Use rank-0 values only under <code>if rank0:</code>.
+- Never raise <code>-t</code> or <code>-n</code>. If <code>check_private_leak.py</code> blocks a log, move it unchanged to <code>logs/leak-held/</code>, mark the item BLOCKED and stop.
+- On a red, park on <code>attempt/EX-130-*</code>, mark the item BLOCKED in the same commit, and report.
+- Return the log names, each asserted and printed value beside its record or prediction, the census before / after, and elapsed."</p>
+<h3 id="review-ruling-2026-10-18-1030-item-534">Review ruling 2026-10-18 10:30 (item 534)<a class="headerlink" href="#review-ruling-2026-10-18-1030-item-534" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Q1 — the angle: accepted.</strong> <code>EX-129</code>'s ruling (1) asks the next box example for a new geometry, material or delivery mechanism. The package route (<code>ThermalBoxGeometry</code> → <code>Study.temperature</code> → <code>Study.probe</code>) is a delivery mechanism no example uses, and the probe table is a new output quantity. The 10-17 weekly's examples list names the thermal-box route after U59. The physics is <code>mat:19</code>'s uniform steady box, and the guide says so in its first section.</li>
+<li><strong>Q2 — the inset ball means stay printed.</strong> Nothing has measured the near-wall centres. A band on an unmeasured comparison is invented, so they are not asserted (rule (e)).</li>
+<li><strong>Q3 — <code>mat:24</code> is kept.</strong> The box's own family is <code>materials/</code>. The <code>Study</code> examples under <code>mri:</code> run on the coil or the ball, and the guide links <code>mri:25</code>.</li>
+<li><strong>Spot-checked by the review:</strong> <code>ThermalBoxGeometry</code> at <code>study.py:1408</code> and <code>Study.probe</code> at <code>:1640</code> (grep). The step-6 real-build guard at <code>test_wf15_study_probe_thermal.py:120</code> stands, so step 6's digits are printed, not asserted.</li>
+</ul>
+<p><strong>Outcome (2026-10-18 16:30 slot, take-next): DONE, ✅ pending audit.</strong> Run of record <code>20261018T214035Z_EX-130.log</code> Status 0 in 21 s (below the predicted [25, 120] s), every anchor and both controls green: (S1-m4) 3.4599e-03 equals the record, (I-rep) 1.184e-15, (A-box) 2.495e-13 / 2.509e-13, (R-box) max 2.7066e-03, (c-wall) 0.35712, (c-half) 0.4995; printed predictions in range (point e_p max 4.571e-03, inset max 3.2372e-03). Census 126 → 127 <code>broken=0</code>, docrefs <code>dead=0</code> exit 2. Journal: <code>docs/testing/attempts.md</code> 2026-10-18T21:44Z.</p>
+<p><strong>Audit 2026-10-18 18:00 daily review: PASS</strong> (<code>auditor</code>). §4 met on the run of record <code>20261018T214035Z_EX-130.log</code>: header commit <code>c0c86dbe</code> (<code>:3</code>), the parent of <code>16d95d33</code>; the quantitative anchor (S1-m4) <code>3.4599e-03</code> = <code>STEP1_M4_WHOLE</code> at <code>:50</code>, asserted at <code>examples/materials/24_f2182_gel_box_study_api_probes.py:300–302</code>, with (R-box) / (A-box) / (I-rep) asserted at <code>:303–309</code>; "All assertions hold" <code>:90</code>; Status 0, 21 s at <code>:93–94</code>. Census 126 → 127 <code>broken=0</code> (<code>…pre-figures.log:162</code>, <code>…post-figures.log:163</code>); docrefs <code>dead=0</code> (<code>…post-docrefs.log:181</code>). No <code>src/</code> or <code>tests/</code> edit.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

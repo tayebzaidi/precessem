@@ -1,0 +1,697 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>OPS-81 — the two-tag power-identity helper states its scope and refuses a lossy tag outside (1, 3) - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ops-81-the-two-tag-power-identity-helper-states-its-scope-and-refuses-a-lossy-tag-outside-1-3" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              OPS-81 — the two-tag power-identity helper states its scope and refuses a lossy tag outside (1, 3)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-11-05-0300-the-guards-branch-and-an-acknowledgment-for-the-k-wrappers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-11-05 03:00 — the guard's branch, and an acknowledgment for the (K) wrappers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-828-2026-11-05-lane-1-known-issues-resolves-with-ops-81-the-two-tag-helpers-docstring-and-guard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 828 — 2026-11-05 (lane 1, known-issues "Resolves with"; OPS-81 the two-tag helper's docstring and guard)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ops-81-the-two-tag-power-identity-helper-states-its-scope-and-refuses-a-lossy-tag-outside-1-3">OPS-81 — the two-tag power-identity helper states its scope and refuses a lossy tag outside (1, 3)<a class="headerlink" href="#ops-81-the-two-tag-power-identity-helper-states-its-scope-and-refuses-a-lossy-tag-outside-1-3" title="Permanent link">&para;</a></h1>
+<p><em>History file for the §7 <code>OPS-81</code> row (<code>OPS-46</code>). Opened by the 2026-11-05 03:00 daily review under §9 rule (5), lane 1, on the 2026-11-04 weekly's ruling (PROJECT_PLAN §10, "The two-tag power-identity helper … not widened"). The known-issues entry "OPEN 2026-11-03 (<code>GEO-36</code> I57 …)" retires on this chunk's commit.</em></p>
+<h3 id="review-ruling-2026-11-05-0300-the-guards-branch-and-an-acknowledgment-for-the-k-wrappers">Review ruling 2026-11-05 03:00 — the guard's branch, and an acknowledgment for the (K) wrappers<a class="headerlink" href="#review-ruling-2026-11-05-0300-the-guards-branch-and-an-acknowledgment-for-the-k-wrappers" title="Permanent link">&para;</a></h3>
+<p><strong>The guard branch applies.</strong> The case object the helper receives carries its material map. <code>build_four_port_sweep</code> returns <code>"problem"</code>, a <code>TimeHarmonicProblem</code> with <code>.material</code> and <code>.material_map</code>, in both its return dicts (<code>tests/validation/test_port_birdcage_four_port.py:469–487</code>, <code>:521</code>, <code>:625</code>).</p>
+<p><strong>One premise in the weekly's text is corrected, as execution detail; the target is kept.</strong> Every kept-cell (K) caller in <code>OPS-80</code>'s table writes a lossy tag 403 into that same map, then reaches <code>_exact_shares</code> through <code>_rb._arm</code> (<code>test_imp3_rod_birdcage.py:329</code>):
+- <code>_arm_rod._wrapped</code> sets 403 to σ_wire (<code>test_imp3_tip_q_entry48_def.py:111</code>). Its all-cells (P) gate reads <code>_exact_shares</code>' <code>p_src</code> and <code>sheet_field_total</code>, and its asserted control reads the two-tag <code>p_vol</code>.
+- <code>_arm_with_403._wrapped</code> sets 403 to the gel (<code>test_imp3_rod_heating_matched.py:115</code>). <code>_gel_seen</code> and <code>examples/implants/15_rod_heating_matched_phantom.py</code> both go through it.</p>
+<p>An unconditional raise would therefore turn <code>test_imp3_tip_q_entry48_def.py</code>, I41 and <code>imp:15</code> red. That contradicts the target's "the existing callers' gates unchanged". So:
+- <strong>The guard raises by default.</strong>
+- The case dict may carry an explicit acknowledgment key. Exactly the two <code>_wrapped</code> functions set it, each with its reason.</p>
+<p>The ring-quadrature route builds a sweep with no <code>"problem"</code> key (<code>test_port_drive_superposition.py:1326</code>). The guard skips it, and the docstring says so. <strong>The acknowledgment is named in the dashboard for the 11-07 weekly to ratify or revert.</strong></p>
+<h3 id="9-item-828-2026-11-05-lane-1-known-issues-resolves-with-ops-81-the-two-tag-helpers-docstring-and-guard">§9 item 828 — 2026-11-05 (lane 1, known-issues "Resolves with"; <code>OPS-81</code> the two-tag helper's docstring and guard)<a class="headerlink" href="#9-item-828-2026-11-05-lane-1-known-issues-resolves-with-ops-81-the-two-tag-helpers-docstring-and-guard" title="Permanent link">&para;</a></h3>
+<p><strong>Executes</strong> the weekly's lane-1 target under the ruling above. Family <code>OPS-81</code>, attempt 1 of 4.</p>
+<p><strong>Code.</strong>
+- <strong><code>tests/validation/test_port_drive_superposition.py</code>:</strong>
+  - Add the constant <code>TWO_TAG_ACK_KEY = "p_vol_two_tag_acknowledged"</code>.
+  - Add <code>_assert_two_tag_scope(sweep)</code>.
+    - <code>problem = sweep.get("problem")</code>. If it is <code>None</code>, return; this is the ring route (<code>:1326–1331</code>), documented as unguarded.
+    - Otherwise collect three things:
+      - every <code>material_map</code> key not in <code>(CONDUCTOR_CELL_TAG, PHANTOM_CELL_TAG)</code> whose <code>float(np.real(getattr(m, "sigma", nan)))</code> is not <code>== 0.0</code> (a missing or non-numeric σ counts as lossy, so the guard never passes silently);
+      - <code>problem.material</code>, the default, if its σ ≠ 0;
+      - <code>problem.phantom_material</code>, if it is set and <code>problem.phantom_tag</code> is not in (1, 3).
+    - If that set is non-empty and <code>not sweep.get(TWO_TAG_ACK_KEY)</code>, raise <code>ValueError</code>. The message names the tags and says: "<code>_loss_power_w</code> sums tags 3 and 1 only; gate (P) on the all-cells integral (entry 48's form, <code>test_geo36_rod_f_clinical_drive.py:381</code>; I57's <code>_all_cells_resid</code>, <code>test_imp3_tip_q_entry48_def.py:204</code>), or set <code>case[TWO_TAG_ACK_KEY]</code> with the reason".
+  - Call it as the <strong>first statement</strong> of <code>_loss_power_w</code> (<code>:205</code>).
+  - Rewrite <code>_loss_power_w</code>'s docstring to state: the two-tag scope only, the guard, the ack key, the unguarded no-<code>problem</code> route, and the all-cells form.
+- <strong><code>tests/validation/test_birdcage_power_identity.py:313</code>:</strong> <code>_exact_shares</code>' docstring states the same scope and points to <code>_loss_power_w</code>. No code change; it reaches the guard at <code>:330</code>.
+- <strong>The two <code>_wrapped</code> functions</strong> each add one line after the map write, e.g. <code>case[TWO_TAG_ACK_KEY] = "(P) gated over all cells by _all_cells_resid"</code> and <code>"I41 arm M: shares computed, p_vol never read"</code>. Import the constant by name.
+- <strong>New <code>tests/validation/test_ops81_two_tag_guard.py</code>,</strong> with no mesh.
+  - Cases are <code>{"problem": TimeHarmonicProblem(mesh=None, frequency_hz=64e6, material=HomogeneousMaterial(0, 1, 1), material_map={1: σ_wire, 3: gel, 403: …})}</code>.
+  - <code>TimeHarmonicProblem</code> is a frozen dataclass with no <code>__post_init__</code> (<code>src/fem_em_solver/core/time_harmonic.py:101–121</code>).
+- <strong>No edit</strong> to bands, gates, <code>src/</code>, <code>examples/ports/13_birdcage_asymmetric_drive.py</code>'s local copy (<code>:187</code>, a (U) caller, out of scope) or <code>examples/implants/15_*</code> (it inherits the key).</p>
+<p><strong>Windows.</strong> Bare, foreground, Bash timeout 660000. Pre-check: <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0.
+1. <code>scripts/testing/run_and_log.sh OPS-81-grep-pre "timeout -k 30 30 grep -rnwI -e _exact_shares -e _loss_power_w tests src examples scripts"</code>. This should print 46 lines, <code>OPS-80</code>'s count at <code>42dd675d</code>. Any other count is a new caller: classify it before editing.
+2. Code.
+3. W0 (smoke): <code>scripts/testing/run_and_log.sh OPS-81-W0 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 PYTHONPATH=/workspace/src:/workspace timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/validation/test_ops81_two_tag_guard.py -v --tb=short'"</code>. Predicted ≈ 30 s.
+4. W1: <code>scripts/testing/run_and_log.sh OPS-81-W1-entry48 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_IMP3_I57=1 PYTHONPATH=/workspace/src:/workspace timeout -k 30 600 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/validation/test_imp3_tip_q_entry48_def.py -v -s --tb=short'"</code>. Measured 353 s (<code>20261104T104820Z_GEO-36-I57-W1d.log</code>).
+5. W2: the same form, with <code>FEM_EM_IMP3_I41=1</code> and <code>tests/validation/test_imp3_rod_heating_matched.py</code>, label <code>OPS-81-W2-i41</code>. Measured 290 s (<code>20261025T201613Z_IMP-3-I41-W1b.log</code>).
+6. W3: the same form, with <code>timeout -k 30 300</code> on <code>tests/environment tests/validation/test_birdcage_power_identity.py</code>, label <code>OPS-81-W3-port16</code>. Measured 92 s (<code>20260912T123429Z_PORT-14-step2d-10mhz.log</code>, 17 passed).</p>
+<p><strong>Anchor.</strong> The guard's contract on a synthetic case, asserted in W0.
+- <strong>Positive control:</strong> <code>_loss_power_w(case_403, None, None)</code> raises <code>ValueError</code>, and the message contains <code>403</code> and "all-cells". Calling through <code>_loss_power_w</code> proves the guard is wired first.</p>
+<p><strong>Control (asserted).</strong>
+- <strong>Negative controls in W0, none of which raises:</strong>
+  - the same map with 403 at σ = 0 (the unmapped / vacuum case, <code>test_port_birdcage_four_port.py:472</code>);
+  - 403 lossy with the ack key set;
+  - a sweep without <code>problem</code>;
+  - the stock tags-1/3 map.
+- <strong>Further positive controls in W0, which raise:</strong>
+  - a default material with σ = 0.5 and no 403;
+  - a material without <code>sigma</code>.
+- <strong>The existing callers, unchanged:</strong>
+  - W1: 14 passed / 3 skipped (as at <code>:2028</code>). The two-tag control <code>test_control_two_tag_p1_reproduces_omitted_term</code> reads 2.8818e-06 (<code>:2010</code>).
+  - W2: 16 passed (as at <code>20261025T201613Z_IMP-3-I41-W1b.log:3791</code>).
+  - W3: 0 failed, counted per rank by token.
+  - A last-digit drift in W1 or W2 is the <code>OPS-43</code> MUMPS observation, not a red. The verdicts are what is asserted.</p>
+<p><strong>Tier.</strong> Heavy: W1 and W2 exceed 180 s. <code>-n 2</code>, every window ≤ 600 s container-side. <strong>Class:</strong> ops / docs. <strong>Cost:</strong> ≈ 3.2 measured (the class median) / 40 predicted min. The compute is ≈ 12.5 min.</p>
+<p><strong>Traps already paid for.</strong>
+- No module-level import of <code>test_birdcage_power_identity</code> in the superposition module: that is the import cycle at <code>:224–238</code>.
+- <code>pgrep -c python3</code> is the orphan check. <code>pgrep -f "python3 -m pytest"</code> is denied by <code>bash_guard.py</code>.
+- Count verdicts per rank, by token (item 644).
+- <code>grep -w</code> hides wrappers. The case is mutated inside <code>_wrapped</code>, not at the call site (<code>OPS-80.md</code>'s traps).
+- The ack key goes on the <strong>case dict</strong>, not on <code>problem</code>: the frozen dataclass is replaced in <code>_wrapped</code>. Set the key after the <code>replace</code>.
+- The guard runs before any assembly.
+- Never loosen I57's bands.</p>
+<p><strong>Scope.</strong> The helper's docstrings, the guard and two ack lines. <strong>Not claimed:</strong>
+- widening the helper (the weekly ruled it is not widened);
+- any (P) re-read;
+- <code>examples/ports/13</code>'s local copy;
+- the unguarded ring route.</p>
+<p><strong>Negative result.</strong>
+- W1 or W2 red: the ack wiring is wrong. Stop, park on <code>attempt/OPS-81-*</code>, and the entry stays open.
+- A (U) caller raises in W3: the stock map holds a lossy tag outside (1, 3). That is a finding. Name it with file:line in the known-issues Scope, and change nothing.
+- There is no <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong>
+- <code>OPS-81</code> ⬜ → ✅.
+- Known-issues 2026-11-03 → RETIRED in the same commit:
+  - Its heading becomes <code>### ✅ RETIRED &lt;date&gt; (</code>OPS-81<code>, §9 item 828, &lt;slot&gt; implementer slot — the scope docstrings and the guard landed; the positive control raised and the callers' gates held) — was 🟡 OPEN 2026-11-03 (…unchanged…)</code>.
+  - A last row is added: <code>| **Retired by** |</code>OPS-81<code>(</code><sha><code>): the two-tag scope stated, the all-cells form named;</code>_assert_two_tag_scope<code>raises on a lossy tag outside (1, 3) unless the case carries</code>TWO_TAG_ACK_KEY<code>(positive control</code><W0 log>:<line><code>); the acknowledging wrappers and the (U) caller stay green (</code><W1><code>,</code><W2><code>,</code><W3><code>); the helper is not widened (weekly 2026-11-04). |</code></p>
+<p><strong>Depends on:</strong> nothing.</p>
+<p><strong>Outcome (2026-11-05, 12:00 slot, attempt 1 of 4) — ✅.</strong>
+- Pre-grep: 46 matching lines, <code>OPS-80</code>'s count; no new caller (<code>20261105T182655Z_OPS-81-grep-pre.log</code>).
+- Code as briefed: <code>TWO_TAG_ACK_KEY</code>, <code>_sigma_is_zero</code>, <code>_assert_two_tag_scope</code> (first statement of <code>_loss_power_w</code>), both docstrings, one ack line in each <code>_wrapped</code>. No band, gate, <code>src/</code> or example edit.
+- W0 (smoke, 3 s): 12 passed per rank. The positive control's message names <code>tag 403</code> and "all-cells" (<code>20261105T182800Z_OPS-81-W0.log:63</code>); default σ = 0.5 and a σ-less material raise; σ = 0, acknowledged, no-<code>problem</code> and stock-1/3 cases pass the guard.
+- W1 (302 s): 14 passed / 3 skipped per rank, two-tag control 2.8818e-06 (<code>20261105T182816Z_OPS-81-W1-entry48.log:2019</code>, <code>:2028</code>).
+- W2 (310 s): 16 passed per rank (<code>20261105T183330Z_OPS-81-W2-i41.log:3791</code>).
+- W3 (134 s): 18 passed per rank, 0 failed, no refusal (<code>20261105T183847Z_OPS-81-W3-port16.log:2007</code>, <code>:2010</code>). The brief's 17 was the 09-12 count; <code>tests/environment</code> has gained a test since. No (U) caller holds a lossy tag outside (1, 3).
+- Orphan check <code>pgrep -c python3</code> read 0 before every heavy window and after the last.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

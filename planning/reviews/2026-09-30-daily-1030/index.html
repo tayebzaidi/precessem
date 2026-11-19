@@ -1,0 +1,1395 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>Daily review — 2026-09-30 10:30 (Wednesday) - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#daily-review-2026-09-30-1030-wednesday" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Daily review — 2026-09-30 10:30 (Wednesday)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-what-happened" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. What happened
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-tree-branches-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Tree, branches, service
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-audit-4-nine-chunks-newly-all-pass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Audit (§4) — nine chunks newly ✅, all PASS
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-rulings-on-the-intervals-held-points" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Rulings on the interval's held points
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Rulings on the interval&#39;s held points">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#item-102-imp-1-step-2-v-banked-red-the-question-re-posed-on-a-rung-the-reading-has-not-seen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Item 102 — IMP-1 step 2: (v) banked red; the question re-posed on a rung the reading has not seen
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#th-5-step-1b-the-entrys-gate-cannot-be-asserted-re-posed-on-a-sphere-conditionally" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TH-5 step 1b — the entry's gate cannot be asserted; re-posed on a sphere, conditionally
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-parked-item-guard-and-a-pre-registered-negative" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The parked-item guard and a pre-registered negative
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#noted-no-action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Noted, no action
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-10-assessment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. §10 assessment
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-restock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Restock
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6c-9-hygiene" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6c. §9 hygiene
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-xl-clerk-step-6b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. XL clerk (step 6b)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-for-the-weekly-tonight-collected" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. For the weekly tonight (collected)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="daily-review-2026-09-30-1030-wednesday">Daily review — 2026-09-30 10:30 (Wednesday)<a class="headerlink" href="#daily-review-2026-09-30-1030-wednesday" title="Permanent link">&para;</a></h1>
+<p>Model <code>claude-opus-5-5</code> (standing daily choice). Interval: 2026-09-30 03:00
+(<code>2f4df90e</code>) → 10:30.</p>
+<h2 id="1-what-happened">1. What happened<a class="headerlink" href="#1-what-happened" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>When</th>
+<th>Who</th>
+<th>Outcome</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>04:30 slot</td>
+<td>implementer</td>
+<td><strong>Seven items in 32 min</strong> (six take-nexts), each first-try green: 93 (<code>TH-16</code> 🟡 → ✅), 94 (<code>TH-5</code> ⬜ → 🟡), 95 (<code>PORT-6</code> floor fix), 96 (<code>POST-2</code> balance fix), 97 (<code>MAT-11</code> ⬜ → ✅), 98 (<code>PORT-5</code> 🧪 → ✅), 99 (<code>WF-3</code> ⚠️ → ✅)</td>
+</tr>
+<tr>
+<td>06:00 slot</td>
+<td>implementer</td>
+<td>100 (<code>MAT-12</code> ⬜ → ✅), 101 (<code>EX-64</code> ⬜ → ✅), 102 (<code>IMP-1</code> step 2) <strong>BLOCKED</strong> on its pre-registered negative — (v) red, parked on <code>attempt/IMP-1-step2-20260930T111700Z</code>; the slot stopped at minute 18 under the parked-item guard</td>
+</tr>
+<tr>
+<td>07:30 slot</td>
+<td>implementer</td>
+<td>103 (<code>GEO-5</code> 🧪 → ✅), 104 (<code>EX-65</code> ⬜ → ✅), 105 (<code>MAT-5</code> 🟡 → ✅); <strong>drained at minute 22</strong></td>
+</tr>
+<tr>
+<td>09:00 slot</td>
+<td>implementer</td>
+<td><strong>Drained at slot start</strong>, stopped at minute 1 (<code>932aac1a</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>The 03:00 restock of thirteen items (626 predicted slot-minutes) was
+consumed in <strong>≈ 71 measured slot-minutes</strong> across three slots; one slot
+(09:00) and ≈ 80 minutes of the other three were idle. The slots' own
+costing, estimate → elapsed: 93 ≈ 70 → 9; 94 ≈ 45 → 4; 95 ≈ 40 → 3;
+96 ≈ 55 → 5; 97 ≈ 55 → 6; 98 ≈ 28 → 2; 99 ≈ 38 → 3; 100 ≈ 55 → 6;
+101 ≈ 45 → 7; 102 ≈ 50 → 4; 103 ≈ 40 → 5; 104 ≈ 45 → 8; 105 ≈ 60 → 9.
+Mean ratio 8.8×. The 03:00 journal's finding stands, now on thirteen more
+points: <strong>a fully specified item costs a slot ≈ 5 minutes</strong>, so four slots
+consume ≈ 25–30 items, not 240 predicted minutes. The floor's unit is the
+weekly's to rule on tonight.</p>
+<p>Execution mode, disclosed by the slots: the 04:30 and 06:00 slots executed
+most items in the slot session itself (no executor spawned); 07:30 spawned
+three foreground executors with no-commit briefs. No closure was
+self-audited; the audits are §3 below.</p>
+<h2 id="2-tree-branches-service">2. Tree, branches, service<a class="headerlink" href="#2-tree-branches-service" title="Permanent link">&para;</a></h2>
+<ul>
+<li>The tracked tree was clean at start (<code>932aac1a</code>). No <code>recovered/*</code>.</li>
+<li><code>attempt/*</code>: nine at start.</li>
+<li><strong>Deleted:</strong> <code>attempt/TH-16-step3b-20260930T004300Z</code> and
+    <code>attempt/TH-5-step1a-20260930T022458Z</code>. Items 93 and 94 took their
+    files by path and extended them; <code>git diff --name-only main...&lt;branch&gt;</code>
+    lists only files that are now on <code>main</code> in their landed form
+    (<code>tests/validation/test_th16_quarter_birdcage.py</code>;
+    <code>src/fem_em_solver/core/boundary_terms.py</code>,
+    <code>tests/validation/test_th5_abc_reflection.py</code>).</li>
+<li><strong>New, kept:</strong> <code>attempt/IMP-1-step2-20260930T111700Z</code> (<code>98e18f0e</code>) —
+    the starting code of this review's step-2b item.</li>
+<li>Kept under earlier rulings: the five from 09-07 … 09-20 and
+    <code>WF-10-step1b</code> (item 62).</li>
+<li>Service: up; last slot use 07:30 (<code>20260930T124701Z_MAT-5-step2-W2.log</code>,
+  Status 0); the 09:00 census ran bare. This review ran only the plan-index
+  window.</li>
+<li><strong>Executor docker-socket anomaly (06:00, <code>EX-64</code>).</strong> After three good
+  harness calls, every docker call from the spawned <code>example-runner</code> was
+  denied the socket (four footered exit-1 logs, 0–1 s each, kept:
+  <code>20260930T110901Z_EX-64-control.log</code>, <code>…110911Z_EX-64-control.log</code>,
+  <code>…110914Z_EX-64-post-figures.log</code>, <code>…110927Z_EX-64-th3-regate.log</code>). The
+  same command strings ran green from the slot session seconds later. Not
+  diagnosed: the difference is on the sandbox side of the spawned session.
+  It did not recur in 07:30's three executors. This is the §9 runner trap's
+  fourth occurrence and the first inside an executor; the §9 block says so.
+  Separately, each slot's <em>compound</em> <code>docker compose … ps; grep …</code> call at
+  minute 0 was denied while the bare call worked — the known rule (bare,
+  nothing chained), met by the slot session itself.</li>
+</ul>
+<h2 id="3-audit-4-nine-chunks-newly-all-pass">3. Audit (§4) — nine chunks newly ✅, all PASS<a class="headerlink" href="#3-audit-4-nine-chunks-newly-all-pass" title="Permanent link">&para;</a></h2>
+<p>One <code>auditor</code> per chunk. Each verdict is re-cited here from the log it
+names; this review spot-read one block per report (the lines marked †)
+and every digit matched.</p>
+<ul>
+<li><strong><code>TH-16</code> (<code>080dc342</code>) — PASS.</strong> <code>20260930T093451Z_TH-16-step3c-W1.log</code>:
+  header commit <code>2f4df90e</code> (the parent, <code>:3</code>); (M0) 144 136 cells, 26 253
+  vertices, per-tag ×4, volume 6.9e-15, sheets 24 / 23 / 24 / 23
+  (<code>:990–994</code>); (A) 1.520e-12 (<code>:1019</code>†); (B) 1.146e-12 / 8.851e-13 /
+  8.997e-13 (<code>:1020</code>†); (I3) ≤ 9.769e-13 (<code>:1022</code>†); ΔM_q 0.363 GiB
+  (<code>:951</code>); control 1.1447, printed (<code>:1025</code>†); 19 passed (<code>:1101</code>);
+  Status 0, 85 s. W2 (<code>…093629Z…W2.log</code>): (A) 1.529e-12 (<code>:1019</code>), control
+  asserted (<code>:1025</code>), 19 passed, 68 s. Asserts at
+  <code>test_th16_quarter_birdcage.py:741–745,750–753,760–768,774–777,783–785,790,796</code>.
+  <strong>The identity is not vacuous:</strong> S_f is <code>result.s_matrix</code> of a fresh
+  four-drive sweep on the mirrored mesh (<code>:644–650</code>); R is built from the
+  three quarter S matrices only. <code>CLASS_ANCHOR_BAND</code> and its assert are
+  deleted and the two-mesh misses are printed (<code>:1023</code>), as ruled at
+  03:00. Caveats adopted into the row and §2.1: the control is arithmetic
+  on σ₊ (it shows the comparison resolves a 1.14 miss, not a mis-set plane
+  in the solver); the identity is same-mesh, same-code, so it gates the
+  planes and the port rescaling and <strong>no</strong> two-mesh agreement.</li>
+<li><strong><code>MAT-11</code> (<code>7e3b45ee</code>) — PASS.</strong> <code>20260930T095245Z_MAT-11-W1.log</code>:
+  header <code>91fcf0a8</code> (parent); N1 2.220e-16, N2 2.274e-16, N3 0.0, N4
+  2.894e-5, N5 1.689e-10 (<code>:74–86</code>); (i) 1.8285e-3 (<code>:116,121</code>†); rate
+  2.060 (<code>:120</code>†); (iii) ≤ 3.396e-15 (<code>:115–117</code>†); controls 1.1055 /
+  22.902 (<code>:127–128</code>); 16 passed + 4 complex-only skips; Status 0, 62 s.
+  Rule (c): <code>…095356Z…W1c-ruleC.log:89–100,162</code> and
+  <code>…095543Z…W2-ruleC.log:161–162</code> reproduce <code>MAT-9</code> / <code>MAT-5</code> / <code>MAT-10</code>'s
+  recorded digits. Asserts at <code>test_mat11_perfusion_sphere.py:83,100,115,
+  125,136–143,212,224–225,256–257,268</code>. The auditor re-derived the sinh
+  form and confirmed N1 / N2 are hand-differentiated residual checks (the
+  Robin condition and the ODE), not restatements. <strong>One defect found, not
+  demoting:</strong> the new <code>robin_sphere_perfusion_temperature</code> docstring is a
+  non-raw string containing <code>\frac</code> / <code>\left</code>, so it emits a
+  <code>SyntaxWarning</code> at <code>analytical.py:1144</code> (<code>W1:132–138</code>) and <code>\f</code> becomes a
+  form feed. Cosmetic; folded into the <code>MAT-13</code> item as a disclosed
+  one-line fix (that item edits the same file).</li>
+<li><strong><code>PORT-5</code> (<code>f84891ab</code>) — PASS.</strong> <code>20260930T095825Z_PORT-5-W1.log</code>:
+  header <code>7e3b45ee</code> (parent); Anchor A 1.110e-16 / 0.0 / 1.001e-16
+  (<code>:53,67,81</code>); controls n1 1.000000000000 on the circulator and 1.110e-16
+  on the line, n2 1.288435374475 (<code>:104–105</code>†); Anchor B (<code>:108–123</code>);
+  sweep vs direct 0.0 (<code>:137</code>†); 14 passed; Status 0, 2 s. Asserts at
+  <code>test_sparameter_assembly.py:129–131,147–151,191–193,201–202</code>. <strong>On the
+  replaced red test:</strong> its failing assertion (<code>|diag S| &gt; 0</code>) encoded a
+  property of the heuristic fake (the fake set I = V/z0, so b = 0 and
+  S_ii = 0 legitimately); known-issues entry 3's own Fix row deferred it
+  to this chunk, and the 03:00 Done-when (c) pre-authorised the
+  replacement. Shape and ids survive as asserts; finiteness is enforced in
+  <code>sparameters.py:243–244</code>. A stronger assertion replaced it, not a looser
+  one. The assembly under test is the real <code>_assemble_sparameter_matrix</code>
+  (<code>sparameters.py:176–248</code>); only the field solve's port states are
+  faked. The real-solve half is imported from <code>PORT-20</code>
+  (<code>20260920T141141Z_PORT-20.log:759–760</code>). Row tier column corrected to
+  <code>smoke</code>.</li>
+<li><strong><code>WF-3</code> (<code>fee2401a</code>) — PASS.</strong> <code>20260930T100020Z_WF-3-W1.log</code>: header
+  <code>f84891ab</code> (parent); eight misses, worst +0.7185 % (<code>:141–148</code>†);
+  markdown = JSON ≤ 1.35e-7; status <code>OK</code>, no flags (<code>:149</code>†); controls
+  −21.1963 % / −72.38 % / −100.0000 % (<code>:150</code>†); 21 passed; Status 0, 78 s.
+  Asserts at <code>test_quicklook_report.py:230–262</code>; the closed form is built
+  from the analytic wavenumber and mesh centroids (<code>:194–207</code>). <strong>Adopted
+  into the row:</strong> (R3)'s "emptied copy" assertion is vacuous since item 96
+  landed first (the warning list is already empty); the ✅ rests on (A),
+  (R1) — the only assertion that would catch a mean / max ratio swap, which
+  sits inside the 5 % band — (R2) and the sampling tuple.</li>
+<li><strong><code>MAT-12</code> (<code>fb3f50c3</code>) — PASS.</strong> <code>20260930T110230Z_MAT-12-W1.log</code>:
+  header <code>dc31bc63</code> (parent); (P_t) 1.6845e-3 (<code>:161</code>†); (A_t) 3.4708e-2
+  (<code>:162</code>†); (S1) 4.9431e-5 (<code>:164</code>†); (S2) 4.9994e-5 (<code>:165</code>†); (∞)
+  8.856e-16 (<code>:167</code>†); controls 0.79275 / 1.0108 (<code>:168–169</code>); (E)
+  7.018e-15 over 146 steps (<code>:170</code>); 13 passed; Status 0, 77 s. Rule (c):
+  <code>…110355Z…W2-ruleC.log:114–116,124,130,141</code> reproduces
+  <code>20260929T112146Z_MAT-9-step2.log:113–115,123,129</code>. Asserts at
+  <code>test_mat12_transient_sar_heating_sphere.py:262–269</code>. <strong>Adopted into
+  §2.1:</strong> (A_t) mostly re-measures <code>MAT-4</code>'s +3.54 % SAR offset (offset leg
+  3.5607e-2, <code>:163</code>) and would pass a ≲ 5 % scale bug; the tight gates are
+  (S2) (2× headroom, analytically derived), (S1), (E), (∞) and (P_t). The
+  item's control-(a) "(S2) ≈ 0.798" misprediction was print-only; nothing
+  is asserted on it (<code>:242–244</code> of the test).</li>
+<li><strong><code>EX-64</code> (<code>90c089e1</code>) — PASS.</strong> Flagged <code>20260930T110806Z_EX-64.log:
+  40–58</code> (Status 0, 36 s); unflagged <code>…111006Z_EX-64-control.log:40–51</code>
+  (30 s); re-gate <code>…111040Z_EX-64-th3-regate.log:277–298</code> (21 passed, 78 s)
+  reprints <code>20260930T022051Z_TH-3-W1.log:280–297</code>; census 58 → 59
+  (<code>…110711Z…pre-figures.log:94</code>, <code>…111201Z…post-figures.log:95</code>), docrefs
+  <code>exit=0</code> both sides. Asserts at <code>11_pec_pmc_boundary_modes.py:150,
+  176–178,186</code>, bands imported by name (<code>:58–65</code>). Rule (a): the literals
+  <code>0.10</code> / <code>0.9</code> became <code>TH3_REL_L2_BAND</code> / <code>TH3_RATE_FLOOR</code> with the same
+  values; <code>_solve_mms</code> gained <code>return_fields=False</code>. The four denial logs
+  are footered exit-1 socket denials, not results. Row nit fixed: "run
+  minus record ≤ 1.6e-8" reads +1.64e-08 in the log (<code>:51</code>).</li>
+<li><strong><code>EX-65</code> (<code>86d18856</code>) — PASS.</strong> Flagged <code>20260930T123633Z_EX-65.log:
+  116–127</code> (Status 0, 68 s); final-bytes unflagged
+  <code>…124139Z_EX-65-control.log:109–120</code> (64 s) identical on every printed
+  record; re-gate <code>…123853Z_EX-65-mat1-regate.log:496–499,578</code> (17 passed,
+  110 s) reproduces <code>20260930T003229Z_MAT-1-reanchor-W1.log:496–499</code>;
+  census 59 → 60, docrefs <code>exit=0</code>. Asserts at
+  <code>03_gelled_saline_presets.py:224,228,235</code>; the <code>PLAN_*</code> constants feed
+  prints only. <strong>Rule (i):</strong> the executor deleted an unused local after
+  its runs; the slot re-ran the unflagged window on the final bytes before
+  committing, and the figure path does not touch the deleted name — the
+  final-bytes window is sufficient. Row nit fixed: the control prediction
+  "20.9 … 81.9 %" is the item's drafter figure; the in-script prediction
+  reads 81.777 % (<code>:123</code>).</li>
+<li><strong><code>GEO-5</code> (<code>2a28418d</code>) — PASS.</strong> <code>20260930T123217Z_GEO-5-W1.log</code>: header
+  <code>1e5985e8</code> (parent); deficits 1.656210 / 0.724857 / 0.417466 /
+  0.189291 % (<code>:2464–2467</code>); LSQ rate 1.9707, pairwise 2.0379 / 1.9180 /
+  1.9506 (<code>:2468</code>†); controls (<code>:2470–2471</code>†); premise 3 passed
+  (<code>:347,869,1401</code>); 15 passed + 4 complex-only skips; Status 0, 74 s.
+  Asserts at <code>test_region_resolution_policy.py:141,214,220,226,234,242,
+  251</code>, rank-safe (owned counts and volumes allreduced); the reference
+  πr²H is the CAD value (<code>test_mesh_tag_integrity.py:48–52</code>). On the
+  slot's three observations:</li>
+<li>N₃ = 985 against the item's prior 984: the prior was the <strong>uniform</strong>
+    0.015 mesh's count (<code>:331–340</code>), a different sizing from rung 1. A
+    drafting misattribution of this review's; no assertion is touched.</li>
+<li>a_eq/h_p rises 1.081 → 1.243 inside [0.8, 1.5]: headroom 0.26 at the
+    finest rung, one-directional. A caveat in the row; a finer rung would
+    need the band re-examined first.</li>
+<li>The <code>GEO-17</code> docstring's policy-column V₁ / V₂ (v0.7.2 image) differ
+    from this image's: docstring prose, no assertion reads it. A
+    <code>record-reconciler</code> question (§6).</li>
+<li><strong>The (n1) hole is real and was not exposed:</strong> a NaN slope passes
+    <code>assert not _in_band(…)</code> vacuously (<code>:168,242</code>); the coil deficit read
+    16.66 %, so the slope was computed. (iii) fails safe on NaN. Row
+    caveat.</li>
+<li><strong><code>MAT-5</code> (<code>0c008ff7</code>) — PASS.</strong> <code>20260930T124539Z_MAT-5-step2-numpy.log:
+  44–52</code> (N1 rel 0.0; N2 −0.2302 % / −0.5727 %; N3 raises; 3 passed, 2 s).
+  <code>20260930T124701Z_MAT-5-step2-W2.log</code>: header <code>86d18856</code> (parent); (L0)
+  7.193e-11 (<code>:160</code>); (P′) 1.6829e-3 (<code>:162</code>); (S) 2.959e-4 (<code>:175</code>†);
+  (A′) 2.3225e-2 (<code>:176</code>†); (B′) 2.307e-15 (<code>:178</code>†); (C′) 6.344e-15
+  (<code>:179</code>†); (D′) 0.0 (<code>:180</code>†); control 2.9192e-1 (<code>:183</code>†); 13 passed;
+  Status 0, 178 s. Asserts at <code>test_mat5_em_coupled_sphere.py:245,367–374</code>
+  and <code>test_mat5_step2_lumped_root.py:103,119–121,130–132</code>. Findings:</li>
+<li><strong>(D′) is not the same array against itself</strong> — parent DG0 on the
+    parent measure against the sub DG0 on the submesh (<code>:330–336</code>) — but
+    its discriminating power is argued, not measured, and <strong>it is the only
+    gate on the Done-when's "per-cell DG0 σ" clause</strong> ((A′) sees only σ̄ to
+    first order). Queued as item 109: planted failures, no EM solve. If
+    (D′) cannot see an absent transfer, the row goes to 🧪.</li>
+<li>The auditor tied the slot's composition out more tightly than the
+    journal: 3.5377 % × 1/(1 + 0.300181) − 0.2302 = 2.4907 %, the printed
+    leg (<code>:177</code>) to four digits; less the (P′) leg 0.168 % gives (A′).
+    Printed, not asserted.</li>
+<li>(A′) has ≈ 5× headroom: it excludes a frozen or absent coupling
+    (25–29 %), not a modest gain error. N1 is near-tautological (G is
+    derived from θ* = 50 K). Both said in §2.1.</li>
+<li>The window read <strong>178 s against the 180 s standard ceiling</strong>; the row's
+    tier column now reads heavy-by-ceiling for step 2.</li>
+<li>Step 1's digits re-read green (<code>20260930T020340Z_MAT-5-step1.log:
+    89–100,144–166</code>); the row's ✅ = steps 1 and 2 is met.</li>
+</ul>
+<p>A finding against this review's own items, from two auditors: the 03:00
+items' one-line summaries carried loose wording ("N1–N5 ≤ 1.7e-10" with N4
+at 2.9e-5; "≤ 1.6e-8" for 1.64e-8). No status rests on either.</p>
+<p><code>TH-5</code> 🟡 and <code>IMP-1</code> 🟡 are not newly ✅ and are not audited. §2.1 gains
+three entries (the perfusion / rise-curve / σ(T) trio; <code>TH-16</code>; the
+<code>PORT-5</code> / <code>WF-3</code> / <code>GEO-5</code> trio), each with what it is not. CLAUDE.md's
+state paragraph is the weekly's and the operator's; it is not edited here.</p>
+<h2 id="4-rulings-on-the-intervals-held-points">4. Rulings on the interval's held points<a class="headerlink" href="#4-rulings-on-the-intervals-held-points" title="Permanent link">&para;</a></h2>
+<p>No <code>log-pathologist</code> ruling was commissioned: the one blocked item's log
+reading is not disputed (the executor met a red on a pre-registered
+assertion, printed both rungs and stopped), and it changes no status.</p>
+<h3 id="item-102-imp-1-step-2-v-banked-red-the-question-re-posed-on-a-rung-the-reading-has-not-seen">Item 102 — <code>IMP-1</code> step 2: (v) banked red; the question re-posed on a rung the reading has not seen<a class="headerlink" href="#item-102-imp-1-step-2-v-banked-red-the-question-re-posed-on-a-rung-the-reading-has-not-seen" title="Permanent link">&para;</a></h3>
+<p><strong>What was measured</strong> (<code>20260930T111403Z_IMP-1-step2-W1.log:371–378,
+442–449,456</code>). At a/6 and a/10 (13 467 → 54 524 cells, degree 2) the three
+band assertions are green at both rungs and |β − 1| falls, 1.4404 % →
+0.3255 % (β 0.985596 → 1.003255). The total Φ miss rises, 0.0743 % →
+0.6915 %, inside the 10 % band at both rungs. The row's "neither miss
+growing" is not met.</p>
+<p><strong>The reading.</strong> Φ_cf(β) = 1 + 2β²(a/c)³ on the exact shell, so a fitted
+β_h off 1 moves Φ by 2(β_h² − 1)(a/c)³/Φ: −1.064 % at a/6 and +0.243 % at
+a/10 (this review's arithmetic on the printed digits; the drafter
+reproduced it). What β does not explain is ≈ +1.17 % at a/6 and +0.448 %
+at a/10 on the mask's own form. At a/6 the two terms cancel to 0.07 %; at
+a/10 they add. So the total miss is not a monotone quantity and its
+growth between two rungs is not a convergence statement. The 03:00
+drafter said as much before the run ("step 1's Φ miss is a cancellation";
+"no floor is justified"), and the item pre-registered exactly this
+outcome as a finding that holds 🟡.</p>
+<p><strong>Why this is not read as a pass.</strong> The decomposition was formed on the
+two rungs that produced the red. An assertion on the β-removed residual
+between a/6 and a/10 would be known green before it ran; adopting it
+would be choosing the comparand after seeing the data (rule (h)'s
+hazard). It is a hypothesis with one prediction it has not been shown:
+at a finer rung the residual keeps falling.</p>
+<p><strong>The ruling.</strong>
+- (v) as written is <strong>banked red</strong>. The clause is withdrawn as a
+  convergence statement and recorded in the row, not erased. No band
+  moves; (i)–(iii) stay at every rung.
+- Step <strong>2b</strong> (item 106, attempt 2 of 4): a third rung a/12, in one
+  process with a/6 and a/10. Asserted: (iv′) |β − 1| at a/12 ≤ at a/6
+  (the row's letter against step 1's rung); (v′) ρ_h =
+  |Φ_h/Φ_cf,h(β_h) − 1| at a/12 ≤ at a/10. Predicted, printed: ρ ≈
+  1.17 % / 0.448 % / 0.32 % (two-point rate 1.87).
+- |β − 1| between a/10 and a/12 is printed, not asserted: 0.33 % is at
+  the scale of the fixture's unmeasured quasi-static error ((|k|a)² ≈
+  0.8 %), and β has already crossed 1.
+- If (v′) is red with the bands green, ρ is the fixture's floor. That is
+  a finding; the next review banks it and closes on the bands with the
+  weekly's ratification. No fourth rung.
+- The control (natural cavity at a/10), never yet run, runs whatever
+  (iv′) / (v′) read: a bands-only closure needs it on record.</p>
+<p>Three tightenings by the drafter are accepted. The masked closed form is
+not a function of β² alone (a cross term X_h vanishes only on the exact
+shell), so ρ is computed by calling <code>_phi_closed_form_on_mask</code> with β_h,
+not by rescaling. The cell guard is 105 000, not the 115 000 this review
+proposed (at the higher figure and a dof exponent of 2 the window would
+reach ≈ 580 s). And a mask identity (M) asserts the test's mask is
+<code>_solve</code>'s. The renamed test means no assertion of the banked (v) lands
+on <code>main</code>.</p>
+<p>Family count: step 2 has landed no gate; attempt 1 is red; item 106 is
+attempt 2 of 4. The <code>IMP-1</code> row is amended (rule (j)).</p>
+<h3 id="th-5-step-1b-the-entrys-gate-cannot-be-asserted-re-posed-on-a-sphere-conditionally"><code>TH-5</code> step 1b — the entry's gate cannot be asserted; re-posed on a sphere, conditionally<a class="headerlink" href="#th-5-step-1b-the-entrys-gate-cannot-be-asserted-re-posed-on-a-sphere-conditionally" title="Permanent link">&para;</a></h3>
+<p>Step 1a landed (item 94), which released 1b. The entry words 1b as a
+dipole in a box with "the band from 1a's measured R(θ) at the box's
+incidence angles". The drafter's finding, which this review checked:
+- R(θ) is a planar plane-wave reflection. Its direction-weighted rms over
+  a cube is ≈ 0.113 whatever the box size, and it omits the curvature
+  term 1/(2(k₀R)²) — 5.1 % at 0.5 λ₀, as large as the oblique term.
+- A box has no closed-form reflection for a dipole. The band would be a
+  number chosen, not derived.
+- A sphere has one. With E = A·E_out + B·conj(E_out) and the first-order
+  condition E_θ = η₀H_φ on r = R: Γ_sph(x) = −e^{−2jx}/(2x² − 1 + 2jx),
+  x = k₀R. This review re-derived it (f − g = −1/x²; f̄ + ḡ = 2 + 2j/x −
+  1/x²) and gets the same form; |Γ_sph(π)| = 0.0506.</p>
+<p><strong>The ruling.</strong> 1b becomes two steps. <strong>1b-0</strong> (item 107) is the protocol's
+"write the anchor": the dipole field and Γ_sph verified by
+finite-difference residuals in numpy, no solve. <strong>1b</strong> (item 114) is the
+FEM gate on <code>ball_domain</code> at k₀R = π, Γ read by volume projection (1a's
+lesson), band frozen from the exact-impedance premise by <code>TH-18</code> step 2's
+rule and <strong>capped at |Γ_sph|/3</strong>. The entry carries the clause as
+conditional: if 107 is red, the clause is void and the anchor goes to the
+weekly. No ✅ rides on it — 1b registers a record and <code>TH-5</code> stays 🟡.</p>
+<p>This is a change of fixture (box → sphere), larger than a change of
+extraction. It follows the 03:00 precedent for <code>TH-16</code> (a gate re-anchored
+on the quantity the chunk owns) and is named for the weekly to ratify.</p>
+<p><strong>Step 2 is not queued.</strong> Its bar — the two-torus box term falls ≥ 5×
+under the ABC — sits above a predicted ceiling: at 10 MHz the box is at
+k₀R ≈ 0.03, where |Γ_sph| → 1 and the first-order ABC behaves as a
+magnetic wall; on a sphere model the box term flips sign and about
+halves, a ≈ 2× fall. Rubric element 2 says compute the ceiling before
+naming a factor; a run predicted red by construction is not queued. It is
+a prediction on a sphere model of a cubic box and nobody has measured it.
+The weekly re-poses the step or commissions the measurement as a banked
+negative. The same closed form contradicts the entry's step 3 remark that
+an electrically small box "may already be enough".</p>
+<h3 id="the-parked-item-guard-and-a-pre-registered-negative">The parked-item guard and a pre-registered negative<a class="headerlink" href="#the-parked-item-guard-and-a-pre-registered-negative" title="Permanent link">&para;</a></h3>
+<p>The 06:00 slot stopped at minute 18 with three open items because item
+102 parked (implementer-run.md step 2: "the slot then stops"). The slot
+asked whether a <em>pre-registered</em> negative that leaves a clean, committed
+<code>main</code> should stop the slot. That is a protocol edit and not this
+review's; named in the dashboard. It cost nothing this interval (the
+07:30 slot took the three items and the queue drained anyway).</p>
+<h3 id="noted-no-action">Noted, no action<a class="headerlink" href="#noted-no-action" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Item 100:</strong> the item's control-(a) "(S2) ≈ 0.798" was this review's
+  misprediction (the complement of the ratio); printed only.</li>
+<li><strong>Item 103:</strong> the N₃ prior 984 was the uniform mesh's count — this
+  review's misattribution; no assertion rests on it.</li>
+<li><strong>Item 105:</strong> the slot's composition of the +2.33 % offset ties out to
+  four digits once the (P′) leg is subtracted (§3).</li>
+</ul>
+<h2 id="5-10-assessment">5. §10 assessment<a class="headerlink" href="#5-10-assessment" title="Permanent link">&para;</a></h2>
+<p><strong>No enumerated chain step is slot-executable</strong>, unchanged from 03:00.
+An <code>Explore</code> sweep classified all 46 open chunks; nothing landed on a
+chain this interval, and:
+- T10b and F2′ are the weekly's tonight. T9b, F8 and H7 are cron windows
+  (10-01 … 10-06). F7 waits on the weekly's price ruling. F10 has no step
+  after 1a. H8′ and H9 are BLOCKED (item 62). T7 (c) and H6a are the
+  weekly's to re-pose.
+- The sweep confirms T5a, T5b, F6, F6b, F8's slot half and H7's slot half
+  have landed while §10's chain list still prints them as open
+  (carried for the weekly).
+- <code>TH-16</code> ✅ makes the symmetry-plane lever available to chain H; its
+  F-human use is a chain step the weekly writes.</p>
+<p><strong>What the sweep found outside the lanes.</strong> Four open steps with no
+external blocker and no item: <code>TH-5</code> 1b / 2 (§4), <code>IMP-1</code>'s re-scope
+(§4), <code>GEO-34</code> step 2 and <code>TH-17</code> gate (e). The last two are ordinary §7
+clauses, queued under the base protocol (a ready row step, costed by a
+review), not under a lane:
+- <strong><code>GEO-34</code> step 2</strong> (item 118). The row's gate is one sentence ("the
+  preflight's tag census equals the solve path's on the same STEP"). The
+  drafter made it non-vacuous as a round trip: the census read back from
+  the written file with <code>h5py</code> against an independent second import. Three
+  readings are this review's and are marked in the row for ratification:
+  "the runner" is a new preflight-only entry point (no STEP runner
+  exists); one new config key names the port sheets; the file carries the
+  full gap sheet, not the narrowed drive sheet.
+- <strong><code>TH-17</code> gate (e)</strong> (item 117). The row's clause reads "PEC-phantom
+  control (σ → 0, Hermitian pencil)"; the label and the parenthetical
+  disagree. The item takes the parenthetical (phantom lossless, ε_r kept,
+  PEC coil) — a phantom cut as a PEC body has no generator route — and
+  reads "machine zero" as <code>TH-14</code>'s imported 1e-10 on the same eigen
+  routine. It can register a record in the row; the glyph needs (c),
+  which is the weekly's.
+- <strong><code>POST-3</code></strong> (item 116). All five steps are ✅ and the record says the
+  flip is "a review's adjudication". The closing windows are from
+  07-31 … 08-05 on the 0.7.2 image; two of the three gate modules have
+  never executed on 0.11 and <code>power_balance.py</code> changed since. The
+  adjudication needs a current log: the item is a pure run, and the next
+  review adjudicates on it. A wording note for that adjudication: the
+  record calls <code>e_to_b_mean_ratio</code> "a mesh length scale, not physics",
+  while <code>POST-2</code> ✅ now gates it on the plane wave.
+- Not queueable, reasons unchanged: <code>POST-1</code> (no step written for its
+  coil + phantom application), <code>PORT-23</code> (step 2 has no Done-when; its row
+  Done-when (a)–(d) reads met while the glyph is 🟡 — for the weekly),
+  <code>TH-15</code> (the weekly's step-2 ruling), <code>WF-5</code> / <code>WF-8</code> (bare rows),
+  <code>OPS-54</code> (a compose mount: the operator's).</p>
+<p><strong>Lane state, for the weekly.</strong>
+- <strong>Lane 1's 🧪 / ⚠️ list is exhausted</strong> (every member examined and
+  rejected). What this review queued in the same spirit: <code>POST-3</code>'s
+  closing window, the <code>MAT-5</code> (D′) control, two known-issues entries.
+- <strong>Lane 2:</strong> <code>TH-16</code> ✅, <code>TH-18</code> ✅. <code>TH-5</code> has 1b-0 and 1b; step 2 is the
+  weekly's. After those the lane is empty.
+- <strong>Lane 3:</strong> <code>IMP-1</code> 2b and the new <code>MAT-13</code>. After them: nothing
+  written. Eight lane-3 chunks now await ratification.</p>
+<p><strong>New chunk opened under lane 3's closed-form licence:</strong> <strong><code>MAT-13</code></strong> —
+the perfusion sink in the transient θ-scheme, the full Pennes equation on
+<code>MAT-9</code>'s ball against the shifted eigen-series (<code>MAT-11</code> has the sink
+only at steady state, <code>MAT-12</code> the transient only without it). One chunk,
+the direct composition of two closed today. This review did not open the
+other candidates (a layered sphere, a spheroidal implant): each starts a
+new line in Phase 7 / 8 whose roadmap is the weekly's.</p>
+<p><strong>Examples (§5.4), step 5.</strong> Seven chunks closed a gate (<code>EX-64</code> / <code>EX-65</code>
+are themselves examples). A <code>Plan</code> drafter inventoried <code>examples/</code> (60
+scripts):
+- <strong><code>TH-16</code> — owed, opened as <code>EX-66</code></strong> (<code>th:12</code>), on step 2's box: its
+  helpers are module-level and its six solves take 2.0 s; the quarter
+  birdcage's live in two pytest fixtures.
+- <strong><code>MAT-9</code> / <code>MAT-10</code> / <code>MAT-12</code> — owed, opened as <code>EX-67</code></strong> (<code>mat:4</code>).
+  <strong>The 03:00 hold on thermal examples is lifted.</strong> Its reason was that an
+  example must not target a gate that may still move. What the weekly's
+  ratification can change for these rows is their home, not a closed-form
+  band; the script imports modules and bands, not IDs; and step 5 is
+  unconditional. <code>TH-18</code>'s hold stays: there the gate itself (σ = 10 S/m)
+  awaits ratification.
+- <strong><code>MAT-5</code> — owed, opened as <code>EX-68</code></strong> (<code>mat:5</code>), serial on item 109.
+  <strong>Ruling:</strong> the drafter proposed lifting the gate's Picard loop to a
+  module-level function. Rule (a) licenses an additive key or keyword,
+  not a refactor of a gate closed the same day. The example writes its
+  own loop over the imported helpers and is held to the gate's bands and
+  printed iterates; no gate edit, no re-gate window.
+- <strong><code>MAT-11</code> — owed, held as <code>EX-69</code>.</strong> Its gate is real-build and its row
+  excludes the complex build; every runner group that solves sources the
+  complex build. It needs a complex-build gate leg or a real-build runner
+  group first.
+- <strong><code>PORT-5</code>, <code>WF-3</code>, <code>GEO-5</code> — none owed.</strong> <code>ports:4</code> already reads the
+  sanity report on a field-derived 4×4; <code>mri:1</code> builds and prints the
+  quick-look report; <code>mesh:5</code> exports the policy mesh that is <code>GEO-5</code>'s
+  rung 2. Each new gate is a test on a constructed input with no new
+  field output.</p>
+<h2 id="6-restock">6. Restock<a class="headerlink" href="#6-restock" title="Permanent link">&para;</a></h2>
+<p>Eight <code>Plan</code> drafters and two <code>Explore</code> sweeps; no agent ran a solve.
+Every draft ends with a "verified / not verified" list, and what each
+left unverified is written into its item as a trap or a labelled
+prediction.</p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>What</th>
+<th>Lane</th>
+<th style="text-align: right;">Slot-min</th>
+<th style="text-align: right;">Running</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>106</td>
+<td><code>IMP-1</code> step 2b</td>
+<td>3</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">40</td>
+</tr>
+<tr>
+<td>107</td>
+<td><code>TH-5</code> step 1b-0 (anchor, numpy)</td>
+<td>2</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">70</td>
+</tr>
+<tr>
+<td>108</td>
+<td><code>MAT-13</code> transient Pennes</td>
+<td>3</td>
+<td style="text-align: right;">55</td>
+<td style="text-align: right;">125</td>
+</tr>
+<tr>
+<td>109</td>
+<td><code>MAT-5</code> (D′) planted failures</td>
+<td>audit</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">152</td>
+</tr>
+<tr>
+<td>110</td>
+<td><code>EX-66</code> (<code>th:12</code>)</td>
+<td>ex</td>
+<td style="text-align: right;">45</td>
+<td style="text-align: right;">197</td>
+</tr>
+<tr>
+<td>111</td>
+<td>ladder-budget break fix</td>
+<td>fix</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">222</td>
+</tr>
+<tr>
+<td>112</td>
+<td><code>B_DG1</code> median tabulation</td>
+<td>fix</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">244</td>
+</tr>
+<tr>
+<td>113</td>
+<td><code>EX-67</code> (<code>mat:4</code>)</td>
+<td>ex</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">294</td>
+</tr>
+<tr>
+<td>114</td>
+<td><code>TH-5</code> step 1b (serial on 107)</td>
+<td>2</td>
+<td style="text-align: right;">55</td>
+<td style="text-align: right;">349</td>
+</tr>
+<tr>
+<td>115</td>
+<td><code>EX-68</code> (<code>mat:5</code>) (serial on 109)</td>
+<td>ex</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">399</td>
+</tr>
+<tr>
+<td>116</td>
+<td><code>POST-3</code> closing windows</td>
+<td>1</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">423</td>
+</tr>
+<tr>
+<td>117</td>
+<td><code>TH-17</code> gate (e)</td>
+<td>row</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">463</td>
+</tr>
+<tr>
+<td>118</td>
+<td><code>GEO-34</code> step 2</td>
+<td>row</td>
+<td style="text-align: right;">55</td>
+<td style="text-align: right;"><strong>518</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Floor 240: met on paper (518), thirteen items. Not met at the measured
+rate.</strong> At ≈ 5 measured minutes per item, thirteen items are ≈ 65–110
+minutes — about two of the four slots before 18:00. <strong>Expected shortfall:
+about two slots.</strong> The <code>EX-57</code> census reads <code>missing=0</code>
+(<code>20260930T124101Z_EX-65-post-figures.log:96</code>), so no filler is appended.</p>
+<p>Checks, rulings and edits made here, beyond §4 and §5:
+- <strong>Known-issues as supply.</strong> An <code>Explore</code> sweep read all 40 open
+  entries. Two are slot-executable on their own "Resolves with":
+  - the latent rank-local ladder-budget break (item 111) — its "any
+    commit that next touches this test" trigger was missed by <code>31b5e8b0</code>
+    on 08-26, which edited that very guard;
+  - the <code>B_DG1</code> median tabulation (item 112). <strong>Ruling:</strong> the 09-20 note
+    "no status rides on it" is withdrawn. Rubric element 7 lists a
+    retired entry as a status, and the entry names this tabulation as its
+    resolution. The decision rule is pre-registered in the item.
+  Everything else is the weekly's, the operator's, an <code>xl</code> matter or a
+  record.
+- <strong>Stale known-issues headings, for the weekly's rotation</strong> (the file's
+  own rule gives rotation to the weekly; nothing is edited here): the
+  ring-gap-sheet entry (its retire condition, <code>GEO-26</code> ✅, is met and the
+  heading still reads OPEN); the degree-2 timeout entry and the
+  <code>_DummyComm</code> entry (both already in the retired index with their bodies
+  un-re-headed); the "four defects from <code>OPS-17</code> step 2" block (all four
+  struck through); the <code>WF-6</code> step 4 closed-form entry (the weekly's
+  re-scope reads as its alternative retire condition); four dead branch
+  pointers; the air-box entry's "only <code>two_torus_domain</code>" sentence.
+- <strong><code>GEO-1</code>:</strong> the sweep found the weekly's "deliberately
+  uncommissioned" ruling on the generator floor says every gate that
+  reads the generator is green on a graded control — but
+  <code>test_birdcage_volumes_partition_the_box</code> reads it ungraded and dies in
+  gmsh. <code>GEO-1</code> waits on a fix the weekly declined to commission. Named
+  for the weekly; a fourth lane-1 examination would find the same.
+- <strong>The <code>GEO-17</code> docstring record — declined.</strong> A drafter traced the
+  slot's observation: the policy-column digits are a dated 0.7.2 result
+  block that reproduces its source log digit for digit; the 0.11 values
+  have been on record since 08-23 and are in <code>mesh:5</code>; tags are assigned
+  by z, so nothing swapped; the same observation was flagged and left on
+  08-26 under the "records never move" ruling. No assertion, no status:
+  rubric element 7 declines it. Residue: the block carries no image tag —
+  a four-line comment rider for the next item that opens that module.
+- <strong><code>MAT-13</code> (item 108):</strong> the drafter's fixture choice is accepted — real
+  build, uniform q, t* at 1.53 perfused time constants where storage,
+  convection and perfusion each carry ≥ 21 % of the power. (N4), a
+  time-convolution of <code>MAT-9</code>'s gated series, is the only independent
+  check of the shifted exponent; (T), the CN rate, is the only anchor that
+  sees a sink coded fully implicit. The item also carries the one-line
+  docstring fix the <code>MAT-11</code> audit found.
+- <strong><code>EX-66</code> (item 110):</strong> the box, not the birdcage (§5).
+- <strong><code>TH-17</code> (e) (item 117):</strong> runs at <code>-n 4</code>, the row's width; heavy by
+  margin (≈ 125 s predicted against 180).</p>
+<p><strong>What a third and fourth slot would have needed.</strong> After this restock:
+no chain step; lane 1's list exhausted; lane 2 ends at <code>TH-5</code> 1b; lane 3
+has no written step after <code>IMP-1</code> 2b and <code>MAT-13</code>. The remaining
+candidates each need something this review does not own: a Phase 7 / 8
+step list (the weekly), <code>TH-5</code> step 2's re-pose (the weekly), <code>POST-1</code>'s
+coil + phantom application (no step written), a <code>MAT-11</code> complex-build
+leg (a small lane-3 step the 18:00 review can write once <code>MAT-13</code> lands),
+the Gabriel table and a CAD kernel (the operator).</p>
+<h2 id="6c-9-hygiene">6c. §9 hygiene<a class="headerlink" href="#6c-9-hygiene" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Items 83–92 (one-line records) moved verbatim to <code>plan-archive.md</code>
+  § "§9 items 83–92".</li>
+<li>Items 93–101 and 103–105 collapsed to one line each; 102 reads
+  SUPERSEDED. Their execution text is at <code>932aac1a</code>. No ruling lived only
+  there.</li>
+<li>Digest and restock block rewritten; rule (5)'s lane-1 list pruned; the
+  runner-trap block gains its fourth occurrence; the item-5 ladder table's
+  B1 / B2 / B4 notes are current.</li>
+<li><strong>§9 is 104.7 KB</strong> (97.6 KB at 03:00) against the ≈ 25 KB target.
+  Thirteen full-rubric items are ≈ 79 KB of it. The rule that falls short
+  is unchanged: item size. For the weekly (carried, third review running):
+  move each queued item's body to <code>docs/planning/chunks/&lt;ID&gt;.md</code> with a
+  one-paragraph pointer in §9 — a change to what a slot reads first, so it
+  needs implementer-run.md to say so.</li>
+</ul>
+<h2 id="7-xl-clerk-step-6b">7. XL clerk (step 6b)<a class="headerlink" href="#7-xl-clerk-step-6b" title="Permanent link">&para;</a></h2>
+<ol>
+<li>No ledger row since 03:00 (the next window is 10-01 02:00). Nothing to
+   mark.</li>
+<li>No READY entry is unqueued. Entry 19 stays PENDING for the weekly.</li>
+<li><strong>6 of 6 <code>xl</code> used in the trailing 7 days; 5 <code>xl</code> ahead</strong> (10-01,
+   10-02, 10-04, 10-05, 10-06) against a floor of 4: <strong>met</strong>. <code>xxl</code>: 0
+   ahead (floor 1), by the weekly's 09-26 decision (carried).</li>
+<li>No shortfall to fill. <code>TH-16</code> ✅ makes a symmetry-plane cost probe a
+   candidate variant the next time the floor is short.</li>
+</ol>
+<h2 id="8-for-the-weekly-tonight-collected">8. For the weekly tonight (collected)<a class="headerlink" href="#8-for-the-weekly-tonight-collected" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>The floor's unit</strong> (§1): 23 items in two intervals at ≈ 5 minutes
+  each; 240 predicted minutes is about one slot.</li>
+<li><strong>Lane supply</strong> (§5, §6): lane 1's list exhausted; lane 2 ends at <code>TH-5</code>
+  1b; lane 3 has no written step beyond today's two. Phase 7 / 8 subgoals
+  and numbered steps are unwritten. Eight lane-3 chunks await
+  ratification: <code>MAT-9</code>, <code>MAT-10</code>, <code>MAT-11</code>, <code>MAT-12</code>, <code>MAT-5</code> (all ✅),
+  <code>MAT-3</code>, <code>IMP-1</code> (🟡), <code>MAT-13</code> (⬜, new).</li>
+<li><strong>Ratify or revert — gates this review and the last re-posed:</strong> <code>TH-16</code>
+  (identity on a mirror-built mesh; now ✅ on it), <code>TH-18</code> (σ = 10 S/m),
+  <code>IMP-1</code> step 2 ((v) banked red; 2b on an out-of-sample rung), <code>TH-5</code> 1b
+  (sphere, conditional on the numpy anchor).</li>
+<li><strong><code>TH-5</code> step 2:</strong> the ≥ 5× bar against a predicted ≈ 2× ceiling.</li>
+<li><strong>Readings to confirm:</strong> <code>TH-17</code> (e) by its parenthetical and the
+  imported 1e-10; <code>GEO-34</code> step 2's three readings (row, †).</li>
+<li><strong><code>POST-3</code>:</strong> the closing window is queued; the next daily adjudicates.</li>
+<li><strong><code>GEO-1</code></strong> and the ungraded partition test (§6). <strong><code>TH-2</code>:</strong> retire the
+  ⚠️ or merge the row (carried). <strong><code>PORT-23</code>:</strong> Done-when met, glyph 🟡.</li>
+<li><strong>Known-issues rotation:</strong> eleven RETIRED-headed entries not yet in the
+  index, and the stale headings listed in §6.</li>
+<li><strong>§10's chain list</strong> still prints T5a, T5b, F6, F6b and two slot halves
+  as open.</li>
+<li><strong>Protocol questions:</strong> should a pre-registered negative that leaves a
+  clean <code>main</code> stop the slot (§4)? §9's size and the item-body move (6c).</li>
+<li><strong>Examples owed and held:</strong> <code>TH-18</code>; <code>EX-69</code> for <code>MAT-11</code>.</li>
+<li><strong>CLAUDE.md's state paragraph</strong> does not yet mention symmetry planes,
+  the ABC, or the thermal and implant lanes.</li>
+<li>Carried: T10b; F2′'s reading of 3h / 3i / 3j; <code>xl</code> entry 19's price;
+  H8′'s re-scope after the operator's ruling; T7 (c); H6a; <code>OPS-61</code>'s port
+  geometry; <code>POST-8</code>'s sampling rule; <code>OPS-7</code>'s glyph.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

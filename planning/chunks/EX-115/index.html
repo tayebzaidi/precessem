@@ -1,0 +1,862 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-115 — mri:21, femem run with a top-level tune: section: one solve, summary["tune"] is the same Study's tune(), the written .s4p alone gives the same C, and the field of the mode the file tuned - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-115-mri21-femem-run-with-a-top-level-tune-section-one-solve-summarytune-is-the-same-studys-tune-the-written-s4p-alone-gives-the-same-c-and-the-field-of-the-mode-the-file-tuned" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-115 — mri:21, femem run with a top-level tune: section: one solve, summary["tune"] is the same Study's tune(), the written .s4p alone gives the same C, and the field of the mode the file tuned
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-456-2026-10-14-54-example-ramp-from-u49-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 456 — 2026-10-14 (§5.4 example ramp from U49; example)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-14-1800-item-456" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-14 18:00 (item 456)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-15-0300-item-456-item-461" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-15 03:00 (item 456 → item 461)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-461-2026-10-15-example-54-ramp-re-lift-of-item-456" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 461 — 2026-10-15 (example, §5.4 ramp; re-lift of item 456)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-15-1030-item-461-item-477" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-15 10:30 (item 461 → item 477)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-477-2026-10-15-example-54-ramp-re-lift-of-item-461-attempt-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 477 — 2026-10-15 (example, §5.4 ramp; re-lift of item 461, attempt 3)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-17-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-17 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-115-mri21-femem-run-with-a-top-level-tune-section-one-solve-summarytune-is-the-same-studys-tune-the-written-s4p-alone-gives-the-same-c-and-the-field-of-the-mode-the-file-tuned">EX-115 — mri:21, <code>femem run</code> with a top-level <code>tune:</code> section: one solve, <code>summary["tune"]</code> is the same Study's <code>tune()</code>, the written <code>.s4p</code> alone gives the same C, and the field of the mode the file tuned<a class="headerlink" href="#ex-115-mri21-femem-run-with-a-top-level-tune-section-one-solve-summarytune-is-the-same-studys-tune-the-written-s4p-alone-gives-the-same-c-and-the-field-of-the-mode-the-file-tuned" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<p><strong>Dependency: this item runs only if the 2026-10-14 weekly review has RATIFIED U49.</strong> U49 (§9 item 442, <code>WF-1</code> step 11) is a provisional §10 chain-U step (§9 rule (6)). The 10:30 and 18:00 daily reviews both held its example until ratification: a provisional gate is not yet a capability to demonstrate (<code>docs/planning/reviews/2026-10-14-daily-1030.md:81</code>). The slot checks before spawning anything. Ratified means one of these: the §10 U49 entry in <code>PROJECT_PLAN.md</code> (≈ line 4907, <code>grep -n 'U49 (daily' PROJECT_PLAN.md</code>) says ratified, or the weekly's journal <code>docs/planning/reviews/2026-10-14-weekly*.md</code> or its commit says U49 is ratified. <strong>If U49 is reverted, or not yet ratified when the slot reads it, the slot skips this item and journals "skipped, dependency not met".</strong> No BLOCKED mark is needed, and the slot takes the next item.</p>
+<p><code>EX-115</code> (<code>mri:21</code>) is opened 2026-10-14 by the 18:00 daily review under daily-review.md step 5. It is the §5.4 ramp from <code>WF-1</code> step 11 (§10 U49, §9 item 442, landed <code>88a85612</code>).
+- <strong>Base.</strong> <code>tests/package/test_wf1_yaml_tune.py</code> on the tracked file <code>tests/package/wf1/f_small_hole_pec_tune.yaml</code>, which is <code>f_small_hole_pec_control.yaml</code> plus <code>tune: {k: 1}</code>. The code is <code>src/fem_em_solver/study_yaml.py</code>: <code>_parse_tune</code> at <code>:721</code>, the parse at <code>:791–792</code>, <code>_tune_summary</code> at <code>:996–1005</code>, and the four-port branch of <code>run_study_file</code> at <code>:1046–1060</code>. <code>femem run</code> is <code>cli.main</code> → <code>run_study_file</code> (<code>src/fem_em_solver/cli.py:151, :169</code>).
+- <strong>Run of record.</strong> <code>docs/testing/logs/20261014T110326Z_WF-1-s11-W1.log</code> (heavy by ceiling, <code>-n 2</code>, 62 s, 10 passed); the parse window is <code>…110309Z_WF-1-s11-W0.log</code> (5 s).</p>
+<p>On the exact-rectangle PEC hole F-small Study (degree 1, 64 MHz, κ off), the run of record holds:
+- YAML build: 80 798 cells, mesh 22.7 s, sweep 6.5 s, <code>run_study_file</code> 29.7 s (<code>:1830</code>). The independent Python build took 28.6 s (<code>:1831</code>). The summary's <code>tune</code> block is at <code>:1832</code>.
+- (R0) class-mean rel against the <code>"pec"</code> record: 5.052e-11 / 3.878e-11 / 5.875e-11 (<code>:1834</code>).
+- (I=) summary C <code>0x1.2373183ff8634p-34</code> = the same Study's <code>tune()</code> (<code>:1838</code>); (I-Py) rel 0.000e+00 (<code>:1842</code>).
+- (a) <code>C_mode</code> 6.626796421e-11 F, gap −2.976552e-04 against <code>TH17_STEP3_C_MODE_RECORD_F</code>, band <code>REDUCTION_BAND</code> 1.0e-03 (<code>:1846</code>).
+- (c1) k = 2: 9.873468900e-11 F, gap +4.894874e-01, 489.5× the band. This is item 442's measured +48.95 % (<code>:1850</code>).
+- (X), parse window: <code>malformed_tune_k_zero.yaml</code> refuses at <code>tune.k</code>; <code>run</code> / <code>check</code> rc (2, 2); no output directory (<code>…110309Z_WF-1-s11-W0.log:65, :68</code>).</p>
+<p><strong>Proposed §7 row</strong> (to paste right after the <code>EX-114</code> row; ≤ 2 KB): see the review's return. It is reproduced at the end of this file's §9 brief, under (8).</p>
+<p><strong>Gap.</strong> No example runs a <code>tune:</code> YAML.
+- <code>mri:9</code> (<code>EX-93</code>) drives <code>cli.main(["run", …])</code> in-process on a <strong>solid</strong> four-port YAML and reads S from <code>summary.json</code>. It has no <code>tune:</code> section.
+- <code>mri:19</code> (<code>EX-113</code>) calls <code>Study.tune</code> <strong>from Python</strong> on two Studies and builds the mode fields.
+- No example imports <code>test_wf1_yaml_tune.py</code>, reads <code>f_small_hole_pec_tune.yaml</code>, or calls <code>_tune_summary</code>. <code>grep -rln 'f_small_hole_pec_tune\|_tune_summary\|test_wf1_yaml_tune' examples/</code> is empty at drafting.
+- Nothing shows what a <code>tune:</code> file writes to disk, or how its keys relate to one another (<code>C = 1/(ω Im z_k)</code> from the summary alone). Nothing shows what an omitted <code>k</code> does, or that the written <code>.s4p</code> alone gives back the same capacitance without the Study.</p>
+<h3 id="9-item-456-2026-10-14-54-example-ramp-from-u49-example">§9 item 456 — 2026-10-14 (§5.4 example ramp from U49; example)<a class="headerlink" href="#9-item-456-2026-10-14-54-example-ramp-from-u49-example" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-14 18:00 daily review; the review reviews it.</em> <strong>This brief sets and moves no band, tolerance, record, Done-when of another chunk or validation target.</strong> Every band is imported from the gate module <code>tests/package/test_wf1_yaml_tune.py</code>, which imports its bands from the <code>PORT-*</code> / <code>TH-17</code> / <code>ANS-6</code> modules, or from a module that an existing example already imports for the same purpose (named below).</p>
+<p><strong>Dependency (repeated): run only if the 10-14 weekly has ratified U49; otherwise skip, journal "skipped, dependency not met", and take the next item.</strong></p>
+<p><code>EX-115</code> (<code>mri:21</code>; the runner selects <code>mri:&lt;n&gt;</code> by the <code>%02d_</code> prefix glob, <code>scripts/run_examples.sh:201–219</code>, so a missing <code>20_</code> on <code>main</code> does not matter; the <code>mri:</code> group sources the complex build; no runner edit) adds three tracked files and edits nothing else:
+- <code>examples/mri/21_femem_run_tune_section.py</code>;
+- the same-stem guide <code>examples/mri/21_femem_run_tune_section.md</code>, with <code>## 1. What this demonstrates</code>, <code>## 2. How to run it</code>, <code>## Setup figure</code>, <code>## 3. How to analyze it, step by step</code> and <code>## Related</code>;
+- <code>examples/mri/figures/mri_21_femem_run_tune_section_setup.png</code>, ≤ 600 KiB.</p>
+<p>The YAML is read <strong>in place</strong> (<code>g.TUNE_FILE</code>), the <code>EX-114</code> precedent. There is no copy and no new YAML; the tracked file is the gate's own input.</p>
+<p><strong>The angle: the YAML / CLI route of <code>tune</code>, and what it writes.</strong> The gate shows the number is right. This example shows a user what <code>femem run</code> does with a <code>tune:</code> section: one solve; what lands in <code>summary["tune"]</code>, in memory and on disk; how its keys tie together; what an omitted <code>k</code> means; that the written Touchstone alone reproduces the capacitance; and the field of the mode the file named. It differs from <code>mri:19</code> in its entry point (<code>cli.main</code> on a file, not <code>Study.tune</code> in Python), in its output quantity (the summary and the <code>.s4p</code>, not the circuit variants), and in its field (the mode is chosen by the file's <code>k</code>).
+1. <strong><code>femem run</code> in-process, captured.</strong> <code>cli.main(["run", str(g.TUNE_FILE), "--output-dir", str(RUN_DIR)])</code> is the <code>mri:9</code> pattern. <code>cli.main</code> imports <code>run_study_file</code> from <code>fem_em_solver.study_yaml</code> at call time (<code>cli.py:151</code>). So a plain call-through wrapper assigned to <code>g.study_yaml.run_study_file</code> before the call, and restored in <code>try/finally</code>, captures the returned <code>StudyRun</code> without changing what runs. This is the <code>EX-114</code> counting-wrapper pattern: no pytest <code>MonkeyPatch</code>. The wrapper is called exactly once, and <code>rc</code> is (0, 0) through <code>g._rc_all</code>.
+2. <strong>The summary is the same Study's <code>tune()</code>.</strong> The comparison is bitwise (<strong>decided: reuse, not re-run</strong>). The captured <code>run.study</code> is the solved Study. <code>run.study.tune(k=1)</code> reads the same <code>self.result.s_matrix</code> with the same arithmetic. So the comparison is <code>float.hex</code> equality, as item 442's (I=), and needs no second solve. A re-run would compare across builds. By the 2026-10-14 03:00 ruling on item 442 (<code>WF-1.md:1290</code>), the bar across builds is <code>LEG_D0_REPRODUCTION_BAND</code>, not a reuse tolerance. Re-running would cost ≈ 30 s and assert a weaker identity, so it is not done.
+3. <strong>The keys tie together</strong>, from the summary alone: <code>C·2π·frequency_hz·Im z_k[k] = 1</code>.
+4. <strong>An omitted <code>k</code> is <code>Study.tune</code>'s default.</strong> <code>tune: {}</code> parses to <code>{"tune": {}}</code>, and <code>_tune_summary(run.study, {}, comm)</code> equals the <code>k = 1</code> block by hex (<code>Study.tune(k=1)</code> default, <code>study.py:1016</code>).
+5. <strong>The <code>.s4p</code> alone.</strong> The written <code>f_small_hole_pec_tune.s4p</code> is read back through scikit-rf (<code>mri:11</code>'s reader). Its S, put on a fresh mesh-free Study from <code>load_study(TUNE_FILE)</code> (<code>result = SimpleNamespace(s_matrix=S_file)</code>, the gate's W0 pattern as used in <code>mri:19</code>), returns the summary's C.
+6. <strong>The field of the mode the file tuned.</strong> <code>run.study.b1_plus()</code> is a second, field-keeping build and sweep, disclosed (<code>mri:19</code> measured 30.9 s, <code>20261014T111653Z_EX-113.log:3626</code>). Its per-port fields are superposed with the DFT weights of the summary's <code>k</code>, and of k = 2 for contrast, and written to XDMF.</p>
+<ul>
+<li><strong>Executor:</strong> <code>example-runner</code>. It does not spawn agents.</li>
+<li><strong>Class:</strong> example. <strong>Tier:</strong> heavy (by ceiling, as items 442 and 446), <code>-n 2</code> (<code>ANS6_EXACT_STRIP_RECORD_RANK_WIDTH</code>, asserted), complex build.</li>
+<li><strong>Cost:</strong> ≈ 9 measured (example class median, 10:30 journal §6) / ≈ 38 predicted min: 10 fixed + ≈ 12 script + ≈ 5 windows + ≈ 6 guide + ≈ 5 censuses / leak guard / journal / commit. <strong>Park if the flagged run (window 3) has not started by minute 28, or the control (window 4) by minute 36</strong> (rule (d)). Price basis:</li>
+<li>The gate's clocks: the YAML build, mesh and sweep, took 29.7 s in <code>run_study_file</code> (<code>20261014T110326Z_WF-1-s11-W1.log:1830</code>); the whole W1 took 62 s for two builds (<code>:1860</code>).</li>
+<li><code>mri:19</code> (item 446) on this fixture at <code>-n 2</code>: flagged 98 s, control 99 s (<code>20261014T111653Z_EX-113.log:3637</code>, <code>…111841Z_EX-113-control.log:3630</code>). That run had two Study solves plus the field-keeping sweep (30.9 s, <code>:3626</code>); the in-script total was 96.4 s (<code>:3633</code>).</li>
+<li>This example has <strong>one</strong> Study solve (≈ 30 s), the field-keeping build and sweep (≈ 31 s), and small extras: <code>femem check</code> and the malformed <code>run</code> (parse only, &lt; 2 s); the skrf read and the fresh-Study <code>tune</code> (&lt; 1 s); four CG1 superpositions and the XDMF on 80 798 cells (≈ 5–8 s); the setup figure (≈ 10 s, flagged only); start-up and JIT (≈ 10–15 s).</li>
+<li><strong>Flagged run predicted ≈ 85 s, range [60, 240] s; control ≈ 75 s, range [55, 220] s.</strong> Runner <code>-t 420</code>, container <code>timeout -k 30 420</code> (<code>mri:19</code>'s). Every window is under 10 min, so the plain runner form is used.</li>
+<li><strong>Depends on:</strong> the 10-14 weekly ratifying U49 (above). Otherwise nothing is open: <code>WF-1</code> step 11 is on <code>main</code> (<code>88a85612</code>), and <code>21_</code> is free in <code>examples/mri/</code>. <code>mri:20</code> sits on <code>attempt/EX-114-20261014T171651Z</code> and lands with item 453. No row or chunk names <code>EX-115</code> at drafting. Independent of item 453 (<code>EX-114</code>), but <strong>never run beside it</strong> or beside any other heavy window.</li>
+<li><strong>Shared files.</strong> Three new paths, nothing under <code>tests/</code> or <code>src/</code>. <strong>If anything under <code>tests/</code> or <code>src/</code> turns out to be needed, stop and report; do not edit it.</strong></li>
+</ul>
+<p><strong>Imports (never restated).</strong>
+- <code>import tests.package.test_wf1_yaml_tune as g</code> and use these module-level names: <code>TUNE_FILE</code>, <code>MALFORMED_TUNE</code>, <code>KEY</code>, <code>TH17_STEP3_C_MODE_RECORD_F</code>, <code>REDUCTION_BAND</code>, <code>LEG_D0_REPRODUCTION_BAND</code>, <code>ANS6_EXACT_STRIP_CLASS_MEANS_P1</code>, <code>ANS6_EXACT_STRIP_HOLE_CELL_RECORD</code>, <code>ANS6_EXACT_STRIP_RECORD_RANK_WIDTH</code>, <code>CLASSES</code>, <code>FREQUENCY_64_HZ</code>, <code>ITEM429_A_PRINT</code>, <code>_class_means</code>, <code>_rel_means</code>, <code>_fresh_dir</code>, <code>_mapping</code>, <code>_rc_all</code>, <code>_parse_mapping</code>, <code>_tune_summary</code>, <code>cli</code>, <code>study_yaml</code>, <code>load_study</code>, <code>StudyConfigError</code>.
+- Also: <code>EXACT_IDENTITY_RTOL</code> from <code>tests.validation.test_birdcage_sar_mass_averaged</code> (the <code>WF-1</code> step-11 brief's table, <code>WF-1.md:1157</code>); <code>ANCHOR_TOL</code>, <code>FREQ_ATOL_HZ</code> from <code>tests.io.test_touchstone_skrf_crosscheck</code> (<code>mri:11</code>'s import, <code>11_study_frequency_sweep.py:68</code>); <code>PHANTOM_CELL_TAG</code> from <code>tests.validation.test_port_birdcage_lumped_column</code>; <code>_four_port_dft</code> from <code>tests.validation.test_th17_birdcage_eigenmodes</code> (<code>mri:19</code>'s, <code>19_study_tune_mode_capacitance.py:63–64</code>).
+- From <code>src</code>: <code>write_setup_figure</code>, <code>write_xdmf_with_tags</code>, <code>adopt_host_ownership</code>, <code>evaluate_vector_field_parallel</code> (<code>mri:19</code>'s import lines <code>:53–59</code>).
+- Insert <code>_REPO_ROOT</code> into <code>sys.path</code>. Raise if <code>default_scalar_type</code> is not complex.
+- Record digits go only into an example-local <code>REC</code> dict, each entry commented with its <code>log:line</code>.
+- <strong>Never import a name called <code>REUSE_REPRODUCTION_RTOL</code>.</strong> Two constants carry that name: <code>tests.validation.test_port19_factor_reuse</code> (1e-12) and <code>tests.validation.test_port_birdcage_ring_matrix</code> (1e-6, <code>:164–171</code>). This example needs neither (see the record checks).</p>
+<p><strong>Structural asserts at start-up.</strong>
+- <code>comm.size == g.ANS6_EXACT_STRIP_RECORD_RANK_WIDTH</code>.
+- <code>g.REDUCTION_BAND is tests.validation.test_port_lumped_rlc_termination.REDUCTION_BAND</code>.
+- <code>g.study_yaml._load(g.TUNE_FILE)[2] == {"tune": {"k": 1}}</code>, and <code>type(...["k"]) is int</code>.
+- <code>load_study(g.TUNE_FILE).degree == 1</code> and <code>.conductor is None</code>.</p>
+<p><strong>Record checks (adopting the 2026-10-14 10:30 ruling's form, <code>EX-114.md:128</code>; that ruling binds item 449 only, so this brief adopts it in its own words).</strong>
+- <code>cells</code> is exact.
+- Each string record is compared at a relative <code>10^-(d−2)</code>, with d its printed significant digits: <code>C_mode</code> 6.626796421e-11 F and the k = 2 C 9.873468900e-11 F (d = 10, so 1e-8), and the gaps −2.976552e-04 and +4.894874e-01 (d = 7, so 1e-5).
+- <strong>Excluded from record checks:</strong> every reading at or below <code>LEG_D0_REPRODUCTION_BAND</code> (the class-mean rels, the (T) rel). These are round-off readings, asserted at their bands only and printed beside the gate's line.
+- A record off by more than its tolerance stops the item (Negative result).</p>
+<p><strong>(1) Anchor (U49's gate, imported).</strong> One <code>cli.main</code> run, captured as in angle 1. Then, in this order:
+- (R0): <code>summary["cells"] == g.ANS6_EXACT_STRIP_HOLE_CELL_RECORD</code>, and the record check gives 80 798 (<code>:1834</code>). <code>g._rel_means(g._class_means(run.result.s_matrix), g.ANS6_EXACT_STRIP_CLASS_MEANS_P1[g.KEY]["pec"])[c] &lt;= g.LEG_D0_REPRODUCTION_BAND</code> for every class in <code>g.CLASSES</code> (prior 5.052e-11 / 3.878e-11 / 5.875e-11, <code>:1834</code>).
+- (I=), bitwise, on the same Study: <code>res0 = run.study.result</code>, then <code>api = run.study.tune(k=1, comm=comm)</code>. <code>run.summary["tune"]["c_mode_farad"].hex() == api.c_mode_farad.hex()</code>. The same holds for <code>off_diagonal_residual</code> and for both parts of every <code>z_k</code> entry, and <code>run.study.result is res0</code>. The <code>summary.json</code> read back from disk (every rank reads after <code>cli.main</code>'s <code>Barrier</code>) has a <code>tune</code> block equal to <code>run.summary["tune"]</code> by hex. Also <code>["k"] == 1</code> and <code>float(["frequency_hz"]).hex() == g.FREQUENCY_64_HZ.hex()</code> (<code>:1838</code>).
+- (a): <code>|C / g.TH17_STEP3_C_MODE_RECORD_F − 1| &lt;= g.REDUCTION_BAND</code>. Record gap −2.976552e-04 (<code>:1846</code>); <code>g.ITEM429_A_PRINT</code> is printed beside it.
+- <strong>Records predicted equal at the printed digits</strong> (same code, same width, same image): cells, <code>C_mode</code>, gap (a), and the k = 2 C and gap.</p>
+<p><strong>Example-side anchors (asserted, imported bands only).</strong>
+- <strong>(Z) The keys tie together.</strong> <code>t = run.summary["tune"]</code>, <code>k = t["k"]</code>; <code>|t["c_mode_farad"] · 2π · t["frequency_hz"] · t["z_k"][k][1] − 1| &lt;= EXACT_IDENTITY_RTOL</code>. The index is <code>k</code>, read from the summary, never a literal or a negative index. Predicted ≤ 1e-15 (<code>Study.omega</code> is <code>2π·frequency_hz</code>, <code>study.py:156–157</code>).
+- <strong>(D) An omitted <code>k</code> is the default.</strong> <code>m = copy.deepcopy(g._mapping(g.TUNE_FILE)); m["tune"] = {}</code>; <code>spec = g._parse_mapping(m, "&lt;tune {}&gt;")[2]["tune"]</code>, asserted <code>== {}</code>; then <code>t0 = g._tune_summary(run.study, spec, comm)</code>. <code>t0</code> equals <code>run.summary["tune"]</code> by hex on every float, and <code>t0["k"] == 1</code>. Assert <code>run.study.result is res0</code> afterwards.
+- <strong>(T) The <code>.s4p</code> alone.</strong> <code>run.paths["touchstone"]</code> exists and is named <code>f_small_hole_pec_tune.s4p</code>. On rank 0 only, <code>skrf.Network(str(path))</code> (<code>mri:11</code>'s reader, <code>11_study_frequency_sweep.py:175–179</code>); then <code>bcast</code> the <code>(1, 4, 4)</code> array, <code>f</code>, <code>nports</code>.
+  - Assert one frequency within <code>FREQ_ATOL_HZ</code> of <code>g.FREQUENCY_64_HZ</code>, 4 ports, and <code>max|S_file − run.result.s_matrix| &lt;= ANCHOR_TOL</code> (<code>mri:11</code> measured ≤ 6.855e-14).
+  - Then <code>st = g.load_study(g.TUNE_FILE); st.result = SimpleNamespace(s_matrix=S_file[0])</code>; <code>c_file = st.tune(k=t["k"], comm=comm).c_mode_farad</code> (no mesh, no solve). Assert <code>|c_file / C − 1| &lt;= g.LEG_D0_REPRODUCTION_BAND</code>: an S from a file against a record, <code>mri:11</code>'s (T′) precedent for this band.
+  - Predicted ≈ 1e-12, range [0, 1e-10] (13-significant-digit RI text, <code>ports/touchstone.py:74–75</code>).
+- <strong>(Once) One Study solve.</strong> The wrapper's count is 1. <code>run.study.result is res0</code> holds after (I=), (D), (c1) and (T). The field-keeping build in angle 6 runs <strong>after</strong> every <code>tune</code> read and is disclosed as the one extra build.</p>
+<p><strong>(2) Negative controls (rule (e)).</strong>
+- <strong>(c1), the gate's, asserted only as a miss:</strong> <code>m["tune"] = {"k": 2}</code> parses to <code>{"tune": {"k": 2}}</code>. Then <code>t2 = g._tune_summary(run.study, {"k": 2}, comm)</code>, and <code>|t2["c_mode_farad"] / g.TH17_STEP3_C_MODE_RECORD_F − 1| &gt; g.REDUCTION_BAND</code>. The backing is item 442's measured +48.95 % (<code>20261014T110326Z_WF-1-s11-W1.log:1850</code>, record +4.894874e-01, 489.5× the band). No ceiling below 100 % binds; the factor is printed. This is the control for a summary that ignores <code>k</code>.
+- <strong>(cX), the gate's (X), re-asserted:</strong> <code>g.load_study(g.MALFORMED_TUNE)</code> raises <code>StudyConfigError</code> with <code>.field == "tune.k"</code>. <code>cli.main(["run", str(g.MALFORMED_TUNE), "--output-dir", str(BAD_DIR)])</code> gives rc (2, 2) through <code>g._rc_all</code>, and <code>BAD_DIR</code> exists on no rank (<code>MPI.LOR</code>), after <code>g._fresh_dir(BAD_DIR, comm)</code> (<code>…110309Z_WF-1-s11-W0.log:65, :68</code>). No mesh is built, so this runs before the real run.
+- <strong>(T) is not self-comparison by construction:</strong> <code>c_file</code> comes from the file's text through a separate Study object. The rel is printed even if it reads 0.</p>
+<p><strong>Printed only (no band; a value outside its prediction is reported, with no status effect).</strong>
+- <code>femem check</code> on <code>g.TUNE_FILE</code> through <code>cli.main(["check", …])</code>, rc (0, 0); its stdout carries <code>family: four_port_birdcage</code> (inputs only).
+- The run directory listing: file names and byte sizes (<code>summary.json</code>, <code>f_small_hole_pec_tune.s4p</code>). Also <code>summary["elapsed_s"]</code> and the <code>cli.main</code> wall time, each at 1 decimal.
+- The <code>tune</code> block as a table at <strong>≤ 6 significant digits</strong>: k, f, C (the record print excepted), Re / Im z_k for k = 0…3, and C_k = 1/(ω Im z_k) where Im &gt; 0 (blank otherwise), with the residual at 4 digits.
+- <code>|S(fields_result) − S(result)|_max / |S|_max</code> (predicted ≤ 1e-12; <code>mri:19</code> read 1.681e-15, <code>…111653Z_EX-113.log:3626</code>).
+- The centre |B₁⁺|, |B₁⁻| and |B| for the tuned mode (k from the summary) and for k = 2, and |B_2(0)| / |B_k(0)|, each at 6 digits. Each is printed beside <code>mri:19</code>'s <code>…111653Z_EX-113.log:3627–3630</code> (predicted equal at the printed digits: same fixture, code, width and image).</p>
+<p><strong>Output.</strong>
+- <strong>Setup figure</strong> <code>examples/mri/figures/mri_21_femem_run_tune_section_setup.png</code>, on <code>run.result.mesh</code> / <code>run.result.cell_tags</code>, with <code>mri:19</code>'s call on this mesh (<code>19_study_tune_mode_capacitance.py:143–159</code>): air tags hidden, phantom translucent, <code>slice_normal=(0, 0, 1)</code>. Title ≤ 130 characters, e.g. "mri:21 -- femem run with a tune: section, exact-rectangle PEC hole F-small birdcage, four gap ports, phantom (WF-1 step 11)". Over 600 KiB ⇒ re-render once with <code>show_edges_on_slice=False</code>. The hole route has no conductor cells: the guide says the coil is drawn as a void.
+- <strong>Combined XDMF</strong> <code>examples/mri/paraview_output/mri_21_femem_run_tune_section_combined.xdmf</code>, written by <code>write_xdmf_with_tags(path, msh, fres.cell_tags, fields, comm=comm)</code> on the field-keeping mesh (<code>mri:19</code>'s <code>:206–265</code> pattern).
+  - Superpose in <code>[d.port_id for d in fres.port_definitions]</code> order. Assert that order equal to <code>run.result</code>'s, and to <code>sorted(b1, key=lambda p: int(p[1:]))</code>.
+  - Fields: CG1 <code>B_tuned_mode_real</code> (vector, the <code>.real</code> copy); CG1 scalars <code>B_tuned_mode_abs</code>, <code>B1_plus_tuned_mode</code>, <code>B1_minus_tuned_mode</code>, <code>B_mode2_abs</code> (nodal |·| in numpy, labelled nodal in the guide). Each XDMF key equals its Function's <code>name</code>.
+  - Then <code>adopt_host_ownership(OUTPUT_DIR, comm=comm)</code> on every rank.
+- <strong>The run directory</strong> <code>examples/mri/paraview_output/mri_21_run/</code> (<code>summary.json</code>, <code>.s4p</code>) and <code>mri_21_bad/</code> (must not exist) sit under the gitignored <code>paraview_output/</code>. Only the PNG is tracked.
+- <strong>Guide.</strong>
+  - <code>Related</code> lists, by full filename: <code>examples/mri/09_study_from_yaml.md</code> first, then <code>examples/mri/19_study_tune_mode_capacitance.md</code> and <code>examples/mri/11_study_frequency_sweep.md</code>; then <code>tests/package/wf1/f_small_hole_pec_tune.yaml</code>, <code>tests/package/wf1/malformed_tune_k_zero.yaml</code> and <code>tests/package/test_wf1_yaml_tune.py</code>.
+  - It walks through the YAML (the <code>tune:</code> section, top-level, carried in the parsed outputs) and <code>summary.json</code>'s <code>tune</code> block key by key. It explains how C follows from <code>z_k</code> and <code>frequency_hz</code>, why <code>femem run</code> costs one solve (the <code>tune</code> read reuses <code>study.result</code>), what an omitted <code>k</code> does, and how to get C from any 4-port <code>.s4p</code> with <code>load_study</code> plus <code>tune</code>. It gives a ParaView recipe: colour <code>B_tuned_mode_abs</code> against <code>B_mode2_abs</code> on a z = 0 slice, Glyph <code>B_tuned_mode_real</code>, compare <code>B1_plus_tuned_mode</code> with <code>B1_minus_tuned_mode</code>.
+  - It states plainly that C is a lossless mode read at 64 MHz on one degree-1 fixture, <strong>not a tuning, resonance or f₀ claim</strong>.
+  - One sentence in <code>## 2</code>: <code>./scripts/run_examples.sh -e mri:21 -n 2 -t 420</code>, heavy, and the measured wall time. Write <code>≈</code>, never a tilde.</p>
+<p><strong>(3) Windows.</strong> Each one is foreground with Bash <code>timeout: 660000</code>, and each is one bare, whole, repo-relative harness call, nothing chained or piped.
+- <strong>Before anything (the slot, not the executor):</strong> the U49 ratification check above. Not ratified ⇒ skip.
+0. Orphan check: <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0.
+1. <strong>Pre-censuses, before any file is written:</strong> <code>EX-115-pre-figures</code> / <code>EX-115-pre-docrefs</code>, the commands of <code>EX-113.md</code> window 1 with these labels. The last readings on <code>main</code> are <code>examples=110 ok=110 missing=0 broken=0</code> (<code>20261014T112059Z_EX-113-post-figures.log:146</code>) and docrefs <code>dead=0 stale=101 exit=2</code> (<code>…112101Z_EX-113-post-docrefs.log:141</code>). Use what the pre-census reads: item 453 may land <code>mri:20</code> first, making it 111. Exit 2 is staleness info; exit 1 is a failure.
+2. <strong>Dry run</strong>, after the script exists: <code>scripts/testing/run_and_log.sh EX-115-dryrun "./scripts/run_examples.sh -e mri:21 -n 2 -t 420 --dry-run"</code>. It must print <code>(complex build)</code>. Copy its emitted string for windows 3–4, adding only <code>-T</code> (and the flag in window 3).
+3. <strong>Run of record (flagged)</strong>, predicted ≈ 85 s, range [60, 240] s, of the form <code>scripts/testing/run_and_log.sh EX-115 'docker compose exec -T -e FEM_EM_SETUP_FIGURES=1 fem-em-solver bash -lc "cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src timeout -k 30 420 mpiexec -n 2 python3 examples/mri/21_femem_run_tune_section.py"'</code>. It must match the dry run apart from <code>-T</code> and the flag. Pass: Status 0; (R0), (I=), (a), (Z), (D), (T), (Once), (c1) and (cX) green; the covered records as in (1); the closing "All assertions hold" line.
+4. <strong>Control:</strong> <code>git add</code> the PNG window 3 wrote, then run the same line without <code>-e FEM_EM_SETUP_FIGURES=1</code>, label <code>EX-115-control</code>. Compare at the bands, never bitwise across the two runs (rule (j)). The control's own (I=) is still bitwise within its run.
+5. <strong>The guide</strong>, written from window 3's log. Then <code>EX-115-post-figures</code> / <code>EX-115-post-docrefs</code>. <strong>Write the prediction first:</strong> figures N → N + 1, <code>missing=0 broken=0</code>; docrefs <code>dead=0</code>, exit ≠ 1. Any dead reference naming <code>mri_21_*</code> or <code>21_femem_run_tune_section.md</code> fails the item.
+6. <code>git status --porcelain examples/ tests/ src/</code> lists exactly the three new <code>examples/</code> paths.
+7. <strong>Before committing, run the pre-commit leak guard on the staged logs</strong> (it runs anyway on <code>git commit</code>). See the leak-guard trap.</p>
+<p><strong>(4) Traps already paid for.</strong>
+- <strong>Dict subscripts: never <code>[-1]</code> on a mapping (<code>EX-114</code> item 449, attempts.md 2026-10-14T17:20Z).</strong> Window 3 of <code>EX-114</code> was green through every record and anchor, then raised <code>KeyError: -1</code> on <code>snaps[-1]</code>. <code>TransientResult.snapshots</code> is a <code>Dict[int, Function]</code>, so <code>[-1]</code> is a key lookup. Rule (i) froze the script, and the item lost a slot. <strong>Before window 3, read every subscript in the script against the type it indexes:</strong>
+  - <code>run.summary</code> / <code>summary.json</code> are dicts: index by explicit key.
+  - <code>summary["tune"]["z_k"]</code> is a list of four <code>[re, im]</code> lists: index by the summary's <code>k</code>.
+  - <code>TuneResult.z_k</code> is an ndarray.
+  - <code>Study.b1_plus()</code> returns a <code>dict</code> keyed <code>"P1"…"P4"</code>: iterate in <code>port_definitions</code> order.
+  - <code>run.paths</code> is a dict with keys <code>"touchstone"</code> and <code>"summary"</code>.
+  - skrf's <code>.s</code> is <code>(n_f, 4, 4)</code>: index <code>[0]</code>.</p>
+<p>No negative index on anything that is not a list or array. The output section (superposition, XDMF, figure) runs only after every assertion, so a defect there costs the slot; read it twice.
+- <strong>The private-leak guard (<code>EX-112</code>, attempts.md 2026-10-14T03:38Z).</strong> <code>scripts/testing/check_private_leak.py</code> refuses any staged figure that shares an <strong>8-significant-digit prefix</strong> with a raw AED export; figures already in a tracked file at HEAD are subtracted. The F-small fixture has private AED counterparts (<code>ANS-4</code>).
+  - <strong>Print every new value (the z_k table, the C_k column, the mode-field readings, the (T) rel, file sizes aside) at ≤ 6 significant digits</strong> (the 10:30 ruling, <code>PROJECT_PLAN.md</code> §9 digest).
+  - Only the asserted records' reproduced prints may carry their gate-log digits; they are already tracked, so they are subtracted.
+  - <strong>Never print <code>summary["tune"]</code> or <code>summary["s_matrix"]</code> / <code>["z_matrix"]</code> with <code>repr</code>.</strong> The gate's <code>:1832</code> did so with <code>tune</code>, and it is tracked; S / Z entries are not, and they must not appear in a log at all.
+  - The run directory and the XDMF are gitignored and are not scanned.
+  - <strong>If the guard still fires: never bypass it and never edit a log.</strong> Move the flagged logs unchanged into the gitignored <code>logs/leak-held/</code>, commit everything else, and mark item 456 <strong>BLOCKED</strong> (not ✅; a ✅ needs its run logs committed). Journal the flagged <code>log:line</code> (never the figure) in attempts.md, and stop.
+- <strong>The wrapper is a call-through, not a stub.</strong> Assign it to the module attribute <code>g.study_yaml.run_study_file</code> (it is <code>fem_em_solver.study_yaml</code>); <code>cli.main</code> imports the name at call time (<code>cli.py:151</code>). Restore it in <code>finally</code>, on every rank. Do not wrap <code>fem_em_solver.run_study_file</code> (the package re-export), which <code>cli.main</code> does not read. Pytest <code>monkeypatch</code> is test-only.
+- <strong><code>cli.main</code> without <code>--ranks</code> runs in-process</strong> (<code>cli.py:122</code>). Never pass <code>--ranks</code>: it launches a nested <code>mpiexec</code>.
+- <strong>The field-keeping solve is separate.</strong> <code>b1_plus()</code> builds and sweeps again into <code>fields_result</code>; it never sets <code>self.result</code>, and <code>tune()</code> never reads <code>fields_result</code>. Do every <code>tune</code> read first, then <code>b1_plus</code>. Never assign <code>result</code> on the solved <code>run.study</code>; the (T) read uses a fresh <code>load_study</code> Study (<code>result</code> is set, so no mesh is built).
+- <strong><code>tune</code> raises on Im z_k ≤ 0.</strong> Never call it for k = 0 or 3; the C_k column is computed in numpy from the summary's z_k, blank where Im ≤ 0.
+- <strong>Rank-local values.</strong> <code>rc</code> and directory existence are reduced (<code>g._rc_all</code>, <code>MPI.LOR</code>). skrf runs on rank 0 and is <code>bcast</code>. Point evaluation goes through <code>evaluate_vector_field_parallel</code> only, at the same point on every rank; raise on any point not found. Numpy maxima carry <code>initial=</code>. No collective inside a <code>rank == 0</code> branch. A rank-local exception hangs the job: Status 124 is a finding, never a retry.
+- <strong>The complex build.</strong> <code>.x.array</code> is complex: nodal magnitudes are numpy on <code>np.abs(...)</code>, with <code>scatter_forward</code> after assigning, and no UFL comparison. Name every Function (<code>EX-79</code>).
+- <strong>Harness shape.</strong> Every harness call is the whole Bash command: bare, repo-relative, no <code>cd … &amp;&amp;</code>, no <code>; date</code> / <code>| tail</code>, no redirect (<code>bash_guard</code> rule 3). <code>./scripts/run_examples.sh</code> is host-side: emit it with <code>--dry-run</code> and pass the string to the harness; never wrap it in <code>docker compose exec</code> (Status 127). A docker-socket denial means stop and report the exact command string.
+- <strong>Timeouts and foreground.</strong> Bash <code>timeout: 660000</code> on every window; container <code>timeout -k 30 420</code>. <strong>Spawn executors foreground</strong>, and never background a harness window (the 2026-09-01 <code>example-runner</code> orphan). Never raise a timeout or <code>-n</code>. After a kill, run <code>pgrep -c python3</code> first; only at 0, run the orphan-<code>.c</code> cache sweep (daily-review.md rubric item 4) as one bare call labelled <code>EX-115-cache-sweep</code>.
+- <strong>Rule (i):</strong> no edit to the script after window 3 starts, or to the guide after window 5 starts. Check mtimes before committing. <code>mri:19</code>'s audit caveat: the script was untracked at run time, so mtimes are its only version evidence.</p>
+<p><strong>(5) Scope.</strong> One fixture: the exact-rectangle PEC hole F-small, κ off, degree 1, 64 MHz, <code>-n 2</code>, k = 1 from the file and k = 2 as a control. <code>femem run</code> runs through <code>cli.main</code> in-process. Not claimed:
+- the installed console script (<code>WF-13</code> step 5 covers it);
+- <code>tune</code> at degree 2 (item 445 is the API), or on copper (item 452 is the API), on the solid σ = 800 four-port, or on F-human (refused);
+- k = 2 as a gated mode;
+- a tuned f₀, Q, match, or any absolute <code>S₁₁</code> / <code>Z_in</code> / C figure (§2; <code>ANS-7</code> stays 🟡);
+- Touchstone accuracy beyond the round trip;
+- a stable schema;
+- any external check.</p>
+<p><code>WF-1</code> does not move.</p>
+<p><strong>(6) Negative result.</strong> Report and stop. Journal in <code>docs/testing/attempts.md</code>, park on <code>attempt/EX-115-&lt;UTC&gt;</code>, and mark item 456 BLOCKED with the unblock condition in the same commit (rule (d)). <code>EX-115</code> stays ⬜. Never widen a band, never edit <code>tests/</code> or <code>src/</code>, never re-record from the example side.
+- <strong>(R0) / (I=) / (a) red, or a covered record off W1 beyond its tolerance above:</strong> an example/gate divergence, or <code>main</code> drifted. Print the first differing value beside its <code>log:line</code>, file a known-issues entry, and park.
+- <strong>(Z) or (D) red:</strong> the summary's keys are not what <code>_tune_summary</code> (<code>study_yaml.py:996–1005</code>) says, or the default <code>k</code> is not 1. Print both and stop.
+- <strong>(T) red:</strong> the Touchstone round trip loses more than the band. Print <code>max|ΔS|</code> and the C rel, then stop. It is a finding about the writer or the reader, not the gate.
+- <strong>(Once) reads 2:</strong> a read re-solved. Report which call and stop.
+- <strong>(c1) inside the band, or (cX) rc ≠ (2, 2) or a directory written:</strong> a blind summary or parser. Stop.
+- <strong>The leak guard fires:</strong> BLOCKED as in Traps, not ✅.
+- <strong>A defect after every assertion is green</strong> (the <code>EX-114</code> shape): BLOCKED with the <code>log:line</code>, returned to the review; no in-slot fix after window 3.
+- <strong>Status 124, over 420 s, or past the park minutes:</strong> park with the last printed line.
+- <strong>A printed value outside its prediction</strong> (the S(fields) ratio, the mode-field readings against <code>mri:19</code>): report it, with no status effect.</p>
+<p>No <code>PREDICTED RED:</code> line. A red anywhere stops the slot.</p>
+<p><strong>(7) Status it can move.</strong>
+- <code>EX-115</code> ⬜ → ✅ under the §7 Done-when the review pastes in the same commit as this item (rule (j)).
+- Census <code>examples</code> +1 (110 → 111, or 111 → 112 after item 453), <code>broken=0</code>; docrefs <code>dead=0</code>.
+- <code>WF-1</code> unchanged. No §2 sentence moves.
+- The §10 Phase 9 (9a) ramp gains the first example of a <code>tune:</code> YAML; the weekly reads it.
+- If U49 is later reverted, <code>EX-115</code> is retired with it. Its anchors are U49's.</p>
+<p><strong>(8) Proposed §7 row</strong> (≤ 2 KB; paste after the <code>EX-114</code> row):</p>
+<p>| <code>EX-115</code> | <strong><code>femem run</code> with a top-level <code>tune:</code> section: one solve, <code>summary["tune"]</code> is the same Study's <code>tune()</code>, the written <code>.s4p</code> alone gives the same C, and the field of the mode the file tuned</strong> <em>(history and §9 briefs: <code>docs/planning/chunks/EX-115.md</code>)</em> (<code>mri:21</code>; <code>example-runner</code>; opened 2026-10-14 by the 18:00 daily review, §5.4 ramp from <code>WF-1</code> step 11 (U49), §9 item 456; runs only once the 10-14 weekly ratifies U49; <code>mri:9</code> runs a solid four-port YAML, <code>mri:19</code> calls <code>tune</code> from Python, no example runs a <code>tune:</code> file) <strong>Done-when:</strong> <code>examples/mri/21_femem_run_tune_section.py</code> + same-stem guide (three required headings + <code>## Setup figure</code> + <code>## Related</code>, PNG ≤ 600 KiB); complex, <code>-n 2</code>, <code>cli.main(["run", …])</code> in-process on the tracked <code>f_small_hole_pec_tune.yaml</code>, captured by a call-through wrapper; no <code>tests/</code> or <code>src/</code> edit; every band imported. Asserted beside <code>20261014T110326Z_WF-1-s11-W1.log:1830–1850</code>: (R0) cells + class means ≤ <code>LEG_D0_REPRODUCTION_BAND</code>; (I=) <code>summary["tune"]</code> (in memory and on disk) = the same Study's <code>tune()</code> by <code>float.hex</code>; (a) <code>C_mode</code> vs <code>TH17_STEP3_C_MODE_RECORD_F</code> ≤ <code>REDUCTION_BAND</code>; one solve. Example-side: (Z) C·ω·Im z_k = 1 from the summary alone ≤ <code>EXACT_IDENTITY_RTOL</code>; (D) <code>tune: {}</code> = the k = 1 block by hex; (T) the <code>.s4p</code> through scikit-rf ≤ <code>ANCHOR_TOL</code> and its C ≤ <code>LEG_D0_REPRODUCTION_BAND</code>. Controls: (c1) k = 2 misses (item 442's +48.95 %); (cX) <code>malformed_tune_k_zero.yaml</code> refuses at <code>tune.k</code>, rc 2, nothing written. Outputs: combined XDMF of the tuned mode's B / nodal |B₁±| and the k = 2 |B|. New values at ≤ 6 significant digits; a leak-blocked log ⇒ BLOCKED, not ✅. Census +1, <code>broken=0</code>, docrefs <code>dead=0</code>; elapsed recorded ⇒ ✅. Not claimed: the console script, degree 2, copper, a tuned f₀ / Q / match or absolute C figure, an external check. | ⬜ Queued §9 item 456 (skipped unless U49 is ratified). | heavy (<code>-n 2</code>, ≈ 85 s per run, <code>-t 420</code>) |</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Use the example-runner agent to execute <code>EX-115</code>, §9 item 456 (<code>docs/planning/chunks/EX-115.md</code>, heading <code>§9 item 456</code>). Read the brief and any review ruling beneath it first; the rulings hold. You are the executor — do not spawn agents, and never background a harness window. Pass <code>timeout: 660000</code> on every Bash call that runs a harness window, run every window in the foreground, and never delete a log. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Before window 1, run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> and require 0. Run both pre-censuses before writing any file. Edit nothing under <code>tests/</code> or <code>src/</code>; call the gate module's helpers unchanged; wrap <code>fem_em_solver.study_yaml.run_study_file</code> with a call-through restored in <code>finally</code>, never a stub. Before window 3, check every subscript in the script against the type it indexes; never use a negative index on a dict. Print every new value at ≤ 6 significant digits, and never print the summary's S, Z or tune block with <code>repr</code>; if <code>check_private_leak.py</code> blocks a log, move it unchanged to <code>logs/leak-held/</code>, mark item 456 BLOCKED (not ✅) and stop. Emit the runner line with <code>--dry-run</code> and pass it to the harness; never wrap <code>run_examples.sh</code> in <code>docker compose exec</code>. No edit to the script after window 3 starts, or to the guide after window 5 starts. If the docker socket is denied, stop and report the exact command string. Return the windows' log names, every asserted and printed value beside its record (log:line) or prediction, the census before / after with the docrefs <code>dead=</code> list, and elapsed."</p>
+<h3 id="review-ruling-2026-10-14-1800-item-456">Review ruling 2026-10-14 18:00 (item 456)<a class="headerlink" href="#review-ruling-2026-10-14-1800-item-456" title="Permanent link">&para;</a></h3>
+<p>Accepted as <code>mri:21</code>, <strong>conditional</strong>. It runs only once the 10-14 weekly has ratified U49. A slot that finds U49 unratified or reverted skips the item, journals "skipped, dependency not met", and takes the next one. No BLOCKED mark is needed.
+- <strong>Citations checked by this review.</strong> <code>TH17_STEP3_C_MODE_RECORD_F</code> = 6.628769508e-11 (<code>tests/package/test_wf16_study_tune.py:71</code>). Item 442's k = 2 control is at +4.894874e-01 (<code>20261014T110326Z_WF-1-s11-W1.log:1850</code>), and its <code>run_study_file</code> takes 29.7 s (<code>:1830</code>).
+- <strong>Reuse, so <code>float.hex</code>.</strong> The Study is captured from the <code>femem run</code> call, so the equality with <code>tune()</code> is bitwise and needs no second solve. The one extra field-keeping solve is disclosed and runs after every <code>tune</code> read.
+- <strong>The drafter's <code>REUSE_REPRODUCTION_RTOL</code> finding was right.</strong> It is corrected in <code>EX-114.md</code> § "Review ruling 2026-10-14 18:00". This example does not use that name.
+- <strong>Serial.</strong> Never run beside item 453 or 454.</p>
+<p><strong>Outcome 2026-10-14 22:30 slot — BLOCKED.</strong> Window 3 <code>20261015T033235Z_EX-115.log</code> Status 142 at 57 s: the script asserted <code>femem check</code>'s <code>family:</code> stdout line on every rank, but <code>cli.main</code> prints it on rank 0 only, so rank 1 raised <code>AssertionError: ((0, 0), '')</code> (<code>:925</code>) and rank 0 aborted in the next collective. Reached before the crash: rank width 2, parsed outputs <code>{"tune": {"k": 1}}</code>, <code>check</code> rc (0, 0), the (cX) <code>StudyConfigError</code> at <code>tune.k</code>, the 4×4 sweep, the setup figure (344 KiB). Not reached: (cX) rc / directory, (R0), (I=), (a), (Z), (D), (T), (Once), (c1). No record is red; the defect is the script's, not the gate's. Rule (i) froze the script after window 3 started; parked on <code>attempt/EX-115-20261015T033406Z</code> (<code>14084e55</code>: script, PNG, pre-censuses <code>…033046Z</code> / <code>…033050Z</code> reading 111 / <code>dead=0</code>, dry run <code>…033227Z</code>, the red window). Unblock: a review licenses the one-line fix (broadcast <code>family_line</code> from rank 0, or move the assert into the rank-0 print block) plus a raise-only read of the unrun tail, and re-queues the re-lift (the <code>EX-114</code> item 449 → 453 shape).</p>
+<h3 id="review-ruling-2026-10-15-0300-item-456-item-461">Review ruling 2026-10-15 03:00 (item 456 → item 461)<a class="headerlink" href="#review-ruling-2026-10-15-0300-item-456-item-461" title="Permanent link">&para;</a></h3>
+<p>The 10-14 weekly ratified U49 (<code>691624d3</code>), so the item's condition is met and the re-lift runs. <strong>Diagnosis (no log-pathologist: a plain traceback, no status change).</strong> The red is at script line 334 (<code>attempt/EX-115-20261015T033406Z:examples/mri/21_femem_run_tune_section.py</code>): <code>family_line</code> is parsed at lines 160–164 from a <code>redirect_stdout</code> buffer around <code>cli.main(["check", …])</code>, and <code>cli.main</code> prints <code>family:</code> on rank 0 only, so rank 1's buffer is empty (<code>20261015T033235Z_EX-115.log:925</code>, <code>AssertionError: ((0, 0), '')</code>). Nothing that ran before it is red.</p>
+<p><strong>Licence: one inserted line</strong>, immediately after line 164: <code>family_line = comm.bcast(family_line, root=0)</code>. Every rank then asserts rank 0's line, which is what the brief meant. Moving the assert into the rank-0 block is <strong>not</strong> chosen: the asserts after line 330 run on every rank by design, and a rank-0-only assert would abort rank 0 alone into a collective.</p>
+<p><strong>The review read the unrun tail once (lines 160–440) for any other rank-0-only value asserted on every rank.</strong> It found none: (T)'s Touchstone read is already broadcast (lines 261–270); <code>disk</code> is read from <code>summary.json</code> after <code>comm.Barrier()</code> by every rank; <code>listing</code> is printed only; the cell tags go through <code>allgather</code>; the origin point goes through <code>evaluate_vector_field_parallel</code>. The executor repeats the read before window 3 and may fix only a defect that would raise, each disclosed (the 18:00 <code>EX-114</code> licence's form). No band, record, Done-when or tolerance moves. Attempt 2; <strong>a third block returns the example to the weekly.</strong></p>
+<h3 id="9-item-461-2026-10-15-example-54-ramp-re-lift-of-item-456">§9 item 461 — 2026-10-15 (example, §5.4 ramp; re-lift of item 456)<a class="headerlink" href="#9-item-461-2026-10-15-example-54-ramp-re-lift-of-item-456" title="Permanent link">&para;</a></h3>
+<p><strong>Item 461 — the re-lift (example, §5.4 ramp; <code>example-runner</code>; heavy, <code>-n 2</code>; ≈ 9 measured / 20 predicted min; depends on nothing).</strong> Item 456's brief and its 18:00 ruling hold unchanged (its U49 condition is met), with these amendments:
+1. <strong>Lift by path, never by record-file checkout.</strong> Take <code>examples/mri/21_femem_run_tune_section.py</code>, its setup PNG and the four logs from <code>attempt/EX-115-20261015T033406Z</code> by path. Append the branch's four <code>test-results.md</code> rows <strong>by hand</strong>, and check that <code>git diff --stat</code> shows only insertions on record files (the <code>8d4cf58</code> trap).
+2. <strong>Edits before window 3.</strong> The inserted <code>comm.bcast</code> line above; then the read of the tail, with any raise-only fix it licenses; then nothing more (rule (i)).
+3. <strong>Windows.</strong> Window 0 (orphan check: <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> = 0); window 2 (dry run, label <code>EX-115-dryrun-r2</code>); window 3 (flagged, label <code>EX-115</code>); window 4 (control, label <code>EX-115-control</code>); windows 5 (post-censuses). Attempt 1's pre-census logs stand as window 1: <code>20261015T033046Z_EX-115-pre-figures.log</code> (<code>examples=111</code>) and <code>…033050Z_EX-115-pre-docrefs.log</code> (<code>dead=0</code>). The red <code>20261015T033235Z_EX-115.log</code> lands as attempt 1's record and is never the run of record.
+4. <strong>Predicted.</strong> Window 3 ≈ 100–160 s (attempt 1 reached the check and the 4×4 sweep in 57 s; item 442's <code>run_study_file</code> 29.7 s, <code>20261014T110326Z_WF-1-s11-W1.log:1830</code>, plus the field-keeping sweep); every anchor as item 456 states; census 111 → 112, <code>broken=0</code>; docrefs <code>dead=0</code>.
+5. <strong>Executor spawn prompt.</strong> Item 456's prompt verbatim, with "§9 item 456" replaced by "§9 item 461" and this sentence added: "Read the 2026-10-14 18:00 and 2026-10-15 03:00 review rulings in <code>EX-115.md</code> first; they license the inserted <code>comm.bcast</code> line after line 164 and the raise-only read of the tail, and set the window list."</p>
+<p><strong>Status it can move:</strong> <code>EX-115</code> ⬜ → ✅ under the §7 Done-when as written; census <code>examples</code> 111 → 112. A block parks on a new <code>attempt/EX-115-&lt;UTC&gt;</code> and returns the example to the weekly. Item 473 (U54) depends on this item landing.</p>
+<p><strong>Outcome 2026-10-15 14:00 slot (item 461) -- BLOCKED on the post-docrefs census.</strong> The licensed <code>comm.bcast</code> line went in after script line 164; the tail read found nothing else. Window 3 <code>20261015T140113Z_EX-115.log</code> Status 0, 67 s, "All assertions hold", and the control <code>20261015T140230Z_EX-115-control.log</code> Status 0, 63 s, both reproduced every record (see §9 item 461). Post-figures <code>20261015T140420Z_EX-115-post-figures.log</code> <code>examples=112 ok=112 missing=0 broken=0</code>; post-docrefs <code>20261015T140423Z_EX-115-post-docrefs.log:36</code> <code>dead=1</code> exit 1: the bare name <code>summary.json</code> in <code>21_femem_run_tune_section.md</code> (lines 11, 28, 69, 106, 128) is found in no <code>paraview_output/</code> directory (the file is in <code>mri_21_run/</code>). Rule (i) froze the guide at window 5. Parked <code>attempt/EX-115-20261015T140442Z</code> (<code>a85ec1cd</code>: script, guide, PNG, nine logs, test-results rows). Unblock: license a guide edit (name it by full path, or in prose), then re-run the post-censuses; no re-run of windows 3 / 4 is needed.</p>
+<h3 id="review-ruling-2026-10-15-1030-item-461-item-477">Review ruling 2026-10-15 10:30 (item 461 → item 477)<a class="headerlink" href="#review-ruling-2026-10-15-1030-item-461-item-477" title="Permanent link">&para;</a></h3>
+<p><strong>Diagnosis (no log-pathologist: a census line, no status change).</strong> Item 461 is green on every anchor (<code>20261015T140113Z_EX-115.log</code>, <code>…140230Z_EX-115-control.log</code>, Status 0 both, on the parked branch <code>a85ec1cd</code>); the only red is the post-docrefs census, <code>dead=1</code> on the bare <code>summary.json</code> at five guide lines (<code>20261015T140423Z_EX-115-post-docrefs.log:36</code> on the branch). <strong>The slot's first unblock option would not clear it:</strong> the checker reduces every filename token to its basename before resolving it (<code>scripts/testing/check_example_doc_references.py:173–175</code>, <code>name = Path(match.group(0)).name</code>), so <code>examples/mri/paraview_output/mri_21_run/summary.json</code> is still looked up as <code>summary.json</code> in <code>examples/mri/paraview_output/</code>, <code>examples/mri/figures/</code> and <code>paraview_output/</code>, and is still dead. No earlier <code>femem run</code> guide (<code>mri:19</code>, <code>mri:20</code>) names the file by its <code>.json</code> token (<code>grep -n "summary\.json" examples/*/*.md</code> reads nothing on <code>main</code>). <strong>Licence:</strong> the five mentions become prose with no filename token — "the run's JSON summary" or equivalent — and nothing else in the guide changes; the executor greps the guide for <code>summary\.json</code> (0 hits) before the census windows. No band, record, Done-when, script line or checker line moves (the checker is not edited and <code>summary.json</code> is not allowlisted: the allowlist is for user-named files, and this one is a run output in a subdirectory the checker does not search). Attempt 3; <strong>a block on anything but a new defect in the two census windows returns the example to the weekly.</strong></p>
+<h3 id="9-item-477-2026-10-15-example-54-ramp-re-lift-of-item-461-attempt-3">§9 item 477 — 2026-10-15 (example, §5.4 ramp; re-lift of item 461, attempt 3)<a class="headerlink" href="#9-item-477-2026-10-15-example-54-ramp-re-lift-of-item-461-attempt-3" title="Permanent link">&para;</a></h3>
+<p><strong>Executor:</strong> <code>example-runner</code>, foreground (the harness call is the <strong>whole</strong> Bash command: bare, repo-relative, nothing chained or piped). <strong>Tier:</strong> heavy by ceiling; the census windows are standard (60 s each, as item 461's). <strong>Depends on:</strong> nothing. <strong>Predicted:</strong> ≈ 10 min (lift, five prose edits, two census windows, commit); example class median 9 measured.</p>
+<ol>
+<li><strong>Lift by path, never by record-file checkout.</strong> From <code>attempt/EX-115-20261015T140442Z</code> take by path: <code>examples/mri/21_femem_run_tune_section.py</code>, <code>examples/mri/21_femem_run_tune_section.md</code>, the setup PNG (<code>examples/mri/figures/mri_21_femem_run_tune_section_setup.png</code> — check the branch path with <code>git show --stat a85ec1cd</code>) and the nine <code>docs/testing/logs/*EX-115*</code> logs. Append the branch's nine <code>test-results.md</code> rows <strong>by hand</strong> (<code>main</code> carries none today), and check that <code>git diff --stat</code> shows only insertions on record files (the <code>8d4cf58</code> trap).</li>
+<li><strong>The licensed guide edit, before any window.</strong> Replace the five <code>summary.json</code> tokens (branch guide lines 11, 28, 69, 106, 128) with prose naming no file — keep each sentence's meaning (line 69's <code>(2715 B)</code> and its log cite stay). <code>grep -n "summary\.json" examples/mri/21_femem_run_tune_section.md</code> reads nothing. No other guide, script or checker edit.</li>
+<li><strong>Windows.</strong> Window 0: <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> = 0. Windows 5 only (label <code>EX-115-post-figures-r3</code>, <code>EX-115-post-docrefs-r3</code>), the same two commands item 461 ran (copy them from the branch's <code>test-results.md</code> rows). Windows 3 / 4 of item 461 stand as the runs of record (rule (i) binds the script, which does not change); the run outputs they wrote under <code>examples/mri/paraview_output/</code> are fresh until 2026-10-29 (336 h).</li>
+<li><strong>Anchors (asserted on the census logs):</strong> post-figures <code>examples=112 ok=112 missing=0 broken=0</code>; post-docrefs <code>dead=0</code> (exit 0 or 2 — staleness is information, §9 standing rules). <strong>Negative control:</strong> item 461's own post-docrefs (<code>dead=1</code> on the five lines) is the control — the same checker, the same tree but for the five edits; a <code>dead</code> count other than 0 after them means the edit missed a token.</li>
+<li><strong>Traps already paid for:</strong> a census on a dirty paraview tree from another slot is not a re-run — if <code>examples/mri/paraview_output/mri_21_run/</code> is gone, stop and report (windows 3 / 4 would have to re-run, which this item does not license); the private-leak guard (<code>EX-112</code>) applies to the nine logs exactly as in item 461 — if it fires, follow item 456's leak paragraph above and mark BLOCKED.</li>
+<li><strong>Negative result:</strong> report and stop; park on <code>attempt/EX-115-&lt;UTC&gt;</code>, mark item 477 BLOCKED in the same commit (rule (d)); the example returns to the weekly.</li>
+</ol>
+<p><strong>Status it can move:</strong> <code>EX-115</code> ⬜ → ✅ under the §7 Done-when as written (the anchors are item 461's windows 3 / 4); census <code>examples</code> 111 → 112. Item 473 (U54) depends on this item landing. On landing, delete <code>attempt/EX-115-20261015T140442Z</code> in the same commit message's record (its content is on <code>main</code>).</p>
+<p><strong>Outcome 2026-10-15 15:00 slot (item 477) -- DONE.</strong> Lifted by path from <code>attempt/EX-115-20261015T140442Z</code>; the five <code>summary.json</code> tokens became prose (grep 0 hits). Post-figures <code>20261015T200817Z_EX-115-post-figures-r3.log</code> <code>examples=112 ok=112 missing=0 broken=0</code>; post-docrefs <code>20261015T200821Z_EX-115-post-docrefs-r3.log:160</code> <code>dead=0 guide=0 stale=120</code> exit 2. Windows 3 / 4 of item 461 stand as the runs of record. <code>EX-115</code> ✅.</p>
+<h2 id="7-row-moved-verbatim-2026-10-17-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-17 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-17-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p><strong><code>femem run</code> with a top-level <code>tune:</code> section: one solve, <code>summary["tune"]</code> is the same Study's <code>tune()</code>, the written <code>.s4p</code> alone gives the same C, and the field of the mode the file tuned</strong> <em>(history and §9 briefs: <code>docs/planning/chunks/EX-115.md</code>)</em> (<code>mri:21</code>; <code>example-runner</code>; opened 2026-10-14 by the 18:00 daily review, §5.4 ramp from <code>WF-1</code> step 11 (U49), §9 item 456; runs only once the 10-14 weekly ratifies U49; <code>mri:9</code> runs a solid four-port YAML, <code>mri:19</code> calls <code>tune</code> from Python, no example runs a <code>tune:</code> file) <strong>Done-when:</strong> <code>examples/mri/21_femem_run_tune_section.py</code> + same-stem guide (three required headings + <code>## Setup figure</code> + <code>## Related</code>, PNG ≤ 600 KiB); complex, <code>-n 2</code>, <code>cli.main(["run", …])</code> in-process on the tracked <code>f_small_hole_pec_tune.yaml</code>, captured by a call-through wrapper; no <code>tests/</code> or <code>src/</code> edit; every band imported. Asserted beside <code>20261014T110326Z_WF-1-s11-W1.log:1830–1850</code>: (R0) cells + class means ≤ <code>LEG_D0_REPRODUCTION_BAND</code>; (I=) <code>summary["tune"]</code> (in memory and on disk) = the same Study's <code>tune()</code> by <code>float.hex</code>; (a) <code>C_mode</code> vs <code>TH17_STEP3_C_MODE_RECORD_F</code> ≤ <code>REDUCTION_BAND</code>; one solve. Example-side: (Z) C·ω·Im z_k = 1 from the summary alone ≤ <code>EXACT_IDENTITY_RTOL</code>; (D) <code>tune: {}</code> = the k = 1 block by hex; (T) the <code>.s4p</code> through scikit-rf ≤ <code>ANCHOR_TOL</code> and its C ≤ <code>LEG_D0_REPRODUCTION_BAND</code>. Controls: (c1) k = 2 misses (item 442's +48.95 %); (cX) <code>malformed_tune_k_zero.yaml</code> refuses at <code>tune.k</code>, rc 2, nothing written. Outputs: combined XDMF of the tuned mode's B / nodal |B₁±| and the k = 2 |B|. New values at ≤ 6 significant digits; a leak-blocked log ⇒ BLOCKED, not ✅. Census +1, <code>broken=0</code>, docrefs <code>dead=0</code>; elapsed recorded ⇒ ✅. Not claimed: the console script, degree 2, copper, a tuned f₀ / Q / match or absolute C figure, an external check. | ✅ 2026-10-15 (items 461 / 477; anchors <code>20261015T140113Z_EX-115.log</code>, control <code>…140230Z_EX-115-control.log</code>; census 112, <code>broken=0</code>, <code>dead=0</code>). </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,687 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-150 — ports:22: the power-wave identity per drive — the accepted power an S-column reports equals the terminal accounting to machine precision on the 4-leg birdcage, and deleting S_kk misses by exactly |S_kk|²/(1 − Σ|S_ik|²) - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-150-ports22-the-power-wave-identity-per-drive-the-accepted-power-an-s-column-reports-equals-the-terminal-accounting-to-machine-precision-on-the-4-leg-birdcage-and-deleting-s_kk-misses-by-exactly-s_kk21-s_ik2" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-150 — ports:22: the power-wave identity per drive — the accepted power an S-column reports equals the terminal accounting to machine precision on the 4-leg birdcage, and deleting S_kk misses by exactly |S_kk|²/(1 − Σ|S_ik|²)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-617-2026-10-24-example-54-ramp-from-post-6-step-1b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 617 — 2026-10-24 (example; §5.4 ramp from POST-6 step 1b)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-150-ports22-the-power-wave-identity-per-drive-the-accepted-power-an-s-column-reports-equals-the-terminal-accounting-to-machine-precision-on-the-4-leg-birdcage-and-deleting-s_kk-misses-by-exactly-s_kk21-s_ik2">EX-150 — <code>ports:22</code>: the power-wave identity per drive — the accepted power an S-column reports equals the terminal accounting to machine precision on the 4-leg birdcage, and deleting S_kk misses by exactly |S_kk|²/(1 − Σ|S_ik|²)<a class="headerlink" href="#ex-150-ports22-the-power-wave-identity-per-drive-the-accepted-power-an-s-column-reports-equals-the-terminal-accounting-to-machine-precision-on-the-4-leg-birdcage-and-deleting-s_kk-misses-by-exactly-s_kk21-s_ik2" title="Permanent link">&para;</a></h1>
+<p>*History file for the §7 <code>EX-150</code> row (<code>OPS-46</code>). Opened by the 2026-10-24 10:30 daily review under daily-review.md step 5's example ramp (rule (5) supply). It came from an <code>Explore</code> sweep of gates inside validation modules that an example already references but whose own asserts no example runs. <strong><code>POST-6</code> is ✅.</strong> Its <strong>step 1b</strong> gates the power-wave definition's own identity on each single drive of the 4-leg lumped-sheet birdcage (10 MHz, degree 1, 116 085 cells):</p>
+<p>P_acc,k = ½|a_k|²(1 − Σ_i |S_ik|²) = supplied_k − Σ_i sheets_ik.</p>
+<p>The bands:
+- the identity holds within <code>STEP1B_POWER_WAVE_RTOL</code> (1e-6), after the package's <code>accepted_power_w</code> is checked against the closed form at 1e-12 (<code>test_the_single_drive_power_wave_identity_closes</code>, <code>tests/validation/test_port_drive_superposition.py:1036–1068</code>);
+- the negative control, the same column with S_kk deleted, misses by at least <code>STEP1B_CONTROL_MIN_MISS</code> (1e-3) and equals its closed-form ceiling |S_kk|²/(1 − Σ_i|S_ik|²) at 2 × <code>STEP1B_POWER_WAVE_RTOL</code> (<code>test_zeroing_the_reflection_diagonal_breaks_the_power_wave_identity</code>, <code>:1091–1127</code>).</p>
+<p>Readings: relative deviation 8.414e-16 / 8.412e-16 / 1.679e-15 / 8.409e-16 on P1–P4. The control misses by 7.659732e-01 / 7.656687e-01 / 7.634896e-01 / 7.652279e-01, each equal to its ceiling (<code>20260923T095500Z_POST-6-step3-rerun-WF-7-step2.log.gz:1942–1957</code>, 17 passed, Status 0, 172 s; <code>L</code> below). <strong>No example asserts this identity.</strong> <code>ports:13</code> (<code>EX-49</code>) runs the same sweep and prints only the drive-level P_acc / volume-loss ratio (≈ 0.88), naming step 1b in prose; <code>grep -rlE "STEP1B_" examples</code> is empty.*</p>
+<p><strong>Gap check.</strong> At execution, <code>grep -rlE "STEP1B_POWER_WAVE_RTOL|STEP1B_CONTROL_MIN_MISS" examples --include=*.py</code> must be empty (window 0; empty at 2026-10-24 10:30).</p>
+<p><strong>Done-when.</strong>
+- <code>examples/ports/22_power_wave_identity_per_drive.py</code> and its same-stem guide <code>.md</code> exist.
+- <code>./run_examples.sh -e ports:22 -n 2 -t 600</code> (the <code>ports:</code> group sources the complex build) exits 0 with every gate below asserted.
+- The bands, fixture builder and helpers imported by name from <code>tests/validation/test_port_drive_superposition.py</code> and its upstream modules, never restated; no gate module or <code>src/</code> edit.
+- A combined XDMF under <code>examples/ports/paraview_output/</code> of one single drive's field (P1) with the four sheet facet tags, and a setup figure through <code>write_setup_figure</code>.
+- The census moves by +1, the setup-figure census is <strong>logged as its own harness window</strong> and reads <code>missing=0</code>, and docrefs read <code>dead=0</code>.</p>
+<h3 id="9-item-617-2026-10-24-example-54-ramp-from-post-6-step-1b">§9 item 617 — 2026-10-24 (example; §5.4 ramp from <code>POST-6</code> step 1b)<a class="headerlink" href="#9-item-617-2026-10-24-example-54-ramp-from-post-6-step-1b" title="Permanent link">&para;</a></h3>
+<p><strong>Licence.</strong> Daily-review.md step 5, the example ramp. A gated step (<code>POST-6</code> step 1b) is shown from an angle no example covers. The <strong>output quantity</strong> is the accepted power from S, set against the terminal accounting, as an identity: what "S-parameters conserve power" means on a field-derived 4×4. <code>ports:13</code> prints a drive-level ratio that does <em>not</em> close (≈ 0.88) and says why in prose; this example shows the identity that does. No band, tolerance, record, Done-when or target is set or moved. Every band is imported by name.</p>
+<p><strong>What the example does.</strong> It uses <code>ports:13</code>'s route, which is the gate fixture's (<code>superposition_case</code>, <code>:306–455</code>).
+- <strong>Imports, by name:</strong>
+  - From <code>tests/validation/test_port_drive_superposition.py</code>: <code>STEP1B_POWER_WAVE_RTOL</code>, <code>STEP1B_CONTROL_MIN_MISS</code>.
+  - From <code>tests/validation/test_port_birdcage_four_port.py</code>: <code>build_four_port_sweep</code>.
+  - From <code>tests/validation/test_birdcage_b1_plus_map.py</code>: <code>_power_shares</code>, <code>POWER_BALANCE_BAND</code>.
+  - From <code>fem_em_solver.ports</code>: <code>run_n_port_sparameter_sweep</code> and <code>superpose_drives</code>.
+  - Check every name at execution. <strong>A pytest fixture cannot be called directly</strong>, so do not import <code>superposition_case</code>. Never import a <code>test_*</code> name.
+- <strong>The sweep:</strong> <code>sweep = build_four_port_sweep()</code>, then <code>result = run_n_port_sparameter_sweep(sweep["problem"], sweep["port_defs"], lumped_sheet_ports=sweep["specs"], lumped_sheet_facet_tags=sweep["facet_tags"], keep_fields=True)</code>, exactly the fixture's <code>:314–323</code> and <code>ports:13</code>'s <code>:266–310</code>.
+- <strong>The accounting (the fixture's <code>:388–404</code>).</strong> For each driven port <code>pid</code>, build <code>solved = {"driven": pid, "fields": result.fields[pid], "source_voltage_v": v_src[pid], "currents": {p: responses[p].current_a}}</code> with <code>v_src</code> from <code>sweep["specs"]</code>. Then <code>sh = _power_shares(sweep, solved)</code> and <code>net = sh["supplied"] − sh["sheet_total"]</code>.
+- <strong>The S side (the fixture's <code>:415–455</code>, written out).</strong> Set <code>unit = e_k</code> and <code>drive_k = superpose_drives(result, unit)</code>, with <code>a_k = drive_k.incident_waves[k]</code>.
+  - The column sum is <code>Σ_i|S_ik|²</code> from <code>result.s_matrix</code>.
+  - The closed form is ½|a_k|²(1 − Σ_i|S_ik|²).
+  - The control is the same expression with <code>column[k] = 0</code>, evaluated independently, not differenced.
+  - The ceiling is |S_kk|²/(1 − Σ_i|S_ik|²).
+  - This arithmetic is the identity being demonstrated. Writing it out is the example's point, and the comparison bands are the gate's.
+- <strong>The picture.</strong> P1's E (or |E|² as DG0) with the four sheets' facet tags, through <code>write_xdmf_with_tags(…, facet_tags=…)</code> (<code>ports:13</code>'s pattern).</p>
+<p><strong>Gates (asserted; bands imported) — the gate's asserts, per drive P1–P4.</strong>
+- <strong>(K)</strong> the package's <code>accepted_power_w</code> equals the closed form at rel 1e-12 (the gate's own literal check, <code>:1051</code>; it is the test's arithmetic check, not a physics band, and is stated here as the gate states it).
+- <strong>(N)</strong> net &gt; 0.
+- <strong>(1b-i)</strong> |P_acc − P_net|/|P_net| ≤ <code>STEP1B_POWER_WAVE_RTOL</code>. Records 8.414e-16 / 8.412e-16 / 1.679e-15 / 8.409e-16 (<code>L:1942–1954</code>).
+- <strong>(c-Skk), the control, asserted, backed</strong> (<code>L:1945–1957</code>):
+  - ceiling ≥ <code>STEP1B_CONTROL_MIN_MISS</code>;
+  - control miss ≥ <code>STEP1B_CONTROL_MIN_MISS</code>;
+  - control miss equals the ceiling at rel 2 × <code>STEP1B_POWER_WAVE_RTOL</code>.
+  - Records 7.659732e-01 / 7.656687e-01 / 7.634896e-01 / 7.652279e-01, ≈ 766× the floor. The ceiling is the fixture's own number, so no larger factor is claimed.
+- <strong>Cross-check, asserted as <code>ports:13</code> does:</strong> each single-drive power residual |supplied − (phantom + conductor + sheets)|/supplied ≤ <code>POWER_BALANCE_BAND</code>. Records 9.795751e-03 / 9.796209e-03 / 9.794985e-03 / 9.795283e-03 (<code>20260905T201151Z_EX-49.log.gz</code>, <code>docs/planning/chunks/EX-49.md</code>).</p>
+<p><strong>Printed only, never gated.</strong>
+- Per drive: |a_k|, Σ_i|S_ik|², |S_kk|, supplied, sheets, P_vol = ½∫σ|E_k|², and |P_acc − P_vol|/P_acc (the gate's <code>:592–606</code> print).
+- The guide's paragraph covers three points:
+  - Why (1b-i) is an identity at z0 = Re Z_p: both sides come from the same stored terminal readings, so 1e-6 tests the <em>assembly</em>, not the discretisation.
+  - Why P_vol differs by ≈ 1 %: the field-side loss integral carries the discretisation; this is <code>POWER_BALANCE_BAND</code>'s scale.
+  - Why <code>ports:13</code>'s drive-level ratio sits near 0.88: known-issues, <code>POST-6</code> step 1. That question is not re-opened here.
+- Print records beside readings; never assert digit equality (item 537).</p>
+<p><strong>Guide (<code>22_power_wave_identity_per_drive.md</code>).</strong> Use <code>ports:13</code>'s structure:
+- what it shows;
+- how to run it (<code>./run_examples.sh -e ports:22 -n 2 -t 600</code>);
+- the numbers it prints, each cited to this run's harness log by full filename (rule (b));
+- the gates;
+- what it does not show: no absolute S accuracy, no resonance or tuning claim, no AED comparison, no 64 / 128 MHz;
+- ParaView steps.</p>
+<p>Point to <code>ports:13</code> as the superposition twin. Write <code>≈</code>, never a tilde.</p>
+<p><strong>Executor:</strong> <code>example-runner</code>. <strong>Tier:</strong> heavy, <strong>complex</strong> build (the <code>ports:</code> group), <code>-n 2</code>.
+- <strong>Prediction:</strong> 60–150 s. <code>ports:13</code> ran the same build plus one sweep and three superpositions in 73 s at <code>-n 2</code> (<code>EX-49</code> row). Use <code>-t 600</code>. Every container <code>timeout</code> carries <code>-k 30</code>.
+- <strong>Class:</strong> example. <strong>Cost:</strong> ≈ 4.3 measured / ≈ 35 predicted slot-minutes.
+- <strong>Depends on:</strong> nothing open. Independent of items 615, 616 and 618.
+- <strong>Family:</strong> <code>EX-150</code>, attempt 1 of 4. <strong>Daytime:</strong> no.</p>
+<p><strong>Windows (each its own bare harness call, foreground, Bash <code>timeout: 660000</code>).</strong>
+1. Window 0: the gap grep above, and the census before (<code>./run_examples.sh --list</code> through the harness, labelled <code>EX-150-census-pre</code>).
+2. The example: write the script first, then run <code>./run_examples.sh -e ports:22 -n 2 -t 600 --dry-run</code>, which must print <code>(complex build)</code>. Run the printed <code>docker compose exec</code> line as its own bare harness call labelled <code>EX-150</code>, with <code>-e FEM_EM_SETUP_FIGURES=1</code> after <code>exec</code>, after <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0.
+3. Afterwards, three windows: the census (<code>EX-150-census-post</code>); <code>scripts/testing/run_and_log.sh EX-150-figures "timeout -k 30 30 python3 scripts/testing/check_example_setup_figures.py --next 3"</code> (must read <code>missing=0</code>); docrefs (<code>dead=0</code>, exit 0 or 2).</p>
+<p><strong>The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped.</strong></p>
+<p><strong>Traps already paid for.</strong>
+- <strong><code>keep_fields=True</code> is what keeps the four phasors.</strong> Read them; never re-solve.
+- <strong><code>wᴴ</code> is <code>w.conj()</code>.</strong> <code>superpose_drives</code> takes the weight vector in <code>result.port_ids</code> order, so build e_k in that order (<code>ports:13</code> passes a dict; the gate passes an array; either is fine if the order is the result's).
+- <strong>z0 normalisation:</strong> take <code>a_k</code> from <code>superpose_drives</code> as the gate does. Do not renormalise.
+- <strong>Rank-local scalars:</strong> <code>_power_shares</code> reduces its integrals. Any integral the example adds is reduced the same way.
+- <strong><code>EX-49</code>'s ruling (rule (e)):</strong> every control factor is labelled. Here the floor and the ceiling-equality are backed by <code>L:1945–1957</code>; nothing larger is asserted.
+- <strong><code>FEM_EM_REQUIRE_COMPLEX=1</code></strong>, which the runner sets for the <code>ports:</code> group. Check that the dry run prints it.
+- <strong>The private-leak commit guard:</strong> if it flags this log, move the log unchanged to the gitignored <code>logs/leak-held/</code> and report. No AED string; this fixture is not an Ansys case.
+- <strong>Census convention:</strong> report the <code>--list</code> entry count and the group-prefixed count, before and after.
+- <strong>Rule (i):</strong> no script edit after its window.
+- Never <code>-k</code> in pytest. No pipe. Never delete a log.</p>
+<p><strong>Scope.</strong> Covered: <code>POST-6</code> step 1b's per-drive identity and its S-diagonal control, re-run as a narrated example with ParaView output. <strong>Not claimed:</strong> step 1b-ii's regression pin (the ccw drive's 3.014424803e-03 W; printed if computed, never asserted), the drive-level accounting question, any absolute, resonance, tuning or AED statement.</p>
+<p><strong>Negative result.</strong> Report and stop. Park on <code>attempt/EX-150-*</code> and mark item 617 BLOCKED in the same commit (rule (d)).
+- <strong>(1b-i) red while <code>L</code> was green:</strong> the example's arithmetic and the gate's diverge. Check (K) first. If (K) holds and (1b-i) misses, open a known-issues entry naming both logs and stop. No band moves.
+- <strong>(c-Skk) ceiling-equality red:</strong> the control is not the perturbation it claims. Stop.
+- <strong>A cell count different from 116 085:</strong> not a red here. Print it and name it in the Outcome.</p>
+<p>No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> §7 <code>EX-150</code> ⬜ → ✅ on its Done-when. The census moves by +1. <code>POST-6</code> does not move.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Execute §9 item 617 — <code>EX-150</code> (<code>ports:22</code>) — per <code>docs/planning/chunks/EX-150.md</code> "§9 item 617". Read the brief and any review ruling beneath it first; the rulings hold. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Import <code>STEP1B_POWER_WAVE_RTOL</code> and <code>STEP1B_CONTROL_MIN_MISS</code> from <code>tests/validation/test_port_drive_superposition.py</code>, <code>build_four_port_sweep</code> from <code>tests/validation/test_port_birdcage_four_port.py</code>, <code>_power_shares</code> and <code>POWER_BALANCE_BAND</code> from <code>tests/validation/test_birdcage_b1_plus_map.py</code>, and <code>run_n_port_sparameter_sweep</code> / <code>superpose_drives</code> from <code>fem_em_solver.ports</code>, all by name. Never import a <code>test_*</code> name or the <code>superposition_case</code> fixture, and never edit a gate module or <code>src/</code>. Build the sweep with <code>keep_fields=True</code> as <code>ports:13</code> does, then assert (K), (N), (1b-i), (c-Skk) and the power-residual cross-check per drive, as the brief states. Run window 0 (gap grep, census). Write the script, then run <code>./run_examples.sh -e ports:22 -n 2 -t 600 --dry-run</code>. Run the printed <code>docker compose exec</code> line, with <code>-e FEM_EM_SETUP_FIGURES=1</code> after <code>exec</code>, as its own bare harness call labelled <code>EX-150</code>, after <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0. Then run the census, the logged setup-figure census <code>EX-150-figures</code>, and docrefs, each in the foreground with <code>timeout: 660000</code>. You are the executor — do not spawn agents, never background a harness window. If the docker socket is denied, stop and report the exact command string. If the private-leak guard holds a log, move it unchanged to <code>logs/leak-held/</code> and report. On a red, park on <code>attempt/EX-150-*</code>, mark item 617 BLOCKED in the same commit, and report."</p>
+<p><strong>Outcome (2026-10-24, 17:1x UTC slot) — complete, green.</strong> <code>20261024T171129Z_EX-150.log</code> (Status 0, 51 s harness, 48.3 s script, <code>-n 2</code>, complex; field-keeping sweep 8.4 s). Cells 116 085 (equal to the record). Per drive P1–P4: (K) held at 1e-12; (N) net &gt; 0; (1b-i) rel dev 1.683e-15 / 8.412e-16 / 0.0 / 8.409e-16 (band 1e-6); (c-Skk) control miss 7.659732e-01 / 7.656687e-01 / 7.634896e-01 / 7.652279e-01 = ceiling (766x / 766x / 763x / 765x the floor); residual 9.795751e-03 / 9.796209e-03 / 9.794985e-03 / 9.795283e-03 (band 1e-2), all equal to the records at printed digits. Printed only: |P_acc − P_vol|/P_acc ≈ 0.130 (the brief's "≈ 1 %" expectation did not hold for this print; nothing asserted on it; disclosed in the guide). Census <code>20261024T171040Z_EX-150-census-pre.log</code> 146 entries / 21 <code>ports:</code> → predicted +1 → <code>20261024T171239Z_EX-150-census-post.log</code> 147 / 22 (match yes). Figures <code>20261024T171242Z_EX-150-figures.log</code> <code>ok=147 missing=0 broken=0</code>. Docrefs <code>20261024T171244Z_EX-150-docrefs.log</code> <code>dead=0 guide=0 stale=143</code>, exit 2 (staleness info). Setup PNG 418 KiB.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

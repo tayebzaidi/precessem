@@ -1,0 +1,583 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>OPS-27 — Re-record the 0.7.2-era exact records the OPS-18 re-record did not reach, version-tagged on the GEO-16 precedent, and sweep for siblings - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ops-27-re-record-the-072-era-exact-records-the-ops-18-re-record-did-not-reach-version-tagged-on-the-geo-16-precedent-and-sweep-for-siblings" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              OPS-27 — Re-record the 0.7.2-era exact records the OPS-18 re-record did not reach, version-tagged on the GEO-16 precedent, and sweep for siblings
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ops-27-re-record-the-072-era-exact-records-the-ops-18-re-record-did-not-reach-version-tagged-on-the-geo-16-precedent-and-sweep-for-siblings">OPS-27 — Re-record the 0.7.2-era exact records the <code>OPS-18</code> re-record did not reach, version-tagged on the <code>GEO-16</code> precedent, and sweep for siblings<a class="headerlink" href="#ops-27-re-record-the-072-era-exact-records-the-ops-18-re-record-did-not-reach-version-tagged-on-the-geo-16-precedent-and-sweep-for-siblings" title="Permanent link">&para;</a></h1>
+<p><strong>Re-record the 0.7.2-era exact records the <code>OPS-18</code> re-record did not reach, version-tagged on the <code>GEO-16</code> precedent, and sweep for siblings</strong> — two reds on <code>main</code> filed by the <code>OPS-26</code> census: <code>test_geometry_floor_discriminator.py</code> <code>RECORD_128_RELL2</code> = 0.01826 vs <code>OPS-18</code>'s 1.7686% (leg (c) finding 19) and <code>test_coil_loading_larmor_mesh_cache.py</code> <code>NCELLS_THIRD</code> = 2 807 309 vs 0.11's 2 808 204 (leg (d) finding 23, +0.032% mesher drift); <code>GEO-16</code>'s 79 534 → 79 070 was the first of the class. No band introduced; a <code>grep -rn '0\.7\.2' tests/</code> sweep (11 files) tabulated for a third site. Commissioned 2026-08-27 10:30 review. <em>Re-scoped 2026-08-27 18:00 review from the finished census: the class is <strong>ten names / eight modules / five meshes</strong> plus the relative-L2 pair, every 0.11 value already measured in a census log — split into <strong>step 1</strong> (cheap half: geomfloor, the 138 619 family, <code>mesh_cache</code>; ≈ 570 s) and <strong>step 2</strong> (expensive half: the 417 914 family, <code>combined_knobs</code>, <code>wire_resolution</code>; ≈ 1 440 s), independent; <code>box_truncation</code>'s suspected sixth mesh pending on a cheaper fixture. Rubrics: §9 items 1 and 2.</em> <em><strong>Step 1 ✅ 2026-08-27 (19:30 slot)</strong> — the cheap half landed exactly as ruled: <code>RECORD_128_RELL2</code> 0.01826 → <strong>0.017686</strong> / <code>RECORD_128_SEPARATION</code> 57.31 → <strong>59.16</strong>, <code>NCELLS_BASELINE</code> 138_619 → <strong>138_490</strong>, <code>NCELLS_THIRD</code> 2_807_309 → <strong>2_808_204</strong>, every one an exact equality version-tagged with its 0.7.2 digit and its census log in-comment (<code>GEO-16</code> precedent), <strong>no band anywhere and <code>git diff -- src/</code> empty</strong>. All four anchors green from <code>main</code> in four foreground windows, 604 s total: geomfloor <code>12 passed / 46.45 s</code> (Status 0, 49 s, <code>-n 2</code> complex), richardson <code>FREQ_MHZ=10,30</code> <strong><code>25 passed</code> / 147.00 s</strong> where the census read <code>2 failed, 23 passed</code> (Status 0, 149 s), probe + 30 MHz <strong><code>23 passed</code> / 149.09 s</strong> where the census read <code>2 failed, 21 passed</code> (Status 0, 150 s), <code>mesh_cache</code> <strong>real</strong> <code>12 passed, 4 skipped / 254.75 s</code> where the census read <code>1 failed, 11 passed, 4 skipped</code> (Status 0, 256 s). Collected counts identical to the census runs (25 / 23 / 16), so exactly the six stale-record names flipped and no other name's status moved. <strong>Finding 38 — the 138 619 family is ONE constant, not four:</strong> <code>richardson_ladder</code>, <code>transition_30mhz</code> (and <code>degree2</code>) all <em>import</em> <code>test_coil_loading_larmor_probe.NCELLS_BASELINE</code>, so finding 30's "the unit of repair is the mesh, not the file" holds in its strongest form — one edit retired four reds, and a per-file sweep would have found nothing to edit in two of the three modules. <strong>Finding 39 — the <code>0.7.2</code> completeness grep is confirmed empty:</strong> <code>grep -rn '0\.7\.2' tests/</code> returns 26 hits over 11 files and <strong>none</strong> is one of this chunk's sites; every hit is either an already-swept record carrying both digits or prose. The demotion to a completeness check was right. <strong>Finding 40 (scope note for step 2 / the review):</strong> the value greps surface <strong>prose</strong> copies of these meshes in modules outside either step's scope — <code>138 619</code> in <code>test_coil_loading_degree2.py</code> (×5), <code>test_degree2_energy_mechanism.py</code>, <code>test_dodd_deeds_impedance.py</code> (×2), <code>test_dodd_deeds_projected_drive.py</code>, <code>test_dodd_deeds_reactance_box_size.py</code>, <code>test_dodd_deeds_reactance_box_truncation.py</code> (×3), <code>test_dodd_deeds_reactance_combined_knobs.py</code> (×3), <code>test_dodd_deeds_reactance_wire_resolution.py</code> (×3), <code>test_dodd_deeds_resistance_slab_resolution.py</code> — and <code>417 914</code> in <code>richardson_ladder</code> (×3). None is asserted (the <code>_dodd_deeds_</code> ones are growth-ratio <em>denominators</em> printed for scale, not records), so none was edited under this step's "five names, five files" scope; they are stale documentation and want a single prose sweep after step 2 lands, not an in-scope edit here.</em> <em><strong>Step 2 ✅ 2026-08-27 (21:00 slot) ⇒ chunk ✅</strong> — the expensive half landed as ruled: <code>NCELLS_FINE</code> 417_914 → <strong>418_888</strong> (<code>slab_resolution</code>, <code>larmor_resolution</code>), <code>NCELLS_COMBINED</code> 697_401 → <strong>697_926</strong> (<code>combined_knobs</code>), and the <code>:268</code> literal 366_207 → <strong>365_970</strong> (<code>wire_resolution</code>); exact equalities, version-tagged, no band, <code>git diff -- src/</code> empty. Three anchors green from <code>main</code>, <strong>1 523 s</strong>, all Status 0: slab <code>-n 2</code> <strong>16 passed / 479.37 s</strong> (census <code>1 failed, 15 passed</code>), knobs <code>-n 8</code> <strong>15 passed / 577.00 s</strong> (census <code>1 failed, 14 passed</code>), wire-projected <code>-n 2</code> by node id <strong>4 passed / 459.44 s</strong> (census <code>1 failed, 3 passed</code>); collected counts identical (16 / 15 / 4). <strong>Finding 41:</strong> <code>third_rung:443</code> holds no constant — it imports <code>NCELLS_FINE</code> from <code>larmor_resolution</code>, so the rubric's five edits are <strong>four</strong>, and step 1's finding 38 (import aliases, not per-file records) repeats on a second family. <strong>Finding 42:</strong> <code>combined_knobs</code> reproduced inside its finding-32-widened 660 s window at 577.00 s (+1.5% on its census reading); all three anchors came in <strong>above</strong> their census elapsed (+11.5% / +1.5% / +5.8%), so the ≥ 1.5× rule stays a sizing rule. <strong>Finding 43:</strong> the negative control is name-and-status level only — an all-green run captures the prints the census log showed via failure capture. <code>larmor_resolution</code> and <code>third_rung</code> are edited but not re-run (same mesh value the slab run measured; <code>third_rung</code> is warm-cache-only 304 s at <code>-n 8</code>, finding 25) — their known-issues line is re-headed 🟡 "re-recorded, re-run owed to the next census". Retired: the leg (f) entry in full, the leg (g) <code>wire_resolution</code> entry. <code>box_truncation</code>'s suspected sixth mesh stays pending, fixture not opened.</em> <em><strong>Step 3 ✅ 2026-08-28 (16:30 slot) — the owed tail is closed.</strong> Both re-runs green from <code>main</code> in two foreground windows, <strong>719 s</strong>, both Status 0 with identical rank streams: <code>test_coil_loading_larmor_resolution.py</code> <code>-n 2</code> complex <strong><code>17 passed</code> / 424.32 s</strong> (<code>20260828T213049Z_OPS-27-step3-larmor-resolution.log</code>, 426 s) where the census read <code>1 failed, 16 passed</code>; <code>test_coil_loading_larmor_third_rung.py</code> <code>-n 8</code> complex <code>TH11_STEP5_RUNG=fine</code> <strong><code>18 passed</code> / 291.03 s</strong> (<code>20260828T213807Z_OPS-27-step3-thirdrung.log</code>, 293 s) where the destubbed census read <code>1 failed, 17 passed</code>. <strong>Collected counts identical to the census runs (17 / 18)</strong>, so exactly the two stale-record names flipped and no other name's status moved — the <code>NCELLS_FINE == 418_888</code> equality and its imported alias (finding 41) are both executed green now, and both known-issues entries are RETIRED. <strong>Finding 44 — the cold price feared for <code>third_rung</code> does not exist on the record.</strong> Finding 25 inferred a "≥ 500 s cold" from a 300 s kill and a 304 s warm footer, and the rubric sized a 900 s window for it; the module returned at <strong>291 s, below the warm figure</strong>, with <code>larmor_resolution</code> having run first as ruled. So this slot again measured a <em>warm-fixture</em> price and the cold price is still unmeasured — the ≥ 500 s number should not be carried forward as if it were a measurement. <strong>Finding 45 — the finding-40 prose sweep is not a mechanical substitution; three quarters of the copies must keep the 0.7.2 digit.</strong> Of the 33 spaced-form <code>138 619</code> / <code>417 914</code> copies <code>tests/</code> carried at <code>ac7f03f</code>, <strong>19 were re-recorded</strong> (each written as the 0.11 value with the 0.7.2 digit kept in the same comment, so the <em>old</em> digit's count does not fall) across seven modules — <code>richardson_ladder</code> ×3, <code>larmor_resolution</code> ×5, <code>third_rung</code> ×2, <code>degree2</code> ×5, <code>dodd_deeds_impedance</code> ×2, <code>projected_drive</code>, <code>slab_resolution</code>; <code>grep -rno '138 490\|418 888' tests/</code> goes <strong>14 → 33</strong>, i.e. exactly 19 new sites — and the rest were deliberately left, in three kinds: (a) <strong>dated result blocks</strong> that narrate a 0.7.2 run (<code>slab_resolution</code> and <code>wire_resolution</code>'s log-cited ladder tables, <code>degree2</code>'s two <code>20260818T…</code> probe/calibration comments, <code>degree2_energy_mechanism</code>'s "<code>TH-12</code> step 2 measured"), (b) <strong>executable growth denominators and the print strings and docstring ratios coupled to them</strong> (<code>wire_resolution:263/266</code>, <code>combined_knobs:246/247</code> and its "5.03×", <code>box_truncation:334</code> and its "4.29×", <code>slab_resolution</code>'s <code>NCELLS_LANDED</code>, <code>box_size:75</code>'s "2.17× (138 619 → 300 591)") — moving the digit without moving the denominator makes the file inconsistent, and moving the denominator is a constant edit this step's negative control forbids, and (c) counts on meshes <strong>the census never measured on 0.11</strong> (<code>box_truncation</code>'s fixture, finding 36; <code>box_size</code>'s 300 591). So the residue is a <em>coupled-constant</em> job for whichever chunk re-prices those fixtures, not leftover prose. <code>git diff -- src/</code> empty; the seven edited modules <code>py_compile</code> clean (<code>20260828T214616Z_OPS-27-step3-prose-sweep-compile.log</code>, Status 0).</em> | ✅ </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

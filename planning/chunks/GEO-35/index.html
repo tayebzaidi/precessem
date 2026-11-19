@@ -1,0 +1,1249 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>GEO-35 — Drop the floating leg-port boxes from unbroken-leg birdcages (history) - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#geo-35-drop-the-floating-leg-port-boxes-from-unbroken-leg-birdcages-history" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              GEO-35 — Drop the floating leg-port boxes from unbroken-leg birdcages (history)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-275-2026-10-06-chain-u17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 275 — 2026-10-06 (chain U17)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-07-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-07 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="§7 row moved verbatim 2026-10-07 (rotate_plan_archive.py chunks)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#9-item-351-2026-10-09-chain-step-u21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 351 — 2026-10-09 (chain step U21)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-item-356-2026-10-10-chain-step-u21-2b-i-provisional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 356 — 2026-10-10 (chain step U21, 2b-i, provisional)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-item-357-2026-10-10-chain-step-u21-2b-i-part-2-provisional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 357 — 2026-10-10 (chain step U21, 2b-i part 2, provisional)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-item-385a-2026-10-11-u21-2b-ii-part-1-wf-7-step-3-ex-62-switched-and-re-recorded-chain-step-solve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 385a — 2026-10-11 (U21 2b-ii part 1: WF-7 step 3 + EX-62 switched and re-recorded; chain step (solve))
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-item-385b-2026-10-11-u21-2b-ii-part-2-geo-25-transverse-mesh12-to-_unboxed-geo-35-chain-step-solve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 385b — 2026-10-11 (U21 2b-ii part 2: GEO-25 transverse + mesh:12 to …_UNBOXED; GEO-35 ✅; chain step (solve))
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#row-state-moved-2026-10-11-0300-daily-review-7-row-2-kb-after-the-rule-j-done-when-amendment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Row state moved 2026-10-11 (03:00 daily review, §7 row ≤ 2 KB after the rule-(j) Done-when amendment)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="geo-35-drop-the-floating-leg-port-boxes-from-unbroken-leg-birdcages-history">GEO-35 — Drop the floating leg-port boxes from unbroken-leg birdcages (history)<a class="headerlink" href="#geo-35-drop-the-floating-leg-port-boxes-from-unbroken-leg-birdcages-history" title="Permanent link">&para;</a></h1>
+<h3 id="9-item-275-2026-10-06-chain-u17">§9 item 275 — 2026-10-06 (chain U17)<a class="headerlink" href="#9-item-275-2026-10-06-chain-u17" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-06 03:00 daily review; the review reviews it.</em> Licence: the 2026-10-05 weekly's enumerated step <strong>U17</strong> (PROJECT_PLAN.md §10, grep "U17. <code>GEO-35</code> step 1"; target "CAD identities"; serial on nothing). <strong>No band, tolerance, record or Done-when is set or moved.</strong> Every band below is imported by name from the file:line cited.</p>
+<p><strong><code>GEO-35</code> step 1: the inert leg-port boxes dropped behind a knob.</strong> <code>birdcage_port_domain</code> gains one additive keyword-only argument, <code>emit_leg_ports: bool = True</code>. With <code>False</code> on an unbroken-leg layout (<code>leg_gap_length=None</code>) the 16 floating boxes at the mid-leg azimuths (<code>src/fem_em_solver/io/mesh.py:4817–4846</code>, the <code>addBox</code> at <code>:4837</code>) are not built; everything else is unchanged. On the F-human fixture (<code>WF-7</code>'s build, <code>tests/validation/test_wf7_f_human_ring_matrix.py:451–456</code>) the step asserts the CAD identities and the ring-port census, prints the cell count, and prints how far the degree-1 32×32 moves from <code>WF-7</code>'s record. The identities are the gate. The move is expected to be at discretisation level and is printed only.
+- <strong>Executor:</strong> implementer. Changes: additive <code>src/</code> in <code>io/mesh.py</code>, one new mesh test module, and one additive environment knob in the <code>WF-7</code> step-1 module. <strong>No existing default path, record, band or other caller is edited, and no fixture is switched.</strong> Switching the fixtures and re-recording under (1*) is step 2 (<code>record-reconciler</code>).
+- <strong>Tier:</strong> W0 standard; W1 and W2 <strong>heavy</strong>. Ranks: <code>-n 2</code> for W0 and W1 (the rank-safety width); <code>-n 8</code> for W2 (<code>WF-7</code>'s own width, under the 12 ceiling).
+- <strong>Class:</strong> chain step (solve). <strong>Cost:</strong> ≈ 19 measured (class median) / <strong>≈ 48 predicted</strong> min. That is 15 fixed + ≈ 15 code + W0 ≈ 2 + W1 ≈ 5.5 + W2 ≈ 6.5 + ≈ 4 spare. <strong>If W1 is not green by minute 35, park</strong> (rule (d)).
+- <strong>Depends on:</strong> nothing open. It shares no file with any queued item that this draft knows of. <code>io/mesh.py</code> is also touched by the <code>GEO-36</code> / <code>GEO-34</code> lines, so add by edit and rebase, never check out by path.</p>
+<p><strong>Settled from the code (read before designing).</strong>
+- <strong>Where the boxes come from.</strong> <code>port_tags</code> is filled once per leg in <code>for idx, angle in enumerate(theta_leg)</code> (<code>mesh.py:4830</code>). With <code>leg_gap_length is None</code> each box sits at the mid-azimuth between adjacent legs (<code>:4831–4836</code>) and is an axis-aligned <code>addBox</code> (<code>:4837–4846</code>). The ring-gap boxes are appended after it. The constructor already refuses to drive these boxes: <code>emit_port_sheets</code> without a gap raises an error (<code>:4346–4353</code>), and <code>leg_azimuth_offsets_rad</code> without a leg gap is refused because the boxes "float" (<code>:4379–4390</code>).
+- <strong>Ordinals are positional.</strong> <code>port_ordinal = {tag: idx for idx, tag in enumerate(port_tags, start=1)}</code> (<code>:5218</code>). Every ring-port caller keys on ordinals <code>LEG_COUNT + 1 … 3·LEG_COUNT</code> = 17–48 (<code>_ring_ports</code>, <code>tests/validation/test_birdcage_f_human_rung.py:134–136</code>), that is, cell tags <code>PORT_LOWER + i</code> / <code>PORT_UPPER + i</code> = 117–148 / 217–248. <strong>With the knob off the leg boxes, the ring ordinals must stay 17–48.</strong> Build the map explicitly and keep the leg ordinals 1–16 as reserved gaps. A plain <code>enumerate</code> over a shorter list would renumber every ring port.
+- <strong>The group census.</strong> <code>expected_groups</code> (<code>:5527–5530</code>) demands <code>100 + i</code> for every <code>port_ordinal</code> value, and <code>group_names[100 + idx]</code> (<code>:5479</code>) names them. Both must skip the dropped ordinals, or the build raises a missing-group error.
+- <strong>The F-human fixture.</strong> It is built from <code>_params(F_HUMAN_RING_RADIUS, scale_sizing=False)</code> (<code>test_birdcage_f_human_rung.py:101–131</code>: <code>LEG_COUNT</code> 16 at <code>:76</code>, radius 0.15 at <code>:79</code>, <code>leg_gap_length=None</code>, ring gaps, <code>emit_port_sheets=True</code>), plus <code>ring_sheet_orientation="longitudinal"</code>, which is what <code>WF-7</code> adds (<code>test_wf7_f_human_ring_matrix.py:451–452</code>). <code>_build_f_human</code> (<code>test_wf7_f_human_b1_quadrature.py:64</code>) drives only the ring ordinals.
+- <strong>The CAD identities and their bands.</strong> These are the four from <code>GEO-25</code> step 2 (<code>test_birdcage_f_human_rung.py:232–288</code>): cells within <code>CELL_COUNT_BAND</code> (1 %, <code>tests/mesh/test_birdcage_port_sheet_prerequisite.py</code>) of <code>F_HUMAN_BRANCH_B_CELL_RECORD</code> 504 642 (<code>:87</code>); the <code>GEO-18</code> volume partition at <code>EXACT</code> (<code>tests/mesh/test_birdcage_ring_gaps.py</code>); <code>GEO-19</code> terminal-area ratios on all 32 ring ports in <code>TERMINAL_RATIO_BAND</code> (0.95, 1.0) (<code>:98</code>); and meshed/CAD conductor mass ≥ <code>CAD_MASS_GATE</code> (<code>tests/mesh/test_birdcage_conductor_sizing.py</code>). <code>_build_rung</code> (<code>:139–193</code>) computes the readings. Its <code>port_cell_tags</code> includes the 16 leg tags <code>PORT_LOWER + i</code> (<code>:163</code>), so the new module must build its own tag list from the ring ports only. Do not reuse the leg entries: an absent tag has zero volume, so the partition would still pass and hide the drop.
+- <strong><code>WF-7</code>'s degree-1 record.</strong> It is the 0.11 image at <code>-n 8</code> (<code>20261005T003402Z_WF-7-H15a-r3-W2.log</code>): cells <strong>507 266</strong> (<code>:10583</code>, relative 5.200e-03 to 504 642; build 129.65 s at <code>:10521</code>); reciprocity 1.041217e-14 (<code>:10584</code>); σ_max <strong>0.999914648</strong> (<code>:10585</code>); 18 class means with worst spread 3.6997e-02 against band 0.05 (<code>:10587–10605</code>); <code>S_driven(P17)</code> <strong>0.407423+0.344417j</strong> (<code>:10606</code>); P17 <code>P_src,exact</code> 7.037117061e-03 W and pooled κ 4.590991e-03 (<code>:10524</code>). The window took <strong>357.9 s</strong> with 11.149 GiB summed <code>ru_maxrss</code> (<code>:10610</code>) and finished "3 passed, 1 skipped" (<code>:10613</code>). The module constants are <code>SIGMA_MAX_D1_RECORD</code>, <code>CLASS_MEAN_D1_RECORD</code>, <code>P17_P_SRC_EXACT_RECORD_W</code>, <code>P17_POOLED_KAPPA_RECORD</code> and <code>S_DRIVEN_STEP0_RECORD</code> (<code>test_wf7_f_human_ring_matrix.py:154–194</code>).</p>
+<p><strong>Code</strong> (the names are proposals; the executor may rename and disclose the mapping).
+- (1) <strong><code>MeshGenerator.birdcage_port_domain</code>, additive.</strong> Add the keyword-only <code>emit_leg_ports: bool = True</code> after <code>implant_rod</code>. The request contradictions are checked before any gmsh state exists, in the existing pattern. <code>False</code> raises <code>ValueError</code> with <code>leg_gap_length</code> set, because the leg boxes are the drive in the gapped layout. For step 1 it also raises with <code>as_hole</code> or <code>symmetry_quadrant</code>; those are later steps (the <code>WF-12</code> / <code>TH-20</code> layouts). With <code>False</code>, the leg iteration skips <code>addBox</code>, the ordinal map is explicit (ring ordinals unchanged), and <code>expected_groups</code> / <code>group_names</code> skip ordinals 1…<code>leg_count</code>. The diagnostics gain <code>"leg_ports_emitted": bool</code>. <strong><code>git diff</code> on <code>mesh.py</code> shows insertions plus <code>if emit_leg_ports</code> guards around the existing lines only.</strong> Disclose anything else.
+- (2) <strong>New <code>tests/mesh/test_geo35_leg_port_boxes.py</code>.</strong> It imports <code>_params</code>, <code>_ring_ports</code>, <code>F_HUMAN_RING_RADIUS</code>, <code>LEG_COUNT</code> and the bands above, plus <code>_tag_volume</code> / <code>_total_volume</code> / <code>_port_boundary_partition</code> exactly as <code>_build_rung</code> does. Nothing is restated. Nodes:
+  - <code>test_geo35_knob_contract</code> (no mesh): the default is <code>True</code> (<code>inspect.signature</code>); the three refusals raise before gmsh.
+  - <code>test_geo35_f_human_drops_leg_ports_keeps_identities</code> (W1): one default build and one <code>emit_leg_ports=False</code> build in one process, at <code>-n 2</code>, with the <code>WF-7</code> kwargs.
+- (3) <strong><code>tests/validation/test_wf7_f_human_ring_matrix.py</code>, additive knob</strong> <code>FEM_EM_GEO35_DROP_LEG_PORTS=1</code>, read inside the test like the <code>POST-7</code> knobs (<code>:393–412</code>). When it is set, <code>kwargs["emit_leg_ports"] = False</code> and four anchors become <strong>printed, not asserted</strong>, with a relative move against each record: (i) the cell record; the P17 reproduction; the save-file (L2) reproduction (refused if combined with <code>FEM_EM_WF7_SAVE_NPZ</code>); and the <code>S_driven(P17)</code> / σ_max / 18 class-mean figures. (ii) reciprocity, (iii) passivity, (iv) the C16 × mirror classes and (v) the exact identity <strong>stay asserted at their imported bands</strong>. When the knob is unset, no key is added to <code>kwargs</code>, so the landed run's path is unchanged. This is the <code>phantom_resolution</code> precedent (<code>test_wf7_f_human_b1_quadrature.py:64–80</code>, "adds no key … byte-identical").</p>
+<p><strong>Anchors (asserted).</strong>
+- <strong>(K) Contract, no mesh.</strong> The default is <code>True</code>; <code>False</code> with <code>leg_gap_length</code>, <code>as_hole</code> or <code>symmetry_quadrant</code> raises <code>ValueError</code> before gmsh. Exact.
+- <strong>(D) The knob-off build is digit-identical (W1, default build).</strong> Its global cell count <code>== 507 266</code> exactly, the <code>WF-7</code> record at <code>…r3-W2.log:10583</code>, same image and same kwargs. gmsh meshes serially, so the count does not depend on the rank count. The leg-port tags 101–116 are present and the cell count is also inside <code>CELL_COUNT_BAND</code>. <strong>How "digit-identical" is asserted:</strong> (a) this exact count; (b) the <code>mesh.py</code> diff touches the default path only through <code>if emit_leg_ports</code> guards; (c) the <code>WF-7</code> knob adds no key when unset; (d) W0 re-runs <code>tests/mesh/test_birdcage_port_tags.py</code>, which builds the floating-box layout with the default, green at its unchanged bands. A 32×32 re-run with the knob off is <strong>not</strong> bought, because (c) makes it the landed run.
+- <strong>(N) No leg-port tags on the knob-on build.</strong> The global cell census of tags <code>PORT_LOWER + i</code> and <code>PORT_UPPER + i</code> for i = 1…16 is exactly 0 (allreduced), and <code>diag["leg_ports_emitted"] is False</code>.
+- <strong>(R) Ring-port census unchanged.</strong> On the knob-on build, every ring ordinal 17–48 has both halves <code>PORT_LOWER + i</code> / <code>PORT_UPPER + i</code> with global cell count &gt; 0. The 32 sheet interfaces built by <code>_interface_facet_tags</code> (as <code>test_wf7_f_human_b1_quadrature.py:118–121</code> does) each have area &gt; 0. The sorted list of ring cell tags equals the default build's list.
+- <strong>(C) CAD identities on the knob-on build, imported bands.</strong> Volume partition (conductor, phantom, air and ring halves only) within <code>EXACT</code> of 1. All 32 terminal ratios in <code>TERMINAL_RATIO_BAND</code>. Meshed/CAD conductor ≥ <code>CAD_MASS_GATE</code>.
+- <strong>(I) The identities gate the knob-on 32×32 (W2, degree 1).</strong> These are <code>WF-7</code>'s (ii)–(v) at their imported bands: reciprocity ≤ <code>RECIPROCITY_BAND</code>; σ_max ≤ <code>MATRIX_PASSIVITY_CEILING</code>; exactly <code>N_SYMMETRY_CLASSES</code> (18) classes, worst spread ≤ <code>OPPOSITE_SPREAD_BAND</code>; the exact identity ≤ <code>DISCRETE_IDENTITY_RTOL</code> on the driven columns. The column-scale matrix control stays asserted as landed.</p>
+<p><strong>Negative controls (rule (e)).</strong>
+- <strong>(c1) The leg-tag detector, on the default build.</strong> <em>Asserted:</em> the same census that reads 0 in (N) must read &gt; 0 on all 16 leg tags of the knob-off build in the same process. This shows that (N)'s zero is not an empty comparator. It is a separation of "16 present" against "0 present"; no factor is involved.
+- <strong>(c2) The partition comparator.</strong> <em>Asserted:</em> on the knob-off build, dropping the 16 leg tags from the tag list must break the partition by more than <code>EXACT</code>, by 16 box volumes / V_total. Predicted ≈ 16 × (0.0214 × 0.0171 × 0.0214) m³ over V_total. The boxes are <code>PORT_BOX_SIZE</code> scaled by 0.15 / 0.07. Print the measured reading. This shows that (C)'s partition sees missing volume.
+- <strong>(c3) <code>WF-7</code>'s identity control</strong> (omit the smallest undriven sheet, 4.8e+02× the band at <code>…r3-W2.log:10524</code>) stays <strong>printed</strong> on the landed route, as landed. Predicted ≈ 480× on the knob-on build.</p>
+<p><strong>Printed (not asserted).</strong>
+- The knob-on cell count against 507 266 and against 504 642. Predicted to fall by a few thousand cells, roughly 0.3–3 %. <strong>A reading outside <code>CELL_COUNT_BAND</code> is not a red</strong>: it is the record that step 2 re-records.
+- Build seconds for both builds.
+- The degree-1 32×32 move against <code>WF-7</code>'s record: relative |Δ| of <code>S_driven(P17)</code>, σ_max, P17 <code>P_src,exact</code>, pooled κ, and each of the 18 class means beside <code>CLASS_MEAN_D1_RECORD</code>. Predicted ≤ 1 % on every figure (the boxes are inert vacuum at the mid-leg azimuths). That is inside the 5.50 % degree-1 order caveat (<code>WF-7</code> step 0b). A move larger than 5.50 % is a finding for the review, not a red.</p>
+<p><strong>Windows.</strong> Run every window in the foreground; the harness call is the <strong>whole</strong> Bash command, bare and repo-relative. Bash <code>timeout: 660000</code>; <code>-s</code>; node IDs, never <code>-k</code>; <code>tests/environment</code> first; no pipe or redirect (every window is under 10 min).
+- <strong>W0, regression on the default path (rule (c): <code>io/mesh.py</code> is edited).</strong> Standard, <code>-n 2</code>. Unpriced in this draft; predicted ≤ 120 s. <strong>Mesh-only.</strong>
+  <code>scripts/testing/run_and_log.sh GEO-35-s1-W0-porttags "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment tests/mesh/test_birdcage_port_tags.py tests/mesh/test_geo35_leg_port_boxes.py::test_geo35_knob_contract -v -s --tb=short'"</code>
+- <strong>W1, mesh-only on the F-human fixture (the gate for (D), (N), (R), (C), (c1) and (c2)).</strong> Heavy, <code>-n 2</code>. Predicted ≈ 300 s, bracket 260–420 s: two builds at ≈ 112–130 s each (<code>GEO-25</code> step 1: 112.27 s at <code>-n 1</code>, <code>20260904T214031Z_GEO-25.log:9733</code>; <code>WF-7</code>: 129.65 s at <code>-n 8</code>), plus environment ≈ 45 s. <strong>Gate: W1 &gt; 480 s ⇒ stop BLOCKED before W2.</strong>
+  <code>scripts/testing/run_and_log.sh GEO-35-s1-W1-mesh "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 590 mpiexec -n 2 python3 -m pytest tests/environment tests/mesh/test_geo35_leg_port_boxes.py::test_geo35_f_human_drops_leg_ports_keeps_identities -v -s --tb=short'"</code>
+- <strong>W2, the knob-on degree-1 32×32 (gate (I) and the printed move).</strong> Heavy, <code>-n 8</code>. Predicted ≈ 360 s, bracket 330–450 s (<code>…r3-W2.log:10610</code>: 357.9 s, 11.149 GiB). <code>split</code> keeps the ≈ 135 s orientation-control build out of the window, as r3 did.
+  <code>scripts/testing/run_and_log.sh GEO-35-s1-W2-wf7 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_WF7_ORIENTATION_CONTROL=split FEM_EM_GEO35_DROP_LEG_PORTS=1 timeout -k 30 590 mpiexec -n 8 python3 -m pytest tests/environment tests/validation/test_wf7_f_human_ring_matrix.py -v -s --tb=short'"</code></p>
+<p><strong>Traps already paid for.</strong>
+- <strong>Positional ordinals</strong> (<code>mesh.py:5218</code>). If the ring ports are renumbered to 1–32, every downstream sheet, spec and record silently re-keys. (R) is the check, and it is meant to fail on exactly this.
+- <strong>An absent tag has zero volume.</strong> A partition computed over a tag list that still names the 16 leg tags passes vacuously. (C) uses the ring-only list, and (c2) shows that the comparator sees missing volume.
+- <strong>Rank-safety.</strong> <code>cell_tags.values</code> is rank-local. Every census is allreduced, using <code>_tag_volume</code> / <code>_port_boundary_partition</code> with <code>comm</code> (<code>GEO-9</code> step 2b paid for this). At <code>-n 2</code> rank 0 does not own every port. <code>np.max</code> / <code>np.min</code> on an owned slice raise on an empty rank, so use <code>initial=</code> and reduce.
+- <strong>A gmsh build that fails deadlocks at rank &gt; 1</strong> (<code>GEO-23</code>). The (K) refusals must raise <strong>before</strong> any gmsh state exists, on every rank.
+- <strong>The cell record is not a red here.</strong> The knob-on count is printed. The <code>WF-7</code> knob must demote (i) and the degree-1 reproduction anchors to printed-only, or W2 fails on records that step 2 owns. Never widen <code>CELL_COUNT_BAND</code> or <code>REUSE_REPRODUCTION_RTOL</code>.
+- <strong><code>FEM_EM_WF7_SAVE_NPZ</code> + the knob</strong> would overwrite or compare against the degree-1 record file. The knob refuses the combination.
+- <strong>Do not edit any exact rectangles or sheets.</strong> The ring sheets are untouched, and κ stays a diagnostic (operator ruling 2026-10-02).
+- <strong>Orphan <code>.c</code>.</strong> W2 compiles the degree-1 forms, which should be warm from r3. If a window is killed: <code>pgrep -c python3</code> first, then the rubric's sweep. Never use <code>pgrep -f "python3 -m pytest"</code>.
+- <strong>Status 124 is a finding, not a retry.</strong> Never lengthen a timeout or change <code>-n</code>.
+- <strong>Rule (i):</strong> no edit to the new module, the knob or <code>mesh.py</code> after their last green window.
+- <strong>Write ≈, never <code>~</code>, in tracked Markdown.</strong> No AED file is touched.</p>
+<p><strong>Scope.</strong>
+- <strong>Covered:</strong> the F-human fixture only (branch B, 0.15 m, 16 legs, ring gaps, longitudinal sheets) with the knob on; mesh identities at <code>-n 2</code>; one degree-1 32×32 at 64 MHz at <code>-n 8</code>.
+- <strong>Not claimed:</strong> switching any fixture's default; <code>mesh:9</code>–<code>12</code>, <code>WF-10</code>, <code>EX-62</code>, <code>WF-12</code> (as_hole) or <code>TH-20</code> (quadrant); any re-recorded constant; degree 2; B1+, SAR or tuning; any absolute S.</p>
+<p><strong>Status it can move.</strong> No glyph. Step 1 meets the row's first Done-when clause: a mesh test asserts no leg-port tags and an unchanged ring-port census on the switched fixture. It does <strong>not</strong> meet the second clause: records re-recorded under (1*) by <code>record-reconciler</code>, with C16 / mirror / exact identities re-run green on the switched fixtures. <strong>The Done-when does not match step 1.</strong> <code>GEO-35</code> goes ⬜ → 🟡 at most, with a step-1 record sentence: (N) / (R) / (C) green, the knob-on cell count, and the 32×32 move. §10 U17 is marked DONE.</p>
+<p><strong>Negative result.</strong> In every case: report the measurement, park on <code>attempt/GEO-35-step1-*</code>, mark item 275 BLOCKED in the same commit (rule (d)), and journal it in attempts.md.
+- <strong>(K) or W0 red:</strong> the default path changed. Revert (1); BLOCKED.
+- <strong>(D) count ≠ 507 266 with W0 green:</strong> an image or environment drift since 2026-10-05 (the 10-05 <code>e0672b91</code> docker change is the first suspect). This is a finding for <code>record-reconciler</code> under (1*). Do not re-register it in-slot; stop before W2.
+- <strong>(N) or (R) red:</strong> a renumbering or census bug in the new code. Fix and re-run in-slot only if the fix stays inside the <code>if not emit_leg_ports</code> branches; otherwise stop.
+- <strong>(C) red on the knob-on build only:</strong> removing the boxes changed the conductor mesh. That is a real finding, so stop; no band moves.
+- <strong>(c1) or (c2) not separating:</strong> the comparator is broken. Stop.
+- <strong>(I) red in W2:</strong> an inert-box removal broke an identity. That is a real finding; the mesh legs stand as a record.
+- <strong>W1 over its gate, or W2 killed at 590 s:</strong> BLOCKED without a result; the review re-poses the step.</p>
+<p>No <code>PREDICTED RED:</code> line. A red anywhere stops the slot.</p>
+<p><strong>Outcome (2026-10-06 19:30 CDT slot, second item): GREEN.</strong> W0 <code>20261007T004148Z_GEO-35-s1-W0-porttags.log</code> (Status 0, 76 s, 17 passed); W1 <code>20261007T004311Z_GEO-35-s1-W1-mesh.log</code> (Status 0, 366 s &lt; 480 s gate, 13 passed); W2 <code>20261007T005016Z_GEO-35-s1-W2-wf7.log</code> (Status 0, 461 s, body 385.9 s, 10.756 GiB, 16 passed / 1 skipped). <code>mesh.py</code> +40 / −0: the knob, refusals before gmsh, <code>leg_ports_emitted</code>, and three <code>if not emit_leg_ports</code> guards — <strong>disclosed:</strong> besides <code>port_ordinal</code>, the ring-sheet <code>ordinal = len(port_tags)</code> (<code>ring_sheet_of_ordinal</code>) was also positional and needed its own guard. The <code>WF-7</code> module's existing label strings gained a knob branch; the default-path asserts are unchanged under <code>if not geo35</code>. (K) green, no gmsh state. (D) 507 266 exactly (5.1997e-03 to 504 642). (N) all 32 leg tags 0 cells. (R) ring tags 117–148 / 217–248 equal to the default build's, min 331 cells, min sheet area 1.716154e-04 m². (C) knob-on partition 1.000000000000, terminal ratios 0.973927–0.974323, mass 0.965320, identical to the default build. (c1) leg tags &gt; 0 (max 180). (c2) deficit 1.303288e-03 = prediction (1.303e+06 × <code>EXACT</code>). (c3) 480×, printed. (I) reciprocity 1.165976e-14, σ_max 0.999914557, 18 classes worst spread 3.6503e-02 (band 0.05), exact identity 4.190e-15. Knob-on cells 502 704 (−8.9933e-03 vs 507 266, −3.8403e-03 vs 504 642). Printed moves: <code>S_driven(P17)</code> 2.635e-04, σ_max 9.078e-08, P17 <code>P_src,exact</code> 7.706e-05, class means 3.3e-06 … 9.100e-04; <strong>pooled κ 4.805416e-03 vs 4.590991e-03, 4.671e-02 — the ≤ 1 % prediction is missed</strong> (inside the 5.50 % caveat, a finding for the review, not a red; κ spreads 4.46e-03 … 5.13e-03 across the 32 drives, so it reads local mesh, not field). <code>GEO-35</code> ⬜ → 🟡; U17 DONE.</p>
+<h2 id="7-row-moved-verbatim-2026-10-07-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-07 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-07-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p><strong>Drop the floating leg-port boxes from unbroken-leg birdcages</strong> — with <code>leg_gap_length=None</code> <code>birdcage_port_domain</code> still emits one port box per leg, "floating in the air at the <em>midpoint</em> azimuth between adjacent legs, touching no metal" (its docstring; the <code>PORT-9</code> step 3 placeholder ports), so the F-human (high-pass, ring-gap) fixture carries 16 inert vacuum boxes with their own <code>PORT_LOWER/UPPER + i</code> cell tags and interior sheets in the isocenter plane — no port or material is ever defined on them (<code>_build_f_human</code> drives only the ring ordinals 17–48), but the mesh conforms to their faces and they clutter every ParaView view (operator, 2026-09-30, interactive session: "they shouldn't be there"). <strong>Shape:</strong> an additive keyword on <code>birdcage_port_domain</code> (e.g. <code>emit_leg_ports</code>, default unchanged so every existing caller builds the identical mesh) that omits the leg-port boxes when the legs are unbroken; the high-pass fixtures (F-human, <code>mesh:9</code>–<code>12</code>, <code>WF-7</code>/<code>WF-10</code>, <code>EX-62</code>) switch to it. <strong>Done-when:</strong> a mesh test asserts no leg-port tags and an unchanged ring-port census on the switched fixture; every record the switch moves (F-human cell counts such as <code>F_HUMAN_BRANCH_B_CELL_RECORD</code> 504 642, printed <code>WF-7</code> / <code>EX-62</code> figures) is re-recorded under the (1*) licence by <code>record-reconciler</code>, with the gated anchors (C16, mirror, exact identities) re-run green at their unchanged bands — no band moves. | 🟡 ~~Deferred to Phase 9 clean-up (operator, 2026-09-30): not queueable before Phase 6 closes~~ — placed by the 2026-10-05 weekly as §10 chain U17 (step 1, §9 item 275); step 1 covers the mesh-test clause only and can move ⬜ → 🟡, the fixture switch and re-record are step 2. Step 1 (2026-10-06 19:30 slot): <code>emit_leg_ports=False</code> on F-human leaves zero leg-port cells, ring ordinals 17–48 intact and the <code>GEO-25</code> CAD identities green (partition 1.000000000000, terminal ratios 0.9739–0.9743, mass 0.9653), 502 704 cells (−0.90 % vs 507 266); the knob-on degree-1 32×32 holds reciprocity / passivity (σ_max 0.999914557) / 18 classes / exact identity, every printed figure moving ≤ 9.1e-4 except pooled κ (4.67 %, inside the 5.50 % degree-1 caveat; <code>20261007T004311Z_GEO-35-s1-W1-mesh.log</code>, <code>20261007T005016Z_GEO-35-s1-W2-wf7.log</code>). <em>History: <code>docs/planning/chunks/GEO-35.md</code>.</em> </p>
+<h3 id="9-item-351-2026-10-09-chain-step-u21">§9 item 351 — 2026-10-09 (chain step U21)<a class="headerlink" href="#9-item-351-2026-10-09-chain-step-u21" title="Permanent link">&para;</a></h3>
+<p><strong>Outcome (2026-10-10, 19:30 slot): GREEN, <code>GEO-35</code> holds 🟡.</strong> W0 17 passed 73 s (<code>20261010T005604Z_GEO-35-s2a-W0-contracts.log</code>); W1 hole 369 387 rel 0 at <code>:6220</code>, 192 s; W2 17 passed + 1 skipped, 456 s, cells 502 704, P17 rel 4.326e-11 / κ 1.136e-09, (L2) σ_max 2.250e-10 / class 4.810e-10, (c2) 77.1× / 910.0×, (N′) 0 (<code>20261010T010041Z_GEO-35-s2a-W2-wf7-step1.log:9710–9820</code>); W3 17 passed, 315 s, C16 0.1831 %, mirror 0.1264 %, identity 3.476e-16, S[P17,P17] equal to the re-record to 6 digits (<code>20261010T010824Z_GEO-35-s2a-W3-wf7-step2.log:10707–10715</code>). Mapping: <code>GEO35_WF7_CELL_RECORD</code> → <code>WF7_CELL_RECORD</code> / <code>WF7_BOXED_CELL_RECORD</code>; knob helper <code>_boxed_knob</code>; boxed constants <code>*_BOXED</code>. Re-record done in-slot under Q1 (no <code>record-reconciler</code> spawn). The (i) cell band is now asserted on both knob routes.</p>
+<p><em>Drafted by a general-purpose agent for the 2026-10-09 18:00 daily review; the review reviews it.</em> Licence: the 2026-10-07 weekly's enumerated step <strong>U21</strong> (PROJECT_PLAN.md §10, grep "U21. <code>GEO-35</code> step 2"; "serial on <code>xl</code> 10-09 (H15b's matrix is saved on the boxed mesh first)"). That prerequisite landed: <code>20261009T070009Z_WF-7-step0e-H15b.log</code> (boxed build 507 266 cells at <code>:10924</code>, <code>/workspace/logs/wf7/wf7-s32-degree2-n16.npz</code> saved and round-tripped at <code>:12318–12319</code>). <strong>No band, tolerance or Done-when is set or moved.</strong> Every band below is imported by name. Every new record value is copied from a footered log on the current image and cited by log:line; none is computed.</p>
+<p><strong>This item is step 2a of two (U21 split; question Q4 below).</strong> U21 as written does not fit one slot. It touches four families with moved records: the <code>WF-7</code> σ = 800 solid matrix and quadrature (steps 1 and 2); the 10 g SAR family (<code>WF-7</code> step 3, <code>EX-62</code> / <code>mri:4</code>); <code>GEO-25</code> / <code>mesh:12</code>; and the κ-corrected <code>WF-10</code> / <code>ANS-8</code> lineage. Re-running all of them is ≈ 50 min of windows alone (prices under <em>Remains</em>). <strong>2a lands the switch and re-records the <code>WF-7</code> step 1 / step 2 family</strong>: the records <code>U27</code> (<code>WF-16</code> step 8, "serial on U21") reproduces. Every other <code>_build_f_human</code> caller is <strong>pinned to the boxed build in the same commit</strong>, and the copper hole / quadrant paths are <strong>exempt by construction</strong>. That makes 2a independently landable: no pinned or exempt caller's mesh changes, which the W0 contract asserts without meshing and W1 asserts on a real build.</p>
+<p><strong><code>GEO-35</code> step 2a: the solid F-human fixture switches to <code>emit_leg_ports=False</code>, and <code>WF-7</code> step 1's degree-1 records are re-recorded under (1*).</strong>
+- <strong>Executor:</strong> an implementer slot, then <code>record-reconciler</code>. The <strong>implementer slot</strong> writes the code (1)–(4) below and runs W0 and W1. It then <strong>spawns <code>record-reconciler</code> in the foreground</strong> (the spawn prompt states the foreground rule: no backgrounded harness window, Bash timeout 660000) with the site table below. The reconciler edits the constants and runs the anchors W2 and W3. One commit at the end holds code, logs and plan text. If Q1 is not ruled, do not spawn.
+- <strong>Tier:</strong> W0 standard. W1 heavy by ceiling. W2 and W3 heavy. Ranks: <code>-n 2</code> for W0 and W1 (rank-safety width; W1 is xl entry 32's own build width); <code>-n 8</code> for W2 and W3 (<code>WF-7</code>'s record width, under the 12 ceiling).
+- <strong>Cost:</strong> ≈ 13 measured (class median) / <strong>≈ 53 predicted</strong> min. That is 15 fixed + ≈ 12 code + W0 ≈ 1.5 + W1 ≈ 3.1 + W2 ≈ 7.7 + W3 ≈ 4.5 + reconciler spawn and edits ≈ 6 + ≈ 3 spare. <strong>If W2 is not green by minute 42, park</strong> (rule (d)).
+- <strong>Depends on:</strong> H15b (landed, above); <code>GEO-35</code> step 1 (landed, item 275); <strong>the review's ruling Q1</strong>. It shares <code>test_wf10_f_human_tuned_circuit.py</code> with two parked branches (see <em>Settled</em> (c)). Pins are two one-line edits there; add them by edit, never by checking out a path.</p>
+<p><strong>Settled from the code (read before designing).</strong>
+- <strong>Who calls <code>_build_f_human</code></strong> (<code>tests/validation/test_wf7_f_human_b1_quadrature.py:64–208</code>; kwargs at <code>:114–119</code>, built from <code>_params(F_HUMAN_RING_RADIUS, scale_sizing=False)</code> + <code>ring_sheet_orientation="longitudinal"</code>):
+  - <strong>Solid route, switched in 2a:</strong> <code>WF-7</code> step 2's fixture (<code>b1_quadrature.py:226</code>).
+  - <strong>Solid route, pinned boxed in 2a; their records move in 2b:</strong>
+    - <code>test_wf7_f_human_sar10g_hotspot.py:154</code> (<code>WF-7</code> step 3; <code>examples/mri/04_f_human_sar10g_hotspot.py</code> imports it, so <code>EX-62</code> follows the pin);
+    - <code>test_wf10_f_human_tuned_circuit.py:159</code> and <code>:454</code>;
+    - <code>examples/ansys_benchmarks/ans8_f_human_quadrature_mode_content_64MHz/08_f_human_quadrature_mode_content.py:193</code>.
+  - <strong><code>as_hole=True</code>, exempt (boxed):</strong>
+    - <code>test_wf12_f_human_hole.py:425</code>;
+    - <code>test_wf12_f_human_copper_matrix.py:148</code>;
+    - <code>test_wf12_f_human_copper_degree2.py:114</code> (<strong>xl entry 32, queued for 10-13</strong>);
+    - <code>test_wf12_f_human_copper_c_sweep.py:279</code>;
+    - <code>test_wf10_f_human_copper_esr_root.py:310</code>;
+    - <code>examples/mri/06_f_human_copper_loss_partition.py:115–167</code> (a pass-through wrapper, <code>*args, **kwargs</code>).
+  - <strong>Its own build, switched in 2a:</strong> <code>WF-7</code> step 1 builds its fixture itself, not through <code>_build_f_human</code> (<code>test_wf7_f_human_ring_matrix.py:602–606</code>).
+- <strong>Why the hole and quadrant paths must stay boxed:</strong> <code>birdcage_port_domain</code> refuses <code>emit_leg_ports=False</code> with <code>as_hole</code> or <code>symmetry_quadrant</code> (<code>src/fem_em_solver/io/mesh.py:4272–4285</code>; step 1's (K)). A <code>_build_f_human</code> that forwarded the new default on the hole route would make every copper caller raise, including xl entry 32 on 10-13. <strong>(a) Settled: the <code>WF-12</code> hole mesh, <code>TH-20</code>'s quadrant and every copper path are out of scope for U21.</strong> Lifting the refusal is a <code>mesh.py</code> change with its own CAD gate (a later <code>GEO-35</code> step, if the weekly wants one). <code>WF-12</code>'s own solid control (<code>test_wf12_f_human_hole.py:286</code>) calls <code>birdcage_port_domain</code> directly and is untouched.
+- <strong>What the switch moves on the solid route.</strong> These are the step 1 knob-on readings on the exact kwargs 2a switches to (<code>20261007T005016Z_GEO-35-s1-W2-wf7.log</code>, Status 0 at <code>:10305</code>):
+  - cells 507 266 → <strong>502 704</strong> (<code>:9694</code>), −0.384 % to <code>F_HUMAN_BRANCH_B_CELL_RECORD</code> 504 642. That is inside <code>CELL_COUNT_BAND</code> 1 %, so no 1 % cell assert anywhere goes red;
+  - P17 <code>P_src,exact</code> −7.706e-05 and pooled κ <strong>+4.671e-02</strong> (<code>:9733</code>);
+  - σ_max −9.078e-08 (<code>:9760</code>);
+  - class means up to 9.100e-04 (<code>:9762–9780</code>);
+  - <code>S_driven(P17)</code> 2.635e-04 (<code>:9757</code>, <code>:9760</code>).</p>
+<p><code>REUSE_REPRODUCTION_RTOL</code> is <code>STEP2_COLUMN_POWER_RTOL</code> = 1e-6 (<code>tests/validation/test_port_birdcage_ring_matrix.py:164</code>, <code>:171</code>). So the reproduction asserts at <code>test_wf7_f_human_ring_matrix.py:1021–1028</code> (P17) and <code>:1045–1057</code> (through the file) <strong>go red on the switched default unless re-recorded</strong>. That is the set 2a re-records.
+- <strong>Mesher stable since step 1.</strong> H15b rebuilt the boxed fixture at exactly 507 266 on 10-09 (<code>…H15b.log:10924</code>), the same count step 1's (D) asserted on 10-07 (<code>20261007T004311Z_GEO-35-s1-W1-mesh.log:19872</code>). The 10-07 knob-on readings are therefore current-image measurements, as (1*) requires.
+- <strong>(b) Saved-npz consumers.</strong> Two files are on the boxed mesh, each carrying <code>cells</code>, <code>order</code>, <code>slot_k</code>, <code>slot_sign</code>, <code>s32</code> and κ keys (<code>…H15b.log:12318</code>):
+  - <code>/workspace/logs/wf7/wf7-s32-degree1-n8.npz</code> (κ-off degree 1, H15a);
+  - <code>/workspace/logs/wf7/wf7-s32-degree2-n16.npz</code> (H15b).</p>
+<p>Their consumers:
+  - H15b's readout: the <code>ANS-8</code> degree-2 rows through <code>ring_mode_rows_v2</code>, for the 10-10 weekly (<code>xl-pending.md:1595–1597</code>);
+  - H13b (<code>TH-20</code> step 2, whose §7 row names H15b's saved matrix);
+  - the optional <code>ANS-8</code> κ-off degree-1 comparand on the degree-1 file (<code>docs/planning/chunks/WF-7.md:98</code>).</p>
+<p>All of them read stored arrays and rebuild nothing, so the switch cannot break them <strong>provided</strong> (i) neither file is ever overwritten, (ii) any fresh solve paired with them is built boxed, and (iii) a consumer that pairs a build with a file checks the file's <code>cells</code> against that build (507 266 boxed). 2a enforces (i) with a save-path guard. It provides (ii) with <code>_build_f_human(..., emit_leg_ports=True)</code> and a module knob <code>FEM_EM_WF7_LEG_PORTS=boxed</code>, and documents (iii). <em>Observation for the review, outside 2a:</em> H13b's quarter is the copper <strong>hole</strong> layout (<code>TH-20.md:22</code>), while H15b's file is the σ = 800 <strong>solid</strong> route. A 1e-9 reassembly of one against the other is not like for like, whatever GEO-35 does. <code>TH-20.md:568</code> reads the H15b number as H13b's <em>price</em> comparand.
+- <strong>(c) Open <code>attempt/*</code> branches.</strong> <code>attempt/WF-10-step1b-20260929T020339Z</code> (+337 lines) and <code>attempt/WF-10-step1d-20261001T140319Z</code> (+712 lines) both append to <code>test_wf10_f_human_tuned_circuit.py</code>. 2a's two pins there (<code>:159</code>, <code>:454</code>) are a small textual conflict if either branch is ever revived. Their disposition stays with the review; nothing in 2a depends on them. <code>attempt/WF-12-step3*</code> add only <code>test_wf12_f_human_copper_c_mode.py</code> (an <code>as_hole</code> module, exempt) and a script. <code>attempt/PORT-24-step1-*</code> (<code>ports/ring_modes.py</code>), <code>attempt/OPS-50-*</code> (a probe) and <code>attempt/TH-15-step2proper-*</code> (two-torus) do not overlap.</p>
+<p><strong>Code</strong> (the names are proposals; the executor may rename and disclose the mapping). <strong>No <code>src/</code> edit; <code>mesh.py</code> is not touched.</strong>
+- (1) <strong><code>_build_f_human</code></strong> gains keyword <code>emit_leg_ports: bool | None = None</code>. The kwargs construction is lifted into a pure helper <code>_f_human_kwargs(phantom_resolution=None, as_hole=False, emit_leg_ports=None) -&gt; dict</code> (rule (a) lift, no mesh) and called from <code>_build_f_human</code>. Resolution:
+  - <code>None</code> resolves to boxed under <code>as_hole</code> and to <code>False</code> (dropped) otherwise;
+  - the key <code>emit_leg_ports=False</code> is added <strong>only</strong> when the resolved value is <code>False</code>. The boxed result <strong>adds no key</strong>, so the kwargs are byte-identical to the pre-switch dict (the <code>phantom_resolution</code> / <code>as_hole</code> precedent, <code>:116–119</code>);
+  - <code>as_hole=True</code> with <code>emit_leg_ports=False</code> raises <code>ValueError</code> in the helper, before any gmsh state.
+- (2) <strong>Pins.</strong> Pass <code>emit_leg_ports=True</code> at <code>test_wf7_f_human_sar10g_hotspot.py:154</code>, <code>test_wf10_f_human_tuned_circuit.py:159</code> and <code>:454</code>, and <code>08_f_human_quadrature_mode_content.py:193</code>, each with the comment <code># GEO-35 step 2b: unpin with the re-record</code>. The <code>as_hole</code> callers are not edited.
+- (3) <strong><code>test_wf7_f_human_ring_matrix.py</code>.</strong>
+  - <strong>Retire</strong> step 1's <code>FEM_EM_GEO35_DROP_LEG_PORTS</code> knob (<code>:231–252</code>). The default build (<code>:602–606</code>) adds <code>kwargs["emit_leg_ports"] = False</code>.
+  - Add the inverse knob <code>FEM_EM_WF7_LEG_PORTS</code>: unset ⇒ dropped; <code>boxed</code> ⇒ no key (the pre-switch build), with the moved reproductions <strong>printed</strong> against the <code>*_BOXED</code> constants (the mirror of step 1's knob semantics); any other value raises.
+  - The default path asserts again the (i) cell band (<code>:993–996</code>), the P17 reproduction (<code>:1021–1028</code>) and, with a save path, (L2) (<code>:1045–1057</code>). They are <strong>unchanged lines</strong>; only the knob guard around them changes.
+  - <code>_save_knob</code> (<code>:255–278</code>) <strong>refuses the two boxed basenames</strong> <code>wf7-s32-degree1-n8.npz</code> and <code>wf7-s32-degree2-n16.npz</code> under every setting. Its contract test's "good" path (<code>:376</code>, <code>:420</code>) moves to <code>/workspace/logs/wf7/wf7-s32-degree1-n8-noleg.npz</code> (a literal in a contract test, not a band; disclose it).
+  - New assert <strong>(N′)</strong>: on the solved mesh, the allreduced cell census of tags <code>PORT_LOWER + i</code> / <code>PORT_UPPER + i</code>, i = 1…16, is 0 (import step 1's census helper from <code>tests/mesh/test_geo35_leg_port_boxes.py</code>; do not restate it).
+  - New no-mesh node <code>test_wf7_leg_port_knob_contract</code>.
+  - <code>_default_orientation_extent</code> (the split orientation control's transverse build) is <strong>left boxed and untouched</strong>. Its assert concerns ring-sheet extent, which does not depend on the leg boxes.
+- (4) <strong><code>tests/mesh/test_geo35_leg_port_boxes.py</code></strong> gains the no-mesh node <code>test_geo35_f_human_builder_contract</code>, which checks:
+  - <code>_f_human_kwargs()</code> equals the step 1 W1 knob-on kwargs (<code>_wf7_kwargs()</code> + <code>emit_leg_ports=False</code>) as a dict;
+  - <code>_f_human_kwargs(emit_leg_ports=True)</code> and <code>_f_human_kwargs(phantom_resolution=0.0075, emit_leg_ports=True)</code> equal the pre-switch dicts, with <strong>no <code>emit_leg_ports</code> key</strong>;
+  - <strong><code>_f_human_kwargs(as_hole=True)</code> has no <code>emit_leg_ports</code> key and equals <code>_wf7_kwargs()</code> + <code>as_hole=True</code></strong> (the xl entry 32 path);
+  - <code>_f_human_kwargs(as_hole=True, emit_leg_ports=False)</code> raises <code>ValueError</code>, with <code>gmsh.isInitialized()</code> False before and after.</p>
+<p><strong>Record sites for <code>record-reconciler</code>.</strong> All are in <code>tests/validation/test_wf7_f_human_ring_matrix.py</code> unless named. Under (1*), each old value stays in a comment with its provenance log and date and the tag "boxed fixture, pre-<code>GEO-35</code>". The old P17 and class-mean values also stay as executable <code>*_BOXED</code> constants, because control (c2) and the <code>boxed</code> knob read them.</p>
+<table>
+<thead>
+<tr>
+<th>constant</th>
+<th>old (boxed)</th>
+<th>new (leg-box-free)</th>
+<th>move</th>
+<th>new value's provenance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>P17_P_SRC_EXACT_RECORD_W</code> <code>:162</code></td>
+<td>7.037117061e-03</td>
+<td>7.036574789e-03</td>
+<td>−7.706e-05</td>
+<td><code>20261007T005016Z_GEO-35-s1-W2-wf7.log:9733</code></td>
+</tr>
+<tr>
+<td><code>P17_POOLED_KAPPA_RECORD</code> <code>:163</code></td>
+<td>4.590991e-03</td>
+<td>4.805416e-03</td>
+<td><strong>+4.671e-02 (Q1)</strong></td>
+<td><code>:9733</code></td>
+</tr>
+<tr>
+<td><code>SIGMA_MAX_D1_RECORD</code> <code>:176</code></td>
+<td>0.999914648</td>
+<td>0.999914557</td>
+<td>−9.078e-08</td>
+<td><code>:9736</code></td>
+</tr>
+<tr>
+<td><code>CLASS_MEAN_D1_RECORD</code> ×18 <code>:177–196</code></td>
+<td>as listed</td>
+<td>the 18 <code>.9e</code> values</td>
+<td>≤ 9.100e-04</td>
+<td><code>:9762–9779</code></td>
+</tr>
+<tr>
+<td><code>S_DRIVEN_STEP0_RECORD</code> <code>:156</code> (printed)</td>
+<td>0.407423+0.344417j</td>
+<td>0.407315+0.344327j</td>
+<td>2.635e-04</td>
+<td><code>:9757</code></td>
+</tr>
+<tr>
+<td><code>S_DRIVEN_STEP1_PRINTED</code> (<code>b1_quadrature.py:57</code>, printed)</td>
+<td>0.407423+0.344417j</td>
+<td>0.407315+0.344327j</td>
+<td>2.635e-04</td>
+<td><code>:9757</code></td>
+</tr>
+<tr>
+<td><code>GEO35_WF7_CELL_RECORD</code> <code>:228</code> (printed) → <code>WF7_CELL_RECORD</code> 502 704 + <code>WF7_BOXED_CELL_RECORD</code> 507 266</td>
+<td>507 266</td>
+<td>502 704</td>
+<td><strong>−0.899 % (Q1)</strong></td>
+<td><code>:9694</code>; <code>…W1-mesh.log:19883</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Not edited:</strong>
+- <code>F_HUMAN_BRANCH_B_CELL_RECORD</code> 504 642 (GEO-25's <em>transverse</em> build; its knob-on count is unmeasured; 2b);
+- <code>scripts/probes/wf7_step0_f_human_cost.py:157</code> (a historical probe);
+- <code>src/fem_em_solver/study.py:1170</code> (a measured price row for <code>Study.estimate()</code>, history);
+- the <code>TERMINAL_RESIDUAL_RECORD_*</code> constants (<code>:208–219</code>; they parse committed logs);
+- <code>ANS-8</code>'s <code>KAPPA_RECORD</code> (pinned, 2b).</p>
+<p>Doc copies (record-reconciler rule 4): one sentence each on the §7 <code>WF-7</code> and <code>GEO-35</code> rows. Historical briefs and logs stay as written; they are records of the boxed fixture with their citations.</p>
+<p><strong>Anchors (asserted, bands imported).</strong>
+- <strong>(K) Contracts, no mesh (W0).</strong>
+  - Step 1's <code>test_geo35_knob_contract</code> (<code>test_geo35_leg_port_boxes.py:142</code>), unchanged.
+  - (4)'s builder contract, including the <strong>as_hole exemption</strong>.
+  - (3)'s leg-port knob contract.
+  - The save-knob contract with the two boxed basenames refused.
+- <strong>(H) The exempt hole path builds as before (W1, xl entry 32's module, build-only).</strong> <code>test_wf12_f_human_copper_degree2.py</code>'s (A0): hole cells == <code>HOLE_CELL_RECORD</code> (369 387; relative 0 at <code>20261008T093243Z_WF-12-step4a-W1.log:6220</code>) within <code>CELL_COUNT_BAND</code>, plus the module's (Deg) check, green as landed. The build goes through <code>_build_f_human(comm, as_hole=True)</code> after the edit. It must report <strong>369 387 exactly</strong>, as on 10-08: same image, and the kwargs are identical by (K).
+- <strong>(R1) P17 reproduction on the switched default (W2, degree 1, <code>-n 8</code>).</strong> <code>P_src,exact</code> and pooled κ within <code>REUSE_REPRODUCTION_RTOL</code> of the re-recorded values. This is run-to-run on the same image (10-07 measured, W2 re-measures). It is not self-referential.
+- <strong>(R2) Through the file (W2).</strong> Saved to the new <code>…-noleg.npz</code>:
+  - (L1) round trip;
+  - σ_max and all 18 class means within <code>REUSE_REPRODUCTION_RTOL</code> of the re-recorded values;
+  - the save control ≥ <code>SAVE_CONTROL_FACTOR</code>× the band, as landed.
+- <strong>(I) <code>WF-7</code> step 1's identities at their unchanged bands (W2).</strong>
+  - (i) cells within <code>CELL_COUNT_BAND</code> of 504 642 (predicted −3.840e-03);
+  - (ii) reciprocity ≤ <code>RECIPROCITY_BAND</code>;
+  - (iii) σ_max ≤ <code>MATRIX_PASSIVITY_CEILING</code>;
+  - (iv) exactly <code>N_SYMMETRY_CLASSES</code> (18), residual &lt; <code>AZIMUTH_MATCH_DEG</code>, worst spread ≤ <code>OPPOSITE_SPREAD_BAND</code>;
+  - (v) the exact identity ≤ <code>DISCRETE_IDENTITY_RTOL</code> on all 32;
+  - the column-scale control &gt; <code>CONTROL_RATIO_LIFT</code>×;
+  - <strong>(N′)</strong> leg census 0.</p>
+<p>Step 1's W2 already had (ii)–(v) green on identical kwargs (<code>:9735–9756</code>).
+- <strong>(Q) <code>WF-7</code> step 2 on the switched <code>_build_f_human</code> (W3).</strong> These are the Done-when's "C16, mirror, exact identities":
+  - worst C16 image ≤ <code>C4_COVARIANCE_BAND</code> (5 %);
+  - mirror ≤ <code>C4_COVARIANCE_BAND</code>;
+  - exact identity ≤ <code>DISCRETE_IDENTITY_RTOL</code>;
+  - unit weight ≤ <code>UNIT_WEIGHT_CONTROL_RTOL</code>;
+  - (i) cells within <code>CELL_COUNT_BAND</code> of 504 642.</p>
+<p>Boxed readings: C16 0.1495 %, mirror 0.1634 %, identity 1.390e-15 (<code>20261002T021044Z_WF-12-step1-ruleA-WF-7-step2.log:11567–11569</code>).</p>
+<p><strong>Negative controls (rule (e)).</strong>
+- <strong>(c1) The pin and the exemption are not silently ignored.</strong> <em>Asserted</em> (W0, no mesh): (4)'s dict checks separate "key present, <code>False</code>" (default) from "no key" (pinned or <code>as_hole</code>). This is a binary separation; no factor is involved.
+- <strong>(c2) The 1e-6 comparator tells the meshes apart.</strong> <em>Asserted</em> (W2): on the switched run, the <strong>boxed</strong> P17 <code>P_src,exact</code> (<code>*_BOXED</code>) misses by more than <code>REUSE_REPRODUCTION_RTOL</code>, and so does the worst class mean against <code>CLASS_MEAN_D1_RECORD_BOXED</code>. Predicted ≈ 77× (7.706e-05, <code>:9733</code>) and ≈ 910× (9.100e-04, <code>:9780</code>). The ceiling is set by the mesh move itself, so the bar is "&gt; 1× the band". This shows (R1) / (R2) are not passing on an unchanged (still boxed) fixture.
+- <strong>(c3)</strong> <code>WF-7</code>'s omit-one-sheet identity control, <em>predicted, printed</em>: ≈ 480× the band, as landed (<code>…W2-wf7.log</code> prints it on the landed route).
+- <strong>(c4)</strong> Step 2's landed controls, <em>predicted, printed</em>: the cw mis-paired reading ≈ 99.3 % and the single-drive P17 C16 spread ≈ 33 % (<code>…ruleA-WF-7-step2.log:11570</code>, <code>:11573</code>).</p>
+<p><strong>Printed (not asserted).</strong>
+- W2: cells 502 704 beside <code>WF7_BOXED_CELL_RECORD</code>.
+- W3: <code>S[P17,P17]</code> beside the re-recorded <code>S_DRIVEN_STEP1_PRINTED</code>. Predicted equal to all 6 printed digits: same drive, same mesh, <code>-n 8</code>.
+- W3: the C16 / mirror moves against the boxed readings above.
+- Build seconds and summed <code>ru_maxrss</code> in every window.</p>
+<p><strong>Windows.</strong> Run every window in the foreground. The harness call is the <strong>whole</strong> Bash command, bare and repo-relative. Bash <code>timeout: 660000</code>; <code>-s</code>; node IDs, never <code>-k</code>; <code>tests/environment</code> first. Every window is under 10 min, so no redirect is needed. Collected-count identity: W2 = step 1 W2's "16 passed, 1 skipped" (<code>…W2-wf7.log:9847</code>) + 1 (the new knob-contract node); W3 = <code>tests/environment</code> + the 5 step-2 nodes (<code>…ruleA-WF-7-step2.log:11610</code>).
+- <strong>W0, the contracts.</strong> Standard, <code>-n 2</code>, no mesh. Predicted ≤ 60 s (step 1 W0 was 76 s including a port-tags build, <code>20261007T004148Z_GEO-35-s1-W0-porttags.log:2039</code>).
+  <code>scripts/testing/run_and_log.sh GEO-35-s2a-W0-contracts "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment tests/mesh/test_geo35_leg_port_boxes.py::test_geo35_knob_contract tests/mesh/test_geo35_leg_port_boxes.py::test_geo35_f_human_builder_contract tests/validation/test_wf7_f_human_ring_matrix.py::test_wf7_save_knob_contract tests/validation/test_wf7_f_human_ring_matrix.py::test_wf7_orientation_knob_contract tests/validation/test_wf7_f_human_ring_matrix.py::test_wf7_leg_port_knob_contract -v -s --tb=short'"</code>
+- <strong>W1, the exempt hole path (xl entry 32's module, build-only).</strong> Heavy by ceiling, <code>-n 2</code>. Measured 184 s (<code>20261008T093243Z_WF-12-step4a-W1.log:6359</code>; build 114.6 s at <code>:6220</code>). This is the regression for the <code>_build_f_human</code> edit, rule (c).
+  <code>scripts/testing/run_and_log.sh GEO-35-s2a-W1-wf12-buildonly "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_WF12_STEP4=1 FEM_EM_WF12_STEP4_BUILD_ONLY=1 timeout -k 30 590 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_wf12_f_human_copper_degree2.py::test_wf12_step4_copper_degree2_column -v -s --tb=short'"</code>
+- <strong>W2, <code>WF-7</code> step 1 on the switched default, with the re-recorded constants</strong> (<code>record-reconciler</code>'s anchor). Heavy, <code>-n 8</code>. Measured 461 s on these exact kwargs (<code>20261007T005016Z_GEO-35-s1-W2-wf7.log:10306</code>; body 385.9 s, 10.756 GiB at <code>:9782</code>); bracket 430–520 s.
+  <code>scripts/testing/run_and_log.sh GEO-35-s2a-W2-wf7-step1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; mkdir -p /workspace/logs/wf7 &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_WF7_ORIENTATION_CONTROL=split FEM_EM_WF7_SAVE_NPZ=/workspace/logs/wf7/wf7-s32-degree1-n8-noleg.npz timeout -k 30 590 mpiexec -n 8 python3 -m pytest tests/environment tests/validation/test_wf7_f_human_ring_matrix.py -v -s --tb=short'"</code>
+- <strong>W3, <code>WF-7</code> step 2 on the switched <code>_build_f_human</code>.</strong> Heavy, <code>-n 8</code>. Measured 221 s without <code>tests/environment</code> (<code>20261002T021044Z_WF-12-step1-ruleA-WF-7-step2.log:11636</code>); predicted 240–280 s.
+  <code>scripts/testing/run_and_log.sh GEO-35-s2a-W3-wf7-step2 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_WF7_STEP2=1 timeout -k 30 590 mpiexec -n 8 python3 -m pytest tests/environment tests/validation/test_wf7_f_human_b1_quadrature.py -v -s --tb=short'"</code></p>
+<p><strong>Traps already paid for.</strong>
+- <strong>The hole refusal</strong> (<code>mesh.py:4272–4285</code>). Forwarding the new default under <code>as_hole</code> raises on every copper caller, and on xl entry 32 at 02:00 on 10-13 with no session to see it. (K) and W1 are the checks.
+- <strong>"Adds no key" is the byte-identity proof</strong> (the <code>phantom_resolution</code> precedent). A pinned <code>emit_leg_ports=True</code> key is harmless to gmsh but defeats the dict check. Omit the key.
+- <strong>Overwriting the boxed npz files.</strong> Every old <code>WF-7</code> command in <code>WF-7.md</code> (<code>:66</code>, <code>:168</code>, <code>:251</code>) names <code>wf7-s32-degree1-n8.npz</code>. The guard refuses it. W2 saves to <code>…-noleg.npz</code> only.
+- <strong>A self-referential re-record.</strong> New values come from the 10-07 footered log, never from W2. If W2 is red, do not copy W2's reading into the constant.
+- <strong>Rank-safety.</strong> <code>cell_tags.values</code> is rank-local, so the (N′) census is allreduced (step 1's helper). A failing gmsh build deadlocks at rank &gt; 1 (<code>GEO-23</code>), so the helper's refusal raises before gmsh.
+- <strong>Orphan <code>.c</code>.</strong> The degree-1 forms are warm from step 1 and H15a. If a window is killed: <code>pgrep -c python3</code> first, then the rubric's sweep. Never use <code>pgrep -f "python3 -m pytest"</code>.
+- <strong>Status 124 is a finding, not a retry.</strong> Never lengthen a timeout or change <code>-n</code>.
+- <strong>Rule (i):</strong> no edit to the helper, the pins, the knob or a constant after its last green window.
+- <strong>Exact rectangles and κ (operator ruling 2026-10-02):</strong> no sheet is touched, κ stays a diagnostic (<code>kappa_applied=False</code>), and the κ record is a run-to-run reading, not a correction.
+- <strong>Write ≈, never <code>~</code>.</strong> No AED file is read or touched. <code>ANS-8</code> is only pinned.</p>
+<p><strong>Scope.</strong>
+- <strong>Covered:</strong> the σ = 800 solid F-human through <code>WF-7</code> step 1's own build and <code>_build_f_human</code>'s non-hole default; <code>WF-7</code> steps 1 and 2 at degree 1, 64 MHz, <code>-n 8</code>; the exempt hole build (xl entry 32's module, build only); the save guard and the boxed rebuild knob.
+- <strong>Not claimed, and what remains (2b and the review):</strong>
+  - <strong>2b</strong> (one slot, predicted): unpin <code>WF-7</code> step 3 / <code>EX-62</code> and re-record the printed 10 g figures. These are <code>mri:4</code>'s guide (537 546 cells, <code>SAR10g(c*)</code>, C16 0.4904 %) and §2's citation of <code>20260925T093315Z_WF-7-step3.log:11615–11617</code>. Measured 352 s (<code>20260925T093315Z_WF-7-step3.log.gz:11686</code>) + <code>EX-62</code> 287–323 s (<code>20260926T095603Z_EX-62.log.gz:2214</code>, <code>20260930T213057Z_EX-62-fields.log:11613</code>) + census. 2b also covers <code>GEO-25</code> / <code>mesh:12</code>: <code>F_HUMAN_BRANCH_B_CELL_RECORD</code>'s knob-on <em>transverse</em> count is unmeasured (predicted ≈ −0.9 %, at the edge of <code>CELL_COUNT_BAND</code>), and <code>_build_rung</code>'s partition must take a ring-only tag list (step 1's absent-tag trap). Measured 196 s (<code>20260906T034048Z_EX-51-gate-rerun.log.gz:61</code>).
+  - <strong><code>WF-10</code> / <code>ANS-8</code></strong> (Q3): κ-corrected H8-lineage records (<code>C_TUNED_F</code>, <code>C_MODE_F</code>, <code>A1/A2_MEAS</code>, <code>ANTI_MODE_C_PF</code>; <code>ANS-8</code>'s item-133 circuit records at 1e-6). Measured 334 + 423 + 405 + 292 s. That exceeds one slot, and <code>C_MODE_F</code> also feeds <code>test_wf12_f_human_copper_mechanism.py:215</code>.
+  - <strong><code>mesh:9</code>–<code>11</code></strong> (Q2): r = 0.07 m GEO-20 / GEO-26 fixtures, not F-human. They are shared with <code>PORT-13</code>'s ring matrix and column, <code>POST-6</code>, <code>ports:10</code>–<code>12</code> and <code>mesh:7</code>.
+  - <strong>The hole and quadrant layouts:</strong> out of U21 (Settled (a)).
+  - No degree 2 and no absolute S.</p>
+<p><strong>Status it can move.</strong> No glyph. <strong>The §7 Done-when cannot be met by 2a</strong>: it needs every moved record re-recorded, which 2b and the rulings Q2 / Q3 define. That mismatch is flagged here. On green:
+- <code>GEO-35</code> holds 🟡 with a step 2a record sentence: switched fixture, the six re-recorded constants with their moves, and (I) / (Q) / (N′) green;
+- <code>WF-7</code> ✅ gains one sentence (records now on the leg-box-free fixture; boxed values kept and rebuildable);
+- §10 U21 is annotated "2a DONE, 2b open";
+- U27 is unblocked.</p>
+<p><strong>Negative result.</strong> In every case: report the measurement, park on <code>attempt/GEO-35-step2a-*</code>, mark item 351 BLOCKED in the same commit (rule (d)), and journal it in attempts.md.
+- <strong>W0 red:</strong> fix in-slot only inside the new helper, knob or pins; otherwise stop.
+- <strong>W1 red, or a cell count ≠ 369 387:</strong> the exemption leaked. Revert (1); BLOCKED. Entry 32 must not meet this commit.
+- <strong>(R1) / (R2) red with (I) green:</strong> the 10-07 readings do not reproduce on the same image at 1e-6. That is a run-to-run finding (known-issues); never re-record from W2.
+- <strong>(c2) not separating, or (N′) &gt; 0:</strong> the switch did not take effect. Stop.
+- <strong>(I) or (Q) red:</strong> an identity broke on the switched mesh. It is a real finding: revert the switch, and <code>WF-7</code> stands on the boxed fixture.
+- <strong>W2 over minute 42, or a window killed at 590 s:</strong> BLOCKED without a result; the review re-poses.</p>
+<p>No <code>PREDICTED RED:</code> line.</p>
+<p><strong>For the review (rule before queueing).</strong>
+- <strong>Q1 (binding).</strong> <code>record-reconciler</code>'s drift sanity gate stops at ≈ 0.5 % (<code>.claude/agents/record-reconciler.md</code>, "Drift sanity gate") and was written for mesher-version drift. Two 2a sites move by more, because of geometry: pooled κ +4.671 % and the printed cell constant −0.899 %. Does <code>GEO-35</code>'s Done-when (weekly-placed) license re-recording these, with step 1's measured moves as the pre-registered reference and W2's 1e-6 reproduction as the check? If not, do not queue 351. The κ assert would be red on the switched default, and demoting it would be loosening.
+- <strong>Q2.</strong> Should <code>mesh:9</code>–<code>11</code> be dropped from U21 (they keep the boxes and their guides say so), or opened as their own step?
+- <strong>Q3.</strong> Should the <code>WF-10</code> / <code>ANS-8</code> κ-era records be re-recorded (≈ 2 slots), or frozen as records of the boxed fixture with a permanent pin (the analogue of binding ruling (iii))?
+- <strong>Q4.</strong> Ratify the 2a / 2b split of U21.</p>
+<p><strong>Review rulings (2026-10-09 18:00 review) on item 351 — these outrank the brief above.</strong> (Q1) <strong>Licensed.</strong> <code>GEO-35</code>'s §7 Done-when says that "every record the switch moves … is re-recorded under the (1*) licence by <code>record-reconciler</code>, with the gated anchors (C16, mirror, exact identities) re-run green at their unchanged bands". That is an explicit licence for this geometry change. It outranks <code>record-reconciler</code>'s ≈ 0.5 % mesher-drift stop for these records only. <strong>The licence is not open-ended.</strong> The new record values are pre-registered by step 1's knob-on measurement (<code>20261007T005016Z_GEO-35-s1-W2-wf7.log</code>, the <code>:9694–9779</code> lines the brief cites; cells 502 704, pooled κ 4.805416e-03 and the rest). Each re-recorded value must reproduce that reading at <code>REUSE_REPRODUCTION_RTOL</code>. A value that does not reproduce is a red: stop and record it, with no re-record. No band moves. κ stays a diagnostic (operator ruling 2026-10-02); its record is a reproduction record, not a gate. (Q2) <strong><code>mesh:9</code>–<code>11</code> are not touched by 2a.</strong> U21's text names <code>mesh:9</code>–<code>12</code>. Whether the 0.07 m fixtures belong in U21 is the weekly's call, and it is flagged on the dashboard. (Q3) <strong>2a pins the κ-era <code>WF-10</code> / <code>ANS-8</code> records to the boxed mesh</strong> (<code>emit_leg_ports=True</code> explicit). Whether they are re-recorded or frozen as boxed-mesh records is the weekly's call. (Q4) <strong>The 2a / 2b split is provisional (rule (6)); the weekly ratifies or reverts it.</strong> <code>GEO-35</code> holds 🟡 on 2a, because 2a cannot meet the Done-when. The H13b remark is already ruled in <code>TH-20.md</code> (item 350). (5) <strong>Ordering:</strong> item 350 (<code>TH-20</code> 2a) is independent of this item. Item 351 runs after 350 in the queue only to keep the heavy windows serial. xl entry 32 (10-13) depends on W1's build-only reading staying 369 387 cells. <strong>If W1 is red, stop before W2 and mark the item BLOCKED.</strong> Entry 32 must not run on a broken hole path, so the slot also writes "HOLD — item 351 W1 red" into entry 32's status line.</p>
+<h3 id="9-item-356-2026-10-10-chain-step-u21-2b-i-provisional">§9 item 356 — 2026-10-10 (chain step U21, 2b-i, provisional)<a class="headerlink" href="#9-item-356-2026-10-10-chain-step-u21-2b-i-provisional" title="Permanent link">&para;</a></h3>
+<p><em>Drafted for the 2026-10-10 03:00 review.</em> Licence: U21 under rule (6). The 10-09 Q1 ruling allows re-recording only values that a prior knob-on run pre-registered. This item makes those runs and <strong>re-records and unpins nothing</strong>. The weekly ratifies the 2b-i / 2b-ii split tonight. Two windows would double <code>WF-7</code> step 3's cost, so the work is <strong>split</strong>: 356 covers <code>WF-7</code> step 3 and <code>EX-62</code>; 357 (below) covers <code>GEO-25</code> and <code>mesh:12</code>. No band, record or Done-when moves.</p>
+<ul>
+<li><strong>Executor:</strong> implementer. <strong>Tier:</strong> W0 standard <code>-n 2</code>; W1 and W2 heavy <code>-n 8</code>, the record width. <strong>Cost:</strong> ≈ 12 measured (2 × 352 s, <code>20260925T093315Z_WF-7-step3.log.gz:11686</code>) / ≈ 40 predicted = 15 fixed + 8 code + W0 1.5 + W1 6.5 + W2 6.5 + 2.5 spare. <strong>Park if W1 is not green by minute 26.</strong></li>
+<li><strong>Code</strong> (test-only and additive): changes to <code>tests/validation/test_wf7_f_human_sar10g_hotspot.py</code>.</li>
+<li>(1) <code>build_sar10g_case(comm, *, emit_leg_ports=True)</code> is passed through at the pinned call (<code>:154–156</code>). The comment stays, and <code>mri:4</code> (<code>04_f_human_sar10g_hotspot.py:236</code>) is unchanged.</li>
+<li>(2) New knob <code>FEM_EM_GEO35_2B_MEASURE</code> ∈ {unset, <code>boxed</code>, <code>dropped</code>}, read in the fixture (<code>:409–416</code>). <code>dropped</code> passes <code>False</code>; any other value raises. Unset adds nothing.</li>
+<li>(3) New node <code>test_geo35_2b_measure</code>, which skips when the knob is unset, and a no-mesh <code>…_knob_contract</code>.</li>
+<li>(4) Two provenance constants, used only under the knob: 537 546 cells (<code>…step3.log.gz:10468</code>) and SAR10g(c*) 2.085815849e-04 (<code>:11614</code>).</li>
+<li>(5) The leg census imports <code>_owned_census</code> (<code>tests/mesh/test_geo35_leg_port_boxes.py:71</code>) and allreduces it.</li>
+<li><strong>Anchors (asserted).</strong> These hold in W1 and W2, with every band imported:</li>
+<li>(i) coverage power and mass ≤ <code>EXACT_IDENTITY_RTOL</code> (<code>test_birdcage_sar_mass_averaged.py:163</code>);</li>
+<li>(ii) worst C16 and (iii) mirror ≤ <code>C4_COVARIANCE_BAND</code> (<code>test_birdcage_b1_plus_map.py:120</code>);</li>
+<li>(iv) every ball is contained.</li>
+</ul>
+<p><strong>W1, <code>boxed</code>:</strong> the pinned route is the control. Cells must equal 537 546, and SAR10g(c*) must match 2.085815849e-04 within <code>REUSE_REPRODUCTION_RTOL</code>. Import that constant from <code>test_port_birdcage_ring_matrix.py:171</code> (1e-6), <strong>not</strong> from <code>test_port19_factor_reuse.py:82</code> (1e-12). This window also answers the 2a auditor's note for this caller. <strong>W2, <code>dropped</code>:</strong> (N′) the leg census is 0.
+- <strong>Negative controls</strong> (rule (e); the analogue is 2a's (c2) at 77.1× / 910.0×).
+  - (c1) <em>Asserted</em> in W1: all 16 leg tags have more than 0 cells.
+  - (c2) <em>Asserted</em> in W2: cells ≠ 537 546, and the relative change of SAR10g(c*) from the boxed value is &gt; <code>REUSE_REPRODUCTION_RTOL</code>. Predicted 10–3 000×, from step 1's moves of 3.3e-06 … 9.1e-04 (<code>…GEO-35-s1-W2-wf7.log:9733–9780</code>). The ceiling is the mesh move itself, so the bar is &gt; 1×.
+  - (c3) <em>Printed:</em> the P17 control, predicted ≈ 96 %, ≈ 19× the band (<code>:11619</code>).
+- <strong>Printed values are the pre-registration</strong> (W2), each beside its boxed value:
+  - cells, predicted ≈ −0.85 % (range [−1.0 %, −0.7 %]);
+  - phantom cells, predicted 22 594 (the phantom boundary is unchanged);
+  - c*, SAR10g(c*) and the nine-ball table;
+  - the 15 C16 values (boxed worst 0.4904 % at R_7);
+  - mirror (0.0502 %), mean SAR, the P17 control, and the |B1+| line.</p>
+<p>Round-off residuals (coverage ≈ 1e-13) are band checks, never records, because they jitter between runs (<code>mri:4</code> guide §3).
+- <strong><code>EX-62</code> gets no window.</strong> <code>mri:4</code> prints the values <code>build_sar10g_case</code> returns. It matched the gate to every printed digit (<code>20260930T213057Z_EX-62-fields.log:11571–11584</code>), and 2b-ii re-runs it. <strong><code>WF-10</code> ×2 and <code>08</code> are not worth a window</strong> (334–423 s each, and Q3 freezes them). Their pins resolve to the no-key dict that <code>test_geo35_f_human_builder_contract</code> asserts (<code>test_geo35_leg_port_boxes.py:180–181</code>), and W1 runs the same pinned line end to end.
+- <strong>Windows.</strong> Run each in the foreground as the whole Bash command, with Bash <code>timeout: 660000</code>. Use <code>-s</code> and node IDs, never <code>-k</code>, and put <code>tests/environment</code> first. Each window is under 10 min, so no redirect is needed. Heavy windows never run side by side.
+  <code>scripts/testing/run_and_log.sh GEO-35-s2bi-W&lt;k&gt; "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 &lt;ENV&gt; timeout -k 30 &lt;T&gt; mpiexec -n &lt;N&gt; python3 -m pytest tests/environment &lt;NODES&gt; -v -s --tb=short'"</code>
+  - <strong>W0:</strong> T 180, N 2. Nodes: the knob contract and <code>test_geo35_leg_port_boxes.py::test_geo35_f_human_builder_contract</code>.
+  - <strong>W1:</strong> T 590, N 8, <code>FEM_EM_WF7_STEP3=1 FEM_EM_GEO35_2B_MEASURE=boxed</code>, the whole module (6 nodes). Predicted 330–420 s.
+  - <strong>W2:</strong> the same as W1 with <code>dropped</code>.
+- <strong>Traps.</strong> False is reachable only through the knob. There are two <code>REUSE_REPRODUCTION_RTOL</code> constants (see Anchors). <code>cell_tags.values</code> is rank-local, so allreduce. If a window is killed, run <code>pgrep -c python3</code> first, then the orphan <code>.c</code> sweep. Status 124 is a finding: never lengthen the timeout. Rule (i): no edit after the last window. No AED file, sheet or κ is touched.
+- <strong>Scope.</strong> Measurement only.
+  - Nothing is re-recorded, unpinned or moved.
+  - <code>GEO-35</code> holds 🟡.
+  - <code>mesh:9</code>–<code>11</code> are untouched (Q2), and so are <code>WF-10</code> / <code>ANS-8</code> (Q3).
+  - No degree 2 and no absolute SAR.
+- <strong>Negative result.</strong> In every case: report, park on <code>attempt/GEO-35-step2bi-*</code>, mark the item BLOCKED and journal it.
+  - <strong>W0 red:</strong> fix inside the knob or node only.
+  - <strong>W1 red:</strong> the image has drifted since 09-30. Add a known-issues entry, raise a <code>record-reconciler</code> finding, and stop before W2.
+  - <strong>W2 (i)–(iv) red:</strong> the switch breaks a 10 g identity. This finding holds 2b; step 3 stays boxed.
+  - <strong>(N′) &gt; 0, or (c2) does not separate:</strong> the switch did not take effect, or the SAR figures do not move at 1e-6 (then 2b-ii re-records cells only). Stop.</p>
+<p>No <code>PREDICTED RED:</code> line.
+- <strong>Status it can move.</strong> No glyph changes.
+  - GEO-35.md records W2's table, with log:line citations, as 2b-ii's pre-registered values.
+  - The <code>WF-7</code> row notes the 10 g C16, mirror and coverage checks green on the leg-box-free mesh.
+  - §10 U21 reads "2b-i (356) DONE".</p>
+<p><strong>Outcome (2026-10-10, 06:00 CDT slot, 11:00–11:25 UTC): DONE.</strong> Code: <code>build_sar10g_case(comm, *, emit_leg_ports=True)</code>, knob <code>FEM_EM_GEO35_2B_MEASURE</code> (<code>_geo35_2b_mode</code>), nodes <code>test_geo35_2b_measure</code> and <code>test_geo35_2b_measure_knob_contract</code>, provenance constants <code>GEO35_BOXED_CELLS</code> / <code>GEO35_BOXED_SAR10G_STAR</code>, all in <code>tests/validation/test_wf7_f_human_sar10g_hotspot.py</code>. Windows, all green: <strong>W0</strong> <code>-n 2</code>, 14 passed, 78 s (<code>20261010T110132Z_GEO-35-s2bi-W0.log</code>); <strong>W1</strong> <code>boxed</code>, <code>-n 8</code>, 18 passed, 419 s (<code>20261010T110256Z_GEO-35-s2bi-W1.log</code>); <strong>W2</strong> <code>dropped</code>, <code>-n 8</code>, 18 passed, 419 s (<code>20261010T111003Z_GEO-35-s2bi-W2.log</code>).</p>
+<ul>
+<li><strong>W1 control (asserted):</strong> cells 537 546 = the 09-25 record; SAR10g(c*) 2.085815849e-04, rel 1.094e-10 against <code>REUSE_REPRODUCTION_RTOL</code> 1e-6; (c1) the 16 lower leg tags hold 120–187 cells each (2 259 in total; the upper tags read 0 on the boxed build too, as in the 2a module, where (c1) is asserted on the lower tags only); worst C16 0.4904 % at R_7, mirror 0.0502 %, coverage power 9.448e-14 / mass 1.297e-13, P17 control 96.4015 % — every 09-25 figure reproduced (<code>…W1.log:11746–11755</code>). This also gives the pinned <code>_build_f_human</code> call a runtime witness (2a audit caveat, 10-10 ruling (4)).</li>
+<li><strong>W2, the 2b-ii pre-registration</strong> (<code>…W2.log:10800–10834</code>), each beside its boxed value:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>quantity</th>
+<th>dropped (W2)</th>
+<th>boxed (W1)</th>
+<th>brief's prediction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cells</td>
+<td>532 935 (−0.8578 %)</td>
+<td>537 546</td>
+<td>−0.85 % in [−1.0, −0.7] % — <strong>in range</strong></td>
+</tr>
+<tr>
+<td>phantom cells</td>
+<td>22 822</td>
+<td>22 594</td>
+<td>22 594 — <strong>missed</strong> (+1.01 %); the phantom boundary is unchanged but its interior mesh is not</td>
+</tr>
+<tr>
+<td>leg census (N′, asserted)</td>
+<td>0 over 32 tags</td>
+<td>2 259</td>
+<td>0</td>
+</tr>
+<tr>
+<td>c*</td>
+<td>r 45 mm, z = z_c (44.135, 8.779, 0.000) mm</td>
+<td>same</td>
+<td>—</td>
+</tr>
+<tr>
+<td>SAR10g(c*)</td>
+<td>2.079992000e-04 W/kg</td>
+<td>2.085815849e-04</td>
+<td>—</td>
+</tr>
+<tr>
+<td>(c2) SAR move / <code>REUSE_REPRODUCTION_RTOL</code></td>
+<td>2.792e-03 = 2792× (printed, ruling (2))</td>
+<td>—</td>
+<td>10–3 000× — <strong>in range</strong></td>
+</tr>
+<tr>
+<td>worst C16</td>
+<td>0.3373 % at R_3</td>
+<td>0.4904 % at R_7</td>
+<td>≤ 5 % (asserted)</td>
+</tr>
+<tr>
+<td>mirror</td>
+<td>0.0234 %</td>
+<td>0.0502 %</td>
+<td>≤ 5 % (asserted)</td>
+</tr>
+<tr>
+<td>coverage power / mass</td>
+<td>1.121e-14 / 1.645e-13</td>
+<td>9.448e-14 / 1.297e-13</td>
+<td>≤ 1e-10 (asserted); jitter, never a record</td>
+</tr>
+<tr>
+<td>mean SAR (ccw)</td>
+<td>1.735495022e-04 W/kg</td>
+<td>1.735606450e-04</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P17 control spread</td>
+<td>96.4033 % (285.8× the ccw worst)</td>
+<td>96.4015 %</td>
+<td>≈ 96 %</td>
+</tr>
+<tr>
+<td>|B1+| C16 / mirror / valid</td>
+<td>0.0480 % at R_6 / 0.0392 % / 213 of 213</td>
+<td>0.0513 % / 0.0456 % / 215 of 215</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>Nine-ball table (W2, ccw, mm, W/kg): z_c − 50: r 15 7.463600451e-05, r 30 9.595433358e-05, r 45 1.441256449e-04; z_c: 2.889775125e-05, 9.425441341e-05, <strong>2.079992000e-04 (c*)</strong>; z_c + 50: 7.451704145e-05, 9.627011835e-05, 1.438777841e-04 (<code>:10800–10808</code>). The 15 C16 values are at <code>:10809–10823</code>.
+- <strong>Reading:</strong> the switch moves SAR10g(c*) by 2.8e-3. That is above the 1e-6 bar, so 2b-ii re-records the SAR figures and not only the cells (ruling (2)). Two unpredicted moves: the |B1+| sample set drops from 215 to 213 valid points, and the phantom cell count moves +1.01 % against a predicted 0. Both are printed and neither is asserted. Nothing was re-recorded or unpinned; <code>GEO-35</code> holds 🟡.</p>
+<h3 id="9-item-357-2026-10-10-chain-step-u21-2b-i-part-2-provisional">§9 item 357 — 2026-10-10 (chain step U21, 2b-i part 2, provisional)<a class="headerlink" href="#9-item-357-2026-10-10-chain-step-u21-2b-i-part-2-provisional" title="Permanent link">&para;</a></h3>
+<p>The <code>GEO-25</code> / <code>mesh:12</code> transverse build. It shares no file with 356.</p>
+<ul>
+<li><strong>Executor:</strong> implementer. <strong>Tier:</strong> heavy by ceiling, mesh only, <code>-n 2</code>, the width the logs used (<code>20260906T034048Z_EX-51-gate-rerun.log.gz:12</code>). <strong>Cost:</strong> ≈ 7 measured (2 × 196 s, <code>:61</code>) / ≈ 31 predicted = 15 fixed + 6 code + W1 4 + W2 4 + 2 spare.</li>
+<li><strong>Code.</strong> <code>_build_rung</code> (<code>test_birdcage_f_human_rung.py:139–191</code>) gains the keyword <code>emit_leg_ports=True</code>.</li>
+<li>The default adds no key and leaves the tag list unchanged. <code>mesh:12</code> (<code>:179</code>, <code>:228</code>) is untouched.</li>
+<li><code>False</code> adds the key and uses a <strong>ring-only</strong> tag list. The leg entries at <code>:163</code> would otherwise let the partition pass vacuously.</li>
+<li>New node <code>test_geo35_transverse_rung_measure</code> in <code>test_geo35_leg_port_boxes.py</code> runs branches B and A knob-on.</li>
+<li><strong>Anchors (asserted, bands imported).</strong> These apply to both knob-on builds:</li>
+<li>the partition is within <code>EXACT</code> (<code>test_birdcage_ring_gaps.py:87</code>);</li>
+<li>all 32 terminal ratios are in <code>TERMINAL_RATIO_BAND</code>;</li>
+<li>the <code>CAD_MASS_GATE</code> separation holds (B above the gate, A below it);</li>
+<li>(N′) is 0;</li>
+<li>cells are within <code>CELL_COUNT_BAND</code> of each landed record.</li>
+</ul>
+<p><strong>W1, the control and the rule (c) regression:</strong> the unchanged committed module, expected to give exactly 504 642 / 204 977 (<code>20260906T033712Z_EX-51.log.gz:20003</code>, <code>:20009</code>).
+- <strong>Negative controls.</strong> <em>Asserted:</em> each knob-on count ≠ its boxed record. <em>Printed:</em> a predicted move of ≈ −0.9 % for B (step 1 moved −0.899 %); A is unpredicted.
+- <strong>Printed:</strong> the distance of every consumer of <code>F_HUMAN_BRANCH_B_CELL_RECORD</code> from the knob-on B count. Boxed 507 266 is asserted at <code>test_wf7_f_human_ring_matrix.py:1092</code>, <code>test_wf12_f_human_hole.py:380</code> and <code>test_geo35_leg_port_boxes.py:243</code>; it is predicted at ≈ +1.4 %, <strong>outside the band</strong>.
+- <strong>Windows.</strong> W1 runs <code>tests/validation/test_birdcage_f_human_rung.py</code>; W2 runs the new node. Both use T 590 and N 2. The traps, scope and dispositions are 356's. An out-of-band knob-on count is reported, never widened.
+- <strong>Status it can move.</strong> The transverse knob-on counts are pre-registered for 2b-ii.
+- <strong>Q5 (for the review).</strong> <code>F_HUMAN_BRANCH_B_CELL_RECORD</code> is the shared 1 % anchor of the longitudinal fixtures. Re-recording it in place would turn three boxed gates red. 2b-ii needs either a separate leg-box-free record or re-pointed consumers.</p>
+<p><strong>Outcome (2026-10-10, 06:00 CDT slot, 11:19–11:31 UTC): DONE.</strong> Code: <code>_build_rung(..., emit_leg_ports=True)</code> in <code>tests/validation/test_birdcage_f_human_rung.py</code> (default adds no key and keeps the tag list; <code>False</code> adds the key, uses a ring-only tag list, and <code>keep_mesh=True</code> now also returns <code>diag</code>); new node <code>test_geo35_transverse_rung_measure</code> in <code>tests/mesh/test_geo35_leg_port_boxes.py</code>. Both windows <code>-n 2</code>, T 590, green.</p>
+<ul>
+<li><strong>W1 control</strong> (<code>20261010T112008Z_GEO-35-s2bi-p2-W1.log</code>, 10 passed, 302 s): the committed module reproduces 504 642 / 204 977 <strong>exactly</strong> (<code>:9767</code>, <code>:20054</code>, rel 0.000e+00); partition 1.000000000000, CAD 0.965414 / 0.893028, separation 0.072387 (<code>:20060–20063</code>). The module asserts the records at <code>CELL_COUNT_BAND</code>; exact equality is read off the printed lines.</li>
+<li><strong>W2 knob-on</strong> (<code>20261010T112516Z_GEO-35-s2bi-p2-W2.log</code>, 9 passed, 294 s), the 2b-ii pre-registration:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>quantity</th>
+<th>branch B knob-on</th>
+<th>branch A knob-on</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cells (<code>:8771</code>, <code>:17802</code>)</td>
+<td>500 425 vs 504 642, −0.8356 % (predicted ≈ −0.9 %; in band, printed)</td>
+<td>203 945 vs 204 977, −0.5035 % (unpredicted; in band, printed)</td>
+</tr>
+<tr>
+<td>(N′) leg census, 32 tags (asserted)</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>partition ring-only (asserted, <code>EXACT</code>)</td>
+<td>1.000000000000</td>
+<td>1.000000000000</td>
+</tr>
+<tr>
+<td>terminal ratio, 32 ports (asserted)</td>
+<td>0.974454791 – 0.974455230</td>
+<td>0.974445583 – 0.974446474</td>
+</tr>
+<tr>
+<td>meshed/CAD conductor (separation asserted)</td>
+<td>0.965414 ≥ 0.95</td>
+<td>0.893028 &lt; 0.95</td>
+</tr>
+<tr>
+<td>build_s</td>
+<td>130.43</td>
+<td>73.37</td>
+</tr>
+</tbody>
+</table>
+<p>Negative control asserted: each knob-on count ≠ its boxed record. The terminal ratios and CAD ratios are digit-identical to the boxed build (the leg boxes sit away from the ring terminals and the conductor).
+- <strong>Consumers of <code>F_HUMAN_BRANCH_B_CELL_RECORD</code></strong> (printed, <code>:17811–17813</code>): boxed 507 266 sits <strong>+1.3670 %</strong> from knob-on B 500 425, outside <code>CELL_COUNT_BAND</code> at all three sites (predicted ≈ +1.4 %, outside). This is Q5's measurement: re-recording the shared record in place to 500 425 would turn <code>test_wf7_f_human_ring_matrix.py:1092</code>, <code>test_wf12_f_human_hole.py:380</code> and <code>test_geo35_leg_port_boxes.py:243</code> red. Nothing was re-recorded; <code>GEO-35</code> holds 🟡.</p>
+<p><strong>Review rulings (2026-10-10 03:00 review) on items 356 and 357 — these outrank the briefs above.</strong> (1) <strong>The split is accepted, provisionally</strong> (rule (6)); 356 and 357 are independent and share no file. The weekly ratifies 2b-i / 2b-ii with the rest of U21 tonight. (2) <strong>Item 356 (c2), rule (e):</strong> no prior measurement backs the SAR10g(c*) move on this fixture, so its "relative change &gt; <code>REUSE_REPRODUCTION_RTOL</code>" clause is <strong>predicted and printed</strong> (10–3 000×) beside the measured value, not asserted. The cell inequality ≠ 537 546 and (N′) = 0 stay asserted: they are structural and witness that the switch took effect. A SAR move under 1e-6 is a reading for 2b-ii (then cells only are re-recorded), not a red. (3) <strong>Item 357, the knob-on cell clause:</strong> "cells within <code>CELL_COUNT_BAND</code> of each landed record" on the knob-on builds is <strong>printed, not asserted</strong>. Branch A's move is unpredicted, and an out-of-band count is the measurement Q5 needs, not a failure. The partition, terminal ratios, <code>CAD_MASS_GATE</code> separation and (N′) stay asserted, and so does W1's exact 504 642 / 204 977 control. (4) <strong><code>EX-62</code>, the <code>WF-10</code> pins and <code>08</code> get no window: accepted.</strong> W1 of 356 runs the pinned <code>_build_f_human</code> line end to end; that answers the 2a audit's "no runtime witness" caveat for this caller. The boxed <code>FEM_EM_WF7_LEG_PORTS=boxed</code> rebuild route for steps 1–2 stays unexercised (an audit caveat for the weekly). (5) <strong>Q5 goes to the weekly</strong> with Q2 / Q3 (dashboard).</p>
+<p><strong>Weekly ruling 2026-10-10 (U21, Q2 / Q3 / Q5), recorded here for the 2b-ii briefs below</strong> (PROJECT_PLAN.md §10 rulings, "U21 (<code>GEO-35</code>), Q2 / Q3 / Q5 and the split"). The 2a / 2b split and 2b-i are ratified. <strong>Q2:</strong> <code>mesh:9</code>–<code>11</code> leave U21. They are the 0.07 m <code>GEO-20</code> / <code>GEO-26</code> fixtures and keep their boxes; U21 is F-human only. <strong>Q3:</strong> the κ-era <code>WF-10</code> / <code>ANS-8</code> records are frozen as boxed-mesh records with the explicit <code>emit_leg_ports=True</code> pin. <strong>Q5:</strong> the shared anchor is split, not moved. <code>F_HUMAN_BRANCH_B_CELL_RECORD</code> keeps the boxed value for its three boxed consumers (<code>B_RECORD_CONSUMERS</code>, <code>tests/mesh/test_geo35_leg_port_boxes.py:276–280</code>). A new <code>F_HUMAN_BRANCH_B_CELL_RECORD_UNBOXED</code>, item 357's pre-registered knob-on reading, anchors the switched consumers. <strong>2b-ii</strong> re-records <code>WF-7</code> step 3, <code>EX-62</code> and <code>GEO-25</code> transverse to it under the (1*) licence (<code>record-reconciler</code>), and <code>GEO-35</code> → ✅ on its green anchors.</p>
+<h3 id="9-item-385a-2026-10-11-u21-2b-ii-part-1-wf-7-step-3-ex-62-switched-and-re-recorded-chain-step-solve">§9 item 385a — 2026-10-11 (U21 2b-ii part 1: <code>WF-7</code> step 3 + <code>EX-62</code> switched and re-recorded; chain step (solve))<a class="headerlink" href="#9-item-385a-2026-10-11-u21-2b-ii-part-1-wf-7-step-3-ex-62-switched-and-re-recorded-chain-step-solve" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-11 03:00 review; the review reviews it.</em> Licence: the weekly ruling above, plus the 10-09 Q1 (1*) licence (item 351 rulings). Every re-recorded value must reproduce its <strong>pre-registered</strong> 2b-i reading at <code>REUSE_REPRODUCTION_RTOL</code> (<code>tests/validation/test_port_birdcage_ring_matrix.py:171</code>, 1e-6; <strong>not</strong> <code>test_port19_factor_reuse.py:82</code>). A value that does not reproduce is a red: stop, re-record nothing. <strong>No band, tolerance, Done-when or gate moves.</strong></p>
+<p><strong>Why two items.</strong> The weekly posed 2b-ii as one item. Its honest windows are W0 78 s, the <code>WF-7</code> step 3 module 419 s, <code>mri:4</code> 323 s, the <code>GEO-25</code> rung module 302 s and <code>mesh:12</code> 196 s: ≈ 1 320 s of serial compute, plus code and record text, which is over a slot's minute-35 window budget. The split follows the fixture families and shares no file. <strong>385a: the refined longitudinal family (<code>WF-7</code> step 3, <code>mri:4</code>). 385b: the transverse family (<code>GEO-25</code>, <code>mesh:12</code>), the <code>…_UNBOXED</code> constants and the ✅.</strong> 385b depends on 385a.</p>
+<ul>
+<li><strong>Executor:</strong> <code>record-reconciler</code> (the weekly's named executor; its site list is below). <strong>Class:</strong> chain step (solve). <strong>Tier:</strong> W0 standard <code>-n 2</code>; W1 / W2 heavy <code>-n 8</code> (the record width). <strong>Cost:</strong> ≈ M measured / ≈ 48 predicted min (15 fixed + ≈ 8 code + W0 1.5 + W1 ≈ 7 + W2 ≈ 5.5 + ≈ 8 record text + censuses 1 + 2 spare). <strong>Park if W1 is not green by minute 30.</strong></li>
+<li><strong>Depends on:</strong> nothing open (items 356 / 357 DONE). Never beside another heavy window.</li>
+<li><strong>Price (cited):</strong> 2b-i W2 (the same module under <code>dropped</code>) 419 s harness at <code>-n 8</code> (<code>20261010T111003Z_GEO-35-s2bi-W2.log</code>); W0 78 s (<code>20261010T110132Z_GEO-35-s2bi-W0.log</code>); <code>mri:4</code> 323 s (<code>20260930T213057Z_EX-62-fields.log.gz</code>, window 318.63 s). W1 predicted [380, 560] s at up to 1.32×, under <code>timeout -k 30 590</code>; W2 [290, 430] s.</li>
+</ul>
+<p><strong>Site list (the reconciler's input; every other consumer is out of scope).</strong>
+1. <code>tests/validation/test_wf7_f_human_sar10g_hotspot.py</code>:
+   - <code>build_sar10g_case(comm, *, emit_leg_ports=False)</code>: flip the default at <code>:134</code> and the comment at <code>:186</code>. This is the switch.
+   - The knob stays: <code>boxed</code> passes <code>True</code> (the control), and <code>dropped</code> now equals the default.
+   - <code>test_geo35_2b_measure_knob_contract</code> (<code>:454–478</code>): its "defaults to the pinned <code>True</code>" clause becomes <code>False</code>. That is the contract following the switch, not a gate.
+   - <strong>New provenance constants</strong> beside <code>GEO35_BOXED_*</code> (<code>:82–83</code>), each commented with its log line: <code>GEO35_DROPPED_CELLS = 532935</code> and <code>GEO35_DROPPED_PHANTOM_CELLS = 22822</code> (<code>20261010T111003Z_GEO-35-s2bi-W2.log:10832</code>), and <code>GEO35_DROPPED_SAR10G_STAR = 2.079992000e-04</code> (the W2 nine-ball table, <code>:10800–10808</code>).
+   - <strong>New node <code>test_geo35_2b_default_reproduction</code></strong>, active when <code>FEM_EM_WF7_STEP3=1</code> and the knob is unset. It asserts: cells == <code>GEO35_DROPPED_CELLS</code>; phantom cells == <code>GEO35_DROPPED_PHANTOM_CELLS</code>; (N′) leg census 0 (<code>_owned_census</code>, allreduced, 2b-i's code); SAR10g(c*) within <code>REUSE_REPRODUCTION_RTOL</code> of <code>GEO35_DROPPED_SAR10G_STAR</code>; c* at the same lattice key.
+   - The (i)–(iv) identity nodes are unchanged.
+2. <code>examples/mri/04_f_human_sar10g_hotspot.py</code>: <strong>no code edit</strong> (it calls <code>build_sar10g_case(comm)</code>, <code>:236</code>, and so follows the default). <code>examples/mri/04_f_human_sar10g_hotspot.md</code>: the quoted records (<code>:120</code>, <code>:136</code>, <code>:145–148</code>: 537 546 / 22 594, SAR10g(c*) 2.085815849e-04, C16 0.4904 % at R_7, mirror, mean SAR, the nine-ball table, the P17 control) are re-recorded <strong>from W2's printed lines</strong>, each of which must equal its 2b-i W2 value at the printed digits. Add one dated sentence: "leg port boxes dropped (<code>GEO-35</code> 2b-ii, 2026-10-11); the boxed figures are in <code>GEO-35.md</code>". Use the whole filename in <code>## Related</code> (rule (b)).
+3. §7 rows <code>WF-7</code> and <code>EX-62</code>: one dated re-record sentence each, in the same commit, with log citations. If a row would pass 2 KB, the sentence goes in the chunk file with a pointer.
+4. <strong>Not touched (say so in the commit):</strong> <code>F_HUMAN_BRANCH_B_CELL_RECORD</code> (385b adds the <code>…_UNBOXED</code> split); the three boxed 507 266 sites; <code>mesh:9</code>–<code>11</code> (Q2); the Q3 pins at <code>test_wf10_f_human_tuned_circuit.py:159, :454</code> and <code>08_f_human_quadrature_mode_content.py:193</code>. Those pins' "unpin with the re-record" comments are <strong>superseded by Q3 and left unedited</strong>: an edit, even to a comment, would re-open <code>WF-10</code> step 1's audited module under rule (i). This brief records the supersession.</p>
+<p><strong>(1) Anchors (asserted, bands imported, unchanged).</strong> W1, on the now-default dropped fixture: (i) coverage power / mass ≤ <code>EXACT_IDENTITY_RTOL</code> (<code>tests/validation/test_birdcage_sar_mass_averaged.py:163</code>); (ii) worst C16 and (iii) mirror ≤ <code>C4_COVARIANCE_BAND</code> (<code>tests/validation/test_birdcage_b1_plus_map.py:120</code>); (iv) containment; and the reproduction node. W2: <code>mri:4</code>'s gate-import assertions, as <code>EX-62</code> closed them.</p>
+<p><strong>(2) Negative controls (rule (e)).</strong>
+- <em>Asserted, backed:</em> the reproduction node's cells ≠ <code>GEO35_BOXED_CELLS</code> (2b-i W2 read 532 935 vs 537 546); (N′) = 0 against 2b-i W1's boxed 2 259 lower-tag cells (<code>20261010T110256Z_GEO-35-s2bi-W1.log:11753</code>).
+- <em>Printed:</em> the SAR10g(c*) move from the boxed value, 2.792e-3 (2b-i W2); the P17 control ≈ 96.40 % (<code>EX-62</code>'s).</p>
+<p><strong>(3) Windows.</strong> Each is foreground, and each is the whole bare repo-relative harness call, with Bash <code>timeout: 660000</code>, <code>-s</code>, node IDs (never <code>-k</code>), and <code>tests/environment</code> first. Each is under 10 min, so the form is 2b-i's. Before W1 and W2, <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0.
+- <strong>W0</strong> (<code>-n 2</code>, T 180): <code>scripts/testing/run_and_log.sh GEO-35-s2bii-W0 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_wf7_f_human_sar10g_hotspot.py::test_geo35_2b_measure_knob_contract tests/mesh/test_geo35_leg_port_boxes.py::test_geo35_f_human_builder_contract -v -s --tb=short'"</code>
+- <strong>W1</strong> (<code>-n 8</code>, T 590, no knob): <code>scripts/testing/run_and_log.sh GEO-35-s2bii-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_WF7_STEP3=1 timeout -k 30 590 mpiexec -n 8 python3 -m pytest tests/environment tests/validation/test_wf7_f_human_sar10g_hotspot.py -v -s --tb=short'"</code>
+- <strong>W2</strong> (<code>mri:4</code>, flagged, so the setup PNG redraws without leg boxes; ≤ 600 KiB): first <code>scripts/testing/run_and_log.sh GEO-35-s2bii-mri4-dryrun "./scripts/run_examples.sh -e mri:4 -n 8 -t 590 --dry-run"</code> (it must print <code>(complex build)</code>), then the emitted docker line with <code>-T -e FEM_EM_SETUP_FIGURES=1</code> as its own bare harness call, labelled <code>GEO-35-s2bii-W2-mri4</code>. Then <code>GEO-35-s2bii-post-figures</code> and <code>GEO-35-s2bii-post-docrefs</code> (the <code>EX-109</code> census commands): <code>missing=0 broken=0</code>, no new dead reference.</p>
+<p><strong>(4) Traps already paid for.</strong> There are two <code>REUSE_REPRODUCTION_RTOL</code> constants: import from <code>test_port_birdcage_ring_matrix</code>. <code>cell_tags.values</code> and the leg census are rank-local, so allreduce. Never path-checkout a record file; append rows by hand and check that <code>git diff --stat</code> shows only insertions on record files. Rule (i): no edit after the window it closes on, and the guide is re-recorded before the post-censuses. Status 124: run <code>pgrep -c python3</code> first; only at 0, the orphan sweep (<code>GEO-35-s2bii-cache-sweep</code>). Never lengthen a timeout. No AED file, sheet or κ is touched. Write <code>≈</code>, never a tilde.</p>
+<p><strong>(5) Scope.</strong> The refined longitudinal family only. <strong>Not claimed:</strong> the transverse records and the <code>…_UNBOXED</code> constants (385b); <code>GEO-35</code> ✅ (385b); degree 2; absolute SAR; compliance.</p>
+<p><strong>(6) Negative result.</strong> Report; park on <code>attempt/GEO-35-step2bii-*</code>; mark 385a and 385b BLOCKED (rule (d)); journal.
+- A reproduction red (cells, phantom cells or SAR10g(c*) off its 2b-i value): an image or mesher drift since 10-10. File a known-issues entry and a <code>record-reconciler</code> finding; re-record nothing.
+- (i)–(iv) red: the switch breaks a 10 g identity. Revert the default flip (step 3 stays boxed) and leave the finding for the weekly.
+- A <code>mri:4</code> printed digit off W1 with every gate green: report it; not a stop.</p>
+<p>No <code>PREDICTED RED:</code> line.</p>
+<p><strong>(7) Status it can move.</strong> No glyph by itself (<code>GEO-35</code> holds 🟡 until 385b). The <code>WF-7</code> and <code>EX-62</code> rows gain their re-record sentences; §10 U21 reads "2b-ii part 1 DONE".</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Use the record-reconciler agent to execute §9 item 385a — <code>GEO-35</code> step 2b-ii part 1 (§10 U21) — per <code>docs/planning/chunks/GEO-35.md</code> §9 item 385a and the weekly ruling recorded above it. Its site list is the whole scope. Every re-recorded value must reproduce its pre-registered 2b-i value at <code>REUSE_REPRODUCTION_RTOL</code> from <code>test_port_birdcage_ring_matrix</code>; a miss is a red, not a re-record. Never touch a band, tolerance or gate. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Pass timeout: 660000 on every Bash call that runs a window; run pytest with -s. Run W0, W1, W2 in order, foreground; before each heavy window run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> and require 0. Never delete a log. Do not edit <code>tests/validation/test_wf10_f_human_tuned_circuit.py</code> or the ANS-8 example. You are the executor — do not spawn agents, never background a harness window. If the docker socket is denied, stop and report the exact command string. On a red, park on <code>attempt/GEO-35-step2bii-*</code>, mark items 385a and 385b BLOCKED in the same commit, and report."</p>
+<p><strong>Outcome (2026-10-11, 21:00 CDT slot): DONE.</strong> <code>build_sar10g_case</code> defaults to <code>emit_leg_ports=False</code> (knob <code>boxed</code> passes <code>True</code>; <code>dropped</code> equals the default); new constants <code>GEO35_DROPPED_CELLS</code> / <code>_PHANTOM_CELLS</code> / <code>_SAR10G_STAR</code> / <code>_KEY_STAR</code> with the 2b-i log lines; new node <code>test_geo35_2b_default_reproduction</code>. W0 14 passed, 81 s (<code>20261012T020117Z_GEO-35-s2bii-W0.log</code>). W1 <code>-n 8</code>, 18 passed 1 skipped (the knob-gated measure node), 424 s (<code>20261012T020246Z_GEO-35-s2bii-W1.log:10840</code>): cells 532 935, phantom 22 822, leg census 0, c* r 45 mm dz 0, SAR10g(c*) 2.079992000e-04 vs 2.079992000e-04 rel 9.864e-11 (0.00 × <code>REUSE_REPRODUCTION_RTOL</code>), move from boxed 2.792e-03; (i)–(iv) green. W2 <code>mri:4</code> flagged, 345 s (<code>20261012T021003Z_GEO-35-s2bii-W2-mri4.log</code>): every print equals 2b-i W2 (worst C16 0.3373 % at R_3, mirror 0.0234 %, P17 control 96.4033 %, mean SAR 1.735495022e-04, nine-ball table) except the coverage power round-off 1.965e-14 (2b-i read 1.121e-14; budget 1e-10; not a stop). Collected-count identity: W1 collected 19 (18 + 1 skipped); W0 14. Guide <code>examples/mri/04_f_human_sar10g_hotspot.md</code> re-recorded from W2's prints, boxed block kept as a record. Post-censuses <code>examples=106 ok=106 missing=0 broken=0</code>; docrefs <code>dead=0 guide=0 stale=85 exit=2</code>. <strong>Not touched:</strong> <code>F_HUMAN_BRANCH_B_CELL_RECORD</code>, the three boxed 507 266 sites, <code>mesh:9</code>–<code>11</code>, the Q3 pins in <code>test_wf10_f_human_tuned_circuit.py</code> and <code>08_f_human_quadrature_mode_content.py</code> (their "unpin with the re-record" comments superseded by Q3, left unedited), the ANS-8 example. <strong>Flag for the review:</strong> the <code>examples/mri/04_f_human_sar10g_hotspot.py</code> module docstring (line 44) still quotes the superseded boxed "196.6x the ccw worst" (now 285.8x); the brief said no code edit, so it was left. Boxed figures for reference: 537 546 / 22 594 cells, SAR10g(c*) 2.085815849e-04, worst C16 0.4904 % at R_7, mirror 0.0502 %, P17 control 96.4015 % (<code>20260926T095026Z_EX-62.log</code>, <code>20260925T093315Z_WF-7-step3.log.gz</code>).</p>
+<h3 id="9-item-385b-2026-10-11-u21-2b-ii-part-2-geo-25-transverse-mesh12-to-_unboxed-geo-35-chain-step-solve">§9 item 385b — 2026-10-11 (U21 2b-ii part 2: <code>GEO-25</code> transverse + <code>mesh:12</code> to <code>…_UNBOXED</code>; <code>GEO-35</code> ✅; chain step (solve))<a class="headerlink" href="#9-item-385b-2026-10-11-u21-2b-ii-part-2-geo-25-transverse-mesh12-to-_unboxed-geo-35-chain-step-solve" title="Permanent link">&para;</a></h3>
+<p><em>Drafted with 385a; same licence; no band, tolerance or gate moves.</em></p>
+<ul>
+<li><strong>Executor:</strong> <code>record-reconciler</code>. <strong>Class:</strong> chain step (solve). <strong>Tier:</strong> heavy by ceiling, mesh only, <code>-n 2</code> (the width of the records, <code>20260906T034048Z_EX-51-gate-rerun.log.gz</code>; <code>20261010T112008Z_GEO-35-s2bi-p2-W1.log</code>). <strong>Cost:</strong> ≈ M measured / ≈ 42 predicted min (15 fixed + ≈ 8 code + W3 ≈ 5.5 + W4 ≈ 4 + censuses 1 + ≈ 6 record text + 2 spare).</li>
+<li><strong>Depends on item 385a landing green; if it did not, skip.</strong> It touches no file 385a touches.</li>
+<li><strong>Price (cited):</strong> the rung module 302 s at <code>-n 2</code> (<code>20261010T112008Z_GEO-35-s2bi-p2-W1.log</code>); the knob-on branches B / A built in 130.43 / 73.37 s (<code>20261010T112516Z_GEO-35-s2bi-p2-W2.log</code>, 294 s); <code>mesh:12</code> 196 s at <code>-n 2</code> (<code>20260906T033712Z_EX-51.log.gz</code>).</li>
+</ul>
+<p><strong>Site list.</strong>
+1. <code>tests/validation/test_birdcage_f_human_rung.py</code>:
+   - beside <code>:87–88</code>, add <strong><code>F_HUMAN_BRANCH_B_CELL_RECORD_UNBOXED = 500425</code></strong> (<code>20261010T112516Z_GEO-35-s2bi-p2-W2.log:8771</code>) and <strong><code>F_HUMAN_BRANCH_A_CELL_RECORD_UNBOXED = 203945</code></strong> (<code>:17802</code>), each with a comment citing the weekly's Q5 and item 357;
+   - <code>F_HUMAN_BRANCH_B_CELL_RECORD</code> 504 642 and <code>F_HUMAN_BRANCH_A_CELL_RECORD</code> 204 977 <strong>keep their values</strong> and gain a comment: "boxed; consumers <code>B_RECORD_CONSUMERS</code> and the 2b-i comparator";
+   - <code>_build_rung(..., emit_leg_ports=False)</code>: flip the default at <code>:144</code>. This is the transverse switch;
+   - the module's B / A record assertions (<code>:270</code>, <code>:345</code>) and their prints re-point to the <code>…_UNBOXED</code> constants.
+   - <em>Open question for the review:</em> the weekly names only the B split. A's count also moves (−0.50 %) and the Done-when covers "every record the switch moves", so this brief splits A the same way. If the review declines it, A's assertion keeps 204 977, which still passes at <code>CELL_COUNT_BAND</code> (−0.50 %), and the row says A was not re-recorded.
+2. <code>examples/meshing/12_birdcage_f_human_rung.py</code> (<code>:89–90</code>, <code>:235–281</code>): import and assert against the <code>…_UNBOXED</code> constants. The guide <code>examples/meshing/12_birdcage_f_human_rung.md</code> (<code>:29</code>, <code>:100</code>) quotes 500 425 / 203 945 from W4's printed lines and adds one dated sentence on the dropped leg boxes. The setup PNG is redrawn (flagged run, ≤ 600 KiB).
+3. <strong>Not touched:</strong> <code>tests/mesh/test_geo35_leg_port_boxes.py</code>. Its <code>test_geo35_transverse_rung_measure</code> passes <code>emit_leg_ports=False</code> explicitly and compares against the <strong>boxed</strong> records by design (its ≠ control), so the flip does not change it. The three <code>B_RECORD_CONSUMERS</code>; <code>mesh:9</code>–<code>11</code> (Q2); the Q3 pins (385a item 4).
+4. §7 rows <code>GEO-25</code> and <code>EX-51</code>: a dated re-record sentence each. The <code>GEO-35</code> row: the closure text below.</p>
+<p><strong>(1) Anchors (asserted, bands imported).</strong> W3, the rung module on the switched default: cells == <code>…_UNBOXED</code> exactly (an integer reproduction of 357's knob-on reading; asserted within <code>CELL_COUNT_BAND</code> as the module does, with exact equality read off the printed line, as item 357 did); partition within <code>EXACT</code> (<code>tests/validation/test_birdcage_ring_gaps.py:87</code>) over the ring-only tag list; 32 terminal ratios in <code>TERMINAL_RATIO_BAND</code>; the <code>CAD_MASS_GATE</code> separation (B 0.965414 above, A 0.893028 below). W4, <code>mesh:12</code>'s own assertions on the same quantities. The Done-when's mesh test (no leg-port tags, unchanged ring census on the switched fixture) is already met by step 1's (N) / (R) (<code>20261007T004311Z_GEO-35-s1-W1-mesh.log</code>) and item 357's transverse (N′) 0 (<code>…p2-W2.log</code>). Cite them; W3 is the switched-default regression.</p>
+<p><strong>(2) Negative controls.</strong> <em>Asserted, backed:</em> <code>test_geo35_transverse_rung_measure</code>'s knob-on ≠ boxed (357). It is not re-run, because its file is unchanged; cite <code>…p2-W2.log</code>. <em>Printed:</em> each <code>…_UNBOXED</code> beside its boxed record (−0.8356 % / −0.5035 %).</p>
+<p><strong>(3) Windows.</strong> The same rules as 385a.
+- <strong>W3</strong> (<code>-n 2</code>, T 590): <code>scripts/testing/run_and_log.sh GEO-35-s2bii-W3-rung "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 590 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_birdcage_f_human_rung.py -v -s --tb=short'"</code>. This is the real build, as <code>EX-51</code>'s gate re-run was; no complex source.
+- <strong>W4:</strong> <code>scripts/testing/run_and_log.sh GEO-35-s2bii-mesh12-dryrun "./scripts/run_examples.sh -e mesh:12 -n 2 -t 590 --dry-run"</code>, then the emitted docker line with <code>-T -e FEM_EM_SETUP_FIGURES=1</code> as one bare call labelled <code>GEO-35-s2bii-W4-mesh12</code>; then the post-figures and post-docrefs censuses (<code>…-post2-*</code>).</p>
+<p><strong>(4) Traps.</strong> 385a's. Plus: the ring-only tag list on the False path is required (item 357: leg entries would let the partition pass vacuously); never re-record a boxed constant in place (Q5: three boxed gates would go red at +1.367 %, <code>…p2-W2.log:17811–17813</code>).</p>
+<p><strong>(5) Scope.</strong> F-human transverse only. <strong>Not claimed:</strong> <code>mesh:9</code>–<code>11</code> (Q2); a re-record of the frozen κ-era records (Q3); degree 2.</p>
+<p><strong>(6) Negative result.</strong> Report; park on <code>attempt/GEO-35-step2bii-p2-*</code>; mark 385b BLOCKED; journal. A reproduction miss (a count ≠ 500 425 / 203 945): mesher drift, so file a known-issues entry and a reconciler finding, and re-record nothing. A partition or terminal-ratio red: the switch breaks a CAD identity on the default; revert the flip. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>(7) Status it can move.</strong> <strong><code>GEO-35</code> 🟡 → ✅</strong>, on 385a's and this item's green anchors plus step 1 / 357's mesh tests, if the Done-when matches. It does not match today: it names <code>F_HUMAN_BRANCH_B_CELL_RECORD</code> 504 642 among the records "re-recorded", and Q5 keeps that constant. <strong>The row amendment (rule (j)) is in the review's return and must land before this item runs.</strong> §10 U21 then reads DONE.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Use the record-reconciler agent to execute §9 item 385b — <code>GEO-35</code> step 2b-ii part 2 (§10 U21) — per <code>docs/planning/chunks/GEO-35.md</code> §9 item 385b; skip it unless item 385a is DONE. Its site list is the whole scope; boxed constants keep their values. Never touch a band, tolerance or gate. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Pass timeout: 660000 on every Bash call that runs a window; run pytest with -s. Run W3, then W4, foreground. Never delete a log. You are the executor — do not spawn agents, never background a harness window. If the docker socket is denied, stop and report the exact command string. On a red, park on <code>attempt/GEO-35-step2bii-p2-*</code>, mark item 385b BLOCKED in the same commit, and report."</p>
+<p><strong>Outcome (2026-10-11, 21:00 CDT slot): DONE.</strong> <code>_build_rung</code> defaults to <code>emit_leg_ports=False</code>; new <code>F_HUMAN_BRANCH_B_CELL_RECORD_UNBOXED = 500425</code> and <code>F_HUMAN_BRANCH_A_CELL_RECORD_UNBOXED = 203945</code> (boxed 504 642 / 204 977 kept with a comment); the module's B / A record assertions, <code>mesh:12</code> and its guide re-pointed. W3 (<code>-n 2</code>, real build) 10 passed 4 skipped, 300 s (<code>20261012T021903Z_GEO-35-s2bii-W3-rung.log:8772,17804</code>): cells 500 425 / 203 945 exactly (rel 0.000e+00; −0.8356 % / −0.5035 % from boxed), partition 1.000000000000, terminal ratios min 0.974454791 / max 0.974455230 (B), CAD 0.965414 (+0.015414 above the 0.95 gate) / 0.893028 (0.056972 below), separation 0.072387. Collected-count identity: 14 against the census <code>20261010T112008Z_GEO-35-s2bi-p2-W1.log</code> (14, 10 passed 4 skipped). W4 <code>mesh:12</code> flagged, 230 s (<code>20261012T022429Z_GEO-35-s2bii-W4-mesh12.log:17761,17767</code>), every print equal to W3's, setup PNG redrawn (580 KiB, no leg boxes). Post-censuses <code>examples=106 ok=106 missing=0 broken=0</code> and docrefs <code>dead=0 guide=0 stale=84 exit=2</code> (age-based stale only). <code>GEO-35</code> row 🟡 → ✅ against the amended Done-when. <strong>Not touched:</strong> <code>tests/mesh/test_geo35_leg_port_boxes.py</code>, the three <code>B_RECORD_CONSUMERS</code>, <code>mesh:9</code>–<code>11</code>, the Q3 pins. Branch A's <code>…_UNBOXED</code> still awaits the 10-12 weekly's ratification. The <code>ans8</code> example's two imports of <code>F_HUMAN_BRANCH_B_CELL_RECORD</code> (boxed, Q3-frozen) are unchanged by design.</p>
+<h3 id="row-state-moved-2026-10-11-0300-daily-review-7-row-2-kb-after-the-rule-j-done-when-amendment">Row state moved 2026-10-11 (03:00 daily review, §7 row ≤ 2 KB after the rule-(j) Done-when amendment)<a class="headerlink" href="#row-state-moved-2026-10-11-0300-daily-review-7-row-2-kb-after-the-rule-j-done-when-amendment" title="Permanent link">&para;</a></h3>
+<p>🟡 <strong>Step 2a (2026-10-10, §9 item 351, U21 split):</strong> the solid F-human (<code>WF-7</code> step 1's own build and <code>_build_f_human</code>'s non-hole default) now drops the leg port boxes; the hole path stays boxed (369 387 cells exactly, <code>20261010T005723Z_GEO-35-s2a-W1-wf12-buildonly.log:6220</code>); <code>WF-10</code> / <code>WF-7</code> step 3 / <code>ANS-8</code> callers pinned <code>emit_leg_ports=True</code>. Six <code>WF-7</code> constants re-recorded under (1*) from step 1's knob-on reading and reproduced at <code>REUSE_REPRODUCTION_RTOL</code> (P17 rel 4.3e-11 / κ 1.1e-9; σ_max 2.3e-10; worst class mean 4.8e-10; <code>20261010T010041Z_GEO-35-s2a-W2-wf7-step1.log:9750–9754</code>), (c2) 77× / 910× against the boxed records, (N′) 0, (ii)–(v) green; <code>WF-7</code> step 2 C16 0.1831 %, mirror 0.1264 %, identity 3.5e-16 (<code>20261010T010824Z_GEO-35-s2a-W3-wf7-step2.log:10708–10710</code>). Holds 🟡: 2b (<code>WF-7</code> step 3 / <code>EX-62</code>, <code>GEO-25</code>) and the Q2 / Q3 rulings remain. Step 1 (2026-10-06, §9 item 275, §10 U17): <code>emit_leg_ports=False</code> on F-human leaves zero leg-port cells with ring ordinals 17–48 and the <code>GEO-25</code> CAD identities intact (502 704 cells, −0.90 %), and the knob-on degree-1 32×32 holds its gates with every printed figure moving ≤ 9.1e-4 except pooled κ (4.67 %, a diagnostic). Step 2 — the fixture switch and the (1*) re-record — is open (§10 chain U). </p>
+<p><strong>Review ruling 2026-10-11 (03:00 daily) on items 385a / 385b.</strong> The split is accepted (≈ 1 320 s of serial windows does not fit one slot). The provisional <code>F_HUMAN_BRANCH_A_CELL_RECORD_UNBOXED</code> is accepted under the Done-when's "every record the switch moves" and named for the 10-12 weekly to ratify (the weekly named branch B only). The Q3 pins' "unpin with the re-record" comments are not edited (an edit would re-open <code>WF-10</code> step 1's audited module under rule (i)); the supersession is recorded here.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

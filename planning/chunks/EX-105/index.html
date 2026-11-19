@@ -1,0 +1,747 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-105 — ports:21, the capacitor ESR sheet on the copper birdcage - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-105-ports21-the-capacitor-esr-sheet-on-the-copper-birdcage" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-105 — ports:21, the capacitor ESR sheet on the copper birdcage
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-339-2026-10-08-example-54-ramp-from-port-24-step-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 339 — 2026-10-08 (example; §5.4 ramp from PORT-24 step 2)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-105-ports21-the-capacitor-esr-sheet-on-the-copper-birdcage">EX-105 — ports:21, the capacitor ESR sheet on the copper birdcage<a class="headerlink" href="#ex-105-ports21-the-capacitor-esr-sheet-on-the-copper-birdcage" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<p>Opened 2026-10-08 by the 18:00 daily review (step 5, §5.4 ramp). The base is <code>PORT-24</code> step 2 (§9 item 309, gated 2026-10-08, commit <code>91254c5a</code>; outcome and price in <code>docs/planning/chunks/PORT-24.md:47–53</code>). That step put a 0.2 Ω ESR in the model as a series-RC lumped sheet, <code>series_rlc_impedance(f, r_ohm=r, l_h=0, c_f=C)</code> (<code>src/fem_em_solver/ports/lumped.py:138</code>), on F-small's exact-rectangle hole mesh. The operator's binding ruling (<code>PROJECT_PLAN.md:3762–3783</code>, 2026-10-06) says every lumped capacitor carries r = 0.2 Ω and lossless records stay labelled lossless.</p>
+<p>No example models capacitor ESR. Checked at drafting: no <code>examples/**/*.py</code> passes a non-zero <code>r_ohm</code> to a capacitor sheet. <code>ports:17</code> (<code>examples/ports/17_birdcage_tuned_circuit.py</code>) terminates in a lossless series C. <code>ports:18</code> (<code>examples/ports/18_birdcage_copper_leontovich.py</code>) has copper but no capacitor. <code>ports:1</code> … <code>ports:20</code> exist, and no open item claims <code>ports:21</code>.</p>
+<h3 id="9-item-339-2026-10-08-example-54-ramp-from-port-24-step-2">§9 item 339 — 2026-10-08 (example; §5.4 ramp from PORT-24 step 2)<a class="headerlink" href="#9-item-339-2026-10-08-example-54-ramp-from-port-24-step-2" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-08 18:00 daily review; the review reviews it.</em> Licence: §5.4 example ramp on a gated step (<code>PORT-24</code> step 2, item 309, GREEN on all three arms). <strong>No band, tolerance, record, Done-when or validation target is set or moved.</strong> Every band, helper and fixture is imported by name.</p>
+<p><strong>The angle.</strong> What a 0.2 Ω ESR does to a copper birdcage's Q. On F-small at 64 MHz, the three capacitor sheets take <strong>70.8 %</strong> of the non-port loss, and the loss-partition ratio Q(r)/Q(0) prints <strong>0.2923</strong> with Q_C = 1/(ωCr) = 187.57 (<code>20261008T170256Z_PORT-24-step2-r02.log:946–947</code>). That is the ruling's reason made visible: copper's own loss is small enough that the capacitor ESR dominates it. Asserted: the series-RC sheet is its circuit element. Printed as a record: the Q reading.</p>
+<p><code>EX-105</code> (<code>ports:21</code>) adds <code>examples/ports/21_capacitor_esr_sheet.py</code> and a same-stem guide <code>examples/ports/21_capacitor_esr_sheet.md</code>. The guide carries the three required headings (<code>## 1. What this demonstrates</code>, <code>## 2. How to run it</code>, <code>## 3. How to analyze it, step by step</code>; <code>scripts/testing/check_example_doc_references.py:110–113</code>), plus <code>## Setup figure</code> and <code>## Related</code>. The setup PNG is ≤ 600 KiB.</p>
+<ul>
+<li><strong>Executor:</strong> <code>example-runner</code>. It does not spawn agents.</li>
+<li><strong>Class:</strong> example. <strong>Build:</strong> complex (<code>ports:</code> is in <code>run_examples.sh</code>'s complex-prefix list, <code>scripts/run_examples.sh:273–275</code>). The script checks <code>default_scalar_type</code> and raises in the real build (the <code>ports:18</code> pattern, <code>:190–195</code>).</li>
+<li><strong>Tier:</strong> <strong>heavy, <code>-n 2</code></strong>, by measurement. The three gate arms took 94 / 91 / 140 s wall each at <code>-n 2</code>. The example runs all three in one process, ≈ 335 s, which is above the standard 180 s ceiling. Runner <code>-t 590</code>; container <code>timeout -k 30 590</code>. Every window is under the ≈ 10 min durable-capture threshold.</li>
+<li><strong>Cost:</strong> <strong>≈ 13 measured</strong> (example class median, as for item 332) / <strong>≈ 55 predicted</strong> min: 15 fixed + ≈ 20 lift, script and guide + ≈ 13 windows (three re-gates ≈ 5.4 min, the example ≈ 5.6 min, dry run and four censuses ≈ 1.5 min) + ≈ 7 spare. A slot starts it only before minute 30.</li>
+<li><strong>Depends on:</strong> nothing open. <code>PORT-24</code> step 2 is on <code>main</code> (<code>91254c5a</code>). Item 308 (step 1, BLOCKED for the 10-10 weekly) is <strong>not</strong> a dependency, and none of its code is used (see Traps).</li>
+<li><strong>Spawn prompt</strong> (the slot puts these sentences in verbatim): "Use the example-runner agent to execute <code>EX-105</code>, §9 item 339 (docs/planning/chunks/EX-105.md, heading <code>§9 item 339</code>). You are the executor — do not spawn agents, never background a harness window; do not end the turn while a window runs. Pass timeout: 660000 on every Bash call that runs a harness window, and never delete a log. Call scripts/testing/run_and_log.sh bare and repo-relative, with no cd and nothing chained. Make no edit to the gate module after its first re-gate window starts, and none to the script after the example window starts."</li>
+</ul>
+<p><strong>Code (rule (a), additive, disclosed).</strong>
+1. <code>tests/validation/test_port24_series_rc_sheet.py</code>: lift the <code>port24</code> fixture body into a module-level <code>_run_port24_arm(arm)</code>. The lift covers <code>:130</code> (the <code>th14</code> import) and <code>:135–224</code>, verbatim, prints included. The fixture becomes three statements: <code>arm = _arm()</code>, the existing <code>pytest.skip</code> when it is <code>None</code>, and <code>return _run_port24_arm(arm)</code>. <strong>The test function <code>test_port24_series_rc_sheet</code> (<code>:227–250</code>) is untouched: no assertion is added, removed or re-banded.</strong> The diff is disclosed in the commit message. Only two additive changes are allowed:
+   - Initialise <code>q_ratio = None</code> and <code>q_rest = None</code> before the <code>if p_rc &gt; 0.0:</code> branch (<code>:214</code>). Inside it, assign <code>q_ratio = p_rest / (p_rest + p_rc)</code> and <code>q_rest = q_rest_over_qc * q_c</code>, the same expressions its print already evaluates. The print strings stay unchanged.
+   - Extend the <code>return</code> dict (<code>:223–224</code>), keeping the existing keys, with: <code>cells</code>, <code>t_mesh</code>, <code>omega</code>, <code>p_src</code>, <code>p_sheet</code> (the per-port dict), <code>p_vol</code>, <code>p_surf</code>, <code>p_rest</code>, <code>share</code>, <code>q_c</code>, <code>q_ratio</code>, <code>q_rest</code>; and, for the example's figure and XDMF, <code>msh</code>, <code>cell_tags</code>, <code>facet_tags</code>, <code>specs</code> and <code>e</code> (<code>fields.e_complex</code>).
+   - No new keyword, no <code>src/</code> edit, and no edit to any other module. Every <code>[PORT-24 s2]</code> print stays byte-identical except its seconds.
+2. <code>examples/ports/21_capacitor_esr_sheet.py</code> (new). It calls <code>_run_port24_arm("r02")</code>, then <code>"r0"</code>, then <code>"plant"</code>. It re-asserts on each returned dict, writes the figure and XDMF from the r02 result, and prints an <code>[ESR on the copper birdcage]</code> summary. Repo root goes on <code>sys.path</code> as <code>ports:18</code> does (<code>:86–88</code>), so the runner's <code>PYTHONPATH=/workspace/src</code> suffices. After each arm's asserts, drop that arm's field keys (<code>msh</code>, <code>e</code> and the rest) before the next arm, except r02's until its XDMF is written.
+3. <code>examples/ports/21_capacitor_esr_sheet.md</code> (new), written after the example window and before the post-censuses.</p>
+<p><strong>Imports (never restated).</strong>
+- From <code>tests.validation.test_port24_series_rc_sheet</code> (the gate module): <code>_run_port24_arm</code>, <code>ESR_OHM</code>, <code>PLANT_OHM</code>, <code>PLANT_INDEX</code>, <code>FREQUENCY_HZ</code>, <code>DEGREE</code>, <code>POWER_DRIVEN</code>, <code>_rc</code>.
+- From the modules the gate imports them from, re-imported by name as the gate does (<code>:48–63</code>), with an <code>is</code> check against the gate module's attribute for each band:
+  - <code>REDUCTION_BAND</code> (<code>tests/validation/test_port_lumped_rlc_termination.py:88</code>, 1e-3);
+  - <code>LEG_D0_REPRODUCTION_BAND</code> (<code>tests/validation/test_port_birdcage_four_port.py:165</code>, 1e-9);
+  - <code>DISCRETE_IDENTITY_RTOL</code> (<code>tests/validation/test_birdcage_power_identity.py:227</code>, 1e-6);
+  - <code>C_F</code> (<code>tests/validation/test_ans7_exact_strip.py:91</code>);
+  - <code>REFERENCE_IMPEDANCE_OHM</code>;
+  - <code>PHANTOM_CELL_TAG</code> (<code>tests/validation/test_port_birdcage_lumped_column.py:101</code>, for the figure only).
+- From <code>src</code>: <code>fem_em_solver.ports.lumped.series_rlc_impedance</code> (for the printed Z column only, which must equal <code>_rc(r)</code>); <code>fem_em_solver.io.paraview_utils</code> (<code>write_xdmf_with_tags</code>, <code>adopt_host_ownership</code>); <code>fem_em_solver.post.setup_figure.write_setup_figure</code>.
+- <strong>No literal record.</strong> The script states no residual, power, share or Q as a number. The only literals are the air cell tag <code>2</code> in the figure's <code>region_names</code> and <code>hide_tags</code>, cited to <code>ports:18</code> <code>:222, :230</code> (a display input, not a record; the <code>EX-101</code> ruling (3) precedent).
+- <strong>Never import</strong> <code>fem_em_solver.ports.ring_modes</code>' <code>esr_ohm</code> path, <code>tests/unit/test_port24_esr_circuit.py</code>, anything on <code>attempt/PORT-24-step1-*</code>, or another example's module.</p>
+<p><strong>(1) Anchors (asserted in-script, at the gate's bands, on every rank).</strong> These are the test function's own assertions (<code>:231–250</code>), re-made on the returned dicts.
+- <strong>(I) The sheet is its circuit element.</strong> For every sheet P1–P4, in the r02 and r0 arms, <code>ident[i]["res"] ≤ REDUCTION_BAND</code>. Here <code>res</code> is ‖S′_meas − S′_pred‖_F / ‖S′_pred‖_F, with S′_pred = <code>reduce_terminated_ports(S₄, 50, {i: series_rlc_impedance(f, r_ohm=r, l_h=0, c_f=C_F)})</code> (<code>PORT-14</code>'s identity).
+  - r02 records: 3.049022e-05 / 3.036163e-05 / 3.040555e-05 / 3.003774e-05 (<code>…170256Z_PORT-24-step2-r02.log:941–944</code>).
+  - r0 records: 3.096783e-05 / 3.083764e-05 / 3.088213e-05 / 3.050839e-05 (<code>…170618Z_PORT-24-step2-r0.log:941–944</code>).
+- <strong>(Z) r = 0 is the capacitor-only sheet.</strong> In the r0 arm, every <code>ident[i]["cap_res"] ≤ LEG_D0_REPRODUCTION_BAND</code>. Records 5.174213e-16 / 7.566631e-16 / 2.467983e-16 / 2.766926e-16 (<code>…r0.log:941–944</code>). These are round-off and are compared <strong>at the band only</strong>, never as digits.
+- <strong>(P) Exact power identity, the RC sheets' own dissipation counted.</strong> In every arm, <code>resid ≤ DISCRETE_IDENTITY_RTOL</code>. Records 1.011e-12 / 1.017e-12 / 1.012e-12 (<code>…r02.log:945</code>, <code>…r0.log:945</code>, <code>…170439Z_PORT-24-step2-plant.log:945</code>). Compared at the band only.
+- <strong>(R0) r = 0 sheets are lossless.</strong> In the r0 arm, <code>p_rc == 0.0</code> (record: P2–P4 0.000000000e+00 W, <code>…r0.log:945</code>). This is the gate's printed fact. It is asserted here only because the lossless-record label of the ruling rests on it. <strong>The review rules whether to keep it (Q3).</strong> If struck, it is printed only.
+- <strong>Width:</strong> <code>-n 2</code> only, the gate's width.</p>
+<p><strong>Printed rows equal the gate log records (a reading the executor reports; the script restates no record).</strong> The example log carries each arm's <code>[PORT-24 s2]</code> block from the lifted body. Compare these lines, digit for digit, except seconds and the round-off columns ((Z), (P), reciprocity):
+- the mesh line, 80 798 cells (<code>:910</code> in each gate log);
+- the 4×4 line (<code>:940</code>);
+- the four (I) lines (<code>:941–944</code>);
+- the (P) power line (<code>:945</code>);
+- the (Dz) line (<code>:946</code>);
+- the Q line (<code>:947</code>).</p>
+<p>All gate logs are under <code>docs/testing/logs/</code>. The executor reports any line that differs outside those exceptions.</p>
+<p>Then the script's own <code>[ESR on the copper birdcage]</code> block. It is arithmetic on the returned values, printed only, each item beside its source line:
+- <strong>ESR loss share:</strong> <code>share</code> = P_RC / (P_RC + P_vol + P_surf) = 7.077045e-01 (<code>…r02.log:946</code>). The guide says 70.8 %.
+- <strong>Where the ESR loss sits.</strong> P2 3.438672404e-10 W, P3 2.544472427e-05 W, P4 6.634945767e-09 W (<code>…r02.log:945</code>). Under the P1 drive, the opposite sheet P3 carries ≈ 99.97 % of P_RC. The guide reads this as the drive's mode content, not as a per-capacitor Q.
+- <strong>The rest of the loss.</strong> P_vol (the phantom; σ is zero outside it) 6.276138116e-06 W and P_surf (copper, Leontovich on tag 401) 4.235904194e-06 W, so the copper share of P_rest is ≈ 40.3 % (<code>…r02.log:945</code>).
+- <strong>The Q reading.</strong> Q(r)/Q(0) = <code>q_ratio</code> = 2.922955e-01; Q_C = 1/(ωCr) = 1.875695e+02; Q_rest = 4.541422e+02 (<code>…r02.log:947</code>). It is printed beside its closed form, 1/Q = 1/Q_rest + 1/Q_C, evaluated from those two numbers: Q(r) ≈ 132.7, and Q(r)/Q_rest reproduces <code>q_ratio</code>.
+  - <strong>This agreement is true by construction.</strong> Q_rest is inferred from the same partition, so the example prints it and never asserts it. The guide says so in one sentence.
+  - The PORT-24 Done-when's "Q_Cu" is this fixture's <strong>Q_rest = copper + phantom</strong> (see Q2).
+- <strong>The size of the "fixed stored energy" assumption.</strong> P_rest(r = 0.2) / P_rest(r = 0) = 1.051204231e-05 / 1.057979998e-05 ≈ 0.9936 on the same drive (<code>…r02.log:945</code>, <code>…r0.log:945</code>). This is printed from the r02 and r0 dicts. <code>PORT-24.md:52</code> rounds the move to 0.7 %.
+- <strong>(Dz), with the RC dissipation omitted:</strong> 7.031342e-03 of P_src, against 1.017e-12 at r = 0 (<code>…r02.log:946</code>, <code>…r0.log:946</code>). The guide explains why this is not the 70.8 %: P_src is dominated by P1's own 50 Ω sheet, 3.583786649e-03 of 3.619750395e-03 W (<code>…r02.log:945</code>).</p>
+<p><strong>(2) Negative control (rule (e)).</strong>
+- <strong>(Pl) asserted: a 0.4 Ω plant on P2 breaks the 0.2 Ω identity, and only there.</strong> In the plant arm, <code>ident[PLANT_INDEX]["res"] &gt; REDUCTION_BAND</code>, and the three unplanted sheets stay <code>≤ REDUCTION_BAND</code>. Asserted <strong>at the band, never bitwise</strong>.
+  - Record 1.095344e-02 = 10.95× the band, unplanted max 3.049022e-05 (<code>…plant.log:942, :949</code>).
+  - <strong>Ceiling: none is asserted.</strong> Item 309's predicted ceiling (≈ 5.3e-3, the terminal-impedance level) was exceeded ≈ 2×, through the (I − S_bb Γ)⁻¹ factor at |Γ| ≈ 1 (<code>PORT-24.md:50</code>). So no factor is asserted, only the direction. The 10.95× is printed.
+  - The script prints its own (Pl) line, because the gate's <code>:949</code> line comes from the test function, which the example does not call.
+- <strong>(Dz), printed only:</strong> omitting the RC dissipation moves the power residual from 1.011e-12 to 7.031e-03, ≈ 7e9× (<code>…r02.log:945–946</code>). The gate never asserts this, and neither does the example.</p>
+<p><strong>(3) Windows.</strong> Each Bash call that runs a window is foreground with <code>timeout: 660000</code> and makes one bare, whole, repo-relative harness call. Nothing is chained or piped. <strong>Never beside another heavy window.</strong></p>
+<ol>
+<li><strong>Orphan check</strong>, from a bare shell: <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0.</li>
+<li><strong>Pre-censuses, before any file is written</strong> (the exact commands of <code>20261008T172115Z_EX-89-item332-pre-figures.log:12</code> and <code>20261008T172117Z_EX-89-item332-pre-docrefs.log:12</code>):</li>
+<li><code>scripts/testing/run_and_log.sh EX-105-pre-figures "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_setup_figures.py'"</code></li>
+<li><code>scripts/testing/run_and_log.sh EX-105-pre-docrefs "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py'"</code></li>
+<li>At drafting: figures <code>examples=98 ok=98 missing=0 broken=0</code> (<code>…172115Z…:134</code>); docrefs <code>dead=2 guide=0 stale=56 exit=1</code> (<code>…172117Z…:98</code>). The two dead entries are the <code>ans9</code> SPEC's <code>ans9_aed_results.json</code> / <code>ans9_corrected_rows.json</code> (<code>:37–38</code>), unrelated to this item. Use whatever the pre-census reads.</li>
+<li><strong>Edit 1, then three re-gates at <code>-n 2</code></strong>, one per arm, each the gate log's <code>:12</code> command verbatim under a new label, predicted 94 / 91 / 140 s (ranges [80, 160] / [80, 160] / [120, 220]):</li>
+<li><code>scripts/testing/run_and_log.sh EX-105-port24-regate-r02 "docker compose exec -T fem-em-solver bash -lc 'source /usr/local/bin/dolfinx-complex-mode &amp;&amp; cd /workspace &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_PORT24_ARM=r02 PYTHONPATH=/workspace/src timeout -k 30 590 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/validation/test_port24_series_rc_sheet.py -v -s --tb=short'"</code></li>
+<li>the same line with <code>FEM_EM_PORT24_ARM=plant</code>, labelled <code>EX-105-port24-regate-plant</code>;</li>
+<li>the same line with <code>FEM_EM_PORT24_ARM=r0</code>, labelled <code>EX-105-port24-regate-r0</code>.</li>
+<li>Pass: 5 passed, Status 0, and the <code>[PORT-24 s2]</code> lines equal the item 309 logs at every printed digit (seconds and round-off columns excepted). The module is frozen from the first re-gate on.</li>
+<li><strong>Edit 2, then the dry run:</strong> <code>scripts/testing/run_and_log.sh EX-105-dryrun "./scripts/run_examples.sh -e ports:21 -n 2 -t 590 --dry-run"</code>. It must print <code>(complex build)</code> (<code>run_examples.sh:281</code>) and emit <code>cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src timeout -k 30 590 mpiexec -n 2 python3 examples/ports/21_capacitor_esr_sheet.py</code>.</li>
+<li><strong>The run of record, flagged, <code>-n 2</code></strong>, predicted ≈ 335 s, range [290, 450]:</li>
+<li><code>scripts/testing/run_and_log.sh EX-105 'docker compose exec -T -e FEM_EM_SETUP_FIGURES=1 fem-em-solver bash -lc "cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src timeout -k 30 590 mpiexec -n 2 python3 examples/ports/21_capacitor_esr_sheet.py"'</code></li>
+<li>This is the emitted line plus <code>-T</code> and the figure flag.</li>
+<li>Price basis: the in-script arm totals are 90.1 + 137.5 + 87.4 = 315.0 s (<code>:948</code> of each gate log). Add ≈ 10 s for the setup figure (<code>ports:18</code>'s whole flagged run on the same hole mesh family took 35 s, <code>examples/ports/18_birdcage_copper_leontovich.md:65</code>), ≈ 5 s for the XDMF, and ≈ 5 s of startup and JIT on a warm cache.</li>
+<li>Margin to 590 s: ≥ 140 s at the top of the range.</li>
+<li>Pass: Status 0, every (1) and (2) assertion green, and the printed rows as above. Then <code>git add</code> the PNG.</li>
+<li><strong>Edit 3 (the guide), then the post-censuses</strong>, <code>EX-105-post-figures</code> / <code>EX-105-post-docrefs</code>, the window 1 commands with those labels. <strong>Write the prediction first:</strong></li>
+<li>figures: <code>examples</code> N → N + 1, <code>ok</code> +1, <code>missing</code> unchanged, <code>broken=0</code>;</li>
+<li>docrefs: <code>guide=0</code>, <strong>no new dead reference</strong>: <code>dead</code> equals the pre-census count, and no dead entry names <code>examples/ports/21_capacitor_esr_sheet.*</code> or a <code>ports_21_*</code> artifact. <code>exit</code> stays 1 only if the pre-census was already 1 for the unrelated <code>ans9</code> entries. The stale count may move and is reported.</li>
+<li><strong>Final check:</strong> <code>git status --porcelain</code> shows modified <code>tests/validation/test_port24_series_rc_sheet.py</code>, new <code>examples/ports/21_capacitor_esr_sheet.py</code>, <code>.md</code> and <code>examples/ports/figures/ports_21_capacitor_esr_sheet_setup.png</code>, plus logs and record files, and nothing else under <code>examples/</code> or <code>src/</code>.</li>
+</ol>
+<p>No unflagged or second-width control run (Q4). The gate ran <code>-n 2</code> only, and the example's assertions are the gate's.</p>
+<p><strong>Output.</strong>
+- <strong>Combined XDMF</strong> <code>examples/ports/paraview_output/ports_21_capacitor_esr_sheet_combined.xdmf</code>, from the r02 arm (P1 at 50 Ω, P2–P4 series-RC at r = 0.2 Ω). It is written with <code>write_xdmf_with_tags(…, facet_tags=facet_tags)</code> as <code>ports:18</code> does (<code>:363–370</code>), then <code>adopt_host_ownership</code>.
+  - Field <code>E_magnitude</code>: DG0 |E|, from a script-local helper with the <code>ports:18</code> construction (<code>:144–154</code>), regularised inside <code>np.sqrt(np.maximum(…))</code> on the real array, never a UFL comparison.
+  - The facet block carries the sheet tags and tag 401.
+- <strong>Setup figure</strong> <code>examples/ports/figures/ports_21_capacitor_esr_sheet_setup.png</code>, from the r02 arm's returned mesh, after the arm returns. The lifted body exposes no hook before its solves; this is a disclosed deviation from "right after the mesh is built", and the mesh is the same object.
+  - <code>region_names</code>, <code>hide_tags=(2,)</code>, <code>translucent_tags=(PHANTOM_CELL_TAG,)</code> and <code>slice_normal=(0, 0, 1)</code> as <code>ports:18</code> (<code>:222–235</code>). Sheet labels: <code>P1 50 ohm feed</code>, <code>P2 series-RC r=0.2 ohm</code>, and so on.
+  - Title ≤ 130 characters, e.g. <code>ports:21 -- F-small copper birdcage, exact-rectangle sheets: P1 50 ohm feed, P2-P4 series-RC (r = 0.2 ohm, C_F)</code>.
+- <strong>Guide</strong> (<code>examples/ports/21_capacitor_esr_sheet.md</code>). <code>Script:</code> and <code>Gate:</code> lines name both files in full.
+  - Section 1: the ruling in one sentence, the recipe <code>LumpedSheetPortSpec(port_impedance_ohm=series_rlc_impedance(f, r_ohm=0.2, l_h=0, c_f=C))</code> on exact rectangles with <code>width_correction_kappa=None</code>, and the angle.
+  - Section 2: <code>./run_examples.sh -e ports:21 -n 2 -t 590</code>, the measured wall time, emit-then-harness, and the figure flag.
+  - Section 3, the reading steps:
+    - (I) per sheet, in both arms;
+    - (Z) at r = 0;
+    - (P);
+    - the (Pl) control and why no ceiling is asserted;
+    - the ESR block: the 70.8 % share, P3's dominance, the copper/phantom split, and Q(r)/Q(0) beside 1/Q = 1/Q_rest + 1/Q_C (true by construction, and the ≈ 0.64 % stored-energy move);
+    - the ParaView recipe.
+  - A table of this run's readings beside the gate log lines, quoted from the example's own log.
+  - The scope sentences below.
+  - <code>## Related</code>, every artifact by full filename (rule (b)): <code>examples/ports/17_birdcage_tuned_circuit.md</code> (lossless series C, circuit side), <code>examples/ports/18_birdcage_copper_leontovich.md</code> (copper loss, no capacitor), <code>tests/validation/test_port24_series_rc_sheet.py</code>, <code>tests/validation/test_port_lumped_rlc_termination.py</code>, <code>src/fem_em_solver/ports/lumped.py</code>, <code>docs/planning/chunks/PORT-24.md</code>.
+  - Name no scratch path in prose. Write <code>≈</code>, never a tilde. The gate's own (Dz) and (Pl) prints use a tilde before "ESR loss share" and "5.3e-3", so paraphrase them; never paste them into Markdown.</p>
+<p><strong>(4) Traps already paid for.</strong>
+- <strong>Complex build.</strong> The runner sources it for <code>ports:</code>. The re-gates carry <code>FEM_EM_REQUIRE_COMPLEX=1</code> and <code>tests/environment/test_complex_mode.py</code> first. No <code>ufl.max_value</code> and no ordering comparison on complex operands; the |E| helper takes <code>sqrt</code> of a real NumPy array.
+- <strong>Exact rectangles, κ off.</strong> The fixture is <code>_exact_geo</code> with <code>GATED_WIDTH_FRACTION</code>, and the lifted body already asserts <code>width_correction_kappa is None</code> on every spec (<code>:139</code>). Never build a sub-sheet out of a box (binding ruling 2026-10-02).
+- <strong>Step 1 is parked.</strong> Use no <code>esr_ohm</code> keyword (it does not exist on <code>main</code>) and nothing from <code>attempt/PORT-24-step1-*</code>. The ESR enters only through <code>series_rlc_impedance</code>'s <code>r_ohm</code>, in the sheet impedance. Lossless records (<code>ports:17</code>, <code>ans:7</code>) are never re-read with r.
+- <strong>The fixture is a pytest fixture.</strong> Calling <code>port24</code> directly raises, which is why the lift exists. The env var <code>FEM_EM_PORT24_ARM</code> is unset in the example window, and the lift takes the arm as an argument.
+- <strong>Collectives on every rank.</strong> <code>_run_port24_arm</code>, <code>write_setup_figure</code>, <code>write_xdmf_with_tags</code> and the |E| interpolation are collective. Prints go under <code>rank == 0</code> with nothing collective inside (item 227's deadlock). Assertions run on every rank on the returned (already reduced) values.
+- <strong>Returned fields.</strong> If a re-gate hangs at teardown after <code>5 passed</code>, the new field keys are the suspect. Kill at the timeout, check orphans, and stop (see (6)). Never retry with a longer timeout.
+- <strong>pytest needs <code>-s</code></strong> for the printed rows (rule (g)). Never use <code>-k a or b</code> inside the quoted command, since the arm is the env var.
+- <strong><code>./run_examples.sh</code> is host-side.</strong> Emit with <code>--dry-run</code>, then pass the string to the harness as its own call; never wrap the runner in <code>docker compose exec</code>.
+- <strong>Harness shape.</strong> Bare, whole, repo-relative calls only: no <code>cd … &amp;&amp;</code>, no <code>; date</code>, no <code>| tail</code>, no redirect (<code>bash_guard.py</code>). Use <code>-k 30</code> on every container timeout. A docker-socket denial means stop and report.
+- <strong>After a killed window:</strong> <code>pgrep -c python3</code> reads 0 first; then, only at 0, the rubric's orphan-stem sweep (<code>docs/automation/daily-review.md:426</code>) as one bare call with <code>&lt;ID&gt;</code> = <code>EX-105</code>. Never clear the cache wholesale.
+- <strong>Freeze order (rule (i)).</strong> The gate module is frozen from re-gate 1, the script from window 4, and the guide before window 5. Check file mtimes against the logs before committing.</p>
+<p><strong>(5) Scope.</strong>
+- <strong>Covered:</strong> the series-RC sheet identity (I) on every sheet at r = 0.2 and r = 0; the r = 0 reproduction (Z); the exact power identity (P); and the planted-sheet control (Pl). All on F-small's exact-rectangle hole mesh, 80 798 cells, 64 MHz, degree 1, κ off, copper Leontovich, C = <code>C_F</code> = 6.629e-11 F, <code>-n 2</code>.
+- <strong>Not claimed:</strong>
+  - an absolute Q, <code>f₀</code>, <code>S₁₁</code>, <code>Z_in</code> or tuning figure (§2; no such figure is licensed until the h-rungs land, §10 F18 / T12′). The coil is not tuned here: P1 at 50 Ω absorbs ≈ 99 % of P_src;
+  - a measured Q. Q(r)/Q(0) is a loss-partition ratio at assumed fixed stored energy on one drive, and Q_rest is inferred from it;
+  - Q_Cu alone. Q_rest is copper + phantom;
+  - a measured ESR, frequency dependence, degree 2, h-convergence, F-human, or any AED or Palace comparison;
+  - <code>PORT-24</code> step 1 (circuit layer). The example does not move <code>PORT-24</code>.</p>
+<p><strong>(6) Negative result.</strong> Report the measurement and stop. Journal it in <code>docs/testing/attempts.md</code>, park on <code>attempt/EX-105-&lt;UTC&gt;</code>, and mark item 339 BLOCKED with its unblock condition in the same commit (rule (d)). <code>EX-105</code> stays ⬜. Never widen a band, edit <code>src/</code>, or drop an arm.
+- <strong>A re-gate red, or its digits off item 309's logs:</strong> revert the lift and write a known-issues entry (the fixture moved under a green record).
+- <strong>An anchor red in the example with all three re-gates green, or printed rows off the gate logs:</strong> an example/test <strong>divergence finding</strong> (<code>example-runner.md:24–27</code>), for example in-process arm order or reuse of a JIT'd form across three mesh builds. Print the first differing line and write a known-issues entry. Never re-record from the example side.
+- <strong>(Pl) planted residual ≤ band:</strong> contradicts item 309's GREEN plant arm on the same fixture; stop.
+- <strong>Over 590 s or Status 124:</strong> check orphans, park, and stop. The fallback is the review's: for example, one arm per window through an env switch. Never a longer timeout.
+- There is no <code>PREDICTED RED:</code> line.</p>
+<p><strong>(7) Status it can move.</strong> The <code>EX-105</code> §7 row goes ⬜ → ✅ (Done-when met, elapsed recorded). The review adds the row in the same commit as this item (rule (j)). Census <code>examples</code> +1 (98 → 99 at drafting) with <code>broken=0</code>, and no new dead reference. This is the first example of capacitor ESR, so the ruling gets a runnable user-facing recipe. H17 (<code>WF-10</code> step 1e, the series-RC sheets on F-human, <code>PROJECT_PLAN.md:4717–4726</code>) and Phase 9 (9d)'s tutorials gain a precedent. <code>PORT-24</code> stays 🟡; step 1 is unaffected.</p>
+<p><strong>Questions for the review.</strong>
+- (Q1) <strong>The lift returns field objects</strong> (<code>msh</code>, <code>e</code> and the rest) from a module-scoped fixture, so the XDMF and figure need no second solve. Accept, or require the figure and XDMF dropped (census then +1 without an XDMF) rather than a restated field solve?
+- (Q2) <strong>Q_Cu vs Q_rest.</strong> The <code>PORT-24</code> Done-when says "1/Q = 1/Q_Cu + 1/Q_C". The gate measures Q_rest = copper + phantom (P_surf 4.236e-6 W, P_vol 6.276e-6 W). The example labels it Q_rest and prints the copper share (≈ 40.3 %). Confirm the wording, and whether the §7 row's phrase should be annotated (the weekly's, not this item's).
+- (Q3) <strong>(R0) <code>p_rc == 0.0</code> exactly at r = 0.</strong> This is an assertion the gate does not make (it prints it). Keep it, or print only, per "the item adds no assertion the step does not make"?
+- (Q4) <strong>One flagged window at <code>-n 2</code>, no control run.</strong> Accept? A <code>-n 4</code> control would add ≈ 6 min and test width invariance the gate never claimed.
+- (Q5) <strong>A two-function lift</strong> (build the mesh, 4×4 and problem once; run the arms on it) would save ≈ 60 s but is a larger diff with a changed construction order. Rejected by default; confirm.</p>
+<p><strong>Review rulings (2026-10-08 18:00 review) on item 339 — these outrank the brief above.</strong> (1) Field objects return only behind a keyword (<code>return_fields=False</code> by default), the <code>th:12</code> / item 337 form, so the gate's default path is unchanged. (2) Label the quantity Q_rest (copper + phantom) in the example and guide; the <code>PORT-24</code> Done-when's "Q_Cu" phrase goes to the weekly (dashboard), not edited here. (3) "r = 0 sheets dissipate 0 W" stays printed, as in the gate. (4) One flagged <code>-n 2</code> run; the same-slot three-arm re-gate is its same-width control, compared at the bands (never bitwise) — no separate unflagged window, given the ≈ 55 min price. Start the item only before minute 30. (5) The one-function lift stands; no mesh-once refactor.</p>
+<p><strong>Outcome (item 339, 2026-10-08, 22:30 slot, take-next, started at minute 25): DONE, <code>EX-105</code> ✅.</strong> Lift per rulings (1) / (5) in <code>tests/validation/test_port24_series_rc_sheet.py</code> (+27 / −5): the <code>port24</code> fixture body moved verbatim into <code>_run_port24_arm(arm, return_fields=False)</code>, the fixture calls it; <code>q_ratio</code> / <code>q_rest</code> initialised to <code>None</code> before the <code>p_rc &gt; 0</code> branch; behind <code>return_fields=True</code> only, the dict gains the field and power keys. Test function and print strings untouched. One cosmetic slip disclosed: the moved <code>comm</code> assignment lacks the space after its equals sign (valid Python), left as gated so the committed module is the one the re-gates ran (rule (i)). Re-gates, <code>-n 2</code>: r02 <code>20261009T035600Z_EX-105-port24-regate-r02.log</code> 5 passed 96 s; plant <code>…035741Z…-plant.log</code> 5 passed 96 s; r0 <code>…035919Z…-r0.log</code> 5 passed 150 s; <code>[PORT-24 s2]</code> lines equal item 309's logs. Run of record <code>20261009T040158Z_EX-105.log</code>: Status 0, 336 s, "All imported gates hold." (I) r02 3.049022e-05 / 3.036163e-05 / 3.040555e-05 / 3.003774e-05, r0 3.096783e-05 … 3.050839e-05; (Z) r0 ≤ 3.8e-14; (P) 1.011e-12 / 1.018e-12 / 1.011e-12; (R0) p_rc 0 W; plant P2 1.095344e-02 (10.95× band), unplanted ≤ 3.049022e-05; ESR share 7.077045e-01; P3 carries 99.9726 % of P_RC; Q(r)/Q(0) 2.922955e-01, Q_C 1.875695e+02, Q_rest 4.541422e+02 (labelled Q_rest, ruling (2)); P_rest(0.2)/P_rest(0) 0.993596; 80 798 cells — all equal the step 2 logs at the printed digits. Census figures 100 → 101, <code>broken=0</code>; docrefs <code>dead=0 guide=0 stale=56 exit=2</code> before and after. PNG 347 KiB.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

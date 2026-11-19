@@ -1,0 +1,745 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>POST-10 — The point-owner rule on a create_submesh mesh: key submesh cells by their parent's original cell index - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#post-10-the-point-owner-rule-on-a-create_submesh-mesh-key-submesh-cells-by-their-parents-original-cell-index" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              POST-10 — The point-owner rule on a create_submesh mesh: key submesh cells by their parent's original cell index
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-254-2026-10-05-lane-1-known-issues-resolves-with" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 254 — 2026-10-05 (lane 1, known-issues "Resolves with")
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-05-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-05 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="post-10-the-point-owner-rule-on-a-create_submesh-mesh-key-submesh-cells-by-their-parents-original-cell-index">POST-10 — The point-owner rule on a <code>create_submesh</code> mesh: key submesh cells by their parent's original cell index<a class="headerlink" href="#post-10-the-point-owner-rule-on-a-create_submesh-mesh-key-submesh-cells-by-their-parents-original-cell-index" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<h3 id="9-item-254-2026-10-05-lane-1-known-issues-resolves-with">§9 item 254 — 2026-10-05 (lane 1, known-issues "Resolves with")<a class="headerlink" href="#9-item-254-2026-10-05-lane-1-known-issues-resolves-with" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-05 10:30 daily review; the review reviews it.</em></p>
+<p><strong><code>POST-10</code> step 1: make <code>owner="lowest_original_cell"</code> work on a <code>create_submesh</code> mesh by keying each submesh cell with its parent cell's original index.</strong> This is the "Resolves with" of the known-issues entry <em>2026-10-04 — 🟡 OPEN (<code>ANS-9</code> step 1a, §9 item 218) — <code>evaluate_vector_field_parallel(owner="lowest_original_cell")</code> raises <code>RuntimeError: Mixed topology unsupported.</code> on a <code>create_submesh</code> mesh</em> (<code>docs/testing/known-issues.md:1372–1379</code>): "A <code>post/evaluation.py</code> fix mapping submesh cells to parent original indices (a <code>POST</code> step, not yet opened), or a documented restriction." It is a lane-1 item (§9 rule (5): "open known-issues entries whose own 'Resolves with' a slot can execute", PROJECT_PLAN.md:3742–3743).
+- <strong>Executor:</strong> implementer. One <code>src/</code> change and one new test module. No solve, no meshing beyond <code>create_unit_cube</code>.
+- <strong>Tier:</strong> standard, three windows: W1 real build <code>-n 2</code>, W2 complex <code>-n 4</code>, W3 complex <code>-n 1</code>. Each runs <code>timeout -k 30 180</code>.
+- <strong>Class:</strong> lane 1, ≈ 7 measured min (class median). <strong>Predicted ≈ 40 min:</strong> 15 fixed, ≈ 15 code (≈ 40 lines in <code>src/</code>, ≈ 220 in the test), three windows of ≈ 1 min each, and the remainder for the journal and the known-issues retirement.
+- <strong>Depends on nothing.</strong>
+- <strong>Not a ⚠️ subsystem.</strong> No <code>POST</code> row in §7 carries ⚠️. <code>POST-8</code>, whose rule this extends, is 🟡 and its rule has gates (PROJECT_PLAN.md:2567–2575). So §9's no-new-features rule (PROJECT_PLAN.md:3651) does not bind.</p>
+<p><strong>What raises, read off the code and the log.</strong>
+- <code>point_owner_cells</code> keys the rule with <code>original = _original_cell_index(mesh)</code> (<code>src/fem_em_solver/post/evaluation.py:92</code>). That reads <code>mesh.topology.original_cell_index</code> (<code>:19–28</code>).
+- On a <code>create_submesh</code> mesh, DolfinX 0.11.0.post0 (the image's version, <code>20261003T020658Z_POST-1-step7a-W2.log:97</code>) raises <code>RuntimeError: Mixed topology unsupported.</code> from <code>dolfinx/mesh.py:268</code> (<code>20261004T142026Z_ANS-9-step1a-W1.log:1949–1977</code>). A submesh carries no original cell index.
+- <strong>The raise is symmetric today.</strong> It comes after <code>evaluate_vector_field_parallel</code>'s key allgather (<code>:216</code>) and before <code>point_owner_cells</code>' first collective (<code>:114</code>), and every rank's submesh topology refuses alike. So it does not hang, but the fix must keep it that way.
+- The submesh does not reference its parent. <strong>No zero-argument fix exists</strong>, so the caller must pass the map. Every submesh site in the repo already holds it: <code>parent_ids = emap.sub_topology_to_topology(np.arange(n_sub, dtype=np.int32), False)</code> over owned + ghost sub cells (<code>tests/validation/test_mat10_sar_to_heat_sphere.py:74–88</code>, re-used as <code>_sphere_submesh</code> by <code>MAT-12</code> / <code>MAT-14</code> / <code>MAT-19</code> / <code>MAT-5</code>, and as <code>_tag_submesh</code> in <code>tests/validation/test_mat15_coil_driven_heating_phantom.py:105–120</code>). This idiom is green on 0.11.
+- <strong>Why the rule's meaning survives.</strong> On the parent, the original cell index is the mesher's order, not the partition's (<code>POST-8</code> step 2, <code>docs/planning/chunks/POST-8.md:28</code>). Its restriction to the kept cells is injective. Over all ranks, the owned sub cells are exactly the kept cells, each counted once. So "lowest parent original index among the submesh cells containing the point" is one deterministic cell at every width. It is the same cell the parent's one-sided rule picks with <code>candidate_cells = keep</code> (<code>POST-1</code> step 7a, <code>:70–74</code>). <strong>The argument does not need submesh and parent ownership to coincide</strong>, so that is printed, not asserted.</p>
+<p><strong>Code (<code>src/fem_em_solver/post/evaluation.py</code> only).</strong>
+- <strong>New keyword <code>parent=None</code> on <code>point_owner_cells</code> and <code>evaluate_vector_field_parallel</code>.</strong> It takes <code>None</code> or <code>(parent_mesh, parent_cells)</code>. <code>parent_cells</code> gives the parent-local cell index of every local (owned + ghost) cell of <code>mesh</code>, i.e. exactly the <code>parent_ids</code> above. Keys become <code>_original_cell_index(parent_mesh)[parent_cells]</code>, and nothing else in the rule changes: same owned-only candidates, same <code>candidate_cells</code> mask, same Allreduce MIN, same claim check.
+- <strong>One helper replaces the bare read at <code>:92</code>, collectively checked.</strong> Compute the keys or a local error. The errors are: <code>original_cell_index</code> raised and <code>parent is None</code>; <code>parent_cells</code> has length ≠ <code>size_local + num_ghosts</code>; or <code>parent_cells</code> holds an index outside <code>[0, parent n_local)</code>. Then <strong>one <code>allreduce</code> of a status code</strong> runs, and the helper raises on <strong>every</strong> rank if any rank failed.
+  - A missing index raises <code>RuntimeError</code>. Its message names <code>create_submesh</code>, <code>parent=(parent_mesh, parent_cells)</code> and <code>POST-10</code>, and chains the DolfinX error.
+  - Malformed <code>parent_cells</code> raises <code>ValueError</code>.
+  - This adds one integer collective to the existing owner path. It moves no value.
+- <strong>In <code>evaluate_vector_field_parallel</code>:</strong>
+  - <code>parent</code> is valid only with <code>owner="lowest_original_cell"</code>. Otherwise raise <code>ValueError</code> <strong>before any collective</strong>, mirroring <code>candidate_cells</code> (<code>:188–192</code>).
+  - <code>parent is None</code> joins the OPS-40/55 key, which becomes <code>(owner, candidate_cells is None, parent is None)</code> (<code>:216–218</code>). The mismatch message at <code>:252–257</code> mentions it, and keeps the substrings "owner" and "collective" that K5 asserts (<code>tests/post/test_point_owner_rule.py:212</code>).
+  - Docstrings for both functions gain the keyword. <code>OWNER_RULES</code> does not change. <code>post/__init__.py</code> exports nothing new.
+- <strong>With <code>parent=None</code> on a mesh that has an original index, the output must be bitwise unchanged.</strong> The regression modules below show it.
+- <strong>No helper that builds <code>parent_cells</code></strong> (scope). The three test copies of the idiom stay as they are.
+- <strong>Comment-only edit, same commit:</strong> <code>src/fem_em_solver/thermal/probe.py:9–13</code> cites the entry as live. Re-point it: "raises on <code>create_submesh</code> meshes unless <code>parent=</code> is given (<code>POST-10</code>)". The ball average stays integral-based, and <code>MAT-19</code>'s code does not change.</p>
+<p><strong>Test: new <code>tests/post/test_submesh_owner_rule.py</code>, runs in both builds (as <code>test_point_owner_rule.py</code> does).</strong>
+- <strong>Fixture.</strong> The parent is <code>create_unit_cube(comm, 4, 4, 4)</code>: 384 cells, the <code>POST-8</code> K fixture (<code>tests/post/test_point_owner_rule.py:52–53</code>).
+- <strong>Kept cells.</strong> <code>keep</code> is every local cell (owned + ghost) whose midpoint has x &lt; 0.75, from <code>dmesh.compute_midpoints(msh, 3, np.arange(n_local, dtype=np.int32))</code>. A tet midpoint never lies on the grid plane x = 0.75, so the split is geometric and the same at every width.
+- <strong>The submesh</strong> is <code>sub, emap, _, _ = dmesh.create_submesh(msh, 3, keep)</code>, with <code>parent_cells</code> taken from the idiom verbatim (<code>test_mat10_sar_to_heat_sphere.py:82–88</code>).
+- <strong>Points</strong> (<code>POINTS</code>, shape (6, 3), identical on every rank):
+  - P0 interior <code>(0.13, 0.27, 0.61)</code>.
+  - P1 on the facet plane x = 0.5: <code>(0.5, 0.3, 0.6)</code>.
+  - P2 on the interior vertex: <code>(0.5, 0.5, 0.5)</code>. P0–P2 are <code>POST-8</code>'s three points.
+  - P3 on the submesh-boundary facet: <code>(0.75, 0.3, 0.6)</code>.
+  - P4 on the submesh-boundary vertex: <code>(0.75, 0.5, 0.5)</code>.
+  - P5 outside the submesh: <code>(0.9, 0.3, 0.6)</code>.
+- <strong>Planted fields.</strong>
+  - Parent: a scalar DG0 holding <code>_original(msh)</code> on owned cells, then <code>x.scatter_forward()</code> (K3's idiom, <code>:135–142</code>).
+  - Submesh: a scalar DG0 holding <code>_original(msh)[parent_cells[c]]</code> on owned sub cells, then <code>scatter_forward()</code>.
+  - Submesh: an N1curl degree-1 field interpolating <code>A_VEC + B_VEC × x</code> (K2's field and constants, <code>:46–47</code>, <code>:124–128</code>). N1curl represents it exactly.
+- <strong>Oracle.</strong> The geometric oracle independent of DolfinX's collision search (<code>test_point_owner_rule.py:62–82</code>, <code>BARY_TOL = 1e-12</code>) computes each point's incident set of parent original indices, restricted to kept cells. It allgathers each owned parent cell's original index, its four vertices and its <code>keep</code> flag. Rank 0 decides and broadcasts.</p>
+<p><strong>Anchors (asserted at every width).</strong>
+- <strong>(S0) Fixture identity (arithmetic).</strong>
+  - The submesh <code>size_global</code> is 288 (= 6 · 4³ · 3/4: three of four x-slabs).
+  - <code>len(parent_cells) == sub size_local + num_ghosts</code>.
+  - The kept cells' parent original indices are unique across ranks and their count is 288.
+  - Printed: the fraction of owned sub cells whose parent is owned on the same rank (predicted 1.0, not asserted; the rule does not need it).
+- <strong>(K) Closed form against the oracle.</strong>
+  - <code>point_owner_cells(sub, POINTS, comm, parent=(msh, parent_cells))[0]</code> equals min(oracle keep-set) exactly (integers) at P0–P4, and −1 at P5.
+  - Through <code>evaluate_vector_field_parallel(..., owner="lowest_original_cell", parent=...)</code>, the submesh DG0 value equals <code>float(min)</code> with imaginary part 0, P0–P4 are valid, and P5 is invalid.
+  - Each point has exactly one claiming rank (K3's claims check, <code>:178–180</code>).
+- <strong>(I) The identity with the parent's one-sided rule.</strong>
+  - The owner arrays are equal as integers: submesh rule with <code>parent=</code> vs <code>point_owner_cells(msh, POINTS, comm, candidate_cells=keep)</code>.
+  - <code>values</code> and <code>valid</code> are <strong>bitwise</strong> equal (<code>np.array_equal</code>, band 0): submesh DG0 under the rule with <code>parent=</code> vs parent DG0 under <code>owner="lowest_original_cell", candidate_cells=keep</code>.
+  - DG0's basis is 1, so the value is the dof itself, copied from the same parent array. No round-off band applies.
+- <strong>(N) N1curl closed form on the submesh under the rule.</strong> max |eval − (A + B × p)| ≤ <code>CLOSED_FORM_TOL</code> = 1e-12 at P0–P4.
+  - Define the constant with <code>POST-8</code>'s citation comment, as <code>test_point_owner_rule.py:44–45</code> does ("the guard module's bound, <code>test_evaluation_collective_guard.py:83</code>").
+  - (N) shows the chosen sub cell is evaluated correctly. It does not depend on which cell is chosen.
+- <strong>(W) Partition independence.</strong>
+  - (K) and (I) are asserted at <code>-n 1</code>, <code>-n 2</code> and <code>-n 4</code>, so the owner integers equal the same oracle minimum at every width.
+  - Within each run, <code>owner_original</code>, the DG0 and N1curl values are bitwise equal on every rank (<code>_bitwise_equal_across_ranks</code>, <code>:84–86</code>).
+  - Print the owner integers at every width so the three logs can be diffed by eye.</p>
+<p><strong>Negative controls (rule (e): labels as stated; ceiling first).</strong>
+- <strong>(C1) Discrimination, asserted (arithmetic).</strong> At P1, P2 and P4 the oracle keep-set has ≥ 2 members, with max − min ≥ 1.
+  - <strong>Ceiling:</strong> the most any wrong-cell choice can be separated from the rule is exactly that set's max − min. It is an integer ≥ 1 against (K) / (I)'s band of 0, so the fixture cannot be blind to a different owner.
+  - <strong>Predicted, printed only:</strong> set sizes 2 / 24 / ≈ 12 at P1 / P2 / P4, and 1 at P3. P1 and P2 lie inside the kept region, so their keep-sets are <code>POST-8</code>'s measured incident sets on the same cube (<code>20261003T020808Z_POST-1-step7a-W3-real.log:104–106</code>): P0 {217}; P1 {223, 232}, separation 9; P2 24 cells, min 126 / max 257, separation 131. <strong>Predicted rule owners:</strong> P0 217, P1 223, P2 126. They are a prediction, not a band: (K) asserts the oracle's own minimum.
+- <strong>(C2) The restriction is explicit, asserted.</strong> The submesh call with <code>owner="lowest_original_cell"</code> and <strong>no</strong> <code>parent</code> raises <code>RuntimeError</code> on <strong>every</strong> rank, at every width.
+  - The flags are allgathered as K5 does (<code>:192–212</code>). The message contains <code>parent=</code> and <code>create_submesh</code>.
+  - A silent fallback to submesh-local numbering fails here.
+- <strong>(C3) Asserted.</strong> <code>parent=</code> with <code>owner=None</code> raises <code>ValueError</code> before any collective (the <code>candidate_cells</code> analogue, <code>tests/post/test_one_sided_owner_rule.py:135–141</code>).
+- <strong>(C4) Asserted.</strong> <code>parent_cells[:-1]</code>, one entry short, raises <code>ValueError</code> on every rank (allgathered flags). It must not hang.
+- <strong>(C5) The naive fix, printed and predicted, not asserted.</strong> Key each submesh cell by <code>sub.topology.index_map(3).local_to_global</code> instead of the parent map: Allreduce MIN, then allgather (key, DG0 value) pairs. Print the DG0 value that key selects at P1, P2 and P4 beside the rule's value.
+  - <strong>Predicted:</strong> differs from the rule at ≥ 1 point at ≥ 1 width. The index-map global number is partition-dependent (<code>POST-8.md:28</code>).
+  - Not asserted, because nothing forces a disagreement on this fixture.
+- <strong>Printed only:</strong> at P3 / P4, the <em>unrestricted</em> parent owner (<code>point_owner_cells(msh, POINTS)</code>), beside the submesh owner. It shows whether the parent's rule would pick a cell on the x &gt; 0.75 side.</p>
+<p><strong>Regression (rule (c)), same windows, must be green and unedited.</strong>
+- <code>tests/post/test_evaluation_collective_guard.py</code> covers the legacy <code>owner=None</code> path and the OPS-40/55 key.
+- <code>tests/post/test_point_owner_rule.py</code> covers K0–K6, the unrestricted rule and the mismatch message.
+- <code>tests/post/test_one_sided_owner_rule.py</code> covers <code>candidate_cells</code>.
+- <code>tests/post/test_post1_one_sided_interface_sphere.py</code> covers the complex-build gmsh one-sided gate.
+- <strong>Not re-run, with reason:</strong> <code>tests/validation/test_post8_owner_rule_ans2.py</code>, <code>test_post8_step3a_averaged_row1.py</code>, <code>test_post1_one_sided_interface_birdcage.py</code> and <code>test_imp3_palace_fields.py</code>. They call the same rule with <code>parent=None</code>. Their value path is the one the four modules above exercise. The ANS-2 module alone is a 590 s-ceiling heavy window (<code>20261002T200654Z_POST-8-step2-W2.log</code>, 191 s with it).
+- Name them in the journal as untouched.</p>
+<p><strong>Windows</strong> (foreground, Bash <code>timeout: 660000</code>; each harness call is the whole Bash command, bare and repo-relative; <code>-s</code>; no pipes; no <code>-k</code> selection; <code>tests/environment</code> first).</p>
+<p><code>scripts/testing/run_and_log.sh POST-10-step1-W1-real "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment tests/post/test_submesh_owner_rule.py tests/post/test_evaluation_collective_guard.py tests/post/test_point_owner_rule.py tests/post/test_one_sided_owner_rule.py -v -s --tb=short'"</code></p>
+<p><code>scripts/testing/run_and_log.sh POST-10-step1-W2 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 180 mpiexec -n 4 python3 -m pytest tests/environment tests/post/test_submesh_owner_rule.py tests/post/test_one_sided_owner_rule.py tests/post/test_post1_one_sided_interface_sphere.py -v -s --tb=short'"</code></p>
+<p><code>scripts/testing/run_and_log.sh POST-10-step1-W3 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 180 mpiexec -n 1 python3 -m pytest tests/environment tests/post/test_submesh_owner_rule.py tests/post/test_evaluation_collective_guard.py tests/post/test_point_owner_rule.py -v -s --tb=short'"</code></p>
+<p><strong>Cost, from logs.</strong>
+- W1's regression set (environment + guard + owner + one-sided, real, <code>-n 2</code>) ran in 53 s (<code>20261003T020808Z_POST-1-step7a-W3-real.log</code>).
+- W2's (environment + one-sided + sphere, complex, <code>-n 4</code>) ran in 67 s (<code>20261003T020658Z_POST-1-step7a-W2.log</code>).
+- Environment plus light modules at <code>-n 1</code> ran in 51 s (<code>20261002T201726Z_PORT-3-W2.log</code>).
+- The new module is a 384-cell cube with a few collectives: ≈ 5–10 s.
+- <strong>Predicted:</strong> W1 ≈ 60 s, W2 ≈ 75 s, W3 ≈ 60 s, all under the 180 s ceiling.
+- <strong>Box-speed gate:</strong> a window over 120 s is a slow box. That is a price, not a defect. A window killed at 180 s stops the item BLOCKED with the reading; never raise the timeout.</p>
+<p><strong>Traps already paid for.</strong>
+- <strong>Collectives.</strong> Every rank runs every collective, and asserts come after them. A <code>comm.</code> call inside <code>if comm.rank == 0:</code> deadlocks (item 227).
+  - The must-raise tests (C2, C4) allgather their flags <strong>after</strong> the call (K5 idiom).
+  - The helper's status allreduce runs before any raise on <strong>both</strong> the error and the success path. A rank-local raise ahead of the Allreduce at <code>:114</code> would hang the others.
+- <strong>Use <code>owner_original</code> to compare.</strong> <code>owner_local_cell</code> is −1 off the owning rank, so compare <code>owner_original</code>, never local cells.
+- <strong>Never key on <code>local_to_global</code>.</strong> The index-map global number is partition-dependent (<code>POST-8.md:28</code>). It appears only in the printed (C5).
+- <strong>Rank-local data.</strong> The DG0 fields are set on owned cells, then <code>scatter_forward()</code>. <code>keep</code> is computed over owned + ghost cells, as the idiom requires. The oracle gathers owned cells only, so nothing is counted twice.
+- <strong><code>create_submesh</code> on 0.11</strong> returns a 4-tuple, and its <code>EntityMap</code> maps with <code>sub_topology_to_topology(cells, False)</code>. Copy the idiom; do not re-derive it.
+- <strong>Complex build.</strong> DG0 values are complex128 with imaginary part 0. <code>np.array_equal</code> compares complex arrays exactly. Take <code>.real</code> only for printing and for (K)'s integer comparison, after asserting imaginary part 0.
+- <strong>Harness.</strong> <code>timeout -k 30</code>; no <code>run_in_background</code>; <code>-k a or b</code> splits inside a quoted container command; pytest captures prints without <code>-s</code>. After a kill, run <code>pgrep -c python3</code> in the container first. Sweep orphan <code>.c</code> stems only with the rubric's one-line sweep, and only when that count reads 0.
+- <strong>Records.</strong> Do not edit <code>examples/ansys_benchmarks/ans9_coil_driven_gel_heating_10MHz/09_coil_driven_gel_heating_10MHz.py</code>. θ is continuous P1, so its <code>owner=None</code> call (<code>:286–291</code>) gives the same value. Switching it would re-run a run of record for nothing.</p>
+<p><strong>Scope.</strong>
+- Point evaluation on a single-level <code>create_submesh</code> of an affine tetrahedral mesh, with the caller-supplied parent map.
+- <strong>Not covered:</strong>
+  - a submesh of a submesh: the parent itself lacks an index, so it raises with the new message;
+  - <code>candidate_cells</code> combined with <code>parent=</code>: allowed by the code, not gated here;
+  - mixed-topology meshes;
+  - a library helper that builds <code>parent_cells</code>;
+  - any call-site migration. <code>MAT-12</code> / <code>MAT-15</code> / <code>MAT-19</code> / <code>ANS-9</code> keep their current routes: integration, or <code>owner=None</code> on continuous fields.
+- No band, record, example or existing test changes. <code>POST-8</code> stays 🟡; its open steps are untouched.</p>
+<p><strong>Negative result.</strong>
+- <strong>(K) or (I) red with (S0) and (C1)–(C4) green:</strong> the parent-keyed rule is not the parent's one-sided rule.
+  - Park on <code>attempt/POST-10-step1-&lt;UTC&gt;</code> and mark the item BLOCKED in the same commit.
+  - Append the reading to the known-issues entry, which stays open. Do <strong>not</strong> land the clearer error alone as the "documented restriction" resolution. That is the review's call.
+- <strong>(S0) red:</strong> the fixture or the <code>EntityMap</code> API drifted. Stop and report.
+- <strong>(C2) not raising:</strong> the image now gives submeshes an original cell index. Record what it returns, beside the parent's, and stop: the review rules whether the rule may use it.
+- <strong>Any regression module red:</strong> the change moved existing behaviour. Revert the <code>src/</code> change, park, and stop BLOCKED. Never edit the old test.
+- <strong>(C3) / (C4) or a hang:</strong> the instrument or the collective order is wrong. Fix it once in-slot, disclose it, and re-run the window. If it is still red, BLOCKED.
+- There is no PREDICTED RED line; the drafter predicts green.</p>
+<p><strong>Status it can move.</strong>
+- <code>POST-10</code> ⬜ → ✅ on all three windows green: §4 needs (K) and (I) as exact identities, (W) at three widths, and elapsed times recorded.
+- In the fixing commit, the known-issues entry <code>2026-10-04 — … Mixed topology unsupported …</code> (<code>docs/testing/known-issues.md:1372–1379</code>) is <strong>retired</strong> (its own instruction, "Remove this entry in the commit that fixes it"). Its full text goes to <code>known-issues-archive.md</code> and a <code>RETIRED 2026-10-05</code> bullet goes under "Retired entries", per the file's convention.
+- The <code>thermal/probe.py</code> docstring pointer is re-pointed in the same commit.</p>
+<p><strong>§9 line 2:</strong> → docs/planning/chunks/POST-10.md#§9-item-254</p>
+<p><strong>Outcome (2026-10-05 15:00 CDT slot): DONE, all three windows green on first run; <code>POST-10</code> ⬜ → ✅.</strong> W1 real <code>-n 2</code> <code>20261005T200223Z_POST-10-step1-W1-real.log</code> (64 s), W2 complex <code>-n 4</code> <code>20261005T200334Z_POST-10-step1-W2.log</code> (80 s), W3 complex <code>-n 1</code> <code>20261005T200500Z_POST-10-step1-W3.log</code> (67 s). Owner integers P0–P5 [217, 223, 126, 229, 132, −1] equal the oracle minimum at every width (predictions P0 217 / P1 223 / P2 126 met; P3 set size 1, P4 12); (I) bitwise vs <code>candidate_cells=keep</code>; (N) ≤ 2.220e-15; (C1) separations 9 / 131 / 121; (C2) / (C3) / (C4) raise on every rank; (C5) the naive key differs at ≥ 1 point at every width (printed). Same-rank ownership 1.0000 (printed). Regression modules green, unedited. Known-issues entry retired in the same commit.</p>
+<h2 id="7-row-moved-verbatim-2026-10-05-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-05 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-05-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p>The point-owner rule on a <code>create_submesh</code> mesh: key submesh cells by their parent's original cell index <em>(history and §9 briefs: <code>docs/planning/chunks/POST-10.md</code>)</em> | ✅ <strong>Done 2026-10-05 15:00 CDT slot (§9 item 254).</strong> <code>point_owner_cells</code> / <code>evaluate_vector_field_parallel</code> take <code>parent=(parent_mesh, parent_cells)</code>; keys are the parent's original index, one collectively checked status allreduce. On the 288-cell cut, owner integers [217, 223, 126, 229, 132, −1] (P0–P5) equal the oracle minimum at <code>-n 1 / 2 / 4</code>; (I) owner integers and DG0 values / validity bitwise equal to the parent's <code>candidate_cells=keep</code> rule; (N) N1curl ≤ 2.220e-15; (C1) separations 9 / 131 / 121; (C2) / (C3) / (C4) raise on every rank; regression modules green unedited. W1 real <code>-n 2</code> 64 s (<code>20261005T200223Z_POST-10-step1-W1-real.log</code>), W2 complex <code>-n 4</code> 80 s (<code>…200334Z_POST-10-step1-W2.log</code>), W3 complex <code>-n 1</code> 67 s (<code>…200500Z_POST-10-step1-W3.log</code>). Known-issues entry retired in the same commit. Opened 2026-10-05 10:30 review (lane 1) from known-issues 2026-10-04 (<code>ANS-9</code> step 1a): <code>owner="lowest_original_cell"</code> raises <code>Mixed topology unsupported.</code> on any submesh (<code>20261004T142026Z_ANS-9-step1a-W1.log:1949–1977</code>). Queued §9 item 254: a <code>parent=(parent_mesh, parent_cells)</code> keyword on <code>post/evaluation.py</code>, with a collectively checked raise. <strong>Done-when (§4):</strong> on a 4³ cube cut at x &lt; 0.75 (288 cells), at P0–P5 (interior, facet, vertex, boundary facet, boundary vertex, outside): (K) the submesh owner equals the geometric oracle's minimum over the kept cells, exactly; (I) values and validity are bitwise equal to the parent's <code>candidate_cells=keep</code> rule on a planted DG0; (N) N1curl <code>a + b×x</code> meets its closed form ≤ 1e-12; (W) all of these at <code>-n 1/2/4</code>. Negative controls: (C1) the planted field separates a wrong owner by ≥ 1 at facet and vertex points; (C2) a submesh call without <code>parent</code> raises on every rank; (C3) / (C4) misuse raises. The <code>POST-8</code> / <code>POST-1</code> modules re-run green and unedited (rule (c)). The fixing commit retires the known-issues entry ⇒ ✅. </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

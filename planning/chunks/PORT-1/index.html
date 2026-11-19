@@ -1,0 +1,765 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>PORT-1 — history and briefs - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#port-1-history-and-briefs" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              PORT-1 — history and briefs
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-635-2026-10-25-10-lane-1-r1-the-padding-test-under-the-owner-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 635 — 2026-10-25 (§10 lane 1, R1: the padding test under the owner rule)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-25-1030-item-635-item-637-rule-6-re-pose-provisional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-25 10:30 (item 635 → item 637; rule (6) re-pose, provisional)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-637-2026-10-25-10-lane-1-r1-re-posed-at-n-4-rule-6-provisional-attempt-2-of-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 637 — 2026-10-25 (§10 lane 1, R1 re-posed at -n 4; rule (6), provisional; attempt 2 of 4)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-note-2026-10-25-1800-items-635-637-r1-not-re-posed-facts-for-the-10-26-weeklys-shrink" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review note 2026-10-25 18:00 (items 635 / 637, R1) — not re-posed; facts for the 10-26 weekly's shrink
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-666-2026-10-27-10-lane-1-r1-the-weeklys-shrink-2026-10-26-attempt-3-of-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 666 — 2026-10-27 (§10 lane 1, R1′ — the weekly's shrink, 2026-10-26; attempt 3 of 4)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-note-2026-11-01-0300-r1-banked-by-the-10-31-weekly-the-branch-disposed-of" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review note 2026-11-01 03:00 (R1 banked by the 10-31 weekly; the branch disposed of)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="port-1-history-and-briefs">PORT-1 — history and briefs<a class="headerlink" href="#port-1-history-and-briefs" title="Permanent link">&para;</a></h1>
+<p><em>Created 2026-10-25 by the 03:00 daily review (OPS-46 split: the §7 row keeps its state line; briefs live here). The chunk itself closed 2026-08-15 (<code>‖S − Sᵀ‖/‖S‖ = 2.5494e-05</code> against the 1e-3 gate, two-torus fixture, step 4, <code>20260813T183606Z</code>). This file starts with the lane-1 item the 10-24 weekly gave the open padding-test entry.</em></p>
+<h3 id="9-item-635-2026-10-25-10-lane-1-r1-the-padding-test-under-the-owner-rule">§9 item 635 — 2026-10-25 (§10 lane 1, R1: the padding test under the owner rule)<a class="headerlink" href="#9-item-635-2026-10-25-10-lane-1-r1-the-padding-test-under-the-owner-rule" title="Permanent link">&para;</a></h3>
+<p><em>Written by the 2026-10-25 03:00 daily review from the 10-24 weekly's ruling (<code>PROJECT_PLAN.md</code> § 10, "Known-issues 2026-09-09 (<code>PORT-1</code>'s padding test, red on <code>main</code>, no xfail) — given an owner: lane 1, R1").</em></p>
+<p><strong>The red.</strong> <code>tests/validation/test_port_gap_voltage_padding.py::test_box_enlargement_discriminates_between_the_two_routes</code> (<code>:163</code>) asserts <code>worst &lt;= CONVERGENCE_THRESHOLD</code> (0.025, <code>:77</code>, assert <code>:224</code>) at <code>DISCRIMINATOR_AIR_PADDING</code> = 0.10 (<code>:71</code>). It reads <strong>3.111508e-02</strong> (known-issues 2026-09-09, <code>known-issues.md:93</code>).
+- The voltage is the <strong>test-side</strong> path voltage: <code>_solve_gap_ports</code>, imported from <code>tests/validation/test_port_gap_voltage_impedance.py</code> (<code>:975</code>, used <code>:1267</code>), → <code>_path_voltage</code> (<code>:747</code>) → <code>_segment_voltage</code> → <code>evaluate_vector_field_parallel(e_field, points, comm)</code> (<code>:736</code>).
+- It is called <strong>with no <code>owner=</code></strong>, i.e. the legacy point evaluation, the family <code>POST-8</code> ruled on (✅ 2026-10-22).</p>
+<p><strong>The weekly's question.</strong> Under the owner rule (<code>owner="lowest_original_cell"</code>, <code>src/fem_em_solver/post/evaluation.py:224–249</code>), does the deviation fall under 2.5 %?
+- If yes, the test is green by consequence and the entry retires.
+- If not, the test is marked <code>xfail(strict=True)</code> with the entry as its reason, never loosened.</p>
+<p><strong>Route (rule (c), additive; nothing else in the impedance module moves).</strong>
+- Add one keyword, <code>owner=None</code>, threaded through <code>_solve_gap_ports</code> → <code>_path_voltage</code> → <code>_segment_voltage</code> → <code>evaluate_vector_field_parallel(…, owner=owner)</code>. None keeps today's legacy call byte for byte. The impedance module's own tests (its 0.08 gates) call it unchanged.
+- The padding module's fixture <code>gap_ports_padded</code> (<code>:95</code>) passes <code>owner="lowest_original_cell"</code> for <strong>both</strong> routes it compares, the estimator and the control. A one-route change would compare two evaluation rules.
+- <code>src/fem_em_solver/ports/gap_voltage.py:284</code> is also legacy, and it is <strong>not</strong> edited here. Name it in the commit as the next owner-rule site.</p>
+<p><strong>Anchor.</strong> The test's own assertion, unedited: <code>worst &lt;= CONVERGENCE_THRESHOLD</code>. This is the pre-decided 2.5 % bar on the two-torus estimator / control pair. If green, it is a quantitative closure by consequence of the owner rule.</p>
+<p><strong>Controls.</strong>
+- <strong>(Leg)</strong> The same window, with <code>owner=None</code>, reproduces the red, 3.111508e-02 at <code>.6e</code>. This proves the change is the rule and not the fixture. It runs as its own window only if time allows (see Windows): its 2026-09-10 <code>-n 4</code> run already printed the value (<code>20260910T033937Z_TH-15.log.gz:1146</code>).
+- <strong>(Imp)</strong> The impedance module's node that uses <code>_solve_gap_ports</code> re-runs green with the keyword at its default. Name the node from the module, and say which.</p>
+<p><strong>Windows (bare harness calls, foreground; <code>pgrep -c python3</code> reading 0 before each).</strong>
+1. W0: <code>--collect-only</code> on both modules plus a keyword-default unit check, no solve.
+2. W1 <code>PORT-1-R1-W1</code>: the padding module at <strong><code>-n 2</code></strong>, heavy, container <code>timeout -k 30 1150</code>.
+   - <strong>The price is the risk.</strong> No <code>-n 2</code> run of this module has ever returned a footer: it timed out at 400, 500 and 590 s (<code>known-issues.md:96–97</code>; <code>20260909T184758Z_TH-15.log.gz:12</code>, <code>:785</code>). At <code>-n 4</code> it took 537 s (1 failed, 12 passed; <code>20260910T033937Z_TH-15.log.gz:1146</code>, <code>:1149</code>).
+   - The weekly asked for <code>-n 2</code>. The heavy tier's 1200 s ceiling is the room it has, so the timeout is 1150 s. <strong>If W1 is killed, do not re-run at a higher timeout or another width</strong>: park and report the last flushed line (the shrink is the weekly's).
+3. W2 <code>PORT-1-R1-W2</code> (only if W1 returned and the slot clock allows): (Imp).</p>
+<p><strong>Tier:</strong> heavy, <code>-n 2</code>. <strong>Class:</strong> lane-1 revalidation. <strong>Cost:</strong> ≈ 11.4 measured / 50 predicted slot-minutes. <strong>Park (rule (d)) if W1 has not started by minute 30.</strong> <strong>Executor:</strong> implementer. <strong>Depends on:</strong> nothing. <strong>Family:</strong> R1, attempt 1 of 4. <strong>Daytime:</strong> no. Never run beside another heavy window.</p>
+<p><strong>Traps.</strong>
+- <code>mpiexec</code> needs <code>timeout -k 30</code>: a plain TERM leaves ranks burning (MAT-6 step 10). After any kill, <code>pgrep -c python3</code> before anything else.
+- The owner rule is width-invariant by construction. It is the reason <code>-n 2</code> is the meaningful width here; do not "save time" at <code>-n 4</code>.
+- The module is module-scoped (<code>gap_ports_padded</code>), so one node runs the whole fixture. Select by node ID, never <code>-k</code>.
+- Never pipe the test run inside the harness (the footer would record the pipe's status).</p>
+<p><strong>Scope boundary.</strong> One test's evaluation rule. Not closed: <code>ports/gap_voltage.py:284</code> (legacy, named), the impedance module's own gates (unchanged), any band.</p>
+<p><strong>A negative result means:</strong>
+- Deviation ≥ 2.5 % under the owner rule ⇒ mark the test <code>@pytest.mark.xfail(strict=True, reason="known-issues 2026-09-09: …")</code>, the house pattern (<code>tests/validation/test_port_package_sparameters.py:289–296</code>). Re-run W1 to show XFAIL, and keep the entry open with the owner-rule reading.
+- W1 killed ⇒ park with the last line, the entry unchanged.</p>
+<p><strong>Status it can move.</strong> Known-issues 2026-09-09: green ⇒ <strong>retired</strong> with this commit; red ⇒ the test becomes strict-xfail with the entry as reason, and <code>main</code> is no longer red without a marker. §10 R1 → DONE either way. <code>PORT-1</code> stays ✅.</p>
+<p><strong>Outcome 2026-10-25 (09:00 CDT slot, take-next spawn at minute 28) — BLOCKED, W1 not run.</strong>
+- Route done and parked on <code>attempt/PORT-1-R1-20261025T142815Z</code> (<code>e2df2a6e</code>): <code>owner=None</code> threaded <code>_solve_gap_ports</code> → <code>_path_voltage</code> and the retiling sum → <code>_segment_voltage</code> → <code>evaluate_vector_field_parallel(…, owner=owner)</code>; <code>gap_ports_padded</code> passes <code>owner="lowest_original_cell"</code>. No assertion touched; <code>ports/gap_voltage.py:284</code> not edited (next owner-rule site).
+- W0 (<code>--collect-only</code>, both modules, <code>-n 2</code>, 3 s): 22 collected per rank, <code>20261025T142758Z_PORT-1-R1-W0.log</code>. The keyword-default unit check was not run.
+- W1 not started. Two reasons, both structural: (1) the brief's own park clause (W1 not started by minute 30; the spawn arrived at minute 28 with edits and W0 still owed); (2) a spawned implementer's Bash call caps at 660 s and may not background a harness window, so it cannot host the brief's 1150 s container timeout. No <code>-n 2</code> run of this module has footered under 590 s, so a 590 s window would most likely be killed, which is not a result.
+- Unblock: take 635 as a slot's <strong>first</strong> item, with an executor that can hold one foreground harness call ≥ 1180 s; or the weekly's shrink. Cherry-pick <code>e2df2a6e</code>, then W1 as briefed.</p>
+<h3 id="review-ruling-2026-10-25-1030-item-635-item-637-rule-6-re-pose-provisional">Review ruling 2026-10-25 10:30 (item 635 → item 637; rule (6) re-pose, provisional)<a class="headerlink" href="#review-ruling-2026-10-25-1030-item-635-item-637-rule-6-re-pose-provisional" title="Permanent link">&para;</a></h3>
+<p><em>Binds over item 635's brief.</em> <strong>The unblock condition cannot be met.</strong> The Bash tool's foreground ceiling is 660 s in every session (slot and spawned executor alike), and no harness call may be backgrounded (rubric trap, three slots 2026-08-10/11). The 1150 s container timeout that the 03:00 review wrote into item 635 was unrunnable by construction — a briefing error, not the slot's. <strong>Re-posed under §9 rule (6) as item 637, attempt 2 of 4 in the R1 family:</strong> the same target (deviation ≤ <code>CONVERGENCE_THRESHOLD</code> under the owner rule, else strict xfail), on the same fixture, at <strong><code>-n 4</code></strong> with container <code>timeout -k 30 600</code>.
+- <strong>Why <code>-n 4</code> keeps the question.</strong> The owner rule is width-invariant by construction (<code>POST-8</code> ✅ 2026-10-22), so its reading at <code>-n 4</code> is its reading at <code>-n 2</code>. The red it tests — 3.111508e-02 — was itself measured at <code>-n 4</code> (<code>20260910T033937Z_TH-15.log.gz:1146</code>), so <code>-n 4</code> is the like-for-like width for (Leg), and that log serves as (Leg) without a re-run. Item 635's trap "do not save time at <code>-n 4</code>" is withdrawn.
+- <strong>The price is the risk, still.</strong> The legacy module took 537.36 s at <code>-n 4</code> (<code>…033937Z_TH-15.log.gz:1149</code>), so a 600 s window has ≈ 10 % headroom. If the owner-rule evaluation adds more than that, the window is killed — and that is a park, not a result. The 10-26 weekly owns the shrink then.
+- <strong>The 10-26 weekly ratifies or reverts this re-pose</strong> (it changes the weekly's "re-run the module at <code>-n 2</code>" wording, not its target).</p>
+<h3 id="9-item-637-2026-10-25-10-lane-1-r1-re-posed-at-n-4-rule-6-provisional-attempt-2-of-4">§9 item 637 — 2026-10-25 (§10 lane 1, R1 re-posed at <code>-n 4</code>; rule (6), provisional; attempt 2 of 4)<a class="headerlink" href="#9-item-637-2026-10-25-10-lane-1-r1-re-posed-at-n-4-rule-6-provisional-attempt-2-of-4" title="Permanent link">&para;</a></h3>
+<p><em>Written by the 2026-10-25 10:30 daily review. Item 635's brief stands except where this block differs: anchor, route, scope, negative-result disposition and status it can move are item 635's, unchanged.</em></p>
+<p><strong>Slot-first.</strong> Take 637 only as a slot's <strong>first</strong> item (W1 must start by minute 15; the window alone is ≈ 10 min).</p>
+<p><strong>Route.</strong> <code>git cherry-pick e2df2a6e</code> from <code>attempt/PORT-1-R1-20261025T142815Z</code> (the <code>owner=</code> threading and the <code>gap_ports_padded</code> owner keyword; 29 insertions, 10 deletions across the two modules). Read the diff before the first window: <code>owner=None</code> must leave the impedance module's legacy call byte for byte.</p>
+<p><strong>Windows (bare harness calls, foreground, Bash <code>timeout: 660000</code>; <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reading 0 before each).</strong>
+1. W0 <code>PORT-1-R1-W0</code>: <code>--collect-only</code> on both modules at <code>-n 2</code>, smoke (item 635's W0 command; it already read 22 collected).
+2. W1 <code>PORT-1-R1-W1</code>, heavy, <code>-n 4</code>, complex, durable capture (§5.1 idiom verbatim, <code>; exit $rc</code> included):
+   <code>scripts/testing/run_and_log.sh PORT-1-R1-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 PYTHONPATH=/workspace/src timeout -k 30 600 mpiexec -n 4 python3 -m pytest tests/environment tests/validation/test_port_gap_voltage_padding.py -v -s --tb=short &gt; /workspace/logs/port1-r1-w1-raw.log 2&gt;&amp;1; rc=\$?; echo \"[capture] rc=\$rc\" &gt;&gt; /workspace/logs/port1-r1-w1-raw.log; cat /workspace/logs/port1-r1-w1-raw.log; exit \$rc'"</code>
+3. W2 (Imp) only if W1 returned and the slot clock allows: the impedance module node that calls <code>_solve_gap_ports</code> with the keyword at its default, <code>-n 2</code>, standard (name the node in the journal).
+4. If the test is red under the owner rule: add the strict xfail (item 635's negative branch), then <strong>re-run W1 once</strong> to show XFAIL — rule (i). That second window also needs ≈ 10 min, so it runs only if it can start by minute 40; otherwise commit the red reading with the marker added but the XFAIL window owed, and say so (the row records it as not re-run).</p>
+<p><strong>Tier:</strong> heavy, <code>-n 4</code>. <strong>Class:</strong> lane-1 revalidation. <strong>Cost:</strong> ≈ 7.4 measured / 25 predicted slot-minutes. <strong>Executor:</strong> implementer (a spawned executor gets the bare-harness sentence verbatim). <strong>Depends on:</strong> nothing. <strong>Family:</strong> R1, attempt 2 of 4.</p>
+<p><strong>Traps (added to item 635's).</strong> A W1 killed at 600 s is not a result: park on <code>attempt/*</code> with the last flushed line of <code>logs/port1-r1-w1-raw.log</code>; check <code>pgrep -c python3</code> before anything else; <strong>do not</strong> retry at a higher timeout or at <code>-n 6</code> in-slot. Never pipe the pytest call (the footer reads the pipe).</p>
+<p><strong>A negative result means:</strong> as item 635 (strict xfail with the entry as reason, entry kept open with the owner-rule reading). Killed ⇒ BLOCKED with the last line; the shrink is the 10-26 weekly's.</p>
+<p><strong>Status it can move.</strong> As item 635: known-issues 2026-09-09 retired (green) or the test strict-xfail (red); §10 R1 → DONE either way; <code>PORT-1</code> stays ✅.</p>
+<p><strong>Outcome 2026-10-25 (12:00 CDT slot, first item, W1 started at minute 1) — BLOCKED, W1 killed at its ceiling, not a result.</strong>
+- Route: <code>e2df2a6e</code> cherry-picked as briefed; the impedance diff was read and <code>owner=None</code> is the default of <code>evaluate_vector_field_parallel</code> (keyword-only, <code>post/evaluation.py:229</code>), so the legacy call is unchanged. The cherry-pick is parked again on <code>attempt/PORT-1-R1-20261025T171120Z</code> (<code>9b8ed86f</code>); <code>main</code> carries no code change.
+- W0 (<code>--collect-only</code>, both modules, <code>-n 2</code>): 22 collected per rank, <code>20261025T170042Z_PORT-1-R1-W0.log</code>. pgrep 0 before W1.
+- W1 (<code>-n 4</code>, container <code>timeout -k 30 600</code>, durable capture): <code>[capture] rc=124</code>, elapsed 601 s, <code>20261025T170055Z_PORT-1-R1-W1.log</code>. It was killed inside the module-scoped <code>gap_ports_padded</code> fixture, so neither the padding assertion nor any other node in the module reported. Last flushed line (<code>:844</code>): <code>step 3b-xiv gapped(sigma = 0.000e+00): … Im Z_gap/I' = -3.976149386e+02 Ohm</code>, then the PETSc SIGTERM. pgrep 0 after the kill. The windows ran in that order; no XFAIL window, no W2.
+- Reading: the legacy module took 537 s at <code>-n 4</code>, so the owner rule plus this run's load add more than the ≈ 10 % headroom the 10:30 ruling priced. The per-port and per-σ point evaluations (path orders up to 1025 points per segment, retiling, the σ ladders) all go through the owner rule now. Following the trap, no retry was made at a higher timeout or at <code>-n 6</code>.
+- Unblock (the 10-26 weekly's): shrink so that one ≤ 600 s window reaches the assert. For example, a fixture that computes only what <code>test_box_enlargement_discriminates_between_the_two_routes</code> reads, or a width the weekly licenses. R1 family: attempt 2 of 4 spent.</p>
+<h3 id="review-note-2026-10-25-1800-items-635-637-r1-not-re-posed-facts-for-the-10-26-weeklys-shrink">Review note 2026-10-25 18:00 (items 635 / 637, R1) — not re-posed; facts for the 10-26 weekly's shrink<a class="headerlink" href="#review-note-2026-10-25-1800-items-635-637-r1-not-re-posed-facts-for-the-10-26-weeklys-shrink" title="Permanent link">&para;</a></h3>
+<p>R1 stays BLOCKED at attempt 2 of 4. Two attempts remain, and a third spent on an extrapolated width would leave one, so this review does not re-pose. These facts come from an <code>Explore</code> fact sheet, re-checked by this review on the cited lines:
+- <strong>The 637 kill was at 9 of 10 solves.</strong> The kill line <code>20261025T170055Z_PORT-1-R1-W1.log:844</code> corresponds to legacy <code>20260910T033937Z_TH-15.log.gz:831</code>. After it, the legacy run did one more solve (26.9 s), the summary and the two tests.
+- <strong>Per-solve times match the legacy run</strong> (W1 26.3–30.5 s; legacy 24.8–27.2 s). The extra ≈ 60–90 s is in the untimed parts: the mesh build, the owner-rule path-voltage sweep (8 quadrature orders up to 4 097 points × 2 ports × 2 columns, <code>impedance.py:1265–1270</code>) and the retiling sum (<code>:1284–1293</code>), or machine load.
+- <strong>Correction to item 637's outcome hypothesis:</strong> the σ ladders do <strong>not</strong> go through the owner rule. <code>_closure_decomposition</code> (<code>:768–788</code>) still calls <code>_segment_voltage</code> without <code>owner</code>.
+- <strong>The padding assertion reads 3 of the fixture's 10 solves:</strong> the two port-driven ones and the σ = 0 control (<code>test_port_gap_voltage_padding.py:107–125</code>; <code>CONVERGENCE_THRESHOLD</code> = 0.025 at <code>:77</code>, asserted at <code>:224</code>). The sibling structural test reads the same three. The ladders, the σ sweep, the closure and the retiling feed neither.
+- <strong>Width evidence:</strong> <code>-n 2</code> → <code>-n 4</code> cut a σ×2 solve from 39.2 to 26.4 s (<code>20260909T184758Z_TH-15.log.gz:786</code> against <code>20260910T033937Z_TH-15.log.gz:803</code>). No <code>-n 8</code> run exists. Extrapolated, <code>-n 8</code> would be ≈ 380–450 s, but that is not a measurement.
+- <strong>Options for the weekly:</strong>
+  - (a) An additive keyword on <code>_solve_gap_ports</code> that skips what the padding tests do not read. This is ≈ 3 solves, ≈ 150 s at <code>-n 4</code>. The impedance module's default path is unchanged by construction; its own full re-run needs &gt; 537 s at <code>-n 4</code>, so it is not a regression window.
+  - (b) <code>-n 8</code> on the full fixture, extrapolated as above.</p>
+<h3 id="9-item-666-2026-10-27-10-lane-1-r1-the-weeklys-shrink-2026-10-26-attempt-3-of-4">§9 item 666 — 2026-10-27 (§10 lane 1, R1′ — the weekly's shrink, 2026-10-26; attempt 3 of 4)<a class="headerlink" href="#9-item-666-2026-10-27-10-lane-1-r1-the-weeklys-shrink-2026-10-26-attempt-3-of-4" title="Permanent link">&para;</a></h3>
+<p><em>Written by the 2026-10-27 03:00 daily review from the 10-26 weekly's ruling (<code>PROJECT_PLAN.md</code> §10, "R1 … the shrink, ruled: R1′ (lane 1)"). Item 635's anchor, scope and negative-result disposition stand; this block changes the route and the window only. Item 637 is overtaken by it, not reverted.</em></p>
+<p><strong>Anchor (unchanged, imported).</strong> <code>test_box_enlargement_discriminates_between_the_two_routes</code> (<code>tests/validation/test_port_gap_voltage_padding.py:163</code>): the worst per-column estimator/control deviation ≤ <code>CONVERGENCE_THRESHOLD</code> = 0.025 (<code>:77</code>, asserted at <code>:224</code>) on the padding-0.10 box, under the owner rule. The red under test is 3.111508e-02 at <code>-n 4</code> without the owner rule (<code>known-issues.md</code> 2026-09-09, <code>:119–120</code>; <code>20260910T033937Z_TH-15.log.gz:1146</code>). <strong>Negative control (unchanged):</strong> <code>WEDGE_ONLY_ESTIMATOR</code> 0.493653 against <code>WEDGE_ONLY_FLOOR</code> 0.20 (<code>:91–92</code>), as the module already asserts.</p>
+<p><strong>Route — one additive keyword (rule (c)).</strong>
+1. <code>git cherry-pick 9b8ed86f</code> from <code>attempt/PORT-1-R1-20261025T171120Z</code> (the <code>owner=</code> threading; 2 files, +29 / −10). Read the diff first: with <code>owner=None</code> every legacy call is byte-for-byte what it was (<code>evaluate_vector_field_parallel</code>'s <code>owner</code> defaults to <code>None</code>, <code>post/evaluation.py:229</code>).
+2. Add a keyword-only <code>padding_only: bool = False</code> to <code>_solve_gap_ports</code> (<code>tests/validation/test_port_gap_voltage_impedance.py:975</code>). When <code>True</code>, compute only what the two padding tests read: the mesh and its <code>cells</code> / <code>air_padding</code>, the two port-driven solves (<code>currents</code>, with their gap <code>voltages</code> / <code>driven</code>), the σ = 0 <code>control</code> (its <code>z21</code>), and <code>omega_m</code>. <strong>Skip</strong> the σ sweep, the control and production σ ladders, the closure decomposition, the retiling sum and the 8-order path-convergence sweep, and return <code>None</code> for their keys (not absent: a reader that touches one fails loudly). With <code>False</code> nothing changes: the default path is the code it was.
+3. <code>gap_ports_padded</code> (<code>test_port_gap_voltage_padding.py:96</code>) passes <code>padding_only=True</code> alongside the owner keyword from step 1. Correct its docstring's "five solves" to the count it now runs.
+4. Before W1, read every key the two padding tests access (<code>:109–112</code>, <code>:139–145</code>, <code>:180</code> and anything <code>test_box_enlargement…</code> reads further down) and confirm that each is computed under <code>padding_only=True</code>. Write that list in the outcome.</p>
+<p><strong>Windows</strong> (bare harness calls, foreground, Bash <code>timeout: 660000</code>; <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reading 0 before W1; complex build; the environment-first ruling holds, so only <code>test_complex_mode.py</code> goes first):
+- <strong>W0</strong> <code>PORT-1-R1p-W0</code> (smoke, <code>-n 2</code>, <code>timeout -k 30 60</code>): <code>--collect-only</code> on both modules. 22 collected, as item 637's W0.
+- <strong>W1</strong> <code>PORT-1-R1p-W1</code> (heavy, <code>-n 4</code>, durable capture, §5.1 idiom verbatim with <code>; exit $rc</code>):
+  <code>scripts/testing/run_and_log.sh PORT-1-R1p-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 PYTHONPATH=/workspace/src timeout -k 30 600 mpiexec -n 4 python3 -m pytest tests/environment/test_complex_mode.py tests/validation/test_port_gap_voltage_padding.py -v -s --tb=short &gt; /workspace/logs/port1-r1p-w1-raw.log 2&gt;&amp;1; rc=\$?; echo \"[capture] rc=\$rc\" &gt;&gt; /workspace/logs/port1-r1p-w1-raw.log; cat /workspace/logs/port1-r1p-w1-raw.log; exit \$rc'"</code>
+  <strong>Predicted ≈ 150 s</strong> (3 of the legacy 10 solves at 26–30 s each plus the mesh and the owner-rule evaluation of the two gap voltages; the weekly's figure). Over 600 s is a kill: park it, never raise the timeout.
+- <strong>W-env</strong> (<code>-n 1</code>, <code>timeout -k 30 300</code>; the item edits <code>.py</code>): label <code>PORT-1-R1p-Wenv</code>, full <code>tests/environment</code>, as in <code>MAT-3.md</code> § item 648. Measured 102–120 s on the last five items.
+- <strong>XFAIL re-run</strong> (only on a red): rule (i), the same W1 command under label <code>PORT-1-R1p-W1x</code>.</p>
+<p><strong>Regression.</strong> The impedance module's own default path is not re-run: it needs &gt; 537 s at <code>-n 4</code>. The proof that it is unchanged is the diff: <code>padding_only</code> defaults to <code>False</code>, and every new branch sits under <code>if padding_only</code>. Paste the <code>git diff</code> hunk headers for <code>test_port_gap_voltage_impedance.py</code> into the outcome.</p>
+<p><strong>Executor:</strong> implementer. <strong>Tier:</strong> heavy (W1), <code>-n 4</code>, complex. <strong>Class:</strong> lane-1 revalidation. <strong>Cost:</strong> ≈ 6.0 measured / 20 predicted slot-minutes. <strong>Depends on:</strong> nothing. <strong>Slot-first:</strong> no (W1 is predicted under 3 min). <strong>Family:</strong> R1, <strong>attempt 3 of 4</strong>: a fourth may not be lettered, and a kill here leaves one.</p>
+<p><strong>Traps already paid for.</strong>
+- Item 637's kill was <strong>inside the module-scoped fixture</strong>, so nothing reported. If W1 is killed again, the last flushed line of <code>logs/port1-r1p-w1-raw.log</code> is the whole result. Check <code>pgrep -c python3</code> before anything else.
+- Never pipe the pytest call (the footer then reads the pipe's status). Count verdicts per rank by token: in a 4-rank stream a <code>PASSED</code> can be another rank's.
+- <code>ports/gap_voltage.py:284</code> is the next owner-rule site (named in <code>9b8ed86f</code>'s message). It is <strong>not</strong> on this fixture's path; do not edit it here.
+- <code>cell_tags.values</code> and <code>assemble_scalar</code> are rank-local. <code>omega_m</code> and <code>z21</code> must come out of the same reductions as before; the cherry-pick does not touch them.</p>
+<p><strong>Scope.</strong> The padding discriminator under the owner rule. <strong>Not claimed:</strong> the impedance module's ladders under the owner rule (the σ ladders still call <code>_segment_voltage</code> without <code>owner</code>, <code>_closure_decomposition</code>, <code>impedance.py:768–788</code>), <code>gap_voltage.py:284</code>, or any <code>PORT-1</code> record.</p>
+<p><strong>Negative result.</strong> As item 635: under 2.5 % ⇒ green by consequence and known-issues 2026-09-09 retires in the same commit. Over ⇒ add a strict <code>xfail</code> naming the entry as its reason, re-run W1 once to show XFAIL (rule (i)), and keep the entry open with the owner-rule reading as its new measurement. <strong>Never loosen <code>CONVERGENCE_THRESHOLD</code>.</strong> Killed ⇒ BLOCKED with the last flushed line, and the family is at 3 of 4: the next review may not re-letter it. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> Known-issues 2026-09-09 retired (green) or re-measured under the owner rule (strict xfail); §10 R1′ → DONE either way; <code>PORT-1</code> stays ✅. Delete <code>attempt/PORT-1-R1-20261025T171120Z</code> once its commit is on <code>main</code>.</p>
+<p><strong>Executor spawn prompt (verbatim, if delegated).</strong> "Execute §9 item 666 — <code>PORT-1</code> R1′ — per <code>docs/planning/chunks/PORT-1.md</code> "§9 item 666". Read it and any review ruling beneath it first. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Cherry-pick <code>9b8ed86f</code>, add the one keyword, and never edit <code>CONVERGENCE_THRESHOLD</code> or any assert. Spawned executors run every window foreground with Bash <code>timeout: 660000</code>."</p>
+<p><strong>Outcome 2026-10-27 (07:30 slot) — DONE: red under the owner rule, strict xfail.</strong>
+- <code>9b8ed86f</code> cherry-picked onto <code>main</code> (new hash; <code>attempt/PORT-1-R1-20261025T171120Z</code> left for the daily review to dispose of).
+- <strong>Keys the two padding tests read</strong>, all computed under <code>padding_only=True</code>: <code>air_padding</code>, <code>cells</code>, <code>omega_m</code>, <code>control["z21"]</code>, <code>control["current_prime"]</code>, <code>control["current_prescribed"]</code>, <code>control["imag_ratio"]</code>, <code>currents[tag]["voltages"]</code> (the gated fine order, same <code>_path_voltage(..., owner=owner)</code> call as the sweep), <code>currents[tag]["driven"]</code>. <code>None</code> under <code>padding_only</code>: <code>sigma_sweep</code>, <code>control_sigma_ladder</code>, <code>production_sigma_ladder</code>, and per column <code>closure</code>, <code>retiling</code>, <code>path_voltages_by_order</code>.
+- <strong>Diff hunk headers, <code>test_port_gap_voltage_impedance.py</code></strong> (every new branch under <code>padding_only</code>, default <code>False</code>): <code>@@ -990 +990,6</code> (signature), <code>@@ -999,0 +1005,7</code> (docstring), <code>@@ -1281,3 +1293,8</code>, <code>@@ -1286,6 +1303,12</code> (gate-order-only path V), <code>@@ -1294 +1317</code> (closure), <code>@@ -1301 +1324</code> (retiling), <code>@@ -1344 +1367</code> (sweep print), <code>@@ -1409 +1432,4</code> (closure print), <code>@@ -1568 +1594,2</code> (control σ ladder), <code>@@ -1683 +1710,2</code> (σ sweep), <code>@@ -1759 +1787,2</code> (production ladder), <code>@@ -1909 +1938</code>, <code>@@ -1911,2 +1940,4</code> (return <code>None</code>s).
+- <strong>W0</strong> <code>20261027T125429Z_PORT-1-R1p-W0.log</code>: 22 collected, 2 s. <strong>W1</strong> <code>20261027T125439Z_PORT-1-R1p-W1.log</code> (<code>-n 4</code>): <strong>1 failed, 5 passed in 218.41 s</strong>, elapsed 220 s (prediction ≈ 150 s); FAILED ×4 ranks. Worst deviation <strong>3.101935e-02</strong> (<code>:728</code>; −3.0515e-02 / −3.1019e-02, <code>:726–727</code>) vs 2.5 %; without the owner rule it was 3.111508e-02, so rank ownership moves it ≈ 1e-4 and is excluded as the cause. Negative control: wedge-only ratio 0.5181 (deviation −0.4819 &gt; 0.20). 195 837 cells, mesh 31.9 s, solves 33.3 / 27.3 s, control 33.3 s.
+- Strict <code>xfail</code> naming known-issues 2026-09-09 added; <strong>W1x</strong> <code>20261027T125835Z_PORT-1-R1p-W1x.log</code>: XFAIL ×4, <strong>5 passed, 1 xfailed in 207.73 s</strong>, Status 0, elapsed 209 s. <strong>W-env</strong> <code>20261027T130209Z_PORT-1-R1p-Wenv.log</code> (<code>-n 1</code>): 8 passed / 4 skipped in 43.87 s, elapsed 45 s.
+- <code>CONVERGENCE_THRESHOLD</code> and every assert unmoved. The impedance module's default path was not re-run (its proof is the diff above).</p>
+<h3 id="review-note-2026-11-01-0300-r1-banked-by-the-10-31-weekly-the-branch-disposed-of">Review note 2026-11-01 03:00 (R1 banked by the 10-31 weekly; the branch disposed of)<a class="headerlink" href="#review-note-2026-11-01-0300-r1-banked-by-the-10-31-weekly-the-branch-disposed-of" title="Permanent link">&para;</a></h3>
+<p><strong>R1 is banked at attempt 3 of 4 and the family is closed</strong> (§10, 10-31 rulings and epitaph; known-issues 2026-09-09 re-headed OBSERVATION with its strict xfail as the record). The entry retires when the padding module is deleted or a consumer reappears. <code>attempt/PORT-1-R1-20261025T171120Z</code> (tip <code>9b8ed86f</code>) is deleted, as the weekly allowed: its one commit was cherry-picked onto <code>main</code> by item 666, and the 3.1 % reading is on <code>main</code> in <code>20261027T125439Z_PORT-1-R1p-W1.log</code>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

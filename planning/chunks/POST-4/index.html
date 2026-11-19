@@ -1,0 +1,690 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>POST-4 — history file - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#post-4-history-file" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              POST-4 — history file
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-607-2026-10-23-ops-docs-lane-1-a-known-issues-entrys-own-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 607 — 2026-10-23 (ops / docs; lane 1, a known-issues entry's own scope)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-636-2026-10-25-10-lane-1-r2-item-607s-six-p1-export-sites-against-the-guides" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 636 — 2026-10-25 (§10 lane 1, R2: item 607's six P1-export sites against the guides)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="post-4-history-file">POST-4 — history file<a class="headerlink" href="#post-4-history-file" title="Permanent link">&para;</a></h1>
+<p><em>Created by the 2026-10-23 10:30 daily review for a §9 brief (<code>OPS-46</code>). The §7 <code>POST-4</code> row (✅, closed 2026-08-12) carries the chunk's status; its step 4 measurement is the known-issues entry "Every XDMF/VTX export of a Nédélec or DG field ships a Lagrange-P1 interpolant …" (<code>docs/testing/known-issues.md</code>, filed 2026-08-12).</em></p>
+<h3 id="9-item-607-2026-10-23-ops-docs-lane-1-a-known-issues-entrys-own-scope">§9 item 607 — 2026-10-23 (ops / docs; lane 1, a known-issues entry's own scope)<a class="headerlink" href="#9-item-607-2026-10-23-ops-docs-lane-1-a-known-issues-entrys-own-scope" title="Permanent link">&para;</a></h3>
+<p><strong>Why.</strong> The entry's "What this affects" table lists <strong>11</strong> P1 interpolation sites in <code>examples/</code> as of 2026-08-12, ten of them fed by a non-conforming source (N1curl / DG). The census is now 138 examples, and <code>grep -rn '"Lagrange", 1\|("CG", 1\|("P", 1' examples --include=*.py</code> finds ≈ 82 constructions (this review's count; the executor re-counts). The entry's one <em>evaluated</em> site, <code>mag:1</code>, stopped evaluating from its interpolant on 2026-10-21 (<code>a49b4e16</code>; noted in the entry by this review). The entry's open question — export DG1, or keep P1 with the caveat — is a review decision that needs the current table, not the August one. <strong>Nothing here decides it.</strong></p>
+<p><strong>The anchor (a census identity, measured).</strong> A probe script <code>scripts/probes/post4_p1_site_census.py</code> (new, stdlib only, no dolfinx import) walks <code>examples/**/*.py</code>, finds every <code>functionspace(…, ("Lagrange"|"CG"|"P", 1 …))</code> construction, and prints one row per site: file:line, and the <strong>name</strong> of the function that is interpolated into it on the following <code>.interpolate(</code> call when one exists in the same function body. The executor then classifies each row <strong>by reading the code</strong>, into exactly one of:
+- <strong>(N)</strong> source is N1curl / RT / any <code>ufl</code> curl of one;
+- <strong>(D)</strong> source is DG of any degree;
+- <strong>(C)</strong> source is conforming (Lagrange of any degree, a numpy/analytic expression) — safe by construction;
+- <strong>(U)</strong> cannot tell from the file (say why).</p>
+<p>and, orthogonally, <strong>(x)</strong> export only, or <strong>(e)</strong> the interpolant is evaluated, sampled, integrated or asserted on.</p>
+<p><strong>Asserted by the script (window 1):</strong> (i) the 08-12 table's ten file paths each still exist or are named as removed / moved, with their current line; (ii) the row count equals the independent <code>grep -c</code> total printed in the same window (the negative control — a parser that misses a spelling shows here). Window: smoke, <code>scripts/testing/run_and_log.sh POST-4-census "timeout -k 30 30 python3 scripts/probes/post4_p1_site_census.py"</code> (host <code>python3</code> through the harness, as <code>PLAN-INDEX</code> runs).</p>
+<p><strong>Deliverable.</strong> A dated sub-section appended to the known-issues entry, <strong>"Re-census 2026-10-23 (<code>POST-4</code> §9 item 607)"</strong>: the counts per class (N / D / C / U × x / e), the full row list or a pointer to the probe's log, and — the part that matters — <strong>every (N)- or (D)-sourced site in class (e)</strong>, by file:line, with what it prints. The August table stays as history above it (do not edit or strike it). Commit the probe script, the log, the entry and a one-line attempts journal.</p>
+<p><strong>Executor:</strong> implementer (no compute; one smoke harness window). <strong>Tier:</strong> smoke, no MPI.
+- <strong>Class:</strong> ops / docs. <strong>Cost:</strong> ≈ 3.0 measured (the class median; this item is larger than the class's typical guide-text fix) / ≈ 40 predicted slot-minutes.
+- <strong>Depends on:</strong> nothing. <strong>Family:</strong> attempt 1 of 4. <strong>Daytime:</strong> no.</p>
+<p><strong>Traps already paid for.</strong> The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. No <code>docker</code> call is needed. Never delete a log. Write <code>≈</code>, never a tilde, in the entry. Do not touch any example: a site found in class (e) with an (N)/(D) source is <strong>reported, not fixed</strong> — fixing it is a chunk the weekly opens.</p>
+<p><strong>Scope.</strong> Not claimed: any export change; the DG1-vs-P1 decision; any statement about ParaView renderings beyond the entry's existing one; any gate. The entry stays open.</p>
+<p><strong>Negative result.</strong> If the parser's count and the grep count differ, report both and the missing spellings, commit the probe and log, and stop without the sub-section (rule (d): mark item 607 BLOCKED). If an (N)/(D)-sourced (e) site is found whose printout a guide quotes as a number, that is the finding: list it in the sub-section and in the journal's "Hypothesis for next", nothing more.</p>
+<p>No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> The known-issues entry's scope: its affected-site list re-dated to 2026-10-23 with counts by class, and a named list of evaluated-from-P1 sites (zero, or each one by file:line) — the input the weekly needs for the entry's open DG1-vs-P1 decision. No §7 glyph moves.</p>
+<p><strong>Outcome (2026-10-23 17:00 slot, implementer).</strong> Done: <code>20261023T171007Z_POST-4-census.log</code> (smoke, 2 s, exit 0) — 82 P1 constructions in 151 example files, AST count = line-regex control (82 = 82; the brief's grep reads 83, the extra line is <code>mri/01:45</code> docstring prose); all ten August paths present. Classes: (N) 54 [52 x / 2 e], (D) 6 [2 x / 4 e], (C) 22 [21 x / 1 e], (U) 0. The six (N)/(D)×(e) sites — <code>ans2:336</code>, <code>th:5:129</code>, <code>mag:6:192</code>, <code>mag:5:218</code>, <code>mag:1:251</code>, <code>mag:2:315</code> (the last two a VTX file-fidelity identity) — are listed with their printouts in the known-issues entry's "Re-census 2026-10-23" sub-section; none fixed; whether a guide quotes any of those printouts was not audited.</p>
+<h3 id="9-item-636-2026-10-25-10-lane-1-r2-item-607s-six-p1-export-sites-against-the-guides">§9 item 636 — 2026-10-25 (§10 lane 1, R2: item 607's six P1-export sites against the guides)<a class="headerlink" href="#9-item-636-2026-10-25-10-lane-1-r2-item-607s-six-p1-export-sites-against-the-guides" title="Permanent link">&para;</a></h3>
+<p><em>Written by the 2026-10-25 03:00 daily review from the 10-24 weekly's ruling (<code>PROJECT_PLAN.md</code> § 10, "Known-issues 2026-09-09 … R2"): audit whether any guide quotes those printouts as a figure, and where one does, re-quote it from the native field under the owner rule, with the P1 value kept as a labelled record. The picture exports stay P1. No band, no gate edit.</em></p>
+<p><strong>The audit (done by this review, read-only; <code>docs/guide/</code> quotes none of them).</strong></p>
+<table>
+<thead>
+<tr>
+<th>Site</th>
+<th>Guide quote</th>
+<th>Disposition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ans2:336</code> (<code>examples/ansys_benchmarks/ans2_birdcage_coil_driven_sar_10MHz/02_birdcage_coil_driven_sar_10MHz.py:336</code>)</td>
+<td><code>02_…md:40–51</code> quotes the CG1 row as a "labelled record, never published"</td>
+<td><strong>none</strong>: already labelled as asked</td>
+</tr>
+<tr>
+<td><code>th:5:129</code> (<code>examples/time_harmonic/05_resonance_guard_sweep.py:129</code>)</td>
+<td><code>05_resonance_guard_sweep.md:47–48</code>: "Exported peak |E| … 6.0531e+03 V/m", quiet 6.1951e+02, factor 9.77</td>
+<td><strong>re-quote</strong>: a figure from the P1 export</td>
+</tr>
+<tr>
+<td><code>mag:6:192</code> (<code>examples/magnetostatics/06_h_convergence_rate.py:192</code>)</td>
+<td><code>06_h_convergence_rate.md:45</code>, <code>:130</code>: "Error of the <em>exported</em> CG1 field 17.1451%"</td>
+<td><strong>none</strong>: the page's point is the export's own error, labelled "exported", and it is owner-sampled since <code>POST-8</code> (<code>:172–178</code>)</td>
+</tr>
+<tr>
+<td><code>mag:5:218</code> (<code>examples/magnetostatics/05_gauge_cross_check.py:218</code>)</td>
+<td><code>05_gauge_cross_check.md:39</code>, <code>:109</code>: 0.0033%</td>
+<td><strong>re-quote</strong>, if the printout is the P1-export cross-check (W0 decides from the script)</td>
+</tr>
+<tr>
+<td><code>mag:1:251</code>, <code>mag:2:315</code></td>
+<td><code>01_straight_wire.md:80–81</code>, <code>02_circular_loop.md:71–72</code>: in-memory = read-back max|B|</td>
+<td><strong>none</strong>: a VTX file-fidelity identity, which is about the file by design</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The item: two examples, <code>th:5</code> and <code>mag:5</code>.</strong>
+1. <strong>W0 (no solve):</strong> read both scripts. Confirm that each quoted figure is computed from the P1 export (the known-issues "Re-census 2026-10-23" table, <code>known-issues.md:749–758</code>). If a figure turns out to be computed from the native field already, mark it "none" and say so.
+2. <strong>For each confirmed site,</strong> add one printed line computing the same quantity from the native field through <code>evaluate_vector_field_parallel(…, owner="lowest_original_cell")</code> (<code>src/fem_em_solver/post/evaluation.py:224–249</code>). The P1 line stays, relabelled "P1 export (picture), record". No assert is added or changed: rule (a) — the examples' existing asserts stay byte-identical.
+3. <strong>Run each example</strong> through <code>./run_examples.sh</code> as its own harness window, then the docrefs and setup-figure census windows, as every example item does (rule (i)).
+4. <strong>Re-quote</strong> each guide line from the native-field print, with the P1 value beside it labelled as the export's.</p>
+<p><strong>Anchor.</strong> Each example's existing asserts re-run green unedited; the window is the gate (rule (a)). The re-quoted guide number equals the printed native-field string, and the P1 string equals the old guide's.</p>
+<p><strong>Control.</strong> The old P1 line reproduces the old guide number to its printed digits, so the export path did not move.</p>
+<p><strong>Tier:</strong> standard (both examples are small). <strong>Class:</strong> lane-1 revalidation. <strong>Cost:</strong> ≈ 11.4 measured / 35 predicted slot-minutes. <strong>Executor:</strong> <code>example-runner</code> (example scripts plus same-stem guides, census before and after). Spawn it foreground, with the no-spawn and no-edit-after-last-run rules (dashboard item 9). <strong>Depends on:</strong> nothing. <strong>Family:</strong> R2, attempt 1 of 4.</p>
+<p><strong>Traps.</strong>
+- <code>.eval</code> bytes depend on the batch (item 537): evaluate the native field in one call per quantity.
+- The owner rule's keyword is <code>owner="lowest_original_cell"</code>, never the legacy path.
+- An example edited after its last run breaks rule (i): edit, then run, then census.
+- The leak guard: a printed closed-form column can trip it (<code>EX-142</code>). If it does, move the log to <code>logs/leak-held/</code> and report.</p>
+<p><strong>Scope boundary.</strong> Two guide re-quotes. Not closed: the picture exports' P1-vs-DG1 question (the operator's, dashboard item 13), the other four sites (dispositioned above), any band. <code>POST-4</code> stays ✅.</p>
+<p><strong>A negative result means:</strong> an existing assert red is an example defect, so stop and report. A native-field number differing materially from P1 is the expected reading (that is why the re-quote is owed): print both.</p>
+<p><strong>Outcome (2026-10-25 13:30 CDT slot, <code>example-runner</code>) — BLOCKED, attempt 1 of 4.</strong> W0 confirmed both quoted figures come from the P1 export. Native prints were added; the examples' existing asserts are green and unedited (<code>20261025T183230Z_POST-4.log</code> th:5 32 s, exit 0; <code>20261025T183305Z_POST-4.log</code> mag:5 6 s, exit 0; <code>20261025T183149Z_POST-4.log</code> a 35 s exit-1 helper crash, <code>index_map</code> is a method, fixed before the green run). Readings: th:5 native vertex peak |E| 5.8778e+03 / 5.9984e+02 V/m (factor 9.80), P1 6.0350e+03 / 6.1719e+02 (9.78), against the old guide's 6.0531e+03 / 6.1951e+02 (9.77). mag:5 native DG volume L2 0.0033 %, P1 0.0040 %, against the old guide's 0.0033 %. <strong>The Control missed at both sites:</strong> the P1 line does not reproduce the old guide digits, so either the export path moved or the August guide figures predate the current image. The control carries no asserted / predicted label, so under rule (e) the slot did not decide it. Censuses: docrefs <code>dead=0 exit=2</code> both sides, stale 147 → 146; setup figures <code>broken=0</code> both sides. The code, guides and known-issues disposition are parked as <code>5b55cd7c</code> on <code>attempt/POST-4-R2-20261025T183400Z</code>. Deviation: the pre-census ran after the two script edits and before any run.</p>
+<p><strong>Status it can move.</strong> Item 607's open clause ("whether a guide quotes any of those printouts was not audited") closes: the audit table above plus two re-quotes. The known-issues 2026-10-23 re-census sub-section gains the disposition per site. §10 R2 → DONE.</p>
+<p><strong>Outcome (2026-10-25 13:30 slot, implementer).</strong> Done in part: both W0 reads confirmed the guide figures were P1-export quantities. <code>th:5</code> (<code>20261025T183230Z_POST-4.log</code>, 32 s, exit 0; a first window <code>20261025T183149Z_POST-4.log</code> failed on <code>index_map</code> being a method in 0.11 after the table and all anchors had printed, fixed and re-run): native vertex peaks 5.8778e+03 / 5.9984e+02 V/m, factor 9.80, against the export's 6.0350e+03 / 6.1719e+02, 9.78. <code>mag:5</code> (<code>20261025T183305Z_POST-4.log</code>, 6 s, exit 0): native DG volume L2 difference 0.0033%, export 0.0040%. Existing asserts green and untouched. <strong>The pre-registered control missed at both sites</strong> (the export line does not reproduce the old guide's 6.0531e+03 / 0.0033%): the old guide figures predate the current image. Guides re-quoted from the native prints with the export's values labelled beside them. Census: docrefs pre <code>dead=0 guide=0 stale=147 exit=2</code>, predicted unchanged, measured <code>stale=146</code> (prediction missed by one stale entry; dead/guide/exit as predicted); setup figures <code>broken=0</code> before and after. Deviations: the pre-census ran after the script edits (guides untouched at that point); <code>mag:5</code> native number is an assembled volume integral, not <code>evaluate_vector_field_parallel</code>; <code>mag:5</code> is not selectable as <code>mag:5</code> in <code>run_examples.sh</code> (selector <code>-e 5</code>, as the runner's group is the bare number).</p>
+<p><strong>Review ruling (2026-10-25 18:00 daily review) — the control holds on the current image; <code>5b55cd7c</code> landed, item 636 DONE, R2 attempt 1 of 4 closes it.</strong> The control's purpose was "the export path did not move". Its comparand, the guides' digits, dates from 2026-08-10, before the 2026-08-22 image change (<code>OPS-18</code>). Against the current image's own record, the P1 lines reproduce exactly. <strong>th:5:</strong> 6.0531e+03 / 6.1951e+02 (factor 9.77) at <code>20260810T033313Z_EX-8-gate.log.gz:66</code>; 6.0350e+03 / 6.1719e+02 (9.78) at <code>20260825T050232Z_EX-30-th-run-5to6.log.gz:66</code>, which is today's print digit for digit (<code>20261025T183230Z_POST-4.log</code>). <strong>mag:5:</strong> the export reads 0.0033 % on 08-10 and 08-20 (<code>20260810T110311Z_EX-10-run1.log.gz:442</code>, <code>20260820T003532Z_EX-22-mag-56.log.gz:442</code>), then 0.0040 % from 08-25 (<code>20260825T140737Z_EX-30-root-run-mag2to5.log.gz:2227</code>, <code>20260916T095433Z_EX-57-mag5-control.log.gz:229</code>, <code>20261020T214139Z_POST-8-step3b-ii-e2d-e1-real-n2.log:662</code>). Today's 0.0040 % (<code>20261025T183305Z_POST-4.log:231</code>) is the same figure. So the export path has not moved since the image change, and the guides were stale records. The native 0.0033 % equalling the old export figure is a coincidence of rounding at four digits. No pathologist ruling was needed: the readings are direct greps of footered logs, and no assert or band is involved. Landed as its own commit, with main's §9 and test-results rows kept (the logs and rows were already on main from <code>e8eac1eb</code>).</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

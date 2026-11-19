@@ -1,0 +1,764 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>PORT-24 — capacitor ESR (circuit layer + in-model series-RC sheet); §7 row: grep -n '^| \PORT-24`' PROJECT_PLAN.md(PROJECT_PLAN.md:2716`) - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#port-24-capacitor-esr-circuit-layer-in-model-series-rc-sheet-7-row-grep-n-port-24-project_planmdproject_planmd2716" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              PORT-24 — capacitor ESR (circuit layer + in-model series-RC sheet); §7 row: grep -n '^| \PORT-24`' PROJECT_PLAN.md(PROJECT_PLAN.md:2716`)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-308-2026-10-08-chain-t25-port-24-step-1-circuit-layer-esr-no-solve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 308 — 2026-10-08 (chain T25 — PORT-24 step 1, circuit-layer ESR, no solve)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-309-2026-10-08-chain-t26-prerequisite-port-24-step-2-in-model-series-rc-sheet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 309 — 2026-10-08 (chain T26 prerequisite — PORT-24 step 2, in-model series-RC sheet)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-363-2026-10-11-t25-port-24-step-1-lands-under-the-re-stated-clause-lane-1-revalidation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 363 — 2026-10-11 (T25′ — PORT-24 step 1 lands under the re-stated clause; lane-1 revalidation)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#audit-2026-10-11-1030-review-pass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Audit 2026-10-11 10:30 review — ✅ PASS
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="port-24-capacitor-esr-circuit-layer-in-model-series-rc-sheet-7-row-grep-n-port-24-project_planmdproject_planmd2716">PORT-24 — capacitor ESR (circuit layer + in-model series-RC sheet); §7 row: <code>grep -n '^| \</code>PORT-24`' PROJECT_PLAN.md<code>(</code>PROJECT_PLAN.md:2716`)<a class="headerlink" href="#port-24-capacitor-esr-circuit-layer-in-model-series-rc-sheet-7-row-grep-n-port-24-project_planmdproject_planmd2716" title="Permanent link">&para;</a></h1>
+<h3 id="9-item-308-2026-10-08-chain-t25-port-24-step-1-circuit-layer-esr-no-solve">§9 item 308 — 2026-10-08 (chain T25 — <code>PORT-24</code> step 1, circuit-layer ESR, no solve)<a class="headerlink" href="#9-item-308-2026-10-08-chain-t25-port-24-step-1-circuit-layer-esr-no-solve" title="Permanent link">&para;</a></h3>
+<p><strong>Outcome (2026-10-08 04:30 implementer slot): BLOCKED as a record — the pre-registered <code>PREDICTED RED: (Im-bitwise)</code> fired inside its range [1e-18, 1e-13].</strong> Run <code>docs/testing/logs/20261008T094657Z_PORT-24-step1.log</code> (6 s, smoke, <code>-n 1</code>). Code is parked on <code>attempt/PORT-24-step1-20261008T0948Z</code> (<code>src/fem_em_solver/ports/ring_modes.py</code> + <code>tests/unit/test_port24_esr_circuit.py</code>). Measured: (Q2) local DFT helper vs <code>k_blocks</code> 0.000e+00 (band 1e-14). (B) every <code>ring_mode_rows</code> / <code>_v2</code> / <code>terminated_currents</code> output on the stored F-human 32×32, at <code>SPEC_C_F</code> and <code>C2_RECORD_F</code>, is bitwise equal to pinned <code>b2174873</code>; the F-small <code>tuned_input</code> r = 0 path is bitwise on 12 (record, termination) pairs; <code>test_ans8_private_comparison.py</code> is green. (S)-Re: max |ΔRe λ − r|/r 1.724e-13 over 33 (record, k), band 1e-12, green (F-human k = 2 the worst; F-small ≤ 5.3e-15). <strong>(S)-Im bitwise: red. Max |ΔIm|/|Im| is 2.889e-15 and |ΔC_mode|/C_mode is 4.571e-16, both on F-human (<code>np.linalg.eig</code> of the shifted 2×2 k-blocks). Every F-small value is exactly 0 (the DFT diagonal is a direct sum).</strong> (P) planted: min |ΔRe − r|/r 3.125e-02 (F-human, ≈ 0.20625 Ω, as predicted) and 0.25 on F-small, against the 1e-12 bar, green. (T) printed: off by 1.0. Unrelated: three <code>test_wf17_api_reference.py</code> tests fail on clean <code>main</code> (stale <code>load_study</code> / <code>run_study_file</code> pages, known-issues 2026-10-08). <code>ring_modes</code> has no API page, so no regeneration was due.</p>
+<p><em>Drafted by a general-purpose agent for the 2026-10-08 03:00 daily review; the review reviews it.</em> Licence: §10 T25 (<code>PROJECT_PLAN.md:4579–4585</code>), weekly-enumerated (§9 rule (4)); binding ruling §9 <code>PROJECT_PLAN.md:3735–3754</code>, adoption §10 <code>:4411–4418, 4513–4522</code>. <strong>No band, tolerance, Done-when or target is set or moved.</strong> Target (weekly's): closed-form identity.</p>
+<ul>
+<li><strong>Executor:</strong> implementer. <strong>Tier:</strong> smoke, <code>-n 1</code> (pure NumPy; no MPI reduction exists to hide). <strong>Class:</strong> chain step (no solve). <strong>Cost:</strong> ≈ 30 predicted min (≈ 20 code, &lt; 1 compute, rest fixed); no prior measurement of this module's runtime. <strong>Depends on:</strong> nothing.</li>
+</ul>
+<p><strong>Settled from the code.</strong>
+- <code>ring_mode_rows</code> (<code>src/fem_em_solver/ports/ring_modes.py:130</code>), <code>ring_mode_rows_v2</code> (<code>:186</code>, composes v1, passes <code>esr_ohm</code> through to every inner call incl. controls <code>:206</code>), <code>terminated_currents</code> (<code>:116</code>, <code>y_load = jωC</code> at <code>:121</code>; feed rows <code>yin</code> <code>:163</code>; feed 2×2 <code>jwc·I</code> <code>:172</code>). λ_k is the antisymmetric eigenvalue of the k-block of <code>Ẑ = W Z Wᴴ</code> (<code>k_blocks</code> <code>:74</code>, <code>antisymmetric_eigenpair</code> <code>:88</code>); <code>C_mode = 1/(ω Im λ₁)</code> <code>:147, 180</code>.
+- 4-port circuit terminations (F-small): <code>_capacitor_impedance</code> / <code>tuned_input</code> (<code>tests/validation/test_port_circuit_layer_field.py:355, 365</code>, via <code>series_rlc_impedance(f, c_f=C)</code> — already takes <code>r_ohm</code>, <code>src/fem_em_solver/ports/lumped.py:138</code>) and the <code>ans:7</code> SPEC circuit layer <code>z_cap</code> / <code>add_c1</code> / <code>route_b_s</code> / <code>route_b_z</code> (<code>examples/ansys_benchmarks/ans7_tuned_copper_birdcage_driven_sweep/07_tuned_copper_birdcage_driven_sweep.py:167–185</code>). Each gains <code>esr_ohm=0.0</code> (keyword, additive).
+- Stored records: F-small 4×4 <code>rungs["10 MHz"|"64 MHz"|"128 MHz"]["s_matrix"]</code> in <code>examples/ansys_benchmarks/ans4_…/metrics.json</code> and <code>ans6_…/metrics.json</code> (tracked); F-human degree-1 32×32 <code>logs/ans8/s32.npz</code> (gitignored, present on this box) with its tracked rows <code>ans8_…/metrics.json</code> keys <code>rows</code>, <code>rows_v2</code>.
+- New module <code>tests/unit/test_port24_esr_circuit.py</code>; edits only the functions above.</p>
+<p><strong>Anchors (asserted).</strong>
+- (B) default bitwise: with <code>esr_ohm</code> unset, every output of the edited functions on each stored record equals the <strong>pre-change</strong> function's output bitwise (the pre-change source loaded from <code>git show &lt;sha&gt;^:path</code> pinned, never <code>HEAD:</code>), and <code>tests/unit/test_ans8_private_comparison.py</code> stays green (its tracked-file byte-identity check).
+- (S) at r = 0.2 Ω: Re λ_k(r) − Re λ_k(0) = r for every k, at 1e-12 relative; Im λ_k and <code>C_mode</code> bitwise unchanged — on the F-human 32×32 (k = 0…8) and on the F-small 4×4 at 10 / 64 / 128 MHz (λ_k there is the N = 4 DFT diagonal through a local helper, per ruling Q2 below).
+- (P) planted non-uniform r (one gap at 0.4 Ω, the rest 0.2): the uniform shift fails on every mode.</p>
+<p><strong>Negative controls (rule (e)).</strong>
+- (P) <strong>predicted, asserted as the Done-when's control:</strong> a bottom-gap plant shifts the bottom ring's k-domain diagonal by mean(r) = 0.2125 Ω, the top's by 0.2, so the antisymmetric eigenvalue moves ≈ 0.206 Ω, ≈ 3 % of r off the identity — ≈ 1e10 above the 1e-12 bar (ceiling: the full 0.2 Ω plant excess). No prior measurement; predicted.
+- (T) <strong>predicted:</strong> an implementation that wires r into the termination only (<code>y_load</code>) leaves λ_k unchanged and fails (S) by exactly r (100 %). This is the reason r must enter the loop impedance (Z + diag r), not only the load.</p>
+<p><strong>Traps already paid for.</strong> Bitwise default needs a branch, not arithmetic: <code>1/(0 + 1/(jωC))</code> is not bitwise <code>jωC</code>, so the r = 0 path must keep the old expression; pin the pre-change commit (<code>test_orphan_guard.sh</code>, <code>OPS-43</code>); pytest needs <code>-s</code> for the printed rows; never <code>-k a or b</code> inside the quoted command; harness foreground.</p>
+<p><strong>Harness (W1, after the complex-mode check):</strong>
+<code>scripts/testing/run_and_log.sh PORT-24-step1 "docker compose exec -T fem-em-solver bash -lc 'source /usr/local/bin/dolfinx-complex-mode &amp;&amp; cd /workspace &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 PYTHONPATH=/workspace/src timeout -k 30 120 python3 -m pytest tests/environment/test_complex_mode.py tests/unit/test_port24_esr_circuit.py tests/unit/test_ring_mode_rows.py tests/unit/test_ans8_private_comparison.py tests/unit/test_port_circuit_layer.py -v -s --tb=short'"</code></p>
+<p><strong>Scope boundary.</strong> Closes step 1 only ⇒ <code>PORT-24</code> 🟡. Not claimed: any solve, any in-model sheet (item 309), a measured ESR, frequency dependence, any AED re-run; lossless records are never re-read with r.</p>
+<p><strong>Negative result.</strong> Report and stop; park on <code>attempt/PORT-24-step1</code>, journal in attempts.md. A red (S)-Im-bitwise is a §7 annotation, never a loosened comparison (see Q1).</p>
+<p><strong>Status it can move.</strong> <code>PORT-24</code> ⬜ → 🟡 (the row's step-1 Done-when, <code>PROJECT_PLAN.md:2716</code>); unblocks T26 / <code>PORT-24</code> step 2.</p>
+<p>PREDICTED RED: (Im-bitwise) range [1e-18, 1e-13]</p>
+<p>(Max relative |Im λ_k(r) − Im λ_k(0)| / |Im λ_k(0)| over k and records, and the same for <code>C_mode</code>. A red inside the range with every other assertion green parks the item as a record for the weekly. A red above 1e-13 stops the slot. The default-bitwise clause (B) is a hard assertion, not covered by this line.)</p>
+<p><strong>Questions for the review (answered below).</strong> (Q1) The Done-when requires Im λ_k <em>bitwise</em> while Re shifts at 1e-12. If r enters as <code>Z + diag(r)</code> and λ is re-computed by <code>np.linalg.eig</code>, Im is not guaranteed bitwise (LAPACK is not shift-invariant to the last bit); if λ(r) is formed as λ(0) + r, Im is bitwise but (S) is tautological for uniform r and only (P) exercises the eig path. The review rules which reading of "λ_k(r)" the step implements (network λ unchanged plus a new loop eigen-impedance key, or Z + diag r), or pre-registers a <code>PREDICTED RED</code> for Im-bitwise; the implementer does not choose. (Q2) On the F-small 4×4, λ_k is undefined in the code today (<code>ring_mode_rows</code> is 32-port only): the review names it (4-point DFT diagonal of Z, or <code>eigvals</code> of Z + rI sorted by k).</p>
+<p><strong>Review rulings (2026-10-08 03:00 daily review).</strong> (Q1) λ_k(r) is computed through the production path on the terminated matrix (Z + diag(r) through the new <code>esr_ohm</code> keyword), never formed as λ(0) + r. "Im λ_k and <code>C_mode</code> bitwise unchanged" is asserted as written, with the <code>PREDICTED RED: (Im-bitwise)</code> line above. The default (r = 0 / unset) bitwise-vs-stored-records clause stays a hard assertion via the r = 0 branch, compared against a pinned pre-change commit, never <code>HEAD:</code>. (Q2) On the F-small 4×4, λ_k is the N = 4 DFT diagonal v_kᴴ Z v_k with the normalisation <code>ring_mode_rows</code> uses at N = 32. <code>ring_mode_rows</code> cannot take N = 4: <code>N_SLOTS = 16</code> and two rings are fixed at module level (<code>ring_modes.py:38–39</code>), and <code>_canonical_permutation</code> (<code>:56</code>) rejects anything but 32 ports. So the test module carries a <strong>local helper</strong>, first asserted equal to <code>ring_mode_rows</code>' construction (<code>_dft_matrix</code> <code>:68</code> / <code>k_blocks</code> <code>:74</code>) on the F-human 32×32 to 1e-14. (Q3) Settled in item 309 below.</p>
+<h3 id="9-item-309-2026-10-08-chain-t26-prerequisite-port-24-step-2-in-model-series-rc-sheet">§9 item 309 — 2026-10-08 (chain T26 prerequisite — <code>PORT-24</code> step 2, in-model series-RC sheet)<a class="headerlink" href="#9-item-309-2026-10-08-chain-t26-prerequisite-port-24-step-2-in-model-series-rc-sheet" title="Permanent link">&para;</a></h3>
+<p><strong>Outcome (2026-10-08 12:00 implementer slot): GREEN on all three arms ⇒ <code>PORT-24</code> ⬜ → 🟡 on step 2 alone (step 1, item 308, stays BLOCKED).</strong> Module <code>tests/validation/test_port24_series_rc_sheet.py</code> (new; helpers imported by name, no edit to any other file). Fixture: F-small exact-rectangle hole mesh (<code>_exact_geo</code>, <code>GATED_WIDTH_FRACTION</code>), 80 798 cells, 64 MHz, degree 1, κ off (<code>width_correction_kappa=None</code> asserted on every spec), copper Leontovich column, C = <code>C_F</code> = 6.629e-11 F, Z = r − j37.51389328 Ω. Construction per arm: the 50 Ω 4×4 (4 solves), then for each sheet i the field-solved 3×3 with sheet i carrying its series-RC against <code>reduce_terminated_ports(S₄, 50, {i: series_rlc_impedance(f, r_ohm=r_ref, l_h=0, c_f=C)})</code> — <code>PORT-14</code>'s identity on every sheet — and one P1 drive (P2–P4 in the arm's series-RC) for the power identity.
+- <strong>r02</strong> (<code>20261008T170256Z_PORT-24-step2-r02.log</code>, 94 s): (I) residuals P1–P4 3.049e-5 / 3.036e-5 / 3.041e-5 / 3.004e-5 (≤ <code>REDUCTION_BAND</code> 1e-3, asserted); (P) power identity 1.011e-12 (≤ <code>DISCRETE_IDENTITY_RTOL</code> 1e-6, asserted); 50 Ω 4×4 reciprocity 7.4e-16.
+- <strong>r0</strong> (<code>20261008T170618Z_PORT-24-step2-r0.log</code>, 140 s): (I) 3.097e-5 / 3.084e-5 / 3.088e-5 / 3.051e-5; (Z) r = 0 series-RC sheet vs the capacitor-only sheet (<code>ans:7</code> <code>z_cap</code>) per-sheet 3×3: 5.2e-16 / 7.6e-16 / 2.5e-16 / 2.8e-16 (≤ <code>LEG_D0_REPRODUCTION_BAND</code> 1e-9, asserted; not bitwise 0 — printed as measured); (P) 1.017e-12; RC sheets dissipate exactly 0 W.
+- <strong>plant</strong> (<code>20261008T170439Z_PORT-24-step2-plant.log</code>, 91 s): (Pl) the planted P2 (0.4 Ω) against the 0.2 Ω reduction <strong>1.095e-2 = 10.95× <code>REDUCTION_BAND</code></strong> (asserted &gt; band); unplanted max 3.049e-5 (asserted ≤ band); (P) 1.012e-12. <strong>The brief's predicted ceiling (≈ 5.3e-3, the terminal-impedance level) is exceeded by ≈ 2×</strong> — the S-level residual is larger than the impedance-level excess (|Γ| ≈ 1 termination, the (I − S_bb Γ)⁻¹ factor). The asserted direction holds; the ceiling was printed, never asserted — recorded as a missed prediction, not a failure.
+- <strong>(Dz), printed only:</strong> with the RC sheets' dissipation omitted the identity residual reads 7.031e-3 of P_src at r = 0.2 (1.0e-12 at r = 0). The RC sheets take 70.8 % of the non-port dissipation (P_RC 2.545e-5 W vs P_vol + P_surf 1.051e-5 W; P1's 50 Ω sheet dominates P_src). The brief's "≈ Q_Cu/(Q_Cu + Q_C)" is a share of the dissipated power excluding the 50 Ω load, not of P_src, so the two printed numbers do not compare directly.
+- <strong>Q(r)/Q(0), printed only:</strong> at fixed stored energy, P_rest/(P_rest + P_RC) = 0.2923; with Q_C = 1/(ωCr) = 187.57 this implies Q_rest = 454.1 for the copper + phantom losses. P_rest itself moves 0.7 % between r = 0 (1.058e-5 W) and r = 0.2 (1.051e-5 W) on the same drive.
+- Price: 23 s mesh, ≈ 5.7 s per 50 Ω 4×4, ≈ 14 s per 3×3, 4.5 s per field solve at <code>-n 2</code> — every arm far under the 590 s heavy ceiling; the weekly may re-label the §7 tier column from this.</p>
+<p><em>Drafted by a general-purpose agent for the 2026-10-08 03:00 daily review; the review reviews it.</em> <strong>If item 308 did not land, skip.</strong> Licence: §7 row step 2 (<code>PROJECT_PLAN.md:2716</code>), §10 T26 (<code>:4586–4592</code>). <strong>No band, tolerance, Done-when or target is set or moved.</strong> Target (row's): identities on one fixture.</p>
+<ul>
+<li><strong>Executor:</strong> implementer. <strong>Tier:</strong> standard, <code>-n 2</code>, one arm per window (r = 0.2; r = 0; planted), container <code>timeout -k 30 180</code>. <strong>Class:</strong> chain step (solve). <strong>Depends on:</strong> item 308.</li>
+<li><strong>Cost:</strong> ≈ 60 predicted min (15 fixed + 20 code + ≈ 12 compute + spare). Prior measurement: <code>ANS-7-item195-W2-routeA</code>, 548 s (<code>docs/testing/test-results.md:2961</code>). That window is the in-model exact-strip Route A on F-small, but it covers several sweep nodes. A single 64 MHz point should be well under it, and T26 calls the class "257 s" (<code>PROJECT_PLAN.md:4592</code>). <strong>If a single-arm window overruns 180 s, kill and report; never raise the timeout.</strong> The review may re-tier to heavy, since the §7 row's "standard" was not priced against this.</li>
+<li><strong>Settled so far:</strong> the sheet impedance already accepts r — <code>series_rlc_impedance(f, r_ohm=r, l_h=0, c_f=C)</code> (<code>src/fem_em_solver/ports/lumped.py:138</code>); capacitor sheets are placed via <code>LumpedPortSheet</code> with <code>z_term = series_rlc_impedance(…)</code> (<code>tests/validation/test_port_lumped_rlc_termination.py:247</code>). The F-small exact-rectangle fixture with in-model C is <code>tests/validation/test_ans7_exact_strip.py</code> (<code>_exact_geo</code> <code>:409</code>, <code>route_a</code> <code>:425</code>, <code>C_F</code> <code>:91</code>); κ off (<code>width_correction_kappa=None</code>, §9 binding ruling <code>:3733</code>).</li>
+<li><strong>Anchors (asserted; imported by name).</strong> The sheet (r, C) is compared with <code>series_rlc_impedance(0.2, 0, C)</code> at <code>REDUCTION_BAND</code> (<code>tests/validation/test_port_lumped_rlc_termination.py:88</code>). Its source comment (<code>:85</code>) names it "the <code>PORT-14</code> §7 entry's pre-stated band for the reduction identity", ‖S′_meas − S′_pred‖_F / ‖S′_pred‖_F (<code>:15</code>), so it is kept. The r = 0 vs capacitor-only 4×4 at <code>LEG_D0_REPRODUCTION_BAND</code> (<code>tests/validation/test_port_birdcage_four_port.py:165</code>); exact power identity with the sheet's own dissipation at <code>DISCRETE_IDENTITY_RTOL</code> (<code>tests/validation/test_birdcage_power_identity.py:227</code>). Printed: Q(r)/Q(0) vs 1/Q = 1/Q_Cu + 1/Q_C, Q_C = 1/(ωCr).</li>
+<li><strong>(Pl) planted non-uniform r — predicted, asserted to fail on the planted sheet.</strong> One sheet is at 0.4 Ω, the other three at 0.2. That sheet's identity against <code>series_rlc_impedance(0.2, 0, C)</code> must fail. At <code>C_F</code> = 6.629e-11 F (<code>ans7 metrics.json</code> <code>c_f</code>; <code>test_ans7_exact_strip.py:91</code>) and 64 MHz, |1/(ωC)| ≈ 37.5 Ω, so the 0.2 Ω excess is ≈ 5.3e-3 relative at the terminal-impedance level. That is ≈ 5× <code>REDUCTION_BAND</code>, with a ceiling of ≈ 5.3e-3. The S-level residual is not measured and may be smaller, so the margin is predicted. A planted residual inside <code>REDUCTION_BAND</code> means the identity cannot see r at this C: report and stop, never a pass. The three unplanted sheets must still pass.</li>
+<li><strong>(Dz) dissipation omitted — predicted, printed, never asserted.</strong> With the sheet's own dissipation left out, the power-identity residual should read ≈ the ESR share of loss, Q_Cu/(Q_Cu + Q_C), with Q_C = 1/(ωC r) ≈ 188 at this C. No prior measurement on the same fixture, so it is not asserted.</li>
+<li><strong>Traps:</strong> complex build first (<code>tests/environment/test_complex_mode.py</code>, <code>FEM_EM_REQUIRE_COMPLEX=1</code>); exact rectangles only, never a sub-sheet out of a box; no <code>ufl.max_value</code>/ordering on complex operands; pin facet-integral quadrature degree; container <code>timeout -k 30 ≤ 590</code>.</li>
+<li><strong>Harness (per arm, <code>FEM_EM_PORT24_ARM</code> ∈ {<code>r02</code>, <code>r0</code>, <code>plant</code>}; one test dispatches on it, never <code>-k</code>):</strong> <code>scripts/testing/run_and_log.sh PORT-24-step2-&lt;arm&gt; "docker compose exec -T fem-em-solver bash -lc 'source /usr/local/bin/dolfinx-complex-mode &amp;&amp; cd /workspace &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_PORT24_ARM=&lt;arm&gt; PYTHONPATH=/workspace/src timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/validation/test_port24_series_rc_sheet.py -v -s --tb=short'"</code>. New module only; helpers imported from <code>test_ans7_exact_strip.py</code> / <code>test_port_lumped_rlc_termination.py</code> by name, with no edit to either file.</li>
+<li><strong>Scope / status:</strong> Done-when step 2 ⇒ <code>PORT-24</code> ✅ (with step 1 green). Not claimed: measured ESR, frequency dependence, AED. Negative result: report and stop, <code>attempt/PORT-24-step2</code>.</li>
+</ul>
+<p><strong>Review rulings, second pass (2026-10-08 03:00 daily review, items 308 / 309).</strong> (309-tier) <strong>Heavy, not standard</strong>: no 64 MHz degree-1 exact four-port window at <code>-n 2</code> has been measured on this fixture (the nearest, <code>ANS-7-item195-W2-routeA</code>, took 548 s over several points), so each of the three arm windows runs at container <code>timeout -k 30 590</code>; a kill parks the item and is the price record. The §7 row's tier column is the weekly's to re-label from the measurement. (308-scope) <strong>Item 308 edits <code>src/</code> and adds one new test module only.</strong> It does not edit <code>examples/ansys_benchmarks/…/07_tuned_copper_birdcage_driven_sweep.py</code> (that is T27's, <code>example-runner</code>, serial on T26) nor <code>tuned_input</code> in <code>test_port_circuit_layer_field.py</code>: the new module re-implements those terminations with <code>esr_ohm</code>, and asserts its r = 0 path bitwise equal to the existing helpers by import. Any <code>src/</code> public signature change re-runs <code>scripts/docs/generate_api_reference.py</code> and <code>tests/package/test_wf17_api_reference.py</code> in the same slot.</p>
+<p><strong>Review rulings (2026-10-08 10:30 daily review, after item 308 parked).</strong> (308-disp) Item 308 stays BLOCKED for the 10-10 weekly. Its red is the Done-when's own clause ("Im λ_k and <code>C_mode</code> bitwise unchanged"), measured at 2.889e-15 / 4.571e-16 on F-human through <code>np.linalg.eig</code> of the shifted 2×2 k-blocks and exactly 0 on F-small (<code>20261008T094657Z_PORT-24-step1.log</code>). Landing the branch as written would put a red test on <code>main</code>, and changing the clause to a tolerance is moving a Done-when — neither is a daily's to do. The weekly re-rules the clause (e.g. "bitwise on the F-small DFT diagonal; at the eig round-off floor on F-human") or lands the branch as a record. (309-dep) <strong>Item 309 no longer depends on item 308.</strong> The 03:00 dependency was an ordering, not a code need: 309's sheet uses <code>series_rlc_impedance(f, r_ohm=r, l_h=0, c_f=C)</code> (<code>src/fem_em_solver/ports/lumped.py:138</code>), which is already on <code>main</code>, and none of 308's <code>esr_ohm</code> keywords. §10 makes T26 (item 311) serial on T25 <strong>and</strong> <code>PORT-24</code> step 2, but it does not make step 2 serial on T25. The §7 row's ✅ needs both steps, so 309 green holds <code>PORT-24</code> at ⬜ → 🟡 on step 2 alone, not ✅. Item 311 stays blocked on 308.</p>
+<p><strong>Review ruling 2026-10-11 (recording the 2026-10-10 weekly, §10 rulings "T25 (<code>PORT-24</code> step 1, item 308)" and "Ratified … the <code>PORT-24</code> 'Q_Cu' naming").</strong> (a) The step-1 clause "Im λ_k and <code>C_mode</code> bitwise unchanged" is <strong>re-stated, not loosened</strong>: <code>np.linalg.eig(A + rI)</code> has no bitwise contract with <code>eig(A)</code>, and the identity is Im λ(r) = Im λ(0) in exact arithmetic. The Done-when now reads "within 1e-12 relative", the Re clause's own band. The planted-control and Re clauses stand. (b) <strong>T25′</strong> lands the parked branch with that one edit. The 2.889e-15 reading is asserted under the re-stated clause and the <code>PREDICTED RED</code> line is removed ⇒ <code>PORT-24</code> ✅, since step 2 is green (item 309). (c) The step-2 formula's "Q_Cu" is renamed <strong>Q_0</strong>, the lossless-capacitor coil's loaded Q, because T26's formula reads 1/Q = 1/Q_0 + 1/Q_C. Item 309's landed text above keeps its words as history; the row and the live briefs carry Q_0. (d) Item 308 is superseded by item 363 and keeps its BLOCKED record. <code>attempt/PORT-24-step1-20261008T0948Z</code> stays until item 363 lands; the next review then deletes it (weekly flag 6). The slot does not delete it.</p>
+<h3 id="9-item-363-2026-10-11-t25-port-24-step-1-lands-under-the-re-stated-clause-lane-1-revalidation">§9 item 363 — 2026-10-11 (T25′ — <code>PORT-24</code> step 1 lands under the re-stated clause; lane-1 revalidation)<a class="headerlink" href="#9-item-363-2026-10-11-t25-port-24-step-1-lands-under-the-re-stated-clause-lane-1-revalidation" title="Permanent link">&para;</a></h3>
+<p><strong>Outcome (2026-10-11 04:30 implementer slot): GREEN ⇒ <code>PORT-24</code> ✅.</strong> Code taken by path from <code>attempt/PORT-24-step1-20261008T0948Z</code> (<code>ring_modes.py</code> byte-identical to the branch; the test module carries the one re-statement edit plus the printed (P-Im) line). W1 <code>docs/testing/logs/20261011T093040Z_PORT-24-step1-T25p.log</code>, smoke, <code>-n 1</code>, 43 passed, elapsed 10 s (incl. <code>test_wf17_api_reference.py</code>, green). Readings identical to item 308: (Q2) 0.000e+00; (B) bitwise vs <code>b2174873</code> on F-human and 12 F-small pairs; (S)-Re 1.724e-13; <strong>(S)-Im 2.889e-15, <code>C_mode</code> 4.571e-16, asserted ≤ 1e-12</strong>; (P) 3.125e-02. <strong>(P-Im), printed:</strong> F-human plant max_k |ΔIm|/|Im| 8.122e-07, |C_mode(plant)/C_mode(0) − 1| 2.035e-09 — both ≫ 1e-12, so the re-stated Im comparator does see a non-uniform r on F-human (prediction held). (T) printed 1.0. The parked branch is left for the review to delete (weekly flag 6).</p>
+<p><em>Drafted by a general-purpose agent for the 2026-10-11 03:00 daily review; the review reviews it.</em> Licence: §10 chain T, step T25′ (grep "T25′. <code>PORT-24</code> step 1 — land the parked branch"), quoted, not changed: "<code>esr_ohm</code> default bitwise against every stored record; at r = 0.2 Ω, Re λ_k(r) − Re λ_k(0) = r at 1e-12 relative, Im λ_k and <code>C_mode</code> within 1e-12 relative, the planted 0.4 Ω gap breaks the shift ⇒ <code>PORT-24</code> ✅. Lane 1, smoke, no solve. Serial on nothing." <strong>No band, tolerance, Done-when or target is set or moved here.</strong> The Done-when re-statement is the weekly's (ruling above), and the 1e-12 is the existing <code>SHIFT_RTOL</code>.</p>
+<ul>
+<li><strong>Executor:</strong> implementer. <strong>Class:</strong> lane-1 revalidation (no solve). <strong>Tier:</strong> smoke, <code>-n 1</code> (pure NumPy; no MPI reduction to hide, as item 308). <strong>Cost:</strong> ≈ 6 s compute, measured: item 308's W1 ran the same module set in 6 s (<code>20261008T094657Z_PORT-24-step1.log</code>, footer <code>Elapsed (s): 6</code>; <code>docs/testing/test-results.md</code> row "PORT-24-step1"). Predicted ≈ 20 min: 10 fixed, 5 for the land and edit, 1 window, 4 for the records. <strong>Depends on nothing.</strong></li>
+<li><strong>Inputs, checked on the host 2026-10-11:</strong></li>
+<li><code>logs/ans8/s32.npz</code> (gitignored, 19 802 B, present);</li>
+<li>the tracked <code>examples/ansys_benchmarks/ans4_birdcage_four_port_10_64_128MHz/metrics.json</code> and <code>ans6_copper_birdcage_four_port_10_64_128MHz/metrics.json</code>;</li>
+<li>the parked branch <code>attempt/PORT-24-step1-20261008T0948Z</code> at <code>6c959e41</code>, a single commit on merge-base <code>b2174873</code>.</li>
+<li>If <code>s32.npz</code> is absent, stop and mark BLOCKED. Never re-solve it.</li>
+</ul>
+<p><strong>What the branch carries (read 2026-10-11).</strong> <code>git show --stat 6c959e41</code> and <code>git diff --stat main...attempt/PORT-24-step1-20261008T0948Z</code> both list exactly two files and 363 insertions / 9 deletions:
+- <code>src/fem_em_solver/ports/ring_modes.py</code>: +69 / −9, the <code>esr_ohm</code> keyword on <code>terminated_currents</code>, <code>ring_mode_rows</code> and <code>ring_mode_rows_v2</code>, plus the helpers <code>_esr_canonical</code> and <code>_gap_admittance</code>;
+- <code>tests/unit/test_port24_esr_circuit.py</code>: new, 303 lines.</p>
+<p><code>git log b2174873..main -- src/fem_em_solver/ports/ring_modes.py</code> is <strong>empty</strong>: <code>main</code> has not touched the file since the branch point, so a path checkout of it is exact. The branch carries <strong>no</strong> record file. Its log and two test-results rows were committed to <code>main</code> on 10-08 (<code>docs/testing/test-results.md</code>, rows "PORT-24-step1" and "PORT-24-step1-wf17-baseline").</p>
+<p><strong>Steps.</strong>
+1. <strong>Take code by path, never merge or check out a record:</strong> <code>git checkout attempt/PORT-24-step1-20261008T0948Z -- src/fem_em_solver/ports/ring_modes.py tests/unit/test_port24_esr_circuit.py</code>. Nothing else comes from the branch.
+2. <strong>The one edit, to <code>tests/unit/test_port24_esr_circuit.py</code> only. <code>ring_modes.py</code> stays byte-identical to the branch.</strong>
+   - Module docstring, the (S) bullet (lines 17–20 on the branch): replace "and <code>Im λ_k</code>, <code>C_mode</code> bitwise unchanged, carrying the brief's <code>PREDICTED RED: (Im-bitwise) range [1e-18, 1e-13]</code>" with "and <code>Im λ_k</code>, <code>C_mode</code> unchanged within 1e-12 relative (<code>SHIFT_RTOL</code>). The Done-when was re-stated from 'bitwise' by the 2026-10-10 weekly (T25): <code>eig(A + rI)</code> has no bitwise contract with <code>eig(A)</code>. Item 308 measured 2.889e-15 / 4.571e-16."
+   - Rename <code>test_uniform_shift_im_and_c_mode_bitwise</code> (<code>:267</code>) to <code>test_uniform_shift_im_and_c_mode_unchanged</code>, and delete its <code># PREDICTED RED:</code> comment (<code>:268</code>).
+   - Its assertion becomes <code>assert im_worst &lt;= SHIFT_RTOL and c_worst &lt;= SHIFT_RTOL, (im_worst, c_worst)</code>.
+   - Its summary print ends "(ASSERTED &lt;= 1e-12 relative, SHIFT_RTOL; item 308 read 2.889e-15 / 4.571e-16)" in place of "(asserted bitwise: 0)".
+   - Keep the per-record <code>[PORT-24 S-Im]</code> lines as they are.
+   - <strong>(P-Im), printed only (see Negative controls).</strong> In <code>test_planted_nonuniform_breaks_shift</code>, after the F-human loop, print <code>max_k |Im λ_k(plant) − Im λ_k(0)| / |Im λ_k(0)|</code> and <code>|C_mode(plant)/C_mode(0) − 1|</code> on F-human, from <code>r0</code> / <code>rp</code> (already computed). Add no assertion.
+   - <code>SHIFT_RTOL</code> (<code>:60</code>, "the Done-when's 1e-12 relative") is reused, not re-declared. Add no new constant.
+3. <strong>API pages.</strong> <code>ring_modes</code> has no page in the WF-17 API reference: item 308's outcome says so, and <code>scripts/docs/generate_api_reference.py</code> names no <code>ring_mode*</code>. So nothing is regenerated. <code>tests/package/test_wf17_api_reference.py</code> runs in W1 as the regression. It was red on 10-08 for an unrelated stale page, and that entry is retired: known-issues, "<code>WF-17</code> API pages, §9 item 331".
+4. <strong>W1:</strong> item 308's W1 command, with the label changed and <code>tests/package/test_wf17_api_reference.py</code> appended, as in the 10-08 log's command line. The Bash call's <code>timeout</code> is 660000. The harness call is the whole Bash command: bare and repo-relative, with nothing chained or piped.</p>
+<p><code>scripts/testing/run_and_log.sh PORT-24-step1-T25p "docker compose exec -T fem-em-solver bash -lc 'source /usr/local/bin/dolfinx-complex-mode &amp;&amp; cd /workspace &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 PYTHONPATH=/workspace/src timeout -k 30 120 python3 -m pytest tests/environment/test_complex_mode.py tests/unit/test_port24_esr_circuit.py tests/unit/test_ring_mode_rows.py tests/unit/test_ans8_private_comparison.py tests/unit/test_port_circuit_layer.py tests/package/test_wf17_api_reference.py -v -s --tb=short'"</code></p>
+<p>The <code>timeout -k 30 120</code> is item 308's reviewed ceiling. The measured 6 s is 20× under it, so a kill means a wedged container (recover per known-issues), not a price.
+5. <strong>Commit</strong> the two code files, the W1 log, its test-results row, the §7 row edit and the §9 marking together. Before committing, run <code>git diff --stat --cached</code>. It must show <code>test-results.md</code> with insertions only, and no <code>docs/testing/logs/*PORT-24-step1.log</code> (10-08) modification.</p>
+<p><strong>Anchors (asserted; every band imported or already in the module, none new):</strong>
+- <strong>(B) default bitwise.</strong> With <code>esr_ohm</code> unset, <code>ring_mode_rows</code> / <code>_v2</code> / <code>terminated_currents</code> on F-human's stored 32×32 equal the pinned pre-change source (<code>PRE_CHANGE_SHA = "b2174873"</code>, loaded via <code>git show</code>, never <code>HEAD:</code>) at <code>SPEC_C_F</code> and <code>C2_RECORD_F</code>. The F-small <code>tuned_input</code> r = 0 path is bitwise on 12 (record, termination) pairs. <code>test_ans8_private_comparison.py</code> is green.
+- <strong>(Q2)</strong> The local DFT helper matches <code>k_blocks</code> to ≤ <code>HELPER_RTOL</code> (1e-14). Item 308 read 0.000e+00.
+- <strong>(S)-Re</strong> max |ΔRe λ − r|/r ≤ <code>SHIFT_RTOL</code> over 33 (record, k). Item 308 read 1.724e-13 (<code>20261008T094657Z_PORT-24-step1.log:96</code>).
+- <strong>(S)-Im, re-stated.</strong> Max |ΔIm λ_k|/|Im λ_k(0)| ≤ 1e-12 and |ΔC_mode|/C_mode ≤ 1e-12. Item 308 read 2.889e-15 / 4.571e-16 (<code>20261008T094657Z_PORT-24-step1.log:107</code>); F-small is exactly 0 (<code>:101–106</code>). <strong>Predicted:</strong> the same digits, since the module path is unchanged; 346× and 2 188× under the bar.
+- <strong>(P) planted.</strong> Min |ΔRe − r|/r over every mode &gt; <code>SHIFT_RTOL</code>. Item 308 read 3.125e-02 (<code>:142</code>).</p>
+<p><strong>Negative controls (rule (e)).</strong>
+- <strong>(P): asserted.</strong> It is backed by item 308's reading on the same fixture and comparison: 3.125e-02 on F-human, 0.25 on F-small (<code>20261008T094657Z_PORT-24-step1.log:109–142</code>), ≈ 3e10 above the bar. Ceiling: the full plant excess, 0.2 Ω.
+- <strong>(P-Im): predicted, printed, never asserted.</strong> It asks whether the re-stated Im comparator can see anything at all.
+  - On F-small, a one-gap plant shifts every N = 4 DFT diagonal entry by the same real mean(r). Im is therefore predicted <strong>exactly 0</strong>, so it cannot serve as a control there.
+  - On F-human, the plant at P17 shifts only the bottom ring's k-diagonal (by 0.2/16 = 0.0125 Ω beyond the uniform 0.2 Ω). The 2×2 k-block becomes unequal on its diagonal, and its antisymmetric eigenvalue's Im moves at second order. That is predicted ≫ 1e-12, with magnitude unknown (no prior measurement).
+  - A reading ≤ 1e-12 on F-human would mean the Im clause is blind to non-uniform r on this fixture. That is a §7 annotation for the review, not a red.
+- <strong>(T) termination-only wiring: predicted, printed</strong> as on the branch, off by exactly 1.0.</p>
+<p><strong>Traps already paid for.</strong>
+- <strong>Path checkout of append-only records.</strong> <code>git checkout attempt/… -- docs/testing/test-results.md</code> replaces the file and silently deletes every row <code>main</code> appended since the branch. <code>8d4cf58</code> (<code>TH-15</code> step 3b, 2026-09-09) dropped nine rows across four chunks. Take code by path (step 1 names exactly two files), append record rows by hand, and check that <code>git diff --stat</code> shows only insertions on record files.
+- The pinned pre-change commit, never <code>HEAD:</code> (<code>test_orphan_guard.sh</code> / <code>OPS-43</code>). The control would go stale the moment this change lands.
+- The r = 0 path is a branch, not arithmetic: <code>1/(0 + 1/(jωC))</code> is not bitwise <code>jωC</code>. It is already on the branch; do not "simplify" it.
+- pytest <code>-s</code>. Never <code>-k a or b</code> inside the quoted command. Harness foreground. Never pipe pytest inside the harness command.
+- Rule (i): no edit to the module after W1 starts. If one is needed, re-run W1.</p>
+<p><strong>Scope boundary.</strong> Closes <code>PORT-24</code> step 1, and with item 309 the row ⇒ ✅. <strong>Not claimed:</strong> any solve; any edit to <code>tuned_input</code>, <code>ans:7</code>'s terminations or <code>route_b_z</code> (those are T26's test-side and T27's example work, the 308-scope ruling); a measured ESR; frequency dependence; any AED re-run. Lossless records are never re-read with r.</p>
+<p><strong>What a negative result means.</strong>
+- <strong>(B), (Q2), (S)-Re or (P) red:</strong> this contradicts item 308's green on an unchanged <code>src/</code> file. Report the reading and stop. Do not commit the land; leave the branch where it is, and mark item 363 BLOCKED in the same commit as the attempts.md journal (rule (d)).
+- <strong>(S)-Im above 1e-12:</strong> the measurement moved by ≥ 346× on unchanged code. Report and stop, BLOCKED; never widen.
+- <strong><code>test_wf17_api_reference.py</code> red:</strong> a pre-existing failure unrelated to this item. Check known-issues first. If it is not listed, land item 363 on its own green tests and open a known-issues entry; do not edit the API pages in this slot.
+- No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>PORT-24</code> 🟡 → ✅, by rule (j) against the row's Done-when <strong>as amended by the review commit that queues this item</strong>. The amended row carries "Im λ_k and <code>C_mode</code> are unchanged within 1e-12 relative" and "Q_0". If the row still reads "bitwise unchanged" when the slot opens, the slot closes on the row: it holds 🟡, lands the code as a record and flags the mismatch (rule (j)). In the landing commit, the implementer:
+- flips the glyph 🟡 → ✅;
+- replaces the row's last bold sentence ("<strong>Step 1: T25′ (§9 item 363) lands the parked branch under the re-stated clause.</strong>") with "<strong>✅ 2026-10-11 (item 363, T25′): step 1 landed; (S)-Im ≤ <code>&lt;read&gt;</code> / <code>C_mode</code> ≤ <code>&lt;read&gt;</code> against 1e-12; <code>&lt;W1 log&gt;</code>.</strong>";
+- marks §9 item 363 DONE, and item 308 "superseded by 363".</p>
+<p>The closure then goes to the daily's auditor. T26 (item 311) becomes runnable.</p>
+<h3 id="audit-2026-10-11-1030-review-pass">Audit 2026-10-11 10:30 review — ✅ PASS<a class="headerlink" href="#audit-2026-10-11-1030-review-pass" title="Permanent link">&para;</a></h3>
+<p><code>auditor</code> on <code>9b90d7b3</code> (step 1) and <code>91254c5a</code> (step 2): PASS.</p>
+<p><strong>Step 1</strong> (<code>20261011T093040Z_PORT-24-step1-T25p.log</code>):
+- Status 0 after 10 s (<code>:261–263</code>), 43 passed (<code>:259</code>).
+- (S)-Im 2.889e-15 and <code>C_mode</code> 4.571e-16 (<code>:100</code>, <code>:107</code>) against 1e-12, asserted at <code>tests/unit/test_port24_esr_circuit.py:277</code>.
+- Re λ shift = r (<code>:65</code>, <code>:96</code>; assert <code>:255</code>).
+- Planted 0.4 Ω control (<code>:110–117</code>, <code>:143</code>; assert <code>:312</code>).
+- Unset bitwise (B) at <code>:185–210</code>.</p>
+<p><strong>Step 2</strong> (<code>20261008T170256Z_PORT-24-step2-r02.log:940–947</code>, <code>…170439Z_…plant.log:942–949</code>, <code>…170618Z_…r0.log:941–945</code>):
+- Status 0 at 94 / 91 / 140 s.
+- Asserts at <code>tests/validation/test_port24_series_rc_sheet.py:261–272</code>.</p>
+<p>The red baseline is item 308's bitwise clause (<code>20261008T094657Z_PORT-24-step1.log:107–108</code>). The code is unchanged; the bar was re-stated to 1e-12 by the 2026-10-10 weekly (T25), with a measured basis (346× / 2 188× above the readings).</p>
+<p><strong>Caveats (no demotion):</strong>
+- <strong>"Circuit-layer terminations" are test-local on F-small</strong> (the 308-scope ruling). <code>esr_ohm</code> exists in <code>src/</code> only on <code>ring_mode_rows</code>, <code>ring_mode_rows_v2</code> and <code>terminated_currents</code>. F-small's <code>tuned_input_esr</code> / <code>capacitor_impedance_esr</code> live in the test module, and <code>tuned_input</code> and <code>ans:7</code>'s <code>route_b_z</code> are deliberately unedited (T26 / T27).
+- F-small's Im clause is exact by construction (the N = 4 DFT diagonal of Z + diag(r) shifts only Re); only F-human exercises the <code>eig</code> path.
+- Step 2's "r = 0 vs capacitor-only" is per sheet (3×3, ≤ 7.6e-16), not the 4×4.
+- Step 2's Q(r)/Q_0 0.2923 is printed at fixed stored energy on a P1-driven solve, not a resonance Q. Item 311's resonance-Q ratio is 0.1694 against the closed form 0.1676.
+- The planted P2 reads 1.095e-2, above the brief's predicted 5.3e-3 ceiling, which was never asserted.</p>
+<p>The parked branch <code>attempt/PORT-24-step1-20261008T0948Z</code> (<code>6c959e41</code>) is deleted: <code>ring_modes.py</code> on main is byte-identical to it.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

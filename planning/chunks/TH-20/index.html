@@ -1,0 +1,1645 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>TH-20 — history - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#th-20-history" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              TH-20 — history
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-176-2026-10-02-chain-h-h13-0a-daily-provisional-rule-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 176 — 2026-10-02 (chain H, H13-0a — daily provisional, rule (6))
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-182-2026-10-02-chain-h-h13-0a-re-pose-daily-provisional-rule-6-attempt-2-of-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 182 — 2026-10-02 (chain H, H13-0a re-pose — daily provisional, rule (6), attempt 2 of 4)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-197-2026-10-03-chain-h-h13-0a-attempt-3-of-4-rule-f-band" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 197 — 2026-10-03 (chain H, H13-0a — attempt 3 of 4, rule (f) band)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-198-2026-10-03-chain-h-h13-0b-daily-provisional-rule-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 198 — 2026-10-03 (chain H, H13-0b — daily provisional, rule (6))
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-03-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-03 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="§7 row moved verbatim 2026-10-03 (rotate_plan_archive.py chunks)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#9-item-233-2026-10-04-chain-h13a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 233 — 2026-10-04 (chain H13a)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-item-350-2026-10-09-chain-step-h13b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 350 — 2026-10-09 (chain step H13b)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-item-412-2026-10-13-10-chain-h13b-a-lane-1-no-solve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 412 — 2026-10-13 (§10 chain H13b-a; lane 1, no solve)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-13-0300-daily-on-the-item-412-draft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-13 03:00 (daily) on the item 412 draft
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-14-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-14 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="§7 row moved verbatim 2026-10-14 (rotate_plan_archive.py chunks)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-20-0300-xl-entry-37-read-the-row-written" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-20 03:00 — xl entry 37 read, the row written ✅
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="th-20-history">TH-20 — history<a class="headerlink" href="#th-20-history" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history moved out of PROJECT_PLAN §9 (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<h3 id="9-item-176-2026-10-02-chain-h-h13-0a-daily-provisional-rule-6">§9 item 176 — 2026-10-02 (chain H, H13-0a — daily provisional, rule (6))<a class="headerlink" href="#9-item-176-2026-10-02-chain-h-h13-0a-daily-provisional-rule-6" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a read-only <code>Plan</code> agent and reviewed by the 2026-10-02 10:30 daily review. Licence: §9 rule (6), "(daily, 2026-10-02 — provisional)". This is chain H's second provisional step of three; the weekly ratifies or reverts it.</em></p>
+<p><strong>Why it is in licence.</strong> The row's sentence "the daily may not add or re-target the step" was written by the 2026-10-01 03:00 daily under rule (4). Rule (6) (operator, 2026-10-02) now licenses provisional next steps. This step <strong>adds a step 0 and leaves step 1 untouched</strong>. The re-target from three to four quarter solves stays the weekly's.</p>
+<p><strong>The step is split; only 0a is queued.</strong> 0b, the mirror-built full mesh, is ≈ 30 min of separate code (the D2 cell-tag permutation and the re-derived cavity tag). It is the split <code>TH-16</code> made between 3a and 3c.</p>
+<p><strong>Corrections to the premise:</strong>
+- <strong>F-human has <code>LEG_COUNT = 16</code></strong> (<code>tests/validation/test_birdcage_f_human_rung.py:76</code>). Its 32 ports are 2 × 16 ring gaps, and there are 16 floating leg-port boxes (P1–P16) with no sheets.
+- <strong>The refusal moved</strong> to <code>src/fem_em_solver/io/mesh.py:3856–3876</code>, with its docstring at <code>:3612–3621</code>. The row's <code>:3646–3664</code> went stale when <code>GEO-36</code> step 2 grew the file.
+- <strong>The old cutter also refuses <code>as_hole</code>.</strong> The hole route is chain H's copper fixture, and with <code>as_hole</code> the current code would:
+  - drop the ring sheets;
+  - count the cut-plane faces as cavity wall;
+  - centroid-test the conductor solids it keeps.
+- <strong>The π/32 control.</strong> With 16 legs, the ring-gap centres sit at odd multiples of π/16. A reflection across a line at π/32 therefore puts every centre onto a leg azimuth. Its miss, 2R·sin(π/32) = 2.9405e-2 m, is the ceiling: the largest miss any mirror can have.</p>
+<p><code>TH-20</code> step 0a generalises <code>TH-16</code> step 3a's quadrant cutter (<code>birdcage_port_domain(symmetry_quadrant=True)</code>) to the F-human hole layout: ring gaps, no leg gaps, <code>as_hole=True</code>, longitudinal sheets, <code>leg_count % 4 == 0</code>. It is gated by planar CAD and mesh identities plus the D2 port map, with no solve.
+- <strong>Executor:</strong> implementer. <strong>Tier:</strong> heavy, real build, <code>-n 1</code> then <code>-n 2</code>.
+- <strong>Cost:</strong> ≈ 8 measured / ≈ 57 predicted min.
+- <strong>Depends on:</strong> nothing (H12a has landed). <strong>Family:</strong> <code>TH-20</code> step 0, attempt 1 of 4.</p>
+<p><strong>The geometry restated.</strong> This is the call that item 147's probe and <code>test_wf12_f_human_hole.py:280–287</code> make: <code>_params(F_HUMAN_RING_RADIUS, scale_sizing=False)</code> + <code>ring_sheet_orientation="longitudinal"</code> + <code>as_hole=True</code>.
+- <strong>Dimensions:</strong> s = 15/7, R = 0.15 m, r_leg = 0.006 m, L = 0.3 m, r_e = 0.237428571 m, z_e = 0.214285714 m.
+- <strong>Planes:</strong> the leg axes sit at θ_k = 2πk/16. The planes y = 0 and x = 0 bisect legs k = 0 and k = 4 (as cavities), and nothing else.
+- <strong>Kept quadrant:</strong> every ring-gap port and floating box sits at φ = (2j+1)π/16, off both planes. The kept quadrant holds:
+  - P1–P4 (floating boxes, whole);
+  - bottom-ring P17–P20 and top-ring P33–P36, in two halves each.
+- <strong>Predicted cell-tag set (22 tags):</strong> {2, 3, 101–104, 117–120, 133–136, 217–220, 233–236}, with no tag 1.
+- <strong>Why <code>leg_count % 4 == 0</code>:</strong> it puts both planes through legs. With N ≡ 2 (mod 4), the x = 0 plane would bisect a ring port.</p>
+<p><strong>Code (a <code>src/</code> change, disclosed under rule (c)).</strong> Every edit sits inside an <code>if symmetry_quadrant:</code> branch, and the flag-off path makes no new gmsh call.
+1. <strong>The guard (<code>:3856–3876</code>)</strong> admits exactly two layouts and refuses everything else with <code>ValueError</code> before any gmsh state:
+   - <strong>L4,</strong> today's: <code>leg_gap_length</code>, <code>leg_count == 4</code>, no ring gaps, not <code>as_hole</code>;
+   - <strong>LH,</strong> new: <code>ring_gap_length</code>, no <code>leg_gap_length</code>, <code>leg_count % 4 == 0</code>, <code>as_hole=True</code>, <code>ring_sheet_orientation == "longitudinal"</code>, <code>emit_port_sheets</code>.
+   - <code>c4_congruent_sheets</code>, <code>leg_azimuth_offsets_rad</code>, <code>leg_sheet_strip_fraction</code> and <code>implant_rod</code> stay refused.
+   - The messages for the solid ring-gap quadrant and for transverse sheets say "not gated (<code>TH-20</code> step 0a)". Update the docstring at <code>:3612–3621</code>.
+2. <strong>The quarter box (<code>:4534–4550</code>)</strong> drops only the leg-gap sheet tools. The ring sheets stay as fragment tools, and in LH <code>sheet_tags</code> is kept whole.
+3. <strong>Centroid removal (<code>:4665–4691</code>)</strong> skips <code>conductor_tags</code> under <code>as_hole</code>. They are dropped wholesale at <code>:4819</code>, and the ring arc centred on θ = 0 has a centroid y of order 1e-17.
+4. <strong>The cavity rule (<code>_face_on_wall</code>, <code>:4784</code>)</strong>, in quadrant mode, also treats faces flat on x = 0 / y = 0 as walls, at <code>plane_tol</code> 1e-5. That is the measured OCC bbox enlargement (<code>20260929T171233Z_TH-16-step3a-probe.log:36</code>), which the existing 1e-6 misses.
+5. <strong>Port bookkeeping (<code>:4923–4937</code>)</strong> classifies each kept ordinal and raises on a mismatch:
+   - <em>straddling</em> (one half kept) is legal only for L4 leg-gap ports;
+   - <em>interior</em> (both halves kept) is legal only for LH ring ports.</p>
+<p>In LH, <code>expected_groups</code> = [2, 3] + the kept port groups.
+6. <strong>Sheet CAD (<code>:4992–5047</code>, <code>:5071–5106</code>):</strong> straddling ordinals take the cut-face path, interior ordinals the shared-face path.
+7. <strong>Diagnostics (<code>:5357–5378</code>):</strong> a new key <code>symmetry_quadrant_layout</code>, with the layout name, the kept ordinals and the CAD cut area per plane.</p>
+<p>The outer-boundary rule (<code>:5118–5137</code>) already excludes cut faces, and is unchanged.</p>
+<p><strong>The test module: <code>tests/validation/test_th20_quarter_f_human_mesh.py</code>.</strong>
+- The heavy tests are gated on <code>FEM_EM_TH20_STEP0=1</code>. The refusal test always runs: it does no meshing.
+- A module fixture builds the <strong>flag-off full hole mesh first</strong>, then the quarter (<code>GEO-23</code> contamination).
+- Call <code>MeshGenerator.birdcage_port_domain</code> directly, <strong>not</strong> <code>_build_f_human</code>.
+- Reuse:
+  - <code>_tag_volume</code> / <code>_total_volume</code> (<code>tests/mesh/test_coil_phantom_conforming.py</code>);
+  - <code>_exterior_facet_area</code> / <code>_facet_area</code> (<code>tests/mesh/probe_two_torus_conductor_hole.py</code>);
+  - <code>_interface_facet_tags</code> (<code>io/mesh.py</code>);
+  - <code>global_cell_tag_set</code> (<code>tests/mesh/helpers.py</code>);
+  - <code>_plane_readings</code>' logic, lifted from <code>tests/mesh/test_birdcage_symmetry_quadrant.py:93–152</code>. Lift it; do not edit that module.</p>
+<p><strong>Anchors (asserted; bands imported):</strong>
+- <strong>(Q0)</strong> The flag-off F-human hole mesh has <strong>369 387 cells exactly</strong> (<code>20261002T020254Z_WF-12-step1-W1b.log:6176</code>; item 169 (A0) read it at rel 0), with the full tag set {2, 3, 101–148, 217–248}.
+- <strong>(Q1)</strong> The quarter's tags are the 22 above. 0 owned vertices have x or y &lt; −1e-12, and the owned census sums to <code>size_global</code>.
+- <strong>(Q2)</strong> For each of the cut planes 501 and 502:
+  - the owned exterior facets on the plane equal the tagged set (symmetric difference 0), flat to ≤ 1e-12 m;
+  - the area is r_e·2z_e − 2r_leg·L = <strong>9.8155102e-2 m²</strong> at <code>EXACT_IDENTITY_RTOL</code> 1e-10 (<code>tests/mesh/test_birdcage_symmetry_quadrant.py:47</code>);
+  - the cells adjacent to 501 ∪ 502 carry exactly {2, 3}.</p>
+<p>The outer tag 1 area is 4r_e·z_e + 2r_e² = <strong>3.16254857e-1 m²</strong>, and outer ∩ cut = 0 facets.
+- <strong>(Q3)</strong> The cavity:
+  - 0 tag-401 facets on either plane;
+  - every owned exterior facet in exactly one of {1, 501, 502, 401};
+  - the meshed |4·A₄₀₁,q / A₄₀₁,f − 1| ≤ <code>F_HUMAN_WALL_AREA_RTOL</code> 5e-5 (<code>tests/validation/test_wf12_f_human_hole.py:102</code>; that band is provisional and the 10-03 weekly ratifies it). Predicted ≤ 3e-5.
+- <strong>(Q4)</strong> Ports:
+  - each kept port group's meshed volume equals its CAD mass and the full mesh's same-tag volume at <code>EXACT</code> 1e-9 (<code>tests/mesh/test_birdcage_ring_gaps.py:87</code>). The CAD values are P1–P4 7.871720117e-6, ring lower 8.437757382e-7 and ring upper 8.723783056e-7 m³ (<code>…W1b.log:6174</code>);
+  - the 8 kept sheets' interface areas equal chord × w, at <code>SHEET_AREA_BAND</code> 1e-9 (<code>tests/mesh/test_birdcage_leg_offset.py:104</code>);
+  - nothing survives of the 40 unkept ordinals.
+- <strong>(Q5)</strong> The D2 port map. For each kept ring sheet and each g ∈ {e, σ_y, σ_x, σ_xσ_y}:
+  - g applied to the quarter's area-weighted facet centroid matches the full mesh's centroid for π_g(o) within <code>EXACT</code>·R = 1.5e-10 m;
+  - π_g is a bijection onto all 32 ring ordinals;
+  - per ring (bottom 17 + j, top 33 + j), it equals the closed form σ_y: j ↦ 15 − j, σ_x: j ↦ 7 − j (mod 16), σ_xσ_y: j ↦ j + 8 (mod 16).
+- <strong>(Q6)</strong> The phantom satisfies 4·CAD_q/CAD_f − 1 within <code>CAD_ANALYTIC_BAND</code> 1e-7 (<code>tests/mesh/test_birdcage_conductor_hole.py:123</code>). Air is printed only.
+- <strong>(Q7)</strong> Each of these raises without meshing: the solid route with ring gaps, <code>leg_count = 14</code> with LH, transverse sheets with LH, ring and leg gaps together, azimuth offsets, and <code>c4_congruent_sheets</code>.</p>
+<p><strong>Printed:</strong>
+- quarter cells, predicted ≈ 115 k (92–140 k);
+- quarter mesh time, 25–50 s;
+- the 401 / 501 / 502 facet counts;
+- the kept ordinals;
+- peak RSS;
+- the CAD cavity quarter area (predicted 5.2369004e-2);
+- air CAD × 4.</p>
+<p><strong>Negative controls (rule (e)):</strong>
+- <strong>(C1) The quarter checker on the flag-off full mesh:</strong> vertices outside the quadrant &gt; 0, 0 facets on either plane, cut area 0. Predicted and printed in W1, then <strong>asserted</strong> (binary) in W2 under <code>FEM_EM_TH20_STEP0_CONTROL=1</code>, with W1 as the prior measurement on the same fixture.
+- <strong>(C2) The mirror misplaced by π/32:</strong> every image misses its nearest full-mesh sheet centroid by 2R·sin(π/32) = <strong>2.9405142e-2 m</strong>, the ceiling (≈ 2e8× Q5's tolerance). Predicted in W1, asserted in W2 as miss/(2R·sin(π/32)) − 1 within <code>EXACT</code>.
+- <strong>(C3) The cavity rule without the plane walls</strong> is predicted and printed: 4·A_q/A_f − 1 ≈ <strong>+3.75</strong>, with both planes refined. It is what Q3 exists to catch, not a separate build.</p>
+<p><strong>Windows.</strong> Bash <code>timeout: 660000</code>, foreground, each harness call bare and whole.
+- <strong>W1, at <code>-n 1</code>.</strong> This is a never-built layout, and a gmsh failure deadlocks at more than one rank. Predicted 160–230 s.</p>
+<p><code>scripts/testing/run_and_log.sh TH-20-step0a-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_TH20_STEP0=1 timeout -k 30 420 mpiexec -n 1 python3 -m pytest tests/environment tests/validation/test_th20_quarter_f_human_mesh.py -v -s --tb=short'"</code>
+- <strong>W2, at <code>-n 2</code>,</strong> the window the step closes on, with C1 and C2 asserted. Predicted 170–250 s.</p>
+<p><code>scripts/testing/run_and_log.sh TH-20-step0a-W2 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_TH20_STEP0=1 FEM_EM_TH20_STEP0_CONTROL=1 timeout -k 30 480 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_th20_quarter_f_human_mesh.py -v -s --tb=short'"</code>
+- <strong>W3, the rule (c) re-gate</strong> of the 4-leg cutter and the F-small <code>as_hole</code> path. Predicted 130–180 s. It must reproduce 116 085 flag-off cells exactly, plus the 3a identities.</p>
+<p><code>scripts/testing/run_and_log.sh TH-20-step0a-W3-regate "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_TH16_STEP3A_CONTROL=1 timeout -k 30 360 mpiexec -n 2 python3 -m pytest tests/environment tests/mesh/test_birdcage_symmetry_quadrant.py tests/mesh/test_birdcage_conductor_hole.py -v -s --tb=short'"</code>
+- <strong>W4, the rule (c) re-gate of <code>TH-16</code> ✅,</strong> complex: <code>20260930T093629Z_TH-16-step3c-W2.log:12</code>'s command, with the timeout cut to 300 s (it measured 66.6 s). The mesh records must hold: 36 034 quarter cells, cut facets 1 416 / 1 402, sheet facets 50 / 56, and (A) ≤ 1e-9.</p>
+<p><code>scripts/testing/run_and_log.sh TH-20-step0a-W4-regate-3c "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_TH16_STEP3C_CONTROL=1 timeout -k 30 300 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_th16_quarter_birdcage.py -v -s --tb=short'"</code></p>
+<p><strong>Traps:</strong>
+- <strong>Cut faces are single-use faces.</strong> The cavity rule takes them unless they are walls, and the bbox enlargement (5e-6) exceeds the old 1e-6: <code>TH-16</code> 3a's first W1 went red on exactly this.
+- The retained conductor solids are dim-3 entities, so the centroid loop sees them.
+- The leg at θ = π/2 sits at x = 9.2e-18 m. Test vertices at 1e-12, never at 0.
+- Read the cavity wall from the meshed volumes, never from the tools (<code>TH-15</code> step 0: 716 orphan nodes).
+- Build the flag-off mesh first, then the quarter (<code>GEO-23</code>).
+- <code>cell_tags.values</code>, <code>assemble_scalar</code> and facet areas are rank-local: use owned entities, then allreduce.
+- <strong>Do not add <code>tests/mesh/test_birdcage_port_tags.py</code> to the re-gate.</strong> Its <code>test_birdcage_volumes_partition_the_box</code> is the open <code>GEO-23</code> overlapping-facets red (<code>20261002T110806Z_GEO-36-step2-W3-regate.log:3149</code>).
+- "Digit-identical" means the mesh records. 3c's (A) drifts run to run (1.520e-12 vs 1.529e-12).
+- Always <code>-s</code>; no pytest <code>-k</code>; no pipes; no edit after W1 starts (rule (i)).
+- Status 124 is the finding: <code>pgrep -c python3</code>, then the cache sweep, and never lengthen the timeout.
+- <strong>A quarter over 140 k cells, or a mesh time over 120 s, means the cut faces got into the grading.</strong> Stop and read Q3.</p>
+<p><strong>Scope:</strong> mesh only, LH only. <strong>Not covered:</strong>
+- a solve, PEC / PMC, port specs, <code>halve_sheet_spec</code>;
+- the mirror-built full mesh (0b);
+- the solid σ = 800 quadrant;
+- transverse sheets, leg gaps at N &gt; 4;
+- degree 2, any memory claim;
+- H13a's re-target (the weekly's).</p>
+<p><strong>Status it can move.</strong> None directly: §7 <code>TH-20</code> stays ⬜, because its Done-when is "step 1's identity ⇒ 🟡". That was checked under rule (j): the Done-when matches and is not amended. The row's state line records 0a, and its "Not queued" cutter blocker is discharged. 0b then becomes queueable by a daily (rule (6), chain H's third provisional step), and H13a stays the weekly's.</p>
+<p><strong>Negative result:</strong>
+- <strong>A gmsh FAIL in W1:</strong> record it verbatim with the surface pairs, write a known-issues entry, park on <code>attempt/TH-20-step0a-&lt;ts&gt;</code>, and mark BLOCKED (rule (d)). The next step is a <code>mesh-probe</code> of the quarter build.
+- <strong>Q1, Q2, Q4 or Q5 red, or a Q3 count above 0:</strong> a cutter defect. Park and mark BLOCKED; never widen a band.
+- <strong>Q3's area above 5e-5 with all else green:</strong> report the reading and mark BLOCKED. The band is provisional, and rule (f) is the review's.
+- <strong>Q0 ≠ 369 387, or W3 / W4 moving a 4-leg record:</strong> revert <code>src/</code> and stop.
+- There is no PREDICTED RED line.</p>
+<p><strong>Outcome 2026-10-02 (implementer, 13:30 slot) — BLOCKED on the Q3 area band, all else green.</strong> Parked on <code>attempt/TH-20-step0a-20261002T191039Z</code> (src change + module + four logs). Readings, identical at <code>-n 1</code> and <code>-n 2</code>:
+- Q0 369 387 cells exactly, tag set as predicted. Q1 22 tags as predicted, 0 vertices outside (min xy −1.6e-17), census = size_global = 97 414 (predicted 92–140 k).
+- Q2 cut facets 1 825 / 1 811, mismatch 0, flat ≤ 1.6e-17 m, area rel dev 0 at 1e-10; cells on the planes {2, 3}; outer area dev ≤ 2.2e-16; outer ∩ cut 0.
+- Q3 401 facets 19 836, 0 on the planes, 0 untagged exterior facets. <strong>Meshed |4·A₄₀₁,q / A₄₀₁,f − 1| = 1.498e-4 &gt; 5e-5</strong> (predicted ≤ 3e-5). The CAD cavity is complete: quarter 5.236900037e-2 (predicted 5.2369004e-2), 4·CAD_q/CAD_f − 1 = −6.3e-8. Meshed/CAD − 1 is −7.99e-3 on the quarter and −8.14e-3 on the full mesh — two independent inscribed triangulations of the curved wall (the WF-12 2026-10-01 18:00 ruling's mechanism), not a missing face. Hypothesis: the quarter's conductor grading differs from the full mesh's near the cut planes, so the chord deficit differs by ≈ 1.5e-4; a quarter-vs-full band at this fixture needs a rule (f) ruling (review), or a refinement ladder (mesh-probe).
+- Q4 port volumes dev ≤ 3.3e-15 (CAD, full) and ≤ 4.9e-11 (imported); 8 sheets dev ≤ 2.2e-15. Q5 worst image miss 2.2e-16 m, 32/32 ordinals, closed form holds. Q6 phantom 0.0. Q7 six refusals green.
+- C1 (asserted in W2): 63 947 vertices outside, 0 / 0 plane facets, cut area 0. C2 (asserted in W2): |miss/(2R sin(π/32)) − 1| ≤ 3.0e-15. C3 printed +3.780 (predicted +3.75).
+- Price: quarter gmsh 26.1 s at <code>-n 1</code>, 57.3 s at <code>-n 2</code> (predicted 25–50 s); full 107.9 s; peak RSS 0.77 GiB.
+- Rule (c) re-gates green: W3 116 085 cells exactly, 16 passed; W4 36 034 cells, cut facets 1 416 / 1 402, sheets 50 / 56, (A) 1.502e-12, 19 passed.
+- Logs: <code>20261002T185456Z_TH-20-step0a-W1.log</code> (Status 1, 204 s), <code>20261002T185842Z_TH-20-step0a-W2.log</code> (Status 1, 270 s), <code>20261002T190324Z_TH-20-step0a-W3-regate.log</code> (Status 0, 302 s), <code>20261002T190835Z_TH-20-step0a-W4-regate-3c.log</code> (Status 0, 111 s).
+- Disclosure: <code>_plane_readings</code> / <code>_facet_nodes</code> are imported from <code>tests/mesh/test_birdcage_symmetry_quadrant.py</code> (unedited), not copied.</p>
+<p><em>(This outcome block, the four logs and their <code>test-results.md</code> rows were landed on <code>main</code> by the 2026-10-02 18:00 daily review — logs by path, rows and this block by hand. The <code>src/</code> change and the test module stay on the branch until item 182 takes them.)</em></p>
+<p><strong>Ruling, 2026-10-02 18:00 daily review (rule (f) — not made yet; the measurement is queued).</strong> Q3's 5e-5 was imported from a <em>different</em> comparison: hole versus solid route on the same full-mesh sizing (<code>test_wf12_f_human_hole.py:83–102</code>). Here the two sides are a quarter and a full mesh with different grading near the cut planes. One reading cannot set its own band, so no band moves on it. Item 182 (attempt 2 of 4, same family and target) lands the branch's code and runs a three-rung measurement that separates triangulation from a cutter defect. The 03:00 review rules Q3's band from that table, and the 10-03 weekly ratifies the ruling. CAD completeness (−6.3e-8), C3 (+3.780, the defect Q3 exists to catch) and every other anchor are already green.</p>
+<h3 id="9-item-182-2026-10-02-chain-h-h13-0a-re-pose-daily-provisional-rule-6-attempt-2-of-4">§9 item 182 — 2026-10-02 (chain H, H13-0a re-pose — daily provisional, rule (6), attempt 2 of 4)<a class="headerlink" href="#9-item-182-2026-10-02-chain-h-h13-0a-re-pose-daily-provisional-rule-6-attempt-2-of-4" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a read-only <code>Plan</code> agent and reviewed by the 2026-10-02 18:00 daily review. Licence: rule (6) re-pose of item 176, same family and target. No band moves in this item. Item 176 is superseded by this one.</em></p>
+<ul>
+<li><strong>Executor:</strong> implementer. <strong>Tier:</strong> heavy, <code>-n 2</code> (W3) / <code>-n 1</code> (probe). <strong>Class:</strong> chain step (no solve).</li>
+<li><strong>Cost:</strong> ≈ 9 measured / ≈ 40 predicted min. <strong>Depends on:</strong> nothing.</li>
+</ul>
+<p><strong>Why.</strong> Item 176 was red only on Q3: |4·A₄₀₁,q/A₄₀₁,f − 1| = 1.498e-4 &gt; 5e-5 (W1 <code>:8160</code>). That 5e-5 was registered on a different comparison: hole vs solid on the same full sizing (<code>test_wf12_f_human_hole.py:83–106</code>).</p>
+<p>Facet counts fit a triangulation reading:
+- The quarter has 4 × 19 836 = 79 344 wall facets against 78 066 on the full mesh (+1.64 %).
+- Item 147's logs show δ·N roughly constant (635 / 578 / 567), so the chord deficit goes as 1/N.
+- The model |δ_f|·(4N_q/N_f − 1) = 8.14e-3 × 0.0164 = 1.33e-4, which is 89 % of the reading.</p>
+<p>The quarter grades over 64 surfaces against the full mesh's 240 (W1 <code>:72</code>, <code>:6206</code>; <code>Sampling</code> 20 per surface, <code>io/mesh.py:5197</code>). So the bisected surfaces (legs 0 and 4, the ring arcs centred on 0 and π/2) are re-meshed by construction. <strong>Where the difference sits cannot decide the question alone; facet count and the trend with h decide it.</strong></p>
+<p><strong>Part 1 — land the code (rule (c), disclosed).</strong> The four logs, their <code>test-results.md</code> rows and the outcome block are already on <code>main</code> (landed by the 18:00 review).
+1. <strong>Pre-check:</strong> <code>git log --oneline dea66f77..HEAD -- src/fem_em_solver/io/mesh.py</code> must be empty (it was empty at <code>5625faed</code>). If it is not, stop and report.
+2. <strong>Take two paths</strong> from <code>attempt/TH-20-step0a-20261002T191039Z</code>: <code>src/fem_em_solver/io/mesh.py</code> and <code>tests/validation/test_th20_quarter_f_human_mesh.py</code>. Take nothing else from the branch: never path-checkout <code>test-results.md</code> or this file.
+3. <strong>Do not edit</strong> Q3, its 5e-5 band or <code>F_HUMAN_WALL_AREA_RTOL</code>.
+4. <strong>Add a known-issues entry, OPEN 2026-10-02:</strong>
+   - <code>test_th20_q1_to_q6_quarter_identities</code> is red only under <code>FEM_EM_TH20_STEP0=1</code> (Q3 1.498e-4 &gt; 5e-5, W1 <code>:8194</code>).
+   - Q0 and Q7 are green, and the default suites skip the test.
+   - It is resolved by item 182 → the 03:00 ruling → the 0a re-run.
+5. <strong>Delete the branch</strong> after the landing commit (<code>git branch -D</code>; the <code>.git/config</code> warning is harmless).</p>
+<p><strong>Anchor (asserted).</strong> W3 on <code>main</code> at <code>-n 2</code> must reproduce the branch's W3:
+- <code>[TH-16 step 3a]</code> full 116 085 cells exact, quarter 36 034 (<code>…W3-regate.log:2640</code>);
+- <code>TH-15</code> 3a 80 181 / 116 085;
+- 16 passed;
+- the <code>TH-20</code> module unflagged: the six Q7 refusals pass and the heavy tests skip.</p>
+<p><strong>Part 2 — probe (a measurement, with no asserts).</strong> Write <code>tests/mesh/probe_th20_quarter_wall_area.py</code> on the pattern of <code>probe_wf12_cavity_wall_area.py</code>, run as <code>python3 -u … --conductor-resolution &lt;h&gt;</code>.
+- <strong>Build:</strong> the module's <code>_kwargs()</code> plus <code>conductor_resolution=h</code>, the full mesh first, then <code>symmetry_quadrant=True</code> (<code>GEO-23</code>).
+- <strong>Reuse</strong> <code>_class_of</code>, <code>_owned_facet_split</code>, <code>_cell_value</code> and <code>_exterior_facet_area</code> for the tag-401 wall.
+- <strong>Restrict the full mesh to the kept quadrant by exact triangle clipping</strong> (Sutherland–Hodgman against x ≥ 0, then y ≥ 0). Clip all four quadrants Qᵢ.
+- <strong>Bands,</strong> assigned by the centroid of each clipped piece:
+  - <strong>N:</strong> min(x, y) ≤ 2h;
+  - <strong>S:</strong> the rest of the bisected sectors, θ &lt; π/16 or θ &gt; 7π/16;
+  - <strong>F:</strong> π/16 ≤ θ ≤ 7π/16, air class only;
+  - <strong>R:</strong> the ring-port class, by tag (117–120, 133–136, 217–220, 233–236).</p>
+<p><strong>Prints per rung:</strong>
+- cells for the full and quarter meshes, gmsh time, RSS;
+- A_f and A_q against CAD (δ_f, δ_q);
+- 4q/f − 1, the model |δ_f|(4N_q/N_f − 1), and their ratio ρ;
+- ΔA = A_q − A_f∩Q₁ in m²;
+- per band: ΔA, ΔA/A, ΔN/N.</p>
+<p><strong>Reproduce first</strong> (determinism; a miss is the finding, so stop):
+- <strong>1.6 mm:</strong> 369 387 / 97 414 cells, 19 836 facets, A_q 5.195046113e-02, A_f 2.077707230e-01 (W1 <code>:6202</code>, <code>:8151</code>, <code>:8160</code>).
+- <strong>2.4 / 3.2 mm, full mesh:</strong> 284 363 / 233 097 cells, A 2.0682947116e-01 / 2.0538649807e-01, 45 738 / 29 054 facets (item 147's hole logs).</p>
+<p><strong>Negative controls (rule (e)), all predicted and printed:</strong>
+- <strong>(P1)</strong> The clip partition Σᵢ A_f∩Qᵢ/A_f − 1 ≤ 1e-12.
+- <strong>(P2)</strong> The full mesh's own spread, max |4A_f∩Qᵢ/A_f − 1|. It is the comparator with no cutter; its magnitude is unmeasured.
+- <strong>(P3)</strong> A planted missing face: A_q minus tag 117's ring-port wall (≈ 4.9 / 4.8 / 4.5e-5 m², item 147's class totals / 64). That is ≈ 6× the measured ΔA, and the rule below must read it as CUTTER DEFECT.
+- <strong>Expected readings:</strong> under triangulation, 4q/f − 1 ∈ [1e-4, 5e-4] at each rung, or the sign changes. Under a defect, ΔA ≈ +7.8e-6 m² at every rung.
+- C3 +3.780 stays the module's record (W1 <code>:8161</code>).</p>
+<p><strong>Decision rule, pre-stated for the 03:00 review:</strong>
+- <strong>TRIANGULATION</strong> — all three hold:
+  - ρ ∈ [0.5, 2] at every rung;
+  - ΔA (m²) changes sign or varies &gt; 30 % across the ladder;
+  - band R agrees within its own facet-model share.</p>
+<p>⇒ The review re-registers Q3 by WF-12's rule (1.9× the worst rung), under a <strong>new</strong> module constant, never by editing <code>F_HUMAN_WALL_AREA_RTOL</code>. If band F's ΔA/A ≤ 1e-8 with equal facet counts, it may add an exact sub-identity, as (iii-b) did. Then the 0a re-run is queued (attempt 3).
+- <strong>CUTTER DEFECT</strong> — either:
+  - ΔA constant within ±20 % with the same sign at every rung; or
+  - &gt; 80 % of ΔA − model in band N while ΔN_N ≈ 0.</p>
+<p>⇒ Park, and re-pose a cutter fix.
+- <strong>Mixed:</strong> report the table; the review rules, and no band moves.</p>
+<p><strong>Windows.</strong> Bash <code>timeout: 660000</code>, foreground, each harness call bare and whole.
+- <strong>W3,</strong> 302 s measured on the branch, predicted 290–330 s:</p>
+<p><code>scripts/testing/run_and_log.sh TH-20-step0a-r2-W3-regate "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_TH16_STEP3A_CONTROL=1 timeout -k 30 480 mpiexec -n 2 python3 -m pytest tests/environment tests/mesh/test_birdcage_symmetry_quadrant.py tests/mesh/test_birdcage_conductor_hole.py tests/validation/test_th20_quarter_f_human_mesh.py -v -s --tb=short'"</code>
+- <strong>P-h1p6,</strong> predicted 150–200 s (full 118.0 s + quarter 30.4 s, W1 <code>:6202</code>, <code>:8151</code>):</p>
+<p><code>scripts/testing/run_and_log.sh TH-20-probe-wall-h1p6 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 420 mpiexec -n 1 python3 -u tests/mesh/probe_th20_quarter_wall_area.py --conductor-resolution 1.6e-3'"</code>
+- <strong>P-h2p4,</strong> predicted 95–140 s (full 81 s, item 147): the same command with <code>2.4e-3</code>, label <code>TH-20-probe-wall-h2p4</code>, <code>timeout -k 30 300</code>.
+- <strong>P-h3p2,</strong> predicted 80–120 s (full 67 s): <code>3.2e-3</code>, label <code>TH-20-probe-wall-h3p2</code>, <code>timeout -k 30 300</code>.</p>
+<p><strong>Traps:</strong>
+- <strong>Centroid assignment of straddling facets is wrong here:</strong> ≈ 800 straddlers × ≈ 1.1e-6 m² is ≈ 1.6e-5 m² of noise against a 7.8e-6 m² effect. Clip.
+- <strong>The leg at x = 9.2e-18 m:</strong> clip on sign, and classify bands from the clipped pieces.
+- <strong>Rule (i):</strong> do not edit the probe after its first window. If it changes, re-run every rung.
+- No pipes and no <code>-k</code>.
+- <strong>On Status 124:</strong> <code>pgrep -c python3</code>, then the cache sweep. Never lengthen the timeout.
+- <strong>The 2.4 / 3.2 mm quarters have never been built:</strong> record a gmsh FAIL verbatim.</p>
+<p><strong>Scope.</strong> Not covered:
+- Q3 under the flag, or any band;
+- 0b, a solve, H13a.</p>
+<p>§7 <code>TH-20</code> stays ⬜: its Done-when is unchanged (rule (j)).</p>
+<p><strong>Negative result:</strong>
+- <strong><code>mesh.py</code> changed on <code>main</code>, or W3 off its records:</strong> stop, commit no <code>src/</code>, and mark BLOCKED (rule (d)).
+- <strong>A rung fails to reproduce, or gmsh fails:</strong> the landing commits with the logs, and the item is BLOCKED on the ladder.
+- There is no PREDICTED RED line.</p>
+<p><strong>Status it can move:</strong>
+- §9 item 176 → superseded;
+- a known-issues entry, OPEN on landing and retired when the 0a re-run is green;
+- the 03:00 review's rule (f) ruling, which the weekly ratifies;
+- the <code>TH-20</code> state line.</p>
+<p><strong>Outcome — DONE 2026-10-03 (19:30 CDT slot, implementer).</strong></p>
+<p><strong>Part 1.</strong> The two paths are landed from <code>attempt/TH-20-step0a-20261002T191039Z</code>, and the branch is deleted. The known-issues entry is OPEN 2026-10-02.</p>
+<p>W3 (<code>20261003T003924Z_TH-20-step0a-r2-W3-regate.log</code>, 137 s) reproduces every record:
+- 36 034 / 116 085 (<code>:2640</code>);
+- <code>TH-15</code> 3a 80 181 / 116 085 (<code>:5233–5237</code>);
+- 22 passed, 6 skipped (<code>:5338</code>). That is the branch's 16 + 4 plus the <code>TH-20</code> module's 6 Q7 refusals and 2 skips, a module the branch's W3 did not include.</p>
+<p><strong>Part 2.</strong> <code>tests/mesh/probe_th20_quarter_wall_area.py</code> ran three windows, all at <code>-n 1</code>:
+- <code>20261003T004412Z_TH-20-probe-wall-h1p6.log</code>, 146 s;
+- <code>…004644Z_TH-20-probe-wall-h2p4.log</code>, 108 s;
+- <code>…004837Z_TH-20-probe-wall-h3p2.log</code>, 90 s.</p>
+<p>Every reproduce-first record matched. The 2.4 / 3.2 mm quarters built for the first time: 75 451 / 62 055 cells.</p>
+<table>
+<thead>
+<tr>
+<th>h (mm)</th>
+<th>4q/f − 1</th>
+<th>model</th>
+<th>ρ</th>
+<th>ΔA (m²)</th>
+<th>P2</th>
+<th>P3 × |ΔA|</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.6</td>
+<td>1.498e-4</td>
+<td>1.333e-4</td>
+<td>1.124</td>
+<td>+3.60e-6</td>
+<td>1.22e-4</td>
+<td>13.65×</td>
+</tr>
+<tr>
+<td>2.4</td>
+<td>3.477e-4</td>
+<td>2.293e-4</td>
+<td>1.517</td>
+<td>+1.45e-5</td>
+<td>1.07e-4</td>
+<td>2.56×</td>
+</tr>
+<tr>
+<td>3.2</td>
+<td>8.916e-4</td>
+<td>6.142e-4</td>
+<td>1.452</td>
+<td>+2.50e-5</td>
+<td>4.21e-4</td>
+<td>0.94×</td>
+</tr>
+</tbody>
+</table>
+<p>Band readings:
+- <strong>R</strong> is exact at every rung: equal facet counts, ΔA/A ≤ 1.1e-15.
+- <strong>F</strong> carries a few × 1e-5 relative. That does not meet the exact sub-identity option.
+- <strong>N and S</strong> trade ≈ ±1.4e-4 m², which cancels in the sum.
+- <strong>P1</strong> is ≤ 1.1e-16.</p>
+<p><strong>Decision rule: TRIANGULATION.</strong> ρ is in [0.5, 2] at every rung, the ΔA spread is 1.49 (&gt; 0.30), and band R agrees. Neither CUTTER DEFECT criterion holds.</p>
+<p><strong>For the 03:00 review — two readings that weaken the rule:</strong>
+- <strong>(i) P3 read Mixed, not the predicted CUTTER DEFECT.</strong> ΔA grows ≈ 7× along the ladder, so the planted tag-117 face (≈ 5e-5 m²) is only 0.94× |ΔA| at 3.2 mm, not the ≈ 6× the brief assumed. At coarse h the rule cannot tell a missing face of this size from triangulation.
+- <strong>(ii) P2 is the same size as Q3.</strong> The full mesh's own quadrant spread, with no cutter, is 1.2e-4 … 4.2e-4, against Q3's 1.5e-4 reading.</p>
+<p>Also, the brief's "+7.8e-6" is A_q − A_f/4; the clipped ΔA at 1.6 mm is +3.60e-6. No band moved. §7 <code>TH-20</code> stays ⬜.</p>
+<p><strong>Ruling, 2026-10-03 03:00 daily review (rule (f) — the 10-03 weekly ratifies or reverts).</strong></p>
+<p>Item 182's decision rule, pre-stated before the ladder ran, reads <strong>TRIANGULATION</strong> on all three rungs (table above; logs <code>20261003T004412Z_TH-20-probe-wall-h1p6.log</code>, <code>…004644Z…h2p4.log</code>, <code>…004837Z…h3p2.log</code>). Both sides of Q3 are this fixture's own meshed numbers, and the imported 5e-5 was registered on a different comparison (hole vs solid on one full sizing, <code>test_wf12_f_human_hole.py:83–102</code>). Rule (f) therefore applies, by WF-12's rule:</p>
+<table>
+<thead>
+<tr>
+<th>h (mm)</th>
+<th>4q/f − 1</th>
+<th>band R ΔA/A</th>
+<th>band R facets q / f∩Q₁</th>
+<th>P2 (no cutter)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.6 (the fixture)</td>
+<td>1.498e-4</td>
+<td>+1.1e-15</td>
+<td>772 / 772</td>
+<td>1.22e-4</td>
+</tr>
+<tr>
+<td>2.4</td>
+<td>3.477e-4</td>
+<td>+1.4e-16</td>
+<td>416 / 416</td>
+<td>1.07e-4</td>
+</tr>
+<tr>
+<td>3.2 (worst)</td>
+<td><strong>8.916e-4</strong></td>
+<td>−9.0e-16</td>
+<td>224 / 224</td>
+<td>4.21e-4</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Q3 is re-registered</strong> as a <strong>new</strong> module constant, <code>TH20_QUARTER_WALL_AREA_RTOL = 1.69e-3</code> in <code>tests/validation/test_th20_quarter_f_human_mesh.py</code>. That is 1.9 × the worst measured rung (8.916e-4 at 3.2 mm, h3p2 <code>:8337</code>). <code>F_HUMAN_WALL_AREA_RTOL</code> is <strong>not</strong> edited and keeps its H12a meaning.</li>
+<li>At the 1.6 mm fixture the reading is 1.498e-4, 11× inside. C3 (+3.780, W1 <code>:8161</code>) sits 2.2e3× outside.</li>
+<li><strong>Why the band alone is not enough.</strong> The planted tag-117 ring-port face (5.27e-5 m², h1p6 <code>:8138</code>) is 1.0e-3 of the quarter wall. Removed, it reads 4q′/f − 1 = −8.65e-4, which is <em>inside</em> 1.69e-3. Alone, the band catches a missing face only above ≈ 9.6e-5 m², or an extra face above ≈ 8.0e-5 m².</li>
+<li><strong>So the ruling adds an exact sub-identity, Q3-b,</strong> mirroring WF-12's (iii-b) (<code>test_wf12_f_human_hole.py:103–106</code>). The ring-port-class wall area of the quarter is the tag-401 area bordering the kept ring-port cells: tags 117–120, 133–136, 217–220 and 233–236, the probe's band R. It must equal the full mesh's tag-401 area bordering the <strong>same</strong> tags to ≤ 1e-8 relative, with equal facet counts. Measured exact at all three rungs (table).</li>
+<li><strong>No clipping is needed on the full side.</strong> The kept ring-port cells sit wholly inside the open quadrant. Each gap's port box spans φ_c ± atan(g/2R) = φ_c ± 0.0571 rad about φ_c = (2j+1)π/16 (<code>io/mesh.py:3805–3829</code>). Its wall faces are the torus end discs (r = 4 mm), so the nearest wall point to either plane is ≈ (R − r)·sin(π/16 − 0.0571) ≈ 2.03e-2 m away (predicted). The probe confirms it: "Q1 pieces with ring-port tags outside the kept R set: []" at all three rungs (h1p6 <code>:8133</code>, h2p4 <code>:8330</code>, h3p2 <code>:8349</code>), with band R exact. Item 197 asserts the premise as a guard (min(x, y) &gt; 0 over those facets).</li>
+<li><strong>The comparison must be restricted to the kept tags, not the whole ring-port class.</strong> The full mesh's 117–148 / 217–248 wall is 3.1335915802e-3 m² over 3 076 facets (h1p6 <code>:6169</code>). Four times the quarter's is 3.1334458e-3 over 3 088 facets, −4.65e-5 off: the other quadrants triangulate differently.</li>
+<li>The 0a re-run is queued as item 197 (attempt 3 of 4). The 10-03 weekly ratifies or reverts both constants.</li>
+</ul>
+<h3 id="9-item-197-2026-10-03-chain-h-h13-0a-attempt-3-of-4-rule-f-band">§9 item 197 — 2026-10-03 (chain H, H13-0a — attempt 3 of 4, rule (f) band)<a class="headerlink" href="#9-item-197-2026-10-03-chain-h-h13-0a-attempt-3-of-4-rule-f-band" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-03 03:00 daily review; the review reviewed it. Licence: rule (6) re-pose of items 176 / 182, same family and target. It executes the ruling above and moves no other band.</em></p>
+<ul>
+<li><strong>Executor:</strong> implementer. <strong>Tier:</strong> heavy, real build, <code>-n 1</code> (W1) then <code>-n 2</code> (W2). <strong>Class:</strong> chain step (no solve).</li>
+<li><strong>Cost:</strong> ≈ 11 measured (class median) / ≈ 25 predicted min. The edit takes ≈ 10 min. W1 measured 204 s and W2 270 s on item 176 (<code>20261002T185456Z_TH-20-step0a-W1.log:8272</code>, <code>20261002T185842Z_TH-20-step0a-W2.log:8375</code>). The records take ≈ 5 min.</li>
+<li><strong>Depends on:</strong> nothing (item 182 landed the cutter and the module, <code>20261003T003924Z_TH-20-step0a-r2-W3-regate.log</code>). <strong>Family:</strong> <code>TH-20</code> step 0, attempt 3 of 4.</li>
+</ul>
+<p><strong>Code: the test module only. No <code>src/</code> change, so no rule (c) re-gate.</strong> In <code>tests/validation/test_th20_quarter_f_human_mesh.py</code>:
+1. <strong>Add <code>TH20_QUARTER_WALL_AREA_RTOL = 1.69e-3</code></strong> with a rule (f) comment block on the pattern of <code>test_wf12_f_human_hole.py:83–102</code>. The comment cites:
+   - the three probe logs and their 4q/f − 1 readings (1.498e-4 / 3.477e-4 / 8.916e-4);
+   - "1.9 × the worst rung";
+   - the review ruling (this file, "Ruling, 2026-10-03 03:00");
+   - "the 10-03 weekly ratifies or reverts";
+   - the face sizes the band alone catches (≈ 9.6e-5 m² missing, ≈ 8.0e-5 m² extra).</p>
+<p>Point Q3's assert (<code>:360</code>) and its print (<code>:350–355</code>) at the new constant, and drop "predicted &lt;= 3e-5". <strong>Never edit, shadow or re-import-and-override <code>F_HUMAN_WALL_AREA_RTOL</code>.</strong> Remove its import (<code>:274</code>) only if it is otherwise unused.
+2. <strong>Add <code>KEPT_RING_PORT_TAGS</code></strong> = <code>{100 + o for o in KEPT_RING} | {200 + o for o in KEPT_RING}</code>, which is {117–120, 133–136, 217–220, 233–236}. Derive it from <code>KEPT_RING</code> (<code>:64</code>) and do not import it from the probe: the probe is imported by nothing (its docstring, <code>:5</code>).
+3. <strong>Add Q3-b</strong> after Q3:
+   - <strong>Neighbour tags:</strong> <code>_cell_value</code> (import from <code>test_wf12_f_human_hole.py:121</code>), then the f2c first-neighbour of each owned tag-401 facet, as in <code>_hole_wall_split</code> (<code>:162–168</code>).
+   - <strong>Mask:</strong> keep the facets whose neighbour tag is in <code>KEPT_RING_PORT_TAGS</code>, on the quarter and on the full mesh alike.
+   - <strong>Area and count:</strong> pass the masked arrays to <code>_wall_split</code> (<code>:134–159</code>, owned facets, allgathered), which returns the <code>"ring_port"</code> (area, count). Guard the case of a rank that owns none of them.
+   - <strong>Assert</strong> |A_R,q / A_R,f − 1| ≤ <code>RING_PORT_WALL_RTOL</code> (1e-8, imported from <code>test_wf12_f_human_hole.py:106</code>), plus N_R,q == N_R,f.
+   - <strong>Guard, asserted:</strong> over the full mesh's masked facets, the global min of min(x, y) over the vertices is &gt; 0. This is the premise that makes the unclipped restriction exact. Its value, predicted ≈ 2.03e-2 m, is printed.
+   - <strong>Printed:</strong> the whole-class 4·A_R,q / A_R,f(117–148, 217–248) − 1, predicted −4.65e-5. This is the trap, shown.
+4. <strong>Controls:</strong>
+   - <strong>(C3)</strong> becomes <strong>asserted</strong> under <code>FEM_EM_TH20_STEP0_CONTROL=1</code>: c3 &gt; <code>TH20_QUARTER_WALL_AREA_RTOL</code>. It is backed by W1 <code>:8161</code> and W2 <code>:8190</code>, +3.780 on this fixture and comparison: a 2.2e3× separation.
+   - <strong>(C4) Planted missing face:</strong> subtract the quarter's facets bordering tag 117 from A_R,q and N_R,q. Under the CONTROL flag, assert ΔN_R = −56 and |ΔA_R/A_R| ≥ 1e6 × <code>RING_PORT_WALL_RTOL</code> = 1e-2. That is backed by the probe on this fixture at 1.6 mm: 56 facets, 5.272592e-5 m² against A_R 7.8336145294e-4, i.e. 6.731e-2, 6.7× over the bar (<code>20261003T004412Z_TH-20-probe-wall-h1p6.log:8127</code>, <code>:8138</code>).
+   - <strong>The planted face under Q3 alone,</strong> 4q′/f − 1 (predicted −8.653e-4, inside the band), is <strong>printed, never asserted</strong>. It is why Q3-b exists.
+5. <strong>Update the module docstring:</strong> Q3's band, Q3-b, C3 asserted, C4.</p>
+<p><strong>Anchors (asserted; all bands imported or ruled):</strong> everything item 176 asserted, unchanged (Q0–Q2, Q4–Q7, C1 and C2 under CONTROL), plus:
+- <strong>(Q3)</strong> 0 tag-401 facets on either plane, and 0 untagged exterior facets. The meshed |4·A₄₀₁,q / A₄₀₁,f − 1| ≤ <code>TH20_QUARTER_WALL_AREA_RTOL</code>, predicted 1.498e-4 (W1 <code>:8160</code>).
+- <strong>(Q3-b)</strong> A_R,q = A_R,f(kept tags) ≤ 1e-8 relative, with equal counts. Predicted 7.8336145294e-4 m², 772 / 772 facets, ΔA/A at the 1e-16 … 1e-15 level (at <code>-n 2</code> the summation order differs; never assert float equality). Guard min(x, y) &gt; 0, predicted ≈ 2.03e-2 m.
+- <strong>Predicted pytest tally:</strong> 16 passed, 4 skipped in each window. Item 176 read 1 failed, 15 passed, 4 skipped (W1 <code>:8268</code>).</p>
+<p><strong>Negative controls (rule (e)):</strong>
+- C1 and C2 stay asserted in W2 (backed by item 176's W1 and W2, <code>20261002T185842Z_TH-20-step0a-W2.log</code>).
+- C3 is asserted in W2 (backed, above).
+- C4 is asserted in W2 (backed by the probe, above).
+- The planted face under Q3 alone is predicted and printed.</p>
+<p><strong>Windows.</strong> These are item 176's W1 and W2, verbatim except the label. Bash <code>timeout: 660000</code>, foreground, each harness call bare and whole. W3 and W4 (item 176's rule (c) re-gates) are <strong>not</strong> run: no <code>src/</code> change.
+- <strong>W1, at <code>-n 1</code>.</strong> Predicted 195–230 s.</p>
+<p><code>scripts/testing/run_and_log.sh TH-20-step0a-r3-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_TH20_STEP0=1 timeout -k 30 420 mpiexec -n 1 python3 -m pytest tests/environment tests/validation/test_th20_quarter_f_human_mesh.py -v -s --tb=short'"</code>
+- <strong>W2, at <code>-n 2</code>,</strong> the window the step closes on, with C1–C4 asserted. Predicted 260–300 s.</p>
+<p><code>scripts/testing/run_and_log.sh TH-20-step0a-r3-W2 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_TH20_STEP0=1 FEM_EM_TH20_STEP0_CONTROL=1 timeout -k 30 480 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_th20_quarter_f_human_mesh.py -v -s --tb=short'"</code></p>
+<p><strong>Rule (i):</strong> no edit to the module after W1 starts, not even a comment. If anything changes, re-run both windows before the commit. The slot checks the module's mtime against W2's start.</p>
+<p><strong>Traps (paid for):</strong>
+- <strong>The whole-class ring-port comparison is not exact</strong> (−4.65e-5, 3 088 vs 3 076 facets). Restrict to <code>KEPT_RING_PORT_TAGS</code> on the full mesh; WF-12's <code>_wall_class</code> "ring_port" alone takes all of 117–148 / 217–248.
+- <strong>Never edit <code>F_HUMAN_WALL_AREA_RTOL</code>.</strong> It is H12a's band, read by <code>test_wf12_f_human_hole.py</code> and item 129's re-run.
+- <code>cell_tags.values</code>, facet areas and counts are rank-local: use owned facets, then allreduce or allgather (<code>_wall_split</code> already does).
+- The leg at θ = π/2 sits at x = 9.2e-18 m. The Q3-b guard is strict <code>&gt; 0</code> on the ring-port facets only; it never tests plane vertices.
+- Build the flag-off mesh first, then the quarter (<code>GEO-23</code>; <code>_meshes</code> already does).
+- <strong>Do not add <code>tests/mesh/test_birdcage_port_tags.py</code></strong> (the open <code>GEO-23</code> overlapping-facets red, <code>20261002T110806Z_GEO-36-step2-W3-regate.log:3149</code>).
+- Always <code>-s</code>; no pytest <code>-k</code>; no pipes. On Status 124: <code>pgrep -c python3</code> in the container, then the cache sweep. Never lengthen the timeout.
+- <strong>Landing records:</strong> append <code>test-results.md</code> rows by hand if the harness has not, and never path-checkout a record file. <code>git diff --stat</code> must show only insertions on record files (<code>8d4cf58</code>, <code>TH-15</code> 3b).</p>
+<p><strong>Scope:</strong> step 0a only, on the 1.6 mm fixture, with Q3 at a rule (f) band the weekly may revert. <strong>Not covered:</strong>
+- a solve;
+- 0b (item 198);
+- H13a's three → four re-target (the weekly's);
+- any claim that the quarter's cavity wall equals the full mesh's beyond the ring-port class. The air-facing wall is held only at 1.69e-3, together with Q3's binary counts.</p>
+<p><strong>Negative result:</strong>
+- <strong>Q3 red at 1.69e-3</strong> with the reading ≠ 1.498e-4: the build is not deterministic. Report it, park on <code>attempt/TH-20-step0a-r3-&lt;ts&gt;</code>, mark BLOCKED (rule (d)) and keep the known-issues entry OPEN.
+- <strong>Q3-b red</strong> (counts unequal or ΔA/A &gt; 1e-8), or <strong>the guard red:</strong> a cutter or ring-port triangulation defect the ladder missed. Same disposition; never widen 1e-8.
+- <strong>C4 failing to separate:</strong> Q3-b is blind. Report it; the step does not close.
+- <strong>Q0 ≠ 369 387, or any item-176 anchor off its record:</strong> stop. This is an image or record drift; see <code>record-reconciler</code>.
+- There is no PREDICTED RED line.</p>
+<p><strong>Status it can move:</strong>
+- <strong>§7 <code>TH-20</code> state line:</strong> "step 0a DONE 2026-10-03 (item 197, attempt 3 of 4) on the rule (f) band <code>TH20_QUARTER_WALL_AREA_RTOL</code> 1.69e-3, with the exact ring-port sub-identity Q3-b; the 10-03 weekly ratifies".
+- <strong>The §7 glyph stays ⬜</strong> (rule (j), checked): the row's Done-when is "step 1's identity asserted in one logged window ⇒ 🟡; step 2 priced ⇒ ✅". 0a is a step-0 sub-step, and the Done-when is not amended.
+- <strong>known-issues</strong> "🟡 OPEN 2026-10-02 (<code>TH-20</code> step 0a …)" → <strong>✅ RETIRED</strong> in the green W2's commit, following the line-41 precedent: the heading rewritten as "RETIRED … — was OPEN …", plus a <strong>Ruling</strong> row citing this file.
+- <strong>§9:</strong> item 176 → superseded, closed here on its own target; item 182's re-pose is discharged.
+- <strong>§10 chain H</strong> line 4647 gets a one-line annotation; 0b (item 198) becomes runnable.</p>
+<p><strong>Outcome — DONE 2026-10-03 (06:00 CDT slot, implementer).</strong> Test module only (<code>tests/validation/test_th20_quarter_f_human_mesh.py</code>: <code>TH20_QUARTER_WALL_AREA_RTOL</code> with its rule (f) comment, <code>KEPT_RING_PORT_TAGS</code>, Q3-b, C3 and C4 asserted under CONTROL; <code>F_HUMAN_WALL_AREA_RTOL</code> no longer imported, never edited). No <code>src/</code> change, so W3 / W4 not run. Module mtime 11:16:58Z, before W1's start (rule (i)).
+- <strong>W1</strong> <code>20261003T111707Z_TH-20-step0a-r3-W1.log</code> (<code>-n 1</code>, Status 0, 193 s): 16 passed, 4 skipped (<code>:8263</code>).
+- <strong>W2</strong> <code>20261003T112030Z_TH-20-step0a-r3-W2.log</code> (<code>-n 2</code>, C1–C4 asserted, Status 0, 198 s): 16 passed, 4 skipped (<code>:8292</code>), <code>failures: []</code> (<code>:8227</code>).
+- Q0 369 387 cells exactly; quarter 97 414 cells, gmsh 25.4 s, peak RSS 0.77 GiB rank 0. Every item-176 anchor reproduces its record.
+- <strong>Q3</strong> 401 facets 19 836, 0 on the planes, 0 untagged; |4q/f − 1| = 1.498e-4 against 1.69e-3 (W2 <code>:8189</code>).
+- <strong>Q3-b</strong> A_R,q = A_R,f = 7.8336145294e-4 m², 772 / 772 facets, |q/f − 1| 0 at <code>-n 1</code> and 1.1e-16 at <code>-n 2</code>; guard min(x, y) = 2.0259e-2 m (predicted ≈ 2.03e-2) (W2 <code>:8191</code>). Whole-class trap printed: −4.652e-5 (4 × 772 vs 3 076 facets; predicted −4.65e-5).
+- <strong>C3</strong> +3.780 &gt; 1.69e-3 (asserted). <strong>C4</strong> ΔN_R −56, |ΔA_R/A_R| 6.7307e-2 ≥ 1e-2 (asserted), A_117 5.2725922e-5 m². The planted face under Q3 alone reads −8.6529e-4, inside the band (printed only), as predicted.
+- C1 63 947 vertices outside, 0 / 0 plane facets, cut area 0; C2 |miss/ceiling − 1| 3.0e-15 (both asserted in W2).
+- Known-issues entry retired. §7 glyph stays ⬜ (rule (j)).</p>
+<h3 id="9-item-198-2026-10-03-chain-h-h13-0b-daily-provisional-rule-6">§9 item 198 — 2026-10-03 (chain H, H13-0b — daily provisional, rule (6))<a class="headerlink" href="#9-item-198-2026-10-03-chain-h-h13-0b-daily-provisional-rule-6" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-03 03:00 daily review; the review reviewed it. Licence: §9 rule (6), chain H's third provisional step, already named in §10 chain H (<code>PROJECT_PLAN.md:4642–4643</code>). The weekly ratifies or reverts it.</em></p>
+<ul>
+<li><strong>Executor:</strong> implementer. <strong>Tier:</strong> heavy, real build, <code>-n 1</code> (W1) then <code>-n 2</code> (W2). <strong>Class:</strong> chain step (no solve).</li>
+<li><strong>Cost:</strong> ≈ 11 measured (class median) / ≈ 45 predicted min. Of that, ≈ 30 min is code: item 176 priced 0b at "≈ 30 min of separate code", and most pieces exist (below). The windows add ≈ 10 min, the records ≈ 5 min. The mirror build is cheap: <code>TH-16</code> 3c mirrored 144 136 cells in 1.11 s at <code>-n 2</code> (<code>20261002T190835Z_TH-20-step0a-W4-regate-3c.log:989</code>). Here it is 389 656 cells, predicted ≤ 10 s.</li>
+<li><strong>Depends on:</strong> item 197 landing green (W2 Status 0, known-issues retired). <strong>If it did not, skip.</strong> <strong>Family:</strong> <code>TH-20</code> step 0, sub-step 0b.</li>
+</ul>
+<p><strong>What exists (cite; import, do not edit).</strong> There is no mirror-build helper in <code>src/</code>: <code>symmetry_quadrant</code> is the cutter only. <code>TH-16</code> step 3c's test module carries the whole mirror build, minus the tag permutation:
+- <code>_gather_owned</code> (<code>tests/validation/test_th16_quarter_birdcage.py:234–252</code>): the whole mesh, cell tags included, onto rank 0 in global geometry indices.
+- <code>_mirror_by_index</code> (<code>:255–267</code>): mirror across {x_axis = 0}, reusing on-plane vertices by index at <code>PLANE_TOL</code> 1e-12 and swapping nodes [1, 0, 2, 3] for orientation. <strong>It copies the tags unpermuted</strong> (<code>np.concatenate([tags, tags])</code>, <code>:266</code>). That is exactly what 0b must change, and it is control C4.
+- <code>_owned_cell_tags</code> / <code>_tag_counts</code> / <code>_volume</code> (<code>:208–224</code>).
+- The cell-tag distribution pattern, cells only (<code>:521–543</code>: <code>_distribute</code>, then <code>distribute_entity_data</code>, then <code>meshtags_from_entities</code>, then the hoisted <code>create_connectivity(fdim, tdim)</code>). Its comment explains why: interior facet tags hang at <code>-n 2</code> (known-issues 9).
+- <code>_distribute</code> (<code>tests/validation/test_th16_symmetry_plane_driven.py:145–154</code>; the same body is in <code>src/fem_em_solver/core/cracked_box.py:30–40</code>).
+- (M0)'s assert pattern (<code>test_th16_quarter_birdcage.py:758–768</code>).
+- From 0a: <code>_meshes</code>, <code>_kwargs</code>, <code>_sheet_centroids</code>, <code>_extents</code>, <code>KEPT_*</code>, <code>FULL_TAGS</code>, and the Q5 closed form (<code>test_th20_quarter_f_human_mesh.py:411–416</code>, a local in the test; restate it at module level in the new file).
+- <code>_interface_facet_tags</code> (<code>io/mesh.py</code>).</p>
+<p><strong>The anchor is assertable from these pieces in one slot, so this is an implementation item,</strong> not "write the anchor".</p>
+<p><strong>New module: <code>tests/validation/test_th20_mirror_built_full_mesh.py</code>,</strong> gated on <code>FEM_EM_TH20_STEP0B=1</code>. It takes the quarter and the direct full mesh from 0a's <code>_meshes()</code> (import it; the full mesh is built first, per <code>GEO-23</code>). It never edits 0a's module: editing that module would reopen 0a under rule (i).
+1. <strong>Gather the quarter</strong> to rank 0 (<code>_gather_owned</code>).
+2. <strong>Mirror across y = 0 (axis 1) with the σ_y tag map, then across x = 0 (axis 0) with the σ_x tag map</strong> applied to the whole half. Their composition gives σ_xσ_y on the far quadrant.
+3. <strong>Tag map <code>_d2_tag(t, g)</code>:</strong>
+   - t ∈ {2, 3} ↦ t;
+   - t = b + o, with b ∈ {100, 200}, maps per block. Leg boxes o = 1 + j (101–116) and ring blocks 17 + j and 33 + j each map j ↦ π_g(j);
+   - π_g is the closed form: σ_y j ↦ 15 − j, σ_x j ↦ (7 − j) mod 16, σ_xσ_y j ↦ j + 8 (mod 16).
+   - <strong>Inner/outer are not swapped.</strong> In longitudinal mode 100 + i / 200 + i are the u &lt; R / u &gt; R halves (<code>io/mesh.py:3823–3829</code>, <code>:4902–4915</code>), and a mirror through the axis preserves u.
+   - The leg boxes P1–P4 are whole in the quarter (0a Q1: 22 tags, <code>kept_ordinals</code> (1, 2, 3, 4)), so they sit at the odd multiples (2j+1)π/16 like the ring gaps, and the same π_g applies.
+4. <strong>Distribute</strong> with the cell-tag pattern above.
+5. <strong>Re-derive the facets geometrically on the distributed mesh:</strong>
+   - outer = owned exterior facets with all three vertices on one box face (|x| or |y| = r_e, |z| = z_e, tolerance 1e-9 m; r_e and z_e from <code>_extents</code>);
+   - 401 = every other owned exterior facet;
+   - sheets via <code>_interface_facet_tags</code> for all 32 ring ordinals.</p>
+<p><strong>Anchors (asserted; bands imported):</strong>
+- <strong>(M0) Conformity:</strong>
+  - cells = 4 × the quarter's <code>size_global</code> = <strong>389 656</strong> (4 × 97 414, 0a W1);
+  - global vertices = the builder's count;
+  - the owned census sums to <code>size_global</code>;
+  - total volume = 4·V_q at <code>EXACT_IDENTITY_RTOL</code> 1e-10 (<code>tests/mesh/test_birdcage_symmetry_quadrant.py:47</code>).
+- <strong>(M1) Tag census:</strong>
+  - the tag set == <code>FULL_TAGS</code> (82 tags: {2, 3, 101–148, 217–248});
+  - tags 2 and 3 carry 4 × the quarter's counts;
+  - every port tag's count equals the count of its unique preimage (quarter tag, g). The realised preimage map is a bijection onto the 80 port tags.
+- <strong>(M2) Port volumes,</strong> all 80 port tags:
+  - V_mirror(t) = CAD_f(group(t)) at <code>EXACT</code> 1e-9 (<code>tests/mesh/test_birdcage_ring_gaps.py:87</code>; CAD from the direct full mesh's <code>cad_mass_by_group</code>; imported values 7.871720117e-6 / 8.437757382e-7 / 8.723783056e-7 m³);
+  - V_mirror(t) = V_direct(t) at <code>EXACT</code>.</p>
+<p>These are planar-faced solids, so their meshed volumes are exact for any tetrahedralisation (0a Q4: ≤ 3.3e-15).
+- <strong>(M3) The D2 port map, on centroids:</strong> for all 80 port tags, the mirror-built cell-volume-weighted centroid of tag t matches the direct full mesh's tag-t centroid within <code>EXACT</code>·R = <strong>1.5e-10 m</strong> (0a Q5's tolerance). The realised (quarter tag, g) → t equals the closed form.
+- <strong>(M4) The cavity, re-derived:</strong>
+  - 0 owned exterior facets with all vertices on x = 0 or on y = 0 (at 1e-12);
+  - the owned exterior facets partition into outer ∪ 401, with nothing left over;
+  - N₄₀₁ = 4 × 19 836 = <strong>79 344</strong> exactly;
+  - A₄₀₁ = 4·A₄₀₁,q at <code>EXACT_IDENTITY_RTOL</code> (predicted 2.0780184e-1 m²);
+  - outer area = 8r_e² + 16r_e·z_e = 4 × 3.16254857e-1 = <strong>1.265019428 m²</strong> at <code>EXACT_IDENTITY_RTOL</code>;
+  - every 401 facet's neighbour tag is in {2} ∪ the ring-port tags (no 101–116; WF-12 2026-10-01).
+- <strong>(M5) Sheets, all 32 ring ordinals:</strong>
+  - each sheet's facet count equals its preimage's;
+  - each area = chord × w at <code>SHEET_AREA_BAND</code> 1e-9 (<code>tests/mesh/test_birdcage_leg_offset.py:104</code>);
+  - each area-weighted centroid matches the direct full mesh's same-ordinal centroid within 1.5e-10 m. This is 0a's Q5 on the full set.</p>
+<p><strong>Printed, never asserted:</strong>
+- mirror build time and peak RSS;
+- the direct full mesh's 369 387 cells against the 389 656;
+- <strong>|A₄₀₁,mirror / A₄₀₁,direct − 1|.</strong> It is Q3's 1.498e-4 by construction, a record re-read against <code>TH20_QUARTER_WALL_AREA_RTOL</code> and not a new gate;
+- the ring-port-class wall, 4 × 7.8336145e-4 = 3.1334458e-3 m² over 3 088 facets against the direct mesh's 3.1335915802e-3 over 3 076 (−4.65e-5): two triangulations;
+- the tag-3 volume against the direct mesh's (two triangulations of a curved phantom).</p>
+<p><strong>Negative controls (rule (e)).</strong> Both are computed on rank 0 from the builder arrays in numpy, with no extra distribution. Both are predicted and printed in W1, then <strong>asserted</strong> in W2 under <code>FEM_EM_TH20_STEP0B_CONTROL=1</code>, with W1 as the prior measurement on the same fixture (item 176's idiom).
+- <strong>(C4) The identity relabel</strong> (<code>TH-16</code>'s unpermuted copy, <code>:266</code>):
+  - the tag set has 22 tags, so 60 of <code>FULL_TAGS</code> are missing (binary);
+  - each kept port tag's pooled centroid falls on the z axis, so its miss against the direct full mesh's centroid equals that centroid's radius ρ_f. Assert |miss/ρ_f − 1| ≤ <code>EXACT</code>, against M3's 1.5e-10 m: a separation of ≈ 1e9× for ρ_f ≈ 0.15 m.
+- <strong>(C5) No vertex reuse on the planes</strong> (<code>_mirror_by_index</code> with the on-plane mask forced empty). A face census (faces seen once = exterior) reads <strong>4 × 1 825 = 7 300</strong> exterior faces on x = 0 and <strong>4 × 1 811 = 7 244</strong> on y = 0. The 0a cut records are 1 825 / 1 811 (<code>20261002T185456Z_TH-20-step0a-W1.log:8160</code>). The real build reads 0 / 0.</p>
+<p><strong>Windows.</strong> Bash <code>timeout: 660000</code>, foreground, each harness call bare and whole. 0a's module runs in the same window: it re-proves 0a and shares <code>_CACHE</code>, so the meshes build once.
+- <strong>W1, at <code>-n 1</code>.</strong> Predicted 230–300 s: 0a W1's 204 s, plus the mirror and the rank-0 census. If the two modules do not share <code>_CACHE</code> (two builds printed), add ≈ 135 s. That is a price, not a defect, and still inside 480.</p>
+<p><code>scripts/testing/run_and_log.sh TH-20-step0b-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_TH20_STEP0=1 FEM_EM_TH20_STEP0B=1 timeout -k 30 480 mpiexec -n 1 python3 -m pytest tests/environment tests/validation/test_th20_quarter_f_human_mesh.py tests/validation/test_th20_mirror_built_full_mesh.py -v -s --tb=short'"</code>
+- <strong>W2, at <code>-n 2</code>,</strong> the window the step closes on, with C1–C5 asserted. Predicted 290–380 s, or ≈ 450 s without a shared cache.</p>
+<p><code>scripts/testing/run_and_log.sh TH-20-step0b-W2 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_TH20_STEP0=1 FEM_EM_TH20_STEP0_CONTROL=1 FEM_EM_TH20_STEP0B=1 FEM_EM_TH20_STEP0B_CONTROL=1 timeout -k 30 540 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_th20_quarter_f_human_mesh.py tests/validation/test_th20_mirror_built_full_mesh.py -v -s --tb=short'"</code></p>
+<p><strong>Traps:</strong>
+- <strong><code>np.concatenate([tags, tags])</code> is the bug, not the pattern</strong> (<code>TH-16</code>'s D2 fixture needed no permutation, because its sheets lay in the planes). Permute per copy.
+- <strong>Mirror order matters for which map goes on which copy:</strong> y = 0 first with σ_y, then x = 0 with σ_x on the whole half. A swapped pair lands each ring-port copy antipodally, a 2ρ miss.
+- <strong>Interior facet tags hang at <code>-n 2</code></strong> (known-issues 9). Distribute cells only, and derive the facets after distribution. Hoist <code>create_connectivity(fdim, tdim)</code> and <code>create_entity_permutations()</code> on every rank before any facet query.
+- <strong>Importing <code>test_th16_quarter_birdcage.py</code> in the real build</strong> pulls in its complex-only imports. If the import raises, lift the five helpers verbatim with a disclosure line (as 0a did with <code>_plane_readings</code>), never editing that module. <code>_distribute</code> is also in <code>core/cracked_box.py:30</code>.
+- <strong>Vertex reuse at <code>PLANE_TOL</code> 1e-12:</strong> the quarter's plane vertices are flat to ≤ 1.6e-17 (0a Q2), and the leg at θ = π/2 sits at x = 9.2e-18 m, on the plane by construction.
+- <strong>Never compare the mirror-built cavity or ring-port wall with the direct full mesh at an exact band.</strong> They are independent triangulations (Q3, and the −4.65e-5 above).
+- Rank-local counts, areas and volumes: use owned entities, then allreduce. Volumes go through <code>_volume</code> / <code>_tag_volume</code>.
+- Always <code>-s</code>; no <code>-k</code>; no pipes. <strong>Rule (i):</strong> no edit after W1 starts. On Status 124: <code>pgrep -c python3</code>, then the cache sweep. Never lengthen the timeout.
+- <strong>Do not add <code>tests/mesh/test_birdcage_port_tags.py</code></strong> (the open <code>GEO-23</code> red).</p>
+<p><strong>Scope:</strong> mesh only, LH only, degree-agnostic arrays. <strong>Not covered:</strong>
+- a solve, PEC / PMC classes, port specs, <code>halve_sheet_spec</code>, the 32×32;
+- any C16 claim: the mirror-built mesh is D2-symmetric by construction, not C16;
+- agreement of the mirror-built mesh with the direct full mesh beyond the planar-faced port solids and sheets;
+- H13a's three → four quarter-solve re-target (the weekly's).</p>
+<p><strong>Negative result:</strong>
+- <strong>M0, M1 or M4 counts off:</strong> a mirror-build or facet-derivation defect. Park on <code>attempt/TH-20-step0b-&lt;ts&gt;</code> and mark BLOCKED (rule (d)).
+- <strong>M3 or M5 miss &gt; 1.5e-10 m, or not the closed form:</strong> a permutation defect. Same disposition.
+- <strong>M2 off by ≈ 3.39e-2</strong> (8.7238 / 8.4378 − 1) is the inner/outer-swap signature; off by any other amount is a different defect. Report which.
+- <strong>C4 or C5 failing to separate:</strong> the check is blind, and the step does not close.
+- <strong>0a's module red in the same window:</strong> stop. Item 197's state does not hold; report it.
+- There is no PREDICTED RED line.</p>
+<p><strong>Status it can move:</strong>
+- <strong>§7 <code>TH-20</code> state line:</strong> "step 0b DONE (item 198): the mirror-built full F-human mesh, 389 656 cells, D2 cell-tag permutation and cavity re-derived".
+- <strong>The glyph stays ⬜</strong> (rule (j), checked): the Done-when is step 1's identity ⇒ 🟡, and 0b is not step 1.
+- <strong>§10 chain H</strong> H13-0b is annotated, and chain H's provisional steps are spent. H13a is the weekly's: the four-solve re-target, now with its mirror-built comparand ready.</p>
+<p><strong>Outcome — DONE 2026-10-03 (07:30 CDT slot, second item, implementer).</strong> New module <code>tests/validation/test_th20_mirror_built_full_mesh.py</code> only; 0a's module, <code>test_th16_quarter_birdcage.py</code> and <code>src/</code> untouched. <code>_gather_owned</code> and <code>_distribute</code> are lifted verbatim with a disclosure line (the TH-16 modules import complex-only symbols); the mirror is <code>_mirror_by_index</code> with the copy's tags mapped per copy by the closed-form <code>_d2_tag</code>. Module mtime 12:59:45Z, before W1's start 13:00:08Z (rule (i)). Both modules share <code>_CACHE</code> (one build each).
+- <strong>W1</strong> <code>20261003T130008Z_TH-20-step0b-W1.log</code> (<code>-n 1</code>, Status 0, 198 s): 17 passed, 4 skipped (<code>:8287</code>), 0b <code>failures: []</code> (<code>:8212</code>).
+- <strong>W2</strong> <code>20261003T130342Z_TH-20-step0b-W2.log</code> (<code>-n 2</code>, 0a C1–C4 and 0b C4–C5 asserted, Status 0, 197 s): 17 passed, 4 skipped (<code>:8317</code>), 0a <code>failures: []</code> (<code>:8227</code>), 0b <code>failures: []</code> (<code>:8242</code>).
+- Mirror build 3.24 s at <code>-n 2</code>, peak RSS 0.77 GiB rank 0 (predicted ≤ 10 s). Direct full mesh 369 387 cells against 389 656 (printed).
+- <strong>M0</strong> 389 656 cells = 4 × 97 414; 89 449 global vertices = builder; census sums to 389 656; V 9.606651860274e-2 m³ vs 4·V_q, 9.8e-15 (W2 <code>:8232</code>).
+- <strong>M1</strong> 82 tags = <code>FULL_TAGS</code>; tag 2 356 368 = 4 × 89 092, tag 3 4 944 = 4 × 1 236; preimage map 80 images, a bijection, no count mismatch (<code>:8233–8234</code>).
+- <strong>M2 / M3</strong> 80 port volumes, worst dev 4.852e-11 vs CAD, direct and imported (band 1e-9); worst centroid miss vs the direct full mesh 4.0e-16 m, vs g·c_q(preimage) 5.7e-16 m (tol 1.5e-10 m) (<code>:8235</code>). Tag-3 volume mirror/direct − 1 = +3.799e-4 (printed, two triangulations).
+- <strong>M4</strong> exterior 92 608 = outer 13 264 + 401 79 344; 0 on the planes; N₄₀₁ = 4 × 19 836; A₄₀₁ 2.078018445e-1 m² vs 4·A_q 8.9e-16; outer 1.265019428571 m², dev 2.2e-16; every 401 neighbour in {2} ∪ ring-port (<code>:8237</code>). |A₄₀₁,mirror / A₄₀₁,direct − 1| = 1.498e-4 (printed; Q3's record by construction).
+- <strong>M5</strong> 32 sheets: worst area dev vs chord·w 2.2e-15 (band 1e-9); worst centroid miss 1.2e-16 m; facet counts equal their preimages' (<code>:8239</code>).
+- <strong>C4</strong> identity relabel: 22 tags, 60 of <code>FULL_TAGS</code> missing; worst |miss/ρ_f − 1| 8.9e-16 (band 1e-9), against M3's 1.5e-10 m (asserted). <strong>C5</strong> no vertex reuse: (7 300, 7 244) once-seen plane faces as predicted, real build (0, 0) (asserted) (<code>:8240–8241</code>).
+- <strong>Omitted from the print list:</strong> the ring-port-class wall comparison (4 × 7.8336e-4 vs 3.1336e-3), already recorded by 0a's whole-class trap print (−4.652e-5). It was not added after W1, per rule (i).
+- §7 glyph stays ⬜ (rule (j)). Chain H's provisional steps are spent; H13a is the weekly's.</p>
+<h2 id="7-row-moved-verbatim-2026-10-03-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-03 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-03-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p><strong>Symmetry planes at human scale: the quarter F-human</strong> (opened 2026-09-30 by the weekly; §10 chain H13; <code>TH-16</code>'s lever against the human-scale memory wall). <em>Step 1 (H13a):</em> the F-human fixture cut on its two mirror planes by <code>TH-16</code> step 3a's cutter; three quarter solves reconstruct the D2-independent entries of the 32×32 of the quarter's <strong>own mirror-built full mesh</strong> at the imported <code>LEG_D0_REPRODUCTION_BAND</code> (1e-9), with reciprocity / passivity on both and the wrong-cut control &gt; 0.5 on the self class — degree 1, 64 MHz. <em>Step 2 (H13b):</em> the quarter at degree 2: unknowns, time and summed memory against the full fixture's measured 103 GiB (<code>xxl</code> 2026-09-26) — a price, printed against a pre-stated bracket. <strong>Done-when (§4):</strong> step 1's identity asserted in one logged window ⇒ 🟡; step 2 priced ⇒ ✅. Not claimed: agreement with a separately meshed F-human, absolute S, a tuned coil. The daily writes the rows' rubric grain. <strong>Not queued — for the weekly (2026-10-01 03:00 review):</strong> <code>TH-16</code>'s cutter refuses this layout (<code>symmetry_quadrant</code> rejects <code>ring_gap_length</code> and <code>leg_count ≠ 4</code>, <code>io/mesh.py:3646–3664</code>), and F-human's ring ports sit off both planes, so all four (PEC/PMC)² sectors carry live ports — step 1 needs <strong>four</strong> quarter solves, not three, and a generalised cutter first (a step 0 the chain does not list). <em>(Daily 2026-10-02 10:30, rule (6), provisional; the 10-03 weekly ratifies or reverts.)</em> <strong>Q3 re-registered 2026-10-03 03:00 (rule (f), 1.69e-3 + exact ring-port Q3-b; the weekly ratifies); 0a re-runs as item 197 (attempt 3 of 4), 0b as item 198.</strong> <strong>Step 0a DONE 2026-10-03 (item 197, attempt 3 of 4) on the rule (f) band <code>TH20_QUARTER_WALL_AREA_RTOL</code> 1.69e-3, with the exact ring-port sub-identity Q3-b; the 10-03 weekly ratifies</strong> (<code>20261003T112030Z_TH-20-step0a-r3-W2.log</code>). Step 0a (H13-0a; item 176 BLOCKED 2026-10-02 on Q3's imported area band only, re-posed as item 182, attempt 2 of 4; item 182 DONE 2026-10-03: the cutter is landed and re-gated, and the wall-area ladder reads TRIANGULATION. Its P3 control read Mixed, and the Q3 band awaits the 03:00 ruling) generalises <code>TH-16</code> step 3a's cutter to the ring-gapped hole layout (<code>leg_count % 4 == 0</code>, longitudinal sheets). It is gated by planar mesh identities and the D2 port map, with no solve and no glyph. <strong>Step 0b DONE 2026-10-03 (item 198): the mirror-built full F-human mesh, 389 656 cells, D2 cell-tag permutation and cavity re-derived</strong> (<code>20261003T130342Z_TH-20-step0b-W2.log</code>). Step 1's three → four solve re-target stays the weekly's. <em>History: <code>docs/planning/chunks/TH-20.md</code>.</em> | ⬜ </p>
+<h3 id="9-item-233-2026-10-04-chain-h13a">§9 item 233 — 2026-10-04 (chain H13a)<a class="headerlink" href="#9-item-233-2026-10-04-chain-h13a" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-04 18:00 daily review. Licence: §9 rule (4). This is the weekly's enumerated step: §10 chain H13a, re-targeted to four quarter solves with the band and target unchanged (<code>PROJECT_PLAN.md:4433–4438</code>, <code>:4563–4565</code>). Steps 0a / 0b landed as items 197 / 198. The 10-03 weekly ratified them with the rule (f) band <code>TH20_QUARTER_WALL_AREA_RTOL</code> 1.69e-3 and sub-identity Q3-b.</em></p>
+<ul>
+<li><strong>Executor:</strong> implementer. <strong>Tier:</strong> heavy, complex, <code>-n 8</code>, two windows: W1 prices and is the prior measurement, W2 closes. <strong>Class:</strong> chain solve.</li>
+<li><strong>Cost:</strong> ≈ 23 measured (the chain-solve class median) / ≈ 55 predicted min. That is ≈ 30 min of code (mostly imports, below), W1 ≈ 5 min, W2 ≈ 7 min and records ≈ 8 min.</li>
+<li><strong>Depends on:</strong> nothing. 0a and 0b are on <code>main</code> (<code>20261003T112030Z_TH-20-step0a-r3-W2.log</code>, <code>20261003T130342Z_TH-20-step0b-W2.log</code>). <strong>Family:</strong> <code>TH-20</code> step 1, attempt 1 of 4.</li>
+</ul>
+<p><strong>It fits heavy: the price, from measured logs.</strong>
+- <strong>Mesh phase.</strong> 0a's <code>_meshes()</code> builds the direct full hole mesh first: 109.9 s build, 101.5 s gmsh (<code>20261003T130342Z_TH-20-step0b-W2.log:6230</code>). Then it builds the quarter: 97 414 cells, 28.5 s (<code>:8179</code>). The mirror build took 3.24 s at <code>-n 2</code> (item 198's outcome).
+- <strong>Full 32×32.</strong> The mirror-built mesh has 389 656 cells, 5.5 % more than the direct hole mesh that <code>WF-12</code> step 2 swept at degree 1, <code>-n 8</code>. That sweep measured:
+  - 500 568 unknowns (<code>20261002T020713Z_WF-12-step1-W2.log</code>);
+  - a Cu factorising drive of 34.0 s;
+  - a held drive (solve + post) of mean 2.88 s, max 3.57 s;
+  - summed RSS 9.94–10.20 GiB;
+  - 32 drives plus a PEC column in 309 s of pytest (<code>20261002T094751Z_WF-12-step2-W2.log:6385–6386</code>, <code>:6480</code>).</p>
+<p>Scaled to this mesh: ≈ 528 k unknowns, a factor of ≈ 36–40 s and 31 held drives in ≈ 90–110 s.
+- <strong>Quarter sectors.</strong> Each has ≈ 135 k unknowns. Predicted: factor 5–12 s, held ≈ 0.5–1 s. That is ≈ 10–20 s per sector and 40–80 s for all four.
+- <strong>Totals.</strong> <strong>W1 (3 full drives) is predicted at 240–340 s and W2 (32 drives) at 330–480 s, with summed RSS ≤ 16 GiB.</strong> Both fit heavy (≤ 1200 s, ≤ 12 ranks, ≤ 128 G), so no <code>xl</code> entry is needed. The 103 GiB <code>xxl</code> reading of 09-26 is degree 2 on the solid 507 266-cell route. It is H13b's comparand, not this step's.</p>
+<p><strong>What it asserts.</strong>
+- <strong>Notation.</strong> A sector (b_x, b_y) names the BC on x = 0 (tag 501) and on y = 0 (tag 502): E = PEC (pinned), M = PMC (natural).
+- <strong>Kept ports.</strong> K = (P17, P18, P19, P20, P33, P34, P35, P36) (<code>KEPT_RING</code>, <code>test_th20_quarter_f_human_mesh.py:75</code>). All eight are interior to the quarter (0a's <code>interior_ordinals</code>, W2 <code>:8183</code>), so every sector carries all eight live.
+- <strong>Image map π_g, per ring</strong> (bottom 17 + j, top 33 + j):
+  - σ_y: j ↦ 15 − j;
+  - σ_x: j ↦ (7 − j) mod 16;
+  - σ_xσ_y: j ↦ j + 8 (mod 16).</p>
+<p>Import this as <code>CLOSED</code> from <code>test_th20_mirror_built_full_mesh.py:70–74</code>.
+- <strong>Port orientation sign.</strong> Every ring spec drives along its own +φ̂, with φ̂ = (−sin φ_c, cos φ_c, 0) (<code>_ring_gap_frame</code>, <code>tests/mesh/test_birdcage_ring_gaps_scaleup.py:136–157</code>). A reflection R_g maps +φ̂ at o to −φ̂ at π_g(o). So (R_g d_o)·d_{π_g(o)} is −1 for σ_x and σ_y, and +1 for σ_xσ_y.
+- <strong>Sector character.</strong> With E on a plane, the field satisfies E = −R E(R r) (tangential components odd). The image port's voltage, in its own +φ̂ convention, is then (−1)·(−1)·V = <strong>+V</strong>. With M it is <strong>−V</strong>.
+  - Hence χ_s(g) = ε_x^[σ_x ∈ g] · ε_y^[σ_y ∈ g], with ε = +1 for E and −1 for M.
+  - Check: the uniform k = 0 ring current is odd under a reflection, and it lives in (E, E). The k = ±1 modes live in (E, M) and (M, E).
+  - This is the <strong>opposite</strong> of the naive "PEC = odd ⇒ −1" reading that TH-16's axial ports suggest.
+- <strong>Reconstruction R (32×32).</strong>
+  - For i, j ∈ K: S^s_ij = Σ_g χ_s(g) S_{i, π_g(j)}, so S_{i, π_g(j)} = ¼ Σ_s χ_s(g) S^s_ij.
+  - S_{π_h(i), π_k(j)} = S_{i, π_{hk}(j)}. S is invariant under the D2 action because the two orientation signs cancel.
+  - Every full ordinal is π_h(i) for exactly one (i, h). Assert the bijection.
+- <strong>Port normalisation.</strong> The sheets lie wholly inside the quarter, so V_q = V and I_q = I. The quarter ports keep 50 Ω (<code>TERMINATED_PORT_IMPEDANCE_OHM</code>, <code>test_port_birdcage_four_port.py:125</code>). TH-16's doubled Z (<code>test_th16_quarter_birdcage.py:113</code>) and <code>halve_sheet_spec</code> do <strong>not</strong> apply.</p>
+<p><strong>Code: tests only, no <code>src/</code>.</strong> Do not edit the 0a, 0b, TH-16 or WF-12 modules. Write a new <code>tests/validation/test_th20_quarter_solves.py</code>, gated on <code>FEM_EM_TH20_STEP1=1</code> and marked <code>@complex_only</code>.</p>
+<p>Knobs:
+- <code>FEM_EM_TH20_STEP1_FULL_DRIVES=N</code> drives the first N ports of <code>_ring_ports()</code> on the full mesh. Unset means 32. Below 32, the matrix-wide gates print SKIPPED.
+- <code>FEM_EM_TH20_STEP1_CONTROL=1</code> asserts the controls.</p>
+<p>Steps:
+1. <strong>Meshes.</strong> Call <code>m = _meshes()</code> from 0a, which builds the direct full mesh first and then the quarter (<code>GEO-23</code>). Here the direct full mesh is used only for the box-speed reading. Leave it in the cache: it costs &lt; 1 GiB.
+2. <strong>Quarter sectors, in the order (E,E), (E,M), (M,E), (M,M).</strong>
+   - <strong>Facet tags:</strong> the quarter's own <code>q["facets"]</code>. Its exterior facets are exactly {1, 401, 501, 502} (0a Q3).
+   - <strong><code>pec_facet_tags</code>:</strong> (1, 501, 502) / (1, 501) / (1, 502) / (1,).
+   - <strong>Problem:</strong> <code>test_th14_birdcage_copper._problem(msh_q, cells_q, FREQUENCY_HZ, q["facets"], pec)</code> (<code>:229</code>).
+   - <strong>Wall:</strong> <code>_leontovich_term(msh_q, q["facets"], z_s, ω)</code> (<code>:160</code>), with z_s = (1 + 1j)·<code>surface_resistance_ohm</code>(ω, 5.8e7). It goes first in the factorising call's bilinear list.
+   - <strong>Sheets:</strong> <code>_interface_facet_tags(msh_q, cells_q, {SHEET_IFACE + o: (PORT_LOWER + o, PORT_UPPER + o) for o in KEPT_RING})</code>.
+   - <strong>Specs,</strong> as <code>_build_f_human</code> builds them (<code>test_wf7_f_human_b1_quadrature.py:133–150</code>): chord from <code>diag["ring_port_layout"]["ring_port_gap_chord_m"]</code>, width = area/chord, drive = φ̂ from <code>_ring_gap_frame(o, LEG_COUNT)</code>, <code>interior=True</code>, 50 Ω.
+   - <strong>One fresh <code>TimeHarmonicSolver(problem, degree=DEGREE)</code> per sector.</strong> Run 1 factorising + 7 held drives with a local copy of WF-12's <code>_drive</code> (<code>test_wf12_f_human_copper_matrix.py:170–220</code>) and its S-column formula (<code>:197–199</code>). The power block may be dropped, but keep P_surf on each sector's first drive.
+   - <strong>Cleanup:</strong> <code>del fields</code> after every drive; <code>del solver; gc.collect()</code> between sectors.
+   - <strong>Prints:</strong> constrained DOFs per sector (<code>_constrained_dofs</code>, <code>test_th16_quarter_birdcage.py:189</code>), times, and <code>_rss_report</code>.
+3. <strong>Mirror-built full mesh.</strong> After the four sectors are freed, rebuild it exactly as 0b does (<code>test_th20_mirror_built_full_mesh.py:296–338</code>):
+   - <code>_gather_owned</code>;
+   - <code>_mirror</code> with ("sy", axis 1), then ("sx", axis 0);
+   - <code>_distribute</code>, then <code>distribute_entity_data</code>, with the connectivity hoisted.</p>
+<p>Import the helpers. That is ≈ 20 lines restated, without the C4/C5 branches.
+4. <strong>Full facet tags.</strong> Classify <strong>every local</strong> exterior facet, owned and ghost, by 0b's geometric rule (<code>_derived_facets</code>, <code>:239–272</code>; <code>FACE_TOL</code> 1e-9; r_e / z_e from <code>_extents</code>):
+   - box faces → <code>OUTER_BOX_TAG</code> 499;
+   - the rest → 401.</p>
+<p>One MeshTags carries both. Set <code>pec_facet_tags=(499,)</code> and apply the Leontovich term on 401 of the same MeshTags. Count owned facets only.
+5. <strong>Full sheets.</strong> After distribution, run <code>_interface_facet_tags</code> for all 32 ring ordinals, as 0b's <code>_sheet_stats</code> does. Each image sheet takes its <strong>preimage's spec numbers</strong> (width, chord), so the specs within an orbit are bitwise equal. Its drive is its own φ̂.
+6. <strong>Full sweep.</strong> One solver, with the wall term first: 1 factorising + (N − 1) held drives in <code>_ring_ports()</code> order. The S_f columns follow WF-12.
+7. <strong>Box speed and the W2 projection, printed in W1.</strong>
+   - s = direct-full build time / 108 s. Normal speed is 109.9 s (<code>…0b-W2.log:6230</code>) and 107.2 s (<code>WF-12</code> step 2 W2).
+   - Projected W2 = elapsed time before the full sweep + the factorising drive + 31 × the max held cadence + 30 s.</p>
+<p><strong>Anchors (asserted; bands imported).</strong>
+- <strong>(P0) Premise.</strong> Both cell counts are exact (the 0a / 0b records): quarter 97 414, mirror-built 389 656. Owned facets on 501 / 502 = 1 825 / 1 811 (<code>CUT_FACES_X0/Y0</code>, <code>test_th20_mirror_built_full_mesh.py:68–69</code>). The mirror-built mesh has 79 344 owned 401 facets and 0 exterior facets on either plane (0b M4).
+- <strong>(P1)</strong> Constrained DOFs: (E,E) &gt; (E,M), (M,E) &gt; (M,M), in TH-16's (P3) form.
+- <strong>(P2)</strong> P_surf &gt; 0 on each sector's first drive and on the full sweep's first drive, so the wall is in every operator.
+- <strong>(P3)</strong> The orientation premise: |(R_g d_o)·d_{π_g(o)} − τ_g| ≤ 1e-12 for every o ∈ K and every g, with τ = −1, −1, +1 for σ_x, σ_y, σ_xσ_y. The image map is a bijection onto the 32 ordinals.
+- <strong>(A) The anchor:</strong> max_ab |S_f − R|_ab / |R_ab| ≤ <strong><code>LEG_D0_REPRODUCTION_BAND</code> 1e-9</strong> (<code>tests/validation/test_port_birdcage_four_port.py:165</code>).
+  - TH-16 3c gated the same identity on F-small at this band and read 1.520e-12 (<code>20260930T093451Z_TH-16-step3c-W1.log:1014–1019</code>).
+  - Taken over the driven columns: 3 × 32 entries in W1, all 1 024 in W2. Predicted 1e-13 – 1e-10.
+  - Print the Frobenius ‖S<strong> − R‖/‖S_f‖ and m</strong> |R<strong>b| (predicted ≥</strong>e-3).
+- <strong>(I1) Reciprocity:** ‖S − Sᵀ‖_F/‖S‖</strong> ≤ <code>RECIPROCITY_BAND</code> 1e-3 (<code>test_port_lumped_sheet_sweep.py:86</code>, the 32×32 gate WF-12 used). It applies to S_f (W2) and to each S^s. Predicted ≈ 1e-14 (WF-12 read 9.167e-15). The entrywise max is printed beside <code>RECIPROCITY_Q_BAND</code> 1e-12 (<code>test_th16_quarter_birdcage.py:116</code>), not asserted.
+- <strong>(I2) Passivity:</strong> σ_max ≤ <code>MATRIX_PASSIVITY_CEILING</code> 1.0 (<code>test_port_birdcage_ring_matrix.py:150</code>) for S_f (W2) and for each S^s. Each S^s is a compression of S_f onto a χ-subspace, so σ_max(S^s) ≤ σ_max(S_f). Predicted for S_f: ≈ 0.99999 (WF-12 read 0.999993339).
+- <strong>(I3) S_f's own D2 invariance (W2):</strong> max |S_f[π_g(a), π_g(b)] − S_f[a, b]| / |S_f[a, b]| ≤ 1e-9 for g ∈ {σ_x, σ_y, σ_xσ_y}. Predicted ≈ 1e-13. It holds whatever the orientation sign, because the signs square away. So it does not test the χ table; (A) does.</p>
+<p><strong>Printed, never asserted:</strong>
+- per sector: the 8×8 S^s, times and DOFs;
+- ΔRSS per sector and for the full sweep, and the quarter-to-full solve-phase ratio (TH-16 read ≈ 0.29). This is the degree-1 input to H13b's bracket;
+- S_f(P17, P17) beside WF-12's direct-mesh copper value 0.383271 + 0.391623j (two meshes; a record only);
+- the box speed s and the W2 projection.</p>
+<p><strong>Negative controls (rule (e)).</strong> Each is arithmetic on the measured matrices, and each equals what a solver making that mistake would return: the swapped matrices are the operators such a solver would factor. Each is predicted and printed in W1 on its 3 columns, then <strong>asserted in W2</strong> under <code>FEM_EM_TH20_STEP1_CONTROL=1</code>, with W1 as the prior measurement on the same fixture (item 176's idiom).
+- <strong>(C1) The orientation trap.</strong> Assemble with TH-16's axial convention (ε = −1 for E).
+  - χ flips on σ_x and σ_y, so the 512 entries with hk ∈ {σ_x, σ_y} become −R.
+  - Their miss is |−R − S_f|/|R| = <strong>2 ± (A)</strong>. That is the ceiling of any sign error, ≈ 2e9 × the band. The other 512 entries are unchanged.
+  - Assert exactly 512 entries with |miss/2 − 1| ≤ 1e-9, and the rest ≤ 1e-9. W1 shows the same split on its 96 entries: 48 / 48.
+- <strong>(C1x) PMC for PEC on x = 0 in every sector.</strong> This is TH-16 3c's control applied to the whole plane.
+  - χ flips on σ_x, so the 512 entries with hk ∈ {σ_x, σ_xσ_y} miss by exactly 2 ± (A). The assert has the same form as C1.
+  - <strong>The self entries do not move,</strong> because χ_s(e) = 1 for every s. So the old row text's "wrong-cut control &gt; 0.5 on the self class" cannot be read here: the weekly's four-solve re-target replaced that form, and C2 covers the self class.
+- <strong>(C2) One mis-set plane in one sector.</strong> Solving (E,E) with x = 0 left natural gives the (M,E) operator, so substitute S^(E,E) := S^(M,E).
+  - Every entry moves by ¼ (S^(M,E) − S^(E,E))_ij.
+  - It is read on the self class: the min over the 32 diagonal entries of |ΔR_aa|/|S_f,aa|.
+  - <strong>Ceiling:</strong> ½/|S<strong>a| ≈ 0.91. </strong>ch sector is passive, so |S^s<strong>i| ≤ 1, and |S</strong>a| ≈ 0.548 from WF-12's S₁₇,₁₇.
+  - <strong>Prediction:</strong> the (E,E) sector carries k = 0, 2, 4, 6 and (M,E) carries k = 1, 3, 5, 7, so the reading is O(0.1), in [1e-2, 0.91].
+  - <strong>Assert ≥ 1e-3.</strong> That is 1e6 × the anchor band and ≥ 10× below the predicted floor.
+  - A fifth solve with the plane mis-set would add only round-off, so none is run.</p>
+<p><strong>Windows.</strong> Bash <code>timeout: 660000</code>, foreground, each harness call bare and whole. Copy the §5.1 durable capture verbatim, with the trailing <code>; exit \$rc</code>.
+- <strong>W1, at <code>-n 8</code>, with 3 full drives:</strong> the price, the box-speed reading, (A) on 96 entries, and the controls printed. Predicted 240–340 s.</p>
+<p><code>scripts/testing/run_and_log.sh TH-20-step1-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_TH20_STEP1=1 FEM_EM_TH20_STEP1_FULL_DRIVES=3 timeout -k 30 540 mpiexec -n 8 python3 -m pytest tests/environment tests/validation/test_th20_quarter_solves.py -v -s --tb=short &gt; /workspace/logs/th20-step1-w1-raw.log 2&gt;&amp;1; rc=\$?; echo \"[capture] rc=\$rc\" &gt;&gt; /workspace/logs/th20-step1-w1-raw.log; cat /workspace/logs/th20-step1-w1-raw.log; exit \$rc'"</code>
+- <strong>Gate before W2.</strong> Run W2 only if W1 is Status 0, (A) is green on its columns, and the printed projection is ≤ 560 s. The projection already carries the box speed; s is printed as the diagnostic.
+- <strong>W2, at <code>-n 8</code>, with 32 full drives and the controls asserted.</strong> This is the window the step closes on. Predicted 330–480 s.</p>
+<p><code>scripts/testing/run_and_log.sh TH-20-step1-W2 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_TH20_STEP1=1 FEM_EM_TH20_STEP1_CONTROL=1 timeout -k 30 600 mpiexec -n 8 python3 -m pytest tests/environment tests/validation/test_th20_quarter_solves.py -v -s --tb=short &gt; /workspace/logs/th20-step1-w2-raw.log 2&gt;&amp;1; rc=\$?; echo \"[capture] rc=\$rc\" &gt;&gt; /workspace/logs/th20-step1-w2-raw.log; cat /workspace/logs/th20-step1-w2-raw.log; exit \$rc'"</code>
+- <strong>Why <code>-n 8</code>, not <code>-n 2</code>:</strong> the 32-drive full sweep is priced only at <code>-n 8</code> on this fixture. The mirror build and its distribution were already proven at <code>-n 2</code> (0b W2), and every reduction is visible at any n &gt; 1.</p>
+<p><strong>Traps (paid for):</strong>
+- <strong>The orientation sign</strong> (above). Azimuthal ports flip under a reflection: E ⇒ +1, M ⇒ −1. Getting it backwards gives C1's exact-2 signature on half the entries. That is a test defect, not a physics finding.
+- <strong>Never reuse a held factor across sectors or meshes.</strong> A held factor solves a changed problem without complaint (<code>PORT-19</code>; WF-12's PEC-column trap). Use one solver per sector, with the wall term in each factorising call.
+- <strong><code>_outer_box_tags</code> is wrong on the quarter.</strong> Exterior-minus-401 includes 501 / 502, so every sector would silently become (E,E). Use the quarter's own tags 1 / 501 / 502.
+- <strong>No TH-16 port rescaling.</strong> The ring sheets are interior to the quarter: 50 Ω, full width, no <code>halve_sheet_spec</code>.
+- <strong>Never build the quarter alone</strong> (<code>GEO-23</code>). <code>_meshes()</code> builds the direct full mesh first, and (P0)'s 97 414 is recorded on that order.
+- <strong>Tag ghost exterior facets too</strong> on the mirror-built mesh, because Dirichlet DOF location reads local facets. Count owned facets only.
+- <strong>No collective inside <code>if comm.rank == 0:</code>.</strong> Item 227's W1 deadlocked rank 0 on exactly that (<code>WF-7.md</code>, 2026-10-04 12:00 outcome). Reduce first, then print.
+- Interior facet tags hang at <code>-n 2</code> (known-issues 9). Distribute cells only, and hoist <code>create_connectivity(fdim, tdim)</code> and <code>create_entity_permutations()</code> before any facet query (0b's pattern).
+- <code>del fields</code> after every drive (<code>test_wf7_f_human_ring_matrix.py:361</code>). <code>cell_tags.values</code> and <code>assemble_scalar</code> are rank-local.
+- Facet forms stay free of <code>SpatialCoordinate</code> (<code>_leontovich_term</code> already is).
+- <strong>Keep these out of the window:</strong>
+  - <code>tests/mesh/test_birdcage_port_tags.py</code>, the open <code>GEO-23</code> red;
+  - the 0a and 0b modules, which re-run their own anchors and add ≈ 60 s.
+- Always <code>-s</code>; no pytest <code>-k</code>; no pipes.
+- <strong>Rule (i):</strong> no edit after W1 starts. The slot checks the module's mtime against W2's start.
+- <strong>On Status 124:</strong> <code>pgrep -c python3</code> in the container, then the cache sweep. Never lengthen the timeout.</p>
+<p><strong>Scope.</strong>
+- <strong>Fixture:</strong> degree 1, 64 MHz, the copper Leontovich wall (σ = 5.8e7), on the mirror-built mesh of the 1.6 mm hole fixture.
+- <strong>Ports and run:</strong> 50 Ω terminations, exact ring sheets with κ off (the 10-02 binding ruling), <code>-n 8</code>.
+- <strong>What the identity gates:</strong> it is a same-mesh, same-code identity. It gates the symmetry planes, the sector characters and the port bookkeeping.</p>
+<p><strong>Not covered:</strong>
+- any two-mesh band. The mirror-built and direct full meshes are independent triangulations (Q3 reads 1.498e-4), and WF-12's 32×32 is only printed beside S_f;
+- C16: the mirror-built mesh is D2-symmetric by construction, not C16;
+- <code>C_mode</code>, tuning, <code>|B₁⁺|</code> / SAR;
+- degree 2, or any memory claim (H13b);
+- the σ = 800 solid route;
+- 128 MHz.</p>
+<p><strong>Negative result:</strong>
+- <strong>(P0) off a record:</strong> stop. This is an image or record drift (<code>record-reconciler</code>). Commit nothing but the log.
+- <strong>(A) red with the exact-2 pattern on the σ_x / σ_y images:</strong> the χ table is inverted in the test. Park on <code>attempt/TH-20-step1-&lt;ts&gt;</code> and mark BLOCKED (rule (d)). The re-pose fixes the table; rule (i) forbids an edit after W1.
+- <strong>(A) red otherwise, with (P0)–(P3) and (I1)–(I3) green:</strong> a symmetry-plane or port-bookkeeping defect, or a round-off floor above 1e-9 at this size. Report the per-entry pattern (by g and by |R_ab|), park, and mark BLOCKED. The band is imported and never widened; any rule (f) question is the review's.
+- <strong>(I1) or (I2) red on a sector:</strong> a finding on the sector operator. Write a known-issues entry, park, and mark BLOCKED.
+- <strong>C1 / C1x not exactly 2, or C2 under 1e-3:</strong> the control is blind or the assembly is wrong. The step does not close.
+- <strong>W1's projection &gt; 560 s, or W1 killed at 540 s:</strong> a price, not a defect. Report it and mark BLOCKED. The next try is a later normal-speed slot. If a normal-speed box also projects over 560 s, H13a needs an <code>xl</code> entry, which the weekly commissions.
+- There is no PREDICTED RED line.</p>
+<p><strong>Status it can move:</strong>
+- <strong>§7 <code>TH-20</code> ⬜ → 🟡</strong> on a green W2 (rule (j), checked). The row's Done-when is "step 1's identity asserted in one logged window ⇒ 🟡; step 2 priced ⇒ ✅". W2 asserts the identity (A) together with (P0)–(P3), (I1)–(I3) and C1 / C1x / C2 in one logged window. ✅ waits on step 2 (H13b).
+- <strong>§10 chain H13a</strong> is annotated DONE. H13b (the quarter at degree 2, priced) becomes the weekly's to pose, with this window's degree-1 quarter-to-full time and memory ratio as its input.
+- <strong>Flag for the weekly:</strong> the row's moved-verbatim text ("three quarter solves … wrong-cut control &gt; 0.5 on the self class") is out of date. Step 1 now runs four solves, per the 10-03 re-target. The self class is read by C2, because a whole-plane swap leaves the self entries unchanged.</p>
+<p><strong>Outcome (2026-10-04 21:00 slot): ✅ DONE.</strong> W1 <code>20261005T020349Z_TH-20-step1-W1.log</code> (309 s) and W2 <code>20261005T020907Z_TH-20-step1-W2.log</code> (369 s) Status 0; (A) 2.106e-11 over all 1 024 entries against 1e-9; (P0)–(P3), (I1)–(I3), C1 / C1x (512 / 512 at exact 2) and C2 (0.1135) green. Quarter-to-full solve-phase ratio 0.261, full-sweep ΔRSS +5.69 GiB. <code>TH-20</code> → 🟡; H13a DONE.</p>
+<h3 id="9-item-350-2026-10-09-chain-step-h13b">§9 item 350 — 2026-10-09 (chain step H13b)<a class="headerlink" href="#9-item-350-2026-10-09-chain-step-h13b" title="Permanent link">&para;</a></h3>
+<p><strong>Outcome 2026-10-10 (19:30 slot): ✅ step 2a DONE, <code>TH-20</code> holds 🟡.</strong> <code>tests/validation/test_th20_quarter_degree2.py</code>. W1 (EE) attempt 1 crashed on a test-code bug before any solve (<code>index_map(1)</code> read before <code>create_entities(1)</code>, <code>20261010T003223Z_TH-20-step2-W1-EE.log</code>; no npz written), fixed, W1 re-run from scratch under rule (i). (P0) 97 414 / 1 825 / 1 811 on both solve windows; (Deg) 684 904 = 2E + 2F (E 134 230, F 208 222). Per sector EE / EM / ME / MM at <code>-n 8</code>: factorising drive 67.14 / 59.47 / 56.88 / 52.75 s, held max 3.17 / 2.10 / 2.01 / 1.97 s, sector 86.4 / 74.4 / 70.8 / 66.5 s, peak summed RSS 17.08 / 17.42 / 18.82 / 19.57 GiB, <code>INFOG(17)</code> 15 046 / 15 326 / 14 823 / 15 076 MB; (I1) 3.03e-14 / 6.43e-14 / 4.75e-14 / 4.11e-14; (I2) σ_max 0.999979 / 0.999983 / 0.999982 / 0.999983; P_surf &gt; 0 on all. (P1) degree-2 constrained DOFs 35 228 &gt; 26 030, 25 960 &gt; 16 702 (ratio to degree 1 ≈ 3.30–3.32, not the predicted ≈ 2 — printed prediction miss). (P3) 1.1e-16. PROJECTION(3) 435 s ⇒ W2 ran all three sectors. C2 = 1.0994e-1 <strong>printed, not asserted</strong> (ruling 2; the <code>FEM_EM_TH20_STEP2_CONTROL</code> assert path was not implemented and the variable was dropped from W3's command), inside the predicted [0.08, 0.15]. R(P17, P17) d2 0.402611 + 0.391882j (d1 0.383439 + 0.391631j); R saved to <code>logs/th20/th20-step2-d2-R.npz</code>. Step-2b projection: 537 … 1 074 s full factor at <code>-n 8</code>. Logs: <code>20261010T003627Z_TH-20-step2-W1-EE.log</code> (310 s), <code>20261010T004145Z_TH-20-step2-W2-EMMEMM.log</code> (430 s), <code>20261010T004901Z_TH-20-step2-W3-assemble.log</code> (72 s).</p>
+<p><em>Drafted by a general-purpose agent for the 2026-10-09 18:00 daily review. Licence: §9 rule (4) for H13b as the 10-05 weekly enumerated it (<code>PROJECT_PLAN.md:4740–4742</code>; full text <code>docs/planning/plan-archive.md:38157–38165</code>). Its comparand clause is re-posed under rule (6), because it is blocked: neither the named comparand nor the named fallback can serve (below). The target stays the weekly's. The reassembly identity remains the step's target, and its full-mesh half moves to an <code>xl</code> part for the weekly to commission. No band is set or moved.</em></p>
+<ul>
+<li><strong>Executor:</strong> implementer. <strong>Tier:</strong> heavy, complex, <code>-n 8</code> for the solve windows and <code>-n 1</code> for the assembly window (no mesh, no solve). <strong>Class:</strong> chain solve, step 2a.</li>
+<li><strong>Cost:</strong> ≈ 13 measured (the class figure the review supplies) / ≈ 55 predicted min. That is ≈ 20 min of code (a new module, mostly imports), W1 ≈ 5 min, W2 ≈ 8 min, W3 ≈ 1 min and records ≈ 10 min.</li>
+<li><strong>Depends on:</strong> nothing. H15b ran green (<code>20261009T070009Z_WF-7-step0e-H15b.log</code>), but this item does not read its npz (below). It is order-independent of U21 (below). <strong>Family:</strong> <code>TH-20</code> step 2, attempt 1 of 4.</li>
+</ul>
+<p><strong>The comparand question, settled from the code and the records.</strong> The 10-05 text asserts "the four degree-2 quarter sectors reassemble … H15b's saved matrix at the imported 1e-9". If H15b slips, a "fresh one-column degree-2 full solve (priced by <code>xl</code> 09-19)" stands in. Neither can be the comparand of a 1e-9 identity:
+- <strong>H15b's matrix belongs to a different fixture.</strong> It is the σ = 800 <strong>solid</strong> route (conductor as a lossy volume) on the <strong>direct</strong> mesh: 507 266 cells and 3 256 418 unknowns at degree 2 (<code>20261009T070009Z_WF-7-step0e-H15b.log:10924–10925</code>). <code>TH-20</code>'s quarter is the <strong>copper Leontovich hole</strong> route, and step 1 reassembled the <strong>mirror-built</strong> 389 656-cell mesh (<code>20261005T020907Z_TH-20-step1-W2.log:8343</code>).
+- <strong>The solid route has no quarter.</strong> The cutter refuses the solid ring-gap quadrant before gmsh (<code>src/fem_em_solver/io/mesh.py:4346–4351</code>, "the solid ring-gap quadrant is not gated … use as_hole=True"; 0a's Q7 asserts that refusal).
+- <strong>Same-physics meshes do not agree at an identity band either.</strong> On copper, the direct and mirror-built meshes give S(P17, P17) = 0.383271 + 0.391623j against 0.383439 + 0.391631j (step 1 W2 <code>:8381</code>), a 3e-4 difference.
+- <strong>So no reading of H15b's npz can test the sector characters.</strong> That npz was never this step's comparand: the 10-05 text took a matrix saved for <code>C_mode</code> (H15b's readout) as if it were the mirror-built copper 32×32.
+- <strong>The fallback, read as written, has the same defect.</strong> "Priced by <code>xl</code> 09-19" is <code>WF-7</code> step 0b, again the σ = 800 solid route.
+- <strong>The correct fallback cannot fit a slot.</strong> That is one degree-2 column on the mirror-built copper mesh, predicted 389 656 / 369 387 × 2 570 024 ≈ 2.71 M unknowns. Its direct-mesh twin (2 570 024 unknowns) did not return a factorising drive inside the ≈ 445 s left after a 112.5 s build at <code>-n 8</code>: Status 124 at 590 s (<code>20261006T123338Z_WF-12-step4-W1.log:6352–6372</code>). The weekly moved it to <code>xl</code> entry 32 (10-13, <code>-n 16</code>, predicted 600–1 800 s; <code>docs/testing/xl-pending.md:1643–1653</code>). A one-column full solve is therefore <code>xl</code>-only.</p>
+<p><strong>What fits one slot, and what this item is.</strong> Step 2a computes the quarter half of the identity at degree 2:
+- the four (PEC / PMC)² sector 8×8 matrices on the quarter that step 1 used, with their price;
+- the per-sector identities, asserted;
+- the D2 reassembly R (32×32), saved.</p>
+<p>Step 2b, for the weekly to commission on <code>xl</code>, is one degree-2 full column on the mirror-built copper mesh at <code>-n 16</code>, with (A) asserted on its 32 entries against the R this item saves. Entry 32's 10-13 reading prices it.</p>
+<p><strong>The price, from measured logs.</strong>
+- <strong>Mesh phase:</strong> ≈ 145 s per window. <code>_meshes()</code> builds the direct full hole mesh first (<code>GEO-23</code>) and then the quarter; step 1 W2 reached the first sector at t = 144.4 s, box speed s = 1.054 (<code>20261005T020907Z_TH-20-step1-W2.log:8304</code>).
+- <strong>Closest measured analogue for one degree-2 quarter sector:</strong> <code>MAT-19</code> step 3p. It is a degree-2 copper-hole fixture with lumped sheets, 93 956 cells against the quarter's 97 414, run at <code>-n 8</code>. EM drives 64.0 / 59.5 s, summed <code>ru_maxrss</code> 18.12 GiB (<code>20261008T124839Z_MAT-19-step3p-W2.log:1076</code>, <code>:1105</code>).
+- <strong>Same-order solid analogue:</strong> <code>PORT-21</code> step 4, 746 144 unknowns at degree 2, <code>-n 8</code>. MUMPS factorization 39.2 s, <code>INFOG(17)</code> 16 357 MB (<code>20261001T094205Z_PORT-21-step4-W1.log:2083</code>, <code>:2142</code>, <code>:2217</code>).
+- <strong>Lower bound from the full mesh.</strong> In step 1 at degree 1, the sector-to-full factor ratio was 3.95 / 31.62 s (<code>:8306</code>, <code>:8344</code>). The full degree-2 copper factor exceeds 445 s. Hence the sector factor is ≳ 56 s.
+- <strong>Predicted, per sector at <code>-n 8</code>:</strong>
+  - quarter unknowns 2E + 2F ≈ 0.66–0.72 M (0.2637 × 2 570 024 plus the cut-plane entities);
+  - factorising drive 60–130 s;
+  - held drive plus post 1.5–4 s each;
+  - sector total 75–160 s;
+  - summed RSS 15–30 GiB, freed between sectors.
+- <strong>Window totals.</strong> W1, one sector, is predicted at 240–330 s. W2, three sectors, is predicted at 400–540 s. Both fit heavy: ≤ 590 s container timeout, ≤ 12 ranks, well under 128 GiB.
+- <strong>The 10-05 text's "≈ 170–250 s, 25–35 GiB for the quarter" is superseded.</strong> It was scaled from the solid route's <code>xxl</code> figure through H13a's 0.261. H16 measured that the solid-route price does not transfer to copper (2026-10-07 weekly ruling, <code>PROJECT_PLAN.md:4574–4579</code>).</p>
+<p><strong>Code: tests only, no <code>src/</code>.</strong> Write a new <code>tests/validation/test_th20_quarter_degree2.py</code>, marked <code>@complex_only</code>. <strong>Do not edit</strong> <code>test_th20_quarter_solves.py</code>: it is step 1's closed module, and rule (i) applies to its record. Import from it:
+- <code>_make_drive</code> (<code>:168</code>), <code>_specs</code> (<code>:219</code>), <code>_reconstruct</code> (<code>:112</code>), <code>_recip</code> (<code>:242</code>), <code>_sigma_max</code> (<code>:238</code>), <code>_pi</code> (<code>:86</code>), <code>_owned_tag_count</code> (<code>:162</code>);
+- <code>SECTORS</code>, <code>GROUP</code>, <code>TAU</code>, <code>COPPER_SIGMA</code>, <code>QUARTER_CELL_RECORD</code> (<code>:47–70</code>), <code>C2_FLOOR</code> (<code>:59</code>).</p>
+<p>Also import <code>_meshes</code> / <code>KEPT_RING</code> (<code>test_th20_quarter_f_human_mesh.py:232</code>, <code>:75</code>), <code>_constrained_dofs</code> (<code>test_th16_quarter_birdcage.py:189</code>), <code>_problem</code> (<code>test_th14_birdcage_copper.py</code>) and <code>_rss_gib</code> (<code>test_wf12_f_human_hole.py:191</code>).</p>
+<p>Test 1, <code>test_th20_step2_degree2_sectors</code>, is gated on <code>FEM_EM_TH20_STEP2=1</code>. It runs the sectors named in <code>FEM_EM_TH20_STEP2_SECTORS</code> (comma list from EE, EM, ME, MM; unset means all four; anything else raises before the build). It follows step 1's sector loop (<code>test_th20_quarter_solves.py:342–409</code>) with three changes:
+1. <strong>Degree.</strong> <code>DEGREE_2 = 2</code> is a module constant passed to <code>TimeHarmonicSolver(problem, degree=DEGREE_2)</code>. <strong>Never import <code>DEGREE</code></strong> from <code>test_wf7_f_human_b1_quadrature.py</code>: it is 1 (<code>:53</code>).
+2. <strong>(Deg),</strong> on the first sector's solver, before any assembly, in H16a's form (<code>test_wf12_f_human_copper_degree2.py:125–145</code>): <code>solver.degree == 2</code>, and the global unknowns from <code>solver.function_space()</code> equal 2E + 2F of the quarter mesh (<code>topology.index_map(1/2).size_global</code>).
+3. <strong>Saving.</strong> Each sector's 8×8 S^s, its constrained-DOF count, its P_surf and its price go to <code>/workspace/logs/th20/th20-step2-d2-&lt;sector&gt;.npz</code> (gitignored). Write on rank 0 after every collective, with exclusive create (<code>open(path, "xb")</code>). An existing file raises <strong>before the build</strong>: no stale-file mixing across attempts.</p>
+<p>Per-phase prints, each after a collective <code>_rss_gib</code>, go per sector:
+- the constrained DOFs;
+- the factorising drive (solve + post);
+- held max and mean;
+- the sector total;
+- summed and per-rank RSS, and ΔRSS.</p>
+<p>The window prints <code>PROJECTION(k) = t_before_first_sector + k × t_sector_max + 30</code> for k = 1, 2, 3.</p>
+<p>Test 2, <code>test_th20_step2_assemble</code>, is gated on <code>FEM_EM_TH20_STEP2_ASSEMBLE=1</code>. It builds no mesh and runs no solve: it reads the four npz files. Missing any of the four ⇒ fail.
+- It rebuilds <code>preimage</code> exactly as step 1's (P3) block does (<code>:303–321</code>) and asserts that block's bijection and τ again (pure arithmetic).
+- It runs R = <code>_reconstruct(ss, kept, ordinals, preimage)</code> and saves R plus the four S^s to <code>/workspace/logs/th20/th20-step2-d2-R.npz</code> (exclusive create). That file is step 2b's comparand.
+- <code>FEM_EM_TH20_STEP2_CONTROL=1</code> asserts C2.</p>
+<p>Both tests must be written before W1 starts.</p>
+<p><strong>Anchors (asserted; bands imported, never set):</strong>
+- <strong>(P0)</strong> Quarter cells == <code>QUARTER_CELL_RECORD</code> 97 414, and owned 501 / 502 facets == <code>CUT_FACES_X0</code> / <code>CUT_FACES_Y0</code> 1 825 / 1 811 (<code>test_th20_mirror_built_full_mesh.py:68–69</code>). These are step 1's (P0), in every solve window.
+- <strong>(Deg)</strong> <code>solver.degree == 2</code> and unknowns == 2E + 2F exactly, in every solve window.
+- <strong>(P2)</strong> P_surf &gt; 0 on each sector's factorising drive, so the Leontovich wall is in every operator.
+- <strong>(I1) per sector:</strong> ‖S^s − S^sᵀ‖_F / ‖S^s‖_F ≤ <code>RECIPROCITY_BAND</code> 1e-3 (<code>tests/validation/test_port_lumped_sheet_sweep.py:86</code>). Predicted ≈ 1e-14, as step 1 read 3.3e-15 … 1.0e-14 at degree 1 (<code>:8306–8333</code>). The entrywise max is printed beside <code>RECIPROCITY_Q_BAND</code> 1e-12 (<code>test_th16_quarter_birdcage.py:116</code>), not asserted.
+- <strong>(I2) per sector:</strong> σ<strong>ax(S^s) ≤ <code>MATRIX_PASSIVITY_CEILING</code> 1.0 (klz</strong>xh:1085). Predicted 0.99999 (step 1: 0.999991–0.999993).
+- <strong>(P1), in W3 </strong>om the saved counts:** constrained DOFs EE &gt; EM, ME &gt; MM. Step 1 read 10 662 &gt; 7 874, 7 853 &gt; 5 035 at degree 1 (<code>:8342</code>). At degree 2, each count is predicted ≈ 2× (edges plus faces on the PEC planes).
+- <strong>(P3), in W3:</strong> the image bijection and |(R_g d_o)·d_π(o) − τ_g| ≤ 1e-12 (step 1 read 1.1e-16, <code>:220</code>).</p>
+<p><strong>Printed, never asserted:</strong>
+- the price against the pre-stated bracket above: unknowns, factor, held, sector total, summed RSS, and <code>INFOG(17)</code> from the <code>FEM_EM_SOLVER_PROGRESS=2</code> MUMPS block;
+- the quarter's peak summed RSS beside H15b's full σ = 800 103.95 GiB at <code>-n 16</code> (<code>docs/testing/xl-ledger.md:55</code>), and beside the degree-2 copper full column's "&gt;445 s unreturned at <code>-n 8</code>";
+- a projected price for step 2b: the measured sector factor × 8 … 16 at <code>-n 8</code> (ratio 1/8, step 1's degree-1 measure, to the N² nested-dissection bound of 1/16), labelled a projection;
+- the d1 → d2 move of S^s(P17, P17) against step 1 W2's degree-1 rows. These are records, not comparands:</p>
+<table>
+<thead>
+<tr>
+<th>sector</th>
+<th>degree-1 S^s(P17, P17)</th>
+<th>step 1 W2 line</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EE</td>
+<td>+0.087643 + 0.432975j</td>
+<td><code>:8307</code></td>
+</tr>
+<tr>
+<td>EM</td>
+<td>+0.584504 + 0.435851j</td>
+<td><code>:8316</code></td>
+</tr>
+<tr>
+<td>ME</td>
+<td>+0.275464 + 0.258848j</td>
+<td><code>:8325</code></td>
+</tr>
+<tr>
+<td>MM</td>
+<td>+0.586144 + 0.438849j</td>
+<td><code>:8334</code></td>
+</tr>
+<tr>
+<td>- R(P17, P17) at degree 2 beside step 1's 0.383439 + 0.391631j (<code>:8381</code>);</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>- H15b's σ = 800 values: <strong>not printed at all.</strong> They belong to a different fixture.</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Negative controls (rule (e)):</strong>
+- <strong>(C2) The collapsed sectors,</strong> asserted in W3 under <code>FEM_EM_TH20_STEP2_CONTROL=1</code>. The quantity is min over i ∈ K of |S^(M,E)_ii − S^(E,E)_ii| / |Σ_s S^s_ii|.
+  - <strong>Why this is step 1's C2.</strong> For every full ordinal a = π_h(i), R_aa = ¼ Σ_s S^s_ii (the self class has g = e), and ΔR_aa = ¼ (S^(M,E) − S^(E,E))_ii. Step 1 r<strong>d S_f,aa = R_aa to 2.106e-</strong>, so this sector-only form is step 1's C2 to ≈ 1e-10.
+  - <strong>What a brok</strong> run returns.<strong> A solver that reused a </strong>ld factor across sectors, or a pec tuple taken from <code>_outer_box_tags</code> (every sector silently becomes (E,E)), returns four identical S^s and reads exactly 0.
+  - <strong>The asse</strong>:<strong> ≥ <code>C2_FLOOR</code> 1e-3</strong><code>test_th20_quarter_solves.py:59</code>, imported).
+  - <strong>The backing measurement</strong><strong>step 1's 1.134</strong>-1 on the same mesh, the same comparison and the same sectors, at degree 1 (<code>20261005T020907Z_TH-20-step1-W2.log:8385</code>). That sits 113× above the floor.
+  - <strong>Ceiling:</strong> 2 / (4 × 0.548) ≈ 0.91 (|S^s_ii| ≤ 1). <strong>Predicted at degree 2:</strong> [0.08, 0.15], printed beside the reading.
+  - <strong>Flagged for the review:</strong> the backing measurement is at degree 1. If the review reads "the same fixture" under rule (e) as excluding a change of order, C2 is printed in W3, not asserted, and the step cannot close on it.
+- <strong>(Deg) control,</strong> predicted and printed in H16a's form: a degree-1 space would read E, not 2E + 2F. This is the <code>WF-15</code> step 1 degree-default trap.</p>
+<p><strong>Windows.</strong> Bash <code>timeout: 660000</code>, foreground, each harness call bare and whole. The solve windows use §5.1's durable capture verbatim, trailing <code>; exit \$rc</code> included. The first, before W1, is a pre-flight (no harness):
+- A Glob of the repo's <code>logs/th20/</code> (the container's <code>/workspace/logs/th20/</code>) must show no <code>th20-step2-d2-*.npz</code>. A leftover file from an earlier attempt is reported, not silently removed.
+- <code>grep -n emit_leg_ports tests/validation/test_birdcage_f_human_rung.py tests/validation/test_th20_quarter_f_human_mesh.py</code> must be empty (the U21 check, below).</p>
+<ul>
+<li><strong>W1, the cost probe, (E,E) alone at <code>-n 8</code>.</strong> Predicted 240–330 s.</li>
+</ul>
+<p><code>scripts/testing/run_and_log.sh TH-20-step2-W1-EE "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; mkdir -p /workspace/logs/th20 &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_SOLVER_PROGRESS=2 FEM_EM_TH20_STEP2=1 FEM_EM_TH20_STEP2_SECTORS=EE timeout -k 30 590 mpiexec -n 8 python3 -m pytest tests/environment tests/validation/test_th20_quarter_degree2.py -v -s --tb=short &gt; /workspace/logs/th20-step2-w1-raw.log 2&gt;&amp;1; rc=\$?; echo \"[capture] rc=\$rc\" &gt;&gt; /workspace/logs/th20-step2-w1-raw.log; cat /workspace/logs/th20-step2-w1-raw.log; exit \$rc'"</code></p>
+<ul>
+<li><strong>Gate before W2,</strong> read from W1's printed PROJECTION(k):</li>
+<li><strong>PROJECTION(3) ≤ 540 s:</strong> W2 runs EM, ME and MM together (below).</li>
+<li><strong>Else PROJECTION(2) ≤ 540 s:</strong> W2 runs EM and ME, and W2b runs MM. Same command with the sector list and label changed (<code>TH-20-step2-W2-EMME</code>, <code>TH-20-step2-W2b-MM</code>; raw logs <code>th20-step2-w2-raw.log</code>, <code>th20-step2-w2b-raw.log</code>).</li>
+<li><strong>Else PROJECTION(1) ≤ 540 s, and ≥ 3 × PROJECTION(1) + 10 min of the slot remain:</strong> one sector per window.</li>
+<li>
+<p><strong>Otherwise stop.</strong> That is the price, not a defect (see the negative results).</p>
+</li>
+<li>
+<p><strong>W2, three sectors at <code>-n 8</code>.</strong> Predicted 400–540 s.</p>
+</li>
+</ul>
+<p><code>scripts/testing/run_and_log.sh TH-20-step2-W2-EMMEMM "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; mkdir -p /workspace/logs/th20 &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_SOLVER_PROGRESS=2 FEM_EM_TH20_STEP2=1 FEM_EM_TH20_STEP2_SECTORS=EM,ME,MM timeout -k 30 590 mpiexec -n 8 python3 -m pytest tests/environment tests/validation/test_th20_quarter_degree2.py -v -s --tb=short &gt; /workspace/logs/th20-step2-w2-raw.log 2&gt;&amp;1; rc=\$?; echo \"[capture] rc=\$rc\" &gt;&gt; /workspace/logs/th20-step2-w2-raw.log; cat /workspace/logs/th20-step2-w2-raw.log; exit \$rc'"</code></p>
+<ul>
+<li><strong>W3, the assembly and the window the step closes on,</strong> at <code>-n 1</code>. No mesh and no solve; C2 is asserted. Predicted 20–40 s.</li>
+</ul>
+<p><code>scripts/testing/run_and_log.sh TH-20-step2-W3-assemble "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_TH20_STEP2_ASSEMBLE=1 FEM_EM_TH20_STEP2_CONTROL=1 timeout -k 30 180 mpiexec -n 1 python3 -m pytest tests/environment tests/validation/test_th20_quarter_degree2.py -v -s --tb=short'"</code></p>
+<ul>
+<li><strong>Why <code>-n 8</code> and not <code>-n 2</code>.</strong> The sector solve at degree 2 is priced only at <code>-n 8</code>. Step 1 proved the same reductions (<code>_make_drive</code>'s <code>sheet_terminal_current(…, comm)</code> and <code>_owned_tag_count</code>) at <code>-n 8</code>, and every reduction is visible at any n &gt; 1.</li>
+</ul>
+<p><strong>The U21 interaction: unaffected, and order-independent.</strong>
+- <strong>Why unaffected.</strong> <code>TH-20</code> builds through <code>_kwargs()</code> = <code>_params(F_HUMAN_RING_RADIUS, scale_sizing=False)</code> + <code>as_hole=True</code> + longitudinal sheets, calling <code>birdcage_port_domain</code> directly (<code>test_th20_quarter_f_human_mesh.py:117–123</code>). U21's switch list is <code>_build_f_human</code>, <code>mesh:9</code>–<code>12</code>, <code>WF-7</code> / <code>WF-10</code> and <code>EX-62</code> (<code>PROJECT_PLAN.md:4863–4868</code>). <code>GEO-35</code> step 1 also refuses <code>emit_leg_ports=False</code> with <code>as_hole</code> or <code>symmetry_quadrant</code> before gmsh (<code>src/fem_em_solver/io/mesh.py:4281–4285</code>).
+- <strong>What the quarter keeps.</strong> It keeps its leg boxes P1–P4 (tags 101–104, 0a Q1), and its 97 414-cell record stands whichever lands first.
+- <strong>How a switch is detected.</strong> If U21 put the switch into <code>_params</code> itself, the pre-flight grep is non-empty, or the build raises <code>ValueError</code> before gmsh, or (P0) misses 97 414. Each of these stops the item (negative results).
+- <strong>Flag for the review, outside this item.</strong> <code>_build_f_human(comm, as_hole=True)</code> is the path of <code>WF-12</code>'s degree-2 module and of <code>xl</code> entry 32 on 10-13 (<code>test_wf12_f_human_copper_degree2.py:114</code>). A U21 switch that does not exempt <code>as_hole</code> will make entry 32 raise at <code>mesh.py:4281</code>.</p>
+<p><strong>Traps (paid for):</strong>
+- <strong>H15b's npz is not this step's comparand</strong> (above). Never load <code>/workspace/logs/wf7/wf7-s32-degree2-n16.npz</code> here: it is σ = 800 solid on a different mesh, and any band read against it is a two-fixture number.
+- <strong>Never reuse a held factor across sectors.</strong> A held factor solves a changed problem without complaint (<code>PORT-19</code>; step 1). Use one fresh solver per sector, with the wall term first in each factorising call. C2 is the check.
+- <strong><code>_outer_box_tags</code> is wrong on the quarter.</strong> Use the quarter's own tags 1 / 501 / 502 with step 1's <code>pec_of</code> table (<code>test_th20_quarter_solves.py:358–359</code>).
+- <strong>No <code>TH-16</code> port rescaling and no <code>halve_sheet_spec</code>.</strong> The ring sheets are interior to the quarter: 50 Ω, full width.
+- <strong>Never build the quarter alone</strong> (<code>GEO-23</code>). <code>_meshes()</code> builds the full mesh first, and (P0)'s 97 414 is recorded on that order.
+- <strong>The degree default trap</strong> (<code>WF-15</code> step 1): the imported <code>DEGREE</code> is 1. (Deg) asserts 2.
+- <strong>No collective inside <code>if comm.rank == 0:</code>.</strong> Item 227's W1 deadlocked on exactly that. Reduce first, then save and print.
+- <strong><code>del fields</code> after every drive, and <code>del solver, problem; gc.collect()</code> between sectors.</strong>
+- <strong>Durable capture:</strong> copy the idiom verbatim with the trailing <code>; exit \$rc</code> (<code>WF-6</code> 4h's <code>Status: 0</code> over a red). The final <code>[capture] rc=</code> line must be the last line.
+- <strong>On Status 124:</strong> run <code>pgrep -c python3</code> in the container, then the cache sweep (rubric item 4's command, label <code>TH-20-step2-cache-sweep</code>). A killed first degree-2 compile on the quarter forms can leave an orphan <code>.c</code>. <strong>Never lengthen the timeout.</strong>
+- <strong>Keep out of every window:</strong> <code>tests/mesh/test_birdcage_port_tags.py</code> (the open <code>GEO-23</code> red), and the 0a / 0b / step 1 modules (they re-run their own anchors).
+- Always <code>-s</code>; no pytest <code>-k</code>; no pipes.
+- <strong>Rule (i):</strong> no edit to the module after W1 starts. If it changes, W1 onward re-runs, and stale npz files are refused by the exclusive create.</p>
+<p><strong>Scope.</strong>
+- <strong>Fixture:</strong> degree 2, 64 MHz, copper Leontovich wall (σ = 5.8e7), the 1.6 mm hole fixture's quarter (97 414 cells), 50 Ω terminations, exact ring sheets with κ off (the 10-02 binding ruling), <code>-n 8</code>.</p>
+<p><strong>Not covered:</strong>
+- <strong>the reassembly identity (A) at degree 2.</strong> It needs the mirror-built full degree-2 column (step 2b, <code>xl</code>, the weekly's);
+- any comparison with H15b's σ = 800 matrix;
+- a full-mesh memory claim beyond the printed projection;
+- <code>C_mode</code>, tuning, <code>|B₁⁺|</code> / SAR, 128 MHz;
+- absolute S;
+- C16.</p>
+<p><strong>Negative result:</strong>
+- <strong>W1 killed at 590 s, or no PROJECTION(1) ≤ 540 s:</strong> a price, not a defect. It means the sector factor exceeds ≈ 400 s at <code>-n 8</code>. Record it, journal it in <code>attempts.md</code>, park the module on <code>attempt/TH-20-step2-&lt;ts&gt;</code> and mark §9 item 350 BLOCKED (rule (d)). The unblock is that the weekly moves the four sectors into the step 2b <code>xl</code> window.
+- <strong>(P0) off its record, the pre-flight grep non-empty, or a <code>ValueError</code> from the build:</strong> stop and commit only the log. It is either U21 reaching <code>_params</code> or a record drift (<code>record-reconciler</code>). Report which.
+- <strong>(Deg) red:</strong> the solver is not at degree 2. Fix in-slot only before W1; after W1, park.
+- <strong>(I1) or (I2) red on a sector:</strong> the first degree-2 finding on a quarter sector operator. Write a known-issues entry, park, and mark BLOCKED. The bands are imported and never widened.
+- <strong>C2 &lt; 1e-3:</strong> the sectors collapsed (a reused factor or a wrong pec tuple). The step does not close; park.
+- There is no PREDICTED RED line.</p>
+<p><strong>Status it can move.</strong>
+- <strong>§7 <code>TH-20</code> state line:</strong> "step 2a DONE (item 350): the degree-2 quarter priced — unknowns, per-sector time and memory — with per-sector reciprocity / passivity, (Deg) and C2 asserted; R saved for step 2b".
+- <strong>Glyph: stays 🟡. Flagged for the review (rule (j)).</strong> The row's Done-when reads "step 2 priced ⇒ ✅", which a green 2a literally meets. But the 10-05 weekly posed step 2 as the reassembly identity at 1e-9 ("<code>TH-20</code> → ✅ on it"), and the row's state line repeats that. 2a does not assert (A). The executor closes on the row's posed step: it holds 🟡 and flags. The review either rules that the Done-when's "priced" is met (⇒ ✅) or keeps ✅ on step 2b and amends the row's step-2 sentence to name the mirror-built comparand instead of H15b.
+- <strong>§10 H13b</strong> is annotated: 2a DONE; 2b is posed for the weekly (<code>xl</code>, one degree-2 mirror-built copper column at <code>-n 16</code>, (A) on its 32 entries against <code>th20-step2-d2-R.npz</code>, priced by entry 32's 10-13 reading).</p>
+<p><strong>Review rulings (2026-10-09 18:00 review) on item 350 — these outrank the brief above.</strong> (1) <strong>Glyph: <code>TH-20</code> holds 🟡 on item 350.</strong> Item 350 is step <strong>2a</strong> — the quarter half of H13b, priced, with R saved. The 10-05 weekly's H13b target is the degree-2 reassembly at the imported 1e-9 (<code>plan-archive.md:38160–38162</code>), which 2a does not assert. The row's step-2 sentence ("priced ⇒ ✅") predates the finding that H15b's σ = 800 solid matrix is not the comparand. So the executor does <strong>not</strong> close on the row's letter. This review does not amend the Done-when (rule (6) forbids it); it flags the mismatch for the 10-10 weekly. (2) <strong>C2 is printed, not asserted.</strong> Its only backing measurement is degree 1 (<code>…TH-20-step1-W2.log:8385</code>); a change of element order is a different comparison under rule (e). The step's gates are (I1), (I2) and (Deg). (3) <strong>Step 2b</strong> — one degree-2 mirror-built copper column on <code>xl</code> at <code>-n 16</code>, asserting the reassembly on its 32 entries against the saved R — is the weekly's to commission, priced from <code>xl</code> entry 32's 10-13 reading (dashboard). (4) <strong>This is a re-pose of a blocked step under rule (6)</strong>: the comparand changed, and the target did not. It is provisional, and the weekly ratifies or reverts it. H13b's attempt count is 1 of 4. (5) Independent of <code>GEO-35</code> step 2 (item 351), whichever lands first; the pre-flight check in the brief stays.</p>
+<h3 id="9-item-412-2026-10-13-10-chain-h13b-a-lane-1-no-solve">§9 item 412 — 2026-10-13 (§10 chain H13b-a; lane 1, no solve)<a class="headerlink" href="#9-item-412-2026-10-13-10-chain-h13b-a-lane-1-no-solve" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-13 03:00 daily review; the review reviews it.</em> Licence: §10 chain H, "H13b-a (lane 1, no solve). A degree knob on <code>TH-20</code>'s quarter module (H20a's pattern: build-only at <code>-n 2</code>, unknowns = 2E + 2F per sector asserted, unset bitwise) — the landing step either route of H13b needs. Serial on nothing" (PROJECT_PLAN.md:4686–4689), and <code>xl</code> entry 37 (<code>docs/testing/xl-pending.md:1807–1817</code>). The pattern is H20a, <code>WF-10</code> step 4a, §9 item 368 (<code>docs/planning/chunks/WF-10.md</code> § "§9 item 368"; <code>tests/validation/test_wf10_f_human_tuned_b1_sar.py:118–169</code>, <code>:771–845</code>). <strong>No band, tolerance, Done-when or target is set or moved.</strong></p>
+<p><strong>What already exists, and therefore where the knob goes.</strong> The weekly's text names <code>tests/validation/test_th20_quarter_f_human.py</code>; <strong>no such file exists</strong> (entry 37 repeats the name). The quarter route has three modules:
+- <code>test_th20_quarter_f_human_mesh.py</code> — step 0a's meshes (<code>_meshes()</code>, <code>:232–263</code>), no solver;
+- <code>test_th20_quarter_degree2.py</code> — step 2a (item 350). It <strong>already is</strong> the degree-2 quarter: <code>DEGREE_2 = 2</code> (<code>:60</code>), and (Deg) = 2E + 2F was asserted in its solve windows (684 904 = 2·134 230 + 2·208 222, <code>20261010T003627Z_TH-20-step2-W1-EE.log:8305</code>). A degree knob there would duplicate a measured fact, and the module has no full-mesh side;
+- <code>test_th20_quarter_solves.py</code> — step 1 (item 233), the only module that builds <strong>the mirror-built full mesh</strong> and solves on it, at the imported <code>DEGREE = 1</code> (<code>:280</code>; sectors <code>:368</code>, full <code>:462</code>).</p>
+<p>H13b's anchor (A) is step 1's identity at degree 2: the four sectors' R against a <strong>direct degree-2 column on the mirror-built 389 656-cell mesh</strong>, the mesh the sectors reconstruct (ruling (3) of 2026-10-09 18:00 above; <code>:728–740</code>). So the knob goes on <strong>step 1's module</strong>: with <code>FEM_EM_TH20_DEGREE=2</code> and <code>FEM_EM_TH20_STEP1_FULL_DRIVES=1</code>, its existing test runs four degree-2 sectors and one degree-2 mirror-built column (P17) and asserts (A) on that column's 32 entries — entry 37's window, in one module, with no new identity code.</p>
+<p><strong><code>TH-20</code> step 2b-a: <code>FEM_EM_TH20_DEGREE</code> on <code>test_th20_quarter_solves.py</code>, proven by a build-only window and a degree-1 re-gate.</strong>
+- <strong>Executor:</strong> implementer. <strong>Tier:</strong> heavy — W1 build-only <code>-n 2</code>, W2 step 1's closing window <code>-n 8</code>; W0 smoke <code>-n 1</code>. <strong>Class:</strong> lane 1 (median 6) / chain no-solve (median 7). <strong>Cost:</strong> ≈ 7 measured / ≈ 45 predicted min (15 fixed + ≈ 15 code + W0 ≈ 1 + W1 ≈ 4 + W2 ≈ 6.5 + spare). <strong>If W1 has not started by minute 40, park</strong> (rule (d)).
+- <strong>Depends on nothing open.</strong> W0–W2 need no gitignored input. <strong>Family:</strong> <code>TH-20</code> step 2b, landing (H13b's attempt count stays 1 of 4).</p>
+<p><strong>Code — <code>tests/validation/test_th20_quarter_solves.py</code> only, additive. <code>src/</code>, the 0a / 0b / step-2a modules, <code>test_th16_quarter_birdcage.py</code> and <code>test_wf7_f_human_b1_quadrature.py</code> are not edited.</strong>
+- <strong>Knob.</strong> <code>DEGREE_ENV = "FEM_EM_TH20_DEGREE"</code>; <code>_degree_knob()</code> read at call time, H20a's parser in shape: unset or empty ⇒ <code>None</code> (the degree-1 path, untouched); <code>"2"</code> ⇒ 2; anything else, <code>"1"</code> included, ⇒ <code>ValueError</code> (one degree-1 path, never two). The effective degree is <code>DEGREE if knob is None else 2</code>; it replaces <code>DEGREE</code> at <code>:368</code> and <code>:462</code> and in the start line (<code>:295</code>).
+- <strong>Build-only knob.</strong> <code>BUILD_ONLY_ENV = "FEM_EM_TH20_STEP1_BUILD_ONLY"</code>: unset / empty ⇒ off, <code>"1"</code> ⇒ on, anything else ⇒ <code>ValueError</code>. <code>FEM_EM_TH20_STEP1=1</code> stays the selector.
+- <strong>(Deg) in the solve path, both degrees.</strong> After each sector solver (<code>:368</code>) and after the full solver (<code>:462</code>): <code>msh.topology.create_entities(1)</code> and <code>(2)</code> first, then <code>n_dofs = index_map.size_global · index_map_bs</code>, <code>E = index_map(1).size_global</code>, <code>F = index_map(2).size_global</code>; assert <code>solver.degree == deg</code> and <code>n_dofs == E</code> at degree 1 or <code>n_dofs == 2E + 2F</code> at degree 2, exactly; print E, F, n_dofs and the records below. The four sectors share one quarter space, so their four counts are also asserted equal ("per sector", as the weekly wrote).
+- <strong>(P1) at degree 2.</strong> <code>_constrained_dofs</code> (<code>:366</code>; <code>test_th16_quarter_birdcage.py:189</code>) counts on an N1curl-1 space. At degree 2 call step 2a's <code>_constrained_dofs_degree(msh_q, facets_q, pec, 2)</code> (<code>test_th20_quarter_degree2.py:100–109</code>, a private import — never a <code>test_*</code> name); the unset path keeps <code>_constrained_dofs</code> bit for bit. Step 2a read 35 228 &gt; 26 030, 25 960 &gt; 16 702 (<code>20261010T004901Z_TH-20-step2-W3-assemble.log</code>), printed beside.
+- <strong>Lift, not copy.</strong> Move the mirror build and full facet tags (<code>:411–442</code>) into a module-level <code>_mirror_built_full(msh_q, cells_q, q, comm)</code> returning <code>{msh, cells, ftags, fcensus, n_cells, t_mirror}</code>; the test calls it where the block was, and the mirror (P0) checks (<code>:443–452</code>) stay in the caller. This is the rule (a) lift <code>_run_step2</code> received for <code>mri:06</code>; W2 proves the degree-1 path unchanged.
+- <strong>Build-only branch,</strong> right after the quarter (P0) (<code>:340</code>): for each sector, <code>_problem(...)</code> + <code>TimeHarmonicSolver(problem, degree=deg)</code> + (Deg) + <code>del</code>; then <code>_mirror_built_full</code> and the mirror (P0); then the full <code>_problem(msh, cells, FREQUENCY_HZ, ftags, (OUTER_BOX_TAG,))</code> + solver + (Deg); print summed RSS (<code>_rss_gib</code>) and the elapsed time; <code>assert not fails</code>; return. <strong>No <code>_make_drive</code>, no sheet tags, no form, no assembly, no factorisation</strong> — WF-12 4a's "return before any <code>fem.form</code>" (no orphan <code>.c</code> risk).
+- <strong>The saved R, printed only (for entry 37).</strong> In the solve path at degree 2 only, after (A): if <code>/workspace/logs/th20/th20-step2-d2-R.npz</code> exists, rank 0 opens it read-only (<code>allow_pickle=False</code>), checks its <code>ordinals</code> equal the window's, and prints max |R_window − R_saved| / |R_saved| over the driven columns (step 2a's R, <code>-n 8</code>; predicted ≤ 1e-10 across rank counts) — printed, never asserted, never written. Absent ⇒ one "absent" line.
+- <strong><code>FEM_EM_TH20_STEP1_CONTROL</code> is not touched by the knob.</strong> Whether entry 37 asserts C1 / C1x / C2 at degree 2 is its command's choice (C2 at degree 2 has one reading, 1.0994e-1, step 2a W3, printed there under ruling (2)).</p>
+<p><strong>Tests.</strong>
+- <strong>(K0) <code>test_th20_step2ba_knob_coding</code></strong> — ungated, numpy only, <code>monkeypatch</code>: the degree parser (unset / <code>""</code> / <code>"  "</code> ⇒ <code>None</code>; <code>"2"</code> / <code>" 2 "</code> ⇒ 2; <code>"1"</code>, <code>"3"</code>, <code>"x"</code>, <code>"2.0"</code> ⇒ <code>ValueError</code> — <strong>the rejected values are the parser's negative control</strong>); the effective degree (<code>None</code> ⇒ <code>DEGREE</code> == 1, 2 ⇒ 2); the build-only parser (<code>"0"</code>, <code>"yes"</code>, <code>"2"</code> ⇒ <code>ValueError</code>); the records' own arithmetic <code>684_904 == 2 * 134_230 + 2 * 208_222</code>.
+- <strong>(K1)</strong> is the existing test under <code>FEM_EM_TH20_STEP1_BUILD_ONLY=1</code> (W1); <strong>(K2)</strong> the existing test with both knobs unset (W2).</p>
+<p><strong>Anchors (asserted).</strong>
+- <strong>(P0)</strong> quarter 97 414 cells, owned 501 / 502 = 1 825 / 1 811; mirror-built 389 656 cells, owned 401 = 79 344, 0 exterior facets on the planes — the module's own records (<code>:52–54</code>), in W1 and W2.
+- <strong>(Deg-q) W1, knob 2:</strong> on each of the four sector solvers, degree 2 and unknowns = 2E + 2F on the quarter exactly. Record 684 904 = 2·134 230 + 2·208 222 (<code>20261010T003627Z_TH-20-step2-W1-EE.log:8305</code>, same mesh, <code>-n 8</code>), printed beside; <code>-n 2</code> must read the same global numbers (a rank-reduction check, as WF-12 4a's W1 was).
+- <strong>(Deg-f) W1, knob 2:</strong> on the full mirror-built solver, degree 2 and unknowns = 2E + 2F exactly. <strong>No prior count on this mesh:</strong> predicted ≈ 2.71 M (389 656 / 369 387 × 2 570 024 = 2 711 047; <code>:733</code>), range [2.65 M, 2.76 M], printed only.
+- <strong>(Deg-1) W2, knob unset:</strong> each sector and the full solver read degree 1 and unknowns = E exactly (quarter E = 134 230 printed beside).
+- <strong>(Bit) W2:</strong> step 1's W2, re-run verbatim on the edited module with both knobs unset, is green: (A) ≤ <code>LEG_D0_REPRODUCTION_BAND</code> on all 1 024 entries, (P0)–(P3), (I1)–(I3), and C1 / C1x / C2 asserted under <code>FEM_EM_TH20_STEP1_CONTROL=1</code>. <strong>Printed beside</strong> step 1's record (<code>20261005T020907Z_TH-20-step1-W2.log:8380–8385</code>): (A) 2.106e-11, S_f(P17, P17) = R(P17, P17) = 0.383439 + 0.391631j, (I3) 1.882e-11, C1 / C1x 512 / 512, C2 1.1346e-01. "Bitwise" means reproduced at round-off (H20a's W2 reading, <code>WF-10.md</code> item 368 outcome): the asserted gates are the bar; a printed reading off its record beyond the last printed digit is reported, not asserted.</p>
+<p><strong>Negative controls (rule (e)).</strong>
+- <strong>Asserted (backed), the quarter:</strong> a degree-1 space has E unknowns, not 2E + 2F. Both numbers are measured on this quarter (<code>…003627Z…:8305–8306</code>): assert <code>n(2) != E</code> and <code>n(2) * E == E * (2E + 2F)</code> in exact integers — the ratio 684 904 / 134 230 = 5.102 is also the ceiling. The <code>WF-15</code> step 1 degree-1-default trap.
+- <strong>Asserted, the parser:</strong> K0's rejected values raise (<code>"1"</code> above all — the second degree-1 path H20a forbade).
+- <strong>Predicted, printed, the full mesh:</strong> n(2)/E on the mirror-built mesh, predicted 5.10–5.14 (quarter 5.102, direct hole mesh 5.134); no prior measurement on this mesh, so nothing beyond (Deg-f) is asserted.</p>
+<p><strong>Windows.</strong> Foreground, bare, repo-relative; Bash <code>timeout: 660000</code>; <code>-s</code>; complex.
+- <strong>W0</strong> (smoke, <code>-n 1</code>; K0 green, the gated test skips):
+  <code>scripts/testing/run_and_log.sh TH-20-step2ba-W0 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 PYTHONPATH=/workspace/src:/workspace timeout -k 30 60 python3 -m pytest tests/environment/test_complex_mode.py tests/validation/test_th20_quarter_solves.py -v -s --tb=short'"</code>
+- <strong>W1</strong> (build-only, <code>-n 2</code>, knob 2). Predicted 170–250 s harness: direct full build 109.9 s and quarter 28.5 s at <code>-n 2</code> (<code>20261003T130342Z_TH-20-step0b-W2.log.gz:6230</code>, <code>:8179</code>), the mirror 3.24 s at <code>-n 2</code> (item 198), five degree-2 spaces seconds (H20a's: 0.1 s, <code>20261011T140313Z_WF-10-step4a-W1.log:6219</code>), pytest start ≈ 15 s; summed RSS ≤ 3 GiB predicted (H20a 1.10 GiB, <code>:6221</code>), printed. §5.1 durable capture verbatim:
+  <code>scripts/testing/run_and_log.sh TH-20-step2ba-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_TH20_STEP1=1 FEM_EM_TH20_STEP1_BUILD_ONLY=1 FEM_EM_TH20_DEGREE=2 PYTHONPATH=/workspace/src:/workspace timeout -k 30 590 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/validation/test_th20_quarter_solves.py -s -v --tb=short &gt; /workspace/logs/th20-step2ba-w1-raw.log 2&gt;&amp;1; rc=\$?; echo \"[capture] rc=\$rc\" &gt;&gt; /workspace/logs/th20-step2ba-w1-raw.log; cat /workspace/logs/th20-step2ba-w1-raw.log; exit \$rc'"</code>
+- <strong>Before W2:</strong> <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0.
+- <strong>W2</strong> (the degree-1 re-gate, <code>-n 8</code>, both knobs <strong>unset</strong>; step 1's W2 command (item 233 above) with the label and raw-log name changed; predicted 330–420 s, as step 1's 369 s):
+  <code>scripts/testing/run_and_log.sh TH-20-step2ba-W2-regate "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_TH20_STEP1=1 FEM_EM_TH20_STEP1_CONTROL=1 timeout -k 30 600 mpiexec -n 8 python3 -m pytest tests/environment tests/validation/test_th20_quarter_solves.py -v -s --tb=short &gt; /workspace/logs/th20-step2ba-w2-raw.log 2&gt;&amp;1; rc=\$?; echo \"[capture] rc=\$rc\" &gt;&gt; /workspace/logs/th20-step2ba-w2-raw.log; cat /workspace/logs/th20-step2ba-w2-raw.log; exit \$rc'"</code>
+- No module edit after W0 starts (rule (i)). Any edit ⇒ W0, W1 and W2 again.</p>
+<p><strong>Traps already paid for.</strong>
+- <strong><code>index_map(1)</code> before <code>create_entities(1)</code></strong> raised "Missing IndexMap in Topology" and cost step 2a's first W1 (<code>20261010T003223Z_TH-20-step2-W1-EE.log</code>). Create edges and faces on the quarter and on the mirror-built mesh before reading E and F.
+- <strong>The degree-default trap</strong> (<code>WF-15</code> step 1): <code>TimeHarmonicSolver(problem)</code> is degree 1, and the imported <code>DEGREE</code> is 1. Never monkeypatch <code>DEGREE</code> in <code>test_wf7_f_human_b1_quadrature</code> (<code>WF-12</code> 4's docstring).
+- <strong>Never build the quarter alone</strong> (<code>GEO-23</code>): <code>_meshes()</code> builds the direct full mesh first; (P0)'s 97 414 is recorded on that order.
+- <strong>Interior facet tags hang at <code>-n 2</code></strong> (known-issues 9): the build-only branch makes <strong>no</strong> sheet tags; <code>create_connectivity(fdim, tdim)</code> and <code>create_entity_permutations()</code> stay hoisted before any facet query on the mirror-built mesh (0b's pattern — the lift keeps it).
+- <strong>No collective inside <code>if comm.rank == 0:</code></strong> (item 227's deadlock): the saved-R read is rank-0 numpy after every collective; reduce first, then print.
+- <strong>Never hold two solvers:</strong> <code>del solver, problem; gc.collect()</code> per sector (<code>:377–378</code>) holds in both branches.
+- <strong>The orientation sign</strong> (item 233): the χ table is not touched; C1's exact-2 signature in W2 would show it.
+- <strong>After a kill:</strong> <code>pgrep -c python3</code> first; at 0, the rubric-4 sweep under label <code>TH-20-step2ba-cache-sweep</code>. Never <code>-k</code>; no pipe; never delete a log; two heavy windows never run at once.</p>
+<p><strong>Scope.</strong> A knob, a build-only branch and their counts; the degree-1 path re-gated. <strong>Not claimed:</strong> any degree-2 S, (A) at degree 2 (step 2b, entry 37), a price for entry 37, the C2 floor at degree 2, <code>TH-20</code> ✅, AED.</p>
+<p><strong>Negative result.</strong> Report and stop. Park on <code>attempt/TH-20-step2ba-*</code> and mark item 412 BLOCKED in the same commit (rule (d)).
+- <strong>(Deg-q) / (Deg-f) red:</strong> the space is not N1curl degree 2 first kind on that mesh, or a count is rank-dependent. File a known-issues entry; entry 37 stays PENDING.
+- <strong>(Deg-1) red in W2:</strong> the knob leaks into the unset path. Park.
+- <strong>(P0) red:</strong> an image or record drift (<code>record-reconciler</code>); stop, commit nothing but the logs.
+- <strong>W2 red on (A), (I1)–(I3) or a control:</strong> the lift or the knob changed the degree-1 path. Park, revert nothing on <code>main</code>; the review rules.
+- <strong>W1 / W2 killed (status 124):</strong> not a result; park with the measured time.</p>
+<p>No <code>PREDICTED RED:</code> line. A red anywhere stops the slot.</p>
+<p><strong>Status it can move.</strong> No glyph: <code>TH-20</code>'s Done-when (§7, re-stated 2026-10-11 03:00) is "step 1 ⇒ 🟡; step 2a priced ⇒ record; step 2b's (A) at degree 2 asserted ⇒ ✅", and this item asserts no (A) at degree 2 (rule (j) checked). It moves <strong>a prerequisite of <code>xl</code> entry 37, not a glyph</strong>:
+- On green the §7 row gains one sentence: "<strong>Step 2b-a</strong> (§9 item 412, H13b-a): <code>FEM_EM_TH20_DEGREE=2</code> on step 1's module; (Deg) 2E + 2F on the four sectors (684 904) and on the mirror-built mesh (<n>) exact (build-only, <code>-n 2</code>, <W1 log>); unset path re-gated, (A) <a> (<W2 log>)."
+- §10 H13b-a gains a DONE line.
+- <strong><code>docs/testing/xl-pending.md</code> entry 37, same commit: one sentence appended to its Status</strong> and nothing else (the implementer does <strong>not</strong> write the command, does not mark READY and does not touch the comparand text): "<strong>H13b-a MET 2026-10-13 (§9 item 412, <code>&lt;commit&gt;</code>; <code>&lt;W1 log&gt;</code>, <code>&lt;W2 log&gt;</code>)</strong> — the knob is <code>FEM_EM_TH20_DEGREE</code> on <code>tests/validation/test_th20_quarter_solves.py</code> (no <code>test_th20_quarter_f_human.py</code> exists); with <code>FEM_EM_TH20_STEP1=1 FEM_EM_TH20_STEP1_FULL_DRIVES=1 FEM_EM_TH20_DEGREE=2</code> the module runs four degree-2 sectors and the degree-2 mirror-built P17 column and asserts (A) on its 32 entries."
+- <strong>Flag for the review (not the slot's to fix): entry 37's comparand and withdrawal clause are mis-posed.</strong> Entry 37 (<code>xl-pending.md:1809</code>, <code>:1815</code>) and §10 H13b (PROJECT_PLAN.md:4690–4693) read (A) "against entry 32's column 17" and withdraw the entry "if entry 32 leaves column 17 on disk". Entry 32's column is on the <strong>direct</strong> hole mesh (369 387 cells); the quarter reassembles the <strong>mirror-built</strong> mesh (389 656 cells). The two triangulations differ by 3e-4 on S(P17, P17) at degree 1 (<code>test_th20_quarter_solves.py:60–62</code>, <code>:528</code>; <code>:730</code> above), so (A) at 1e-9 cannot be read against entry 32's column, and no saved direct-mesh column or matrix (entry 32's, or <code>WF-12</code> step 5's, item 415) moves H13b onto the heavy tier. The degree-2 mirror-built column (≈ 2.71 M unknowns) is <code>xl</code>-only (<code>:733</code>). For the 10-14 weekly's price: entry 32 measured build 122.0 s, factorising solve 273.1 s (MUMPS factorisation 205.6 s), post 14.0 s and 95 901 065 216 B <code>memory.peak</code> at <code>-n 16</code> (<code>20261013T070008Z_WF-12-step4-H16.log:6531–6720</code>); step 2a measured the four degree-2 sectors at 66.5–86.4 s each at <code>-n 8</code>.</p>
+<p><strong>Execution order.</strong> Code → W0 → W1 → <code>pgrep</code> → W2 → commit (module, harness logs, the §7 sentence, §10 H13b-a DONE, the entry 37 sentence) → journal.</p>
+<p><strong>Spawn line:</strong> "Use the implementer agent to execute <code>TH-20</code> §9 item 412 per <code>docs/planning/chunks/TH-20.md</code> (read the latest Review ruling paragraph first). The harness call is the <strong>whole</strong> Bash command: bare, repo-relative, nothing chained or piped. Run every window in the foreground with <code>timeout: 660000</code>, pytest with <code>-s</code>, container <code>timeout -k 30</code>. Run W0, W1, then W2; before W2, <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0. Edit only <code>tests/validation/test_th20_quarter_solves.py</code> (no <code>src/</code>, no other test module); never import a <code>test_*</code> name. In <code>docs/testing/xl-pending.md</code> append only the one entry-37 sentence the brief names; never write its command or mark it READY."</p>
+<h3 id="review-ruling-2026-10-13-0300-daily-on-the-item-412-draft">Review ruling 2026-10-13 03:00 (daily) on the item 412 draft<a class="headerlink" href="#review-ruling-2026-10-13-0300-daily-on-the-item-412-draft" title="Permanent link">&para;</a></h3>
+<p>Queued as drafted: the knob <code>FEM_EM_TH20_DEGREE</code> lands on step 1's <code>test_th20_quarter_solves.py</code> (the module entry 37 named, <code>test_th20_quarter_f_human.py</code>, does not exist; step 2a's <code>test_th20_quarter_degree2.py</code> hard-codes degree 2). The drafter's correction is accepted and recorded in <code>xl-pending.md</code> entry 37: (A)'s comparand is the mirror-built mesh (389 656 cells), not entry 32's direct-mesh column (369 387 cells), so no saved direct-mesh column makes H13b heavy; the review's own earlier sentence saying so is retracted there. The slot appends only a MET sentence to entry 37; the comparand wording is the 10-14 weekly's.</p>
+<p><strong>Outcome (§9 item 412, 2026-10-13 09:30 slot): DONE.</strong> <code>FEM_EM_TH20_DEGREE</code> and <code>FEM_EM_TH20_STEP1_BUILD_ONLY</code> on <code>tests/validation/test_th20_quarter_solves.py</code> (mirror build lifted into <code>_mirror_built_full</code>; (Deg) asserted in both paths; K0 <code>test_th20_step2ba_knob_coding</code>). W0 <code>20261013T095452Z_TH-20-step2ba-W0.log</code> (K0 green, gated test skips). W1 <code>20261013T095500Z_TH-20-step2ba-W1.log</code> (build-only, <code>-n 2</code>, 148 s, summed RSS 1.13 GiB): (Deg-q) four sectors degree 2, 684 904 = 2·134 230 + 2·208 222 exact, equal to step 2a's <code>-n 8</code> record; control n/E 5.102 asserted; (P0) 97 414 / 1 825 / 1 811 and mirror 389 656 / 79 344 / 0; (Deg-f) mirror-built degree 2, <strong>2 702 016</strong> = 2·525 392 + 2·825 616 exact (predicted 2 711 047, in range [2.65 M, 2.76 M]); n/E 5.1429 — <strong>0.0029 above the predicted 5.10–5.14 band, printed only, reported</strong>. W2 <code>20261013T095737Z_TH-20-step2ba-W2-regate.log</code> (<code>-n 8</code>, unset, CONTROL=1, 367 s, 14 passed): (Deg-1) sectors 134 230 = E and full 525 392 = E exact; (P1) 10 662 &gt; 7 874, 7 853 &gt; 5 035; (A) 2.120e-11 (record 2.106e-11; off the record in the third digit — round-off level, reported, not asserted); S_f(P17,P17) = R(P17,P17) = 0.383439+0.391631j (record); (I1) 1.171e-14, (I2) 0.999993257202, (I3) 1.870e-11 (record 1.882e-11); C1 / C1x 512 / 512 PASS; C2 1.1346e-01 (record). Saved-R print is degree-2 only and did not run here. Entry 37's MET sentence appended.</p>
+<h2 id="7-row-moved-verbatim-2026-10-14-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-14 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-14-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p>Symmetry planes at human scale: the quarter F-human (§10 chain H13) | 🟡 Step 1 ✅ 2026-10-04 (item 233): four (PEC / PMC)² quarter sectors reassemble the mirror-built F-human copper 32×32 to 2.106e-11 (band 1e-9) at degree 1, 64 MHz, with C1 / C1x / C2 asserted (<code>20261005T020907Z_TH-20-step1-W2.log</code>, 369 s); step 2 (H13b) posed by the 2026-10-05 weekly: the four degree-2 quarter sectors reassemble H15b's saved degree-2 32×32 (<code>xl</code> 10-09) at the imported 1e-9, time and memory printed against the prediction (≈ 170–250 s, 25–35 GiB at <code>-n 8</code>), serial on <code>xl</code> 10-09; the moved text's "wrong-cut control &gt; 0.5 on the self class" is superseded by item 233's one-sector C2 control. <strong>Done-when (re-stated 2026-10-11 03:00 review per the 2026-10-10 weekly's ruling):</strong> step 1's identity asserted in one logged window ⇒ 🟡; step 2a priced ⇒ record; step 2b's (A) — the degree-2 quarter reassembly against a direct degree-2 column — asserted ⇒ ✅. <strong>Step 2a DONE 2026-10-10 (item 350):</strong> the degree-2 quarter priced — 684 904 unknowns, per-sector factor 52.8–67.1 s, sector total 66.5–86.4 s, peak summed RSS ≤ 19.57 GiB at <code>-n 8</code> — with per-sector reciprocity (≤ 6.4e-14) / passivity (σ_max ≤ 0.999983) and (Deg) asserted; C2 1.0994e-1 <strong>printed, not asserted</strong> (review ruling 2); R saved for step 2b (<code>20261010T003627Z_TH-20-step2-W1-EE.log</code>, <code>20261010T004145Z_TH-20-step2-W2-EMMEMM.log</code>, <code>20261010T004901Z_TH-20-step2-W3-assemble.log</code>). <strong>Glyph holds 🟡:</strong> the 10-10 weekly ruled the 10-05 posing stands (2a is a record; (A) is 2b, a lane-1 read if <code>xl</code> entry 32 leaves column 17 on disk, else the 10-14 weekly's window). Entry 32 (10-13) solved the direct mesh, not the mirror-built mesh that (A) compares against (they differ by 3e-4 even at degree 1), so (A) is <code>xl</code> entry 37's — one window on step 1's module with the degree knob (H13b-a, §9 item 412); the entry's comparand wording is the 10-14 weekly's to correct. <strong>Step 2b-a</strong> (§9 item 412, H13b-a): <code>FEM_EM_TH20_DEGREE=2</code> on step 1's module; (Deg) 2E + 2F on the four sectors (684 904) and on the mirror-built mesh (2 702 016) exact (build-only, <code>-n 2</code>, <code>20261013T095500Z_TH-20-step2ba-W1.log</code>); unset path re-gated, (A) 2.120e-11 (<code>20261013T095737Z_TH-20-step2ba-W2-regate.log</code>). <em>History: <code>docs/planning/chunks/TH-20.md</code>.</em> </p>
+<h3 id="review-ruling-2026-10-20-0300-xl-entry-37-read-the-row-written">Review ruling 2026-10-20 03:00 — <code>xl</code> entry 37 read, the row written ✅<a class="headerlink" href="#review-ruling-2026-10-20-0300-xl-entry-37-read-the-row-written" title="Permanent link">&para;</a></h3>
+<p><code>xl</code> entry 37 (H13b) ran at 02:00 on 2026-10-20: <code>20261020T070008Z_TH-20-step2b-H13b.log</code>, 14 passed on all 16 ranks, <code>[capture] rc=0</code> last, Status 0, 936 s, 90.24 GiB <code>memory.peak</code> (inside the 500–1 000 s / 90–120 GiB brackets). A <code>log-pathologist</code> confirmed claims (a)–(e); the review re-read <code>:10476</code> and <code>:11610–11615</code>. <strong>(A) = 1.739e-11</strong> against <code>LEG_D0_REPRODUCTION_BAND</code> 1e-9 (imported, <code>test_port_birdcage_four_port.py:165</code>), by class e 3.5e-12 / sx 8.6e-12 / sy 1.74e-11 / sxsy 3.8e-12, min |R| 4.10e-2 — the degree-2 quarter reassembly against the degree-2 P17 column solved on the mirror-built mesh in the same window (389 656 cells, 2 702 016 unknowns, <code>:10296–10297</code>). Degree 1 read 2.106e-11.</p>
+<p><strong>Ruling.</strong> Entry 37's decision rule conditions on (A) only; its first branch fires ⇒ <code>TH-20</code> ✅ and the quarter is licensed as the degree-2 human-scale route. The row's Done-when ("step 2b's (A) … asserted ⇒ ✅") is met as written (rule (j): the row outranks the letter). <strong>One mismatch, recorded, not gating:</strong> entry 37's Readout said "step 1's identities C1 / C1x / C2 asserted at their imported bands at degree 2", but the queued command never set <code>FEM_EM_TH20_STEP1_CONTROL=1</code>, so the window printed them (<code>CONTROL printed</code>, <code>:326</code>): C1 / C1x 16 / 16 exact, C2 1.1323e-01 against its 1e-3 floor on one self entry (<code>:10480–10482</code>) — values that would have passed. They were asserted at degree 1 (step 1). No window is owed for them; a degree-2 control window is the weekly's to commission if it wants one. (I1) / (I2) / (I3) on the full S_f were skipped by design (one drive, <code>:10479</code>); the four sectors' reciprocity ≤ 7.22e-14 and σ_max ≤ 0.999982970 are asserted. No band moved. The <code>TH-20</code> close-out the 10-19 weekly scheduled for the 10-21 03:00 review is done here because the window landed this morning; the audit follows below.</p>
+<p><strong>Audit 2026-10-20 03:00 review — PASS.</strong> The <code>auditor</code> traced every digit in the row, this ruling and the ledger row (worst case derived: 96 895 774 720 B / 2³⁰ = 90.24 GiB, <code>:11610</code>); (A) is enforced by <code>assert not fails</code> at <code>tests/validation/test_th20_quarter_solves.py:740</code> fed by <code>:664–665</code>, band imported at <code>:356</code> from <code>test_port_birdcage_four_port.py:165</code>, unchanged since <code>66a770d8</code>; the knob commit <code>5e3613ea</code> predates the window, and no test or <code>src/</code> file changed between it and the log's header commit <code>8c177355</code>. It agrees the C1 / C1x / C2 sentence is honest and does not gate the glyph. <strong>Recorded:</strong> (A) covers one full column (P17, 32 entries), not the 32×32 as at degree 1 — the licence rests on that column plus the four sectors' asserted identities; the Done-when's "direct degree-2 column" means the full-domain column on the mirror-built mesh (entry 37's re-wording, ruling (3)), not entry 32's hole-mesh column; the tier cell "heavy" matches the time (936 s) but the window was <code>-n 16</code> / 90 GiB, the <code>xl</code> precedent of <code>ANS-6</code> / <code>ANS-7</code>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,927 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-134 — The F-small four-port case through Study.solve(backend="palace"): the Study writes the case, a fem-em-palace window runs it, the Study reads S back (mri:30) - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-134-the-f-small-four-port-case-through-studysolvebackendpalace-the-study-writes-the-case-a-fem-em-palace-window-runs-it-the-study-reads-s-back-mri30" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-134 — The F-small four-port case through Study.solve(backend="palace"): the Study writes the case, a fem-em-palace window runs it, the Study reads S back (mri:30)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-544-2026-10-18-example-example-runner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 544 — 2026-10-18 (example; example-runner)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-18-1800-item-544" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-18 18:00 (item 544)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-134-the-f-small-four-port-case-through-studysolvebackendpalace-the-study-writes-the-case-a-fem-em-palace-window-runs-it-the-study-reads-s-back-mri30">EX-134 — The F-small four-port case through <code>Study.solve(backend="palace")</code>: the Study writes the case, a <code>fem-em-palace</code> window runs it, the Study reads S back (<code>mri:30</code>)<a class="headerlink" href="#ex-134-the-f-small-four-port-case-through-studysolvebackendpalace-the-study-writes-the-case-a-fem-em-palace-window-runs-it-the-study-reads-s-back-mri30" title="Permanent link">&para;</a></h1>
+<p>Opened by the 2026-10-18 18:00 daily review under the §5.4 ramp, from <code>ARCH-1</code> step 1 (U16: §9 items 517 / 517b / 533, <code>ARCH-1</code> 🟡 since item 533, <code>20261018T172228Z_ARCH-1-U16c-W1.log</code>). The 10-17 weekly names "a <code>mri:</code> Palace-backend run after U16" as an example the chains make possible (<code>PROJECT_PLAN.md:5060</code>). Gap evidence (drafter, checked 2026-10-18):
+- No <code>examples/**/*.py</code> passes <code>backend=</code> to <code>Study.solve</code> or imports <code>fem_em_solver.backends</code>.
+- <code>mri:8</code> runs the same F-small four-port <code>Study</code> on the DolfinX backend only (degree 1, <code>-n 2</code>).
+- No example has ever run the <code>fem-em-palace</code> service. Every Palace run so far is a gate or probe window under <code>logs/</code>.</p>
+<h3 id="9-item-544-2026-10-18-example-example-runner">§9 item 544 — 2026-10-18 (example; example-runner)<a class="headerlink" href="#9-item-544-2026-10-18-example-example-runner" title="Permanent link">&para;</a></h3>
+<p><em>Drafted read-only for the 2026-10-18 18:00 daily review; the review reviews it. It sets and moves no band, record or Done-when.</em></p>
+<p><strong>Licence.</strong> §5.4 example ramp from <code>ARCH-1</code> step 1 (U16), DONE 2026-10-18 by item 533. The anchors are U16's own, imported from its module.</p>
+<p><strong>Angle.</strong> A user's three-stage workflow, run end to end into a <strong>fresh</strong> example directory: <code>Study.solve(backend="palace", case_dir=…)</code> writes the case and raises <code>PalaceRunRequired</code>; a separate <code>fem-em-palace</code> harness window runs the printed command; the same call reads S back. No example covers this delivery mechanism, and no example has run a second solver.</p>
+<p><strong>Executor and files.</strong> <code>example-runner</code>, which spawns no agents. It adds exactly three tracked files and edits nothing under <code>tests/</code>, <code>src/</code>, <code>scripts/</code> or <code>docker/</code>:
+- <code>examples/mri/30_study_palace_backend_f_small.py</code>;
+- the same-stem guide, with <code>## 1. What this demonstrates</code>, <code>## 2. How to run it</code>, <code>## Setup figure</code>, <code>## 3. How to analyze it, step by step</code> and <code>## Related</code>;
+- <code>examples/mri/figures/mri_30_study_palace_backend_f_small_setup.png</code>, ≤ 600 KiB.</p>
+<p>The case directory is <code>examples/mri/paraview_output/mri_30_study_palace_backend_f_small_case/</code> (gitignored). The Palace service mounts <code>..:/workspace</code> (<code>docker/docker-compose.yml</code>, <code>fem-em-palace</code> service), so this directory is visible to it at <code>/workspace/examples/mri/paraview_output/…</code>. <strong>No compose, mount or Dockerfile edit is needed.</strong></p>
+<p><strong>API used.</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Where</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Study.solve(comm, *, backend="palace", case_dir=…, palace_ranks=8)</code></td>
+<td><code>src/fem_em_solver/study.py:192</code> (U16a dispatch)</td>
+</tr>
+<tr>
+<td><code>solve_palace</code> (build → <code>write_case</code> → <code>PalaceRunRequired</code> or read)</td>
+<td><code>src/fem_em_solver/backends/palace.py:209–261</code></td>
+</tr>
+<tr>
+<td><code>write_case</code> (serial, never overwrites; a differing file raises <code>FileExistsError</code>)</td>
+<td><code>palace.py:126–206</code></td>
+</tr>
+<tr>
+<td><code>PalaceRunRequired(.argv, .cwd)</code>, <code>PalaceStudyResult</code></td>
+<td><code>palace.py:28–48</code></td>
+</tr>
+<tr>
+<td><code>read_port_s</code></td>
+<td><code>palace.py:264–289</code></td>
+</tr>
+<tr>
+<td><code>FourPortBirdcageGeometry.build</code> → <code>mesh</code>, <code>cell_tags</code>, <code>facet_tags</code> (narrowed sheets), <code>cells</code></td>
+<td><code>study.py:302</code>, <code>:414–419</code></td>
+</tr>
+<tr>
+<td><code>write_xdmf_with_tags(..., facet_tags=)</code>, <code>adopt_host_ownership</code></td>
+<td><code>src/fem_em_solver/io/paraview_utils.py:132</code>, <code>:11</code></td>
+</tr>
+<tr>
+<td><code>write_setup_figure</code></td>
+<td><code>src/fem_em_solver/post/setup_figure.py:180</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Script shape: two stages in one file, chosen by what is on disk.</strong> <code>CASE_DIR = OUTPUT_DIR / f"{BASENAME}_case"</code>. If <code>CASE_DIR/postpro/port-S.csv</code> is absent, the script runs <strong>stage 1 (write)</strong>. Otherwise it runs <strong>stage 3 (read)</strong>. The Study is built in the script with explicit arguments, not through <code>_d2_study()</code>:
+- <code>FourPortBirdcageGeometry.f_small()</code>;
+- <code>GelledSalinePhantomMaterial(SALINE_SIGMA, SALINE_EPSILON_R, FREQUENCY_64_HZ)</code>;
+- <code>LumpedPortDrive()</code>;
+- <code>frequency_hz=FREQUENCY_64_HZ</code>, <code>degree=2</code>.</p>
+<p>Stage 1 catches <code>PalaceRunRequired</code>, asserts its anchors, prints the full Palace harness command on rank 0, and exits 0 with <code>[stage 1 of 3] All stage-1 assertions hold</code>. Stage 3 asserts every anchor and closes with <code>All assertions hold</code>. A corpus run (<code>-e all</code>) that meets an existing <code>postpro/</code> re-runs stage 3, which re-checks the case bytes.</p>
+<p><strong>Imports (never restated).</strong> <code>_REPO_ROOT</code> goes on <code>sys.path</code> (the <code>mri:8</code> pattern, <code>08_study_four_port_birdcage.py:55–58</code>), then:</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Names</th>
+<th>Lines</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/package/test_arch1_palace_backend.py</code></td>
+<td><code>OPS61</code>, <code>D2_CASE</code>, <code>_flat</code>, <code>_p_rec</code>, <code>_class_means</code>, <code>_fro_rel</code>, <code>TIE2_BAND</code>, <code>TIE2_RECORDED</code>, <code>C_ORDER_FLOOR</code></td>
+<td><code>:26</code>, <code>:38</code>, <code>:41</code>, <code>:159</code>, <code>:300</code>, <code>:306</code>, <code>:293–297</code></td>
+</tr>
+<tr>
+<td><code>tests/validation/test_port_birdcage_four_port.py</code></td>
+<td><code>LEG_D0_REPRODUCTION_BAND</code></td>
+<td><code>:165</code></td>
+</tr>
+<tr>
+<td><code>tests/validation/test_ans4_exact_strip_records.py</code></td>
+<td><code>ANS4_EXACT_STRIP_S_P2_X1</code></td>
+<td><code>:233</code></td>
+</tr>
+<tr>
+<td><code>tests/validation/test_ops61_exact_strip_ports.py</code></td>
+<td><code>ANS4_EXACT_STRIP_CELL_RECORD</code></td>
+<td><code>:64</code></td>
+</tr>
+<tr>
+<td><code>tests/validation/test_lossy_sphere_fullwave.py</code></td>
+<td><code>SALINE_SIGMA</code>, <code>SALINE_EPSILON_R</code>, <code>FREQUENCY_64_HZ</code></td>
+<td><code>:92–94</code></td>
+</tr>
+</tbody>
+</table>
+<p>Never import a <code>test_*</code> name. <code>_p_rec</code> asserts internally (the U16 (P) set at its imported bands) and prints its own <code>[U16a P-rec]</code> line; keep it as it is.</p>
+<p><strong>Records.</strong> An example-local <code>REC</code> holds each value with its <code>log:line</code>. Each is printed beside its reading and never asserted by equality:</p>
+<table>
+<thead>
+<tr>
+<th>Source log</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>20261018T172228Z_ARCH-1-U16c-W1.log</code> (T4)</td>
+<td>(E2) 0.000e+00; reciprocity 9.848e-11; σ_max 0.999819887373; (Tie2) 2.464e-10 / 9.668e-11 / 9.883e-11; (c-order) 6.6674 / 2.5442 / 4.5224 %; (c-freq) 8.515e-01</td>
+</tr>
+<tr>
+<td><code>20261018T140040Z_ARCH-1-U16b-W1-palace-d2.log</code></td>
+<td>Palace <code>Total</code> 261.6 s, peak 6.0 G, window 264 s; 117 206 elements; ND (p = 2): 753062; 4 × 37 GMRES iterations</td>
+</tr>
+<tr>
+<td><code>20261018T172228Z_ARCH-1-U16c-W1.log:1833</code></td>
+<td>write stage 27.1 s</td>
+</tr>
+</tbody>
+</table>
+<p><strong>(1) Anchors.</strong></p>
+<table>
+<thead>
+<tr>
+<th>Anchor</th>
+<th>Stage</th>
+<th>Assertion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(K)</td>
+<td>1, 3</td>
+<td><code>comm.size == 1</code> (the writer is serial by design)</td>
+</tr>
+<tr>
+<td>(Arg)</td>
+<td>1</td>
+<td><code>req.argv == ["palace", "-np", "8", "case.json"]</code>; <code>Path(req.cwd).resolve() == CASE_DIR.resolve()</code></td>
+</tr>
+<tr>
+<td>(W-case)</td>
+<td>1, 3</td>
+<td><code>CASE_DIR/"case.sha256"</code> text <code>==</code> <code>D2_CASE/"case.sha256"</code> text (names only, no paths, <code>palace.py:201</code>); the case config's bytes equal <code>D2_CASE</code>'s; <code>_flat</code> diff of the case config against <code>OPS61/"f05x_o2.json"</code> is exactly <code>{"Problem.Output", "Model.Mesh"}</code>; the case mesh's bytes equal <code>OPS61/"ops61_ans4_x1_strip.msh"</code>'s. <strong>Same input as U16 and <code>OPS-61</code> item 194, checked byte for byte.</strong></td>
+</tr>
+<tr>
+<td>(R)</td>
+<td>3</td>
+<td><code>res</code> is a <code>PalaceStudyResult</code>; <code>res.backend == "palace"</code>, <code>res.order == 2</code>, <code>res.cells == ANS4_EXACT_STRIP_CELL_RECORD</code>; <code>res.frequency_hz == FREQUENCY_64_HZ</code></td>
+</tr>
+<tr>
+<td>(E2)</td>
+<td>3</td>
+<td><code>_fro_rel(res.s_matrix, read_port_s(OPS61/"postpro_f05x_o2"/"port-S.csv")[0]) ≤ LEG_D0_REPRODUCTION_BAND</code>. Predicted 0.000e+00: two Palace re-runs of these bytes have already come out bitwise equal (<code>OPS-61</code> item 194; item 517b W1). Entry max printed.</td>
+</tr>
+<tr>
+<td>(E2-u16)</td>
+<td>3</td>
+<td>the same against <code>D2_CASE/"postpro"/"port-S.csv"</code>, same band; predicted 0.000e+00</td>
+</tr>
+<tr>
+<td>(P)</td>
+<td>3</td>
+<td><code>_p_rec(res.s_matrix)</code></td>
+</tr>
+<tr>
+<td>(Tie2)</td>
+<td>3</td>
+<td>per class |mean − mean_P2| / |mean_P2| ≤ <code>TIE2_BAND</code>, from <code>_class_means</code> on <code>res.s_matrix</code> and on <code>ANS4_EXACT_STRIP_S_P2_X1["64"]</code>, printed beside <code>TIE2_RECORDED</code>. This is the tie to our degree-2 record: a cross-solver identity at matched order on a shared mesh, <strong>not an accuracy level</strong>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Printed only:</strong> <code>res.palace_total_s</code> beside 261.6 s; <code>res.sha256</code>; the Palace window's own wall time, from its log footer, in the guide.</p>
+<p><strong>(2) Negative controls.</strong>
+- <strong>(c-stage), asserted by construction, stage 1.</strong> With no Palace output on disk, the call returns no S: it raises <code>PalaceRunRequired</code>, and <code>CASE_DIR/"postpro"</code> does not exist after the raise. A read path that returned a stale or default matrix would fail this.
+- <strong>(c-order), backed, asserted in stage 3.</strong> Each class mean of <code>res.s_matrix</code> differs from Palace order 1 (<code>OPS61/"postpro_f05x"/"port-S.csv"</code>) by &gt; <code>C_ORDER_FLOOR</code> relative. Backed: 6.6674 / 2.5442 / 4.5224 % (<code>20261018T172228Z_ARCH-1-U16c-W1.log</code>). The weakest class clears the floor by ≈ 2.5e4×. Ceiling: the order move itself.
+- <strong>(c-freq), printed.</strong> Frobenius-relative distance to <code>OPS61/"postpro_f05x_o2_f10"/"port-S.csv"</code>. Predicted ≈ 8.515e-01 (measured twice). Never asserted.</p>
+<p><strong>Outputs (stage 3).</strong>
+- <strong>The DolfinX side for ParaView: geometry and tags only, which is cheap.</strong> After the read, the script calls <code>study.geometry.build(comm)</code> once more. That is ≈ 27 s, and it is deterministic: U16a's (W-msh) found the same bytes on every build. It writes <code>paraview_output/mri_30_study_palace_backend_f_small_combined.xdmf</code> with:
+  - <code>CellTags</code> (automatic);
+  - <code>sigma_palace</code>, a DG0 field of the conductivity each cell carries in the case's <code>Materials</code> block: conductor <code>geometry.conductor_sigma_s_per_m</code>, phantom <code>SALINE_SIGMA</code>, air 0;
+  - <code>facet_tags=built["facet_tags"]</code>, the four narrowed port sheets that Palace reads as attributes 21–24.</p>
+<p>Call <code>adopt_host_ownership(OUTPUT_DIR, comm=comm)</code> last.
+- <strong>No field XDMF, and why.</strong>
+  - The Palace backend returns S only (<code>PalaceStudyResult</code>). The case config carries no <code>Save</code> key, and adding one changes the input. (W-case) would then fail, along with the "same input" claim.
+  - A DolfinX degree-2 field on F-small is a second heavy solve: ≈ 370 s at <code>-n 8</code>, the only width with a degree-2 record (<code>docs/planning/chunks/WF-16.md:37</code>, <code>:143</code>). That width cannot share a run with the serial writer.
+  - <code>mri:8</code> already writes the DolfinX <code>|E|</code> on this fixture at degree 1.
+- <strong>Setup figure:</strong> rendered from the stage-3 extra build, as <code>08_study_four_port_birdcage.py:126–148</code>: air hidden, phantom translucent, z = 0 slice. Title <code>mri:30 -- F-small four-port birdcage through backend='palace' (degree 2)</code>.
+- <strong>CSV:</strong> <code>paraview_output/mri_30_study_palace_backend_f_small_s_classes.csv</code> with one row per class: |mean| and arg of the Palace read, the same for our degree-2 record, the (Tie2) gap, and the recorded gap. Values at ≤ 6 significant digits.</p>
+<p><strong>Guide.</strong>
+- <code>## 1</code> says plainly that the Study cannot launch Palace: Palace runs in its own image, and the solver container has no docker socket (the 2026-10-18 03:00 ruling R2, <code>docs/planning/chunks/ARCH-1.md</code>). It also says the Palace figures are a cross-solver identity on our discretisation, not an accuracy level.
+- <code>## 2</code> gives the three commands with their measured times:
+  1. <code>./scripts/run_examples.sh -e mri:30 -n 1 -t 180</code>;
+  2. the <code>docker compose -f docker/docker-compose.yml --profile palace run --rm -T fem-em-palace …</code> line that stage 1 prints;
+  3. the first command again.
+- <strong>Docref trap (measured in the checker, <code>scripts/testing/check_example_doc_references.py:120–122</code>, <code>:474–482</code>):</strong> the reference pass matches any <code>*.json</code> / <code>*.msh</code> / <code>*.csv</code> token by basename. It looks the name up in <code>examples/mri/paraview_output/</code>, not in a subdirectory. So the guide must never write <code>case.json</code>, <code>mesh.msh</code>, <code>port-S.csv</code>, <code>palace.json</code>, <code>f05x_o2.json</code> or <code>ops61_ans4_x1_strip.msh</code> as tokens: each would read dead. Name the case <strong>directory</strong> (it has no extension), describe its contents in words, and write Palace's argument as "the case config". Guide artifacts are named by <strong>full filename</strong>, never a stem or a glob (§9 standing rule (b)).
+- <code>Related</code>:
+  - <code>08_study_four_port_birdcage.md</code> (the DolfinX twin);
+  - <code>docs/planning/chunks/ARCH-1.md</code>;
+  - <code>tests/package/test_arch1_palace_backend.py</code>;
+  - <code>docs/guide/backends.md</code> <strong>only if item 529 has landed it on <code>main</code> when the guide is written</strong>. Otherwise omit it; never create it. This item does not wait for 529.</p>
+<p><strong>(3) Tier, ranks, price, windows.</strong> Heavy by the Palace window. The example runs at <code>-n 1</code>, complex, <code>-t 180</code>; Palace runs at <code>-np 8</code> (≤ 12).</p>
+<p><strong>Price inputs (measured):</strong>
+- write stage 27.1 s (U16c W1 <code>:1833</code>);
+- Palace order 2 on these bytes: window 264 s, <code>Total</code> 261.6 s, 6.0 G (<code>20261018T140040Z_ARCH-1-U16b-W1-palace-d2.log</code>);
+- the U16c module, two full read stages among its nodes, 224 s;
+- setup figure ≈ 3 s (<code>20261017T110217Z_EX-129.log:50</code>).</p>
+<p><strong>Predictions:</strong>
+- stage 1 ≈ 40 s, range [25, 120] s;
+- Palace ≈ 265 s, range [240, 400] s;
+- run of record ≈ 70 s, range [45, 160] s: two builds, the byte check, the read, XDMF, figure.</p>
+<p><strong>Item minutes:</strong> ≈ 9 measured (example class median) / ≈ 50 predicted: fixed ≈ 9, code ≈ 15, windows ≈ 8, guide ≈ 9, commit and journal ≈ 6, pre-checks ≈ 3.</p>
+<p><strong>Slot-time rule.</strong>
+- Take this item only as a slot's <strong>first</strong> item (never take-next).
+- Park by minute (rule (d)):
+  - stage 1 not green by minute 25: park;
+  - <strong>the Palace window not started by minute 32: do not start it, park.</strong> It may not cross the timebox (517b's rule);
+  - the run of record not started by minute 42: park.</p>
+<p><strong>Windows.</strong> Each runs in the foreground with Bash <code>timeout: 660000</code>, as one bare, whole, repo-relative call. Nothing is chained, piped or redirected.
+0. <strong>Pre-checks</strong> (bare docker calls, not harness windows):
+   - <code>docker compose -f docker/docker-compose.yml ps</code> shows <code>fem-em-solver</code> Up and <strong>no</strong> <code>fem-em-palace</code> container;
+   - <code>docker image ls fem-em-palace</code> lists <code>0.18.1</code> (a missing image is a stop, 2026-10-13 ruling (4));
+   - <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0;
+   - with Glob, confirm <code>examples/mri/30_*</code> does not exist and the comparands do: <code>logs/ops61/{f05x_o2.json, ops61_ans4_x1_strip.msh, postpro_f05x_o2/, postpro_f05x/, postpro_f05x_o2_f10/}</code> and <code>logs/u16/f_small_d2_64/{case.sha256, postpro/}</code>. A missing comparand is BLOCKED ("comparand absent"); never re-run Palace or <code>OPS-61</code> to make one;
+   - if <code>examples/mri/paraview_output/mri_30_study_palace_backend_f_small_case/</code> already holds a <code>postpro/</code>, stop and report: never run Palace over a Palace output. A case directory without <code>postpro/</code> may stay, because stage 1 re-checks its bytes.
+1. <strong>Pre-censuses</strong>, before any file is written:
+   <code>scripts/testing/run_and_log.sh EX-134-pre-figures "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_setup_figures.py'"</code>
+   <code>scripts/testing/run_and_log.sh EX-134-pre-docrefs "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py'"</code>
+   Exit 2 means stale; exit 1 is a failure. Write down the predicted delta (+1 example, +1 figure) before reading the post-census.
+2. Write the script.
+3. <strong>Import check:</strong>
+   <code>scripts/testing/run_and_log.sh EX-134-import "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 10 60 python3 -c \"import tests.package.test_arch1_palace_backend as a, tests.validation.test_ans4_exact_strip_records as b, fem_em_solver.backends.palace as p; print(a.TIE2_BAND, a.C_ORDER_FLOOR, sorted(b.ANS4_EXACT_STRIP_S_P2_X1), p.CASE_FILES)\"'"</code>
+4. <strong>Dry run:</strong> <code>scripts/testing/run_and_log.sh EX-134-dryrun "./scripts/run_examples.sh -e mri:30 -n 1 -t 180 --dry-run"</code>. It must print <code>(complex build)</code>.
+5. <strong>Stage 1 (write):</strong>
+   <code>scripts/testing/run_and_log.sh EX-134-stage1-write "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src timeout -k 30 180 mpiexec -n 1 python3 examples/mri/30_study_palace_backend_f_small.py'"</code>
+   Pass means Status 0, (K) / (Arg) / (W-case) / (c-stage) green, and the stage-1 closing line.
+6. <strong>Before the Palace window:</strong> <code>pgrep -c python3</code> reads 0, and <code>docker compose -f docker/docker-compose.yml ps</code> shows no <code>fem-em-palace</code> container. Two heavy windows never run at once.
+7. <strong>Palace (the item-517b W1 form verbatim, relabelled, new cwd):</strong>
+   <code>scripts/testing/run_and_log.sh EX-134-palace-d2 "docker compose -f docker/docker-compose.yml --profile palace run --rm -T fem-em-palace bash -lc 'cd /workspace/examples/mri/paraview_output/mri_30_study_palace_backend_f_small_case &amp;&amp; timeout -k 30 590 palace -np 8 case.json'"</code>
+   <strong>Log check (executor, journalled):</strong> 117 206 elements, <code>Rs = 4.375e+01 Ω/sq</code> on attributes 21–24, ω/2π = 6.400e-02 GHz, <code>ND (p = 2): 753062</code>, and four <code>GMRES solver converged</code> lines. After any kill: <code>docker compose -f docker/docker-compose.yml ps</code> for a lingering <code>fem-em-palace</code> container before anything else.
+8. <strong>Run of record, <code>EX-134</code> (stage 3, read):</strong>
+   <code>scripts/testing/run_and_log.sh EX-134 "docker compose exec -T -e FEM_EM_SETUP_FIGURES=1 fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src timeout -k 30 180 mpiexec -n 1 python3 examples/mri/30_study_palace_backend_f_small.py'"</code>
+   Pass means all of:
+   - Status 0;
+   - every anchor and (c-order) green;
+   - the closing <code>All assertions hold</code> line.
+9. <code>git add</code> the PNG and check it is ≤ 600 KiB. Write the guide from windows 5, 7 and 8's logs. Then run <code>EX-134-post-figures</code> / <code>EX-134-post-docrefs</code> (window 1's commands, relabelled): N → N + 1 with <code>broken=0</code>, and <code>dead=0</code>.
+10. <code>git status --porcelain examples/ tests/ src/ scripts/ docker/</code> lists only the three new paths. Run <code>scripts/testing/check_private_leak.py</code> on the staged logs.</p>
+<p>After a Status 124 in a solver window: <code>pgrep</code> first, then the rubric-4 sweep as <code>EX-134-cache-sweep</code>.</p>
+<p><strong>(4) Traps already paid for.</strong>
+- <strong>Bare whole commands.</strong> Every docker or harness call is the whole Bash command: no <code>cd … &amp;&amp;</code> prefix, no <code>; date</code> suffix, no pipe, no redirect. Otherwise the call is denied the docker socket (<code>fcffa701</code>, 2026-09-30). <strong>An executor that loses the docker socket mid-item stops and reports the exact command string.</strong>
+- <strong>The solver container cannot run Palace</strong>, and a slot never tries a workaround: no socket mount, no Palace in the solver image (§9 compose constraint; 2026-10-18 03:00 R2). The Palace window is its own host-side harness call.
+- <strong>Never write into <code>logs/u16/*</code> or <code>logs/ops61/*</code>, and never touch a <code>postpro/</code> there</strong> (the 10:30 ruling). <code>D2_CASE</code> and <code>OPS61</code> are read-only comparands here. The example writes only under <code>examples/mri/paraview_output/</code> and <code>examples/mri/figures/</code>.
+- <strong>"Same input" includes <code>-np 8</code>, <code>Order</code>, <code>Tol</code>, <code>MaxIts</code> and <code>Direction</code>.</strong> Never change any of them in-slot. <code>palace_ranks</code> stays at its default of 8.
+- <strong>Palace writes <code>postpro/</code> relative to its cwd.</strong> The window must <code>cd</code> into the case directory, as above.
+- <strong>A <code>GMRES … did not converge</code> line, or an abort on the port set, is a finding</strong>, not a retry. That run's S is "not measured".
+- <strong>The writer is serial.</strong> Run the example at <code>-n 1</code> only. At <code>-n 2</code> the backend raises before meshing (U16 T0), and an overridden <code>-n</code> is a deviation.
+- <strong>Rank 0.</strong> At <code>-n 1</code> every rank is rank 0, but write the tail as if it were not. Rank-0-only values are used only under <code>if comm.rank == 0:</code>, with no collective inside (the <code>EX-127</code> failure). Read every tail f-string before window 8.
+- <strong>Leak guard.</strong> Print example-side S values and class means at ≤ 6 significant digits. <code>_p_rec</code>'s own 12-digit σ_max line passed the guard in U16c. If <code>check_private_leak.py</code> flags a log, move it unchanged to <code>logs/leak-held/</code>, mark the item BLOCKED and stop. Never read Palace's <code>z_matrix_ohm</code>. No AED figure appears, and no Palace figure is set beside an AED one, in any tracked file (§5.4 (iv)).
+- <strong>Docrefs:</strong> full filenames only, and none of the case files' basenames (above).
+- <strong><code>run_examples.sh</code> is host-side.</strong> Never wrap it in <code>docker compose exec</code>. Its dry-run is the only form used here.
+- <strong>No raised <code>-t</code> or <code>-n</code>, no background window, no script edit after window 8 starts</strong> (rule (i)). An edit means windows 5 and 8 again. Window 7 is not re-run if (W-case) is still green.
+- <code>≈</code>, never a tilde, in the guide.</p>
+<p><strong>(5) Scope.</strong>
+- Covered: the Python <code>Study</code> on the F-small ×1 exact strip, κ off, 64 MHz, degree 2 / Palace order 2. Written, run and read in a fresh directory. S only.
+- <strong>Not claimed:</strong>
+  - <code>femem run --backend palace</code> (U16's T5 holds it);
+  - order 1, other frequencies or rungs, sweeps or a Touchstone;
+  - copper, hole or F-human fixtures;
+  - fields from Palace: SAR, B₁⁺, the loss partition, thermal (<code>ARCH-1</code> (1)–(2));
+  - a Study that launches Palace;
+  - accuracy, tuning, Q, any AED comparison;
+  - an XDMF that opens a field (geometry and tags only, for the reasons above).</p>
+<p><strong>(6) Negative result.</strong> Report and stop. Park on <code>attempt/EX-134-&lt;UTC&gt;</code>, mark the item BLOCKED in the same commit, and journal it.
+- <strong>(W-case) red:</strong> today's writer or fixture differs from item 517's bytes. That is a writer or environment drift: open a known-issues entry and BLOCK. It is a <code>record-reconciler</code> question, never a re-export of <code>OPS-61</code>'s mesh.
+- <strong>(E2) or (E2-u16) red with the log check and (P) green:</strong> Palace did not reproduce its own read on the same bytes. Open a known-issues entry ("Palace re-run not reproducible at 1e-9 on a fresh case") and BLOCK. <code>ARCH-1</code> does not move; the review rules.
+- <strong>The log check red</strong> (element count, Rs, ND or frequency): the case is not the U16 input despite (W-case). BLOCKED.
+- <strong>(Tie2) above <code>TIE2_BAND</code> with (E2) green:</strong> impossible unless the record moved. Print it and report.
+- <strong>(c-order) red:</strong> the read is blind to the case. BLOCKED.
+- <strong>Palace Status 124:</strong> a price finding. Record it; never lengthen the timeout.
+- <strong>A printed prediction missed</strong> (a stage time, (c-freq)): report it in the guide and the journal. It has no status effect.</p>
+<p>There is no <code>PREDICTED RED:</code> line.</p>
+<p><strong>(7) Status it can move.</strong>
+- <code>EX-134</code> ⬜ → ✅, with the census rising by one, <code>broken=0</code> and docrefs <code>dead=0</code>.
+- <code>ARCH-1</code> stays 🟡: an example is not its gate of record. <code>WF-16</code>, <code>OPS-61</code> and §2 do not move.
+- If a review demotes item 533, <code>EX-134</code> is withdrawn.</p>
+<p><strong>Spawn prompt (verbatim).</strong> "Use the example-runner agent to execute <code>EX-134</code>, §9 item 544 (<code>docs/planning/chunks/EX-134.md</code>, heading <code>§9 item 544</code>).
+- Read the brief and any review ruling beneath it first; the rulings hold.
+- You are the executor: do not spawn agents.
+- The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Run every window in the foreground with <code>timeout: 660000</code>, never in the background.
+- Run <code>pgrep -c python3</code> (require 0) before windows 1, 5, 7 and 8, and <code>docker compose -f docker/docker-compose.yml ps</code> (no <code>fem-em-palace</code> container) before window 7.
+- Edit nothing under <code>tests/</code>, <code>src/</code>, <code>scripts/</code> or <code>docker/</code>. Import every record and band; never import a <code>test_*</code> name.
+- Never write into <code>logs/u16/</code> or <code>logs/ops61/</code>, and never touch a <code>postpro/</code> there. Never change <code>-np</code>, <code>Order</code>, <code>Tol</code>, <code>MaxIts</code> or <code>Direction</code>.
+- Do not start the Palace window after minute 32; park instead.
+- If the docker socket is denied, stop and report the exact command string.
+- Print S at ≤ 6 significant digits. Use rank-0 values only under <code>if comm.rank == 0:</code>. Never name the case files' basenames in the guide.
+- Never raise <code>-t</code> or <code>-n</code>. If <code>check_private_leak.py</code> blocks a log, move it unchanged to <code>logs/leak-held/</code>, mark the item BLOCKED and stop.
+- On a red, park on <code>attempt/EX-134-*</code>, mark the item BLOCKED in the same commit, and report.
+- Return the log names, each asserted and printed value beside its record or prediction, the Palace log check, the census before and after, and elapsed per window."</p>
+<p><strong>Questions for the review.</strong>
+- <strong>Q1, the guide's Palace command.</strong> The docref checker reads <code>case.json</code> in the command line as a dead artifact. The brief has the guide write "the case config" in its place, and stage 1 prints the literal command. An <code>ALLOWLIST</code> entry in the checker would let the guide show the command verbatim, but that is a tooling edit outside an example item. Accept the workaround, or open the allowlist line as a separate lane-1 item.
+- <strong>Q2, the 529 link.</strong> The brief leaves item 544 independent of item 529 and links <code>docs/guide/backends.md</code> only if it exists. Alternatively, make 544 depend on 529.</p>
+<h3 id="review-ruling-2026-10-18-1800-item-544">Review ruling 2026-10-18 18:00 (item 544)<a class="headerlink" href="#review-ruling-2026-10-18-1800-item-544" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Accepted as an example under the 10-17 weekly's list</strong> ("a <code>mri:</code> Palace-backend run after U16"). U16's gates ((E2), (Tie2)) landed with item 533, so this does not target ungated capability.</li>
+<li><strong>Slot-first only:</strong> take it only as a slot's first item. Park if the Palace window has not started by minute 32.</li>
+<li><strong>Q1 (the docref trap):</strong> the guide never writes the case file's name with its extension, and never shows the Palace command verbatim. Stage 1 prints the command into the log, and the guide points to that log line by its full filename.</li>
+<li><strong>Q2:</strong> independent of item 529. Link <code>docs/guide/backends.md</code> only if it is on <code>main</code> when the slot starts.</li>
+<li><strong>Never write into <code>logs/u16/*</code> and never touch an existing <code>postpro/</code></strong> (the 10:30 ruling stands). The case goes only into the fresh <code>examples/mri/paraview_output/</code> directory.</li>
+<li>Spot-checked by the review: <code>20261018T140040Z_ARCH-1-U16b-W1-palace-d2.log:12</code> (the Palace command form); <code>src/fem_em_solver/backends/palace.py:243–246</code>; <code>tests/package/test_arch1_palace_backend.py:293–297</code>.</li>
+</ul>
+<p><strong>Outcome (2026-10-19 04:30 slot): DONE, ✅ pending audit.</strong> Run of record <code>20261019T093732Z_EX-134.log</code> Status 0 in 60 s (predicted ≈ 70 s, range [45, 160]), "All assertions hold" (<code>:3621</code>). Stage 1 <code>20261019T093220Z_EX-134-stage1-write.log</code> 31 s (range [25, 120]): (K), (Arg), (W-case) and (c-stage) green. Palace <code>20261019T093301Z_EX-134-palace-d2.log</code> 262 s (range [240, 400]), <code>Total</code> 260.4 s, 6.0 G; log check met: 117 206 elements, <code>Rs = 4.375e+01 Ω/sq</code> on 21–24, ω/2π = 6.400e-02 GHz, <code>ND (p = 2): 753062</code>, four <code>GMRES solver converged in 37 iterations</code>. Stage 3: (W-case) green again; (R) order 2, 117 206 cells, 64 MHz; (E2) and (E2-u16) both 2.636e-14 (entry max 4.816e-14) ≤ 1e-9. <strong>The predicted 0.000e+00 missed:</strong> this fresh Palace run is not bitwise equal to the two earlier ones, which are bitwise equal to each other. The band holds by ≈ 5 orders, so there is no status effect, and the guide reports it. (P): reciprocity 9.848e-11, σ_max 0.999819887373 (= record). (Tie2) 2.464e-10 / 9.668e-11 / 9.883e-11 (= <code>TIE2_RECORDED</code>). (c-order) 6.6674 / 2.5442 / 4.5224 % (= backed). (c-freq) printed 0.8515 (predicted ≈ 0.8515). <code>palace_total_s</code> 260.361 s (record 261.6 s). Census 129 → 130 <code>broken=0</code>; docrefs <code>dead=0</code>, stale 143 → 143. PNG 407 KiB. Leak guard clean. Commit <code>a81fc949</code>. Other logs: <code>20261019T093056Z_EX-134-pre-figures.log</code>, <code>20261019T093100Z_EX-134-pre-docrefs.log</code>, <code>20261019T093207Z_EX-134-import.log</code>, <code>20261019T093212Z_EX-134-dryrun.log</code>, <code>20261019T093921Z_EX-134-post-figures.log</code>, <code>20261019T093923Z_EX-134-post-docrefs.log</code>. Executor deviation: the pre-check used <code>docker images fem-em-palace</code> (it lists <code>0.18.1</code>) because <code>docker image ls</code> needed approval.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,621 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>OPS-73 — a retention-safe reader for tests that read a dated harness log - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ops-73-a-retention-safe-reader-for-tests-that-read-a-dated-harness-log" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              OPS-73 — a retention-safe reader for tests that read a dated harness log
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-724-2026-11-01-lane-1-known-issues-2026-11-01" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 724 — 2026-11-01 (lane 1, known-issues 2026-11-01)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ops-73-a-retention-safe-reader-for-tests-that-read-a-dated-harness-log">OPS-73 — a retention-safe reader for tests that read a dated harness log<a class="headerlink" href="#ops-73-a-retention-safe-reader-for-tests-that-read-a-dated-harness-log" title="Permanent link">&para;</a></h1>
+<p><em>History file for the §7 <code>OPS-73</code> row (<code>OPS-46</code>). Opened by the 2026-11-01 10:30 daily review under §9 rule (5) lane 1 (an open known-issues entry a slot can execute), from <code>WF-13</code> step 13's Wreg (§9 item 715).</em></p>
+<ul>
+<li><strong>The defect.</strong> Retention compresses a cited log at 7 days (<code>retention-policy.md</code> §1). A test that reads <code>docs/testing/logs/&lt;stamp&gt;.log</code> by its plain name then raises <code>FileNotFoundError</code>. <code>test_wf13_s11_fh2_row_is_its_log</code> went red that way after the 11-01 sweep (<code>20261101T133249Z_WF-13-s13-Wreg.log:7669</code>). It passes on a decompressed copy (<code>20261101T133621Z_WF-13-s13-Wfh2.log</code>). <code>main</code> is red on this node until this lands.</li>
+<li><strong>What the 10:30 review swept.</strong> Of 538 dated logs cited anywhere in <code>tests/</code>, 484 exist only as <code>.gz</code>, 38 are gone and 16 are plain. Most citations are comments. Matching module constants named <code>*LOG*</code> to a run-time read, with no <code>gzip</code> in the module, finds <strong>three modules</strong>: <code>tests/package/test_wf13_estimate_f_human_d2.py</code> (<code>ENTRY41_LOG</code>), <code>tests/unit/test_ans8_v3_d2_block.py</code> (<code>H30_LOG</code>), <code>tests/validation/test_wf10_lattice_d2.py</code> (<code>D1_TABLE_LOG</code>, <code>D1_PPH_LOG</code>, <code>H18_LOG</code>). That sweep does not see a name built at run time (<code>_log("…")</code>), so the slot repeats it for that form. None of the 38 absent logs is named by a matching constant, but the same limit applies.</li>
+</ul>
+<p><strong>Done-when.</strong> <code>tests/log_records.py::read_log_text</code> exists and is the only route those modules use; <code>test_wf13_s11_fh2_row_is_its_log</code> passes on <code>main</code> with no plain <code>.log</code> present; (H) and (A) below asserted; the known-issues entry retired in the same commit.</p>
+<h3 id="9-item-724-2026-11-01-lane-1-known-issues-2026-11-01">§9 item 724 — 2026-11-01 (lane 1, known-issues 2026-11-01)<a class="headerlink" href="#9-item-724-2026-11-01-lane-1-known-issues-2026-11-01" title="Permanent link">&para;</a></h3>
+<p><strong>Anchor.</strong> (H) <code>read_log_text(path)</code> returns the identical text for a plain file and for a <code>.log.gz</code> of the same bytes. (A) with neither present it raises <code>FileNotFoundError</code> naming both paths. (Node) <code>test_wf13_s11_fh2_row_is_its_log</code> passes on both ranks with <code>docs/testing/logs/20261022T070008Z_WF-10-step4-H28.log</code> absent and <code>.gz</code> present, asserted in the window by a printed <code>ls</code>, not a decompressed copy.</p>
+<p><strong>Negative control.</strong> In the unit test, a bare <code>Path.read_text</code> on a <code>.gz</code>-only path raises <code>FileNotFoundError</code>, so the test really is on the state that was red. W0 runs the node before the edit and shows the red once: keep that log.</p>
+<p><strong>Execution.</strong>
+- New <code>tests/log_records.py</code>: <code>read_log_text(path, errors="replace")</code>, as <code>tests/package/test_wf13_estimate_f_clinical_d2.py::_log_lines</code> and <code>tests/unit/test_ans4_ans6_palace_sections.py:162–164</code> already do it. Do not move those modules; they work.
+- New <code>tests/unit/test_log_records.py</code>.
+- Route the three modules through it: <code>test_wf13_estimate_f_human_d2.py:119</code>, <code>test_ans8_v3_d2_block.py:129</code> and <code>:176</code>, <code>test_wf10_lattice_d2.py:109</code>, <code>:319</code>, <code>:342</code>. Change only the read. <code>parse_table(path)</code> reads <code>fh.read().splitlines()</code>, and <code>read_log_text(path).splitlines()</code> is the same.
+- <strong>Re-sweep:</strong> grep <code>tests/</code> for reads of a name built at run time from <code>docs/testing/logs</code> (<code>_log(</code>, <code>LOG_DIR</code>, <code>LOGS /</code>). Each module on the known-issues list (<code>test_ans4_h_table.py</code>, <code>test_ans7_verdict_section.py</code>, <code>test_ans7_palace_section.py</code>, <code>test_ans4_ans6_palace_sections.py</code>, <code>test_ans8_v3_record_rows.py</code>, <code>test_arch1_u76_palace_outputs.py</code>, <code>test_wf10_f_human_four_port_sar10g.py</code>, <code>test_wf7_f_human_ring_matrix.py</code>) is either fixed the same way or named in the outcome with why it needs nothing (several already fall back; <code>test_ans8_v3_record_rows.py:118</code> reads JSON).</p>
+<p><strong>Tier, ranks, wall clock.</strong> Standard, <code>-n 2</code>, complex, <code>timeout -k 30 170</code>. W0 (red node, pre-edit) ≈ 10 s. W1 the new unit test ≈ 3 s. Wreg: the three modules, plus any the re-sweep changes, ≈ 60 s; <code>test_wf13</code> alone took 161 s in its full Wreg, so run the named node and the changed reads, not the whole family. Wenv ≈ 49 s. <strong>Class:</strong> ops / docs. <strong>Cost:</strong> ≈ 5.6 measured / 20 predicted min. <strong>Depends on:</strong> nothing.</p>
+<p><strong>Traps already paid for.</strong> Never <code>gunzip</code> a record in <code>docs/testing/logs/</code> to get green; item 715's temporary copy was removed in the same window and is not the fix. The bash guard refuses shell text that pipes pytest. Count verdicts per rank by token. Modules whose solve knob is unset skip their solve nodes, which is correct here, because the reads under test are not in those nodes; say which nodes ran.</p>
+<p><strong>Scope.</strong> Reads of records. <strong>Not claimed:</strong> any change to retention, to a record, or to a value read. No log is regenerated.</p>
+<p><strong>Negative result.</strong> A module that reads a log that is <strong>gone</strong> (not <code>.gz</code>): do not regenerate it and do not skip the test. File a known-issues entry naming the module and the log, and leave that node as it stands. No <code>PREDICTED RED:</code> line beyond W0's, which is the pre-edit reproduction, not a gate.</p>
+<p><strong>Status it can move.</strong> §7 <code>OPS-73</code> ⬜ → ✅; the known-issues 2026-11-01 entry retires in the same commit; <code>main</code> green on <code>test_wf13_s11_fh2_row_is_its_log</code>.</p>
+<p><strong>Outcome 2026-11-01 (12:00 slot, item 724): DONE, run inline, no executor spawned.</strong> New <code>tests/log_records.py</code> (<code>read_log_text</code>, plus <code>resolve_log_path</code> and <code>glob_log_paths</code>, which the brief did not name and the re-sweep needed) and <code>tests/unit/test_log_records.py</code>. W0 reproduced the red on both ranks with only the <code>.gz</code> listed (<code>20261101T182028Z_OPS-73-W0.log:35</code>, <code>:65</code>, <code>:68</code>, <code>:85</code>, Status 1, kept). W1: 9 passed per rank, covering (H), (A), the bare-read control and the glob (<code>20261101T182228Z_OPS-73-W1.log:81</code>, <code>:84</code>). <strong>(Node):</strong> <code>test_wf13_s11_fh2_row_is_its_log</code> passes on both ranks, the window's <code>ls</code> listing only the <code>.gz</code> (<code>20261101T182231Z_OPS-73-Wreg.log:35</code>, <code>:69</code>, <code>:73</code>). That window's own footer reads 1 failed, 9 passed, 4 skipped per rank, Status 1: the one red is <code>test_ans8_v3_d2_block</code> at (R2), <code>:102</code>, ahead of any log read, a page-versus-render defect from H35 (<code>704025e6</code>). It is a new known-issues entry, not fixed here. <code>test_ans4_h_table.py</code> passed at <code>-n 1</code> (<code>20261101T182310Z_OPS-73-Wreg-h.log:87</code>), after a first red kept in <code>20261101T182235Z_OPS-73-Wreg-h.log</code>: the numbers file records each log's listed name, so a resolved <code>.gz</code> name broke (X). Wenv 12 passed. <strong>Re-sweep, run-time names.</strong> Fixed the same way: <code>test_ans4_h_table.py</code> (<code>:119–120</code> and <code>H_TABLE_LOGS</code> name logs that exist only as <code>.gz</code>, so it would have been red on <code>main</code>, and it was not on the review's list), <code>test_ans8_v3_record_rows.py</code> (<code>_log(…)</code> into the example's plain-only <code>node_log_readings</code>, and the <code>glob</code> at <code>:378</code>), plus <code>test_wf10_lattice_d2.py</code>'s <code>_d2_log</code> glob and the read at <code>:285</code>. Need nothing: <code>test_ans7_verdict_section.py</code>, <code>test_ans7_palace_section.py</code>, <code>test_ans4_ans6_palace_sections.py</code>, <code>test_arch1_u76_palace_outputs.py</code> and <code>test_wf7_f_human_ring_matrix.py</code> already fall back; <code>test_wf10_f_human_four_port_sar10g.py</code> only cites a log in a comment; <code>test_helmholtz_magnitude.py</code> and <code>probe_wf6_sheet_facet_census.py</code> too. No absent log was met, so the brief's negative result did not fire. <strong>Disclosures.</strong> (1) Nodes run in Wreg: the named node, all of <code>test_ans8_v3_d2_block.py</code> and <code>test_wf10_lattice_d2.py</code> with <code>test_wf10_h27_degree2_lattice</code> skipped, and <code>test_ans8_h30a_coding</code>. <strong>Skipped, so their edited reads have not executed:</strong> <code>test_wf10_h27_degree2_lattice</code> (<code>FEM_EM_WF10_H27</code>) and the three knob-gated record nodes of <code>test_ans8_v3_record_rows.py</code>, which read gitignored JSON; <code>parse_table</code> itself ran through the <code>.gz</code> in K1. (2) <code>parse_table</code> and the other <code>open</code> sites now read with <code>errors="replace"</code>, as the brief's reader does, so a non-UTF-8 byte no longer raises. (3) The examples are untouched: <code>H_TABLE_LOGS</code> in <code>04_birdcage_four_port_10_64_128MHz.py</code> and <code>node_log_readings</code> in <code>08_f_human_quadrature_mode_content.py</code> still read plain names only, and the tests go round them with scratch copies, so any route that runs them directly on those logs fails. Not claimed: any change to retention, a record, or a value read.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

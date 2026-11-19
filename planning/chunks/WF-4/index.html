@@ -1,0 +1,940 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>WF-4 — Scenario presets (debug / dev / benchmark-lite) - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#wf-4-scenario-presets-debug-dev-benchmark-lite" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              WF-4 — Scenario presets (debug / dev / benchmark-lite)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-376-2026-10-11-chain-u42-9a-chain-step-solve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 376 — 2026-10-11 (chain U42, 9a; chain step (solve))
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-430-2026-10-13-10-chain-u42-chain-step-9a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 430 — 2026-10-13 (§10 chain U42; chain step, (9a))
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-13-0300-daily-on-the-item-430-draft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-13 03:00 (daily) on the item 430 draft
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-471-2026-10-15-10-chain-u42-wf-4-folded-in-chain-step-solve-drafted-as-471a-degree-1-price-row-471b-presets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 471 — 2026-10-15 (§10 chain U42, WF-4 folded in; chain step, solve) — drafted as 471a (degree-1 price row) + 471b (presets)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="§9 item 471 — 2026-10-15 (§10 chain U42, WF-4 folded in; chain step, solve) — drafted as 471a (degree-1 price row) + 471b (presets)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#471a-wf-13-step-6-p3-completed-the-f-small-degree-1-unknowns-and-peak-measured-and-log-pinned-so-a-degree-1-file-is-priced-chain-step-solve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        471a — WF-13 step 6: P3 completed — the F-small degree-1 unknowns and peak measured and log-pinned, so a degree-1 file is priced (chain step, solve)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#471b-wf-4-step-1-three-presets-under-examplespresets-each-reproducing-one-named-record-through-femem-run-each-priced-by-estimate-inside-2-chain-step-solve-serial-on-471a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        471b — WF-4 step 1: three presets under examples/presets/, each reproducing one named record through femem run, each priced by --estimate inside ×2 (chain step, solve; serial on 471a)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-15-0300-items-471a-471b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-15 03:00 (items 471a, 471b)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-17-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-17 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="wf-4-scenario-presets-debug-dev-benchmark-lite">WF-4 — Scenario presets (debug / dev / benchmark-lite)<a class="headerlink" href="#wf-4-scenario-presets-debug-dev-benchmark-lite" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<h3 id="9-item-376-2026-10-11-chain-u42-9a-chain-step-solve">§9 item 376 — 2026-10-11 (chain U42, 9a; chain step (solve))<a class="headerlink" href="#9-item-376-2026-10-11-chain-u42-9a-chain-step-solve" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-11 03:00 daily review; the review reviews it.</em></p>
+<p><strong>Licence.</strong> §10 chain U, <strong>U42</strong> (9a): "<code>WF-4</code> folded in — scenario presets as YAML files under <code>examples/presets/</code> that <code>femem run</code> accepts (<code>debug</code> / <code>dev</code> / <code>benchmark-lite</code>), each reproducing one gated record at its band (<code>WF-1</code>'s pattern) and <code>femem run --estimate</code> printing their prices; <code>WF-4</code> 🧪 → ✅. Standard. Serial on nothing."</p>
+<p>The §7 <code>WF-4</code> row has no Done-when; it reads "deferred to Phase 9 … not a lane-1 item". Under rule (j), this review writes one: see <strong>Row amendment</strong> below. No band, tolerance or target is set or moved, and every band is imported by name.</p>
+<p><strong>Finding for the review (rule (e): reported, not decided). <code>--estimate</code> cannot price a degree-1 file.</strong>
+- <code>Study.estimate</code> fits a power law per degree and raises <code>ValueError("fewer than two priced rows at degree 1")</code> when fewer than two rows carry both unknowns and a price (<code>src/fem_em_solver/study.py:1340–1344</code>).
+- <code>PRICE_TABLE</code> has one complete degree-1 row (<code>P1</code>); <code>P3</code> has <code>unknowns=None</code> and <code>peak_gib=None</code> (<code>:1298–1299</code>).
+- <code>WF-13</code> step 4 asserts that refusal: the CLI returns 2 on every rank with the API's message unchanged, under review ruling (1) of 2026-10-08 (<code>tests/package/test_wf13_cli_estimate.py:15–18</code>; outcome <code>20261008T200148Z_WF-13-s4-W1.log</code>).
+- Every gated record that fits a <strong>standard</strong> window is a degree-1 record. The degree-2 records cost 268–282 s, which is the heavy tier:
+  - the degree-2 sphere is 282.4 s at <code>-n 2</code> (<code>PRICE_TABLE</code> <code>P2</code>);
+  - the degree-2 F-small is 269 s at <code>-n 8</code> (<code>20261010T125012Z_OPS-70-S2-W4-wf16-four-port-deg2.log</code>).
+- <strong>So the weekly's two clauses cannot both hold at its tier.</strong> "Each preset priced by <code>--estimate</code>" needs degree-2 presets (heavy) or a second degree-1 <code>PRICE_TABLE</code> row. That row would flip <code>WF-13</code> step 4's pinned refusal (X), which is a re-pose of a ✅ record and the weekly's to make.</p>
+<p><strong>This brief's pose</strong> (the review rules on it; the alternative is under <em>Row amendment</em>):</p>
+<table>
+<thead>
+<tr>
+<th>Preset</th>
+<th>Fixture (YAML equal to)</th>
+<th>Degree / ranks</th>
+<th>Gated record, band (imported)</th>
+<th><code>--estimate</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>debug</code></td>
+<td><code>WF-15</code>'s lossy sphere = <code>tests/package/wf1/sphere_mat4.yaml</code></td>
+<td>1 / <code>-n 2</code></td>
+<td><code>MAT4_DEG1_RECORD</code> (<code>tests/package/test_wf15_study_lossy_sphere.py:87</code>) at <code>L0_BAND</code> (<code>tests/validation/test_mat5_em_coupled_sphere.py:104</code>), as <code>test_wf1_cli_sphere_reproduces_wf15</code> (<code>tests/package/test_wf1_study_yaml.py:268–348</code>)</td>
+<td>the API's degree-1 refusal, rc 2, asserted unchanged</td>
+</tr>
+<tr>
+<td><code>dev</code></td>
+<td>item 192's F-small four-port = <code>tests/package/wf1/f_small_four_port.yaml</code></td>
+<td>1 / <code>-n 2</code> (<code>ANS4_EXACT_STRIP_RECORD_RANK_WIDTH</code>)</td>
+<td><code>_record(1)</code> (<code>ANS4_EXACT_STRIP_S_P1_RECORDS</code>) at <code>LEG_D0_REPRODUCTION_BAND</code> (<code>tests/validation/test_port_birdcage_four_port.py:165</code>), with <code>PORT-11</code>'s gates, as <code>test_wf1_cli_f_small_reproduces_wf16</code> (<code>:352</code>)</td>
+<td>the same refusal</td>
+</tr>
+<tr>
+<td><code>benchmark-lite</code></td>
+<td>the same F-small four-port at <strong>degree 2</strong> (the production default order)</td>
+<td>2 / <code>-n 8</code> (<code>DEGREE2_RECORD_WIDTH</code>, <code>tests/package/test_wf16_study_four_port.py:95</code>)</td>
+<td><code>_record(2)</code> = <code>ANS4_EXACT_STRIP_S_P2_X1</code> at <code>LEG_D0_REPRODUCTION_BAND</code>, <code>PORT-11</code> gates</td>
+<td><strong>priced</strong>: every <code>ResourceEstimate</code> field printed and equal to the in-process <code>Study.estimate(comm)</code> (<code>WF-13</code> (E)'s comparator)</td>
+</tr>
+</tbody>
+</table>
+<p><code>benchmark-lite</code>'s solve is the first degree-2 solve through YAML. <code>WF-1</code>'s row lists "a degree-2 solve through YAML" under Not claimed, so this is a record beyond <code>WF-1</code>, not a change to it.</p>
+<p><strong>Files.</strong>
+- New: <code>examples/presets/debug.yaml</code>, <code>examples/presets/dev.yaml</code> and <code>examples/presets/benchmark-lite.yaml</code>. Each opens with a two-line <code>#</code> comment naming the record it reproduces and its band, by name and without values. The <code>femem: 1</code> schema is unchanged. <code>debug</code> / <code>dev</code> are content copies of the two <code>tests/package/wf1/</code> files; <code>benchmark-lite</code> is <code>dev</code> with <code>study.degree</code> omitted, so it takes the default 2 (<code>WF-1</code> (Deg)), or set to 2 explicitly (implementer's choice, journaled).
+- New: <code>tests/package/test_wf4_presets.py</code>. It imports from <code>test_wf1_study_yaml</code> (<code>_py_birdcage</code>, <code>_cmp</code> / <code>_spec_diff</code>, <code>SPHERE_FILE</code>, <code>BIRDCAGE_FILE</code>, <code>CONTROL_FILE</code>, <code>LOGS</code>, <code>WF15_DEG2_RECORD</code>), from <code>tests.validation.test_ans4_exact_strip_records</code> (<code>ANS4_EXACT_STRIP_RECORD_RANK_WIDTH</code>), <code>test_wf15_study_lossy_sphere</code> (<code>MAT4_DEG1_RECORD</code>, <code>_study</code>), <code>test_wf16_study_four_port</code> (<code>_record</code>, <code>_rel</code>, <code>DEGREE2_RECORD_WIDTH</code>), <code>test_port_birdcage_four_port</code> (<code>LEG_D0_REPRODUCTION_BAND</code>, <code>PASSIVITY_SIGMA_TOLERANCE</code>, <code>_circulant_classes</code>, <code>_class_spread</code>), <code>test_port_birdcage_lumped_column</code> (<code>ADJACENT_SPREAD_BAND</code>), <code>test_port_lumped_sheet_sweep</code> (<code>RECIPROCITY_BAND</code>), <code>test_mat5_em_coupled_sphere</code> (<code>L0_BAND</code>) and <code>test_wf13_cli_estimate</code> (<code>_parse</code>, <code>_diff</code>, <code>_patch_solves</code>, <code>DEG1_MESSAGE</code>). It imports names only, never <code>test_*</code>. <code>@complex_only</code>.
+- <strong>No <code>src/</code> change.</strong> <code>femem run &lt;path&gt;</code> already accepts any path. If one proves necessary, standing rule (c) applies: disclosed, with its gate re-run green in the same slot.
+- <strong>No envelope or API-page change:</strong> presets are files, not public names.</p>
+<p><strong>Anchors (asserted).</strong>
+- <strong>(K) parse identity, all three.</strong> <code>load_study(preset)</code> equals the Python-built Study field by field, floats by <code>float.hex</code> (<code>_spec_diff(...) == []</code>). For <code>debug</code> / <code>dev</code> it also equals the <code>tests/package/wf1/</code> file it copies (its <code>_spec_diff</code> is <code>[]</code>). <code>femem check &lt;preset&gt;</code> returns 0.
+- <strong>(R-debug) <code>-n 2</code>.</strong> <code>cli.main(["run", debug, "--output-dir", …])</code> gives SAR rel. <code>MAT4_DEG1_RECORD</code> ≤ <code>L0_BAND</code>. Prior on the same route: 6.159e-11 (<code>WF-1</code> row; <code>20261006T003504Z_WF-1-W1-parse-sphere.log</code>).
+- <strong>(R-dev) <code>-n 2</code>.</strong> The CLI's <code>summary.json</code> S rel. <code>_record(1)</code> ≤ <code>LEG_D0_REPRODUCTION_BAND</code>; <code>PORT-11</code> reciprocity / passivity / C4 gates green. Prior: 9.557e-11 (<code>20261009T020513Z_WF-1-s6-W3-wf1-w2.log</code>, 142 s).
+- <strong>(R-bl) <code>-n 8</code>, degree 2.</strong> S rel. <code>_record(2)</code> ≤ <code>LEG_D0_REPRODUCTION_BAND</code>; <code>PORT-11</code> gates green. Prior on the Python route: 8.178e-11 / 8.185e-11 (<code>WF-16</code> row; <code>20261010T125012Z_OPS-70-S2-W4-wf16-four-port-deg2.log</code>, (T2)). Asserted only at <code>comm.size == DEGREE2_RECORD_WIDTH</code>, else skip, stated.
+- <strong>(P) prices.</strong>
+  - <code>benchmark-lite</code>: <code>cli.main(["run", "--estimate", bl])</code> returns 0. Its printed <code>name: repr</code> lines equal <code>Study.estimate(comm)</code> field by field, with <code>_diff(...) == set()</code>, and the field set is complete. Solves are patched to raise (<code>_patch_solves</code>), and <code>--output-dir</code> is not created.
+  - <code>debug</code> and <code>dev</code>: rc 2 on every rank, with rank-0 stderr <code>femem: error:</code> + <code>DEG1_MESSAGE</code>.
+  - Each preset's printed price (or refusal) appears in the log on one line headed <code>[WF-4] price &lt;preset&gt;:</code>.</p>
+<p><strong>Negative controls (rule (e)).</strong>
+- <strong>Asserted, each backed on the same comparison and fixture:</strong>
+  - (c1) <code>debug</code>'s SAR misses <code>WF15_DEG2_RECORD</code> by &gt; <code>L0_BAND</code>. <code>WF-1</code> (c2) read 3.4937 % on this route (<code>WF-1</code> row).
+  - (c2) <code>dev</code>'s S misses <code>_record(2)</code> by &gt; <code>LEG_D0_REPRODUCTION_BAND</code>. <code>WF-1</code> (c3) read 0.0491.
+- <strong>Asserted by construction:</strong>
+  - (c3) a tmp copy of <code>dev.yaml</code> with one σ ULP-shifted (<code>tests/package/wf1/control_sigma_ulp.yaml</code>'s pattern) → <code>_spec_diff</code> reports exactly the material σ field;
+  - (c4) the (P) comparator against a one-field-perturbed estimate → exactly that field (<code>WF-13</code> (c2)).
+- <strong>Predicted, printed only:</strong> (c5) <code>benchmark-lite</code>'s S against <code>_record(1)</code>, predicted ≈ 0.05 (the order gap <code>WF-1</code> (c3) measured in the other direction).</p>
+<p><strong>Windows.</strong> Foreground. The harness call is the whole Bash command, bare. Bash <code>timeout: 660000</code>; <code>-s</code>; <code>tests/environment/test_complex_mode.py</code> first. Run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> → 0 before W3. <strong>One stage knob, <code>FEM_EM_WF4_STAGE</code>, selects each window's node set exactly:</strong> unset ⇒ the W1 set; <code>dev</code> ⇒ the W2 set only; <code>bl</code> ⇒ the W3 set only; any other value ⇒ <code>ValueError</code>, parsed as <code>MAT-15</code> step 3's <code>_enabled</code> / <code>_need</code> pattern. Every other node skips with a stated reason, so no window re-runs another's solve. (R-debug) and (R-dev) are also asserted only at <code>comm.size == ANS4_EXACT_STRIP_RECORD_RANK_WIDTH</code>, as <code>WF-1</code> does (<code>test_wf1_study_yaml.py:271</code>, <code>:357</code>).
+- <strong>W1 (<code>-n 2</code>; ≈ 60–110 s):</strong> (K) all three, (R-debug), (P) all three, (c1), (c3), (c4).
+  <code>scripts/testing/run_and_log.sh WF-4-W1-debug-estimate "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_wf4_presets.py -s -v --tb=short'"</code>
+  Price: <code>WF-1</code>'s sphere window took 102 s including good-file builds (<code>20261009T020327Z_WF-1-s6-W2-wf1-w1.log</code>), and the estimate window 14 s (<code>20261008T200148Z_WF-13-s4-W1.log</code>).
+- <strong>W2 (<code>-n 2</code>; ≈ 140–160 s, heavy-by-ceiling like <code>WF-1</code> W3):</strong> (R-dev), (c2).
+  <code>scripts/testing/run_and_log.sh WF-4-W2-dev "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_WF4_STAGE=dev timeout -k 30 400 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_wf4_presets.py -s -v --tb=short'"</code>
+  Price: 142 s (<code>20261009T020513Z_WF-1-s6-W3-wf1-w2.log</code>).
+- <strong>W3 (heavy, <code>-n 8</code>; ≈ 270–360 s on the ≈ 1.3× slow box):</strong> (R-bl), (c5).
+  <code>scripts/testing/run_and_log.sh WF-4-W3-benchmark-lite "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_WF4_STAGE=bl timeout -k 30 590 mpiexec -n 8 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_wf4_presets.py -s -v --tb=short'"</code>
+  Price: 269 s on the Python route (<code>20261010T125012Z_OPS-70-S2-W4-wf16-four-port-deg2.log</code>), plus YAML parse and file writes (≈ 1 s). Under ≈ 10 minutes, so no durable capture is needed; if it ever exceeds 540 s, use §5.1's idiom verbatim, trailing <code>; exit $rc</code> included.
+- <strong>Cost:</strong> ≈ M measured / ≈ 50 predicted min (15 fixed + ≈ 15 code + windows ≈ 2 + 2.6 + 6 + spare). Class: chain step (solve), median 14. <strong>If W3 has not started by minute 40, close on W1 + W2, report (R-bl) as not run, hold <code>WF-4</code> 🟡 and mark the remainder BLOCKED</strong> (rule (d)).
+- No edit after W1 starts (rule (i)); an edit re-runs every window.</p>
+<p><strong>Traps already paid for.</strong>
+- Bare whole harness calls; no <code>-k</code> inside the quoted command; no pipe; <code>-s</code>; foreground, <code>timeout: 660000</code>; never delete a log.
+- <code>femem run</code> writes <code>summary.json</code> / <code>.s4p</code> under <code>--output-dir</code>. Use the gitignored <code>logs/wf4/&lt;preset&gt;/</code>, never a tracked path.
+- <code>--estimate</code> with <code>--ranks</code> is refused by design (<code>WF-13</code> (X)): run it in-process at the window's width.
+- No solve output is compared bitwise (known-issues <code>MAT-1</code> entry, <code>SOLVE_FLOOR_RECORD</code>). Bitwise holds upstream of the solve only.
+- After status 124: <code>pgrep -c python3</code> first, then rubric item 4's orphan-<code>.c</code> sweep (label <code>WF-4-cache-sweep</code>) only at 0. Two heavy windows never run at once.
+- Importing a <code>test_*</code> name re-runs that test.</p>
+<p><strong>Scope.</strong> Covered: three YAML files a user can pass to <code>femem run</code>; each reproduces one already-gated record at its imported band through the CLI, and each <code>--estimate</code> answer is recorded. Not claimed:
+- a <code>--preset NAME</code> flag or packaged presets in the installed wheel;
+- degree-1 prices;
+- F-human, copper or thermal presets;
+- a stable schema;
+- any new record.</p>
+<p><strong>Negative result.</strong> Report and stop. Park on <code>attempt/WF-4-*</code> and mark item 376 BLOCKED in the same commit.
+- (K) red: the preset is not the file it claims to copy.
+- (R-*) red with (K) green: the CLI route moved since <code>WF-1</code> / <code>OPS-70</code>. File a known-issues entry; never re-band or re-record.
+- (P) red on <code>benchmark-lite</code>: the CLI and API estimates differ, which is a <code>WF-13</code> regression.
+- A degree-1 refusal that does <strong>not</strong> fire means <code>PRICE_TABLE</code> changed under <code>WF-13</code>: report it.</p>
+<p>No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>WF-4</code> 🧪 → ✅ under the amended row below, on W1–W3 green. If the review keeps the weekly's letter (A) instead, <code>WF-4</code> holds 🟡 on the "price" clause. §10 U42 → DONE (the weekly marks it).</p>
+<p><strong>Row amendment (rule (j); the daily's transcription of the 10-10 weekly's U42, for the 10-12 weekly to ratify).</strong> Replace the Status cell <code>🧪</code> with <code>⬜</code> (→ ✅ by the slot). Append to the Title cell, after "not a lane-1 item)": <code>*(folded into §10 U42 by the 2026-10-10 weekly; history and §9 briefs:</code>docs/planning/chunks/WF-4.md<code>)*</code>. Add the Done-when in one of two forms:</p>
+<ul>
+<li><strong>(A) the weekly's letter:</strong> "<strong>Done-when (§4)</strong> <em>(2026-10-11 03:00 daily, rule (j), transcribing the 2026-10-10 weekly's U42; the weekly ratifies)</em>: three YAML files <code>examples/presets/debug.yaml</code>, <code>dev.yaml</code>, <code>benchmark-lite.yaml</code> that <code>femem run</code> accepts each reproduce one gated record at its imported band through the CLI (<code>WF-1</code>'s pattern: the YAML-built <code>Study</code> equals the Python-built one by <code>float.hex</code>, the solve output equals the record), and <code>femem run --estimate</code> prints each preset's price; asserted through the harness, elapsed recorded ⇒ ✅."</li>
+<li><strong>(B) recommended (the finding above):</strong> the same text, with the last clause reading: "and <code>femem run --estimate</code> prints each degree-2 preset's price, field by field equal to <code>Study.estimate</code>, while a degree-1 preset returns the API's documented refusal unchanged (<code>WF-13</code> step 4's pinned answer) until a second degree-1 price row is registered".</li>
+</ul>
+<p>The review picks one. (B) narrows the weekly's "printing their prices" and so needs the 10-12 weekly's ratification. Under (A), U42 cannot reach ✅ with degree-1 presets, and the weekly would have to price degree 1 (<code>WF-13</code>) or make the presets degree 2 (heavy).</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Execute §9 item 376 — <code>WF-4</code> (§10 U42) — per <code>docs/planning/chunks/WF-4.md</code> §9 item 376. Read the brief and any review rulings beneath it first; the rulings hold, and the §7 row's Done-when outranks the brief. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Pass timeout: 660000 on every Bash call that runs a window; run pytest with -s. Run W1, W2, then W3, foreground; before W3 run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> and require 0. No <code>src/</code> change unless standing rule (c) is followed. Never edit <code>tests/package/wf1/*</code>, <code>PRICE_TABLE</code> or <code>WF-13</code>'s tests. You are the executor — do not spawn agents, never background a harness window. If the docker socket is denied, stop and report the exact command string. On a red, park on <code>attempt/WF-4-*</code>, mark item 376 BLOCKED in the same commit, and report."</p>
+<p><strong>Review disposition 2026-10-11 (03:00 daily): item 376 is not queued — returned to the 10-12 weekly as "write the anchor".</strong> The weekly's U42 says <code>femem run --estimate</code> prints each preset's price, but <code>PRICE_TABLE</code> prices only degree-2 files and <code>WF-13</code> step 4 asserts the degree-1 refusal (a ✅ record); the only gated presets that fit a standard window are degree 1. Narrowing the target to "degree-2 presets priced, degree-1 refusal asserted" (the drafter's option B) moves the weekly's target, which rule (6) forbids the daily. Options for the weekly: (A) the wording as written (then the presets must all be degree 2 — heavy); (B) the narrowed wording above; (C) register a second degree-1 price row first (a <code>WF-13</code> re-pose). The brief above stands ready for whichever the weekly rules.</p>
+<h3 id="9-item-430-2026-10-13-10-chain-u42-chain-step-9a">§9 item 430 — 2026-10-13 (§10 chain U42; chain step, (9a))<a class="headerlink" href="#9-item-430-2026-10-13-10-chain-u42-chain-step-9a" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-13 03:00 daily review; the review reviews it.</em> Licence: §10 chain U, "U42 (9a). <code>WF-4</code> folded in — scenario presets as YAML files under <code>examples/presets/</code> that <code>femem run</code> accepts (<code>debug</code> / <code>dev</code> / <code>benchmark-lite</code>), each reproducing one gated record at its band and <code>femem run --estimate</code> printing their prices; <code>WF-4</code> 🧪 → ✅. Standard. Serial on nothing." (PROJECT_PLAN.md:4777–4781). <strong>No band, tolerance, Done-when or validation target is set or moved here.</strong></p>
+<p><strong>Recommendation: BLOCKED at queue, returned to the 10-14 weekly a second time.</strong> Item 376's finding still holds on <code>59809ba7</code>, and the 10-12 weekly has not ruled on it.
+- <strong>The price table.</strong> <code>PRICE_TABLE</code> still has exactly one complete degree-1 row: P1 at <code>src/fem_em_solver/study.py:1476</code>. P3 at <code>:1477</code> has <code>unknowns=None</code> and <code>peak_gib=None</code>.
+- <strong>The refusal.</strong> <code>_predict</code> raises "fewer than two priced rows at degree {degree}" at <code>:1522</code> (item 376 cited the old lines <code>:1340–1344</code>).
+- <strong>The pin.</strong> <code>WF-13</code> step 4 asserts that refusal as a ✅ record: <code>DEG1_MESSAGE</code> at <code>tests/package/test_wf13_cli_estimate.py:41</code>, under ruling (1) at <code>docs/planning/chunks/WF-13.md:383</code>.
+- <strong>The weekly.</strong> The 10-12 weekly re-listed U42 word for word. Its rulings block (PROJECT_PLAN.md:4518–4610) has no U42 or <code>WF-4</code> entry, and the dashboard carries "U42's wording" as owed (<code>docs/status/dashboard.md:76</code>).
+- <strong>The §7 row</strong> still has no Done-when (PROJECT_PLAN.md:2959). Under rule (j), "→ ✅" cannot be written until the weekly ratifies one of item 376's row amendments (A) / (B).</p>
+<p><strong>The weekly's own clauses cannot all hold at once. This is new arithmetic beside item 376's.</strong>
+- <strong>The degree-1 presets fit the tier but cannot be priced.</strong> The gated presets that fit <strong>Standard</strong> (≤ 180 s) are degree 1:
+  - the sphere: <code>WF-1</code> W1, 102 s (<code>20261009T020327Z_WF-1-s6-W2-wf1-w1.log</code>);
+  - the F-small: 142 s (<code>20261009T020513Z_WF-1-s6-W3-wf1-w2.log</code>);
+  - the installed sphere alone: 28 s (<code>20261010T023356Z_OPS-70-W19-installed-sphere.log</code>).</p>
+<p><code>--estimate</code> refuses all of them.
+- <strong>The degree-2 presets can be priced but break the tier.</strong> The cheapest measured degree-2 gated windows are both heavy:
+  - the F-small at <code>-n 8</code>: 268–269 s (<code>20261010T125012Z_OPS-70-S2-W4-wf16-four-port-deg2.log</code>);
+  - the sphere Study solve at <code>-n 2</code>: 282.4 s (<code>PRICE_TABLE</code> P2).
+- <strong>So</strong> "Standard" and "<code>--estimate</code> printing their prices" cannot both hold for three presets. Under any of the options below the item is heavy (one <code>-n 8</code> window).</p>
+<p><strong>Options for the weekly (item 376's, unchanged; the daily may not choose — rule (6)):</strong>
+- <strong>(A) the letter.</strong> All presets are degree 2. Heavy. The three windows are re-priced: the sphere at degree 2 has never run at <code>-n 8</code>.
+- <strong>(B) narrowed (recommended).</strong> The degree-2 <code>benchmark-lite</code> preset is priced field by field. <code>debug</code> and <code>dev</code> return the API's documented refusal unchanged. The Done-when text is item 376's (B).
+- <strong>(C) a second degree-1 price row first.</strong> P3's unknowns and memory are read and registered. That flips <code>WF-13</code> step 4's pinned refusal (X), a ✅ record, so it is the weekly's re-pose of <code>WF-13</code>.</p>
+<p><strong>The brief, ready under (B): item 376's body stands as written (this file, above), with these deltas.</strong>
+- <strong>Anchors (asserted, every band imported).</strong>
+  - (K) parse identity for all three, by <code>float.hex</code>.
+  - (R-debug) <code>MAT4_DEG1_RECORD</code> (<code>tests/package/test_wf15_study_lossy_sphere.py:87</code>) at <code>L0_BAND</code> (<code>tests/validation/test_mat5_em_coupled_sphere.py:104</code>, <strong>1e-9</strong>; item 376 does not restate it).
+  - (R-dev) <code>_record(1)</code> at <code>LEG_D0_REPRODUCTION_BAND</code> (<code>tests/validation/test_port_birdcage_four_port.py:165</code>), with the <code>PORT-11</code> gates.
+  - (R-bl) <code>_record(2)</code> at the same band, at <code>-n 8</code>.
+  - (P) <code>benchmark-lite</code>'s <code>--estimate</code> output equals <code>Study.estimate(comm)</code> field by field. <code>debug</code> and <code>dev</code> give rc 2 with <code>femem: error:</code> + <code>DEG1_MESSAGE</code> on every rank.
+- <strong>Negative controls, as item 376 labelled them under rule (e).</strong>
+  - (c1) <code>debug</code> against <code>WF15_DEG2_RECORD</code> — asserted, backed: 3.4937 % (<code>20261006T003504Z_WF-1-W1-parse-sphere.log:288</code>).
+  - (c2) <code>dev</code> against <code>_record(2)</code> — asserted, backed: 0.0491 (<code>20261006T003650Z_WF-1-W2-f-small.log:3712</code>).
+  - (c3) and (c4), by construction.
+  - (c5) predicted ≈ 0.05; printed only.
+- <strong>Tier, cost and ranks.</strong>
+  - W1 standard (<code>-n 2</code>, 60–110 s); W2 heavy by ceiling (<code>-n 2</code>, 142 s measured); W3 heavy (<code>-n 8</code>, 269 s measured on the Python route, ≤ 360 s on the 1.32× box).
+  - <strong>The item is heavy</strong>, not the weekly's "Standard". Say so in the row.
+  - Class: chain step (solve), <strong>12 measured</strong> / ≈ 50 predicted min.
+  - <strong>If W3 has not started by minute 40, close on W1 + W2, report (R-bl) as not run, hold <code>WF-4</code> 🟡, and mark the remainder BLOCKED</strong> (rule (d)).
+- <strong>Windows</strong> (foreground; <strong>the harness call is the whole Bash command: bare, repo-relative, nothing chained or piped</strong>; Bash <code>timeout: 660000</code>; <code>-s</code>; before W3, <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0). Item 376's three commands verbatim:
+  - <code>scripts/testing/run_and_log.sh WF-4-W1-debug-estimate "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_wf4_presets.py -s -v --tb=short'"</code>
+  - <code>scripts/testing/run_and_log.sh WF-4-W2-dev "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_WF4_STAGE=dev timeout -k 30 400 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_wf4_presets.py -s -v --tb=short'"</code>
+  - <code>scripts/testing/run_and_log.sh WF-4-W3-benchmark-lite "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_WF4_STAGE=bl timeout -k 30 590 mpiexec -n 8 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_wf4_presets.py -s -v --tb=short'"</code>
+- <strong><code>WF-14</code> registry.</strong> Presets are files, not public names, so the item adds no registry line. If the slot registers the module's nodes (under <code>[names.run_study_file]</code>), it runs Wgen / Wval / Wapi / Wdoc in the same slot: item 394's four commands verbatim, labelled <code>WF-4-Wgen</code> / <code>-Wval</code> / <code>-Wapi</code> / <code>-Wdoc</code> (<code>docs/planning/chunks/WF-1.md</code>, item 394 "Windows").
+- <strong>Traps (added to item 376's).</strong>
+  - <strong>The new YAML is outside <code>tests/package/wf1/</code>, by design.</strong> Item 401's (F) node globs <code>tests/package/wf1/*.yaml</code>, and <code>WF-1</code>'s W9 copies that directory. Presets live under <code>examples/presets/</code> only, so they enter neither glob.
+  - <strong>Run <code>femem check examples/presets/&lt;p&gt;.yaml</code> explicitly</strong> in W1, and assert the printed <code>family:</code> line equals <code>study_yaml._load(f)[1]</code> (item 401's (F) comparator). The existing glob does not see these files.
+  - <code>tests/package/wf1/f_human_tuned_copper.yaml</code> (item 390a) is not a preset and is not copied: F-human presets are Not claimed.
+  - Item 376's traps stand: bare calls, <code>-s</code>, no pipe, <code>logs/wf4/&lt;preset&gt;/</code> for outputs, <code>--estimate</code> never with <code>--ranks</code>, no bitwise comparison of a solve output, <code>pgrep</code> before the orphan sweep, never import a <code>test_*</code> name. Write ≈, never a tilde.
+- <strong>Scope.</strong> As item 376's.
+- <strong>Negative result.</strong> As item 376's. Park on <code>attempt/WF-4-*</code> and mark item 430 BLOCKED in the same commit. No <code>PREDICTED RED:</code> line.
+- <strong>Status it can move.</strong> <code>WF-4</code> 🧪 → ✅ <strong>only</strong> under the Done-when the weekly ratifies:
+  - under (B), on W1–W3 green;
+  - under (A), the presets must all be degree 2 and every window re-priced before queueing;
+  - under (C), <code>WF-13</code> is re-posed first, and this item then prices <code>debug</code> and <code>dev</code> too.</p>
+<p>In every case §10 U42 is marked done by the weekly, and the row's tier cell reads "heavy (<code>-n 8</code> W3)".</p>
+<p><strong>Spawn line (only after the weekly's ruling, and naming it):</strong> "Use the implementer agent to execute <code>WF-4</code> §9 item 430 per <code>docs/planning/chunks/WF-4.md</code> under the weekly's option <A/B/C> (read item 376's brief, this item's deltas and the latest Review ruling paragraph first; the §7 row's Done-when outranks the brief). The harness call is the <strong>whole</strong> Bash command: bare, repo-relative, nothing chained or piped. Run W1, W2, then W3 in the foreground with <code>timeout: 660000</code>, pytest with <code>-s</code>, container <code>timeout -k 30</code>; before W3 run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> and require 0. Never edit <code>tests/package/wf1/*</code>, <code>PRICE_TABLE</code> or <code>WF-13</code>'s tests. You are the executor — do not spawn agents, never background a harness window. On a red, park on <code>attempt/WF-4-*</code>, mark item 430 BLOCKED in the same commit, and report."</p>
+<h3 id="review-ruling-2026-10-13-0300-daily-on-the-item-430-draft">Review ruling 2026-10-13 03:00 (daily) on the item 430 draft<a class="headerlink" href="#review-ruling-2026-10-13-0300-daily-on-the-item-430-draft" title="Permanent link">&para;</a></h3>
+<p><strong>Not queued — returned to the 10-14 weekly (second return).</strong> <code>PRICE_TABLE</code> holds one complete degree-1 row (<code>study.py:1476–1477</code>), <code>_predict</code> raises beyond it (<code>:1522</code>) and <code>WF-13</code> step 4 asserts that refusal (<code>test_wf13_cli_estimate.py:41</code>); the §7 <code>WF-4</code> row has no Done-when; every gated degree-2 preset window is heavy (269 / 282 s), so "standard" and "priced" cannot both hold. The draft stays here as the brief once the weekly writes U42's wording and the row's Done-when (option (B) for <code>--estimate</code> is the drafter's proposal).</p>
+<h3 id="9-item-471-2026-10-15-10-chain-u42-wf-4-folded-in-chain-step-solve-drafted-as-471a-degree-1-price-row-471b-presets">§9 item 471 — 2026-10-15 (§10 chain U42, <code>WF-4</code> folded in; chain step, solve) — drafted as 471a (degree-1 price row) + 471b (presets)<a class="headerlink" href="#9-item-471-2026-10-15-10-chain-u42-wf-4-folded-in-chain-step-solve-drafted-as-471a-degree-1-price-row-471b-presets" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-15 03:00 daily review; the review reviews it.</em> Licence: §10 chain U, "U42 (9a). <code>WF-4</code> folded in — presets as re-posed in the rulings (three presets, three named records, <code>--estimate</code> inside ×2). Heavy by ceiling. Serial on nothing." (PROJECT_PLAN.md:4834–4836), weekly-enumerated (§9 rule (4)); the re-pose is the 10-14 weekly's ruling (PROJECT_PLAN.md:4654–4660), which also assigns the <code>WF-4</code> row's Done-when to this daily ("<code>WF-4</code>'s row, the daily writes it"; flagged list PROJECT_PLAN.md:5023–5024). <strong>No band or tolerance is set or moved; every band is imported by name. The Done-when written below is the weekly's letter transcribed (rule (j)), not a new target.</strong></p>
+<p><strong>The weekly's wording, read against the code on <code>fdd2d03f</code> — one thing must happen before the presets can be priced.</strong>
+- <strong>The weekly chose all three presets priced, two of them degree 1</strong> ("<code>femem run --estimate</code> on each inside ×2 of the measured price"; <code>debug</code> and <code>dev</code> at degree 1). That is item 430's option (C) (this file, item 430, "Options for the weekly"), and the drafter reads the 10-14 ruling as choosing it. <strong>The review confirms that reading or returns it.</strong>
+- <strong>Today degree 1 cannot be priced.</strong> <code>PRICE_TABLE</code> holds one complete degree-1 row, P1 (<code>src/fem_em_solver/study.py:1561</code>); P3 is time-only (<code>unknowns=None</code>, <code>peak_gib=None</code>, <code>:1562</code>), and <code>_predict</code> fits only rows that carry unknowns and needs two per quantity (<code>:1603–1607</code>) — so every degree-1 file raises "fewer than two priced rows at degree 1", which <code>femem run --estimate</code> turns into rc 2 (<code>src/fem_em_solver/cli.py:96–111</code>). <code>WF-13</code> step 4 pins that refusal (<code>tests/package/test_wf13_cli_estimate.py:41</code>, <code>:144–168</code>, registered at <code>tests/package/validation_envelope.toml:286</code>).
+- <strong>The fix the weekly's letter implies is the smallest one: complete P3</strong> — the <code>dev</code> preset's own fixture (item 192's exact-rectangle F-small, degree 1, 117 206 cells, <code>-n 2</code>; <code>PRICE_TABLE</code> comment <code>study.py:1540</code>) — with its unknown count and its summed peak RSS, measured and log-pinned. P3's <code>seconds</code> (29.77 s, its own definition) is <strong>never redefined</strong> (the table's rule, <code>study.py:1531–1534</code>). No log on <code>main</code> prints the F-small degree-1 unknowns or peak (searched: the <code>WF-13</code> step-2 / step-4 logs print only the degree-2 counts and P1's 90 209, <code>20261007T033535Z_WF-13-s2-r-W1.log:2017–2018</code>), so a measuring window is needed first.
+- <strong>Consequence the review must see — the degree-1 prices become the rows' own values.</strong> With exactly two complete degree-1 rows, the power law passes through both, so <code>debug</code> (P1's fixture: the <code>WF-15</code> / <code>MAT-4</code> sphere, 74 020 cells, <code>sphere_mat4.yaml</code>) is priced at P1's 13.7 s / 2.39 GiB and <code>dev</code> at P3's 29.77 s / its new peak, to rounding. Their "inside ×2" therefore measures whether today's run reproduces its logged price, not the fit; only <code>benchmark-lite</code> exercises the nine-row degree-2 fit (and its fixture's copper twin, Cu7, is one of the nine). This is stated in the Done-when's Not-claimed clause below; it is the weekly's letter, not loosened.
+- <strong>What "the measured price" means.</strong> The weekly's ≈ 60 / 70 / 85 s are window times; the estimator's <code>predicted_seconds</code> is a solve-time fit whose rows carry heterogeneous definitions (P1 "EM solve + mesh", <code>docs/planning/chunks/WF-13.md:109</code>; P3 the four-drive rung). Against window times <code>debug</code> would miss (13.7 vs ≈ 60 s). Against the run's own <code>summary["elapsed_s"]</code> (<code>src/fem_em_solver/study_yaml.py:1019</code>, <code>:1113</code>: the whole <code>run_study_file</code>, load to summary) all three are predicted inside ×2: <code>debug</code> 13.7 vs 13.5–14.4 s (<code>20261014T021300Z_WF-13-s5-W1-rehearsal.log:199</code>; <code>20261009T020327Z_WF-1-s6-W2-wf1-w1.log:296</code>), ratio ≈ 0.95–1.01; <code>dev</code> 29.77 vs 35.2 s (<code>20261009T020513Z_WF-1-s6-W3-wf1-w2.log:3710</code>), ≈ 0.85; <code>benchmark-lite</code> 76.6 s predicted (drafter's unlogged re-run of <code>_predict</code>'s fit on the nine degree-2 rows at N = 570 332, <code>-n 8</code>; peak 18.27 GiB) vs 78.9 s (item 445's Study route, mesh 22.1 + sweep 56.3, <code>20261014T111026Z_WF-16-s6c-W1.log:1011</code>), ≈ 0.97. <strong>The comparand is pinned as <code>summary["elapsed_s"]</code> of the same preset run in the same window; the band is <code>BRACKET</code> (2.0, <code>tests/package/test_wf13_study_estimate.py:31</code>, "never widened").</strong>
+- <strong><code>benchmark-lite</code>'s record changed from item 376 / 430's draft.</strong> The weekly names <code>ANS6_EXACT_STRIP_CLASS_MEANS_P2</code> at degree 2, <code>-n 8</code> ("U50's price") — the exact-rectangle PEC hole (<code>f_small_hole_pec_control.yaml</code> at degree 2), not the solid F-small <code>_record(2)</code> item 376 posed. That makes it ≈ 85 s instead of 269 s.</p>
+<p><strong>Can it be one item? No — compute.</strong> One slot would hold: 15 fixed + ≈ 27 code (a measuring module, the <code>PRICE_TABLE</code> edit, the <code>WF-13</code> (X) re-point, three YAMLs, the preset module) + the measuring window ≈ 1.2 + <code>WF-13</code> re-gates ≈ 2.3 + the no-solve price window ≈ 1.2 + three preset windows ≈ 5 + pages ≈ 0.7 + ≈ 7 journal ≈ <strong>59 minutes</strong>, with the measuring window necessarily <em>before</em> the <code>src/</code> edit it pins and every later window after it — one slip and the hour is gone. <strong>Split:</strong> <strong>471a</strong> — the degree-1 price row (<code>WF-13</code> step 6, <code>src/</code> + re-gates); <strong>471b</strong> — the three presets (test-only, serial on 471a).</p>
+<h4 id="471a-wf-13-step-6-p3-completed-the-f-small-degree-1-unknowns-and-peak-measured-and-log-pinned-so-a-degree-1-file-is-priced-chain-step-solve">471a — <code>WF-13</code> step 6: P3 completed — the F-small degree-1 unknowns and peak measured and log-pinned, so a degree-1 file is priced (chain step, solve)<a class="headerlink" href="#471a-wf-13-step-6-p3-completed-the-f-small-degree-1-unknowns-and-peak-measured-and-log-pinned-so-a-degree-1-file-is-priced-chain-step-solve" title="Permanent link">&para;</a></h4>
+<p><strong>Outcome (2026-10-15 20:15–20:24 UTC, 15:00 slot take-next): DONE, every window status 0.</strong> Wm (<code>20261015T201542Z_WF-4-s1a-Wm.log</code>, 36 s, <code>-n 2</code>): 117 206 cells = P3; S vs <code>_record(1)</code> 9.557e-11 ≤ <code>LEG_D0_REPRODUCTION_BAND</code> (the <code>WF-1</code> reading, unchanged); <strong>N 140 460</strong> (<code>:1876</code>), <strong>1.8185 GiB summed</strong> (<code>:1874</code>); mesh 25.80 s, sweep 7.81 s. P3 edited to those values (seconds 29.77 unchanged). W2 (<code>20261015T201900Z_WF-4-s1a-W2.log</code>, 119 s, 9 passed): (U3) N and cells exact; (Pd) both files rc 0, CLI = API field by field, <code>rows_used</code> ('P1', 'P3'), no output dir; (Int) sphere 6.7e-15 / 3.6e-15, F-small 3.8e-15 / 2.0e-15 vs <code>EXACT_IDENTITY_RTOL</code>; (D2) degree-2 estimate equal to <code>…WF-13-s4-W1.log:212</code> (rel 0.0 both floats); (c1) P3 N ×1.1 moves the price 12.8 %; (c2) P1-only table refuses with <code>DEG1_MESSAGE</code>. RG1 10 passed 86 s (<code>20261015T202107Z_…</code>), RG2 7 passed 11 s with (X) re-pointed (<code>20261015T202240Z_…</code>). Wgen / Wval / Wapi (22 passed) / Wdoc (<code>0 dead</code>) <code>20261015T2023{09,11,17,33}Z_WF-4-s1a-*.log</code>. <strong>Disclosed:</strong> (1) the predicted peak was ≈ 3–5 GiB; measured 1.82 GiB is <em>below</em> P1's 2.39 GiB (a different route's window), so the two-row degree-1 memory exponent is negative — the rows price their own fixtures (as the Not-claimed clause says), never a trend; (2) the first W2 (<code>20261015T201640Z_WF-4-s1a-W2.log</code>, same 9 passed) lost the sphere (Pd) print to the next <code>capsys.readouterr()</code>; the print was moved under <code>capsys.disabled()</code> (no assertion touched; the Wm node unchanged) and W2 re-run; (3) Wgen moved <code>docs/guide/api/Study.md</code> (the six new registry nodes), not the predicted byte-identical — <code>PRICE_TABLE</code> itself is not on the page; (4) the registry lists Wm's node beside the W2 nodes.</p>
+<ul>
+<li><strong>Executor:</strong> implementer. <strong><code>src/</code> edit:</strong> the one <code>PRICE_TABLE</code> P3 line (<code>study.py:1562</code>) plus its source comment; standing rule (c) applies (disclosed; <code>WF-13</code>'s two estimate modules re-run green in the slot). <strong>Test edit to a ✅ module, disclosed:</strong> <code>WF-13</code> step 4's (X) node is re-pointed (below).</li>
+<li><strong>Tier:</strong> heavy by ceiling (container <code>timeout -k 30 300</code> on Wm), standard by prediction. <code>-n 2</code> (P3's width), complex.</li>
+<li><strong>Class:</strong> chain step (solve), median <strong>12 measured</strong> min. <strong>Cost: ≈ 38 predicted</strong> = 15 fixed + ≈ 12 code (module ≈ 140 lines, one table line, ≈ 8 lines in the (X) node) + Wm ≈ 1.2 + W2 ≈ 1.2 + RG1 ≈ 1.8 + RG2 ≈ 0.3 + pages ≈ 0.7 + ≈ 6 journal / spare. <strong>If Wm has not started by minute 30, park</strong> (rule (d)).</li>
+<li><strong>Family:</strong> <code>WF-13</code> step 6, attempt 1. <strong>Depends on:</strong> the review confirming the option-(C) reading above. Otherwise nothing.</li>
+</ul>
+<p><strong>Test module: new <code>tests/package/test_wf4_price_rows.py</code></strong> (written whole before Wm; never edited after — Wm runs one node by ID, W2 the rest after the <code>src/</code> edit; rule (i) holds because the module does not change between them).
+- Docstring first paragraph backticks only <code>WF-4</code>, <code>WF-13</code>, <code>ANS-4</code> (§7 rows).
+- <strong><code>test_wf4_p3_measure</code></strong> (Wm only; <code>@complex_only</code>; width asserted <code>== 2</code>): <code>study = load_study(BIRDCAGE_FILE)</code> (<code>tests/package/wf1/f_small_four_port.yaml</code>, imported as <code>test_wf1_study_yaml</code> names it); <code>res = study.solve(comm)</code>. <strong>Asserted:</strong> <code>res.cells == P3["cells"]</code> (117 206, read from <code>PRICE_TABLE</code> by row name, never retyped); S against <code>_record(1)</code> (<code>tests/package/test_wf16_study_four_port.py:110</code>) ≤ <code>LEG_D0_REPRODUCTION_BAND</code> — backed, the same comparison on the same fixture and width read 9.557e-11 (<code>20261009T020513Z_WF-1-s6-W3-wf1-w2.log:3712</code>). <strong>Printed (the readings P3 will cite):</strong> <code>unknowns</code> = <code>V.dofmap.index_map.size_global * V.dofmap.index_map_bs</code> on <code>fem.functionspace(res.mesh, ("N1curl", 1))</code> — <code>_study_estimate</code>'s own expression (<code>study.py:1627</code>, <code>:1644</code>); <code>res.mesh_time</code>, <code>res.sweep_time</code>; <code>report_peak_rss(comm, label="[WF-4 P3] summed peak ru_maxrss")</code> (GiB, summed over ranks — the table's memory definition, <code>study.py:1531–1532</code>). Predicted unknowns ≈ 1.4–1.5e5 (cells × ≈ 1.22, P1's edge/cell ratio 90 209 / 74 020); predicted peak ≈ 3–5 GiB.
+- <strong>Between Wm and W2:</strong> edit P3 to <code>unknowns=&lt;Wm's printed N&gt;, peak_gib=&lt;Wm's printed GiB at its printed digits&gt;</code>, seconds unchanged, and add to the comment block: <code>#:   P3 N and memory: &lt;Wm log&gt;:&lt;line&gt; (Study route, the same fixture; time stays item 192's rung)</code>. Disclose that P3's time and memory now come from two windows of the same fixture (the P1 precedent: P1's N is from another log, <code>study.py:1536–1537</code>).
+- <strong>W2 nodes</strong> (<code>@complex_only</code>, width 2, no solve — solves patched to raise with <code>_patch_solves</code>, <code>tests/package/test_wf13_cli_estimate.py:49</code>):
+  - <strong>(U3)</strong> <code>load_study(BIRDCAGE_FILE).estimate(comm).unknowns == P3["unknowns"]</code> exactly, <code>cells == P3["cells"]</code> (the <code>WF-13</code> (U) pattern).
+  - <strong>(Pd)</strong> <code>cli.main(["run", "--estimate", f])</code> for f ∈ {<code>SPHERE_FILE</code>, <code>BIRDCAGE_FILE</code>}: rc 0 on every rank; printed fields equal <code>Study.estimate(comm)</code> field by field (<code>_parse</code> / <code>_diff</code>, <code>test_wf13_cli_estimate.py:60</code>, <code>:70</code>, <code>== set()</code>); <code>rows_used == ("P1", "P3")</code>; <code>--output-dir</code> not created.
+  - <strong>(Int)</strong> the two-row interpolation identity: sphere <code>predicted_seconds</code> vs P1's 13.7 and <code>predicted_peak_gib</code> vs 2.39; F-small vs P3's 29.77 and its new peak — each |pred/row − 1| ≤ <code>EXACT_IDENTITY_RTOL</code> (<code>tests/validation/test_birdcage_sar_mass_averaged.py:163</code>). Predicted ≤ 1e-14 (a power law through two points evaluated at a node). This is by construction and is labelled so; it is what makes 471b's degree-1 ×2 checks reproduction checks.
+  - <strong>(D2) the degree-2 fit did not move — asserted, backed:</strong> <code>load_study(DEG2_FILE).estimate(comm)</code> (<code>tests/package/wf13/sphere_mat4_deg2.yaml</code>, <code>test_wf13_cli_estimate.py:40</code>) equals <code>ResourceEstimate(cells=74020, unknowns=482158, degree=2, ranks=2, predicted_peak_gib=15.361991136892966, predicted_seconds=246.50021705192188, rows_used=('P2', …, 'P6'))</code> from <code>20261008T200148Z_WF-13-s4-W1.log:212</code>, floats ≤ <code>EXACT_IDENTITY_RTOL</code> (same comparison, same fixture and width).
+- <strong>Controls.</strong> (c1) <em>asserted, by construction:</em> <code>_predict</code> on a copy of the table with P3's unknowns ×1.1 moves the F-small <code>predicted_seconds</code> off 29.77 by &gt; <code>EXACT_IDENTITY_RTOL</code> (the interpolation reads the row); (c2) <em>asserted, by construction:</em> the same F-small estimate on a P1-only table raises <code>ValueError</code> with <code>DEG1_MESSAGE</code> (the refusal path survives — see the (X) re-point).
+- <strong>Registry (lines added only):</strong> the W2 nodes under <code>[names.Study]</code> after line 172's <code>WF-13</code> block, with <code># WF-13 step 6 (§9 item 471a, chain U42)</code>.</p>
+<p><strong>The (X) re-point (<code>tests/package/test_wf13_cli_estimate.py:144–168</code>, a ✅ module — disclosed, for the review).</strong> After P3 is complete the sphere file is priced, so (X) as written goes red by design. Keep (X)'s identity — "a file the estimator cannot price returns rc 2 on every rank with the API's message unchanged, no solve" — by restricting the table in-test: <code>monkeypatch.setattr(study_mod, "_predict", lambda u, d, r, n_rhs=1: ORIG(u, d, r, n_rhs, table=P1_ONLY))</code> with <code>P1_ONLY = tuple(row for row in PRICE_TABLE if row["row"] != "P3")</code> (<code>_study_estimate</code> looks <code>_predict</code> up at call time, <code>study.py:1646</code>; the default <code>table=</code> is bound at definition, so patching <code>PRICE_TABLE</code> would not work). <code>DEG1_MESSAGE</code> and every assertion line stay; the docstring gains one sentence naming the restriction. The YAML loader accepts degree ∈ {1, 2} only (<code>study_yaml.py:229–230</code>), so no unpriced-degree <em>file</em> exists to point at instead.</p>
+<p><strong>Windows</strong> (foreground; <strong>the harness call is the whole Bash command: bare, repo-relative, nothing chained or piped</strong>; Bash <code>timeout: 660000</code>; <code>-s</code>; node IDs, never <code>-k</code>; before Wm and RG1 <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0):
+- <strong>Wm</strong> (heavy by ceiling, <code>-n 2</code>; predicted 55–80 s: mesh 26.4 s + sweep 7.9 s, <code>20261009T020513Z_WF-1-s6-W3-wf1-w2.log:3710</code>, + ≈ 20 s start-up):
+  <code>scripts/testing/run_and_log.sh WF-4-s1a-Wm "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 300 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_wf4_price_rows.py::test_wf4_p3_measure -s -v --tb=short'"</code>
+- <em>(edit <code>PRICE_TABLE</code> P3 and the (X) node; nothing else)</em>
+- <strong>W2</strong> (no solve, <code>-n 2</code>; predicted 50–70 s — the F-small mesh twice, ≈ 26 s each, the sphere ≈ 3 s):
+  <code>scripts/testing/run_and_log.sh WF-4-s1a-W2 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_wf4_price_rows.py::test_wf4_u3_unknowns_equal_row tests/package/test_wf4_price_rows.py::test_wf4_pd_cli_prices_degree1 tests/package/test_wf4_price_rows.py::test_wf4_int_two_row_interpolation tests/package/test_wf4_price_rows.py::test_wf4_d2_degree2_fit_unmoved tests/package/test_wf4_price_rows.py::test_wf4_controls -s -v --tb=short'"</code> (node names are the drafter's; the executor adapts names only and keeps the command's shape)
+- <strong>RG1</strong> (rule (c), <code>WF-13</code> step 2's module; 104 s measured at <code>-n 2</code>, <code>20261007T033535Z_WF-13-s2-r-W1.log:2193</code>; the smoke-path ruling puts only <code>test_complex_mode.py</code> on the path):
+  <code>scripts/testing/run_and_log.sh WF-4-s1a-RG1-wf13-estimate "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_wf13_study_estimate.py -s -v --tb=short'"</code>
+- <strong>RG2</strong> (<code>WF-13</code> step 4's module with the re-pointed (X); 14 s measured, <code>20261008T200148Z_WF-13-s4-W1.log:12</code>, <code>:376</code>):
+  <code>scripts/testing/run_and_log.sh WF-4-s1a-RG2-wf13-cli "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_wf13_cli_estimate.py -s -v --tb=short'"</code>
+- <strong>Wgen / Wval / Wapi / Wdoc</strong> (registry lines added and (X)'s body edited; <code>study.py</code> edited): <code>docs/planning/chunks/WF-16.md</code> item 429's four commands verbatim, labelled <code>WF-4-s1a-Wgen</code> / <code>-Wval</code> / <code>-Wapi</code> / <code>-Wdoc</code>; <code>0 dead</code>. Wgen is predicted to leave <code>docs/guide/api/</code> byte-identical (<code>PRICE_TABLE</code> is not a public name; <code>Study.estimate</code>'s docstring is unchanged) — say so if it does not.</p>
+<p><strong>Traps.</strong> <code>PRICE_TABLE</code>'s <code>seconds</code> are never redefined and P3's 29.77 stays; the N and GiB go in at Wm's printed digits, cited by log line; never compare across builds by <code>float.hex</code>; never patch <code>PRICE_TABLE</code> to steer <code>_predict</code> (the default argument is bound at definition — patch <code>_predict</code>); <code>report_peak_rss</code> is a collective (every rank calls it); <code>cell_tags.values</code> is rank-local; importing a <code>test_*</code> name re-runs that test; on status 124, <code>pgrep -c python3</code> first and the orphan-stem sweep only at 0 (label <code>WF-4-s1a-cache-sweep</code>); rule (i); ≈, never a tilde; no AED number.</p>
+<p><strong>Scope.</strong> Covered: one degree-1 price row completed from a logged measurement; degree-1 files priced by a two-row fit; the degree-2 fit unmoved; the refusal path kept. <strong>Not claimed:</strong> a predictive degree-1 estimator (two rows, both the presets' own fixtures); F-human or thermal prices (U55); any change to the degree-2 rows or <code>BRACKET</code>.</p>
+<p><strong>Negative result.</strong> Report and stop; park on <code>attempt/WF-4-s1a-*</code>; mark 471a BLOCKED in the same commit. Wm's (R) red: the dev fixture moved since <code>WF-1</code> step 6 — known-issues entry, never re-record. (U3) / (Int) red: the row was transcribed wrongly or the estimator's N expression differs from the Study's — fix the transcription only. (D2) red: the edit leaked into the degree-2 fit — revert. RG1 / RG2 red: report; the (X) re-point is the review's to rule if it is the cause. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>WF-13</code> stays ✅ (its Done-when is the installed-package gate; "a resource estimator" is Not claimed there); the row gains a <strong>step-6 record</strong> clause: "P3 completed (N <n>, <g> GiB, <code>-n 2</code>, <code>&lt;log&gt;</code>); degree-1 files priced by the two-row fit (the presets' own fixtures); the degree-2 fit unmoved (<code>20261008T200148Z_WF-13-s4-W1.log:212</code> equal); (X) re-pointed to a restricted table". Its step-4 clause "degree 1 refuse with rc 2" stays as a dated record. <code>WF-4</code> does not move (471b closes it).</p>
+<p><strong>Spawn line:</strong> "Use the implementer agent to execute <code>WF-4</code> §9 item 471a per <code>docs/planning/chunks/WF-4.md</code> (read the latest Review ruling paragraph first; the §7 row outranks the brief). The harness call is the <strong>whole</strong> Bash command: bare, repo-relative, nothing chained or piped. Run Wm, then edit <code>PRICE_TABLE</code> P3 (N and GiB only, from Wm's log, cited) and the (X) node, then W2, RG1, RG2, Wgen, Wval, Wapi, Wdoc, in order, foreground, <code>timeout: 660000</code>, pytest with <code>-s</code>, container <code>timeout -k 30</code>; before Wm and RG1 run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> and require 0. No other <code>src/</code> edit; never change P3's seconds or any degree-2 row; never import a <code>test_*</code> name. You are the executor — do not spawn agents, never background a harness window. On a red, park on <code>attempt/WF-4-s1a-*</code>, mark item 471a BLOCKED in the same commit, and report."</p>
+<h4 id="471b-wf-4-step-1-three-presets-under-examplespresets-each-reproducing-one-named-record-through-femem-run-each-priced-by-estimate-inside-2-chain-step-solve-serial-on-471a">471b — <code>WF-4</code> step 1: three presets under <code>examples/presets/</code>, each reproducing one named record through <code>femem run</code>, each priced by <code>--estimate</code> inside ×2 (chain step, solve; serial on 471a)<a class="headerlink" href="#471b-wf-4-step-1-three-presets-under-examplespresets-each-reproducing-one-named-record-through-femem-run-each-priced-by-estimate-inside-2-chain-step-solve-serial-on-471a" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Executor:</strong> implementer. <strong>Test-only: no <code>src/</code> edit.</strong> Three new YAMLs, one new test module; no registry line, no page (item 376 / 430 precedent: presets are files, not public names).</li>
+<li><strong>Tier:</strong> heavy (W3 at <code>-n 8</code>, container <code>timeout -k 30 400</code>); W1 standard, W2 heavy by ceiling. Complex.</li>
+<li><strong>Class:</strong> chain step (solve), median <strong>12 measured</strong>. <strong>Cost: ≈ 42 predicted</strong> = 15 fixed + ≈ 14 code (module ≈ 220 lines on item 376's skeleton; three YAMLs) + W1 ≈ 1 + W2 ≈ 1.5 + W3 ≈ 2.2 + ≈ 8 journal / spare. <strong>If W3 has not started by minute 40, close on W1 + W2, report (R-bl) / (P-bl) as not run, hold <code>WF-4</code> 🟡, mark the remainder BLOCKED</strong> (rule (d)).</li>
+<li><strong>Family:</strong> <code>WF-4</code> step 1, attempt 1 (items 376 / 430 were never queued). <strong>Depends on:</strong> <strong>item 471a DONE on <code>main</code></strong> — otherwise skip ("dependency not met"), journal one line, take the next item.</li>
+</ul>
+<p><strong>Files.</strong>
+- <code>examples/presets/debug.yaml</code> — content copy of <code>tests/package/wf1/sphere_mat4.yaml</code> (degree 1); <code>examples/presets/dev.yaml</code> — copy of <code>tests/package/wf1/f_small_four_port.yaml</code> (degree 1); <code>examples/presets/benchmark-lite.yaml</code> — copy of <code>tests/package/wf1/f_small_hole_pec_control.yaml</code> with <code>degree: 2</code> (explicit). Each opens with a two-line <code>#</code> comment naming its record and band by name, no values. Schema <code>femem: 1</code> unchanged.
+- <code>tests/package/test_wf4_presets.py</code>, <code>@complex_only</code> on solve nodes; stage knob <code>FEM_EM_WF4_STAGE</code> (unset ⇒ W1 set; <code>dev</code> ⇒ W2 set; <code>bl</code> ⇒ W3 set; anything else ⇒ <code>ValueError</code>; <code>MAT-15</code> step 3's <code>_enabled</code> / <code>_need</code> pattern); every other node skips with a stated reason. Width asserted per stage (2 / 2 / 8), never skipped inside a stage.
+- <strong>Imports (names only, never <code>test_*</code>):</strong> <code>_spec_diff</code>, <code>SPHERE_FILE</code>, <code>BIRDCAGE_FILE</code> (<code>tests/package/test_wf1_study_yaml.py:87–88</code>); <code>PEC_CONTROL_FILE</code>, <code>_py_copper</code> (<code>tests/package/test_wf1_yaml_copper.py:85</code>, <code>:98</code>); <code>MAT4_DEG1_RECORD</code>, <code>WF15_DEG2_RECORD</code> (as <code>WF-1</code> imports them; <code>tests/package/test_wf15_study_lossy_sphere.py:87</code>); <code>L0_BAND</code> (<code>tests/validation/test_mat5_em_coupled_sphere.py:104</code>); <code>_record</code>, <code>_rel</code> (<code>tests/package/test_wf16_study_four_port.py:110</code>, <code>:115</code>); <code>LEG_D0_REPRODUCTION_BAND</code>, <code>PASSIVITY_SIGMA_TOLERANCE</code>, <code>_circulant_classes</code>, <code>_class_spread</code> (<code>tests/validation/test_port_birdcage_four_port.py</code>); <code>ADJACENT_SPREAD_BAND</code>, <code>RECIPROCITY_BAND</code> (item 376's sources); <code>ANS6_EXACT_STRIP_CLASS_MEANS_P1</code>, <code>ANS6_EXACT_STRIP_CLASS_MEANS_P2</code>, <code>ANS6_EXACT_STRIP_P2_RECORD_RANK_WIDTH</code>, <code>ANS6_EXACT_STRIP_HOLE_CELL_RECORD</code>, <code>CLASSES</code> (<code>tests/validation/test_ans6_exact_strip.py</code>); <code>_class_means</code> (as <code>test_wf16_study_copper.py:42</code>); <code>BRACKET</code> (<code>tests/package/test_wf13_study_estimate.py:31</code>); <code>_parse</code>, <code>_diff</code>, <code>_patch_solves</code> (<code>tests/package/test_wf13_cli_estimate.py:49–70</code>).</p>
+<p><strong>Anchors (asserted; bands imported).</strong>
+- <strong>(K) parse identity, all three (W1).</strong> <code>load_study(preset)</code> equals the Python-built Study by <code>_spec_diff(...) == []</code> (floats by <code>float.hex</code>); <code>debug</code> / <code>dev</code> / <code>benchmark-lite</code> also equal their source files except <code>degree</code> for <code>benchmark-lite</code> (its diff is exactly <code>['degree']</code> against <code>f_small_hole_pec_control.yaml</code>). <code>cli.main(["check", preset])</code> returns 0 and its printed <code>family:</code> equals <code>study_yaml._load(f)[1]</code> — <strong>read on rank 0 only</strong> (<code>cli.py:157–165</code> prints on rank 0; <code>EX-115</code> item 456's red, <code>20261015T033235Z_EX-115.log:925</code>, was exactly a rank-1 read of that buffer).
+- <strong>(R-debug) (W1, <code>-n 2</code>).</strong> <code>cli.main(["run", debug, "--output-dir", logs/wf4/debug])</code>; SAR from <code>summary.json</code> rel. <code>MAT4_DEG1_RECORD</code> ≤ <code>L0_BAND</code>. Backed: 6.222e-11 on the same route (<code>20261009T020327Z_WF-1-s6-W2-wf1-w1.log:300</code>).
+- <strong>(R-dev) (W2, <code>-n 2</code>).</strong> <code>summary</code> S rel. <code>_record(1)</code> ≤ <code>LEG_D0_REPRODUCTION_BAND</code>; <code>PORT-11</code>'s reciprocity / passivity / C4 gates green. Backed: 9.557e-11 (<code>20261009T020513Z_WF-1-s6-W3-wf1-w2.log:3712</code>).
+- <strong>(R-bl) (W3, <code>-n 8</code>, degree 2 — the first degree-2 solve through YAML).</strong> <code>summary["cells"] == ANS6_EXACT_STRIP_HOLE_CELL_RECORD</code>; <code>_class_means(summary S)</code> vs <code>ANS6_EXACT_STRIP_CLASS_MEANS_P2["64"]["pec"]</code> per class ≤ <code>LEG_D0_REPRODUCTION_BAND</code>. Asserted on reasoned backing: the Python Study route on the same fixture, degree and width read 3.096e-11 / 5.532e-11 / 1.138e-10 (<code>20261014T111026Z_WF-16-s6c-W1.log:1018</code>); the YAML route equalled the Python route by <code>float.hex</code> upstream of the solve at degree 1 (<code>WF-1</code> row). Predicted ≤ 3e-10.
+- <strong>(P) prices, each in its preset's window, at that window's width.</strong> <code>cli.main(["run", "--estimate", preset])</code> with solves patched to raise (<code>_patch_solves</code>, applied inside a <code>pytest.MonkeyPatch.context()</code> that closes before the run): rc 0, fields equal <code>Study.estimate(comm)</code> (<code>_diff == set()</code>), no <code>--output-dir</code> created; then the run above; <strong>asserted</strong> 1/<code>BRACKET</code> ≤ <code>predicted_seconds</code> / <code>summary["elapsed_s"]</code> ≤ <code>BRACKET</code>, <code>summary</code> read on rank 0 and broadcast. Predicted: <code>debug</code> ≈ 0.95–1.01 (13.7 vs 13.5–14.4 s), <code>dev</code> ≈ 0.85 (29.77 vs 35.2 s), <code>benchmark-lite</code> ≈ 0.97 (76.6 vs 78.9 s; ≈ 0.74 at the 1.32× slow-box reading). Printed beside, never asserted: <code>predicted_peak_gib</code> against <code>report_peak_rss</code> after the run (predicted ratios ≈ 1.0 / ≈ 1.0 / ≈ 1.39 — 18.27 vs 13.14 GiB, <code>…s6c-W1.log:1016</code>); <code>rows_used</code>. One line per preset headed <code>[WF-4] price &lt;preset&gt;:</code>.</p>
+<p><strong>Negative controls (rule (e)).</strong>
+- <strong>Asserted, backed (same comparison, same fixture):</strong> (c1) <code>debug</code>'s SAR misses <code>WF15_DEG2_RECORD</code> by &gt; <code>L0_BAND</code> — 3.4937 % (<code>20261009T020327Z_WF-1-s6-W2-wf1-w1.log:303</code>); (c2) <code>dev</code>'s S misses <code>_record(2)</code> by &gt; <code>LEG_D0_REPRODUCTION_BAND</code> — 0.0491 (<code>…W3-wf1-w2.log:3712</code>).
+- <strong>Asserted, by construction:</strong> (c3) a tmp copy of <code>dev.yaml</code> with σ one ULP up → <code>_spec_diff</code> reports exactly the material σ field; (c4) the (P) comparator on a one-field-perturbed estimate reports exactly that field (<code>WF-13</code> (c2)).
+- <strong>Predicted, asserted only as exceedance (factor printed):</strong> (c5) the price separates fixtures — <code>benchmark-lite</code>'s <code>predicted_seconds</code> against <code>debug</code>'s <code>elapsed_s</code> is outside <code>BRACKET</code> (predicted 76.6 / 13.5 ≈ 5.7) — a constant estimator would fail it. (c6) <code>benchmark-lite</code>'s class means against the degree-1 <code>"pec"</code> record <code>ANS6_EXACT_STRIP_CLASS_MEANS_P1["64"]["pec"]</code> exceed <code>LEG_D0_REPRODUCTION_BAND</code> (the order move; factor printed — the record pair's per-class gap is not tabulated here, so predicted).</p>
+<p><strong>Windows</strong> (foreground; <strong>the harness call is the whole Bash command: bare, repo-relative, nothing chained or piped</strong>; Bash <code>timeout: 660000</code>; <code>-s</code>; before W2 and W3 <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0; outputs under the gitignored <code>logs/wf4/&lt;preset&gt;/</code>, never a tracked path):
+- <strong>W1</strong> (standard, <code>-n 2</code>; predicted 40–70 s): (K) ×3, (R-debug), (P-debug), (c1), (c3), (c4).
+  <code>scripts/testing/run_and_log.sh WF-4-s1b-W1-debug "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_wf4_presets.py -s -v --tb=short'"</code>
+- <strong>W2</strong> (heavy by ceiling, <code>-n 2</code>; predicted 75–110 s: estimate mesh ≈ 26 s + run 35.2 s + start-up): (R-dev), (P-dev), (c2).
+  <code>scripts/testing/run_and_log.sh WF-4-s1b-W2-dev "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_WF4_STAGE=dev timeout -k 30 300 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_wf4_presets.py -s -v --tb=short'"</code>
+- <strong>W3</strong> (heavy, <code>-n 8</code>; predicted 110–170 s: estimate mesh ≈ 22 s + run 78.9 s + start-up; the Study's degree-2 hole forms compiled in item 445, so no JIT allowance): (R-bl), (P-bl), (c5), (c6).
+  <code>scripts/testing/run_and_log.sh WF-4-s1b-W3-benchmark-lite "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_WF4_STAGE=bl timeout -k 30 400 mpiexec -n 8 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_wf4_presets.py -s -v --tb=short'"</code>
+- <strong>No pages, no re-gate:</strong> no <code>src/</code>, registry or guide change. Confirm <code>git diff --stat main -- src/ docs/guide tests/package/validation_envelope.toml</code> is empty and say so.</p>
+<p><strong>Traps (item 376 / 430's, kept, plus).</strong> <code>--estimate</code> never with <code>--ranks</code> (refused by design); the presets live under <code>examples/presets/</code> only, outside the <code>tests/package/wf1/*.yaml</code> glob item 401's (F) and <code>WF-1</code>'s W9 read; <code>femem check</code> / <code>summary</code> / stdout are rank-0 artefacts — read them on rank 0 and broadcast (item 456's red); the measured price is <code>summary["elapsed_s"]</code>, never the window or pytest time; no solve output is compared bitwise; <code>benchmark-lite</code> is the <strong>hole</strong> (<code>as_hole: true</code>, no <code>conductor</code>), never the solid F-small; κ never; two heavy windows never at once; on status 124, <code>pgrep -c python3</code> first, the orphan sweep only at 0 (label <code>WF-4-s1b-cache-sweep</code>); rule (i); ≈, never a tilde.</p>
+<p><strong>Scope.</strong> Covered: three YAML files a user passes to <code>femem run</code>, each reproducing one gated record at its imported band through the CLI and each priced by <code>--estimate</code> inside <code>BRACKET</code> of its own measured run time. <strong>Not claimed:</strong> a <code>--preset NAME</code> flag or presets in the installed wheel; F-human, copper or thermal presets; a predictive degree-1 estimator (the two degree-1 rows are these presets' own fixtures); a stable schema; any new record.</p>
+<p><strong>Negative result.</strong> Report and stop; park on <code>attempt/WF-4-s1b-*</code>; mark 471b BLOCKED in the same commit. (K) red: a preset is not the file it copies. (R-*) red with (K) green: the CLI route moved — known-issues entry, never re-band or re-record. (P) red: the estimate and the run disagree by more than ×2 — a finding about the estimator on that fixture (print both, the rows used and the box's slowness reading); never widen <code>BRACKET</code>. (c5) inside <code>BRACKET</code>: the estimator does not separate fixtures — stop. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>WF-4</code> 🧪 → ✅ under the row amendment below, on W1–W3 green (rule (j): the Done-when is written by this review from the weekly's letter in the same commit). §10 U42 → DONE.</p>
+<p><strong>Spawn line:</strong> "Use the implementer agent to execute <code>WF-4</code> §9 item 471b per <code>docs/planning/chunks/WF-4.md</code> — skip it unless item 471a is DONE on <code>main</code> (read the latest Review ruling paragraph first; the §7 row's Done-when outranks the brief). The harness call is the <strong>whole</strong> Bash command: bare, repo-relative, nothing chained or piped. Run W1, W2, W3 in order, foreground, <code>timeout: 660000</code>, pytest with <code>-s</code>, container <code>timeout -k 30</code>; before W2 and W3 run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> and require 0. No <code>src/</code> edit; never edit <code>tests/package/wf1/*</code>, <code>PRICE_TABLE</code> or <code>WF-13</code>'s tests; read <code>femem</code> stdout and <code>summary</code> on rank 0 only; never import a <code>test_*</code> name. You are the executor — do not spawn agents, never background a harness window. On a red, park on <code>attempt/WF-4-s1b-*</code>, mark item 471b BLOCKED in the same commit, and report."</p>
+<p><strong>Row amendment (rule (j); the daily writes it per the 10-14 weekly).</strong> Proposed <code>WF-4</code> row, in full, in the drafter's return to the review.</p>
+<p><strong>Outcome (2026-10-15 20:27–20:32 UTC, 15:00 slot take-next): DONE, W1–W3 status 0.</strong> W1 (<code>20261015T202725Z_WF-4-s1b-W1-debug.log</code>, 23 s, <code>-n 2</code>, 7 passed / 2 skipped): (K) every diff <code>[]</code>, <code>benchmark-lite</code> exactly <code>['degree']</code> against its source and the Python Study; <code>femem check</code> family read on rank 0; (R-debug) 6.222e-11 ≤ <code>L0_BAND</code>; (P-debug) 13.70 / 14.34 s = 0.956; (c1) 3.4937 %; (c3) <code>['material.sigma']</code>; (c4) <code>{'predicted_seconds'}</code>. W2 (<code>20261015T202754Z_WF-4-s1b-W2-dev.log</code>, 92 s, <code>-n 2</code>, 6 passed): (R-dev) 9.559e-11, reciprocity 8.0e-16, σ_max 0.99976, spreads ≤ 0.09 %; (P-dev) 29.77 / 34.77 s = 0.856; (c2) 0.0491. W3 (<code>20261015T202931Z_WF-4-s1b-W3-benchmark-lite.log</code>, 122 s, <code>-n 8</code>, 6 passed): (R-bl) 80 798 cells, class rel 3.096e-11 / 5.531e-11 / 1.138e-10; (P-bl) 76.65 / 73.53 s = 1.042; (c5) 5.35 (outside ×2; <code>debug</code>'s <code>elapsed_s</code> read from W1's <code>logs/wf4/debug/summary.json</code>); (c6) 1.7–4.4e-2 against the P1 pec record. Peaks printed beside, not asserted: 2.39 / 2.35, 1.82 / 1.89, 18.27 / 12.86 GiB (predicted / measured). No <code>src/</code>, registry, guide or envelope change. One addition beyond the brief: a stage-knob node (<code>test_wf4_stage_knob</code>) asserting an unknown <code>FEM_EM_WF4_STAGE</code> raises.</p>
+<h3 id="review-ruling-2026-10-15-0300-items-471a-471b">Review ruling 2026-10-15 03:00 (items 471a, 471b)<a class="headerlink" href="#review-ruling-2026-10-15-0300-items-471a-471b" title="Permanent link">&para;</a></h3>
+<p>Accepted as split (≈ 59 min unsplit, with a measure → edit → measure order). <strong>Option (C) is confirmed as the reading of the 10-14 weekly's letter</strong> ("<code>femem run --estimate</code> on each inside ×2 of the measured price" needs a degree-1 price row, which <code>PRICE_TABLE</code> P3 does not have): item 471a completes P3's degree-1 row from a measured, log-pinned reading and re-points <code>WF-13</code>'s (X) refusal test to the restricted table — a pin of current behaviour moved with the behaviour, disclosed, not a gate loosened; its (D2) control holds the degree-2 estimate unmoved. The 10-17 weekly ratifies. The "measured price" each preset is compared with is its own <code>summary["elapsed_s"]</code> in the same window. Disclosed in the item and the journal: with two degree-1 rows the fit passes through the <code>debug</code> / <code>dev</code> fixtures, so their ×2 checks are reproductions, and only <code>benchmark-lite</code> tests the fit. <strong>471b depends on 471a landing; skip otherwise.</strong> The §7 Done-when is written by this review (rule (j)).</p>
+<h2 id="7-row-moved-verbatim-2026-10-17-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-17 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-17-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p>Scenario presets (debug / dev / benchmark-lite) <em>(deferred to Phase 9 by the 2026-09-30 weekly; re-posed by the 2026-10-14 weekly as §10 U42 with a price and this Done-when, written by the 2026-10-15 03:00 daily under rule (j); history and §9 briefs: <code>docs/planning/chunks/WF-4.md</code>)</em> | ✅ 2026-10-15 (§9 item 471b, 15:00 slot take-next; 471a landed P3's degree-1 row at <code>d1d769db</code>): <code>examples/presets/{debug,dev,benchmark-lite}.yaml</code> via <code>tests/package/test_wf4_presets.py</code> — <code>debug</code> SAR rel <code>MAT4_DEG1_RECORD</code> 6.222e-11, price ratio 0.956 (W1 <code>-n 2</code>, 23 s, <code>20261015T202725Z_WF-4-s1b-W1-debug.log</code>); <code>dev</code> S rel <code>_record(1)</code> 9.559e-11 with <code>PORT-11</code> reciprocity / passivity / C4 green, ratio 0.856 (W2 <code>-n 2</code>, 92 s, <code>20261015T202754Z_WF-4-s1b-W2-dev.log</code>); <code>benchmark-lite</code> (degree 2, <code>-n 8</code>, the first degree-2 solve through YAML) class means rel ≤ 1.138e-10, ratio 1.042, the price separating fixtures (5.35 vs <code>debug</code>'s run) (W3 heavy, 122 s, <code>20261015T202931Z_WF-4-s1b-W3-benchmark-lite.log</code>). Disclosed: the <code>debug</code> / <code>dev</code> ×2 checks are reproductions (P1 / P3 are those fixtures); only <code>benchmark-lite</code> tests the fit. <strong>Done-when (§4):</strong> three YAML presets under <code>examples/presets/</code> that <code>femem run</code> accepts, each reproducing one named record at its imported band through the CLI — <code>debug</code> = <code>MAT4_DEG1_RECORD</code> (degree 1, <code>-n 2</code>, <code>L0_BAND</code>); <code>dev</code> = item 192's exact-rectangle four-port S <code>_record(1)</code> (degree 1, <code>-n 2</code>, <code>LEG_D0_REPRODUCTION_BAND</code>, <code>PORT-11</code>'s gates green); <code>benchmark-lite</code> = <code>ANS6_EXACT_STRIP_CLASS_MEANS_P2["64"]["pec"]</code> on the exact-rectangle PEC hole (degree 2, <code>-n 8</code>, <code>LEG_D0_REPRODUCTION_BAND</code>) — and <code>femem run --estimate</code> on each prints a <code>predicted_seconds</code> inside <code>BRACKET</code> (×2) of that preset's own <code>summary["elapsed_s"]</code> in the same window; asserted through the harness, elapsed recorded ⇒ ✅. Not claimed: a <code>--preset</code> flag or presets in the wheel; F-human, copper or thermal presets; a predictive degree-1 estimator (its two rows are the <code>debug</code> / <code>dev</code> fixtures themselves); a stable schema. </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,882 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>MAT-17 — history - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#mat-17-history" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              MAT-17 — history
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-189-2026-10-02-lane-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 189 — 2026-10-02 (lane 3)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-200-2026-10-03-lane-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 200 — 2026-10-03 (lane 3)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#audit-2026-10-03-1800-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Audit — 2026-10-03 18:00 review
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-271-2026-10-06-chain-p12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 271 — 2026-10-06 (chain P12)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-07-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-07 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="mat-17-history">MAT-17 — history<a class="headerlink" href="#mat-17-history" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record. Opened by the 2026-10-02 18:00 daily review under §9 rule (5), lane 3, inside Phase 8 subgoal (8a) (the closed-form lane on the sphere); the weekly ratifies or reverts the opening.</p>
+<h3 id="9-item-189-2026-10-02-lane-3">§9 item 189 — 2026-10-02 (lane 3)<a class="headerlink" href="#9-item-189-2026-10-02-lane-3" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a read-only <code>Plan</code> agent and reviewed by the 2026-10-02 18:00 daily review.</em></p>
+<p><strong><code>MAT-17</code> step 1: the duty-cycled Robin gel ball in closed form.</strong> It is verified by residuals and by two independent routes before any FEM.
+- <strong>Executor:</strong> implementer. <strong>Tier:</strong> standard, <code>-n 2</code>, real build.
+- <strong>Cost:</strong> ≈ 8 measured / ≈ 40 predicted min (≈ 1 min window + 15 fixed + ≈ 25 code).
+- <strong>Depends on:</strong> nothing.</p>
+<p><strong>Not already covered.</strong> <code>MAT-9</code>…<code>MAT-14</code> and <code>MAT-5</code> use one homogeneous ball with a constant or once-switched source. <code>solve_transient_conduction</code> cannot switch a source off ("step source", <code>thermal/transient.py:20</code>). No row mentions duty cycles.</p>
+<p><strong>Fixture.</strong>
+- <code>MAT-9</code>'s ball: R 0.1, k 0.6, ρc 4.18e6, q 2000, h 10 (Bi 5/3), T∞ = T(0) = 20, t_R = R²ρc/k = 69 667 s.
+- The source is on while 0 ≤ (t mod P) &lt; DP, from t = 0.
+- <strong>Case A:</strong> P = 1200 s, D = 0.5. <strong>Case B:</strong> P = 0.2 t_R, D = 0.25.</p>
+<p><strong>Anchor (closed form).</strong>
+- <strong>Modal form:</strong> θ = Σ Bₙ Xₙ(r) gₙ(t). λₙ come from <code>robin_sphere_eigenvalues</code>; Bₙ and Xₙ from <code>robin_sphere_transient_coefficients</code> (θ_ss = Σ Bₙ Xₙ); sₙ = λₙ²/t_R.
+- <strong>Cycle j, t = jP + τ:</strong>
+  - start value g_{j,0} = Gₙ(1 − e^{−j sₙ P}), with Gₙ = e^{−sₙ(1−D)P}(1 − e^{−sₙDP})/(1 − e^{−sₙP});
+  - on phase: θ = θ_ss(r) − Σ Bₙ Xₙ (1 − g_{j,0}) e^{−sₙτ}, with θ_ss in closed form;
+  - off phase: θ = Σ Bₙ Xₙ g_end e^{−sₙ(τ − DP)}.
+- <strong>Fourier route</strong> (uses neither λₙ nor Bₙ):
+  - θ_p = D·θ_ss + 2 Re Σ_{m≥1} ûₘ Θ(r; ωₘ) e^{iωₘt}, with ωₘ = 2πm/P and ûₘ = (1 − e^{−iωₘDP})/(iωₘP);
+  - Θ = (q/w)[1 − Bi·R·S(r)/Dₙ] at w = iωρc, γ = √(w/k). This is <code>MAT-11</code>'s perfused steady state continued to complex w.
+- <strong>Duhamel:</strong> θ(t) = Σⱼ (−1)ʲ θ_step(t − tⱼ), summed over the switch instants tⱼ.
+- <strong>Sources:</strong> Carslaw &amp; Jaeger, <em>Conduction of Heat in Solids</em> 2e, ch. I (Duhamel's theorem) and ch. IX (the sphere with heat production and a radiation boundary); Incropera §5.6 for the λₙ equation, as <code>robin_sphere_eigenvalues</code> already cites. Equation numbers are unpinned because the repo holds no copy, the same footing as <code>MAT-9</code>…<code>MAT-15</code>. The docstring derives every form.</p>
+<p><strong>Code</strong> (additive in <code>utils/analytical.py</code>; scipy imported inside the functions; nothing exported from <code>thermal/__init__</code>, which imports dolfinx):
+- <code>robin_sphere_duty_cycle_temperature(r, t, *, radius, k, rho_c, q, h, t_inf, period, duty, n_terms=400, periodic=False)</code>;
+- <code>_robin_sphere_complex_w(r, w, *, radius, k, q, h)</code>, the complex Θ, with <code>robin_sphere_periodic_harmonic(r, omega, *, radius, k, rho_c, q, h)</code> on top of it;
+- the test, <code>tests/validation/test_mat17_duty_cycle_closed_form.py</code>.</p>
+<p><strong>Evaluation set.</strong> r ∈ {0, R/2, R}; eight times per phase, at fractions 0.05 … 0.95 of the phase. Never within 0.05 of a switch.</p>
+<p><strong>Anchors (asserted).</strong>
+- <strong>(H0)</strong> <code>_robin_sphere_complex_w</code> at a real w &gt; 0 equals <code>robin_sphere_perfusion_temperature</code> (t_inf 0) to ≤ 1e-13 relative.
+- <strong>(H1) Robin residuals.</strong>
+  - −kΘ′(R) − hΘ(R) at m ∈ {1, 10, 1000}: ≤ 1e-12 relative to h|Θ(R)|.
+  - The periodic modal form's residual, from analytic derivatives: ≤ 1e-10·qR/h.
+- <strong>(P1)</strong> The periodic cycle mean (each phase's time integral taken analytically per mode) equals D·θ_ss(r) to ≤ 1e-12·θ_ss(0), in both cases.
+- <strong>(P2)</strong> The periodic modal form matches the Fourier route at M = 2¹⁶ to ≤ 1e-9·θ_ss(0), in both cases (predicted ≲ 5e-11).
+- <strong>(P3)</strong> The from-rest form matches the Duhamel superposition of <code>robin_sphere_transient_temperature</code> (t_init = t_inf) over cycles 0–5 to ≤ 1e-10·θ_ss(0).
+- <strong>(P4)</strong> duty = 1 equals <code>robin_sphere_transient_temperature</code> to ≤ 1e-13. duty ∉ (0, 1] raises <code>ValueError</code>.
+- <strong>(P5)</strong> From rest, at cycle j* = ⌈30τ₁/P⌉, the form equals the periodic one to ≤ 1e-12·θ_ss(0).</p>
+<p><strong>Printed (predicted, never asserted).</strong>
+- θ_ss(0) = 12.2222 K.
+- λ₁ ≈ 1.91, so τ₁ = t_R/λ₁² ≈ 1.91e4 s.
+- <strong>Case A:</strong>
+  - centre mean 6.1111 K (exact by (P1));
+  - centre ripple peak to peak ≈ q(1−D)DP/ρc = 0.1435 K, so peak/(D·θ_ss) − 1 ≈ +1.2 %;
+  - ≈ 110 cycles to come within 1e-3 of the periodic state.
+- <strong>Case B:</strong> peak, trough and mean (no hand prediction).
+- <strong>The Fourier ladder</strong> M = 2¹⁰…2¹⁶ on the evaluation set and at the switch instants, where the convergence is O(1/M).</p>
+<p><strong>Negative controls.</strong> Rule (e): all are predicted, since nothing has been measured on this fixture. Each is asserted only as exceeding its anchor's band, with the measured factor printed beside the prediction.
+- <strong>(c1)</strong> Dirichlet roots λₙ = nπ (Bₙ re-projected) in the periodic modal form, against (P2). Predicted ≈ 0.27·θ_ss(0) at the centre in case A. Asserted &gt; 1e-3.
+- <strong>(c2)</strong> The geometric sum dropped (g_{j,0} = 0 every cycle), against (P5). Predicted ≈ 0.49. Asserted &gt; 1e-3.
+- <strong>(c3)</strong> The e^{−iωt} convention (Θ at −ωₘ, same ûₘ), against (P2). Predicted ≈ 1e-2 in case A and ≈ 1e-1 in case B. Asserted &gt; 1e-6.</p>
+<p><strong>Window.</strong> Foreground, Bash <code>timeout: 660000</code>. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Predicted 50–70 s; the three lane-3 numpy windows on 10-01 measured 45–52 s (closest: <code>20261001T143248Z_MAT-15-step2a-W1b.log</code>).</p>
+<p><code>scripts/testing/run_and_log.sh MAT-17-step1-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_mat17_duty_cycle_closed_form.py tests/unit/test_analytical_lightweight.py -v -s --tb=short'"</code></p>
+<p>The lightweight test is the rule (c) re-gate of the additive <code>analytical.py</code> change.</p>
+<p><strong>Traps.</strong>
+- <strong>Series convergence.</strong> Σ Bₙ Xₙ alone converges only as 1/N²: at r = 0 the tail is ≈ 2e-5 K at N = 400. Use the closed-form θ_ss in the on phase and keep the decaying factor in the off phase. s_N ≈ 22.7 /s, so never assert near a switch.
+- <strong>Cancellation.</strong> Compute 1 − e^{−sP} with <code>-np.expm1</code>.
+- <strong>Overflow.</strong> Θ overflows once |γR| reaches a few hundred. Use the scaled form, as <code>_robin_sphere_perfusion_scaled</code> does:
+  - S(r) = e^{−γ(R−r)}(1 − e^{−2γr})/(2r);
+  - S(0) = γe^{−γR};
+  - Dₙ = [γR(1 + e^{−2γR}) + (Bi − 1)(1 − e^{−2γR})]/2.</p>
+<p>Check that <code>np.expm1</code> accepts complex input, or write the expression out.
+- <strong>m = 0</strong> is handled separately as D·θ_ss: q/(iω) is singular there.
+- <strong>Sign convention.</strong> Use e^{+jωt} throughout (the repo convention), with ûₘ taken against e^{−iωₘt}.
+- <strong>Memory.</strong> Sum the harmonics in blocks of ≤ 8192 to bound memory on two ranks.
+- <strong>Output.</strong> Print on rank 0. The real build skips the four complex-only environment tests; that is expected.
+- <strong>Rule (i):</strong> no edit after the last window.
+- <strong>Rule (f):</strong> a W1 red on a pre-registered <em>parameter</em> (δ, a time fraction), never on a bound, may be re-registered by measurement. Disclose it, run W1b, and the review ratifies (the 10-01 lesson, items 136–137).
+- <strong>Shared file.</strong> Item 190 also appends to <code>analytical.py</code>: append at the end, and rebase if 190 lands first.</p>
+<p><strong>Scope.</strong> Numpy only: a uniform source on <code>MAT-9</code>'s ball. Not included:
+- the FEM (step 2) and the solver's source schedule;
+- an SAR- or coil-driven duty cycle;
+- perfusion;
+- any pulse-sequence or 6-min-averaging claim.</p>
+<p><strong>Status it can move.</strong> §7 <code>MAT-17</code> ⬜ → 🟡 on the row's step-1 Done-when, which this item matches (rule (j)). Step 2 then becomes draftable.</p>
+<p><strong>Negative result.</strong>
+- <strong>(H0), (H1), (P1), (P4) or (P5) red:</strong> a code bug. Fix it in-slot, run W1b and disclose.
+- <strong>(P2) red with (P3) green, or the reverse:</strong> one route is wrong. Print both routes and the M ladder at the failing points, then stop. Park on <code>attempt/MAT-17-step1-&lt;UTC&gt;</code>, mark BLOCKED in the same commit (rule (d)); the row stays ⬜.
+- There is no PREDICTED RED line.</p>
+<p><strong>Outcome — DONE 2026-10-03 (19:30 CDT slot, implementer).</strong> W1 <code>20261003T010113Z_MAT-17-step1-W1.log</code> passed first time: <code>-n 2</code>, 66 s, 26 passed, 4 skipped. No W1b was needed.</p>
+<p>Anchors, case A / case B:
+- <strong>(H0)</strong> ≤ 1.6e-16.
+- <strong>(H1)</strong> The complex Robin residual is ≤ 3.3e-16, and the periodic modal residual is 1.1e-15 / 1.3e-15 of qR/h.
+- <strong>(P1)</strong> 1.5e-16 / 0.
+- <strong>(P2)</strong> 2.1e-12 / 8.1e-11. Case B is above the predicted ≲ 5e-11 but inside the 1e-9 band.
+- <strong>(P3)</strong> 1.2e-15 / 1.0e-15.
+- <strong>(P4)</strong> 5.8e-16, and a duty outside (0, 1] raises.
+- <strong>(P5)</strong> 4.9e-14 at j* = 479 / 1.1e-14 at j* = 42.</p>
+<p>Controls, case A / case B:
+- <strong>(c1)</strong> 0.278 / 0.442 (predicted ≈ 0.27 in case A).
+- <strong>(c2)</strong> 0.494 / 0.195 (predicted ≈ 0.49, which was case A's figure).
+- <strong>(c3)</strong> 1.06e-2 / 9.7e-2 (predicted ≈ 1e-2 / 1e-1).</p>
+<p>Records:
+- θ_ss(0) = 12.2222 K, λ₁ = 1.90709, τ₁ = 1.9155e4 s.
+- <strong>Case A, centre:</strong> mean 6.1111 K, ripple 0.14354 K, peak +1.17 % above D·θ_ss. It takes 111 cycles to come within 1e-3 of D·θ_ss(0), the reading the executor chose because the brief left the reference unstated.
+- <strong>Case B, centre:</strong> peak 3.6801 K, trough 2.4042 K, mean 3.0556 K.
+- <strong>Fourier ladder:</strong> O(1/M) at the switch instants.</p>
+<p>Disclosed:
+- The complex 1 − e^{−z} uses a 13-term series below |z| = 0.1 rather than <code>np.expm1</code>.
+- The case B c1 print line reuses case A's prediction text. It is a print only.</p>
+<p>Row ⬜ → 🟡; step 2 is draftable.</p>
+<h3 id="9-item-200-2026-10-03-lane-3">§9 item 200 — 2026-10-03 (lane 3)<a class="headerlink" href="#9-item-200-2026-10-03-lane-3" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-03 03:00 daily review; the review reviewed it.</em></p>
+<p><strong><code>MAT-17</code> step 2: a per-step source schedule in <code>solve_transient_conduction</code>, gated against step 1's closed form on <code>MAT-9</code>'s ball.</strong>
+- <strong>Executor:</strong> implementer. <strong>Tier:</strong> standard, <code>-n 2</code>; W1 and W2 real build, W3 complex. <strong>Class:</strong> lane-3 closed form (measured median 8 min).
+- <strong>Cost:</strong> ≈ 8 measured / ≈ 45 predicted min (15 fixed + ≈ 25 code + three ≈ 2-min windows).
+- <strong>Depends on:</strong> nothing. <code>utils/analytical.py</code> is not edited by this item; if the executor finds it must add a helper there, append-only after item 199's <code>MAT-18</code> block, and rebase.</p>
+<p><strong>Target — the §7 row's step-2 Done-when, verbatim:</strong> "an additive per-step source schedule in <code>solve_transient_conduction</code> reproduces step 1 on <code>MAT-9</code>'s ball at <code>MAT-9</code> step 2's imported bands (interior ≤ 1 %, BE rate ∈ [0.9, 1.2], per-step balance ≤ 1e-9), with <code>MAT-9</code>…<code>MAT-14</code>'s transient gates re-run green ⇒ ✅". "Default digit-identical" is the item's letter (below).</p>
+<p><strong>Code (additive; rule (c), disclosed).</strong>
+- <strong><code>thermal/transient.py</code>:</strong> keyword <code>source_schedule=None</code> on <code>solve_transient_conduction</code> and <code>_solve_transient</code> (<code>transient.py:73–91</code>, <code>:122–140</code>). It is a callable <code>χ(t_mid) -&gt; float</code>, evaluated at the midpoint of every (half-)step, that multiplies the <code>ufl.inner(q_c, v) * ufl.dx</code> term of <code>L</code> (<code>:184</code>) through a new <code>fem.Constant</code> <code>s_c</code> set before each solve.
+  - Step times come from the integer index, never accumulated: half-step i spans [i·Δt/2, (i + 1)·Δt/2]; full step i after the start spans [(m/2 + i)·Δt, (m/2 + i + 1)·Δt].
+  - Build the scaled <code>L</code> <strong>only when a schedule is given</strong> — the <code>perfused</code> pattern (<code>:171–189</code>). With <code>None</code> every form is byte-identical, so it hits the same JIT cache entry and gives the same digits.
+  - Balance under a schedule: <code>|stor + conv + perf − s_n·src| / |src|</code>, normalised by the full-on <code>source_power</code> (<code>:199–201</code>, <code>:247</code>), never by <code>s_n·src</code> (zero on an off step). The <code>None</code> path is unchanged.
+  - Additive result field <code>source_multipliers</code>: one entry per (half-)step, filled only under a schedule.
+- <strong>New test</strong> <code>tests/validation/test_mat17_duty_cycle_fem.py</code>.
+  - Imported read-only from <code>test_mat9_transient_conduction_sphere.py</code>: <code>R, K, Q, H, T_INF, RHO_C, T_R, ROBIN_TAG, QDEG, _ball, _interior_error, _rel_diff, _say</code>. From step 1's module: <code>CASES</code> (<code>test_mat17_duty_cycle_closed_form.py:44</code>).
+  - Comparand: <code>robin_sphere_duty_cycle_temperature(…, periodic=False)</code> (<code>analytical.py:1909</code>), evaluated in numpy at the P2 dof coordinates in chunks of 20 000 points (<code>MAT-9</code>'s <code>_exact_theta</code>, <code>:93–106</code>).</p>
+<p><strong>Fixture.</strong> <code>MAT-9</code>'s ball (R 0.1, k 0.6, ρc 4.18e6, q 2000, h 10, T∞ = T(0) = 20), P1.
+- <strong>Case A</strong> (P 1200 s, D 0.5): t_end = 11P + 900 s = 14 100 s (Fo 0.2024), the middle of cycle 11's off phase. Every Δt used divides both DP = 600 s and (1 − D)P/2 = 300 s. So every switch is a step boundary, every step midpoint is ≥ Δt/2 from a switch, and χ is exactly 0 or 1.
+- <strong>Case B</strong> (P = 0.2 t_R, D 0.25): t_end = 2.5·DP = 8 708.3 s (Fo 0.125), the middle of cycle 0's off phase; Δt = DP/8, so 20 steps.</p>
+<p><strong>Anchors (asserted).</strong> The bands are <code>MAT-9</code> step 2's, imported by value: they are literals at <code>test_mat9_transient_conduction_sphere.py:274–275, 301–302</code>, with no module constant to import.
+- <strong>(S0) Schedule census, every run:</strong> Σ s_n·Δt_n equals the on-time in [0, t_end] to ≤ 1e-12 relative. That is 12 × 600 = 7 200 s for case A, and DP for case B.
+- <strong>(D) Default path:</strong> <code>source_schedule=lambda t: 1.0</code> against the default call, on the 0.01 m mesh, BE, Δt 300, 47 steps. Whole-ball ‖ΔT‖/‖θ‖ ≤ 1e-13 (predicted ≤ 1e-15).
+- <strong>(L) Linearity:</strong> θ[χ] + θ[1 − χ] = θ[1], BE, Δt 150, 0.01 m. Whole-ball relative ≤ 1e-12 (predicted ≈ 1e-15). It is exact because the θ-scheme is linear in the source when T(0) = T∞.
+- <strong>(i) Interior:</strong> CN with the Rannacher start (<code>startup_half_steps=2</code>) on the 0.005 m mesh — case A at Δt 150 (N 94), case B at Δt DP/8 (N 20). Interior relative L2 on θ (<code>MAT-9</code>'s mask |x|² &lt; 0.81R²) ≤ 1 % in each case. Predicted 5e-4 – 2e-3; <code>MAT-9</code>'s CN N 40 read 4.6327e-4 on this mesh (<code>20260929T170037Z_MAT-9-step2b.log:114</code>).
+- <strong>(ii) BE rate:</strong> 0.01 m mesh, case A, Δt ∈ {300, 150, 75, 37.5, 18.75} (N 47 … 752). The whole-ball self-difference LSQ rate is in [0.9, 1.2] (predicted ≈ 1.0; <code>MAT-9</code>'s BE read 0.984, <code>…step2b.log:124</code>).
+- <strong>(iii) Balance:</strong> every run's <code>max_balance_residual</code> ≤ 1e-9 (predicted ≤ 5e-14).
+- <strong>(R) Re-gate:</strong> W2 and W3 run the <code>MAT-9</code>, <code>MAT-12</code>, <code>MAT-13</code> and <code>MAT-14</code> transient modules green. The slot also checks that W2's <code>MAT-9</code> lines reproduce <code>…step2b.log:114, 124, 130</code> digit for digit (interior 4.6327e-04, BE LSQ 0.984, CN 2.001) and journals the comparison. A changed digit on the <code>None</code> path is a stop.</p>
+<p><strong>Printed (predicted, never asserted).</strong>
+- The CN ladder rate on case A (predicted ≈ 2.0), and the interior error of CN without the Rannacher start.
+- The BE N 752 interior error against the series. Predicted ≈ 2.8e-3, the 0.01 m spatial floor: <code>MAT-9</code>'s BE N 160 read 2.8063e-3 (<code>20260929T112146Z_MAT-9-step2.log:122</code>).
+- θ_h(0) beside the closed form at t_end.
+- On/off step counts (case A at N 94: 48 on, 46 off).
+- The wall clock of every run.</p>
+<p><strong>Negative controls.</strong> Rule (e): all are predicted, since this comparison has never been measured. Each is asserted only as missing its anchor's band, with the measured value printed beside the prediction.
+- <strong>(c1) Schedule ignored</strong> — the default call, source always on — against case A's duty comparand at t_end, on (i)'s mesh and Δt. Predicted ≈ 1.0 (range 0.8–1.2): the step response is about twice the D = 0.5 history. Asserted &gt; 1e-2.
+- <strong>(c2) Schedule dropped from the balance.</strong> On case A's CN run, take snapshots 93 and 94. Step 93→94 is an off step (midpoint 14 025 s, τ = 825 s). Compute |ρc∫(T₉₄ − T₉₃)/Δt + ∮h(½T₉₄ + ½T₉₃ − T∞) − ∫Q|/∫Q, the form of <code>MAT-9</code>'s control (b) (<code>:285–292</code>). Predicted 1.000; asserted &gt; 1e-3.
+- <strong>(c3) Half-phase shift, printed only:</strong> χ(t − 300 s) against the true comparand. Interior miss predicted 2–4 % (the half ripple, 0.072 K, over θ ≈ 2.5 K). It is not asserted because its ceiling is too close to the band.</p>
+<p><strong>Windows.</strong> Foreground, Bash <code>timeout: 660000</code>. Each harness call is the whole Bash command: bare, repo-relative, nothing chained or piped.
+- <strong>W1</strong> (real build; predicted 80–140 s). The environment tests take ≈ 30 s. <code>MAT-9</code>'s 0.005 m CN N 40 solve took 3.7 s (<code>…step2b.log:114</code>) and its five-run BE ladder 3.4 s (<code>:124</code>); this module runs ≈ 1 500 ladder steps and ≈ 115 CN steps plus the controls.</p>
+<p><code>scripts/testing/run_and_log.sh MAT-17-step2-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_mat17_duty_cycle_fem.py -v -s --tb=short'"</code>
+- <strong>W2</strong> (real build; predicted 110–150 s). <code>MAT-9</code>'s two modules measured 115 s with the environment (<code>…step2b.log:275</code>), of which steady ≈ 25 s (<code>20260929T034247Z_MAT-9-step1.log:234</code>, 54 s with the environment). <code>MAT-13</code> measured 75 s (<code>20260930T172102Z_MAT-13-W1.log:245</code>).</p>
+<p><code>scripts/testing/run_and_log.sh MAT-17-step2-W2-regate "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_mat9_transient_conduction_sphere.py tests/validation/test_mat13_transient_perfusion_sphere.py -v -s --tb=short'"</code>
+- <strong>W3</strong> (complex build; predicted 110–150 s). <code>MAT-12</code> measured 77 s (<code>20260930T110230Z_MAT-12-W1.log:333</code>) and <code>MAT-14</code> 79 s (<code>20261001T004928Z_MAT-14-W1.log:309</code>), each including ≈ 44 s of environment and collection, which the two share here.</p>
+<p><code>scripts/testing/run_and_log.sh MAT-17-step2-W3-regate "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_mat12_transient_sar_heating_sphere.py tests/validation/test_mat14_sar_pennes_transient_sphere.py -s -v --tb=short'"</code>
+- <strong>Not re-run, disclosed:</strong>
+  - <code>MAT-10</code> and <code>MAT-11</code> are steady-only: neither imports <code>thermal/transient.py</code>.
+  - <code>MAT-15</code>'s two modules (<code>test_mat15_finite_cylinder_fem.py</code>, <code>test_mat15_coil_driven_heating_phantom.py</code>) also call <code>solve_transient_conduction</code>. They are heavy (252–273 s) and outside the row's list. The evidence for them is the byte-identical <code>None</code> path.</p>
+<p><strong>Traps.</strong>
+- <strong>Division by zero on an off step</strong> if the balance is normalised by the scheduled source (above).
+- <strong>Never evaluate χ at a step endpoint.</strong> At a switch instant it is ambiguous and shifts the source by one step. That is an O(Δt) error the BE rate would hide.
+- <strong>Time from the integer step index.</strong> Case B's P is not binary-exact, but every midpoint is Δt/2 from a switch, so a float <code>mod</code> is safe there.
+- <strong>The closed form:</strong> never evaluate it within 0.05 of a phase from a switch; both t_end values above are mid-phase. Its (points × 400) arrays are chunked at 20 000 points.
+- <strong>The new <code>L</code> form compiles on first use.</strong> A killed window leaves an orphan <code>.c</code>. Before any re-run, <code>pgrep -c python3</code> in the container must read 0; then run the any-<code>.c</code>-without-<code>.so</code> sweep (daily-review.md rubric item 4), never a 0-byte-only sweep.
+- <strong>Builds:</strong> W1 and W2 run in the real build, so the four complex-only environment tests skip; that is expected. W3 needs the complex build because <code>MAT-12</code> and <code>MAT-14</code> solve the EM field.
+- <strong>Run hygiene:</strong> print on rank 0; allreduce every integral (<code>MAT-9</code>'s <code>_allsum</code>); run with <code>-s</code>; never <code>-k</code> inside the quoted command.
+- <strong>Read-only imports:</strong> do not edit <code>test_mat9_transient_conduction_sphere.py</code> or any band in it.
+- <strong>Rule (i):</strong> no edit to <code>transient.py</code> or the test after its last window.</p>
+<p><strong>Scope.</strong> A uniform source switched on and off on <code>MAT-9</code>'s ball from rest, up to Fo ≈ 0.2. <strong>Not included:</strong>
+- the periodic steady state in FEM (≈ 110 cycles away);
+- SAR- or coil-driven duty cycles;
+- perfusion under a schedule (the code path composes, but it is not gated);
+- switches off step boundaries (a fractional χ, not gated);
+- any pulse-sequence, 6-min-averaging or regulatory statement.</p>
+<p><strong>Status it can move.</strong> §7 <code>MAT-17</code> 🟡 → ✅ on the row's step-2 Done-when. This item matches it term for term (rule (j)):
+- the schedule is additive and the default is digit-identical ((D) and (R));
+- interior ≤ 1 % ((i));
+- the BE rate is in band ((ii));
+- the per-step balance holds ((iii));
+- the <code>MAT-9</code>…<code>MAT-14</code> transient gates re-run green (W2, W3).</p>
+<p><strong>Negative result.</strong>
+- <strong>(S0), (D), (L) or (iii) red:</strong> a code bug. Fix it in-slot, re-run W1 as W1b, and disclose.
+- <strong>(R) red</strong> — a changed digit on the <code>None</code> path, or any W2 / W3 failure: the <code>None</code> path is not byte-identical, so stop. Park on <code>attempt/MAT-17-step2-&lt;UTC&gt;</code> and mark BLOCKED in the same commit (rule (d)).
+- <strong>(i) red with (L) and (iii) green:</strong> print the interior error at every snapshot, the closed form at r = 0, R/2 and R, and the per-step χ list around the last switch. Park, BLOCKED; no band moves.
+- <strong>(ii) outside [0.9, 1.2]:</strong> print the pairwise rates; park, BLOCKED; the review rules. Rule (f) never applies to a bound.
+- There is no PREDICTED RED line.</p>
+<p><strong>Outcome — DONE 2026-10-03 (12:00 CDT slot, implementer).</strong> All anchors green; row 🟡 → ✅.</p>
+<p>Windows (all <code>-n 2</code>, standard, container <code>timeout -k 30 180</code>):
+- <code>20261003T170330Z_MAT-17-step2-W1.log</code> — killed at the 180 s ceiling (exit 124) in the printed-only CN ladder; no assertion had failed. Cause, from the probe's timings: the closed form interpolated per P2 point on the 0.005 m mesh (≈ 37 s per call).
+- <code>20261003T170658Z_MAT-17-step2-cache-sweep.log</code> (<code>pgrep -c python3</code> 0 first; no orphans), <code>20261003T170842Z_MAT-17-step2-probe.log</code> (test module only, 3 passed, 135 s).
+- Fix (test only): the comparand is evaluated once per distinct radius (<code>np.unique(…, return_inverse=True)</code>), ≈ 9.5 s per call; the printed values are digit-identical between W1, the probe and W1b. The timeout was not raised.
+- <code>20261003T171113Z_MAT-17-step2-W1b.log</code> — 11 passed, 4 skipped, 124 s.
+- <code>20261003T171324Z_MAT-17-step2-W2-regate.log</code> — 22 passed, 4 skipped, 112 s.
+- <code>20261003T171523Z_MAT-17-step2-W3-regate.log</code> (complex) — 15 passed, 105 s.</p>
+<p>Anchors (W1b):
+- <strong>(S0)</strong> relative 0 on every scheduled run (7 200 s / 3 483.333333 s).
+- <strong>(D)</strong> 5.700e-16 (default call also leaves <code>source_multipliers</code> empty). <strong>(L)</strong> 4.012e-15.
+- <strong>(i)</strong> case A 4.3870e-04 (151 548 cells, N 94), case B 1.0683e-03 (N 20).
+- <strong>(ii)</strong> BE d = 2.6051e-3 … 3.2832e-4, LSQ 0.996, pairwise 0.993 / 0.997 / 0.998.
+- <strong>(iii)</strong> worst 2.358e-13 (printed CN ladder N 752); asserted 0.005 m runs 2.823e-14.
+- <strong>(R)</strong> W2's <code>MAT-9</code> lines equal <code>20260929T170037Z_MAT-9-step2b.log:114, 124, 130</code> digit for digit: interior 4.6327e-04 (balance 1.358e-14), BE d-list and LSQ 0.984 (0.972 / 0.986 / 0.993), CN d-list and LSQ 2.001 (2.002 / 2.000 / 2.000); only wall times differ.</p>
+<p>Controls: (c1) 0.97087 (predicted ≈ 1.0); (c2) 1.0000 (predicted 1.000); (c3, printed) 1.4357e-02 — <strong>below its predicted 2–4 %</strong>, recorded as a missed prediction, not asserted.</p>
+<p>Printed: CN ladder LSQ 2.104 (2.298 / 2.034 / 2.005); CN without Rannacher 4.2243e-04; BE N 752 vs series 1.8819e-03 (predicted ≈ 2.8e-3); θ_h(0) 3.053003 vs 3.050426 K (A), 1.537399 vs 1.535862 K (B); case A N 94 multipliers 49 on / 46 off over 95 entries (the two Rannacher half-steps counted separately = 48 / 46 full-step).</p>
+<p>Disclosed: <code>thermal/transient.py</code> additive change (rule (c)); the test also imports <code>_allsum</code> from the <code>MAT-9</code> module; <code>MAT-15</code>'s two modules not re-run (evidence: the byte-identical <code>None</code> path).</p>
+<h3 id="audit-2026-10-03-1800-review">Audit — 2026-10-03 18:00 review<a class="headerlink" href="#audit-2026-10-03-1800-review" title="Permanent link">&para;</a></h3>
+<p><strong>PASS</strong> (<code>auditor</code>, closing commit <code>f320a1f6</code>). Evidence: <code>20261003T171113Z_MAT-17-step2-W1b.log:98,101</code> (interior 4.3870e-4 / 1.0683e-3), <code>:125</code> (BE rate 0.996), <code>:141,144</code> (balance ≤ 2.358e-13), <code>:104–105</code> (controls), <code>:277–278</code> (Status 0, 124 s); the <code>MAT-9</code> 2b re-gate digits at <code>…171324Z…W2-regate.log:95,105,111</code> equal <code>20260929T170037Z_MAT-9-step2b.log:114,124,130</code>. Caveats (no demotion): "byte-identical default path" is round-off-identical on the gated quantities, with last-digit balance variation run to run; <code>MAT-15</code> was not re-run (the <code>None</code> path is unchanged, disclosed); c3 printed 1.44e-2 against a predicted 2–4 %. Journal: <code>docs/planning/reviews/2026-10-03-daily-1800.md</code> §3.</p>
+<h3 id="9-item-271-2026-10-06-chain-p12">§9 item 271 — 2026-10-06 (chain P12)<a class="headerlink" href="#9-item-271-2026-10-06-chain-p12" title="Permanent link">&para;</a></h3>
+<p><em>Drafted for the 2026-10-06 03:00 daily review; the review reviews it.</em> Licence: §10 P12 (quoted, not changed): "<code>MAT-17</code> step 2 — duty cycle on the coil-driven phantom. <code>MAT-17</code>'s on / off schedule on P1's source. Asserted: the Duhamel superposition identity — the duty-cycled response equals the sum of shifted step responses at <code>MAT-17</code>'s imported band — and the energy identity; printed, ⟨θ⟩(t*) against the continuous-source P1 scaled by the duty factor. Target: identities. Serial on nothing." <strong>Numbering:</strong> <code>MAT-17</code> step 2 (the FEM <code>source_schedule</code>) is already green, so this is filed as <strong>step 3</strong>. A record on a ✅ row: no glyph moves.</p>
+<p><code>MAT-17</code> step 3: <code>source_schedule</code> (<code>transient.py:112</code>; χ evaluated at each (half-)step midpoint, <code>:294</code>) on <code>MAT-15</code> step 1's coil-driven source — <code>ANS-2</code>'s F-small, drive k = 0 (P1), 10 MHz, 58 866 tag-3 cells, G = 1 W / P₁ (<code>test_mat15_coil_driven_heating_phantom.py:180–301</code>, <code>_run_heated</code>).
+- <strong>Executor:</strong> implementer. One new module <code>tests/validation/test_mat17_duty_cycle_coil_driven.py</code>, <code>@complex_only</code>, one module-scoped fixture. No <code>src/</code> change; <strong>do not edit</strong> step 1's module (<code>ans:9</code> imports <code>_run_heated</code>; an edit owes its windows under rule (a)).
+- <strong>Tier:</strong> heavy (step 1's window 218 s at <code>-n 2</code>), <code>-n 2</code>, complex. <strong>Time:</strong> ≈ 17 measured / ≈ 30 predicted min.
+- <strong>Depends on nothing.</strong></p>
+<p><strong>Schedule (pinned here).</strong> Step 1's CN grid: t* = 0.2 t_R = 1 254 s, N = <code>N_MAIN</code> = 40, Δt = t*/40, two BE start-up half-steps (<code>_cn</code>, <code>:154–157</code>). Period P = t*/5 = 8 steps, D = 0.5: χ(t) = 1 on [jP, jP + P/2), 0 on [jP + P/2, (j + 1)P). Every switch t_m = m·P/2 (m = 0 … 9) is a grid point, so every midpoint χ is exactly 0 or 1. The fixture calls <code>_run_heated(return_fields=True)</code> once, then runs through a local <code>_transient_s(sub, ft, q, schedule)</code> — <code>_transient</code>'s body (<code>:145–151</code>) plus <code>source_schedule=</code> — with step 1's <code>startup_half_steps=2</code> and <code>snapshot_steps=(N_MAIN − 1, N_MAIN)</code>. Step 1's <code>_transient</code> does not pass a schedule.</p>
+<p><strong>Anchors</strong> (asserted; bands imported by name):
+- <strong>(Δ) Duhamel superposition:</strong> θ[χ] − T∞ = Σ_{m=0}^{9} (−1)^m (θ[H_m] − T∞), where θ[H_m] is a <strong>full run from t = 0</strong> with χ_m(t) = 1 for t &gt; t_m. Same scheme, same start-up, so the identity is exact linear algebra, not a shifted-restart approximation. Whole-submesh relative L2 ≤ 1e-12: <code>MAT-17</code>'s (L) bar (<code>test_mat17_duty_cycle_fem.py:201</code>), pre-stated, measured ≈ 1e-15 there. Ten alternating terms amplify round-off ≈ 10–20×, so the prediction is ≤ 1e-13.
+- <strong>(D′) duty 1 is P1:</strong> χ ≡ 1 reproduces <code>_run_heated</code>'s <code>T_star[0]</code>, relative ≤ 1e-13 (<code>MAT-17</code>'s (D) bar, <code>test_mat17_duty_cycle_fem.py:183</code>).
+- <strong>(E) / (E′) energy identity:</strong> every run's <code>max_balance_residual</code> ≤ <code>E_BAND</code> (1e-9, <code>test_mat12_transient_sar_heating_sphere.py:76</code>; <code>MAT-17</code>'s <code>BALANCE_BAND</code>, <code>test_mat17_duty_cycle_fem.py:69</code>, has the same value). From the EM side on the duty run: |ρc∫(θᴺ − θᴺ⁻¹)/Δt + ∮hθ^(n+½) − χ_N·G·P₀| / (G·P₀) ≤ <code>E_BAND</code>. It is normalised by the <strong>unscheduled</strong> deposited power, exactly as <code>transient.py:310</code> does. The last step is an off step (χ_N = 0), so a form relative to χ_N·G·P₀ would divide by zero.</p>
+<p><strong>Negative controls.</strong>
+- <strong>(d) doubled source, asserted</strong> (prior same-fixture measurement): step 1's (E′) with 2·q_h reads 1.000000 (<code>20261001T123309Z_MAT-15-step1-W1.log:1948</code>). On the duty run, assert the doubled-source (E′) misses by &gt; <code>D_CONTROL_FLOOR</code>.
+- <strong>(Δ-ctl) one term dropped, predicted (rule (e)):</strong> omit m = 9 (the last switch-off). At t*, θ[H₉] − T∞ carries ≈ (P/2)/(ρc·V_sub) ≈ 125/945 ≈ 0.13 K of mean, against ⟨θ_duty⟩ ≈ 0.55–0.6 K. Predicted miss 0.15–0.3; asserted only as a miss &gt; 1e-12 (ceiling ≈ 0.3, ≥ 10¹¹× the band).</p>
+<p><strong>Printed (records):</strong>
+- ⟨θ⟩(t*) of the duty run against D·⟨θ⟩_P1(t*), where P1's continuous value is 1.153 K per deposited watt (<code>…MAT-15-step1-W1.log:1929</code>). Predicted ratio 0.97–1.00: the deposited energy is the same, t* ends an off phase, and t_R/P ≈ 25 keeps the ripple small.
+- The 10 g peak θ̄ ratio, the ⟨θ⟩ ripple over the last on/off pair, and max|Im θ|.</p>
+<p><strong>Window</strong> (bare, whole, foreground; Bash <code>timeout: 660000</code>; <code>-s</code>; <code>tests/environment</code> first). Price: step 1's 218 s at <code>-n 2</code>. CN at 0.0025 is 2.5 s per run (<code>:1929</code>), and this item adds 13 runs (duty, ten H_m, χ ≡ 1, doubled), ≈ 35 s. Predicted 250–300 s.
+- <strong>First:</strong> <code>docker compose exec -T fem-em-solver pgrep -c python3</code> must read 0. Then run the any-orphan cache sweep (rubric item 4) as <code>MAT-17-step3-cache-sweep</code>.
+- <strong>W1:</strong></p>
+<p><code>scripts/testing/run_and_log.sh MAT-17-step3-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 590 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_mat17_duty_cycle_coil_driven.py -v -s --tb=short'"</code>
+- No edit after W1 (rule (i)).</p>
+<p><strong>Traps already paid for.</strong>
+- Orphan <code>.c</code> of any size (<code>MAT-15</code> item 160, 44 KB): sweep only at <code>pgrep</code> 0.
+- <code>_transient</code> does not pass <code>source_schedule</code>: use the local helper, never edit step 1's module.
+- Keep every switch on a grid point. Off-grid switches make a midpoint χ fractional; (Δ) would survive, but the schedule would no longer be the pinned one.
+- Balance normalisation on off steps (above).
+- <code>assemble_scalar</code> and <code>cell_tags.values</code> are rank-local: reduce through <code>_allsum</code>.
+- No point evaluation on a <code>create_submesh</code> mesh (known-issues 2026-10-04, <code>ANS-9</code>). <code>np.real</code> before <code>float</code>. No <code>-k</code> in the quoted command. A killed window is not a result.</p>
+<p><strong>Scope.</strong> Covered: a 50 % duty, P = t*/5 schedule on P1's untuned 10 MHz drive k = 0, P1 thermal, gel constants, Robin h 10, no perfusion. <strong>Not claimed:</strong> any pulse sequence, SAR-averaging or regulatory statement, a closed form for the coil-driven θ, the tuned copper fixture, 64 MHz, <code>ANS-9</code>.</p>
+<p><strong>Negative result.</strong>
+- <strong>(D′) red:</strong> the local helper is not step 1's run. Fix it in the new module only.
+- <strong>(Δ) red with (D′) green:</strong> print the per-term norms and <code>result.source_multipliers</code>. A χ that is not 0/1 is a schedule-grid bug in the module. Otherwise open a known-issues entry against <code>source_schedule</code> and park BLOCKED; <code>MAT-17</code> ✅ stands.
+- <strong>(E) or (E′) red:</strong> print stor / conv / χ_N·G·P₀. BLOCKED.
+- <strong>A control does not miss:</strong> stop.
+- No band moves.</p>
+<p><strong>Status it can move.</strong> None: <code>MAT-17</code> stays ✅. On green, the §7 row gains a "step 3 record" sentence and §10 P12 closes. Rule (j): the reviewing daily adds "step 3 (§10 P12): identities green ⇒ a record, no glyph" to the Done-when.</p>
+<p><strong>Outcome — 2026-10-06 15:00 slot (third item): GREEN, a record; <code>MAT-17</code> stays ✅.</strong> New module <code>tests/validation/test_mat17_duty_cycle_coil_driven.py</code> (implementer, <code>-n 2</code>, heavy). <code>20261006T201547Z_MAT-17-step3-W1.log</code>: Status 0, 276 s (predicted 250–300 s), 19 passed per rank. Schedule string <code>11111000011110000111100001111000011110000</code>, on-time 627 s = D·t* (<code>:1956</code>). (Δ) whole-submesh rel L2 3.421e-14 (<code>:1970</code>, bar 1e-12, predicted ≤ 1e-13); (D′) 2.119e-15 (<code>:1959</code>); (E′) at N (off) 3.317e-15 normalised by the unscheduled P₀ (<code>:1957</code>), at n = 36 (on) 1.399e-14 (<code>:1958</code>); (E) worst of 12 runs 3.743e-14. (Δ-ctl) m = 9 dropped: 0.298210 (<code>:1971</code>, predicted 0.15–0.3). Records: duty ⟨θ⟩(t*) 0.568836 K against D·P1 0.576657 K, ratio 0.986437 (<code>:1973</code>, predicted 0.97–1.00); last on/off pair 0.466250 → 0.584439 → 0.568836 K (<code>:1974</code>); 10 g ball at c₀ duty / (D·P1) 0.967065 (<code>:1975</code>, no prediction stated); max|Im θ| 0.</p>
+<p><strong>Departure for the review to rule on — (d).</strong> The brief pins (d) to the duty run's (E′), which is evaluated at N, an off step. There stored + surface does not depend on the source amplitude at that step (linear response, χ_N = 0), so a doubled source cannot be seen at N: the executor measured it there at 2.942e-15 and printed it as blind. Before W1 it moved the asserted (d) to the last on-step n = 36 (χ = 1), against the same <code>D_CONTROL_FLOOR</code> and the same prior reading 1.000000 (<code>…MAT-15-step1-W1.log:1948</code>), and added the on-step (E′) beside the pinned step-N one. No band moved and nothing was edited after W1. Under rule (h) it is a re-placement of the same comparison, not a substitute true by construction. The review ratifies or reverts it. MAT-17's (L)/(D) bars are restated as module literals with citations, because that module asserts them inline and has no importable names.</p>
+<h2 id="7-row-moved-verbatim-2026-10-07-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-07 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-07-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p><em>(history and §9 briefs: <code>docs/planning/chunks/MAT-17.md</code>)</em> <strong>Duty-cycled RF heating of the Robin gel ball: the on/off source's history and periodic steady state — Phase 8 (8a), gel, no perfusion</strong> (opened by the 2026-10-02 18:00 daily under rule (5) lane 3; ratified by the 2026-10-03 weekly) | ✅ <strong>Audit PASS 2026-10-03 18:00 review.</strong> 2026-10-03 (step 2, §9 item 200): an additive <code>source_schedule</code> in <code>solve_transient_conduction</code> reproduces the duty-cycle closed form on <code>MAT-9</code>'s ball — interior 4.39e-4 / 1.07e-3 (cases A / B, CN + Rannacher, 0.005 m), BE LSQ rate 0.996, balance ≤ 2.4e-13, default path 5.7e-16 and <code>MAT-9</code> 2b digits identical, <code>MAT-9</code>/<code>12</code>/<code>13</code>/<code>14</code> re-gated green (<code>20261003T171113Z_MAT-17-step2-W1b.log</code>, <code>…171324Z…-W2-regate.log</code>, <code>…171523Z…-W3-regate.log</code>). Step 1 ✅ 2026-10-03 (§9 item 189, <code>20261003T010113Z_MAT-17-step1-W1.log</code>). <strong>Step 3 record (2026-10-06, §9 item 271, §10 P12; <code>20261006T201547Z_MAT-17-step3-W1.log</code>, 276 s):</strong> the 50 % duty schedule on <code>MAT-15</code> P1's coil-driven source keeps Duhamel superposition at 3.4e-14, duty 1 = P1 at 2.1e-15 and the energy identity ≤ 3.7e-14; duty ⟨θ⟩(t*) / (D·P1) = 0.986 — a record, no glyph; (d) sits on the last on-step (disclosed, the review rules). <code>MAT-9</code>'s ball with its uniform source on for D·P and off for (1 − D)·P from T∞; nothing in <code>thermal/</code> switches a source off yet. <strong>Done-when:</strong> <em>step 1</em> (numpy) <code>robin_sphere_duty_cycle_temperature</code> (from rest and periodic) matches its Fourier route (<code>MAT-11</code>'s sphere continued to w = iωρc) ≤ 1e-9·θ_ss(0) and the superposition of <code>robin_sphere_transient_temperature</code> ≤ 1e-10; the periodic cycle mean equals D·θ_ss ≤ 1e-12; duty 1 reproduces the step response ≤ 1e-13; Robin residuals ≤ 1e-10·qR/h; three controls miss ⇒ 🟡. <em>Step 2</em> (FEM): an additive per-step source schedule in <code>solve_transient_conduction</code> reproduces step 1 on <code>MAT-9</code>'s ball at <code>MAT-9</code> step 2's imported bands (interior ≤ 1 %, BE rate ∈ [0.9, 1.2], per-step balance ≤ 1e-9), with <code>MAT-9</code>…<code>MAT-14</code>'s transient gates re-run green ⇒ ✅. Not claimed: SAR- or coil-driven duty cycles, perfusion, any pulse-sequence or regulatory statement. </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

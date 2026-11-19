@@ -1,0 +1,583 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-53 — Mass-averaged 10 g SAR on the coil-driven field in ParaView - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-53-mass-averaged-10-g-sar-on-the-coil-driven-field-in-paraview" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-53 — Mass-averaged 10 g SAR on the coil-driven field in ParaView
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-53-mass-averaged-10-g-sar-on-the-coil-driven-field-in-paraview">EX-53 — Mass-averaged 10 g SAR on the coil-driven field in ParaView<a class="headerlink" href="#ex-53-mass-averaged-10-g-sar-on-the-coil-driven-field-in-paraview" title="Permanent link">&para;</a></h1>
+<p><strong>Mass-averaged 10 g SAR on the coil-driven field in ParaView — four C95.3 averaging balls on the loaded F-small birdcage, the 4×4 of 10 g averages beside the pointwise map, the C4 covariance identity asserted at the imported band</strong> (<code>MAT-4</code> step 4's newly gated capability, 2026-09-06 — the <strong>output-quantity</strong> angle: <code>mri:2</code> shows the averaging operator on an <em>imposed</em> uniform field, <code>ports:9</code> the coil-driven quadrant <em>powers</em>; no example shows a mass-averaged SAR on a <em>solved coil field</em>, nor the ball placement that makes the C4 identity a statement; opened 2026-09-07 03:00 review, §5.4 ramp — the example <code>MAT-4</code> step 4 owed the day it landed). Executor <code>example-runner</code>, spawned foreground (the spawn prompt states verbatim that the runner ends no turn while a window is running — the 22:30 slot's runner did and was killed), both census windows through the harness; complex build. <code>examples/mri/03_birdcage_mass_averaged_sar.py</code> / <code>.md</code> (<code>mri:3</code>): the four single-drive solves on the finer-phantom rung exactly as the gate builds them — every constant imported from <code>tests/validation/test_birdcage_sar_mass_averaged.py</code> (<code>CENTRE_RADIUS_M</code>, <code>WHOLE_PHANTOM_BALL_RADIUS_M</code>, <code>EXACT_IDENTITY_RTOL</code>, the ball masses, the quadrature degree, the C4 band through its import chain); if the module's solve helper does not expose the solved fields and ball geometry to a caller, one additive keyword under rule (a), gate re-run green in the same slot (132 s at <code>-n 4</code>). <strong>Anchors (asserted, imported, never restated):</strong> the four cyclic 10 g C4 pairs ≤ the imported 5% band (records 0.3303 / 0.0756 / 0.0574 / 0.3132% printed beside, not asserted); the whole-phantom ball reproduces the tagged <code>½∫σ\|E\|²</code> at <code>EXACT_IDENTITY_RTOL</code>; the four balls lie inside the phantom as the gate asserts it. <strong>Negative control (asserted — backed by the gate's own measurement of the same comparison on the same fixture, <code>20260907T003548Z_MAT-4-step4.log:1943–1946</code>):</strong> the mis-paired 180° centre reads above the band (sign asserted; its ≈86% size printed as predicted, ceiling 100%). <strong>Printed, not gated:</strong> the 1 g column (verdict (b), the gate's own), the per-drive 10 g peaks labelled "not a C95.3 compliance figure" in the log and the guide. <strong>Writes</strong> one combined XDMF <code>mri_03_birdcage_mass_averaged_sar_combined.xdmf</code>: the P1-drive pointwise <code>SAR</code> (DG0), a DG0 integer <code>AveragingBall</code> field (0 outside, <code>k+1</code> inside 10 g ball <code>k</code>; the whole-phantom ball is the phantom and is not written), and <code>CellTags</code> — the guide's ParaView recipe thresholds on <code>AveragingBall</code> to show the four balls sitting in the SAR map. <strong>Tier / ranks / cost:</strong> the gate's four solves + 21 operator calls measured <strong>132 s at <code>-n 4</code></strong> (<code>20260907T003548Z_MAT-4-step4.log:2260</code>) ⇒ <code>./scripts/run_examples.sh -e mri:3 -n 4 -t 600</code>, standard by host-runner window, predicted ≈ 150 s. <strong>Traps already paid for:</strong> <code>evaluate_vector_field_parallel</code> / <code>point_sar</code> are collectives over an identical point list on every rank (<code>EX-52</code>, <code>20260907T033551Z_EX-52.log:400</code>) — build any point list globally; <code>build_density_field</code> accepts a mapped <code>0.0</code> since <code>ff50ce0</code>; <code>mass_averaged_sar</code> at the imported degree 16, not the library default 12 (<code>mri:2</code>'s measured insufficiency); the census before any file is written. <strong>Scope:</strong> demonstrates the gated 10 g identity from the output-quantity angle; no absolute SAR, no compliance, no 1 g gate, no Larmor, no convergence; §2 unchanged. <strong>Negative result:</strong> any imported anchor missing through the example path while the module holds it is an example/test divergence — known-issues entry, stop. <strong>✅ 2026-09-07 (09:00 implementer slot, <code>example-runner</code> foreground, first run).</strong> <code>examples/mri/03_birdcage_mass_averaged_sar.py</code> / <code>.md</code> (<code>mri:3</code>) ran green at <code>-n 4</code> in <strong>91 s</strong> harness-wall / 87.9 s in-script (<code>20260907T140658Z_EX-53.log</code>, Exit 0, predicted ≈ 150 s). The gate reproduced exactly through the example path — 120 499 cells / 2 746 tag-3, four solves + 21 operator calls in 86.4 s (<code>:log tail</code>). Anchors, all <strong>asserted on the module's imported constants, never restated</strong>, all held: anchor (i) the whole-phantom ball <strong>5.587038273e-08 W</strong> vs the tagged <code>½∫σ|E|²</code> at <strong>1.688e-14</strong> relative (budget <code>EXACT_IDENTITY_RTOL</code> 1e-10) and vs step 3f's own record at 5.403e-11 (budget 1e-03); containment <code>r₀ + a₁₀g = 28.3650 mm &lt; 30.0 mm</code>; anchor (ii) the four cyclic 10 g C4 pairs <strong>0.3303 / 0.0756 / 0.0574 / 0.3132 %</strong> against the imported unmoved 5.0 % band, reproducing the <code>MAT-4</code> step 4 records to the printed digits. Negative control asserted per rule (e): the mis-paired far-side centre reads <strong>86.0132 / 85.9249 / 85.9671 / 85.9582 %</strong> on the four drives — sign asserted <code>&gt;</code> band and <code>≤</code> the 100 % ceiling, size printed as predicted (≈90 %). Printed, not gated: the 1 g column (6.8383 / 2.9297 / 0.4116 / 4.7159 %, verdict (b) unchanged), the kernel-mass errors, and the four per-drive 10 g peaks (≈6.33e-07 W/kg) labelled "not a C95.3 compliance figure". One combined XDMF written (<code>mri_03_birdcage_mass_averaged_sar_combined.xdmf</code>: pointwise <code>SAR</code>, the DG0 integer <code>AveragingBall</code> indicator, <code>CellTags</code>). One <strong>additive</strong> change to the gate module under standing rule (a): the module-scoped fixture body lifted verbatim to <code>_build_mass_averaged()</code> with the fixture reduced to a one-line wrapper, plus four additive return keys (<code>mesh</code>, <code>cell_tags</code>, <code>rho_field</code>, <code>solves</code>) — nothing removed or renamed, re-run green in the same slot at <strong>23 passed / 113.87 s</strong> (<code>20260907T140233Z_MAT-4-step4-rerun.log</code>). No band moved, no <code>src/</code> change. <strong>Disclosed deviation:</strong> the pointwise <code>SAR</code> field written to the XDMF weights by the phantom's physical <code>PHANTOM_RHO_KG_PER_M3</code>, not the gate's zero-elsewhere <code>rho_field</code> (which would divide by zero outside the phantom and exists only as a ball-mass denominator) — the same choice the gate's own <code>tagged</code> anchor makes, documented in the script docstring and guide §3 step 6. Census through the harness both sides: <code>dead=0 guide=0 stale=81 exit=2</code>, <strong>46 → 47</strong> runnable, <code>guide=0</code> on the new pair (<code>20260907T140219Z_EX-53-census-pre.log</code>, <code>…140926Z_EX-53-census-post.log</code>) — the <code>stale</code> drift from the 03:00 review's 79 is age-based on <code>time_harmonic</code> artifacts, present <em>before</em> any file of this chunk was written and not attributable to it (the weekly's <code>EX-30</code>-class refresh). <em>Audited PASS, 2026-09-07 10:30 review, at <code>1b8d8e6</code>:</em> all four logs footered on header <code>f700f5e</code> = the parent; 25 of 25 digits traced (<code>20260907T140658Z_EX-53.log:1858, 1865–1868, 1875–1879, 1882–1887, 1897–1902</code>; <code>…140233Z_MAT-4-step4-rerun.log:2126</code>; both census logs <code>:118–120</code>); the anchors are executed asserts in the script (<code>03_birdcage_mass_averaged_sar.py:220, 249, 254, 280, 284, 289</code>) on constants imported from the gate module, which the example imports via <code>_build_mass_averaged</code> rather than re-implementing; the gate diff is the verbatim fixture lift plus four additive keys, nothing renamed; no <code>src/</code>; 91 s inside its declared 600 s host-runner window. Re-traced by this review: <code>:1865</code> <code>k=0-&gt;1  10 g    0.3303%   1 g    6.8383% (PRINTED NOT GATED)</code>, <code>:1878</code> <code>5.587038273e-08 W vs tagged integral 5.587038273e-08 W [1.688e-14 relative]</code>. | ✅ </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,583 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>OPS-17 — Delete or replace the finiteness-only test suites (operator directive 2026-08-16) - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ops-17-delete-or-replace-the-finiteness-only-test-suites-operator-directive-2026-08-16" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              OPS-17 — Delete or replace the finiteness-only test suites (operator directive 2026-08-16)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ops-17-delete-or-replace-the-finiteness-only-test-suites-operator-directive-2026-08-16">OPS-17 — Delete or replace the finiteness-only test suites (operator directive 2026-08-16)<a class="headerlink" href="#ops-17-delete-or-replace-the-finiteness-only-test-suites-operator-directive-2026-08-16" title="Permanent link">&para;</a></h1>
+<p>Delete or replace the finiteness-only test suites (operator directive 2026-08-16) | ✅ <strong>closed 2026-08-21, 18:00 review</strong> — leg (b2) closed at <strong>216 of 216 runnable</strong> validation tests observed in completed complex runs: the two deferrals formally adopted (<code>coil_loading_degree2</code> 14, skips = the adjudicated <code>TH-12</code> memory wall; <code>port_gap_voltage_padding</code> 2), denominator re-based 232 → 216 on the 00:00 slot's independent collect audit; steps 1–3 all ✅ ⇒ chunk ✅, <code>OPS-18</code> queued per the commitment. Full history: steps 1–2 ✅ (14 dispositions landed; 4 defects surfaced, 3 carried as strict xfail; step 3 🟡 attempts 1–2 2026-08-17 — sweep anchor restated 45 → <strong>56, reconciled</strong>; a completed leg found a silent <code>_DummyComm</code> regression from <code>PORT-1</code> step 4; <strong>leg (a) closed attempt 2</strong> — all 377 real-mode tests observed in completed legs, 171 + 206 exact, every failure named; leg (b) attempted 2026-08-18, <strong>both complex commands exit 124</strong> — complex mode is &gt;2.6× real on the same tests, the leg needs three commands and likely two slots; <strong>rescoped 2026-08-18 03:00 review as (b1) remainder + (b2) validation</strong>, one slot each; <strong>(b1) attempt 1 2026-08-18 🟡 — command 1 completed (3 failed / 122 passed / 1 xfailed, 392.76 s, the three failures exactly the named expected ones, one rank-dependent XDMF count delta), command 2 exit 124 at 44%: complex <code>tests/solver</code> is &gt; 12× real, not 2.6×. The leg's real finding is that attempt 3's "cache artifact" call was wrong — on a cold cache <code>test_coil_phantom_magnetostatics</code> fails in 5.58 s with a genuine <code>ComplexComparisonError</code></strong>; <strong>(b1) attempt 2 2026-08-18 ✅ CLOSED — complex <code>tests/solver</code> runs as one command, 46 passed / 2 xfailed in 111.22 s, exit 0, both ranks identical; counts reconcile to 171 non-validation complex, the same 171 leg (a) observed; defect 3's th-smoke Poynting xfail finally read in a completed leg; the "&gt;12× real" rule is <strong>withdrawn</strong> as a cold-cache FFCx-JIT artifact — warm complex is ≈2.7× real, and <code>test_gauge_penalty.py</code>, which killed the 480 s cold leg at 61%, is 8 passed in 20.33 s warm</strong>. <em>Leg (b1) audited COMPLIANT 2026-08-18 10:30 review — the 49 = 48 + 1 and 171/209 reconciliations re-derived from the log footers, both ranks identical in the closing leg; the coil-phantom exclusion is within the written anchor (observed FAILED in its own completed log <code>20260818T124712Z</code>, two known-issues entries), with the caveat on record that the completed observation shows the warm-cache message while the genuine <code>ComplexComparisonError</code> appeared in an exit-124 run — the three-state map is disclosed in known-issues</em>; only leg (b2) remains; <strong>(b2) attempt 1 2026-08-19 🟡 — three commands completed (impedance file <code>24 passed</code>/488 s; cost probe re-bases the stale 380 collect to <strong>397</strong>, validation <strong>225</strong>; shortest-first subset <code>23 passed</code>/121 s with the per-file sinks priced), then the written negative-result clause fired: <code>test_circular_loop.py</code> <strong>cannot JIT-compile one form in the complex build</strong>, reproducibly and independently of cache state — new known-issues entry, which also names the <strong>0-byte FFCx stub</strong> trap that mis-attributes such failures as cache artifacts (a stale stub from 2026-08-18 14:02 was still in the cache). Coverage 39/225; 186 remain, 3 blocked</strong>; <strong>(b2) attempt 2 2026-08-19 🟡 — the prescribed 4×-larger batch lost its window to a <em>second</em> instance of the same defect (<code>test_helmholtz_magnitude</code> FAILED at 62%, <code>test_helmholtz_v2</code> hung, exit 124; 9 passes uncounted for want of a footer), and the slot instead <strong>diagnosed the cause</strong>: the fixtures' own <code>current_density</code> callables use <code>ufl.max_value</code> / <code>&lt;=</code> geometry predicates that UFL forbids on complex operands — <code>ComplexComparisonError</code> in 13.10 s for helmholtz, a swallowed FFCx root-node failure in 113.38 s for circular_loop, both on the load form at <code>solvers.py:385</code>. <code>src/</code> has <strong>no</strong> <code>max_value</code>; three sibling test files already document the fix (regularise inside the <code>sqrt</code>). <strong>Fixture debt, not a solver defect</strong>, and the same family as <code>OPS-20</code>. Coverage still 39/225; blocked 3 → 5</strong>; <strong>rescoped 2026-08-19 03:00 review</strong> — the fixture fix is commissioned as <code>OPS-22</code> and queued first, (b2) resumes under <strong>per-file completed-run accounting</strong>, anchor re-based to 225 validation / 398 total, the +1 non-validation delta attributed benign (<code>POST-5</code> step 1's dropped <code>def</code> + 2 added tests); <strong>re-adjudicated 2026-08-19 10:30 review — every (b2) blocker discharged</strong>: the 5 blocked tests are observed in <code>OPS-22</code>'s completed log <code>20260819T094710Z</code> (coverage re-bases 39 → <strong>44</strong>/225 under per-file accounting), the (b1) coil-phantom exclusion is discharged by <code>OPS-20</code>'s completed log <code>20260819T110144Z</code> (same 30% gate, 17.1233%, complex), and the twice-measured suite-growth warning — complex <code>tests/solver</code> no longer fits a 480 s window warm — is folded into the §9 item; <strong>(b2) attempt 3 2026-08-19 🟡 — first clean run under the rescope: two completed runs, <code>14 passed</code>/400.01 s and <code>13 passed</code>/52.69 s, both exit 0 and both ranks identical, <strong>+19 validation tests ⇒ coverage 44 → 63</strong>; anchor re-based 225 → <strong>227</strong> validation / <strong>402</strong> total and reconciled exactly to <code>POST-5</code> steps 2–3, closing attempt 1's unattributed +1; <strong>blocked 5 → 0</strong>, <code>OPS-22</code> having discharged the risk class; two exit-124 windows were sizing errors with no failure and no hang signature, and priced the SAR/padding group at &gt; 400 s for five files. Tail 162 runnable in ≈35 files, now the expensive half — next leg takes one <code>coil_loading_*</code>/<code>dodd_deeds_*</code> family per slot at 540 s</strong>; <strong>(b2) attempt 4 2026-08-20 🟡 — <code>dodd_deeds_*</code> drawn, two completed runs at each file's <em>recorded</em> rank width (<code>combined_knobs</code> <code>8 passed</code>/</strong>404.61 s** at <code>-n 8</code> vs the MAT-6 record's 421.90 s; <code>resistance_slab_resolution</code> <code>9 passed</code>/<strong>386.85 s</strong> at <code>-n 2</code> vs its record's 386.82 s, drift <strong>0.008%</strong>), every rank footer identical, no moved digit. Anchor re-based 227 → <strong>232</strong> validation / <strong>412</strong> total; <strong>coverage 63 → 72</strong>, tail 158 runnable, blocked 0. The "one family per slot at <code>-n 2</code>/540 s" prescription is <strong>withdrawn</strong>: two <code>-n 2</code> windows died at exit 124 — one batch inside its <em>first</em> file, one single file with its <em>first test</em> still in setup — and <code>--durations=0</code> shows the entire cost is a single module-scoped fixture setup (404.13 s / 386.41 s, every other call ≤ 0.03 s), so per-file accounting cannot split it. New rule: grep the file's own MAT-6 log for its recorded width and elapsed time before sizing; budget one file per ≈400 s window, ≈2 more slots for this family<strong>; <strong>(b2) attempt 5 2026-08-20 🟡 — the recorded-width rule executed as written, working first try on every command with <strong>no exit 124</strong>: three files counted in three completed complex runs, all exit 0 (<code>reactance_box_truncation</code> <code>9 passed</code>/</strong>397.17 s</strong> at <code>-n 8</code> vs its record's 426.17 s; <code>projected_drive</code> <code>8 passed</code>/<strong>67.78 s</strong> at <code>-n 2</code> vs 63.92 s; <code>dodd_deeds_impedance</code> <strong>full file</strong> <code>14 passed</code>/<strong>87.43 s</strong> at <code>-n 2</code>, the cheap marker subset <code>7 passed, 7 deselected</code>/1.29 s run first for the record). <strong>Coverage 63 → 72 → 91 of 232</strong>, tail 139 runnable, blocked 0; <code>dodd_deeds_*</code> is 28 of 38, the remaining 10 being exactly <code>box_size</code> + <code>wire_resolution</code>. Both open map caveats discharged: <code>box_truncation</code>'s "1 failed" record is superseded by a later <code>9 passed</code> one (no known-issues entry owed), and the impedance file's 3 <code>integration</code> tests, budgeted a window each, cost 87 s for the <em>whole file</em> — <strong>the family's cost is bimodal</strong>, ≈400 s for the three mesh-refinement files (one module-scoped fixture setup) and an order cheaper for the rest, not a flat ≈400 s per file. One benign rank asymmetry recorded: at <code>-n 2</code> the rank footers agree on outcome and elapsed time to the hundredth of a second but differ in <em>warning</em> count (rank-local UFL <code>Expr.ufl_domain()</code> deprecations)<strong>; <strong>(b2) attempt 6 2026-08-20 🟡 — attempt 5's prescription executed and <strong>the <code>dodd_deeds_*</code> family closes at 38 of 38</strong>: three completed complex runs, all exit 0, all at <code>-n 2</code> (<code>reactance_box_size</code> <strong>full file</strong> <code>8 passed</code>/</strong>559.58 s</strong> against its two recorded <code>-k</code> halves 271.08 s + 260.07 s; <code>wire_resolution</code> projected/refinement <code>8 passed, 2 deselected</code>/<strong>499.80 s</strong> vs the record's 491.96 s; <code>wire_resolution</code> pinned <code>6 passed, 4 deselected</code>/<strong>242.68 s</strong> vs 237.77 s, the two selections disjoint over that file's 6 validation tests). Every printed physics figure bit-identical to its <code>MAT-6</code> record (366207 cells; <code>dR</code> 1.5763 / 1.5713 / 1.0562 / 1.0558%; <code>dX</code> 0.9849 / 0.8740 / 0.9194 / 0.9189), only wall-clock differs. <strong>Coverage 91 → 101 of 232</strong>, tail 129 runnable, blocked 0. Two rules sharpened: the prescription's <code>-n 8</code> guess for <code>box_size</code> was <strong>wrong</strong> — the file is recorded twice at <code>-n 2</code> in its own step-4 logs, and the recorded-width rule caught it, so the rule stands unamended over family-level heuristics; and the cost model is <strong>three-shaped</strong>, not bimodal — <code>box_size</code>'s halves simply add (559.58 ≈ 271 + 260 + 28), so expensive files are either one-setup/unsplittable or per-test-solve/splittable at their recorded <code>-k</code> boundaries. <code>coil_loading_*</code> (58, unpriced) is all that remains of the tail's big blocks<strong>; <strong>(b2) attempt 7 2026-08-21 🟡 — <code>coil_loading_*</code> <strong>priced from its own logs at no compute cost</strong> (all 58 reconciled: two cheap 6-test files at ≈70 s, <code>mesh_cache</code> 5, <code>third_rung</code> 7 env-gated at <code>-n 8</code>, <code>richardson_ladder</code> 14 rung-gated, <code>larmor_resolution</code> 6 at 390.89 s, and <code>degree2</code> 14 whose own record is <code>5 passed, 13 skipped</code> — the skips <em>are</em> the <code>TH-12</code> memory wall, so the file is a <strong>defer-with-reason</strong>), then opened: one exit-124 window and one completed run, <code>16 passed</code>/</strong>137.18 s</strong>/exit 0 at <code>-n 2</code>, both rank footers identical ⇒ <strong>coverage 101 → 113 of 232</strong>, tail 117 runnable, blocked 0, <code>coil_loading_*</code> 12 of 58. Two rules for the review: the operator flag's <code>memory.peak</code> instrument <strong>does not exist at container level</strong> (pinned at <code>memory.max</code> = 64.00 GiB by the <code>TH-11</code> OOM, on a read-only mount, unresettable — use <code>memory.current</code> between commands: 21.6 MB idle → 446.8 → 455.1, no strays); and the recorded-width rule is <strong>necessary but not sufficient</strong> — a family's <em>first</em> complex command pays a one-time JIT cost ≈2.4× its warm cost (the same two files that ate a 480 s window cold ran in 137.18 s warm, −4.4% vs their combined 143.5 s record), so size a family's first command at recorded elapsed × 3 or warm the cache on a small file and count nothing<strong>; <strong>(b2) attempt 8 2026-08-21 🟡 — attempt 7's two-slot prescription <strong>landed in one slot</strong>: three completed complex runs, all exit 0, every rank footer identical (<code>larmor_resolution</code> alone at <code>-n 2</code> <strong>10 passed</strong>/</strong>427.15 s</strong> vs its record's 390.89 s, +9.28%; <code>larmor_mesh_cache</code> at <code>-n 2</code> <strong>9 passed</strong>/<strong>445.55 s</strong>; <code>larmor_third_rung</code> at <code>-n 8</code> <strong>11 passed</strong>/<strong>174.86 s</strong> vs its record's 172.40 s, +1.43%). <strong>Coverage 113 → 131 of 232</strong>, tail 99 runnable, blocked 0, <code>coil_loading_*</code> <strong>30 of 58</strong>; run 3's <code>-s</code> physics is bit-identical to the <code>TH-11</code> rank-control record (417914 cells; <code>P_loss</code> loaded +5.8523036e-01 W, free exactly 0.0 W; <code>ΔR</code> +1.3838746e+00 Ω, <code>ΔX</code> −5.8741123e+00 Ω, deviation +2.8063%, ΔX ratio 0.9514), only wall-clock differs. Three findings: the recorded-width rule gains <strong>read <em>all</em> of a file's logs, not the first match</strong> — the prescription's two <code>-n 8</code> <code>MODE=loaded|free</code> commands (201 s) are dominated by one <code>MODE=full</code> command (172.40 s), and the split route's own <code>skip</code> messages are what make it look mandatory; the operator flag's memory wall is the <strong>rung, not the file</strong> — <code>TH11_STEP5_RUNG=third</code> at <code>-n 8</code> is <strong>status 137 at 908 s</strong>, that log <em>is</em> the <code>TH-11</code> OOM, and <code>third</code> is the fixture's <strong>default</strong>, so pin <code>fine</code> (<code>memory.current</code> 21.5 MB idle → 425.5 MB across all three runs, <code>pgrep -c python3</code> = 0 throughout); and the real→complex ratio is measured <strong>directly at 3.15×</strong> on <code>mesh_cache</code>, the family's only real-only record. <code>richardson_ladder</code> (14) is the last drawable block; <code>degree2</code> (14) still awaits its formal review-level defer<strong>; <strong>(b2) attempt 9 2026-08-21 🟡 — <code>richardson_ladder</code> took <strong>one</strong> command, not the prescribed two, and the freed window closed the SAR/padding group: two completed complex runs, both exit 0, both rank footers identical (<code>richardson_ladder</code> at <code>RUNG=baseline FREQ_MHZ=10,30</code>, <code>-n 2</code>, <strong>18 passed</strong>/</strong>140.25 s</strong> vs its record's 135.83 s, +3.25%; the five SAR/padding files at <code>-n 2</code>, <strong>14 passed</strong>/<strong>247.68 s</strong>). <strong>Coverage 131 → 155 of 232</strong>, tail 75 runnable, blocked 0, <code>coil_loading_*</code> <strong>44 of 58</strong> — the whole family bar <code>degree2</code>. Run 1's <code>-s</code> physics is bit-identical to the <code>TH-11</code> step-4 baseline record on 15 of 17 lines (138619 cells, <code>I'</code> 0.919666 A, <code>dR</code> deviations +1.5834% / +5.5912%, <code>dX</code> ratios 0.9200 / 0.9500, free <code>P_loss</code> exactly 0.0 W); the only two that differ are the complex-power identity <strong>residuals</strong> at ≈1e-14 against their own 1e-09 bound — machine noise, not a record. Two rules: <strong>a rung/mode env var that changes the mesh is not a test-set partition</strong> (the collect log's 14 IDs are 7 × two frequencies, all of them in the baseline command; attempt 8's split inference cost a budgeted 560 s window), and <strong>a dead window quotes a <em>cold</em> price</strong> — attempt 3's "&gt; 400 s" for the SAR/padding group measured 247.68 s warm with 54% unused, so re-measure before deferring a group as expensive. Both big families are now closed. <strong>Then, in the same slot, the leg finished</strong>: six more completed complex runs, all exit 0, all <code>-n 2</code>, every rank footer identical (<code>port_lumped_bc</code>+<code>two_torus</code> 15 passed/98.20 s; <code>port_systematics_composition</code> alone 7 passed/<strong>360.23 s</strong> vs its own <code>PORT-10</code> record 352.37 s — the batch-C killer needed a window of its own; <code>poynting_balance</code>+<code>sheet_sweep</code> 18 passed/242.80 s; <code>package_sparameters</code>+<code>narrowed_sheet</code>+<code>solenoidal_drive</code> 19 passed/350.80 s; <code>lossy_sphere_fullwave</code>+<code>port_reaction_impedance</code> 16 passed/210.18 s; <code>degree2_energy_mechanism</code>+<code>lossy_sphere_degree2</code> 10 passed/12.08 s). <strong>Coverage 155 → 216 of 232 — the runnable tail is exhausted</strong>, 232 − 14 (<code>coil_loading_degree2</code>) − 2 (<code>port_gap_voltage_padding</code>) = 216 being exactly the reachable denominator attempts 7–8 asked for, reconciled by footer arithmetic (4 env + N validation, 85 banked this slot). Eight commands, <strong>no exit 124</strong>, no assertion touched, nothing filed. Third rule: <strong>a padded record is an upper bound on the unpadded file, not an estimate</strong>. <strong>The leg now awaits one review decision, not three</strong> — formally defer the two files and adopt the 216 denominator, and leg (b2) closes on this slot's logs with nothing further to run**) </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

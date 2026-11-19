@@ -1,0 +1,1026 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>OPS-80 — which callers of the two-tag power-identity helper run on a mesh with other lossy cells - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ops-80-which-callers-of-the-two-tag-power-identity-helper-run-on-a-mesh-with-other-lossy-cells" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              OPS-80 — which callers of the two-tag power-identity helper run on a mesh with other lossy cells
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-817-2026-11-04-lane-1-known-issues-resolves-with-ops-docs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 817 — 2026-11-04 (lane 1, known-issues "Resolves with"; ops / docs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ops-80-which-callers-of-the-two-tag-power-identity-helper-run-on-a-mesh-with-other-lossy-cells">OPS-80 — which callers of the two-tag power-identity helper run on a mesh with other lossy cells<a class="headerlink" href="#ops-80-which-callers-of-the-two-tag-power-identity-helper-run-on-a-mesh-with-other-lossy-cells" title="Permanent link">&para;</a></h1>
+<p><em>History file for the §7 <code>OPS-80</code> row (<code>OPS-46</code>). Opened by the 2026-11-04 18:00 daily review under §9 rule (5), lane 1: an open known-issues entry whose own "Resolves with" a slot can execute (known-issues "OPEN 2026-11-03 (<code>GEO-36</code> I57, §9 item 801 …): the birdcage power-identity helper sums volume loss over tags 3 and 1 only").</em></p>
+<p><strong>The question.</strong> <code>_loss_power_w</code> (<code>tests/validation/test_port_drive_superposition.py:205–221</code>), which <code>_exact_shares</code> uses, integrates ½σ|E|² over <code>PHANTOM_CELL_TAG</code> (3) and <code>CONDUCTOR_CELL_TAG</code> (1) only. On I41's kept-rod build that left out tag 403's loss, and (P) read 2.882e-06 against 1e-6 (<code>20261103T195044Z_GEO-36-I57-diag-W1.log:1919–1942</code>). The entry's Scope says "the callers have not been audited for this", and its Resolves-with names that audit beside the weekly's call on widening the helper. <strong>This item is the audit, and nothing else.</strong> At HEAD <code>b29c4f77</code>, <code>grep -rnw '_exact_shares\|_loss_power_w' tests src examples scripts</code> returns 46 lines in 16 files. <code>src/fem_em_solver/ports/shares.py</code> mentions the name in its docstring only (<code>:4</code>).</p>
+<p><strong>Done-when.</strong> A table of every <code>grep -rnw</code> line for the two names, each classified as one of: definition, import, prose/docstring, or a call. Each call is classified on the mesh it runs on:
+- <strong>(U) unaffected:</strong> the only lossy volume cells are tags 3 and 1. This covers hole builds, where tag 402 is a facet.
+- <strong>(K) kept lossy cells outside 3 and 1:</strong> for example <code>keep_cells=True</code> with tag 403 mapped to a lossy material. It is marked <strong>two-tag</strong> if the gate's (P) uses the helper's sum, or <strong>all-cells</strong> if the caller sums over all cells.
+- <strong>(?) undecided by code reading.</strong></p>
+<p>The count equals <code>grep</code>'s per name, with 0 lines unclassified. The known-issues entry's Scope gains the table's result. No test, helper, band or <code>src/</code> edit is made.</p>
+<h3 id="9-item-817-2026-11-04-lane-1-known-issues-resolves-with-ops-docs">§9 item 817 — 2026-11-04 (lane 1, known-issues "Resolves with"; ops / docs)<a class="headerlink" href="#9-item-817-2026-11-04-lane-1-known-issues-resolves-with-ops-docs" title="Permanent link">&para;</a></h3>
+<p><strong>Licence.</strong> §9 rule (5), lane 1: the entry's own Resolves-with names this audit. No target is set. <strong>Whether the shared helper is widened stays the weekly's call</strong> (the entry, and the 11-04 weekly tonight). This item supplies that call's exposure list.</p>
+<p><strong>Anchor.</strong> The classification's completeness identity: the per-name totals equal <code>grep -rnw -c</code> summed over files, 0 lines are left unclassified, and the file count is 16 at <code>b29c4f77</code> (or the HEAD count, with the difference named).
+- <strong>Positive control:</strong> <code>tests/validation/test_imp3_tip_q_entry48_def.py</code> must classify as <strong>(K), all-cells</strong>, for its gated (P) (item 810). Its retained two-tag residual (<code>:169</code>, <code>:233</code>) must classify as <strong>(K), two-tag, a control</strong>. That residual is the entry's own symptom, reproduced at 2.8818e-06 (<code>20261104T104820Z_GEO-36-I57-W1d.log:2010</code>).
+- <strong>Negative control:</strong> one hole-build caller, <code>tests/validation/test_imp3_rod_birdcage.py</code>, must classify as <strong>(U)</strong>, with the line that makes its rod a hole cited. If either control comes out otherwise, the rule is wrong: stop and report.</p>
+<p><strong>How.</strong> Code reading only, with no solve and no mesh. For each call, follow the fixture to its build:
+- <code>implant_rod=</code> / <code>keep_cells</code> / <code>_build_kept_rod</code> / <code>_arm_with_403</code>;
+- <code>BIRDCAGE_IMPLANT_CELL_TAG</code> in the material map;
+- a disc's build, for <code>test_imp3_disc_birdcage.py</code> and <code>examples/implants/09_pec_disc_in_birdcage_rim_sar.py</code>;
+- the <code>Study</code> route, for <code>tests/package/test_wf15_study_implant_rod.py</code>.</p>
+<p>Cite file:line for the deciding statement. A PEC body that is a hole is (U). A body kept as cells at σ &gt; 0 is (K). Where the reading needs the built mesh's tags to decide, write (?) and name the build. <strong>Do not build it.</strong></p>
+<p><strong>Window.</strong> One smoke window records the count:</p>
+<p><code>scripts/testing/run_and_log.sh OPS-80-grep "timeout -k 30 30 grep -rnw -e _exact_shares -e _loss_power_w tests src examples scripts"</code></p>
+<p>It is bare, foreground and repo-relative. Its log is the count's source. No other window is needed.</p>
+<p><strong>Tier.</strong> smoke, no container, no solve. <strong>Class:</strong> ops / docs, ≈ 3.1 measured / 20 predicted min. <strong>Depends on:</strong> nothing. <strong>Family:</strong> <code>OPS-80</code>, attempt 1 of 4.</p>
+<p><strong>Traps already paid for.</strong>
+- <code>grep -w</code> counts <code>_</code> as a word character. A wrapper named, say, <code>_exact_shares_all</code> is therefore not in the count, while a call through a module attribute (<code>_pd._loss_power_w</code>) is. Read each line, never the count alone. (This is why <code>OPS-78</code> checked totals per name.) A wrapper found that way is listed and classified too, with the difference from <code>grep</code> named.
+- An import alias (<code>from … import _exact_shares as _es</code>) hides later calls from the grep. Follow every alias and list its calls under the import line.
+- The tag a kept body carries is the builder's, not the caller's. <code>build_four_port_sweep</code>'s material map has no tag 403 (I41 W1b, <code>test_imp3_tip_q_entry48_def.py:13–17</code>). A kept body whose map omits 403 takes the default material, so read what that default's σ is before classifying it (U).
+- Do not edit the helper in passing. Other modules import it (the entry's own instruction).</p>
+<p><strong>Scope.</strong> This is an exposure list. <strong>Not claimed:</strong> any re-run, any (P) re-read, a band, a fix, or the weekly's widening decision. The known-issues entry <strong>stays open</strong>. Entries leave only with the commit that fixes them.</p>
+<p><strong>Negative result.</strong> If a (K) two-tag call is found on a gated (P) other than the known one, it is the finding: name it in the entry's Scope with file:line and the log of its last green run, and change nothing. If the controls split, report and stop. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> The known-issues entry's Scope moves from "the callers have not been audited" to the named table, which is either "no other (K) two-tag gate" or the named list. <strong><code>OPS-80</code> ⬜ → ✅</strong> on the completeness identity and both controls.</p>
+<p><strong>Outcome — DONE 2026-11-05 (19:30 CST slot, 2026-11-04 local; <code>claude-opus-5-5</code>).</strong> Window <code>20261105T013028Z_OPS-80-grep.log</code> (Status 0, 22 s, at <code>42dd675d</code>): <strong>46 text lines in 16 files</strong>, the same as at <code>b29c4f77</code> (the 18:00 review's commit changed no code). The log also prints 21 <code>__pycache__</code> "binary file matches" lines, which are not counted <em>(corrected from 24 by the 2026-11-05 03:00 review's audit: <code>:35</code>, <code>:36</code>, <code>:45–62</code>, <code>:97</code>)</em>. Per name, by <code>grep -rnwI</code> on the same tree: <code>_exact_shares</code> 35 lines, <code>_loss_power_w</code> 11. No line matches both, so 35 + 11 = 46. <strong>Result: no other (K) two-tag gate.</strong> The only gated two-tag (P) on a kept build is the known one.</p>
+<p><em>Completeness identity.</em> Each line is classified exactly once. <code>_exact_shares</code>: 1 definition + 8 imports + 10 prose + 16 calls = 35. <code>_loss_power_w</code>: 2 definitions + 1 import + 4 prose + 4 calls = 11. In total, 3 definitions + 9 imports + 14 prose + 20 calls = 46, with 0 unclassified.</p>
+<p><em>The rule's two facts, cited once.</em> <code>build_four_port_sweep</code> gives lossy material to tags 1 and 3 only, and every other tag gets the default σ = 0 (<code>tests/validation/test_port_birdcage_four_port.py:472–485</code>). A body is a hole unless <code>keep_cells</code> is set: <code>src/fem_em_solver/io/mesh.py:4940</code> (<code>.get("keep_cells", False)</code>), with 402 then a facet (<code>:272</code>). <code>ROD</code> and <code>SPHEROID</code> carry no <code>keep_cells</code> (<code>tests/mesh/test_birdcage_implant_rod.py:97</code>, <code>tests/mesh/test_birdcage_implant_spheroid.py:76–81</code>). So a call is (K) only if its caller both keeps cells and adds a lossy material for a tag other than 1 and 3. A kept body whose tag is left out of the map is σ = 0, which makes it (U).</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Line</th>
+<th>Name</th>
+<th>Class</th>
+<th>Mesh / deciding statement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>tests/validation/test_birdcage_power_identity.py:313</code></td>
+<td><code>_exact_shares</code></td>
+<td>definition</td>
+<td>—</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>tests/validation/test_port_drive_superposition.py:205</code></td>
+<td><code>_loss_power_w</code></td>
+<td>definition</td>
+<td>the two-tag sum, <code>:213–220</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>examples/ports/13_birdcage_asymmetric_drive.py:187</code></td>
+<td><code>_loss_power_w</code></td>
+<td>definition</td>
+<td>a separate local copy (4 args), same two tags</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>tests/package/test_wf15_study_implant_rod.py:43</code></td>
+<td><code>_exact_shares</code></td>
+<td>import</td>
+<td>—</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>tests/validation/test_birdcage_b1_plus_closed_form.py:195</code></td>
+<td><code>_exact_shares</code></td>
+<td>import</td>
+<td>—</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>tests/validation/test_imp3_disc_birdcage.py:110</code></td>
+<td><code>_exact_shares</code></td>
+<td>import</td>
+<td>—</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>tests/validation/test_birdcage_power_identity.py:175</code></td>
+<td><code>_loss_power_w</code></td>
+<td>import</td>
+<td>—</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>tests/validation/test_geo27_one_gram_rung_degree2.py:55</code></td>
+<td><code>_exact_shares</code></td>
+<td>import</td>
+<td>—</td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>tests/validation/test_birdcage_power_identity_degree2.py:89</code></td>
+<td><code>_exact_shares</code></td>
+<td>import</td>
+<td>—</td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>tests/validation/test_ans4_h33_sheet_width_excess.py:224</code></td>
+<td><code>_exact_shares</code></td>
+<td>import (lazy)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>tests/validation/test_imp3_tip_ratio_1g.py:61</code></td>
+<td><code>_exact_shares</code></td>
+<td>import</td>
+<td>—</td>
+</tr>
+<tr>
+<td>12</td>
+<td><code>tests/validation/test_imp3_rod_birdcage.py:84</code></td>
+<td><code>_exact_shares</code></td>
+<td>import</td>
+<td>—</td>
+</tr>
+<tr>
+<td>13</td>
+<td><code>tests/validation/test_birdcage_b1_plus_closed_form.py:247</code></td>
+<td><code>_exact_shares</code></td>
+<td>prose (comment)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>14</td>
+<td><code>tests/validation/test_port_lumped_rlc_termination.py:2182</code></td>
+<td><code>_exact_shares</code></td>
+<td>prose (comment)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>15</td>
+<td><code>tests/validation/test_birdcage_power_identity_degree2.py:24</code></td>
+<td><code>_exact_shares</code></td>
+<td>prose (docstring)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>16</td>
+<td><code>tests/validation/test_wf7_f_human_ring_matrix.py:805</code></td>
+<td><code>_loss_power_w</code></td>
+<td>prose (comment)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>17</td>
+<td><code>tests/validation/test_port_drive_superposition.py:228</code></td>
+<td><code>_loss_power_w</code></td>
+<td>prose (docstring)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>18</td>
+<td><code>tests/validation/test_port_drive_superposition.py:653</code></td>
+<td><code>_exact_shares</code></td>
+<td>prose (assertion message)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>19</td>
+<td><code>tests/validation/test_port_drive_superposition.py:1016</code></td>
+<td><code>_exact_shares</code></td>
+<td>prose (docstring)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>20</td>
+<td><code>tests/validation/test_port_drive_superposition.py:1187</code></td>
+<td><code>_loss_power_w</code></td>
+<td>prose (docstring)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>21</td>
+<td><code>tests/validation/test_imp3_tip_q_entry48_def.py:27</code></td>
+<td><code>_exact_shares</code></td>
+<td>prose (docstring)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>22</td>
+<td><code>tests/validation/test_imp3_tip_q_entry48_def.py:199</code></td>
+<td><code>_exact_shares</code></td>
+<td>prose (docstring of <code>_two_tag_resid</code>)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>23</td>
+<td><code>tests/validation/test_imp3_tip_q_entry48_def.py:234</code></td>
+<td><code>_exact_shares</code></td>
+<td>prose (f-string label)</td>
+<td>the value beside it is <code>_two_tag_resid</code>, see row 47</td>
+</tr>
+<tr>
+<td>24</td>
+<td><code>tests/validation/test_imp3_tip_q_entry48_def.py:375</code></td>
+<td><code>_loss_power_w</code></td>
+<td>prose (comment)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>25</td>
+<td><code>tests/validation/test_imp3_tip_q_entry48_def.py:468</code></td>
+<td><code>_exact_shares</code></td>
+<td>prose (f-string label)</td>
+<td>the diag arm, see row 47</td>
+</tr>
+<tr>
+<td>26</td>
+<td><code>src/fem_em_solver/ports/shares.py:4</code></td>
+<td><code>_exact_shares</code></td>
+<td>prose (docstring)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>27</td>
+<td><code>tests/validation/test_birdcage_power_identity.py:330</code></td>
+<td><code>_loss_power_w</code></td>
+<td>call</td>
+<td>inside <code>_exact_shares</code>, so each <code>_exact_shares</code> call below decides it</td>
+</tr>
+<tr>
+<td>28</td>
+<td><code>tests/package/test_wf15_study_implant_rod.py:256</code></td>
+<td><code>_exact_shares</code></td>
+<td>call — <strong>(U)</strong></td>
+<td><code>_build_rod(…)</code> hole (<code>:251</code>); the Study refuses <code>keep_cells</code> (<code>:191</code>, <code>:205</code>)</td>
+</tr>
+<tr>
+<td>29</td>
+<td><code>tests/validation/test_birdcage_b1_plus_closed_form.py:583</code></td>
+<td><code>_exact_shares</code></td>
+<td>call — <strong>(U)</strong></td>
+<td><code>build_four_port_sweep(phantom_material=VACUUM, …)</code> (<code>:513</code>), no implant</td>
+</tr>
+<tr>
+<td>30</td>
+<td><code>tests/validation/test_imp3_disc_birdcage.py:304</code></td>
+<td><code>_exact_shares</code></td>
+<td>call — <strong>(U)</strong></td>
+<td><code>_arm_disc</code> on <code>_build(True)</code> / <code>_build_spheroid()</code> (<code>:485</code>, <code>:490</code>), a disc hole</td>
+</tr>
+<tr>
+<td>31</td>
+<td><code>tests/validation/test_imp3_disc_birdcage.py:647</code></td>
+<td><code>_exact_shares</code></td>
+<td>call — <strong>(U)</strong></td>
+<td><code>_control_c1_disc</code> on the same disc-hole case (<code>:632</code>)</td>
+</tr>
+<tr>
+<td>32</td>
+<td><code>tests/validation/test_birdcage_power_identity.py:370</code></td>
+<td><code>_exact_shares</code></td>
+<td>call — <strong>(U)</strong></td>
+<td><code>build_four_port_sweep()</code> (<code>:363</code>/<code>:365</code>)</td>
+</tr>
+<tr>
+<td>33</td>
+<td><code>tests/validation/test_birdcage_power_identity.py:381</code></td>
+<td><code>_exact_shares</code></td>
+<td>call — <strong>(U)</strong></td>
+<td>the ×2 control on the same mesh (<code>:378–380</code>)</td>
+</tr>
+<tr>
+<td>34</td>
+<td><code>tests/validation/test_geo27_one_gram_rung_degree2.py:210</code></td>
+<td><code>_exact_shares</code></td>
+<td>call — <strong>(U)</strong></td>
+<td><code>_build(True, phantom_resolution=…)</code> (<code>:150</code>), no implant</td>
+</tr>
+<tr>
+<td>35</td>
+<td><code>tests/validation/test_port_lumped_rlc_termination.py:2323</code></td>
+<td><code>_exact_shares</code></td>
+<td>call (<code>port16.</code>) — <strong>(U)</strong></td>
+<td><code>build_four_port_sweep(frequency_hz=…)</code> (<code>:2308</code>)</td>
+</tr>
+<tr>
+<td>36</td>
+<td><code>tests/validation/test_birdcage_power_identity_degree2.py:168</code></td>
+<td><code>_exact_shares</code></td>
+<td>call — <strong>(U)</strong></td>
+<td><code>build_four_port_sweep(…, build_only=True)</code> (<code>:235</code>)</td>
+</tr>
+<tr>
+<td>37</td>
+<td><code>tests/validation/test_ans4_h33_sheet_width_excess.py:247</code></td>
+<td><code>_exact_shares</code></td>
+<td>call — <strong>(U)</strong></td>
+<td><code>_four_port_rung</code> (<code>:231</code>), map tags 1/3 only (<code>test_port_birdcage_leg_offset_sweep.py:380–388</code>); also reached from <code>examples/ports/23_lumped_sheet_excess_vs_width.py:145</code></td>
+</tr>
+<tr>
+<td>38</td>
+<td><code>tests/validation/test_imp3_tip_ratio_1g.py:182</code></td>
+<td><code>_exact_shares</code></td>
+<td>call — <strong>(U)</strong></td>
+<td><code>_arm_d</code> on <code>_built</code> (<code>:121–128</code>), <code>_build</code> or the <code>_build_rod</code> hole; also <code>test_imp3_tip_ladder_1g.py:200</code>, <code>:392</code>, <code>:620</code> on <code>_build_rod</code> holes (<code>:196</code>, <code>:353</code>, <code>:565</code>)</td>
+</tr>
+<tr>
+<td>39</td>
+<td><code>tests/validation/test_port_drive_superposition.py:465</code></td>
+<td><code>_exact_shares</code></td>
+<td>call (<code>step1.</code>) — <strong>(U)</strong></td>
+<td><code>superposition_case</code>, <code>build_four_port_sweep()</code> (<code>:314</code>)</td>
+</tr>
+<tr>
+<td>40</td>
+<td><code>tests/validation/test_port_drive_superposition.py:482</code></td>
+<td><code>_loss_power_w</code></td>
+<td>call — <strong>(U)</strong></td>
+<td>same case</td>
+</tr>
+<tr>
+<td>41</td>
+<td><code>tests/validation/test_port_drive_superposition.py:1374</code></td>
+<td><code>_loss_power_w</code></td>
+<td>call — <strong>(U)</strong></td>
+<td><code>_build_ring_quadrature_case</code>: the ring context (<code>test_port_birdcage_ring_column.py:404–410</code>, tags 1/3) or the WF-7 F-human context (<code>test_wf7_f_human_ring_matrix.py:756–763</code>, tags 1/3); callers <code>test_wf7_f_human_b1_quadrature.py:275</code>, <code>test_wf7_f_human_sar10g_hotspot.py:215</code>, <code>examples/ports/15_birdcage_sixteen_leg_quadrature_b1.py:170</code></td>
+</tr>
+<tr>
+<td>42</td>
+<td><code>tests/validation/test_imp3_rod_birdcage.py:658</code></td>
+<td><code>_exact_shares</code></td>
+<td>call — <strong>(U)</strong></td>
+<td><code>_control_c1</code> on the rod arm's case, the <code>_build_rod</code> hole (<code>:515</code>); also <code>test_imp3_tip_ratio_1g.py:382</code> on its hole</td>
+</tr>
+<tr>
+<td>43</td>
+<td><code>examples/implants/09_pec_disc_in_birdcage_rim_sar.py:287</code></td>
+<td><code>_exact_shares</code></td>
+<td>call (<code>g9.</code>) — <strong>(U)</strong></td>
+<td><code>g9._case_disc(None)</code> (<code>:213</code>), the disc hole</td>
+</tr>
+<tr>
+<td>44</td>
+<td><code>examples/implants/09_pec_disc_in_birdcage_rim_sar.py:312</code></td>
+<td><code>_exact_shares</code></td>
+<td>call (<code>g9.</code>) — <strong>(U)</strong></td>
+<td>the same case with the natural wall</td>
+</tr>
+<tr>
+<td>45</td>
+<td><code>examples/ports/13_birdcage_asymmetric_drive.py:515</code></td>
+<td><code>_loss_power_w</code> (local)</td>
+<td>call — <strong>(U)</strong></td>
+<td><code>build_four_port_sweep()</code> (<code>:266</code>)</td>
+</tr>
+<tr>
+<td>46</td>
+<td><code>tests/validation/test_imp3_rod_birdcage.py:329</code></td>
+<td><code>_exact_shares</code></td>
+<td>call, inside <code>_arm</code> (<code>:295</code>) — <strong>split by caller, rows 46a–46f</strong></td>
+<td>the build and map are the caller's</td>
+</tr>
+</tbody>
+</table>
+<p>The wrappers behind row 46 are not counted by <code>grep -w</code>. This is the difference from <code>grep</code> the trap names: <code>_arm</code> passes the call on under another name.</p>
+<table>
+<thead>
+<tr>
+<th>Row</th>
+<th>Caller of <code>_rb._arm</code></th>
+<th>Class</th>
+<th>Deciding statement / gate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>46a</td>
+<td><code>test_imp3_rod_birdcage.py:511</code>, <code>:520</code> (its own W1/W2)</td>
+<td><strong>(U)</strong> — <strong>negative control ✔</strong></td>
+<td>off = <code>_build(True)</code>. Rod = <code>_build_rod(**kw)</code> (<code>:515</code>), whose <code>ROD</code> has no <code>keep_cells</code> (<code>test_birdcage_implant_rod.py:97</code>, <code>:146</code>), so the rod is a hole with facet 402 pinned (<code>:7</code>, <code>:22</code>). (P) is asserted two-tag (<code>:626–627</code>), which is correct here</td>
+</tr>
+<tr>
+<td>46b</td>
+<td><code>test_imp3_rod_heating_phantom.py:264</code>, <code>:269</code> (I39)</td>
+<td><strong>(U)</strong></td>
+<td>the <code>_build(True)</code> / <code>_build_rod</code> holes. <code>shares</code> is never read</td>
+</tr>
+<tr>
+<td>46c</td>
+<td><code>test_imp3_tip_q_entry48_def.py:119</code> via <code>_arm_rod</code> (rod and rod2 arms, <code>:259</code>, <code>:263</code>) and <code>_gel_seen</code> (gel twin, <code>:261</code>)</td>
+<td><strong>(K), all-cells</strong> — <strong>positive control ✔</strong></td>
+<td><code>_build_kept_rod()</code> (<code>:252</code>) with 403 mapped to σ_wire (<code>:111–113</code>) or to the gel. The gated (P) is <code>_p_resid</code> → <code>_all_cells_resid</code> whenever the arm carries per-tag losses (<code>:168–171</code>, <code>:204–215</code>; gate <code>:345–347</code>), green ≤ 8.3e-15 (<code>20261104T104820Z_GEO-36-I57-W1d.log:1968–1994</code>)</td>
+</tr>
+<tr>
+<td>47</td>
+<td>same module: <code>_two_tag_resid</code> (<code>:198–201</code>), printed at <code>:233–235</code>, asserted by <code>test_control_two_tag_p1_reproduces_omitted_term</code> (<code>:351–357</code>); diag arm <code>:449</code> → <code>test_diag_p_rod_arm</code> (<code>:515–518</code>, behind <code>FEM_EM_IMP3_I57_DIAG</code>)</td>
+<td><strong>(K), two-tag, a control</strong> — <strong>positive control ✔</strong></td>
+<td>the entry's own symptom. The control reproduces 2.882e-06 to 3 digits (<code>20261104T104820Z_GEO-36-I57-W1d.log:2010</code>). The diag arm's two-tag (P) is item 801's pre-registered red, the known case, not a new finding</td>
+</tr>
+<tr>
+<td>46d</td>
+<td><code>test_imp3_rod_heating_matched.py:124</code> via <code>_arm_with_403(map_gel=True)</code> (I41 arm M, <code>:171</code>)</td>
+<td><strong>(K), two-tag, unread</strong></td>
+<td><code>_build_kept_rod()</code> (<code>:139</code>) with 403 mapped to the gel (<code>:113–116</code>). <code>shares</code> is computed but the module never reads <code>p_vol</code>, and asserts and prints no (P) (no <code>shares</code> / <code>p_vol</code> / <code>DISCRETE_IDENTITY</code> in the module). No gate is exposed</td>
+</tr>
+<tr>
+<td>46e</td>
+<td><code>test_imp3_rod_heating_matched.py:176</code> (<code>map_gel=False</code>, the control) and <code>:173</code> (arm R)</td>
+<td><strong>(U)</strong></td>
+<td>403 is unmapped and so σ = 0 (<code>test_port_birdcage_four_port.py:472</code>). Arm R is the <code>_build_rod</code> hole (<code>:136</code>)</td>
+</tr>
+<tr>
+<td>46f</td>
+<td><code>examples/implants/15_rod_heating_matched_phantom.py:164</code> (<code>i41._arm_with_403(map_gel=True)</code>), <code>:167</code> (arm R)</td>
+<td><strong>(K), two-tag, unread</strong> / <strong>(U)</strong></td>
+<td>as 46d / 46e. The example reads no <code>shares</code></td>
+</tr>
+</tbody>
+</table>
+<p>Other wrappers followed and found (U): <code>_exact_shares_w</code> (<code>test_port_drive_superposition.py:241</code>, calls <code>:462</code>, <code>:509</code>, <code>:1373</code>), <code>_arm_d</code>, <code>_control_c1</code>, <code>_arm_disc</code> / <code>_control_c1_disc</code>, <code>_width_case</code>, <code>_solve_and_read</code>, <code>_build_ring_quadrature_case</code>. <code>_exact_shares_enabled</code> (<code>test_birdcage_b1_plus_closed_form.py:269</code>) is an environment knob, not a wrapper. No import aliases the two names: every alias is a module alias (<code>step1.</code>, <code>port16.</code>, <code>g9.</code>, <code>_rb.</code>), and each module-alias call is one of the grep rows above.</p>
+<p><strong>Verdict.</strong> The exposed (K) callers are entry48 (gated all-cells, with an asserted two-tag control), I41 arm M and <code>EX-155</code> arm M (two-tag shares computed but never read). <strong>No other (K) two-tag gate.</strong> No re-run, no (P) re-read, no band, no edit to the helper or any test. Whether to widen the helper stays the weekly's call. The known-issues entry stays open.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

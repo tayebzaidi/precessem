@@ -1,0 +1,831 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-138 — femem run on the four-port F-small EM file with point probes: per-port point SAR and |E| read back from the JSON summary, file = Python Study, a 1 mm displaced probe misses (mri:33) - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-138-femem-run-on-the-four-port-f-small-em-file-with-point-probes-per-port-point-sar-and-e-read-back-from-the-json-summary-file-python-study-a-1-mm-displaced-probe-misses-mri33" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-138 — femem run on the four-port F-small EM file with point probes: per-port point SAR and |E| read back from the JSON summary, file = Python Study, a 1 mm displaced probe misses (mri:33)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-569-2026-10-20-example-u70s-capability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 569 — 2026-10-20 (example; U70's capability)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-20-1030-item-569" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-20 10:30 (item 569)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#outcome-2026-10-20-1330-slot-item-569" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Outcome 2026-10-20 (13:30 slot, item 569)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-21-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-21 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-138-femem-run-on-the-four-port-f-small-em-file-with-point-probes-per-port-point-sar-and-e-read-back-from-the-json-summary-file-python-study-a-1-mm-displaced-probe-misses-mri33">EX-138 — <code>femem run</code> on the four-port F-small EM file with point probes: per-port point SAR and |E| read back from the JSON summary, file = Python Study, a 1 mm displaced probe misses (<code>mri:33</code>)<a class="headerlink" href="#ex-138-femem-run-on-the-four-port-f-small-em-file-with-point-probes-per-port-point-sar-and-e-read-back-from-the-json-summary-file-python-study-a-1-mm-displaced-probe-misses-mri33" title="Permanent link">&para;</a></h1>
+<p><em>History file for EX-138 (§7 row in PROJECT_PLAN.md).</em></p>
+<h3 id="9-item-569-2026-10-20-example-u70s-capability">§9 item 569 — 2026-10-20 (example; U70's capability)<a class="headerlink" href="#9-item-569-2026-10-20-example-u70s-capability" title="Permanent link">&para;</a></h3>
+<p><em>Drafted read-only for the 2026-10-20 10:30 daily review, which rules on it (ruling below the brief, when written). It sets and moves no band, record or Done-when. Nothing was run.</em></p>
+<p><strong>Licence.</strong> §5.4 example ramp from <code>WF-1</code> step 20 (§9 item 564, §10 U70, DONE 2026-10-20 07:30 CDT slot, <code>b688beed</code>; journal <code>docs/testing/attempts.md:1623–1629</code>). The 2026-10-19 weekly named it: "a <code>mri:</code> probes-on-EM-file example after U70" (<code>PROJECT_PLAN.md</code> ≈ line 5047; item 564's (7) "becomes openable", <code>docs/planning/chunks/WF-1.md:2823</code>). Only item 564's gated readings, and the bands its module imports, are asserted. U70 is a rule-(6) provisional chain-U step awaiting the next weekly's ratification (<code>WF-1.md:2838</code>, <code>:2840</code>).</p>
+<p><strong>Gap evidence (drafter, grep 2026-10-20).</strong>
+- <code>grep -rl probes examples/mri/</code> hits only <code>01_coil_phantom_fields.md</code> (a "Frequency probes" table column, <code>:167</code>), <code>29_*</code>, <code>31_*</code>, <code>32_*</code> and their XDMFs: every probe example is a <strong>thermal</strong> ball-average probe (<code>thermal_box</code> / <code>thermal_ball</code> files). None runs <code>outputs.probes</code> on an EM file — that route did not exist before item 564 (<code>_parse_probes</code> refused it on a four-port, <code>WF-1.md:2732</code>).
+- <code>point_sar</code> appears in <code>mri:2</code> (<code>02_mass_averaged_sar.py:325</code>, direct call on its own solve), <code>mat:2</code> (<code>02_lossy_sphere_sar.py:171</code>, imposed field) and <code>ports:9</code> (docstring only). None reaches it through a Study file or the CLI.
+- Neighbours on the same fixture: <code>mri:14</code> (<code>EX-106</code>) — 10 g SAR and |B₁⁺| through <code>Study</code> methods, no file; <code>mri:27</code> (<code>EX-126</code>) — two <code>femem run</code>s of <code>f_small_four_port.yaml</code> for bundle reproducibility, no probes; <code>mri:26</code> (<code>EX-124</code>) — <code>femem run</code> on <code>capacitor_sheets</code> files, which item 564 refuses probes on.
+- <code>examples/mri/32_*</code> is the highest; <code>examples/mri/33_*</code> does not exist; the runner resolves <code>mri:33</code> by its <code>33_</code> prefix.</p>
+<p><strong>Angle.</strong> The first example whose <strong>output quantity is a point SAR / |E| table written by <code>femem run</code> from an EM study file</strong>: the user lists five <code>[x, y, z]</code> points under <code>outputs.probes.points</code> in a four-port F-small file, the CLI solves the four single-port drives once, and the JSON summary carries <code>probes.{points, owner, sigma_s_per_m, rho_kg_m3, values.P&lt;k&gt;.{sar_w_per_kg, e_abs_v_per_m}}</code> (<code>study_yaml.py</code>, <code>_em_probe_summary</code>, item 564 (P4)). The example reads that table <strong>from disk</strong>, ties it to an independent Python <code>Study</code> at <code>L0_BAND</code>, shows a 1 mm displaced probe reading differently, and puts the four per-port |E| maps with the probe sites in ParaView. Unlike <code>mri:14</code> the input is the text file and the output is the bundle; unlike <code>mri:27</code> the bundle carries probes; unlike <code>mri:29</code>–<code>32</code> the probes are EM point values under the owner rule, not thermal ball averages.</p>
+<p><strong>Executor and files.</strong> <code>example-runner</code>, which spawns no agents. It adds exactly three tracked files and edits nothing under <code>tests/</code> or <code>src/</code>, and <strong>writes no YAML file</strong> (the run input is the tracked <code>tests/package/wf1/f_small_em_probes.yaml</code>):
+- <code>examples/mri/33_femem_run_em_file_point_probes.py</code>;
+- the same-stem guide <code>examples/mri/33_femem_run_em_file_point_probes.md</code>, with <code>## 1. What this demonstrates</code>, <code>## 2. How to run it</code>, <code>## Setup figure</code>, <code>## 3. How to analyze it, step by step</code> and <code>## Related</code>;
+- <code>examples/mri/figures/mri_33_femem_run_em_file_point_probes_setup.png</code>, ≤ 600 KiB.</p>
+<p><strong>CLI capture.</strong> Copy <code>mri:26</code>'s <code>_run_file</code> (<code>examples/mri/26_femem_run_capacitor_sheets.py:140–163</code>) verbatim, with <code>g.</code> → <code>t.</code>: <code>cli.main(["run", str(path), "--output-dir", str(outdir)])</code> under a call-through wrapper on <code>fem_em_solver.study_yaml.run_study_file</code>, restored in <code>finally</code>, <code>is original</code> asserted, rc <code>(0, 0)</code> by <code>t._rc_all</code>, exactly one capture. The captured <code>StudyRun</code> carries <code>run.summary</code>, <code>run.paths["summary"]</code> and <code>run.study.fields_result</code> (the kept fields, item 564 (U′)).</p>
+<p><strong>Imports (never restated).</strong> <code>_REPO_ROOT</code> on <code>sys.path</code> (<code>26_…py:60–62</code>), then <code>import tests.package.test_wf1_yaml_em_probes as t</code> and reach every name as <code>t.X</code>: <code>EM_PROBES</code>, <code>FOUR_PORT</code>, <code>POINTS</code>, <code>DISPLACED_0</code>, <code>_arrays</code>, <code>_field</code>, <code>_hex</code>, <code>_all</code>, <code>point_sar</code>, <code>_port_study</code>, <code>_record</code>, <code>_rel</code>, <code>_fresh_dir</code>, <code>_mapping</code>, <code>_rc_all</code>, <code>_spec_diff</code>, <code>_bitwise_equal_across_ranks</code>, <code>load_study</code>, <code>_load</code>, <code>_study_from_mapping</code>, <code>cli</code>, <code>IS_COMPLEX</code>, <code>ANS4_EXACT_STRIP_CELL_RECORD</code> (<code>tests/validation/test_ops61_exact_strip_ports.py:64</code>), <code>LEG_D0_REPRODUCTION_BAND</code> (<code>tests/validation/test_port_birdcage_four_port.py:165</code>), <code>L0_BAND</code> (<code>tests/validation/test_mat5_em_coupled_sphere.py:104</code>), <code>WIDTH_RTOL</code> (<code>tests/validation/test_post8_step3a_averaged_row1.py:88</code>), <code>EXACT_IDENTITY_RTOL</code> (<code>tests/validation/test_birdcage_sar_mass_averaged.py:163</code>) — all re-exported through <code>t</code>'s own imports (<code>test_wf1_yaml_em_probes.py:33–63</code>). <code>PHANTOM_CELL_TAG</code> from <code>tests.validation.test_port_birdcage_lumped_column</code> (the <code>mri:26</code> import, <code>26_…py:90</code>) for the figure only. Prohibitions: never call <code>t._require</code> (it <code>pytest.skip</code>s without <code>FEM_EM_WF1_S20</code> and asserts a width) or <code>t._run</code> (it writes under the gate's <code>LOGS</code>); never set <code>FEM_EM_WF1_S20</code>; never import a <code>test_*</code> name; never <code>from … import</code> out of <code>t</code>.</p>
+<p><strong>Node body, copied</strong> from <code>test_wf1_s20_em_probes_n2</code> (<code>test_wf1_yaml_em_probes.py:229–301</code>) with only these substitutions:
+1. <code>t._run(comm, "em_probes_n2")</code> → <code>_run_file(t.EM_PROBES, RUN_DIR, comm)</code>, <code>RUN_DIR = OUTPUT_DIR / "mri_33_run_em_probes"</code>;
+2. the per-port prints (<code>:240–242</code>) keep <code>.6e</code> (seven significant digits, the gate's form, passed the guard in W1);
+3. <code>_legacy</code> (<code>:303–307</code>, <code>.15e</code>) is <strong>not</strong> copied: print one boolean per port, owner=None array equal to the owner-rule array, instead (printed only);
+4. <strong>the npz block (<code>:309–320</code>) is dropped</strong> — the example never writes <code>logs/wf1/s20/em-probes-n2.npz</code>, which the gate's width legs read;
+5. every bare name → <code>t.X</code>.</p>
+<p><strong>Records.</strong> An example-local <code>REC</code> holds each value with its <code>log:line</code>, printed beside its reading, never asserted by equality unless the review's Q1 says so. Aliases: W1 = <code>docs/testing/logs/20261020T123448Z_WF-1-s20-W1-em-probes-n2.log</code> (complex, <code>-n 2</code>); W0 = <code>…/20261020T123357Z_WF-1-s20-W0.log</code>; Wn1 = <code>…/20261020T123649Z_WF-1-s20-Wn1-em-probes.log</code>; Wn4 = <code>…/20261020T123818Z_WF-1-s20-Wn4-em-probes.log</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Record</th>
+<th>Line</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>run_study_file 68.2 s, 117 206 cells</td>
+<td>W1:3686</td>
+</tr>
+<tr>
+<td>ports P1…P4; σ 0.5; ρ 1000.0; owner <code>'lowest_original_cell'</code></td>
+<td>W1:3687</td>
+</tr>
+<tr>
+<td>per-port SAR / |E| per 1 V, 20 + 20 values at <code>.6e</code></td>
+<td>W1:3688–3695</td>
+</tr>
+<tr>
+<td>(R) cells 117 206 = record; S tie 9.558e-11 ≤ <code>LEG_D0_REPRODUCTION_BAND</code></td>
+<td>W1:3696</td>
+</tr>
+<tr>
+<td>(U′) summary == <code>point_sar</code> on run fields; bitwise across ranks; JSON == memory; |E|² σ/(2ρ) vs SAR 2.213e-16 ≤ <code>EXACT_IDENTITY_RTOL</code></td>
+<td>W1:3697</td>
+</tr>
+<tr>
+<td>(I-Py) Python twin 34.3 s, 117 206 cells, 0.000e+00 ≤ <code>L0_BAND</code></td>
+<td>W1:5509</td>
+</tr>
+<tr>
+<td>(c-disp) 6.3865e-02 / 2.1232e-01 / 8.3482e-02 / 5.6184e-02, min 5.6184e-02 &gt; <code>WIDTH_RTOL</code></td>
+<td>W1:5510</td>
+</tr>
+<tr>
+<td>owner=None = owner rule at every printed digit</td>
+<td>W1:5511–5518</td>
+</tr>
+<tr>
+<td>node 104.7 s; 5 passed in 106.29 s; Status 0, 108 s</td>
+<td>W1:5519, :5522, :5528–5529</td>
+</tr>
+<tr>
+<td>(K) spec diff <code>[]</code>, kind, five points hex-equal; <code>check</code> rc (0, 0)</td>
+<td>W0:64–65</td>
+</tr>
+<tr>
+<td>(X) nine refusal rows incl. <code>[0.0, 0.0, 0.05]</code> ⇒ <code>outputs.probes.points[1]</code>, <code>[0.031, 0.0, 0.0]</code> ⇒ <code>outputs.probes.points[0]</code>; 0 build calls</td>
+<td>W0:66–75</td>
+</tr>
+<tr>
+<td>(W) width spread 2.025e-12 (<code>-n 1</code>), 2.414e-12 (<code>-n 4</code>); |E|/max|E| per point</td>
+<td>Wn1:3680, Wn4:3716 (printed context only; this example runs <code>-n 2</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>(1) Anchors.</strong> All asserted at imported bands; labels per §9 rule (e).</p>
+<table>
+<thead>
+<tr>
+<th>Anchor</th>
+<th>Assertion</th>
+<th>Backing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(B)</td>
+<td><code>t.IS_COMPLEX</code>; <code>comm.size == 2</code></td>
+<td>the runner sources the complex build</td>
+</tr>
+<tr>
+<td>(K)</td>
+<td><code>t._spec_diff(t.load_study(t.EM_PROBES), t.load_study(t.FOUR_PORT)) == []</code>; <code>t._hex(outputs["probes"]) == t._hex(t.POINTS)</code> from <code>t._load</code>; <code>femem check</code> rc <code>(0, 0)</code> and exactly one <code>family: four_port_birdcage</code> line on rank 0 (copied <code>:135–155</code>, stdout via <code>contextlib.redirect_stdout</code>)</td>
+<td>W0:64–65</td>
+</tr>
+<tr>
+<td>(X-out)</td>
+<td>on <code>t._mapping(t.EM_PROBES)</code>, no mesh: <code>[0.0, 0.0, 0.05]</code> second ⇒ <code>t._field(...) == "outputs.probes.points[1]"</code>; <code>[0.031, 0.0, 0.0]</code> ⇒ <code>"outputs.probes.points[0]"</code> (copied rows <code>:167–170</code>)</td>
+<td>W0:70–71</td>
+</tr>
+<tr>
+<td>(R)</td>
+<td><code>summary["cells"] == ANS4_EXACT_STRIP_CELL_RECORD</code>; <code>_rel(S, _record(1)) ≤ LEG_D0_REPRODUCTION_BAND</code>; points hex-equal; <code>owner == "lowest_original_cell"</code> (copied <code>:245–252</code>)</td>
+<td>W1:3696</td>
+</tr>
+<tr>
+<td>(U′)</td>
+<td>summary SAR <code>array_equal</code> <code>point_sar(f.e_real, f.e_imag, pts, …)</code> on <code>run.study.fields_result</code> (same five-point batch); <code>_bitwise_equal_across_ranks</code>; JSON == memory (<code>elapsed_s</code> excepted); |E|² σ/(2ρ) vs SAR ≤ <code>EXACT_IDENTITY_RTOL</code>; <code>run.probes is None</code>; all SAR &gt; 0 (copied <code>:255–275</code>)</td>
+<td>W1:3697</td>
+</tr>
+<tr>
+<td><strong>(I-Py) file = Python</strong></td>
+<td><code>t._port_study(degree=1)</code>, <code>_solve_port_fields(comm)</code>, <code>point_sar</code> per port; max relative difference ≤ <code>L0_BAND</code> (copied <code>:278–290</code>)</td>
+<td>W1:5509 (0.000e+00)</td>
+</tr>
+<tr>
+<td>(J-disk) example-side</td>
+<td>after a <code>Barrier</code>, <code>json.load(run.paths["summary"])</code> on every rank: <code>probes.points</code> hex-equal to <code>t.POINTS</code>; <code>sigma_s_per_m</code> / <code>rho_kg_m3</code> hex-equal to <code>run.study.material.sigma</code> / <code>run.study.density_kg_m3</code>; for each port the disk <code>sar_w_per_kg</code> list <code>array_equal</code> the in-memory <code>_arrays</code> row, and the disk <code>e_abs_v_per_m</code>² σ/(2ρ) vs the disk SAR ≤ <code>EXACT_IDENTITY_RTOL</code>. The example's own claim: <strong>the probe table read from disk alone carries the gated values</strong></td>
+<td>by construction from (U′)'s JSON == memory (W1:3697)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Printed only (no band):</strong> the per-port SAR and |E| rows at <code>.6e</code> beside <code>REC</code> (W1:3688–3695) with a per-value digits-equal flag (predicted 40 / 40 equal: same build, same width, same mesh; the cross-width spread is 2e-12, Wn1:3680 / Wn4:3716); each port's largest-SAR probe index (predicted the port's own near point — P1 → 0, P2 → 1, P3 → 2, P4 → 3, from W1:3688–3695); the owner=None equality booleans; file-run and twin times beside W1:3686 / :5509. <strong>No C4 or symmetry claim</strong> on the table: the points sit at different z, so the four near-point SARs need not agree (they span ≈ 2.6e-05 to 4.9e-05 W/kg per 1 V, W1:3688–3695).</p>
+<p><strong>(2) Negative controls</strong> (§9 rule (e)).
+- <strong>(c-disp), backed, asserted &gt; <code>WIDTH_RTOL</code></strong> (copied <code>:293–301</code>): <code>t.DISPLACED_0</code> = point 0 moved 1 mm radially, through <code>point_sar</code> on <code>run.study.fields_result</code>, against the summary's point-0 SAR per port. Same comparison, same fixture, same build and width measured at W1:5510: min 5.6184e-02, ≈ 5.6e7× the bar. A table that ignored its coordinates would fail it. Also print the miss in units of <code>L0_BAND</code>.
+- <strong>(X-out), backed, asserted</strong> (above): a probe outside the phantom is refused naming its index, before any mesh (W0:70–71). Build calls are not patched here; the refusal is raised by <code>_study_from_mapping</code> before a build.
+- <strong>Not posed:</strong> a malformed EM-probe file through <code>femem run</code> rc <code>(2, 2)</code> — no tracked file exists and item 564 measured none; writing one is out of scope.</p>
+<p><strong>Outputs.</strong>
+- <strong>Setup figure</strong> (no-op unless <code>FEM_EM_SETUP_FIGURES=1</code>): <code>run.study.fields_result.mesh</code> / <code>.cell_tags</code>, phantom <code>PHANTOM_CELL_TAG</code> named "gel phantom", the air tags hidden, phantom translucent, z = 0 slice — the <code>mri:26</code> call (<code>26_…py:436–449</code>) with this title (≤ 130 characters, <code>setup_figure.py:65</code>): <code>mri:33 -- femem run on the F-small EM file: five point probes in the gel phantom, per-port point SAR / |E| (WF-1 step 20)</code>. Collective; on every rank.
+- <strong>One combined XDMF</strong>, <code>paraview_output/mri_33_femem_run_em_file_point_probes_combined.xdmf</code>, on the run mesh with its cell tags (<code>write_xdmf_with_tags</code>, <code>adopt_host_ownership(OUTPUT_DIR, comm=comm)</code> last): <code>E_abs_P1</code> … <code>E_abs_P4</code> (P1, <code>sqrt(real(inner(e, e)))</code> of each port's <code>e_complex</code> per 1 V — the <code>mri:14</code> interpolation, <code>14_study_sar_and_b1.py:377–384</code>), <code>local_sar_P1</code> … <code>local_sar_P4</code> (DG0, <code>0.5·real(σ e·ē)/ρ</code>, the <code>mri:14</code> power density <code>:385–393</code> divided by <code>run.study.density_kg_m3</code>), <code>probe_sites</code> (DG0 indicator, k + 1 on cells whose midpoint lies within 2 mm of probe k, 0 elsewhere; display only, k = 5 for the displaced point). <code>np.real</code> before every write; each field's name equals its dict key. Never sample these display fields at the probes and compare them to the table (P1 / DG0 interpolation, not the owner-rule point value).
+- <strong>One CSV</strong>, rank 0, <code>paraview_output/mri_33_femem_run_em_file_point_probes_probe_table.csv</code>: port, point index, x, y, z, SAR from disk (<code>.6g</code>), |E| from disk (<code>.6g</code>), Python-twin SAR (<code>.6g</code>), relative difference (<code>.3e</code>), REC digits equal; plus one row per port for the displaced point and its miss.
+- <strong>Run bundle</strong> <code>paraview_output/mri_33_run_em_probes/</code> (<code>t._fresh_dir</code> first).</p>
+<p><strong>Guide.</strong> <code>## 1</code>: the YAML's <code>outputs.probes.points</code> block line by line; the summary's <code>probes</code> keys; that values are <strong>per 1 V port drive</strong> for each single-port drive (not a quadrature drive and not a superposition: the table has no phases, so a combined-drive SAR cannot be rebuilt from it); that points outside the phantom are refused (σ and ρ are the phantom's); that the owner rule makes a point on a cell facet read the same at any width (cite <code>POST-8</code>). ParaView recipe: open the XDMF, colour by <code>E_abs_P1</code>, threshold <code>probe_sites</code> &gt; 0, then <code>local_sar_P1</code>. <code>## 2</code>: <code>./scripts/run_examples.sh -e mri:33 -n 2 -t 300</code>, with the measured wall time; <code>femem run tests/package/wf1/f_small_em_probes.yaml</code> is the same call from a shell. <code>## 3</code> walks the probe table CSV first. <code>Related</code>: <code>examples/mri/14_study_sar_and_b1.md</code>, <code>examples/mri/27_femem_run_bundle_reproducible.md</code>, <code>examples/mri/32_femem_run_ball_probes_and_duty_quadratic_files.md</code>, <code>tests/package/test_wf1_yaml_em_probes.py</code>, <code>tests/package/wf1/f_small_em_probes.yaml</code>, <code>docs/planning/chunks/WF-1.md</code>. Write <code>≈</code>. Write "the JSON summary", never <code>summary.json</code> as a token.</p>
+<p><strong>(3) Tier, ranks, price, windows.</strong> <strong>Standard by prediction, heavy by ceiling</strong> (the <code>EX-106</code> form): complex, <code>-n 2</code>, runner <code>-t 300</code>.</p>
+<p>Price inputs (measured): W1 106 s at <code>-n 2</code> (W1:5522): file run 68.2 s (W1:3686) + Python twin 34.3 s (W1:5509) + four small <code>point_sar</code> batches; <code>check</code> and the refusal rows, no mesh, &lt; 5 s (W0 4 s); setup figure ≈ 5 s and XDMF of 9 fields on 117 206 cells ≈ 5–10 s (<code>mri:14</code> wrote 8 fields on the same mesh in a 74 s run, <code>EX-106</code> row; <code>fr.mesh</code> / <code>fr.cell_tags</code> / <code>fr.fields[pid]</code>, <code>14_…py:205</code>, <code>:228</code>, <code>:319</code>); start-up ≈ 10 s. <strong>Prediction:</strong> run of record ≈ 130 s, range [110, 260]. A kill at 300 s is a price finding, not a result.</p>
+<p><strong>Item minutes:</strong> ≈ 10.0 measured (example class median, 2026-10-19 10:30 review) / ≈ 40 predicted (fixed ≈ 9, script ≈ 14 — one copied body plus (J-disk) and the outputs, windows ≈ 6, guide and censuses ≈ 11).</p>
+<p><strong>Park by the minute (rule (d)).</strong> If windows 1–3 are not green and the script is not written by minute 28, park. If the run of record has not started by minute 35, park. Never start window 4 after minute 40. As take-next, count from the slot's start.</p>
+<p><strong>Windows.</strong> Each runs in the foreground with Bash <code>timeout: 660000</code>, as one <strong>bare, whole, repo-relative</strong> call — nothing chained, piped or redirected.
+0. <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0, and no other heavy / <code>xl</code> / <code>xxl</code> window may be live. With Glob, confirm <code>examples/mri/33_*</code> does not exist and <code>tests/package/wf1/f_small_em_probes.yaml</code> and <code>tests/package/wf1/f_small_four_port.yaml</code> exist.
+1. Pre-censuses, before any file is written:
+   - <code>scripts/testing/run_and_log.sh EX-138-pre-figures "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_setup_figures.py'"</code>
+   - the same command labelled <code>EX-138-pre-docrefs</code> with <code>check_example_doc_references.py</code>.</p>
+<p>Last readings: <code>examples=132 ok=132 missing=0 broken=0</code> (<code>20261020T033421Z_POST-8-step3b-ii-e2b-post-figures.log:168</code>), docrefs <code>dead=0 guide=0 stale=118 … exit=2</code> (<code>20261020T033426Z_POST-8-step3b-ii-e2b-post-docrefs.log:158</code>); higher if <code>EX-137</code> lands first. <strong>Read the baseline in-slot.</strong> Exit 2 = stale only; exit 1 = failure. Write the predicted delta (+1 example, +1 figure) before reading the post-census.
+2. <strong>Import check (complex):</strong> <code>scripts/testing/run_and_log.sh EX-138-import "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 PYTHONPATH=/workspace/src:/workspace timeout -k 10 60 python3 -c \"import tests.package.test_wf1_yaml_em_probes as t; print(t.IS_COMPLEX, t.EM_PROBES.name, t.FOUR_PORT.name, t.POINTS, t.DISPLACED_0, t.ANS4_EXACT_STRIP_CELL_RECORD, t.LEG_D0_REPRODUCTION_BAND, t.L0_BAND, t.WIDTH_RTOL, t.EXACT_IDENTITY_RTOL)\"'"</code>. Must print <code>True</code> first. An <code>ImportError</code> or renamed constant means a later edit moved the module: BLOCKED, re-pose, never restate a constant.
+3. <strong>Dry run:</strong> <code>scripts/testing/run_and_log.sh EX-138-dryrun "./scripts/run_examples.sh -e mri:33 -n 2 -t 300 --dry-run"</code>. Must print <code>(complex build)</code> and the emitted container line.
+4. <strong>Run of record, <code>EX-138</code>:</strong> the emitted line with <code>-e FEM_EM_SETUP_FIGURES=1</code> added after <code>exec -T</code>, i.e. the <code>EX-136</code> form (<code>20261019T171706Z_EX-136.log:12</code>): <code>scripts/testing/run_and_log.sh EX-138 "docker compose exec -T -e FEM_EM_SETUP_FIGURES=1 fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src timeout -k 30 300 mpiexec -n 2 python3 examples/mri/33_femem_run_em_file_point_probes.py'"</code>. Copy the emitted string, not this one. Pass = Status 0, every anchor and asserted control green, the closing <code>All assertions hold</code> line.
+5. <code>git add</code> the PNG; check ≤ 600 KiB (one re-render with <code>show_edges_on_slice=False</code> is the only permitted re-run). Write the guide from window 4's log, stage it, run the leak guard on it. Then <code>EX-138-post-figures</code> / <code>EX-138-post-docrefs</code> (window 1's commands, relabelled). Predicted N → N + 1, <code>broken=0</code>, <code>dead=0</code>.
+6. <code>git status --porcelain examples/ tests/ src/</code> lists only the three new paths (plus gitignored outputs unlisted). Run <code>scripts/testing/check_private_leak.py</code> on the staged logs.</p>
+<p>After Status 124 or a kill: <code>pgrep -c python3</code> first; at 0 only, the rubric-4 orphan-stem sweep labelled <code>EX-138-cache-sweep</code>.</p>
+<p><strong>(4) Traps already paid for.</strong>
+- <strong>Harness calls are bare and whole</strong> (<code>bash_guard.py</code>, 2026-09-30): no <code>cd … &amp;&amp;</code>, no <code>; date</code>, no <code>| tail</code>, no redirect. <code>./scripts/run_examples.sh</code> is host-side: never wrap it in <code>docker compose exec</code>; emit with <code>--dry-run</code>, then run each printed line through <code>run_and_log.sh</code> as its own bare call. Container <code>timeout -k 30</code> always.
+- <strong>Durable capture</strong> is not needed at ≈ 130 s; if used anyway, copy §5.1's idiom verbatim including the trailing <code>; exit $rc</code> (a dropped <code>; exit $rc</code> footers <code>Status: 0</code> over a red, <code>WF-6</code> step 4h).
+- <strong>Build.</strong> The <code>mri:</code> runner sources <code>/usr/local/bin/dolfinx-complex-mode</code> (<code>run_examples.sh:74</code>, <code>:279</code>); the emitted line does not set <code>FEM_EM_REQUIRE_COMPLEX=1</code> (it governs pytest skip markers only, <code>tests/complex_mode.py:11–27</code>), so the script asserts <code>t.IS_COMPLEX</code> on entry, and the import window sets it. A real build would fail loudly at (B), never skip.
+- <strong><code>point_sar</code> takes <code>f.e_real</code>, <code>f.e_imag</code></strong> — never the complex field twice (it takes <code>np.real</code> of each and silently halves SAR, <code>tests/validation/test_birdcage_sar_map.py:295–302</code>).
+- <strong>Point evaluation only through <code>point_sar</code></strong> (collective; <code>points</code> identical on every rank); never <code>f.eval(points, …)</code>. <strong>A bitwise claim names its batch</strong> (item 537; rubric 4): (U′) and (J-disk) compare the same five-point batch call by call; the displaced point is its own one-point batch and is compared by a relative band, never bytes.
+- <strong>One field solve per Study.</strong> <code>_solve_port_fields</code> caches on <code>study.fields_result</code>; never clear it; the only second Study is the declared Python twin. Free the twin (<code>del</code>, <code>gc.collect()</code>, <code>Barrier</code>) before the XDMF if RSS is printed high.
+- <strong>Never write the gate's npz</strong> (<code>logs/wf1/s20/em-probes-n2.npz</code>): item 564's width legs read it (substitution 4).
+- <strong>Leak guard.</strong> Print new values at ≤ 6 significant digits (<code>.6g</code>) and errors at <code>.3e</code> / <code>.4e</code>; the copied per-port <code>.6e</code> rows passed the guard in W1 and stay; never print <code>.15e</code> (<code>_legacy</code> not copied), a summary dict or a JSON whole. The guard matches at 8 digits (<code>check_private_leak.py:76</code>). No AED number appears anywhere.
+- <strong>Rank 0.</strong> <code>check</code> stdout lines, CSV rows and <code>write_xdmf_with_tags</code>'s return exist on rank 0 only: use them only under <code>if rank0:</code>, with no collective inside (<code>EX-127</code>'s failure). <code>point_sar</code>, <code>_bitwise_equal_across_ranks</code>, <code>_solve_port_fields</code>, <code>write_setup_figure</code> and the JSON read's <code>Barrier</code> are collective.
+- <strong>XDMF needs P1 / DG0 real arrays</strong>; <code>np.real</code> before every write and every <code>float</code>.
+- <strong>Wrapper.</strong> Restore <code>study_yaml.run_study_file</code> in <code>finally</code> and assert <code>is original</code>; a leaked wrapper corrupts every later call.
+- <strong><code>summary.json</code> is not a guide token</strong> (<code>check_example_doc_references.py:116–122</code>); name every artifact by its full filename (§9 standing rule (b)).
+- <strong>Windows.</strong> No background window, no raised <code>-t</code> / <code>-n</code>, no script edit after window 4 starts, no guide edit after window 5 starts (rule (i)).</p>
+<p><strong>(5) Scope.</strong> Covered: <code>femem check</code> / <code>femem run</code> in-process (<code>cli.main</code>) on the tracked <code>f_small_em_probes.yaml</code> (item 192's F-small four-port fixture, PEC, degree 1, 64 MHz, κ off, exact-rectangle ports, complex, <code>-n 2</code>); five point SAR / |E| probes per single-port 1 V drive under the owner-rule default; the table read from disk and tied to an independent Python Study at <code>L0_BAND</code>; a 1 mm displaced probe missing; two out-of-phantom refusals. <strong>Not claimed:</strong> absolute, quadrature-drive or compliance SAR (per-1 V single-port values only); a combined-drive SAR rebuilt from the table (no phases); C4 symmetry of the table; probes on F-human, copper or capacitor files (copper F-small reachable, unmeasured; capacitor sheets refused); degree 2; the <code>-n 1</code> / <code>-n 4</code> widths (gated by item 564, not re-run here); a peak search or 10 g averaging (<code>mri:14</code>); the display fields' values at the probes; the installed console script, <code>--ranks</code> or <code>--estimate</code>; any external check.</p>
+<p><strong>(6) Negative result.</strong> Report and stop; journal in <code>docs/testing/attempts.md</code>, park on <code>attempt/EX-138-&lt;UTC&gt;</code>, mark item 569 BLOCKED in the same commit. Never widen a band, never move a probe, never edit <code>tests/</code> or <code>src/</code>.
+- <strong>(K) / (X-out) red:</strong> the parser moved since <code>b688beed</code>; BLOCKED, re-pose.
+- <strong>(R) or (I-Py) red:</strong> an example/test divergence on the build and width of record; print the first differing value beside W1, file a known-issues entry against <code>WF-1</code> step 20.
+- <strong>(U′) or (J-disk) red with (I-Py) green:</strong> the JSON or the summary misreports <code>point_sar</code>; finding against <code>_em_probe_summary</code>, known-issues entry.
+- <strong>(c-disp) not missing:</strong> blind instrument; stop.
+- <strong>The wrapper captures nothing:</strong> the CLI route moved; BLOCKED, no fallback to calling <code>run_study_file</code> directly.
+- <strong>A printed value missed</strong> (REC digits, the near-point index, a time): reported in the guide and the journal, no status effect.
+- <strong>A kill at 300 s:</strong> not a result; a price finding.</p>
+<p>No <code>PREDICTED RED:</code> line: any red stops the slot.</p>
+<p><strong>(7) Status it can move.</strong> <code>EX-138</code> ⬜ → ✅ on the §7 Done-when, with the setup-figure census N → N + 1 (<code>broken=0</code>) and docrefs <code>dead=0</code>. <code>WF-1</code>, <code>POST-8</code>, <code>WF-16</code> and §2 do not move. If the next weekly reverts U70 (rule (6)) or a review demotes item 564, <code>EX-138</code> is withdrawn by the next review.</p>
+<p><strong>Commits.</strong>
+1. <code>EX-138 (§9 item 569): mri:33, femem run on the F-small EM file with point probes</code> — the three new example paths; the harness logs <code>EX-138-pre-figures</code>, <code>-pre-docrefs</code>, <code>-import</code>, <code>-dryrun</code>, <code>EX-138</code>, <code>-post-figures</code>, <code>-post-docrefs</code> (plus <code>-cache-sweep</code> if run) with their <code>docs/testing/test-results.md</code> rows; <code>PROJECT_PLAN.md</code> (§7 <code>EX-138</code> row ⬜ → ✅ with readings, §9 item 569 → DONE); the outcome paragraph under this item.
+2. <code>attempts: EX-138 §9 item 569 journal</code> (<code>docs/testing/attempts.md</code> only): readings beside records, census before / after, elapsed, disclosed deviations.</p>
+<p><strong>Execution order.</strong> Windows 0 → 1 → write the script → 2 → 3 → 4 → 5 (PNG, guide, post-censuses) → 6 → commit 1 → commit 2.</p>
+<p><strong>Spawn line.</strong> "Use the example-runner agent to execute <code>EX-138</code>, §9 item 569 (<code>docs/planning/chunks/EX-138.md</code>, heading <code>§9 item 569</code>). Read the brief and any review ruling beneath it first; the ruling holds. You are the executor: do not spawn agents. The harness call is the <strong>whole</strong> Bash command: bare, repo-relative, nothing chained, piped or redirected; every window foreground with <code>timeout: 660000</code>, never backgrounded; never delete a log. Run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> (require 0, and no other heavy / <code>xl</code> / <code>xxl</code> window live) before windows 1 and 4. Confirm <code>examples/mri/33_*</code> does not exist and run both pre-censuses before writing any file. Edit nothing under <code>tests/</code> or <code>src/</code> and write no YAML: run the tracked <code>tests/package/wf1/f_small_em_probes.yaml</code>. Import <code>tests.package.test_wf1_yaml_em_probes as t</code> and qualify every name; never call <code>t._require</code> or <code>t._run</code>, never set <code>FEM_EM_WF1_S20</code>, never import a <code>test_*</code> name, never write <code>logs/wf1/s20/em-probes-n2.npz</code>. Copy the n2 node body with only the five listed substitutions; pass <code>f.e_real</code> / <code>f.e_imag</code> to <code>point_sar</code>, never the complex field twice. Print new values at ≤ 6 significant digits; rank-0-only values only under <code>if rank0:</code> with no collective there; restore the <code>run_study_file</code> wrapper in <code>finally</code>. Emit the runner line with <code>--dry-run</code>, add <code>-e FEM_EM_SETUP_FIGURES=1</code>, keep container <code>timeout -k 30 300</code>, never raise <code>-t</code> or <code>-n</code>. Park by minute 28 / 35 / 40 as the brief states. If <code>check_private_leak.py</code> blocks a log, move it unchanged to <code>logs/leak-held/</code>, mark the item BLOCKED and stop. On a red, park on <code>attempt/EX-138-*</code>, mark item 569 BLOCKED in the same commit, and report. Return the log names, each asserted and printed value beside its record or prediction, the census before and after, and elapsed."</p>
+<p><strong>Questions for the review.</strong>
+- <strong>Q1, REC digits.</strong> The 40 per-port <code>.6e</code> strings (W1:3688–3695) are same-build, same-width, same-mesh records; the brief prints them with a digits-equal flag. <code>mri:14</code> asserted its REC digits; assert them here too, or keep them printed?
+- <strong>Q2, the Python twin</strong> costs ≈ 34 s of ≈ 130 s. The Done-when needs file = Python at <code>L0_BAND</code>, so it stays unless the review rewrites the Done-when.
+- <strong>Q3, provisional parent.</strong> <em>(Ruled below, 10:30.)</em> U70 awaits the next weekly. Run before it (the <code>EX-135</code> / <code>EX-136</code> precedent) and withdraw on a revert, or hold behind the weekly.</p>
+<h3 id="review-ruling-2026-10-20-1030-item-569">Review ruling 2026-10-20 10:30 (item 569)<a class="headerlink" href="#review-ruling-2026-10-20-1030-item-569" title="Permanent link">&para;</a></h3>
+<p>(1) <strong>Q1:</strong> the 40 per-port record strings are <strong>printed</strong> with a digits-equal flag. What is asserted is item 564's (I-Py) file = Python identity. The example sets no new band.
+(2) <strong>Q2:</strong> the Python twin stays, because the Done-when is file = Python.
+(3) <strong>Q3:</strong> run before the weekly, as <code>EX-135</code> / <code>EX-136</code> did. If the 2026-10-21 weekly reverts U70's provisional readings (the <code>{points: [...]}</code> shape, the outside-phantom refusal), the example is withdrawn.</p>
+<h3 id="outcome-2026-10-20-1330-slot-item-569">Outcome 2026-10-20 (13:30 slot, item 569)<a class="headerlink" href="#outcome-2026-10-20-1330-slot-item-569" title="Permanent link">&para;</a></h3>
+<p>DONE. One <code>-n 2</code> complex run, log <code>docs/testing/logs/20261020T184521Z_EX-138.log</code> (Status 0, 112 s harness, 110.4 s in-script; femem run 68.2 s, Python twin 34.7 s, summed peak RSS 2.15 GiB). Every asserted anchor green: (K); (X-out) both refusals name their index; (R) 117 206 cells, S tie 9.557e-11 (gate 9.558e-11); (U′) and (J-disk) exact, |E|² σ/(2ρ) vs SAR 1.848e-16 (gate 2.213e-16); (I-Py) 6.005e-13 ≤ <code>L0_BAND</code> (the gate read 0.000e+00; the example's twin is a second build in a process that has already run the file, so a bitwise zero was not repeated; inside the band by ≈ 1.7e3); (c-disp) 5.6184e-02 minimum, as W1:5510. Printed: REC digits 40 / 40 equal, largest-SAR point P1 0 / P2 1 / P3 2 / P4 3, owner=None equals the owner rule on all four ports. Census: setup figures 132 → 133, <code>broken=0</code>; docrefs <code>dead=0 guide=0 stale=116</code>, exit 2 before and after. PNG 344 KiB. Withdrawn if the 2026-10-21 weekly reverts U70.</p>
+<h2 id="7-row-moved-verbatim-2026-10-21-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-21 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-21-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p><strong><code>femem run</code> on the four-port F-small EM file with point probes: per-port point SAR and |E| read back from the JSON summary, file = Python Study, a 1 mm displaced probe misses</strong> (<code>mri:33</code>; <code>example-runner</code>; §5.4 ramp from <code>WF-1</code> step 20, §9 item 564, U70, <code>b688beed</code>; queued 2026-10-20 10:30 as §9 item 569) | ✅ 2026-10-20 (13:30 slot): all anchors green in one <code>-n 2</code> run, 110.4 s in-script (112 s harness): (R) 117 206 cells, S tie 9.557e-11; (U′) / (J-disk) exact, |E| identity 1.848e-16; (I-Py) 6.005e-13 ≤ <code>L0_BAND</code>; (c-disp) min 5.6184e-02; REC digits 40 / 40; census 132 → 133, <code>broken=0</code>, docrefs <code>dead=0</code>; log <code>20261020T184521Z_EX-138.log</code>. No example runs <code>outputs.probes</code> on an EM file; every <code>mri:</code> probe so far is a thermal ball average. <em>History: <code>docs/planning/chunks/EX-138.md</code>.</em> <strong>Done-when:</strong> <code>examples/mri/33_femem_run_em_file_point_probes.py</code> + same-stem guide (three required headings + <code>## Setup figure</code> + <code>## Related</code>, PNG ≤ 600 KiB); complex, <code>-n 2</code>, <code>cli.main</code> <code>check</code> / <code>run</code> on the tracked <code>tests/package/wf1/f_small_em_probes.yaml</code>; no new YAML, no <code>tests/</code> or <code>src/</code> edit; item 564's records and bands imported through <code>tests.package.test_wf1_yaml_em_probes</code>, none restated, no new band. Asserted: (K); (X-out) two out-of-phantom refusals; (R) cells <code>== ANS4_EXACT_STRIP_CELL_RECORD</code>, S ≤ <code>LEG_D0_REPRODUCTION_BAND</code>; (U′) and (J-disk) the table read from disk equals <code>point_sar</code> on the run's fields, |E| identity ≤ <code>EXACT_IDENTITY_RTOL</code>; (I-Py) file = an independent Python Study ≤ <code>L0_BAND</code>; control (c-disp) the 1 mm displaced probe misses &gt; <code>WIDTH_RTOL</code>. Records printed beside <code>20261020T123448Z_WF-1-s20-W1-em-probes-n2.log</code>. Combined XDMF (per-port |E| and local SAR, probe sites) + probe-table CSV. Census +1, <code>broken=0</code>, docrefs <code>dead=0</code>, elapsed recorded ⇒ ✅. Not claimed: absolute, quadrature or compliance SAR; C4 symmetry; F-human / copper / capacitor files; degree 2; the <code>-n 1</code> / <code>-n 4</code> widths. </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

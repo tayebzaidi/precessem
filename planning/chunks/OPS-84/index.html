@@ -1,0 +1,736 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>OPS-84 — the (S2-tip) comparand's form on a field-derived source: I41's matched rod pair - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ops-84-the-s2-tip-comparands-form-on-a-field-derived-source-i41s-matched-rod-pair" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              OPS-84 — the (S2-tip) comparand's form on a field-derived source: I41's matched rod pair
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-860-2026-11-06-lane-1-known-issues-diagnosis-implementer-heavy-n-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 860 — 2026-11-06 (lane 1, known-issues diagnosis; implementer; heavy, -n 2)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ops-84-the-s2-tip-comparands-form-on-a-field-derived-source-i41s-matched-rod-pair">OPS-84 — the (S2-tip) comparand's form on a field-derived source: I41's matched rod pair<a class="headerlink" href="#ops-84-the-s2-tip-comparands-form-on-a-field-derived-source-i41s-matched-rod-pair" title="Permanent link">&para;</a></h1>
+<p><em>History file for the §7 <code>OPS-84</code> row (<code>OPS-46</code>). Opened by the 2026-11-06 10:30 daily review (lane 1, known-issues diagnosis) from the known-issues entry of 2026-11-06, whose Cause line <code>OPS-83</code> filled on the stub and left one clause open: "<strong>Not measured:</strong> that the clinical-scale reds (entry 55, U127) are wholly this form gap; the stub shows the mechanism at 1e-3, not its size on a degree-1 |E|²." The weekly re-poses the gate; this chunk only measures.</em></p>
+<p><strong>Why.</strong> <code>OPS-83</code> (<code>20261106T120232Z_OPS-83-W1.log:78–84</code>) showed the mechanism on a hand-made checkerboard: R_DG0 is Δt-independent at 1.6e-3 / 2.1e-3, and against the consistent-mass projection R_Π falls to 7e-6 and scales with Δt. The reds that matter are on field-derived sources — the DG0 cell average of ½σ|E|² from a degree-1 N1curl solve near a PEC rod tip, where the source is far rougher than a factor-3 checkerboard. U127 reads 4.3e-3 / 5.9e-4 (P1 drive, exact-rectangle rod mesh) and entry 55 reads 2.5e-3 / 6.4e-3 (F-clinical), with the gel twin at 3.1e-3 / 1.3e-3. Review ruling 5 on U127 (<code>WF-15.md</code>, 2026-11-05 03:00) also named a conduction term on a tip ball, ≈ 1e-5 to 1e-3 in review arithmetic, which is O(Δt) and therefore shows in R_Π, not in its Δt-independent part. Neither U127's mesh (its <code>Study</code> route lives only on <code>attempt/WF-15-s14-20261105T212843Z</code>) nor entry 55's (<code>xl</code>) can be read in a slot. I41's matched pair can: it is on <code>main</code>, it carries the rod and its gel twin on one mesh family with the same tip balls (<code>TIPS</code>, 1 g), and its last window ran 310 s at <code>-n 2</code> (<code>20261105T183330Z_OPS-81-W2-i41.log:3772</code>, <code>:3798</code>).</p>
+<p><strong>Done-when.</strong> <code>tests/validation/test_ops84_s2tip_form_rod_pair.py</code> lands, every asserted gate below green at <code>-n 2</code> in the complex build, the separating table and the pre-stated reading printed, and the known-issues entry's Cause line gains the field-derived reading (the "Not measured" clause answered, confirmed or refuted); the entry stays open and resolves with the weekly's re-pose ⇒ ✅.</p>
+<h3 id="9-item-860-2026-11-06-lane-1-known-issues-diagnosis-implementer-heavy-n-2">§9 item 860 — 2026-11-06 (lane 1, known-issues diagnosis; implementer; heavy, <code>-n 2</code>)<a class="headerlink" href="#9-item-860-2026-11-06-lane-1-known-issues-diagnosis-implementer-heavy-n-2" title="Permanent link">&para;</a></h3>
+<p><strong>Code.</strong> New <code>tests/validation/test_ops84_s2tip_form_rod_pair.py</code>, complex build (<code>@complex_only</code>), knob <code>FEM_EM_OPS84=1</code> (module fixture skips without it, as I41's does at <code>test_imp3_rod_heating_matched.py:202–206</code>). No <code>src/</code> edit; no landed module edited.
+- <strong>Imports, unchanged:</strong>
+  - from <code>tests.validation.test_imp3_rod_heating_matched</code> (I41): <code>_arm_with_403</code>, <code>_merge_rod_into_phantom</code>, <code>_census</code>, <code>ROD_CELLS</code>;
+  - from <code>tests.validation.test_imp3_rod_heating_phantom</code> (I39): <code>_outer_robin_tags</code>, <code>_parent_wall_count</code>;
+  - from <code>tests.validation.test_imp3_rod_birdcage</code>: <code>_arm</code> (as <code>_rb._arm</code>, the way I41 calls it), <code>TIPS</code>;
+  - from <code>tests.mesh.test_birdcage_implant_rod</code>: <code>_build_rod</code>, <code>_build_kept_rod</code>, <code>KEPT_ROD_CELL_RECORD</code>;
+  - from <code>tests.validation.test_mat15_coil_driven_heating_phantom</code>: <code>_transient</code>, <code>_tag_submesh</code>, <code>_cell_average_dg0_tag</code>, <code>DT_1</code>, <code>RHO_C</code>, <code>T_INF</code>, <code>S2_BAND</code>, <code>E_BAND</code>, <code>_max_imag</code>;
+  - from <code>tests.validation.test_mat10_sar_to_heat_sphere</code>: <code>_to_sub</code>, <code>_allsum</code>, <code>B_BAND</code>, <code>ROBIN_TAG</code>;
+  - from <code>tests.validation.test_mass_averaged_sar_standard_masses</code>: <code>ONE_GRAM_KG</code>, <code>QUADRATURE_DEGREE</code>;
+  - from <code>tests.validation.test_birdcage_sar_mass_averaged</code>: <code>PHANTOM_RHO_KG_PER_M3</code>;
+  - from <code>tests.validation.test_port_birdcage_lumped_column</code>: <code>PHANTOM_CELL_TAG</code>;
+  - from <code>tests.validation.test_ops83_s2tip_form_on_stub</code>: <code>_projections</code>, <code>CONST_RATIO</code>, <code>SCALING_RATIO</code>;
+  - <code>fem_em_solver.post.sar</code>: <code>mean_sar</code>, <code>averaging_ball_radius</code>.
+- <strong>Read every signature first</strong> (<code>_arm</code> at <code>test_imp3_rod_birdcage.py:295</code>; its hook receives <code>(label, rod, msh, cell_tags, e_of, sigma_field, rho_field)</code>, and <code>e_of</code> holds <code>"P1"</code> … and <code>"ccw"</code> / <code>"cw"</code>, <code>:340–341</code>).
+- <strong>Run order = I41's <code>_run</code> without its control arm</strong> (<code>test_imp3_rod_heating_matched.py:133–178</code>): build R (<code>_build_rod</code>) and M (<code>_build_kept_rod</code>), assert (A0m) exactly as I41 does (<code>:149–151</code>); arm M first through <code>_arm_with_403(built_m, …, map_gel=True)</code> with a hook on the merged tags (<code>_merge_rod_into_phantom</code>); then arm R through <code>_rb._arm(built_rod, …, rod=True)</code>. <strong>All thermal work runs inside the hook</strong> — the fields are freed when <code>_arm</code> returns.
+- <strong>In each hook, a new <code>_slope_arm(label, msh, cell_tags, e_of, sigma_field, G_ccw)</code></strong>, for each source s ∈ {<code>"ccw"</code>, <code>"P1"</code>}:
+  1. P_s = <code>mean_sar(e_of[s], …, subdomain_ids=PHANTOM_CELL_TAG)["dissipated_power_w"]</code> (real part), as I39's <code>_heat_arm</code> (<code>test_imp3_rod_heating_phantom.py:153–155</code>). G: on ccw, arm M's G = 1/P_ccw(M) and arm R reuses it (I41's scheme, so the reproduction control below is like for like); on P1, G = 1/P_P1 per arm (the slopes are scale-free).
+  2. <code>sub, parent_ids = _tag_submesh(msh, cell_tags, PHANTOM_CELL_TAG)</code>, <code>ft, counts = _outer_robin_tags(sub)</code> once per arm; q_s = <code>_to_sub(*_cell_average_dg0_tag(msh, cell_tags, PHANTOM_CELL_TAG, G·½σ·inner(e, e)), sub, parent_ids)</code> exactly as <code>:168–171</code>; (B) ∫_sub q_s = G·P_s.
+  3. BE one step from T∞: <code>_transient(sub, ft, q_s, dt=Δt, n_steps=1, theta=1.0)</code> for Δt ∈ {<code>DT_1</code>, <code>DT_1</code>/10} — four solves per arm, eight in all. Global (S2) per <code>:188–190</code> with <code>G·P_s / V_sub</code>.
+  4. <code>pq, plq = _projections(q_s, V1, tag)</code> with V1 = <code>res.temperature.function_space</code> and <strong>a tag unique per arm and source</strong> (<code>f"ops84_{arm}_{s}"</code>; it is the PETSc options prefix).
+  5. <strong>Ball reads</strong> at both <code>TIPS</code> with a = <code>averaging_ball_radius(ONE_GRAM_KG, PHANTOM_RHO_KG_PER_M3)</code>, through I39's indicator form (<code>:202–216</code>: <code>ufl.conditional(ufl.lt(ufl.real(…), ufl.real(rad_c) ** 2), 1, 0)</code>, <code>dx</code> with <code>metadata={"quadrature_degree": int(QUADRATURE_DEGREE)}</code>), one compiled form per integrand — θ¹ − T∞ (both Δt), q<strong>, Πq_s, Π_L q_s — ea</strong> value <code>allreduce</code>d before dividing by the allreduced ball volume. Print the ball volume against 4/3·π·a³.
+  6. <strong>Projection identity:</strong> project θ¹ − T∞ (a V1 function, Δt₁, ccw) with <code>_projections</code> (tag <code>f"ops84_{arm}_id"</code>), and read |⟨Πθ⟩_B/⟨θ⟩_B − 1| at both tips.</p>
+<p><strong>Gates (asserted; bands imported, none set).</strong>
+- <strong>(A0m)</strong> as I41: arm M global cells = <code>KEPT_ROD_CELL_RECORD</code>, tag-403 = <code>ROD_CELLS</code>, tag-3 equal to arm R's.
+- <strong>(B)</strong> ≤ <code>B_BAND</code> on all four (arm, source) pairs.
+- <strong>(E)</strong> <code>max_balance_residual</code> ≤ <code>E_BAND</code> on all eight solves.
+- <strong>Global (S2)</strong> ≤ <code>S2_BAND</code> on all eight solves (predicted green: the projection keeps the domain mean, as entry 55 and U127 read).
+- <strong>Reproduction control:</strong> the ccw Δt₁ global ratio ρc·θ̄¹/(Δt₁·G·P/V) equals <code>OPS-81</code> W2's printed 0.999994872614 (arm M, <code>20261105T183330Z_OPS-81-W2-i41.log:3683</code>) and 0.999995000025 (arm R, <code>:3728</code>) <strong>within 1e-11</strong> — ten units of the <code>.12f</code> print's last digit, the bound named here per the 18:00 ruling on I41. A miss means this route is not I41's: stop, BLOCKED.
+- <strong>Projection identity</strong> ≤ 1e-10 at both tips on both arms (<code>OPS-83</code>'s LU round-off ceiling, <code>PROJECTION_ID_TOL</code>).
+- max|Im θ| ≤ 1e-12 printed beside (I39 prints it; not a new gate).</p>
+<p><strong>Printed (the separating measurement; no band set).</strong> For each arm × source × tip, at Δt₁ and Δt₁/10: R_DG0 = |ρc⟨θ¹⟩/(Δt⟨q⟩) − 1| (the gate as written), R_Π against ⟨Πq⟩, R_L against ⟨Π_L q⟩, each Δt-ratio R(Δt₁)/R(Δt₁/10), and ⟨Πq⟩/⟨q⟩ − 1. <strong>The pre-stated reading</strong>, one line per arm × source × tip, printed, never asserted:
+- <strong>"form ACCOUNTS"</strong> — R_DG0 &gt; <code>S2_BAND</code> with Δt-ratio in <code>CONST_RATIO</code> [0.5, 2], and R_Π ≤ <code>S2_BAND</code>;
+- <strong>"form + O(Δt)"</strong> — R_DG0 &gt; <code>S2_BAND</code> Δt-independent, R_Π &gt; <code>S2_BAND</code> with Δt-ratio ≥ <code>SCALING_RATIO</code> (5): the remainder is the step's conduction term (ruling 5), which a smaller Δt₁ would bring under the band;
+- <strong>"RESIDUAL"</strong> — R_Π &gt; <code>S2_BAND</code> with Δt-ratio &lt; 5: something Δt-independent beyond the projection;
+- <strong>"INCONCLUSIVE"</strong> — R_DG0 ≤ <code>S2_BAND</code> (this tip's source is too smooth to show the gap), or anything else.
+Predicted (unlogged review estimate, not a band): R_DG0 between 1e-4 and 1e-2 on both arms — U127's and the gel twin's range — and the readings "form ACCOUNTS" or "form + O(Δt)".</p>
+<p><strong>Window.</strong> First the pre-check, a bare call: <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0. W0 (coding tests, knob unset): <code>scripts/testing/run_and_log.sh OPS-84-W0 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 PYTHONPATH=/workspace/src:/workspace timeout -k 30 120 mpiexec -n 2 python3 -m pytest tests/validation/test_ops84_s2tip_form_rod_pair.py -v -s --tb=short'"</code>. W1: <code>scripts/testing/run_and_log.sh OPS-84-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_OPS84=1 PYTHONPATH=/workspace/src:/workspace timeout -k 30 600 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/validation/test_ops84_s2tip_form_rod_pair.py -v -s --tb=short'"</code> — <code>OPS-81</code> W2's form (<code>20261105T183330Z_OPS-81-W2-i41.log:12</code>) with this module. Both bare and foreground, Bash timeout 660000 ms. <strong>Price:</strong> I41 ran arms M 75.4 / R 66.0 / control 64.4 s, 306.0 s total (<code>…OPS-81-W2-i41.log:3772</code>); without the control arm and with six extra BE steps and five projections per arm on ≈ 52–67 k-cell submeshes, ≈ 250–330 s. If W1 is killed at 600 s, it is a size kill: park, never raise the timeout (drop the P1 source first on a re-pose).</p>
+<p><strong>Tier.</strong> Heavy, <code>-n 2</code>, complex. <strong>Class:</strong> lane-1 revalidation (diagnosis). <strong>Cost:</strong> ≈ 3.9 measured (the lane-1 median, 10:30 journal §6) / 25 predicted min. <strong>Family:</strong> <code>OPS-84</code>, attempt 1 of 4. It is not an attempt on U127's, entry 55's or <code>IMP-3</code>'s families: it executes no step and moves no gate.</p>
+<p><strong>Traps already paid for.</strong>
+- <code>ArityMismatch</code> is a <code>BaseException</code> raised on rank 0 alone, so a raising rank hangs its peer to the ceiling (item 849). Conjugate every test function (<code>ufl.inner(u, v)</code>), and never put a deliberate refusal inside <code>pytest.raises</code> around <code>fem.form</code>.
+- Comparisons on complex operands go through <code>ufl.real</code> (<code>OPS-22</code>); the ball indicator already does.
+- A <code>SpatialCoordinate</code>-bearing integral without a pinned <code>quadrature_degree</code> can send FFCx into a compile that does not finish (<code>POST-5</code> step 1); pin it on every ball form.
+- <code>_projections</code> builds a <code>LinearProblem</code> with a fixed options prefix per tag; reuse of a tag across calls collides.
+- <code>_arm_with_403</code> monkeypatches <code>_rb.build_four_port_sweep</code> and restores it in <code>finally</code>; do not wrap it a second time. It also sets <code>TWO_TAG_ACK_KEY</code>, which <code>OPS-80</code>'s guard needs for the kept tag 403 (<code>OPS-81</code>).
+- Reduce before asserting (<code>allreduce</code> on every ball integral and volume); count pytest verdicts per rank by token; use <code>-s</code>.
+- Two heavy windows never run at once: <code>pgrep -c python3</code> reads 0 first. Harness calls are bare, foreground, <code>timeout -k 30</code>.</p>
+<p><strong>Scope.</strong> One mesh pair (I41's, ragged-sheet W1 record family, degree-1 EM, P1 thermal), two sources, one BE step. <strong>Not claimed:</strong> a re-pose of U127 or entry 55's gate (the weekly's), a band, a reading on U127's exact-rectangle mesh or on F-clinical, a fix to <code>_thermal_failures</code>, or any statement about I41's θ ratio.</p>
+<p><strong>Negative result.</strong> A red on (A0m), (B), (E), the global (S2), the reproduction control or the projection identity means the route is not I41's: print everything, stop, BLOCKED, journal. Any of the four readings is a result, not a failure: write it into the known-issues entry's Cause line — the "Not measured" clause becomes measured on a field-derived source, or the form reading is refuted there — in the same commit. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> The known-issues entry of 2026-11-06: its Cause line's open clause is answered on a degree-1 |E|² beside a PEC rod tip and its gel twin. The 11-07 weekly's re-pose of the tip gate (U127, entry 55) gets field-derived evidence — whether a projected comparand alone, or a projected comparand at a smaller Δt₁, brings the tip under <code>S2_BAND</code>. <code>OPS-84</code> ✅.</p>
+<p><strong>Depends on:</strong> nothing.</p>
+<p><strong>Outcome (12:00 CST slot, 2026-11-06).</strong> ✅ <code>20261106T180958Z_OPS-84-W1.log</code>: 14 passed in 264.9 s at <code>-n 2</code> (harness 267 s; arms M 89.1 / R 75.1 s, total 263.2 s, <code>:3763</code>), heavy tier, complex build; W0 <code>20261106T180947Z_OPS-84-W0.log</code> (3 passed, 7 skipped, 3 s). (A0m) 182 371 / 15 000 / 51 693 = arm R's 51 693 (<code>:3645</code>); (B) ≤ 4.1e-14; (E) ≤ 3.8e-10; global (S2) ≤ 5.22e-06 on all eight solves; reproduction control — arm M 0.999994872611768 vs 0.999994872614 (2.2e-12), arm R 0.999995000024765 vs 0.999995000025 (2.3e-13) (<code>:3744–3745</code>); projection identity ≤ 4.4e-16 at both tips on both arms; max|Im θ| 0. Ball volumes 0.999929 / 1.000993 (M) and 0.981846 / 0.982903 (R, the rod hole) × 4/3·π·a³. Separating table (<code>:3747–3754</code>), Δt₁ → Δt₁/10 with Δt-ratio:</p>
+<table>
+<thead>
+<tr>
+<th>arm src tip</th>
+<th>R_DG0</th>
+<th>R_Π</th>
+<th>R_L</th>
+<th>⟨Πq⟩/⟨q⟩ − 1</th>
+<th>reading</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M ccw top</td>
+<td>9.4354e-03 → 9.5708e-03 (0.986)</td>
+<td>1.5196e-04 → 1.5265e-05 (9.954)</td>
+<td>1.0148e-01 (0.999)</td>
+<td>−9.5859e-03</td>
+<td>form + O(Δt)</td>
+</tr>
+<tr>
+<td>M ccw bottom</td>
+<td>1.6451e-04 → 7.3271e-05 (2.245)</td>
+<td>1.0142e-04 → 1.0187e-05 (9.956)</td>
+<td>9.9662e-02 (0.999)</td>
+<td>+6.3084e-05</td>
+<td>INCONCLUSIVE</td>
+</tr>
+<tr>
+<td>M P1 top</td>
+<td>1.8371e-03 → 1.7105e-03 (1.074)</td>
+<td>1.4052e-04 → 1.4125e-05 (9.948)</td>
+<td>4.8508e-02 (0.998)</td>
+<td>+1.6963e-03</td>
+<td>form + O(Δt)</td>
+</tr>
+<tr>
+<td>M P1 bottom</td>
+<td>5.9023e-03 → 5.8461e-03 (1.010)</td>
+<td>6.2204e-05 → 6.2569e-06 (9.942)</td>
+<td>4.4469e-02 (0.999)</td>
+<td>+5.8398e-03</td>
+<td>form ACCOUNTS</td>
+</tr>
+<tr>
+<td>R ccw top</td>
+<td>4.0523e-03 → 3.9690e-03 (1.021)</td>
+<td>9.2880e-05 → 9.2323e-06 (10.060)</td>
+<td>2.7292e-02 (0.997)</td>
+<td>−3.9598e-03</td>
+<td>form ACCOUNTS</td>
+</tr>
+<tr>
+<td>R ccw bottom</td>
+<td>2.9397e-03 → 3.0233e-03 (0.972)</td>
+<td>9.2589e-05 → 9.2618e-06 (9.997)</td>
+<td>2.9794e-02 (0.997)</td>
+<td>+3.0326e-03</td>
+<td>form ACCOUNTS</td>
+</tr>
+<tr>
+<td>R P1 top</td>
+<td>1.3758e-03 → 1.2818e-03 (1.073)</td>
+<td>1.0453e-04 → 1.0398e-05 (10.053)</td>
+<td>4.7682e-02 (0.998)</td>
+<td>−1.2714e-03</td>
+<td>form + O(Δt)</td>
+</tr>
+<tr>
+<td>R P1 bottom</td>
+<td>3.7808e-03 → 3.8794e-03 (0.975)</td>
+<td>1.0914e-04 → 1.0918e-05 (9.996)</td>
+<td>5.0440e-02 (0.998)</td>
+<td>+3.8904e-03</td>
+<td>form + O(Δt)</td>
+</tr>
+</tbody>
+</table>
+<p>Reading: R_DG0 sits in the predicted 1e-4 … 1e-2 range and equals the projection's ball-mean shift; once the comparand is ⟨Πq⟩ the remainder is O(Δt) (ratio ≈ 10 per decade) and under <code>S2_BAND</code> on every row at Δt₁/10. No row reads RESIDUAL. The one INCONCLUSIVE row (M ccw bottom) has R_DG0 just over the band with a non-constant Δt-ratio, because its form gap (6.3e-05) is smaller than the O(Δt) term. The lumped projection is worse than DG0, so it is not the comparand. Implementation choice, coded in the module's <code>_reading</code>: the reading uses R_Π at Δt₁ (the gate's step). Scope as stated: ragged-sheet I41 pair only; no band, no re-pose.</p>
+<p><strong>Audit PASS — 2026-11-06 18:00 review (<code>auditor</code>).</strong> Footer Status 0, 267 s; <code>Commit:</code> header <code>71c41460</code> = parent of <code>c18386ce</code> (<code>20261106T180958Z_OPS-84-W1.log:3</code>, <code>:3777–3780</code>). 14 passed per rank by token (<code>:3772</code>, <code>:3775</code>; 28 <code>PASSED</code> tokens, no FAILED / ERROR). Asserts executed at <code>test_ops84_s2tip_form_rod_pair.py:303–306</code> (A0m), <code>:314–317</code> ((B), (E), global (S2)), <code>:324</code> (reproduction), <code>:331</code> (projection identity); <code>ASSERTED</code> lines at <code>:3679–3688</code>, <code>:3725–3734</code>, <code>:3744–3745</code>. Every quoted digit traced (reproduction 2.232e-12 / 2.346e-13, <code>:3744–3745</code>; table <code>:3746–3754</code>; readings 3 / 4 / 1 / 0, <code>:3755–3762</code>). Bands imported unchanged; the one new constant, <code>REPRO_TOL</code> = 1e-11, is the brief's. No <code>src/</code> change. <strong>Caveat corrected in the §7 row:</strong> "R_DG0 Δt-independent" held on the seven classified rows only; M ccw bottom (the INCONCLUSIVE row) reads a Δt-ratio of 2.245 (<code>:3749</code>). Noted, not edited: <code>_reading</code> also requires the R_DG0 ratio in <code>CONST_RATIO</code> for "form + O(Δt)", slightly stricter than the brief's wording.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

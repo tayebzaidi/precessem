@@ -1,0 +1,992 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-110 — mat:18, the six-minute window on an FEM heating history - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-110-mat18-the-six-minute-window-on-an-fem-heating-history" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-110 — mat:18, the six-minute window on an FEM heating history
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-389-2026-10-11-example-54-ramp-example-runner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 389 — 2026-10-11 (example, §5.4 ramp; example-runner)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-12-1030-item-389-re-posed-as-item-399-attempt-2-of-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-12 10:30 — item 389 re-posed as item 399 (attempt 2 of 4)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-399-2026-10-12-example-54-ramp-re-pose-of-389" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 399 — 2026-10-12 (example, §5.4 ramp; re-pose of 389)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-110-mat18-the-six-minute-window-on-an-fem-heating-history">EX-110 — mat:18, the six-minute window on an FEM heating history<a class="headerlink" href="#ex-110-mat18-the-six-minute-window-on-an-fem-heating-history" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<p><code>EX-110</code> (<code>mat:18</code>) is opened 2026-10-11 by the 18:00 daily review under daily-review.md step 5 (§5.4 ramp). Its base is <code>MAT-20</code> ✅ (§9 item 370, 2026-10-11 12:00 slot): step 2's FEM clause, <code>tests/validation/test_mat20_fem_history.py</code>, run of record <code>docs/testing/logs/20261011T172810Z_MAT-20-step2-fem-W1.log</code> (heavy, <code>-n 2</code>, 270 s, 13 passed). On <code>MAT-17</code> step 3's fixture (<code>MAT-15</code> step 1's <code>_run_heated</code>, the F-small coil-driven gel phantom at 10 MHz, drive k = 0, G = 1 W / P₁, P = t*/5 = 250.8 s, D = 0.5) it holds:
+- (H0) Duhamel on the per-step volume-mean series, 5.689e-14 ≤ <code>L_BAND</code> (<code>:1968</code>);
+- (FEM) <code>running_average</code> (W = 360 s, 11.48 samples, 29 windows) of the duty series equals Σ(−1)^m of it on the ten Heaviside series H_m, 3.434e-14 ≤ <code>D_BAND</code> (<code>:1969</code>); (FEM-2d) 3.444e-14 through the 2-D call, duty column equal to the 1-D call (<code>:1971</code>);
+- (Wc-FEM) the P/2-shifted control misses by 1.326e-1 (<code>:1972</code>); (Dc) m = 9 dropped, 0.043296, printed (<code>:1973</code>).</p>
+<p><strong>Proposed §7 row</strong> (to paste right after the <code>EX-109</code> row; ≤ 2 KB):</p>
+<p>| <code>EX-110</code> | <strong>The six-minute window on an FEM heating history: windowing a duty-cycled coil drive equals windowing its ten switch-on runs</strong> <em>(history and §9 briefs: <code>docs/planning/chunks/EX-110.md</code>)</em> (<code>mat:18</code>; <code>example-runner</code>; opened 2026-10-11 by the 18:00 daily review, §5.4 ramp from <code>MAT-20</code> ✅, §9 item 370; <code>mat:17</code> windows closed forms only and <code>mat:15</code> shows this history unwindowed) <strong>Done-when:</strong> <code>examples/materials/18_six_minute_window_coil_heating.py</code> + same-stem guide (three required headings + <code>## Setup figure</code> + <code>## Related</code>, PNG ≤ 600 KiB); complex, <code>-n 2</code>; rule (a) lift in <code>tests/validation/test_mat20_fem_history.py</code> (<code>_fem_history(*, keep_duty_fields=False)</code>, <code>_identities(t, duty, hs)</code>; additive, prints unchanged), module re-gated green in-slot; every band imported, none restated, no <code>src/</code> edit. Asserted in-script through the imported helper: (H0) ≤ <code>L_BAND</code>, (FEM) and (FEM-2d) ≤ <code>D_BAND</code>, control (Wc-FEM) &gt; <code>D_BAND</code>; example-side (Cm) the volume mean of the per-vertex six-minute field equals the windowed series ≤ <code>D_BAND</code>, its one-sample-short control (Cm-c) misses; records printed beside <code>20261011T172810Z_MAT-20-step2-fem-W1.log:1957–1974</code>. Outputs: θ and its six-minute mean as a 29-frame series XDMF, a t* combined XDMF and a history CSV. Census +1, <code>broken=0</code>, no new dead docref; elapsed recorded ⇒ ✅. Not claimed: a limit or compliance, tissue, perfusion, absolute temperature, a periodic state, a CEM43 gate. | ⬜ Queued §9 item 389. | heavy (<code>-n 2</code>, ≈ 225 s per window, <code>-t 590</code>) |</p>
+<p><strong>Gap.</strong> No example applies the six-minute operator to an FEM history, or to a field.
+- <code>grep -rlE 'running_average|cem43' examples --include=*.py</code> returns only <code>examples/materials/17_thermal_dose_duty_cycle.py</code>, and <code>mat:17</code> (<code>EX-104</code>) is closed-form only by its Done-when ("never an FEM history").
+- <code>mat:15</code> (<code>EX-99</code>) runs this exact history and writes θ(t), but its guide's Not-claimed list includes "SAR averaging"; it never windows.</p>
+<h3 id="9-item-389-2026-10-11-example-54-ramp-example-runner">§9 item 389 — 2026-10-11 (example, §5.4 ramp; example-runner)<a class="headerlink" href="#9-item-389-2026-10-11-example-54-ramp-example-runner" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-11 18:00 daily review; the review reviews it.</em> <strong>This brief sets and moves no band, tolerance, record, Done-when of another chunk or validation target.</strong> Every band is imported from <code>MAT-20</code>'s FEM-clause module and <code>MAT-17</code> step 3's module.</p>
+<p><code>EX-110</code> (<code>mat:18</code>; <code>examples/materials/</code> holds 01–17, and the runner selects <code>mat:&lt;n&gt;</code> by the <code>%02d_</code> prefix, <code>scripts/run_examples.sh:201–219</code>, so <code>18_</code> is <code>mat:18</code>) adds three tracked files and edits one gate module:
+- <code>examples/materials/18_six_minute_window_coil_heating.py</code>;
+- the same-stem guide <code>examples/materials/18_six_minute_window_coil_heating.md</code>, with <code>## 1. What this demonstrates</code>, <code>## 2. How to run it</code>, <code>## 3. How to analyze it, step by step</code>, <code>## Setup figure</code> and <code>## Related</code>;
+- <code>examples/materials/figures/materials_18_six_minute_window_coil_heating_setup.png</code>, ≤ 600 KiB;
+- the rule (a) lift in <code>tests/validation/test_mat20_fem_history.py</code> (below).</p>
+<p><strong>The angle: the regulatory window on a real FEM history, and on a field.</strong> <code>mat:17</code> showed the six-minute window on closed forms. <code>mat:15</code> showed this coil-driven duty history without a window. This example joins them and adds three things no example has:
+1. <strong>Windowing commutes with Duhamel on FEM data.</strong> The duty run's six-minute mean equals the signed sum of the ten switch-on runs' six-minute means ((FEM), gated). So a user can window the per-switch building blocks once and compose any on/off schedule on the same switch grid without re-windowing. The guide states this as the reason; the example asserts only the gated schedule.
+2. <strong>The window of a field.</strong> The 2-D call windows θ at every P1 vertex of the phantom. The example writes θ and its six-minute mean as one ParaView time series (29 frames, n = 12 … 40). It also writes, at t*, the per-vertex six-minute maximum and <strong>the time at which each vertex's six-minute mean peaks</strong>. The volume mean peaks at t* (record <code>:1974</code>). But a window ending at the last on-phase end (n = 36, t = 1128.6 s) holds 234.6 s of on-time, against 125.4 s for the window ending at t* (n = 40). So vertices whose θ falls during the off phase may peak earlier. The map shows where.
+3. <strong>Power against temperature.</strong> The source's six-minute on-fraction peaks at (P/2 + W − P)/W = 234.6/360 = 0.6517, which is 1.303 × D: plain arithmetic on <code>HALF</code> and <code>W</code>, printed. The volume-mean θ's six-minute peak is 0.5270 K against H_0's 1.0044 K, a ratio of 0.5247 ≈ D (<code>:1974</code>). The thermal mass flattens what the power window reports.</p>
+<p>Part B (printed only; the §10 note "an example after <code>MAT-20</code> ✅ (P20's dose figures, <code>mat:18</code>)"): if <code>logs/mat15_s5/</code> holds step 3's series JSON (gitignored; present at drafting, written 13:36), recompute through <code>cem43</code> and <code>running_average</code> and print, beside <code>20261011T183717Z_MAT-20-step3-W2.log</code>, the tuned F-human's 10 g ball-mean CEM43 per accepted W and its six-minute peak. Nothing in Part B is asserted. If the file is absent, Part B prints one skip line and the run continues. <strong>The run of record must show Part B present.</strong></p>
+<ul>
+<li><strong>Executor:</strong> <code>example-runner</code>. It does not spawn agents.</li>
+<li><strong>Class:</strong> example. <strong>Tier:</strong> heavy, <code>-n 2</code> (the gate's record width), complex build (the <code>mat:</code> group sources it).</li>
+<li><strong>Cost:</strong> ≈ 8 measured (example class median) / ≈ 55 predicted min (10 fixed + ≈ 8 lift + ≈ 15 script + ≈ 6 guide + ≈ 16 windows). <strong>If the re-gate (window 2) has not started by minute 25, or the flagged run (window 4) by minute 38, park</strong> (rule (d)). Price basis:</li>
+<li>The gate's run of record took <strong>270 s</strong> harness, 268.66 s pytest (<code>20261011T172810Z_MAT-20-step2-fem-W1.log:2039, :2108</code>). Inside it, <code>_run_heated</code> took 166.8 s (EM 143.3 s, <code>:1954</code>), and the 11 transients plus 451 reductions took <strong>28.2 s</strong> (<code>:1956</code>).</li>
+<li>The nearest example analogue is <code>mat:15</code> on the same <code>_run_heated</code>, with 12 thermal runs and a 41-frame θ series: <strong>230 s</strong> flagged / <strong>220 s</strong> control (<code>20261007T183803Z_EX-99.log:2006</code>; <code>…184229Z_EX-99-control.log</code>).</li>
+<li>This example adds the 2-D window over ≈ 1e4 local dofs × 41 samples (&lt; 1 s), 29 frames × 2 P1 fields of series XDMF (≈ 5–15 s) and Part B (≈ 1 s; W2 was 3 s).</li>
+<li><strong>Flagged run predicted ≈ 225 s, range [190, 330] s; control ≈ 215 s.</strong> Re-gate ≈ 270 s, range [250, 330] s. Runner <code>-t 590</code>, container <code>timeout -k 30 590</code>. Each window is under 10 min, so the plain runner line is the form (no durable capture).</li>
+<li>Dry run plus four census windows: ≈ 1.5 min together. Total compute ≈ 15 min.</li>
+<li><strong>Fewer Heaviside runs were considered and rejected.</strong> The ten runs cost ≈ 25 s of the ≈ 225 s; the EM fixture dominates. Dropping any H_m changes the identity: (Dc) shows that dropping m = 9 alone misses by 0.043. Truncating the history changes the window count (29). Reading the gate's gitignored <code>logs/mat20/</code> JSON instead of re-solving would save ≈ 28 s. But the θ field series needs the duty run's fields, and so the EM solve. So all ten runs are kept and re-solved.</li>
+<li><strong>Depends on:</strong> nothing open. Item 370 is DONE on <code>main</code>. <code>18_</code> is free in <code>examples/materials/</code>, and no row or chunk names <code>EX-110</code> (the <code>mat:18</code> mentions in <code>MAT-20.md:159, :347</code> and §10 are this example).</li>
+<li><strong>Shared files.</strong> One gate-module edit (the lift), the three new paths, and nothing under <code>src/</code>. <code>dose.py</code> stays unexported; import <code>fem_em_solver.thermal.dose</code> directly. Never beside another heavy window.</li>
+</ul>
+<p><strong>Code: the rule (a) lift</strong> (standing rule (a): additive, gate re-run green in-slot, disclosed; the <code>EX-99</code> <code>_run_duty</code> precedent). In <code>tests/validation/test_mat20_fem_history.py</code>:
+1. <strong><code>_fem_history(*, keep_duty_fields=False)</code></strong> is <code>hist()</code>'s body (<code>:72–91</code>) moved verbatim, without the JSON dump.
+   - Split the duty line (<code>:83–84</code>) into <code>r_duty = _transient_s(sub, ft, q0, _chi_duty, snapshot_steps=STEPS)</code> followed by <code>duty = _series(r_duty, work, f_mean, comm, v_sub)</code>. This is behaviour-identical.
+   - Under the flag only, take <code>duty_fields = [np.real(r_duty.snapshots[n].x.array).copy() - T_INF for n in STEPS]</code> <strong>before</strong> <code>_series</code> clears the snapshots (<code>:66</code>).
+   - Return <code>{"t", "duty", "H"}</code> as now. Under the flag, also return <code>base</code>, <code>sub</code>, <code>ft</code>, <code>V1</code>, <code>work</code>, <code>f_mean</code>, <code>v_sub</code>, <code>q0</code>, <code>duty_fields</code>.
+   - The <code>MAT20fem fixture:</code> print (<code>:89–91</code>) is unchanged.
+2. <strong><code>hist()</code></strong> becomes <code>out = _fem_history()</code>, then the rank-0 JSON dump (<code>:93–99</code>, same keys and values) and <code>comm.Barrier()</code>, then <code>return out</code>.
+3. <strong><code>_identities(t, duty, hs)</code></strong> holds the test body's computations (<code>:107</code>, <code>:116–117</code>, <code>:122–128</code>, <code>:134–137</code>, <code>:142–144</code>, <code>:149–150</code>, <code>:154</code>), moved verbatim. It returns a dict:
+   - <code>signs</code>, <code>h0</code>, <code>a</code>, <code>a_mx</code>, <code>a_tmx</code>, <code>ra</code>, <code>b</code>, <code>ok</code>, <code>scale</code>, <code>res</code>, <code>fem</code>;
+   - <code>fem2d</code>, <code>fem2d_eq</code> (the <code>np.array_equal</code>), <code>idx</code>, <code>wc</code>, <code>dc</code>, <code>h0_mx</code>, <code>h0_tmx</code>.</p>
+<p><code>test_mat20_fem_history</code> calls it, prints every line it prints today, from the dict and at the same format specs, and keeps its four <code>assert</code>s unchanged.
+- <strong>No band, assertion, print format or JSON key moves.</strong> <code>git diff</code> on the module shows a move plus a call, nothing else.</p>
+<p><strong>Imports (never restated).</strong> Use module aliases: two modules define <code>W</code>-like names, and <code>_series</code> / <code>_say</code> are generic.
+- <code>import tests.validation.test_mat20_fem_history as m20f</code>: <code>_fem_history</code>, <code>_identities</code>, <code>_series</code>, <code>W</code>, <code>STEPS</code>.
+- <code>import tests.validation.test_mat17_duty_cycle_coil_driven as m17s3</code>: <code>D_BAND</code>, <code>L_BAND</code>, <code>DT</code>, <code>HALF</code>, <code>N_SWITCH</code>, <code>STEPS_PER_HALF</code>, <code>_chi_duty</code>.
+- <code>import tests.validation.test_mat15_coil_driven_heating_phantom as m15</code>: <code>N_MAIN</code>, <code>T_INF</code>, <code>T_STAR</code>, <code>PHANTOM_CELL_TAG</code>, <code>_run_heated</code>.
+- <code>import tests.validation.test_mat20_running_average as s2</code>: <code>W_B2</code>, for the structural check only.
+- <code>import tests.validation.test_mat20_tuned_heating_dose as m20d</code> (Part B): <code>SERIES_JSON</code>, <code>_quad_dose</code>, <code>R_BELOW</code>.
+- Setup-figure tags, as <code>mat:15</code> imports them (<code>15_duty_cycled_coil_heating_phantom.py:57–58, :81</code>): <code>PORT_LOWER</code>, <code>PORT_UPPER</code> (<code>tests/mesh/test_birdcage_port_sheets.py</code>), <code>LEG_COUNT</code> (<code>tests/mesh/test_birdcage_port_tags.py</code>), <code>CONDUCTOR_CELL_TAG</code> (<code>tests/validation/test_port_birdcage_lumped_column.py</code>).
+- From <code>src</code>: <code>cem43</code>, <code>running_average</code> (<code>fem_em_solver.thermal.dose</code>), <code>write_setup_figure</code>, <code>write_xdmf_with_tags</code>, <code>write_xdmf_time_series</code>, <code>adopt_host_ownership</code>.
+- <strong>Structural asserts at start-up</strong> (the <code>mat:15</code> precedent, <code>:100–108</code>):
+  - <code>m20f.D_BAND is m17s3.D_BAND</code>;
+  - <code>m20f.L_BAND is m17s3.L_BAND</code>;
+  - <code>m20f._run_heated is m15._run_heated</code>;
+  - <code>m20f.T_STAR is m15.T_STAR</code>;
+  - <code>m20f.W == s2.W_B2 == 360.0</code>.
+- Record digits go only into an example-local <code>REC</code> dict, each entry commented with its <code>log:line</code> (<code>EX-89</code> item 332 (Q1)). Insert <code>_REPO_ROOT</code> into <code>sys.path</code> (<code>15_duty_cycled_coil_heating_phantom.py:53–55</code>).</p>
+<p><strong>(1) Anchor.</strong> Part A runs <code>r = m20f._fem_history(keep_duty_fields=True)</code>, then <code>ids = m20f._identities(r["t"], r["duty"], r["H"])</code>. It prints once, on rank 0.
+- <strong>Re-asserted at the imported bands</strong>, each printed beside its W1 line at the gate's format spec:
+  - (H0) <code>ids["h0"] &lt;= m17s3.L_BAND</code>, record 5.689e-14 (<code>:1968</code>);
+  - (FEM) <code>ids["fem"] &lt;= m17s3.D_BAND</code>, record 3.434e-14 over 29 windows (<code>:1969</code>);
+  - (FEM-2d) <code>ids["fem2d"] &lt;= m17s3.D_BAND</code> and <code>ids["fem2d_eq"] is True</code>, record 3.444e-14 / True (<code>:1971</code>).
+  - Residuals are round-off readings: assert them at the band only, and print them beside the record.
+- <strong>Records, printed, predicted equal at the printed digits</strong> (same code, same width; item 370 matched <code>MAT-17</code> step 3 to the last digit except one unit on H_8):
+  - ⟨θ_Hm⟩(t*) for m = 0 … 9 (<code>:1957–1966</code>; H_0 1.153313650151e+00 K … H_9 1.302990494639e-01 K);
+  - the duty ⟨θ⟩ at n = 32 / 36 / 40: 0.466250330 / 0.584438780 / 0.568835514 K (<code>:1967</code>);
+  - the duty six-minute max 5.270483664e-01 K at t_max = 1254.0000 s; H_0's 1.004390808e+00 K at 1254.0000 s (<code>:1974</code>).</p>
+<p>A last-digit difference is reported, not red: <code>EX-99</code>'s flag and control differed at ≈ 1e-14 relative. A difference beyond the last two printed digits stops the item (Negative result).
+- <strong>(Cm) example-side, asserted: the window of the field commutes with the volume mean.</strong> This is exact on its premise, because both maps are linear: the volume mean is a fixed linear functional of the P1 dof vector, and the window is linear in time.
+  - Build <code>F = np.stack(r["duty_fields"])</code>, shape (41, n_local), owned + ghost dofs, real.
+  - <code>means_F, mx_F, tmx_F = running_average(r["t"], F, window=m20f.W)</code>.
+  - For the 29 valid n (<code>ids["ok"]</code>), put <code>T_INF + means_F[n]</code> into one named P1 <code>Function</code> per n (<code>scatter_forward</code>). Read their volume means through <strong>the gate's own <code>m20f._series</code></strong>, on a <code>types.SimpleNamespace(snapshots={n: f_n})</code> with T_INF + 0 at the 12 NaN rows. Pass <code>r["work"]</code>, <code>r["f_mean"]</code>, <code>comm</code> and <code>r["v_sub"]</code>. This uses the gate's own reduction, not a restated one.
+  - Assert <code>max_{n∈ok} |mean_F[n] − ids["a"][n]| / ids["scale"] ≤ m17s3.D_BAND</code>. Predicted ≤ 1e-14.
+- <strong>Part B (printed only, no assertion).</strong> Load <code>m20d.SERIES_JSON</code>. On the 10 g ball-mean series at <code>t_inf_c + theta_ball10g_k</code>, print:
+  - <code>cem43(t, T)</code> and <code>m20d._quad_dose(t, T, math.log(m20d.R_BELOW))</code> at <code>.15e</code>, beside W2 <code>:52</code> (1.846214193739186e-11 / 1.846214193739185e-11 s);
+  - <code>running_average(t, θ, window=m20f.W)</code>'s max and t_max beside <code>:57</code> (4.277005459539476e-02 K at 1254.000000 s);
+  - the dose in minutes beside <code>:62</code> (3.077024e-13 min).</p>
+<p>Predicted bitwise equal: same JSON, same operators. Label every dose with its unit and "per accepted W (ruling 361-1); not a safety statement".</p>
+<p><strong>(2) Negative controls (rule (e)).</strong>
+- <strong>(Wc-FEM), asserted:</strong> <code>ids["wc"] &gt; m17s3.D_BAND</code>, record 1.326e-01 over 25 windows (<code>:1972</code>). The miss is a shifted comparison and has no ceiling issue; only "&gt; band" is asserted, the row's form.
+- <strong>(Dc), printed only:</strong> <code>ids["dc"]</code>, record 0.043296 (<code>:1973</code>).
+- <strong>(Cm-c), asserted:</strong> repeat (Cm) with <code>window = m20f.W − m17s3.DT</code> (one sample short) on the field, against <code>ids["a"]</code> at W. It must miss by &gt; <code>m17s3.D_BAND</code>.
+  - Predicted miss [5e-3, 6e-2]: shortening the window by DT/W = 8.7 % moves each mean by ≈ (DT/W)·(a − θ̄(t − W)) ≈ 0.01 K, against max a ≈ 0.527 K. There is no ceiling: it is a miss, not a factor.
+- <strong>Part B's (Rc′)</strong> stays the gate's. Not repeated.</p>
+<p><strong>Printed (no band; predicted beside measured).</strong>
+- The source's six-minute on-fraction: max (HALF + W − 2·HALF)/W = 0.651667 (1.3033 × D), attained at n = 36 (window [768.6, 1128.6] s). At n = 40 the fraction is 125.4/360 = 0.348333. This is arithmetic on imported <code>HALF</code> and <code>W</code>, printed as such.
+- The volume-mean ratio a_max / H_0 max = 0.5247 (from <code>:1974</code>), predicted [0.52, 0.53], and the χ ratio 1.3033 beside it.
+- <strong>Per-vertex six-minute field</strong>, over owned dofs, allreduced:
+  - the max of <code>mx_F</code> beside the max θ(t*) of the duty run;
+  - the count and fraction of owned vertices whose <code>tmx_F</code> &lt; t*, binned by <code>tmx_F</code> (n = 36, other, t*). Predicted fraction [0, 0.5], concentrated at the hot spot near leg 1 and at the Robin surface. <strong>A zero count is a reading, not a red.</strong>
+- The window count: 29 (n = 12 … 40, <code>W / DT</code> = 11.4833).</p>
+<p><strong>Output.</strong>
+- <strong>Setup figure</strong> <code>examples/materials/figures/materials_18_six_minute_window_coil_heating_setup.png</code>: <code>mat:15</code>'s <code>write_setup_figure</code> call (<code>15_duty_cycled_coil_heating_phantom.py:126–142</code>) on <code>r["base"]["msh"]</code>, <code>r["base"]["cell_tags"]</code>, with the same <code>region_names</code> / <code>hide_tags</code> / <code>translucent_tags</code> / slice. Title ≤ 130 characters, e.g. "mat:18 -- the six-minute window on the duty-cycled coil-heated gel phantom (MAT-20 FEM clause)". If over 600 KiB, re-render once with <code>show_edges_on_slice=False</code>.
+- <strong>Series XDMF</strong> <code>examples/materials/paraview_output/materials_18_six_minute_window_coil_heating_series_combined.xdmf</code> through <code>write_xdmf_time_series(…, r["sub"], None, steps, comm=comm)</code>.
+  - 29 frames at t_n = n·DT for n = 12 … 40.
+  - Two P1 fields per frame: <code>theta_K</code> (the duty θ) and <code>theta_six_min_mean_K</code>. Each key equals its Function's <code>name</code>.
+- <strong>Combined XDMF</strong> <code>…_combined.xdmf</code> through <code>write_xdmf_with_tags(…, r["sub"], None, fields, comm=comm)</code>:
+  - P1 <code>theta_duty_tstar_K</code>, <code>theta_six_min_mean_tstar_K</code>, <code>theta_six_min_max_K</code> and <code>theta_six_min_t_max_s</code>;
+  - DG0 <code>q_h_k0</code> (<code>r["q0"]</code>, renamed as <code>mat:15</code> does).
+- <strong>CSV</strong> <code>…_window_history.csv</code>, rank 0, one row per n = 0 … 40. Columns:
+  - <code>n</code>, <code>t_s</code>;
+  - <code>chi_step</code>: <code>m17s3._chi_duty(t_n − DT/2)</code> for n ≥ 1, blank at n = 0;
+  - <code>chi_six_min_on_fraction</code> (arithmetic, blank before n = 12);
+  - <code>mean_theta_duty_K</code>, <code>mean_theta_H0_K</code>;
+  - <code>six_min_duty_K</code> (a), <code>six_min_sum_Hm_K</code> (b), <code>rel_residual</code>;
+  - <code>six_min_H0_K</code>.
+- Then <code>adopt_host_ownership</code>. The XDMF / H5 / CSV are under the gitignored <code>paraview_output/</code>; only the PNG is tracked.
+- <strong>Guide.</strong> The three required headings, <code>## Setup figure</code> and <code>## Related</code>. <code>Related</code> lists, by full filename (rule (b)):
+  - <code>examples/materials/17_thermal_dose_duty_cycle.md</code> first, then <code>examples/materials/15_duty_cycled_coil_heating_phantom.md</code>;
+  - <code>tests/validation/test_mat20_fem_history.py</code>, <code>tests/validation/test_mat17_duty_cycle_coil_driven.py</code> and <code>tests/validation/test_mat20_tuned_heating_dose.py</code>.</p>
+<p><strong>Name Part B's input by directory only (<code>logs/mat15_s5/</code>)</strong>: <code>EX-109</code>'s first post-docrefs read <code>dead=1</code> on a full path to a gitignored JSON. The guide explains:
+  - why the window commutes with Duhamel (linearity), and what that buys (window the building blocks once);
+  - why the power's six-minute fraction (0.65) overstates the temperature's (≈ D);
+  - why some vertices peak before t*;
+  - that all temperatures are per 1 W at 20 °C, so Part B's CEM43 ≈ 1.8e-11 s is a negligible dose, not a safety figure;
+  - a ParaView recipe: open the series, Play, colour by <code>theta_six_min_mean_K</code>; on the combined file, Threshold <code>theta_six_min_t_max_s</code> &lt; 1254 to see the early-peaking region; open the CSV in a Line Chart View and plot <code>six_min_duty_K</code> against <code>six_min_sum_Hm_K</code>.
+  - Write <code>≈</code>, never a tilde.</p>
+<p><strong>(3) Windows.</strong> Each one is foreground with <code>timeout: 660000</code>, and each is one bare, whole, repo-relative harness call, nothing chained or piped.
+0. Orphan check: <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0.
+1. <strong>Pre-censuses, before any file is written:</strong>
+   - <code>scripts/testing/run_and_log.sh EX-110-pre-figures "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_setup_figures.py'"</code>
+   - the same with <code>check_example_doc_references.py</code>, label <code>EX-110-pre-docrefs</code>.</p>
+<p>The last reading was figures 106, <code>missing=0 broken=0</code> (<code>20261011T172451Z_EX-75-post-figures.log</code>), and docrefs <code>dead=0 guide=0</code>, exit 2, stale only (<code>…T172453Z_EX-75-post-docrefs.log</code>). Use what the pre-census reads.
+2. <strong>The lift, then the re-gate</strong> (the W1 command verbatim, relabelled), predicted [250, 330] s:
+   <code>scripts/testing/run_and_log.sh EX-110-mat20-regate "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; mkdir -p /workspace/logs/mat20 &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 PYTHONPATH=/workspace/src:/workspace timeout -k 30 590 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_mat20_fem_history.py -v -s --tb=short'"</code>
+   - Pass: 13 passed, Status 0. Every <code>MAT20fem record</code> line is equal to W1 <code>:1957–1967, :1974</code> at the printed digits. (H0) / (FEM) / (FEM-2d) / (Wc-FEM) are green, with residuals at round-off of W1's.
+   - It rewrites the gitignored <code>logs/mat20/</code> JSON with the same content.
+3. <strong>Dry run</strong>, after the script exists: <code>scripts/testing/run_and_log.sh EX-110-dryrun "./scripts/run_examples.sh -e mat:18 -n 2 -t 590 --dry-run"</code>. It must print <code>(complex build)</code>. Copy its emitted string verbatim for windows 4–5.
+4. <strong>Run of record (flagged)</strong>, predicted [190, 330] s. The expected form, which must match the dry run apart from <code>-T</code> and the flag:
+   <code>scripts/testing/run_and_log.sh EX-110 'docker compose exec -T -e FEM_EM_SETUP_FIGURES=1 fem-em-solver bash -lc "cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 590 mpiexec -n 2 python3 examples/materials/18_six_minute_window_coil_heating.py"'</code>
+   - Pass: Status 0; every assertion in (1) and (2) green; records as in (1); Part B present.
+5. <strong>Control:</strong> <code>git add</code> the PNG, then run the same line without <code>-e FEM_EM_SETUP_FIGURES=1</code>, labelled <code>EX-110-control</code>. Compare at the bands, never bitwise.
+6. <strong>The guide</strong>, written from window 4's log. Then the post-censuses <code>EX-110-post-figures</code> / <code>EX-110-post-docrefs</code> (window 1's commands with those labels).
+   - <strong>Write the prediction first:</strong> figures N → N + 1, <code>missing=0 broken=0</code>; docrefs runnable +1, no new dead reference.
+   - Any dead reference naming a <code>materials_18_*</code> file or <code>18_six_minute_window_coil_heating.md</code> fails the item.
+7. <code>git status --porcelain examples/ tests/</code> lists exactly the three new <code>examples/</code> paths and the modified <code>tests/validation/test_mat20_fem_history.py</code>.</p>
+<p><strong>(4) Traps already paid for.</strong>
+- <strong>Harness shape.</strong> Every harness call is the whole Bash command: bare, repo-relative, no <code>cd … &amp;&amp;</code>, no <code>; date</code> / <code>| tail</code>, no redirect (<code>bash_guard</code> rule 3). <code>./scripts/run_examples.sh</code> is host-side: emit it with <code>--dry-run</code> and pass the string to the harness. Never wrap it in <code>docker compose exec</code> (the Status-127 trap). A docker-socket denial means stop and report the exact command string.
+- <strong>Timeouts.</strong> Bash <code>timeout: 660000</code> on every window, and container <code>timeout -k 30 590</code>. Status 124 is a finding, never a retry; never raise the timeout or <code>-n</code>. After a kill, run <code>pgrep -c python3</code> first; only at 0, run the any-orphan cache sweep (daily-review.md rubric item 4) as one bare call labelled <code>EX-110-cache-sweep</code>.
+- <strong>Re-gate before the example</strong> (rule (a)), and <strong>rule (i)</strong>: no edit to the module after window 2, to the script after window 4 starts, or to the guide after window 6 starts. Check file mtimes against window starts before committing. <code>EX-99</code>'s deviation (a record the lift did not return, so it was not printable after the freeze) came from returning too little: return every key listed above.
+- <strong><code>_series</code> clears snapshots</strong> (<code>:66</code>). Copy the duty fields <strong>before</strong> calling it, under the flag. The fields are absolute T (<code>transient.py:126</code>); subtract <code>T_INF</code>.
+- <strong>Snapshot index 1 is after two BE half-steps.</strong> Times are n·DT; never insert a Δt/2 sample.
+- <strong>Rule (h):</strong> never form b from a, or the Duhamel sum from the duty run. The ten H_m runs are the comparand, inside <code>_identities</code>.
+- <strong>The complex build.</strong> P1 <code>.x.array</code> is complex. Feed <code>running_average</code> / <code>cem43</code> only real numpy arrays (<code>np.real(...)</code> copies); they raise on a non-zero imaginary part by design. Assign real values into Functions and <code>scatter_forward</code>.
+- <strong>NaN head.</strong> <code>running_average</code> returns NaN for t − W &lt; t₀ (n &lt; 12). Mask with <code>ids["ok"]</code>, and never write a NaN into an XDMF field: the series starts at n = 12.
+- <strong>Rank safety.</strong> <code>_run_heated</code>, the transients, <code>_series</code>, <code>write_setup_figure</code>, both XDMF writes and <code>adopt_host_ownership</code> are collective. Call them on every rank, never inside <code>rank == 0</code>. Vertex counts use owned dofs (<code>index_map.size_local</code>) and <code>allreduce</code>. Only the CSV write and prints are rank-0.
+- <strong>Name every Function</strong>, each XDMF key equal to its Function's <code>name</code>: <code>EX-79</code>'s HDF5 collision cost a window.
+- <strong>Import collisions.</strong> Use the module aliases; never import another example's module.
+- <strong>The (FEM) margin is ≈ 3×</strong> (3.434e-14 against 1e-13). Same code at the same width reproduces it. If the example's (FEM) reads above the gate's by more than 2×, the lift moved something: stop.
+- <strong>PNG ≤ 600 KiB</strong> (<code>ans:8</code>'s first was 631 KiB; <code>mat:15</code>'s on this mesh was 452 KiB).
+- <strong>Part B's input is gitignored.</strong> Read it, never write it. Do not regenerate it (that is a <code>-n 8</code> F-human window, out of scope). Name it by directory in the guide.
+- <code>cem43</code> takes °C: pass <code>t_inf_c + θ</code>, never θ.</p>
+<p><strong>(5) Scope.</strong> Operator identities on one FEM history: <code>MAT-17</code> step 3's 50 % duty, P = t*/5 schedule on the untuned F-small 10 MHz drive k = 0, degree-1 EM, P1 thermal, gel constants, Robin h = 10, 1 W normalisation, t* = 0.2 t_R. Part B is a printed reading of item 380's record.
+- Not claimed:
+  - a six-minute SAR or temperature limit, a CEM43 threshold, or IEC 60601-2-33 compliance;
+  - tissue, perfusion, or an absolute temperature;
+  - a periodic steady state, or another schedule than the gated one (the composition remark in the guide is explanation, not an assertion);
+  - (Cm) as a gate on anything but this script's own field window;
+  - Part B's dose as a gate (<code>MAT-20</code> step 3 is a record), the tuned coil's heating, or <code>ANS-9</code>.
+- <code>MAT-20</code>, <code>MAT-17</code> and <code>MAT-15</code> do not move.</p>
+<p><strong>(6) Negative result.</strong> Report and stop. Journal in <code>docs/testing/attempts.md</code>, park on <code>attempt/EX-110-&lt;UTC&gt;</code>, and mark item 389 BLOCKED with the unblock condition in the same commit (rule (d)). <code>EX-110</code> stays ⬜. Never widen a band, never edit <code>src/</code>, never re-record from the example side.
+- <strong>The re-gate red, or a record off W1 beyond its last two printed digits:</strong> the lift moved behaviour. Revert the lift, file a known-issues entry, and park.
+- <strong>(H0) / (FEM) / (FEM-2d) red in the example with the re-gate green:</strong> an example/test divergence (the wrong series passed, or snapshots cleared early). Print the first differing value and park.
+- <strong>(Cm) red:</strong> the field window or its reduction is wired wrong. Print the per-n residual, fix it once in-slot before window 4 if the cause is shown, otherwise park.
+- <strong>(Wc-FEM) or (Cm-c) inside the band:</strong> the control did not reach the comparison. Stop.
+- <strong>Over 590 s, Status 124, or the slot at minute 50 before window 5:</strong> park with the last printed line and journal it; the review re-tiers.
+- <strong>Part B's input absent at window 4:</strong> the run is not of record for Part B. Stop and report; do not regenerate.
+- <strong>A printed value outside its prediction</strong> (the early-peak fraction, the (Cm-c) miss size, the ratio): report it. It has no status effect.</p>
+<p>No <code>PREDICTED RED:</code> line. A red anywhere stops the slot.</p>
+<p><strong>(7) Status it can move.</strong> <code>EX-110</code> ⬜ → ✅ under the §7 Done-when the review pastes in the same commit as this item (rule (j)). Census <code>examples</code> +1, <code>broken=0</code>; docrefs no new dead reference. <code>MAT-20</code> stays ✅, and its step 3 stays a record. No §2 sentence moves. The §10 note "an example after <code>MAT-20</code> ✅ (P20's dose figures, <code>mat:18</code>)" is met in part: the FEM clause is gated, and P20's dose is printed. The weekly reads which.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Use the example-runner agent to execute <code>EX-110</code>, §9 item 389 (<code>docs/planning/chunks/EX-110.md</code>, heading <code>§9 item 389</code>). Read the brief and any review rulings beneath it first; the rulings hold. You are the executor — do not spawn agents, never background a harness window. Pass <code>timeout: 660000</code> on every Bash call that runs a harness window, and never delete a log. The harness call is the whole Bash command — bare, repo-relative, nothing chained or piped. Before window 1, run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> and require 0. The only gate-module edit is the additive rule (a) lift in <code>tests/validation/test_mat20_fem_history.py</code> described in the brief, and it must be re-gated green (window 2) before the example runs; edit nothing under <code>src/</code>. Read <code>logs/mat15_s5/</code> input, never write or regenerate it, and name it in the guide by directory only. No edit to the module after window 2, to the script after window 4 starts, or to the guide after window 6 starts. If the docker socket is denied, stop and report the exact command string. Return the windows' log names, every asserted and printed value beside its W1 / W2 record (log:line) or prediction, the census before / after with the docrefs <code>dead=</code> list, and elapsed."</p>
+<p><strong>Review ruling 2026-10-11 18:00 (daily).</strong> (1) The §7 row is pasted verbatim after <code>EX-109</code> in this review's commit. (2) (Cm) and its one-sample-short control (Cm-c) are accepted as example-side identity asserts at the imported <code>D_BAND</code> (the <code>EX-104</code> ruling (2) precedent); provisional, for the 10-12 weekly. (3) Part B stays — §10 earmarks <code>mat:18</code> for P20's dose figures — printed only; if <code>logs/mat15_s5/</code> is absent the script prints "Part B input absent" and skips it, never regenerates it. (4) Tier heavy (<code>-n 2</code>), as drafted; the rule (a) lift re-gates <code>tests/validation/test_mat20_fem_history.py</code> green in the same slot.</p>
+<p><strong>Outcome 2026-10-12 06:00 CDT slot — BLOCKED (attempt 1).</strong> The rule (a) lift re-gated green (W2 <code>20261012T110143Z_EX-110-mat20-regate.log</code>, 13 passed, 275 s, every record line identical to W1 at its printed digits). The flagged run (W4 <code>20261012T110746Z_EX-110.log</code>) ended in Status 124 at 591 s. <code>_run_heated</code> finished (172.2 s) and the setup figure was written (442 KiB), then rank 0 died at script line 192 (<code>np.max(F[-1][:n_own])</code>, zero-size array) before its collectives, and rank 1 hung until the kill. No Part A / Part B line, (Cm) or (Cm-c) printed. This is a script bug, not a gate finding. The script is frozen under rule (i), so it was not edited or re-run. The fix: an <code>initial=-np.inf</code> guard on the owned max (and the same pattern at <code>own_mx</code>) before the <code>allreduce(MAX)</code>. Pre-census <code>examples=106 missing=0 broken=0</code>, docrefs <code>dead=0</code>. Everything (lift, script, PNG, logs, test-results rows) is parked on <code>attempt/EX-110-item389-20261012T1118Z</code> (<code>01624645</code>). The re-pose (attempt 2 of 4) can take the branch, apply the guard and start from W4.</p>
+<h3 id="review-ruling-2026-10-12-1030-item-389-re-posed-as-item-399-attempt-2-of-4">Review ruling 2026-10-12 10:30 — item 389 re-posed as item 399 (attempt 2 of 4)<a class="headerlink" href="#review-ruling-2026-10-12-1030-item-389-re-posed-as-item-399-attempt-2-of-4" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-12 10:30 daily review; the review reviews it.</em> <strong>The diagnosis, from the W4 log on the branch</strong> (<code>git show attempt/EX-110-item389-20261012T1118Z:docs/testing/logs/20261012T110746Z_EX-110.log</code>):
+- The fixture finished normally: <code>MAT15 elapsed: EM 146.5 s, total 172.2 s</code> (<code>:1907</code>), <code>MAT20fem fixture: _run_heated 172.2 s; 11 transients + 451 reductions 29.6 s … ranks = 2</code> (<code>:1909</code>), and the setup PNG was written at 442 KiB (<code>:1916</code>).
+- The traceback is <code>:1917–1929</code>: <code>examples/materials/18_six_minute_window_coil_heating.py</code>, line 192, <code>th_tstar_max = comm.allreduce(float(np.max(F[-1][:n_own])), op=MPI.MAX)</code> (<code>:1920–1921</code>), ending <code>ValueError: zero-size array to reduction operation maximum which has no identity</code> (<code>:1929</code>). One rank owns no P1 dof (<code>V1.dofmap.index_map.size_local == 0</code>) on the phantom submesh <code>sub</code> at <code>-n 2</code>, so its owned slice is empty. The rank raised before reaching the collective, and the other rank blocked in <code>allreduce</code> until the container <code>timeout</code> fired: <code>Status: 124</code>, <code>Elapsed (s): 591</code> (<code>:1939–1940</code>).
+- <strong>Correction on which rank raised.</strong> The traceback has no rank prefix. The only rank-tagged lines (<code>:1930–1936</code>) show rank 0 catching signal 15 (the timeout's TERM) with its PETSc handler still live, then <code>MPI_Abort</code> (<code>:1936</code>). So rank 0 was alive at the kill. That reads most naturally as rank 0 hung in the <code>allreduce</code> and <strong>rank 1 raised</strong>. The journal and §9 line say "rank 0 raised", which the log does not establish. The fix does not depend on which rank it was, but the brief below must not assume rank 0 owns dofs. The new allgather print (below) settles it.
+- <strong>Why it hung instead of failing fast.</strong> An uncaught Python exception on one rank does not call <code>MPI_Abort</code> under plain <code>mpiexec python3</code>. The surviving rank waits in its collective until the timeout. That cost the full 590 s, and it would cost the same for any other rank-local exception.
+- Lines 161–174 (<code>running_average</code> on <code>F</code>, the two <code>_series</code> reductions, (Cm) / (Cm-c)) ran on the empty rank before line 192. So the earlier path is empirically safe at this partition.</p>
+<p><strong>Every rank-local reduction in the script, read on <code>01624645</code></strong> (line numbers are the branch file's):</p>
+<table>
+<thead>
+<tr>
+<th>Line</th>
+<th>Site</th>
+<th>Empty owned slice?</th>
+<th>Ruling</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>192</td>
+<td><code>np.max(F[-1][:n_own])</code> → <code>allreduce(MAX)</code></td>
+<td><strong>raises</strong> (the W4 crash)</td>
+<td>guard: <code>np.max(F[-1][:n_own], initial=-np.inf)</code></td>
+</tr>
+<tr>
+<td>193</td>
+<td><code>np.max(own_mx)</code> (<code>own_mx = mx_F[:n_own]</code>, <code>:190</code>) → <code>allreduce(MAX)</code></td>
+<td><strong>raises</strong> (the next line; never reached)</td>
+<td>guard: <code>np.max(own_mx, initial=-np.inf)</code></td>
+</tr>
+<tr>
+<td>196, 197</td>
+<td><code>np.sum(np.isclose(own_tmx, …))</code> → <code>allreduce(SUM)</code></td>
+<td>safe (sum of empty = 0)</td>
+<td>none</td>
+</tr>
+<tr>
+<td>194</td>
+<td><code>int(n_own)</code> → <code>allreduce(SUM)</code></td>
+<td>safe</td>
+<td>none</td>
+</tr>
+<tr>
+<td>161</td>
+<td><code>running_average(t, F, …)</code>, <code>np.argmax(means[idx], axis=0)</code> (<code>src/fem_em_solver/thermal/dose.py:169</code>) on shape (29, w)</td>
+<td>safe for w = 0 (the reduction runs along the length-29 axis); ran on the empty rank in W4</td>
+<td>none</td>
+</tr>
+<tr>
+<td>172, 174</td>
+<td><code>np.max(np.abs(vm_F[ok] - a[ok]))</code></td>
+<td>safe: <code>vm_F</code> comes from <code>m20f._series</code> (assembled and <code>allreduce</code>d, replicated), and <code>ok</code> has 29 entries</td>
+<td>none</td>
+</tr>
+<tr>
+<td>186, 236–242</td>
+<td><code>np.nanargmax(frac)</code>, <code>np.nanmax(frac)</code>, <code>np.nonzero(ok)[0][0]</code></td>
+<td>safe: replicated arrays</td>
+<td>none</td>
+</tr>
+<tr>
+<td>245</td>
+<td><code>n_early / n_tot</code></td>
+<td>safe: <code>n_tot</code> is the global sum, &gt; 0</td>
+<td>none</td>
+</tr>
+<tr>
+<td>202–211</td>
+<td>Part B (<code>running_average</code>, <code>cem43</code> on the JSON series)</td>
+<td>safe: every rank computes it, it is replicated, and there is no collective</td>
+<td>none</td>
+</tr>
+<tr>
+<td>119, 214–259, 296–318</td>
+<td>rank-0-only blocks</td>
+<td>no <code>COMM_WORLD</code> collective inside; <code>:312</code> is <code>adopt_host_ownership(…, comm=MPI.COMM_SELF)</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td>262–267</td>
+<td>asserts on every rank</td>
+<td>replicated values only</td>
+<td>none</td>
+</tr>
+<tr>
+<td>272–295</td>
+<td><code>_field</code> on empty arrays, both XDMF writes, <code>adopt_host_ownership</code></td>
+<td>collective, called on every rank; <code>mat:15</code> wrote XDMF on this <code>sub</code> at <code>-n 2</code> (<code>EX-99</code>)</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<p>Only lines 192 and 193 are of the failing class. No other <code>np.max</code> / <code>np.min</code> / <code>argmax</code> / <code>argmin</code> on an owned slice exists in the script, and no collective sits behind a rank-0 branch.</p>
+<p><strong>Ruling.</strong> (1) Item 389 is re-posed as item 399 (attempt 2 of 4). It lands the branch, applies the two guards and one diagnostic print under the licence below, and starts again from the pre-census. (2) Anchors, bands, controls, Part B, outputs, guide and the §7 Done-when are unchanged from item 389; the §7 row's status cell is re-pointed to item 399. (3) The 06:00 W2 re-gate stays a record. The lift is re-gated again in item 399's slot: rule (i) does not require it, because the module is byte-identical to the one W2 ran, but rule (a) ("re-run green … in the same slot") and the row's "module re-gated green in-slot" do, and rule (j) binds item 399 to the row. (4) The journal's and §9's "rank 0 raised" is corrected to "one rank (the log reads rank 1)" in this commit's §9 text. No band, tolerance, record or Done-when moves.</p>
+<h3 id="9-item-399-2026-10-12-example-54-ramp-re-pose-of-389">§9 item 399 — 2026-10-12 (example, §5.4 ramp; re-pose of 389)<a class="headerlink" href="#9-item-399-2026-10-12-example-54-ramp-re-pose-of-389" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-12 10:30 daily review; the review reviews it.</em> <strong>This brief sets and moves no band, tolerance, record, Done-when of another chunk or validation target.</strong> Everything in item 389's brief above holds except where this section overrides it: the imports, structural asserts, <code>REC</code> dict, (1) anchor, (2) controls, printed lines, outputs, guide content, (4) traps, (5) scope and (6) negative results. Read item 389 first.</p>
+<ul>
+<li><strong>Executor:</strong> <code>example-runner</code>. It does not spawn agents.</li>
+<li><strong>Class:</strong> example, attempt 2 of 4. <strong>Tier:</strong> heavy, <code>-n 2</code> (the gate's record width), complex build.</li>
+<li><strong>Depends on:</strong> nothing open. The branch <code>attempt/EX-110-item389-20261012T1118Z</code> (<code>01624645</code>, parent <code>e3edf5de</code> = its merge base with <code>main</code>) holds the material.</li>
+<li>At drafting, <code>main</code>'s only change since <code>e3edf5de</code> under <code>src/</code>, <code>tests/validation/</code>, <code>tests/mesh/</code>, <code>examples/materials/</code> and <code>scripts/run_examples.sh</code> is <code>src/fem_em_solver/study_yaml.py</code>. That file is imported by the package <code>__init__</code> (<code>src/fem_em_solver/__init__.py:57</code>) and called by nothing the gate runs.</li>
+<li>The in-slot re-gate (W2) covers it either way.</li>
+</ul>
+<p><strong>The angle</strong> is item 389's: the six-minute window on the duty-cycled coil-heated FEM history equals the window of its ten switch-on runs, and the window of the per-vertex field commutes with the volume mean. Attempt 1 measured the gate side green (W2 <code>20261012T110143Z_EX-110-mat20-regate.log:2039, :2107–2108</code>: 13 passed, Status 0, 275 s). It lost the example side to a rank-local reduction on an empty owned slice.</p>
+<p><strong>The review's licence to edit the frozen script.</strong> Rule (i) froze <code>examples/materials/18_six_minute_window_coil_heating.py</code> when attempt 1's W4 started. This ruling re-opens it <strong>before item 399's W4 starts, for these edits only</strong>, each disclosed by line in the journal:
+1. Line 192: <code>np.max(F[-1][:n_own])</code> → <code>np.max(F[-1][:n_own], initial=-np.inf)</code>.
+2. Line 193: <code>np.max(own_mx)</code> → <code>np.max(own_mx, initial=-np.inf)</code>.
+3. <strong>One diagnostic collective, on every rank, printed on rank 0:</strong> <code>owned = comm.allgather((int(n_own), int(F.shape[1])))</code>, placed in the per-vertex block (after <code>:191</code>). Print it as <code>[printed] per-rank (owned P1 dofs, owned+ghost columns): [...]</code>.
+   - It makes W4 its own negative control: it shows whether the empty rank exists at this partition, and whether that rank's <code>F</code> has zero columns. Either way, the guarded lines and the width-0 <code>running_average</code> path are then exercised and seen.
+   - It is a print, not an assert.
+4. <strong>Anything else of the same class</strong> (an <code>np.max</code> / <code>np.min</code> / <code>argmax</code> / <code>argmin</code> / <code>[0]</code>-index on an owned slice feeding a collective, or a collective inside a rank-0 branch) that the executor finds and this ruling's table missed. The fix is the same guard pattern, named by line in the journal. The table above found none.</p>
+<p>Not licensed:
+- a <code>sys.excepthook</code> / <code>comm.Abort</code> wrapper, or any other change to how the script fails;
+- any change to an assert, band, print format, record, output, import or <code>REC</code> entry;
+- any <code>src/</code> edit;
+- any edit to the gate module (the lift lands byte-identical to the branch).</p>
+<p>The <code>-np.inf</code> an empty rank contributes is absorbed by <code>allreduce(MAX)</code>. <code>n_tot &gt; 0</code> guarantees a finite global value, and the print shows it.</p>
+<p><strong>How to land the branch</strong> (no <code>git checkout</code> / <code>switch</code> of the branch; take files by path onto <code>main</code>):
+- <strong>Code and figure, by path:</strong> <code>git checkout attempt/EX-110-item389-20261012T1118Z -- tests/validation/test_mat20_fem_history.py examples/materials/18_six_minute_window_coil_heating.py examples/materials/figures/materials_18_six_minute_window_coil_heating_setup.png</code>.
+- <strong>Attempt 1's five logs, by path.</strong> They are new files, safe to take: <code>docs/testing/logs/20261012T110033Z_EX-110-pre-figures.log</code>, <code>…110037Z_EX-110-pre-docrefs.log</code>, <code>…110143Z_EX-110-mat20-regate.log</code>, <code>…110740Z_EX-110-dryrun.log</code>, <code>…110746Z_EX-110.log</code>.
+- <strong>NEVER path-checkout <code>docs/testing/test-results.md</code>.</strong> That replaces the file and deletes every row <code>main</code> appended since <code>e3edf5de</code> (the <code>8d4cf58</code> trap). Append the branch's five <code>EX-110*</code> rows by hand, verbatim, at the end of the table (<code>git show 01624645 -- docs/testing/test-results.md</code> shows them).
+- Check <code>git diff --stat docs/testing/test-results.md docs/testing/attempts.md PROJECT_PLAN.md</code> shows <strong>insertions only</strong> on the record files, apart from the §7 status cell and the §9 item line.
+- Check <code>git diff 01624645 -- tests/validation/test_mat20_fem_history.py</code> is empty after landing: the lift is byte-identical.
+- <strong>Ordering:</strong> run W1 (pre-census) on the clean tree <strong>before</strong> landing anything, as item 389 W1 did.</p>
+<p><strong>Windows.</strong> Each one is foreground with <code>timeout: 660000</code>, and each is one bare, whole, repo-relative harness call, nothing chained or piped.
+0. Orphan check: <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0. Attempt 1's journal read 0 after its kill. Re-check anyway.
+1. <strong>Pre-censuses on the clean tree:</strong> item 389's W1 commands, labels <code>EX-110-r2-pre-figures</code> / <code>EX-110-r2-pre-docrefs</code>. The last reading was <code>examples=106 ok=106 missing=0 broken=0</code> and docrefs <code>dead=0 guide=0 stale=84</code>, exit 2 (attempt 1). <code>main</code> has since changed one <code>examples/mri/</code> docstring (item 398, docrefs <code>stale=90</code>), so use what this pre-census reads. ≈ 2 s.
+2. <strong>Land the branch</strong> (above), then <strong>the re-gate:</strong> item 389's W2 command verbatim, label <code>EX-110-r2-mat20-regate</code>.
+   - Predicted 275 s, range [250, 330] s.
+   - Pass: 13 passed, Status 0, and every <code>MAT20fem record</code> line equal to W1 <code>20261011T172810Z_MAT-20-step2-fem-W1.log:1957–1967, :1974</code> at the printed digits (attempt 1's W2 matched every one).
+3. <strong>Apply the licensed script edits</strong> (1–3, and 4 if any). There is no dry-run window: <code>scripts/run_examples.sh</code> is unchanged since <code>e3edf5de</code>. The command of record is the one attempt 1's dry run emitted (<code>20261012T110740Z_EX-110-dryrun.log:39</code>), as run at <code>20261012T110746Z_EX-110.log:12</code>. Note its <code>PYTHONPATH=/workspace/src</code> (no <code>:/workspace</code>; the script inserts <code>_REPO_ROOT</code> itself). <strong>Copy log <code>:12</code> verbatim, not item 389's drafted form.</strong>
+4. <strong>Run of record (flagged):</strong> <code>scripts/testing/run_and_log.sh EX-110 'docker compose exec -T -e FEM_EM_SETUP_FIGURES=1 fem-em-solver bash -lc "cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src timeout -k 30 590 mpiexec -n 2 python3 examples/materials/18_six_minute_window_coil_heating.py"'</code>
+   - <strong>Price:</strong> attempt 1 reached the fixture print at 172.2 + 29.6 ≈ 202 s (<code>:1907, :1909</code>), plus the setup figure. Predicted ≈ 225 s, range [190, 330] s, unchanged.
+   - Pass: Status 0; every assertion in item 389 (1) and (2) green; records as item 389 (1); Part B present; the allgather line printed; <code>EX-110 anchors and controls: PASS</code>.
+   - It rewrites the PNG.
+5. <strong>Control:</strong> <code>git add</code> the PNG W4 wrote, then run the same line without <code>-e FEM_EM_SETUP_FIGURES=1</code>, label <code>EX-110-control</code>. ≈ 215 s, range [180, 320] s. Compare at the bands, never bitwise.
+6. <strong>The guide</strong>, from W4's log, as item 389 (6). Then post-censuses <code>EX-110-post-figures</code> / <code>EX-110-post-docrefs</code>. Write the prediction first: figures N → N + 1, <code>missing=0 broken=0</code>; docrefs no new dead reference; any dead reference naming a <code>materials_18_*</code> file or the guide fails the item.
+7. <code>git status --porcelain examples/ tests/</code> lists exactly the three new <code>examples/</code> paths and the modified <code>tests/validation/test_mat20_fem_history.py</code>.</p>
+<ul>
+<li><strong>A rank-local negative control at another width is not run.</strong></li>
+<li>Price: at <code>-n 3</code>, <code>_run_heated</code> ≈ 172 s × (≈ 0.65–0.8) ≈ 110–140 s, so the window is ≈ 150–240 s, ≈ 4 min heavy.</li>
+<li>It is not needed. The partition that put an empty rank under line 192 is the <code>-n 2</code> partition, and W4 re-runs the whole post-fixture script on it. Any further empty-slice site would raise there. The allgather print shows the empty rank and its column count, so the guard is seen exercised.</li>
+<li>A different width is also not the gate's record width, and its records could differ in the last digits.</li>
+<li>If the allgather line shows <strong>no</strong> empty rank (a changed partition), report it as a reading: the guards are correct by inspection and the run still counts. Do not add a width window in-slot.</li>
+<li><strong>Compute:</strong> ≈ 2 s + 275 s + 225 s + 215 s + ≈ 2 s ≈ 12 min, every window under 10 min, so the plain runner form is used (no durable capture). Never beside another heavy window.</li>
+<li><strong>Cost:</strong> ≈ 10 measured (example class) / ≈ 40 predicted min: 10 fixed + 3 landing + 2 edits + ≈ 12 windows + 6 guide + ≈ 4 censuses / journal / commit + ≈ 3 slack.</li>
+<li><strong>Park</strong> if W2 has not started by minute 15, W4 by minute 25, or W5 by minute 45 (rule (d)).</li>
+</ul>
+<p><strong>(1) Anchor</strong>, unchanged from item 389 (re-asserted through the imported helper at the imported bands):
+- (H0) ≤ <code>L_BAND</code> (record 5.689e-14, W1 <code>:1968</code>); attempt 1's W2 read 4.597e-14;
+- (FEM) ≤ <code>D_BAND</code> over 29 windows (3.434e-14, <code>:1969</code>); W2 read 2.454e-14;
+- (FEM-2d) ≤ <code>D_BAND</code> with the 2-D duty column equal (3.444e-14 / True, <code>:1971</code>); W2 read 2.433e-14;
+- example-side (Cm): the volume mean of the per-vertex six-minute field equals the windowed series ≤ <code>D_BAND</code>, predicted ≤ 1e-14, through <code>m20f._series</code>.</p>
+<p><strong>(2) Negative controls</strong>, unchanged:
+- (Wc-FEM) &gt; <code>D_BAND</code>, asserted (1.326e-01, <code>:1972</code>);
+- (Cm-c), the window one sample short, misses &gt; <code>D_BAND</code>, asserted, predicted [5e-3, 6e-2];
+- (Dc) printed only (0.043296, <code>:1973</code>);
+- the new allgather line, printed: the item's own rank-local control.</p>
+<p><strong>(3) Remaining guide work:</strong> all of item 389's guide (it was never written), from W4's log.
+- The three required headings, <code>## Setup figure</code> and <code>## Related</code> (full filenames, rule (b)).
+- The four explanations (linearity; power fraction 0.65 against temperature ≈ D; early-peaking vertices; per 1 W at 20 °C, Part B negligible, not a safety figure) and the ParaView recipe.
+- Part B's input named by directory only (<code>logs/mat15_s5/</code>).
+- One added sentence is permitted in <code>## 2. How to run it</code>: the example runs at any width ≥ 1 because the per-vertex maxima are guarded for ranks that own no phantom vertex.</p>
+<p><strong>(4) Traps</strong> (item 389's list holds; added here):
+- <strong>The path-checkout trap</strong> (above). Take code by path; append the five record rows by hand; insertions only.
+- <strong>Rule (i), re-armed.</strong> No edit to the module after W2 starts, to the script after W4 starts, or to the guide after W6 starts. Check mtimes against window starts before committing.
+- <strong>A rank-local exception hangs, it does not fail.</strong> If W4 raises anywhere on one rank, the other waits to the 590 s kill (attempt 1, <code>:1939–1940</code>). Status 124 is a finding, never a retry. After a kill, <code>pgrep -c python3</code> first; only at 0, run the cache sweep as one bare call labelled <code>EX-110-cache-sweep</code>.
+- <strong>Do not assume rank 0 owns dofs.</strong> The log reads rank 1 as the raiser, but nothing pins it. Every owned-slice reduction is guarded on every rank.
+- <strong>The script's print at <code>:240</code> contains a literal <code>~D</code>.</strong> When quoting it in the guide or the journal, write <code>≈ D</code>, never a bare tilde.
+- <strong><code>git branch -D</code> only after the landing commit exists on <code>main</code></strong>, and never before checking that <code>git diff --stat main 01624645 -- tests/ examples/</code> shows nothing the landing missed beyond the two licensed script lines and the print.</p>
+<p><strong>(5) Scope:</strong> item 389 (5) verbatim. Operator identities on one FEM history, 1 W normalisation, degree 1, no perfusion. Not a limit, compliance, tissue, a periodic state or a CEM43 gate. <code>MAT-20</code>, <code>MAT-17</code> and <code>MAT-15</code> do not move.</p>
+<p><strong>(6) Negative result.</strong> Report and stop. Journal in <code>docs/testing/attempts.md</code>, park on <code>attempt/EX-110-item399-&lt;UTC&gt;</code> (attempt 3 of 4), and mark item 399 BLOCKED with the unblock condition in the same commit (rule (d)). <code>EX-110</code> stays ⬜.
+- <strong>W2 red, or a W2 record off W1 beyond the last two printed digits:</strong> something on <code>main</code> since <code>e3edf5de</code> moved the gate's behaviour (the lift is byte-identical and was green at 06:00). File a known-issues entry naming the drift diff and park. Do not revert the lift without that finding.
+- <strong>W4 Status 124 again, or another rank-local exception:</strong> park with log:line of the traceback. The review rules on any site the table missed.
+- <strong>Any anchor or control off</strong> as item 389 (6) says.
+- <strong>A record beyond its last two printed digits</strong> stops the item.
+- <strong>The allgather line shows no empty rank:</strong> a reading, not a red (above).</p>
+<p>No <code>PREDICTED RED:</code> line. A red anywhere stops the slot.</p>
+<p><strong>(7) Status it can move.</strong> <code>EX-110</code> ⬜ → ✅ under the §7 Done-when as it stands (rule (j): this brief matches the row; the in-slot re-gate is W2). The same commit records:
+- census <code>examples</code> +1, <code>broken=0</code>; docrefs no new dead reference;
+- the §7 status cell, the §9 item 399 line, and the attempts entry;
+- attempt 1's five logs and rows.</p>
+<p><code>MAT-20</code> stays ✅. No §2 sentence moves.</p>
+<p><strong>Branch disposition.</strong> After the landing commit is on <code>main</code> (whether item 399 closes ✅ or parks on a new <code>attempt/EX-110-item399-*</code>, which then carries the landed material forward), delete <code>attempt/EX-110-item389-20261012T1118Z</code> with <code>git branch -D</code>. Record its tip <code>01624645</code> in the attempts entry, so the commit stays citable. Nothing on it is left unlanded: the code and figure are by path, the logs by path, and the rows by hand.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Use the example-runner agent to execute <code>EX-110</code>, §9 item 399 (<code>docs/planning/chunks/EX-110.md</code>, heading <code>§9 item 399</code>, which re-poses item 389 — read item 389's brief, its rulings, and the 2026-10-12 10:30 ruling first; they hold). You are the executor — do not spawn agents, never background a harness window. Pass <code>timeout: 660000</code> on every Bash call that runs a harness window, and never delete a log. The harness call is the whole Bash command — bare, repo-relative, nothing chained or piped. Before window 1, run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> and require 0. Run the pre-censuses on the clean tree, then land the branch <code>attempt/EX-110-item389-20261012T1118Z</code> by path (lift, script, PNG, five logs) — never path-checkout <code>docs/testing/test-results.md</code>; append its five rows by hand and check insertions only. Re-gate the lift (W2) before the example. Edit the script only as the review's licence allows (lines 192 and 193 guarded with <code>initial=-np.inf</code>, one allgather print, and any further same-class site named by line), before W4 starts; edit nothing under <code>src/</code>. Read <code>logs/mat15_s5/</code>, never write or regenerate it. Return the windows' log names, every asserted and printed value beside its W1 / W2 record (log:line) or prediction, the allgather line, the census before / after with the docrefs <code>dead=</code> list, and elapsed."</p>
+<p><strong>Outcome 2026-10-12 (12:00 CDT slot, example-runner, second item of the slot): DONE.</strong> Pre-censuses on the clean tree read <code>examples=106 ok=106 missing=0 broken=0</code> and docrefs <code>dead=0 guide=0 stale=90 exit=2</code> (<code>20261012T170400Z_EX-110-r2-pre-figures.log</code>, <code>…170401Z…-pre-docrefs.log</code>). The branch was landed by path: lift, script, PNG and five logs. Its five <code>test-results.md</code> rows were appended by hand, insertions only, and the lift is byte-identical to <code>01624645</code>. W2 re-gate: 13 passed, Status 0, 278 s, every <code>MAT20fem record</code> line equal to W1 <code>:1957–1967, :1974</code> (<code>20261012T170416Z_EX-110-r2-mat20-regate.log</code>). Licensed script edits, applied before W4: line 192 <code>np.max(F[-1][:n_own], initial=-np.inf)</code>, line 193 <code>np.max(own_mx, initial=-np.inf)</code>, and one <code>comm.allgather((int(n_own), int(F.shape[1])))</code> printed on rank 0. No other same-class site was found, and nothing under <code>src/</code> was edited. W4, the flagged run of record (<code>20261012T170911Z_EX-110.log</code>, Status 0, 214 s), passed (<code>:1950</code>):
+- anchors: (H0) 5.794e-14, (FEM) 3.413e-14, (FEM-2d) 3.476e-14 / True, (Cm) 1.306e-14 (predicted ≤ 1e-14, slightly above; band <code>D_BAND</code> holds);
+- controls: (Wc-FEM) 1.326e-01 and (Cm-c) 1.881e-02, both missing (Cm-c inside its predicted [5e-3, 6e-2]);
+- prints: (Dc) 0.043296; H_0 … H_9, the duty ⟨θ⟩ and both six-minute maxima equal W1 at the printed digits; ratio 0.5247 inside [0.52, 0.53]; early-peaking vertices 554 / 11906;
+- Part B present and equal to <code>20261011T183717Z_MAT-20-step3-W2.log</code>.</p>
+<p>The allgather line reads <code>[(11906, 11906), (0, 0)]</code> (<code>:1940</code>): rank 1 owns no phantom vertex and has zero columns, so the guards were exercised. The source on-fraction maximum 0.651667 prints at n = 20, not n = 36: a tie, where <code>nanargmax</code> takes the first, and a printed reading only. W5, the unflagged control (<code>20261012T171257Z_EX-110-control.log</code>, 206 s), passed at the bands. Post-censuses: <code>examples=107 ok=107 missing=0 broken=0</code>, docrefs <code>dead=0 guide=0 stale=90 exit=2</code> (<code>…171706Z…</code>, <code>…171707Z…</code>). The PNG is 452 509 B. The guide quotes the script's <code>~D</code> print as <code>≈ D</code>. Branch <code>attempt/EX-110-item389-20261012T1118Z</code> (tip <code>01624645</code>) is deleted after this commit.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

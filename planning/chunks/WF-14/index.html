@@ -1,0 +1,922 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>WF-14 — history - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#wf-14-history" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              WF-14 — history
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-221-2026-10-04-chain-u2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 221 — 2026-10-04 (chain U2)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-375-2026-10-11-chain-u41-9d-lane-1-revalidation-no-solve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 375 — 2026-10-11 (chain U41, 9d; lane-1 revalidation, no solve)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-433-2026-10-13-10-chain-u48-lane-1-no-solve-depends-on-item-416" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 433 — 2026-10-13 (§10 chain U48; lane 1, no solve; depends on item 416)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-13-0300-daily-on-the-item-433-draft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-13 03:00 (daily) on the item 433 draft
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-784-2026-11-03-10-u120-chain-u-9c-the-installed-package-rehearsal-re-run-on-the-current-tree-lane-1-shaped" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 784 — 2026-11-03 (§10 U120, chain U — 9c, the installed-package rehearsal re-run on the current tree; lane-1 shaped)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-841-2026-11-05-lane-1-known-issues-resolves-with-docsguidevalidationmd-regenerated-against-the-registry-item-802-changed-ops-docs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 841 — 2026-11-05 (lane 1, known-issues "Resolves with" — docs/guide/validation.md regenerated against the registry item 802 changed; ops / docs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="wf-14-history">WF-14 — history<a class="headerlink" href="#wf-14-history" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<h3 id="9-item-221-2026-10-04-chain-u2">§9 item 221 — 2026-10-04 (chain U2)<a class="headerlink" href="#9-item-221-2026-10-04-chain-u2" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-04 03:00 daily review; the review reviews it.</em></p>
+<p><strong><code>WF-14</code> step 1: the validation envelope.</strong> A committed registry maps every public name to the gate test nodes that cover it. A test asserts three things: the surface is fully registered, every registered node is one <code>pytest --collect-only</code> finds, and a snapshot of the surface fails on a planted unregistered addition.
+- <strong>Executor:</strong> implementer. <strong>Tier:</strong> standard ceiling, <code>-n 1</code>, real build, <strong>no <code>mpiexec</code></strong>. The row says "smoke by prediction"; the window is predicted at 15–40 s, and collection imports dolfinx and gmsh, so the window is registered at the standard ceiling and its tier word is re-labelled on measurement (the <code>OPS-60</code> precedent). <strong>Class:</strong> chain step, no solve. The class median is ≈ 11 min, borrowed.
+- <strong>Cost:</strong> ≈ 11 measured / ≈ 45 predicted min. That is 15 fixed + ≈ 15 for mapping 25 names by grep + ≈ 10 code + one or two windows of ≈ 1 min + spare.
+- <strong>Depends on nothing.</strong> It shares the new <code>tests/package/</code> directory with item 220; the two do not conflict.</p>
+<p><strong>The public surface, defined concretely.</strong>
+- The surface is <strong><code>fem_em_solver.__all__</code></strong>: 25 names, <code>src/fem_em_solver/__init__.py:41–67</code>. It is the only surface the package declares at the top level, and the one a study script imports from.
+  - From <code>core</code>: <code>LinearSolveDiagnostics</code>, <code>MagnetostaticProblem</code>, <code>MagnetostaticSolver</code>, <code>classify_residual_trend</code>, <code>HomogeneousMaterial</code>, <code>TimeHarmonicBoundaryCondition</code>, <code>TimeHarmonicFields</code>, <code>TimeHarmonicProblem</code>, <code>TimeHarmonicSolver</code>, <code>build_material_fields</code>, <code>build_mu_r_field</code>, <code>normalize_boundary_condition</code>.
+  - From <code>materials</code>: <code>GelledSalinePhantomMaterial</code>.
+  - From <code>ports</code>: twelve port, sweep and Touchstone names.
+- <strong>Not in v0's surface, said so in the registry header:</strong> the sub-package <code>__all__</code> lists, which hold ≈ 99 more quoted names by line count (<code>core</code> 19, <code>io</code> 8, <code>materials</code> 3, <code>ports</code> 45, <code>post</code> 18, <code>thermal</code> 6; <code>coils</code> and <code>utils</code> declare none). The review may widen the surface to the qualified union (≈ 124 entries), which roughly triples the mapping cost. Widening is a target choice, so it is the review's, not the slot's.</p>
+<p><strong>Code (no <code>src/</code> change).</strong>
+- <strong>Registry: <code>tests/package/validation_envelope.toml</code></strong> (read with stdlib <code>tomllib</code>, Python 3.12). It is test metadata, so it lives beside the tests. Shipping it as package data is (9c) / (9d) follow-on.
+  - <strong>Format.</strong> A header comment, then one table per name:
+    <code>toml
+    # WF-14: public name -&gt; gate test nodes. Node IDs only — no band, record or
+    # tolerance is restated here (§7 WF-14 Done-when). Surface = fem_em_solver.__all__.
+    [names.TimeHarmonicSolver]
+    nodes = ["tests/validation/test_lossy_plane_wave.py::test_lossy_plane_wave_matches_closed_form"]</code>
+  - <strong>Node IDs</strong> are relative to <code>/workspace</code> (pytest's rootdir), function-level. A parametrised node may be named without its <code>[…]</code> suffix, and then it matches any collected <code>id + "["</code>.
+  - <strong>Mapping guide:</strong> prefer the closing gate of the chunk that gated the name. Leads from grep:
+    - <code>TimeHarmonicSolver</code> / <code>TimeHarmonicProblem</code> / <code>HomogeneousMaterial</code> → <code>TH-6</code>;
+    - <code>MagnetostaticSolver</code> → <code>MAG-14</code> (<code>tests/validation/test_helmholtz_magnitude.py</code>);
+    - <code>LinearSolveDiagnostics</code> / <code>classify_residual_trend</code> → <code>tests/solver/test_convergence_diagnostics.py</code> (it is reached via <code>last_solve_diagnostics</code>, never named in a test);
+    - <code>normalize_boundary_condition</code> / <code>TimeHarmonicBoundaryCondition</code> → <code>tests/solver/test_boundary_condition_selection.py</code>;
+    - <code>validate_required_port_tags_exist</code> → <code>tests/ports/test_port_definition.py</code>;
+    - <code>plan_frequency_sweep</code> → <code>tests/ports/test_frequency_sweep_planner.py</code>;
+    - <code>run_placeholder_port_coupling_case</code> → <code>tests/ports/test_sparameter_assembly.py</code> (its only reference);
+    - <code>PortVoltageCurrentEstimate</code> → <code>tests/validation/test_port_lumped_sheet_sweep.py</code>;
+    - the S-parameter names → <code>PORT-9</code> / <code>PORT-11</code>'s gate nodes.
+- <strong>Snapshot: <code>tests/package/public_surface.txt</code></strong>, one name per line, sorted.
+- <strong>Test: <code>tests/package/test_wf14_validation_envelope.py</code>.</strong>
+  - <strong>Pure checkers:</strong>
+    - <code>_surface_violations(surface, snapshot, registry) -&gt; list[str]</code>, naming each of: not in the snapshot, in the snapshot but gone, no registry entry, a registry entry for no surface name, and an entry with an empty <code>nodes</code>;
+    - <code>_node_violations(registry, collected_ids) -&gt; list[str]</code>.
+  - <strong>Collection, by the robust route.</strong> A module-scoped fixture runs <strong>one subprocess</strong>, <code>sys.executable -c &lt;script&gt; &lt;out.json&gt; &lt;files…&gt;</code>, with cwd <code>/workspace</code> and the union of the registry's files as arguments.
+    - The script calls <code>pytest.main(["--collect-only", "-p", "no:cacheprovider", *files], plugins=[C()])</code>, where <code>C.pytest_collection_finish(session)</code> records <code>[i.nodeid for i in session.items]</code>. It dumps <code>{"rc", "ids"}</code> as JSON (to <code>tmp_path</code>).
+    - <strong>Why this route.</strong> It never parses verbosity-dependent text: <code>pyproject.toml</code>'s <code>addopts</code> carries <code>-v</code>, so <code>-q</code> nets to verbosity 0 and prints a tree, not node IDs. And it never nests <code>pytest.main</code> inside the running session, where conftest and plugin re-registration and importlib-mode module reuse are fragile.
+    - <strong>Child environment:</strong> strip <code>PMI_*</code>, <code>HYDRA_*</code>, <code>MPIR_*</code>, <code>OMPI_*</code> and <code>PMIX_*</code> from it (belt and braces; see the traps).
+  - <strong>Tests:</strong>
+    - <code>test_surface_matches_snapshot</code>: <code>sorted(set(fem_em_solver.__all__)) == snapshot</code>, with every name resolved by <code>getattr</code>.
+    - <code>test_every_public_name_has_an_entry</code>: <code>_surface_violations == []</code>.
+    - <code>test_every_entry_names_a_collectable_node</code>: the subprocess <code>rc == 0</code>, and <code>_node_violations == []</code>.
+    - <code>test_registry_restates_no_number</code>: every table's only key is <code>nodes</code>, every value is a <code>str</code>, and none parses as a float. This enforces the Done-when's last sentence.
+    - The two controls below.
+  - <strong>Printed, never asserted:</strong> per name, whether any named node's file mentions the name textually. Predicted 24 / 25; <code>LinearSolveDiagnostics</code> is the exception.</p>
+<p><strong>Anchors (asserted).</strong> These are identities, which is the row's letter:
+- (S) the surface equals the snapshot;
+- (R) the registry keys equal the surface;
+- (C) every registry node is among the collected IDs, with collection <code>rc == 0</code>;
+- (N) the registry holds no number.</p>
+<p><strong>Negative controls</strong> (rule (e): both are asserted by construction, as planted controls with no prior measurement needed).
+- <strong>(c1) Planted unregistered name</strong> (the row's control). Run <code>_surface_violations(surface + ["_wf14_planted_name"], snapshot, registry)</code>, and also the real path: <code>monkeypatch.setattr(fem_em_solver, "__all__", [*fem_em_solver.__all__, "_wf14_planted_name"])</code> plus <code>monkeypatch.setattr(fem_em_solver, "_wf14_planted_name", object(), raising=False)</code>, then the snapshot check. It must report exactly the planted name, both as not in the snapshot and as having no entry.
+- <strong>(c2) Planted uncollectable node.</strong> A registry copy whose one entry adds <code>tests/validation/test_lossy_plane_wave.py::test_wf14_no_such_node</code> must yield exactly that violation against the <em>same</em> collected IDs. This shows (C) reads the collection and not just the file's existence.</p>
+<p><strong>Window</strong> (foreground, Bash <code>timeout: 660000</code>; the harness call is the whole Bash command, bare and repo-relative; <code>-s</code>; no pipes).</p>
+<p><code>scripts/testing/run_and_log.sh WF-14-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 180 python3 -m pytest tests/package/test_wf14_validation_envelope.py -v -s --tb=short'"</code></p>
+<ul>
+<li><strong>Predicted 15–40 s.</strong> Collecting ≈ 20–30 test modules in one process costs mostly the dolfinx / gmsh import, paid once.</li>
+<li><strong>If the guard denies a pytest without <code>mpiexec</code>:</strong> use <code>mpiexec -n 1</code>. The child-environment strip then matters.</li>
+</ul>
+<p><strong>Traps.</strong>
+- <strong>A pytest subprocess launched from an <code>mpiexec</code> rank</strong> inherits <code>PMI_*</code> / <code>HYDRA_*</code>. Its <code>import mpi4py</code> (through dolfinx) then tries to join the parent job and can hang. This is why the module runs without <code>mpiexec</code>, and why the child environment is stripped anyway.
+- <strong><code>--import-mode=importlib</code></strong> comes from <code>pyproject.toml</code> (the two <code>test_tolerance_policy.py</code> basenames). The child must run with cwd <code>/workspace</code> so that ini file and rootdir apply. Node IDs are then rootdir-relative.
+- <strong>Collection imports every named module.</strong> A module that fails to import in the real build is (C) red with <code>rc</code> 2. Print the child's stdout on failure, which <code>-s</code> shows. <code>complex_only</code> modules import fine in real mode (they use <code>skipif</code>).
+- <strong>Never list a <code>probe_*.py</code>:</strong> <code>python_files = test_*.py</code>, so it never collects.
+- <strong>Run hygiene:</strong> <code>PYTHONPATH</code> carries <code>:/workspace</code>; rule (i) applies (no edit after the last window).</p>
+<p><strong>Scope.</strong>
+- <strong>Not claimed:</strong> that a registered node actually exercises its name or is green today (collectability only, the row's letter), the sub-package surfaces, any band or record in the registry (the row forbids it), and docs rendering of the envelope (9d).
+- The registry's <em>choices</em> of node are for the review to audit.</p>
+<p><strong>Status it can move.</strong> The <code>WF-14</code> §7 row's Done-when: a registry; in one logged window, every declared public name has an entry, every entry names a node <code>pytest --collect-only</code> finds, and the snapshot fails on a planted unregistered name; node IDs only. Green moves <strong>⬜ → ✅</strong>. It unblocks §10 U3 (<code>WF-15</code>, "serial on U2").</p>
+<p><strong>Negative result.</strong>
+- <strong>(C) red because a name has no gate node at all:</strong> record the name. Do not register a finiteness-only test to fill the hole. Hold at 🟡, and the review decides whether the name leaves <code>__all__</code> or gets a gate.
+- <strong>(S) red on the first run:</strong> a dangling <code>__all__</code> entry, which is a <code>src/</code> defect. Report it; do not edit <code>__init__.py</code> in-slot.
+- <strong>A control that passes</strong> (it reports no violation): the checker is blind. Stop and report.
+- <strong>A collection hang:</strong> it is killed at the ceiling and is not a result. Run <code>pgrep -c python3</code> first, then re-run once with the environment strip verified, then BLOCKED.</p>
+<p>There is no PREDICTED RED line.</p>
+<p><strong>Outcome (2026-10-04 21:00 slot): ✅ DONE.</strong> <code>20261005T022839Z_WF-14-W1.log</code> Status 0, 6 passed, 4 s: (S) / (R) / (C) / (N) green over 25 names and 42 node references; (c1) and (c2) report exactly the planted violations. <code>WF-14</code> ✅; U3 unblocked.</p>
+<h3 id="9-item-375-2026-10-11-chain-u41-9d-lane-1-revalidation-no-solve">§9 item 375 — 2026-10-11 (chain U41, 9d; lane-1 revalidation, no solve)<a class="headerlink" href="#9-item-375-2026-10-11-chain-u41-9d-lane-1-revalidation-no-solve" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-11 03:00 daily review; the review reviews it.</em></p>
+<p><strong>Licence.</strong> §10 chain U, <strong>U41</strong> (9d, lane 1, no solve): "<code>docs/guide/validation.md</code> — the envelope table generated from <code>WF-14</code>'s registry: every public entry point with its gating chunk IDs and bands, byte-reproducible, 0 dead links; a planted unregistered entry point fails the generator. Standard. Serial on nothing."</p>
+<p><strong>Home.</strong> The brief lives here because the page renders <code>WF-14</code>'s registry. It reuses <code>WF-17</code> step 2's generator pattern (<code>scripts/docs/generate_api_reference.py</code>, <code>tests/package/test_wf17_api_reference.py</code>) by import and edits neither file. No band, tolerance, Done-when or target is set or moved.</p>
+<p><strong><code>WF-14</code> <code>validation.md</code> step 2 — the envelope page.</strong>
+- <strong>Executor:</strong> implementer.
+- <strong>Tier:</strong> standard by the weekly's label; smoke by measurement. No MPI; real build is fine, but the existing API windows source complex mode, and this item copies them.
+- <strong>Class:</strong> lane-1 revalidation (no solve). Median 17 measured min.
+- <strong>Cost:</strong> ≈ 17 measured / ≈ 45 predicted min: 15 fixed + ≈ 25 code (AST band resolution) + W0 ≈ 0.1 + W1 ≈ 0.3 + spare.
+- <strong>Depends on:</strong> nothing.</p>
+<p><strong>Inputs, checked on <code>510f41f9</code>.</strong>
+- <code>tests/package/validation_envelope.toml</code>: 41 <code>[names.*]</code> entries = 41 lines of <code>tests/package/public_surface.txt</code>; 106 distinct node IDs over 36 modules; all function-level (no <code>Class::method</code>).
+- The registry's own Done-when forbids any non-<code>nodes</code> key: <code>test_registry_restates_no_number</code> asserts <code>set(entry) == {"nodes"}</code> (<code>tests/package/test_wf14_validation_envelope.py:200–212</code>). <strong>The chunk IDs and bands are therefore derived by the generator from the test sources. Nothing is added to the TOML.</strong>
+- <strong>Docstring census (drafter's grep).</strong>
+  - 28 of 36 modules name a backticked §7 ID in the docstring's first paragraph.
+  - 7 carry only pre-plan letter labels: "(chunk D5)" <code>tests/io/test_touchstone_export.py</code>; "C2" <code>tests/materials/test_phantom_material_model.py</code>; "D4" <code>tests/ports/test_frequency_sweep_planner.py</code>; "E1" <code>tests/ports/test_port_definition.py</code>; "E4/D3" <code>tests/ports/test_sparameter_assembly.py</code>; plus <code>tests/solver/test_boundary_condition_selection.py</code> and <code>tests/solver/test_convergence_diagnostics.py</code>, which carry no ID.
+  - No §7 row is named <code>D5</code> / <code>C2</code> / <code>E1</code> (grep of <code>^| \</code>[A-E][0-9]`<code>→ 0).
+  -</code>tests/validation/test_helmholtz_magnitude.py<code>names</code>MAG-14` in its second paragraph.</p>
+<p><strong>Code.</strong>
+- <strong>New <code>scripts/docs/generate_validation_page.py</code>.</strong> It loads <code>generate_api_reference.py</code> by <code>importlib.util.spec_from_file_location</code>, as <code>test_wf17_api_reference.py:62–66</code> does, and reuses its <code>public_names</code>, <code>load_registry</code> and <code>REPO_ROOT</code>. It writes <strong>one</strong> file, <code>docs/guide/validation.md</code>, never into <code>docs/guide/api/</code>: that tree's <code>generate()</code> deletes stale header-bearing <code>*.md</code> (<code>generate_api_reference.py:169–171</code>), and its (N) / (G) globs <code>api/*.md</code>. CLI: <code>--out</code>, <code>--check</code> (exit 1 on any byte difference), as in <code>main()</code> at <code>:189–205</code>.
+- <strong>Chunk IDs per node.</strong>
+  - Take the backticked IDs matching <code>`([A-Z]+-\d+)`</code> in the node module's docstring. Use the first paragraph; for a module whose first paragraph has none, the whole docstring.
+  - For a module with none, use an explicit <code>CHUNK_OVERRIDES: dict[str, tuple[str, ...]]</code> in the script, one line per module with a <code>#</code> comment citing the §7 row or the test-results line the implementer read to attribute it. Expected ≈ 7 entries, as above. <strong>Never guess:</strong> a module the implementer cannot attribute from the plan gets no override, and the generator then fails on it (below). That is a finding: report it and stop.
+  - <strong>Every derived ID must exist as a §7 row</strong> (<code>^| \</code><ID>` |<code>in</code>PROJECT_PLAN.md<code>); otherwise the generator raises naming it.
+- **Bands per node.**
+  - Use</code>ast<code>only, never import a test module (they carry knobs and import dolfinx). Collect every</code>Name<code>/</code>Attribute.attr<code>in the node function's body that matches</code>^[A-Z][A-Z0-9_]<em>_(BAND|RTOL|ATOL|TOLERANCE|FLOOR|CEILING)$<code>.
+  - Resolve each through the module's top-level</code>Assign<code>/</code>AnnAssign<code>, or one</code>from X import NAME<code>hop to X's top-level assignment.
+  - Render</code>NAME = <literal><code>when</code>ast.literal_eval<code>succeeds on the right-hand side; otherwise</code>NAME (computed)<code>. Give the defining file as a relative link and **no line number** (line numbers churn).
+  - A node whose body names none renders "— (structural / inline; see node)". That is printed and counted, never an error: bands asserted inside fixtures or helpers are not traced in v0, and the page says so in one sentence.
+- **Page.**
+  - A</code><!-- GENERATED … Do not edit; regenerate. --><code>header and one intro paragraph: the registry is the source; "listed" ≠ "green today", as on the API pages.
+  - Then, in</code>public_names()<code>order, one</code>### <Name><code>section: a link to</code>api/<Name>.md<code>; gating chunk IDs (sorted, de-duplicated, plain code text, **no links** into</code>docs/planning/<code>); and a table</code>| Node | Chunk | Bands |<code>per registry node in registry order, with the node's file linked relative to</code>docs/guide/<code>.
+  - No timestamps, host, commit or absolute path.</code>\n<code>endings, written</code>newline="\n"<code>.
+- **Generator refusals** (exit 1, message naming the offender, nothing written):
+  - (F1) a name in</code><strong>all</strong><code>with no registry entry;
+  - (F2) a node whose module yields no §7 ID;
+  - (F3) a derived ID with no §7 row.
+- **New test</code>tests/package/test_wf14_validation_page.py<code>.** It loads the script by spec, and imports</code>_surface<code>,</code>_load_registry<code>,</code>_COLLECT_SCRIPT<code>,</code>_STRIP_PREFIXES<code>,</code><em>node_violations<code>from</code>test_wf14_validation_envelope<code>and</code>run_checker<code>from</code>tests.unit.test_doc_reference_exit_codes<code>, as</code>test_wf17_api_reference.py:44–52<code>does. It imports names only, never</code>test</em></em>`.</p>
+<p><strong>Anchors (asserted; all exact).</strong>
+- <strong>(N)</strong> The page's <code>###</code> names == <code>_surface()</code> == registry keys, each exactly once; each links <code>api/&lt;Name&gt;.md</code> once.
+- <strong>(E)</strong> Per name, the page's node list == the registry's, in registry order (parsed as <code>parse_page_nodes</code> does).
+- <strong>(G)</strong> The committed page is byte-identical to a fresh <code>generate(tmp)</code>, and two generations are identical (<code>WF-17</code> (G)'s pattern).
+- <strong>(I)</strong> Every chunk ID on the page is a §7 row.
+- <strong>(B)</strong> Every rendered band name resolves to a top-level assignment in the linked file. Printed: the counts of nodes with ≥ 1 named band and with none, and of <code>(computed)</code> bands.
+- <strong>(D)</strong> <code>run_checker("--docs-root", "docs/guide", "--check-links")</code> reads dead == 0, and the <code>Link pass:</code> page count rises by exactly 1 over the API-only tree (45 pages / 280 links on <code>20261010T100449Z_WF-16-s8-W3-api-envelope.log:126</code>; the new count is printed).</p>
+<p><strong>Negative controls (rule (e)).</strong> All are asserted by construction, as exact violation lists (<code>WF-14</code> (c1) / <code>WF-17</code> (c1)–(c4) precedent). None is a factor.
+- <strong>(c1) Planted unregistered entry point.</strong> <code>monkeypatch</code> <code>fem_em_solver.__all__</code> plus the attribute with <code>_wf14_planted_name</code> (<code>PLANTED_NAME</code>, <code>test_wf14_validation_envelope.py:45</code>). The generator raises / <code>main</code> returns 1, naming exactly that name. <strong>This is the weekly's control.</strong>
+- <strong>(c2)</strong> A registry copy with one node in a scratch module whose docstring has no ID → (F2) naming that node.
+- <strong>(c3)</strong> An override pointing at <code>NOPE-999</code> → (F3).
+- <strong>(c4)</strong> A one-byte hand edit of a tmp copy of the page → <code>--check</code> reports it.
+- <strong>(c5)</strong> <code>run_checker</code> on a tmp copy of the page with one planted dead link → dead == 1.</p>
+<p><strong>Windows.</strong> Foreground. The harness call is the whole Bash command, bare. Bash <code>timeout: 660000</code>; <code>-s</code>.
+- <strong>W0 (generate, ≈ 2 s):</strong> <code>scripts/testing/run_and_log.sh WF-14-s2-W0-gen "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 60 python3 scripts/docs/generate_validation_page.py --out docs/guide/validation.md'"</code>
+- <strong>W1 (≈ 10–20 s).</strong> The command of <code>20261010T100449Z_WF-16-s8-W3-api-envelope.log</code> (10 s, 12 passed) with the new module appended, so <code>WF-14</code> / <code>WF-17</code> re-gate on the same tree:</p>
+<p><code>scripts/testing/run_and_log.sh WF-14-s2-W1-page "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 170 python3 -m pytest tests/package/test_wf14_validation_envelope.py tests/package/test_wf17_api_reference.py tests/package/test_wf14_validation_page.py -v -s --tb=short'"</code>
+- <strong>No edit to the script, test or page after W1</strong> (rule (i)). Any edit regenerates (W0) and re-runs W1.</p>
+<p><strong>Traps already paid for.</strong>
+- A negative control that copies <code>HEAD:</code> of the file it guards goes stale (<code>OPS-43</code> (a)). Every control here is synthetic or monkeypatched, never a <code>git show HEAD:</code>.
+- An imported <code>test_*</code> name re-runs that test: import <code>_</code>-names and constants only.
+- <code>-k a or b</code> breaks the quoted container command: no <code>-k</code>.
+- No pipe or filter in the harness command.
+- Never hand-edit a generated page.
+- <code>_COLLECT_SCRIPT</code> needs MPI env vars stripped (<code>_STRIP_PREFIXES</code>), as <code>WF-14</code> does.
+- A stale API tree once reddened (G) on <code>main</code> (§9 item 331): if <code>test_wf17_api_reference.py</code> is red before any edit, that is the pre-existing state. Report it; do not regenerate <code>docs/guide/api/</code> in this item.</p>
+<p><strong>Scope.</strong> Covered: a generated, checked page over <code>__all__</code>'s 41 names and their registry nodes, chunk IDs and <strong>named</strong> bands as the sources show them. Not claimed:
+- that a node is green today;
+- bands asserted in fixtures or helpers (untraced in v0);
+- sub-package surfaces;
+- a hosted site;
+- any change to the registry, the API pages or <code>WF-14</code>'s Done-when.</p>
+<p><strong>Negative result.</strong> Report and stop. Park on <code>attempt/WF-14-s2-*</code> and mark item 375 BLOCKED in the same commit (rule (d)).
+- (F2) on a real module the implementer cannot attribute from the plan → list the modules, BLOCKED for the review's attribution.
+- (I) red → a docstring names a non-row ID: report the module.
+- (G) non-deterministic → report the differing lines.</p>
+<p>No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>WF-14</code> stays ✅. Its Done-when is the registry, met 2026-10-04, and this is a record beyond it: the row gains one sentence ("step 2: <code>docs/guide/validation.md</code> generated from the registry, byte-checked, 0 dead links, planted unregistered name refused"). §10 U41 → DONE (the weekly marks it). Phase 9 (9d) gains the validation page. <strong>No rule (j) amendment.</strong></p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Execute §9 item 375 — <code>WF-14</code> step 2 (§10 U41) — per <code>docs/planning/chunks/WF-14.md</code> §9 item 375. Read the brief and any review rulings beneath it first. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Pass timeout: 660000 on every Bash call that runs a window; run pytest with -s. Do not edit <code>tests/package/validation_envelope.toml</code>, <code>scripts/docs/generate_api_reference.py</code>, <code>tests/package/test_wf17_api_reference.py</code> or anything under <code>docs/guide/api/</code>. Never guess a chunk attribution: an unattributable module is a finding, so stop and report. You are the executor — do not spawn agents, never background a harness window. If the docker socket is denied, stop and report the exact command string. On a red, park on <code>attempt/WF-14-s2-*</code>, mark item 375 BLOCKED in the same commit, and report."</p>
+<p><strong>Outcome (2026-10-12 22:30 CDT slot): DONE.</strong> W0 <code>20261012T034338Z_WF-14-s2-W0-gen.log</code> (Status 0, 2 s); W1 <code>20261012T034345Z_WF-14-s2-W1-page.log</code> Status 0, 22 passed in 14 s (smoke by measurement): (N) 43 = surface = registry; (E) 155 rows, 0 mismatches; (G) byte-identical, 53 621 bytes; (I) 23 IDs, all rows; (B) 92 banded / 63 structural / 169 refs / 2 computed / 0 unresolved; (D) 49 pages = 48 + 1, 663 links, 0 dead; (c1)–(c5) exact. The inputs had grown since <code>510f41f9</code> (43 names / 155 node rows / 38 modules). All seven docstring-less modules were attributable from plan records, cited line by line in <code>CHUNK_OVERRIDES</code> (<code>PORT-7</code>, <code>MAT-1</code>, <code>OPS-56</code>, <code>PORT-2</code>, <code>PORT-5</code>, <code>GEO-23</code>, <code>TH-4</code>); the review audits those choices. <code>WF-14</code> stays ✅; U41 for the weekly.</p>
+<h3 id="9-item-433-2026-10-13-10-chain-u48-lane-1-no-solve-depends-on-item-416">§9 item 433 — 2026-10-13 (§10 chain U48; lane 1, no solve; depends on item 416)<a class="headerlink" href="#9-item-433-2026-10-13-10-chain-u48-lane-1-no-solve-depends-on-item-416" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-13 03:00 daily review; the review reviews it.</em></p>
+<p><strong>Licence.</strong>
+- §10 U48 (PROJECT_PLAN.md:4793–4795): "The validation page (U41) gains the two h-statement envelope entries F27 / F26 wrote tonight, through the registry; <code>--check-links</code> 0 dead. Serial on F33."
+- The F27 and F26 / F19 rulings (:4523–4540).
+- §9's "Every item" bullet on <code>WF-14</code>'s registry (:4032; <code>WF-1.md</code> ruling Q3, <code>:756</code>).</p>
+<p>No band, tolerance, Done-when or target is set or moved. Registry comments carry no number (<code>test_registry_restates_no_number</code>, <code>tests/package/test_wf14_validation_envelope.py:200–212</code>).</p>
+<p><strong><code>WF-14</code> step 3: the two h-statement envelope entries.</strong> This item adds registry lines to <code>tests/package/validation_envelope.toml</code>, then regenerates the API pages and <code>docs/guide/validation.md</code> and runs the page gates in the same slot. <strong>The attribution below is the drafter's proposal, and the review rules on it.</strong>
+- <strong>F27 → <code>[names.FourPortBirdcageGeometry]</code></strong> (<code>:299</code>). This builder makes the F-small four-port on exact rectangles (<code>strip_fraction</code>, <code>src/fem_em_solver/study.py:225</code>, <code>:307</code>), degree 2 by default (<code>:10</code>). Add one comment line, <code># F27 h-statement (§10, weekly 2026-10-12; §9 item 433)</code>, then these nodes:
+  - <code>"tests/validation/test_ans4_exact_strip_records.py::test_g_port11_gates_on_the_exact_rectangles"</code>. This is the node all three rungs ran green, e.g. <code>20261011T070008Z_ANS-4-step6c.log:3853–3890</code>.
+  - <strong>Only if item 417 is DONE on <code>main</code>:</strong> its <code>tests/unit/test_ans4_h_table.py</code> node. The page then renders <code>F27_SELF_CHANGE_CEILING = 0.001</code> beside it through (B). If item 417 has not landed, skip this line and say so in the outcome; it joins when the review re-queues it.
+- <strong>F26 → <code>[names.LeontovichWall]</code></strong> (<code>:317</code>). Add one comment line, <code># F26 h-rung (§10, weekly 2026-10-12; §9 item 433)</code>, then <code>tests/validation/test_ans6_exact_strip.py::test_g_gates_both_columns</code>, <code>::test_b_copper_surface_loss_identity</code> and <code>::test_r_class_mean_records</code> (<code>:626</code>, <code>:639</code>, <code>:722</code>). These are the nodes of the h = 0.0075 window, <code>20261012T070009Z_ANS-6-step5b.log:12</code>.
+- <strong>Node IDs are function-level</strong> with no <code>[param]</code> suffix (registry rule, <code>validation_envelope.toml:4–5</code>).
+- <strong>Both modules name their §7 ID in docstring paragraph 1</strong> (<code>test_ans4_exact_strip_records.py:1</code>, <code>test_ans6_exact_strip.py:1</code>), so the page's (I) needs no override.</p>
+<p><strong>Executor and cost.</strong>
+- <strong>Executor:</strong> implementer.
+- <strong>Tier:</strong> standard (the Wapi ceiling is 170 s), no MPI (<code>-n 1</code>).
+- <strong>Class:</strong> lane 1 (median 6).
+- <strong>Cost:</strong> ≈ 6 measured / ≈ 20 predicted min: 15 fixed + ≈ 2 for the edit + ≈ 1 for windows (item 394's page windows took ≈ 0.7 min, <code>20261012T140547Z</code>…<code>140622Z_WF-1-s8-W*.log</code>) + spare.
+- <strong>Depends on item 416</strong> (§10: serial on F33). Skip this item unless 416 is DONE.</p>
+<p><strong>Anchors (asserted).</strong>
+- <strong>Wapi:</strong> <code>test_wf14_validation_envelope.py</code> collects the new nodes (S / R / C / N). <code>test_wf17_api_reference.py</code> (G) finds the regenerated pages byte-identical. <code>test_wf14_validation_page.py</code> passes (N), (E), (G), (I) (<code>ANS-4</code> / <code>ANS-6</code> are §7 rows), (B) and (D).
+  - The prior reading was 22 passed in 14 s (<code>20261012T034345Z_WF-14-s2-W1-page.log:220</code>).
+- <strong>Wval</strong> prints the node count. The prior count is 174 (<code>20261012T140552Z_WF-1-s8-Wval.log:41</code>), so predict +4, or +5 with item 417. <strong>Read the current count first,</strong> because other items may have added nodes. Printed only.
+- <strong>Wdoc:</strong> <code>--check-links</code> reads 0 dead.</p>
+<p><strong>Negative controls (rule (e); asserted, by construction).</strong>
+- <strong>(C-api) and (C-val):</strong> after the registry edit and <strong>before</strong> Wgen / Wval, the two <code>--check</code> runs exit 1.
+  - The API check names exactly <code>FourPortBirdcageGeometry.md</code> and <code>LeontovichWall.md</code> in its "differing file(s)" list (<code>generate_api_reference.py:201</code>).
+  - The validation check prints <code>DIFFERS: validation.md</code> (<code>generate_validation_page.py:288</code>).
+  - An exit 0 means the lines did not reach the pages. Stop.
+- <strong>(c1)–(c5)</strong> of <code>test_wf14_validation_page.py</code>, which run in Wapi: a planted unregistered name, (F2), (F3), a one-byte edit, and one planted dead link.</p>
+<p><strong>Windows.</strong> Foreground, bare, repo-relative, Bash <code>timeout: 660000</code>, <code>-s</code>. The commands are item 394's (<code>WF-1.md:728</code>) with this item's labels.
+1. Edit the registry.
+2. <strong>C-api</strong> (predicted Status 1):
+   <code>scripts/testing/run_and_log.sh WF-14-u48-ctl-api "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 180 python3 scripts/docs/generate_api_reference.py --out docs/guide/api --check'"</code>
+3. <strong>C-val</strong> (predicted Status 1):
+   <code>scripts/testing/run_and_log.sh WF-14-u48-ctl-val "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 60 python3 scripts/docs/generate_validation_page.py --out docs/guide/validation.md --check'"</code>
+4. <strong>Wgen:</strong>
+   <code>scripts/testing/run_and_log.sh WF-14-u48-Wgen "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 180 python3 scripts/docs/generate_api_reference.py --out docs/guide/api'"</code>
+5. <strong>Wval:</strong>
+   <code>scripts/testing/run_and_log.sh WF-14-u48-Wval "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 60 python3 scripts/docs/generate_validation_page.py --out docs/guide/validation.md'"</code>
+6. <strong>Wapi:</strong>
+   <code>scripts/testing/run_and_log.sh WF-14-u48-Wapi "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 170 python3 -m pytest tests/package/test_wf14_validation_envelope.py tests/package/test_wf17_api_reference.py tests/package/test_wf14_validation_page.py -v -s --tb=short'"</code>
+7. <strong>Wdoc:</strong>
+   <code>scripts/testing/run_and_log.sh WF-14-u48-Wdoc "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py --docs-root docs/guide --check-links'"</code>
+8. <strong>Commit</strong> the registry, the regenerated pages, the logs and the <code>WF-14</code> row sentence together.</p>
+<p><strong>Traps already paid for.</strong>
+- <strong>A control window's Status 1 is its pre-registered result</strong>, labelled <code>-ctl-</code>. It is not a red.
+- <strong>Never hand-edit a generated page.</strong> Never edit <code>generate_api_reference.py</code>, <code>generate_validation_page.py</code> or <code>test_wf17_api_reference.py</code>.
+- <strong>The validation module imports mpi4py / dolfinx.</strong> The envelope test collects it via <code>_COLLECT_SCRIPT</code> with MPI env stripped (<code>_STRIP_PREFIXES</code>). An uncollectable node is a stop; never register a node (C) cannot collect.
+- <strong>Registry conflicts:</strong> if another item touched the registry, a rebase keeps both sides, and the four windows re-run after it (<code>WF-1.md:695</code>).
+- <strong>No number in registry comments.</strong>
+- <strong>A stale API tree before the edit</strong> (item 331's history) is pre-existing state: report it.
+- No <code>-k</code>, no pipe, never delete a log, no edit after Wapi (rule (i)).</p>
+<p><strong>Scope.</strong> Registry lines and regenerated pages.</p>
+<p><strong>Not claimed:</strong>
+- that a node is green today (the registry asserts collectability only);
+- the h-statement's figures on the page, beyond a <code>_CEILING</code> constant (B) traces;
+- any change to <code>WF-14</code>'s Done-when or to the public surface;
+- the other attributions the review may prefer.</p>
+<p><strong>Negative result.</strong> Report and stop. Park on <code>attempt/WF-14-u48-*</code> and mark item 433 BLOCKED in the same commit (rule (d)).
+- <strong>(C) collection red on a new node:</strong> BLOCKED for the review's re-attribution.
+- <strong>(C-api) / (C-val) exit 0:</strong> the edit did not reach the pages. Stop.
+- <strong>(G) red after Wgen / Wval:</strong> regenerate once after a rebase; otherwise park.
+- <strong>(I) red:</strong> a docstring ID is missing. Report the module.
+- <strong>A dead link:</strong> park.</p>
+<p>No <code>PREDICTED RED:</code> line. The two control windows' Status 1 is their asserted result.</p>
+<p><strong>Status it can move.</strong> <code>WF-14</code> stays ✅. Its Done-when (the registry) has been met since 2026-10-04, so there is no rule (j) amendment.
+- The row gains one sentence: "step 3 (§9 item 433): the F27 / F26 h-statement nodes registered under <code>FourPortBirdcageGeometry</code> / <code>LeontovichWall</code>; pages regenerated, 0 dead links".
+- §10 U48 → DONE (the weekly marks it). Phase 9 (9d)'s validation page carries the two external h-statements.</p>
+<p><strong>Outcome (2026-10-14, 21:00 CDT slot):</strong> DONE, green. Five nodes registered: F27 → <code>FourPortBirdcageGeometry</code> (<code>test_g_port11_gates_on_the_exact_rectangles</code>, plus item 417's <code>tests/unit/test_ans4_h_table.py::test_h_table</code> because 417 landed at 4989ebdd), F26 → <code>LeontovichWall</code> (the three <code>test_ans6_exact_strip.py</code> nodes). C-api Status 1 naming exactly <code>FourPortBirdcageGeometry.md</code> and <code>LeontovichWall.md</code>; C-val Status 1 <code>DIFFERS: validation.md</code>. Wgen 2 s; Wval 3 s, 191 → 196 nodes (+5 as predicted with 417), (B) renders <code>F27_SELF_CHANGE_CEILING = 0.001</code>; (I) resolves <code>ANS-4</code> / <code>ANS-6</code> from the docstrings; Wapi 22 passed in 15 s; Wdoc 808 links, 0 dead. No API tree was stale before the edit. Logs <code>20261014T021636Z_WF-14-u48-ctl-api.log</code>, <code>…021642Z…ctl-val</code>, <code>…021649Z…Wgen</code>, <code>…021653Z…Wval</code>, <code>…021706Z…Wapi</code>, <code>…021727Z…Wdoc</code>.</p>
+<p><strong>Spawn line:</strong> "Use the implementer agent to execute <code>WF-14</code> §9 item 433 per <code>docs/planning/chunks/WF-14.md</code> (read the latest Review ruling paragraph first). Skip it unless item 416 is DONE on <code>main</code>. The harness call is the <strong>whole</strong> Bash command: bare, repo-relative, nothing chained or piped. Run every window in the foreground with <code>timeout: 660000</code>, pytest with <code>-s</code>, container <code>timeout -k 30</code>. Run C-api and C-val before Wgen / Wval and require Status 1 on both; never hand-edit a generated page; no number in a registry comment; register item 417's node only if 417 is DONE."</p>
+<h3 id="review-ruling-2026-10-13-0300-daily-on-the-item-433-draft">Review ruling 2026-10-13 03:00 (daily) on the item 433 draft<a class="headerlink" href="#review-ruling-2026-10-13-0300-daily-on-the-item-433-draft" title="Permanent link">&para;</a></h3>
+<p>Queued as drafted, serial on item 416. The attribution (F27 under <code>FourPortBirdcageGeometry</code>, F26 under <code>LeontovichWall</code>) is accepted provisionally for the 10-14 weekly to ratify; item 417's test node is registered only if 417 has landed.</p>
+<h3 id="9-item-784-2026-11-03-10-u120-chain-u-9c-the-installed-package-rehearsal-re-run-on-the-current-tree-lane-1-shaped">§9 item 784 — 2026-11-03 (§10 U120, chain U — 9c, the installed-package rehearsal re-run on the current tree; lane-1 shaped)<a class="headerlink" href="#9-item-784-2026-11-03-10-u120-chain-u-9c-the-installed-package-rehearsal-re-run-on-the-current-tree-lane-1-shaped" title="Permanent link">&para;</a></h3>
+<p><strong>Executes</strong> §10 U120. <strong>The recipe is <code>WF-13</code> step 5's (U47, §9 item 432), not a <code>WF-14</code> step.</strong> It has three parts:
+- <code>scripts/package/wf13_setup.sh</code>: a <code>--system-site-packages</code> venv, then <code>pip install --no-index --no-deps --no-build-isolation .</code> (<code>:84</code>).
+- <code>tests/package/test_wf13_exit_rehearsal.py</code>, the repo side.
+- <code>tests/package/test_wf13_installed_surface.py</code>, the venv side.</p>
+<p>Run them as <code>20261014T021300Z_WF-13-s5-W1-rehearsal.log.gz:12</code> did (28 s, exit 0), unedited, on <code>main</code>.</p>
+<p><strong>Gates (imported).</strong>
+- <strong>(R):</strong> <code>MAT-4</code> step 1's sphere SAR through the installed <code>femem run</code> (<code>-n 2</code>), within <code>L0_BAND</code> 1e-9 relative. On 10-14 it read 8.291558e-08, rel 6.2e-11.
+- No <code>PYTHONPATH=src</code> on the venv side (the test asserts it).
+- The public-surface snapshot at <strong>46 names</strong> (<code>tests/package/public_surface.txt</code>). The 10-14 run had 43: print the three added since, by name, from <code>git log -p</code> on that file.
+- The installed-surface hash equals the repo's.</p>
+<p><strong>Control.</strong> The repo-side surface hash, computed with one name dropped, differs. Use the test's own control, or add it.</p>
+<p><strong>Tier.</strong> Standard, <code>-n 2</code>, <code>timeout -k 30 170</code>. <strong>Class:</strong> chain step (no solve; lane-1 shaped). <strong>Cost:</strong> ≈ 4.1 measured / 20 predicted min.</p>
+<p><strong>Traps already paid for.</strong>
+- The 10-14 log is gzipped: read it with <code>zcat</code>.
+- The venv lives under <code>/tmp/wf13</code> inside the container, not on the host.
+- The sandbox: the window is one bare harness call.</p>
+<p><strong>Scope.</strong> A regression of the installed package. <strong>Not claimed:</strong> a wheel on PyPI, or a release.</p>
+<p><strong>Negative result.</strong> A red is a finding, a packaging regression since 10-14: stop, file it in known-issues, BLOCKED.</p>
+<p><strong>Status it can move.</strong> The <code>WF-14</code> row's U120 clause (<code>WF-13</code> step 5 re-run) and §10 U120. <strong>Depends on:</strong> nothing.</p>
+<p><strong>Outcome 2026-11-03 (09:00 CST slot, ≈ 15:00–15:10 UTC; implementer executor): DONE, green on the first window.</strong> The 10-14 command (<code>20261014T021300Z_WF-13-s5-W1-rehearsal.log.gz:12</code>) run unedited on <code>main</code> as <code>20261103T150106Z_WF-14-U120-rehearsal.log</code> (31 s, Status 0; venv side 3 passed, repo side 6 passed). (R) installed <code>femem run</code> at -n 2: SAR 8.29155812850789e-08, rel 6.125e-11 to <code>MAT4_DEG1_RECORD</code> (<code>L0_BAND</code> 1e-9), <code>.6e</code> print equal, 3.536 % from the closed form (<code>MAT4_BAND</code> 10 %); (c2) 3.4937 % from the degree-2 record. (L) <code>fem_em_solver.__file__</code> under <code>/tmp/wf13/venv</code>, <code>PYTHONPATH None</code> asserted. (S) installed <code>__all__</code> 46 names, snapshot 46 lines, sha256 812d5639d7c3769427a7ae41b6737a222296758aeaebf8137423bdcdc0a9d0b7 on both sides. The three names added since 10-14 (from <code>git log -p f09673f7..HEAD -- tests/package/public_surface.txt</code>): <code>ThermalBoxGeometry</code> (f437514a), <code>TransverseQuadraticHeatSource</code> (181c1b2d), <code>ColeColeMaterial</code> (6b9ca770). <strong>Control (added):</strong> <code>test_wf13_s5_control_dropped_name_changes_snapshot_hash</code> in <code>test_wf13_exit_rehearsal.py</code> rehashes the snapshot with <code>CapacitorSheets</code> dropped: 7a3ee89d…, different from the full hash. The test's existing (c1) covers a dropped name in the name comparison, not in the hash.</p>
+<h3 id="9-item-841-2026-11-05-lane-1-known-issues-resolves-with-docsguidevalidationmd-regenerated-against-the-registry-item-802-changed-ops-docs">§9 item 841 — 2026-11-05 (lane 1, known-issues "Resolves with" — <code>docs/guide/validation.md</code> regenerated against the registry item 802 changed; ops / docs)<a class="headerlink" href="#9-item-841-2026-11-05-lane-1-known-issues-resolves-with-docsguidevalidationmd-regenerated-against-the-registry-item-802-changed-ops-docs" title="Permanent link">&para;</a></h3>
+<p><strong>Why now, and first in the list.</strong> Item 827's Wdoc found three <code>test_wf14_validation_page.py</code> nodes red on <code>main</code> (<code>20261105T152512Z_WF-17-s30-Wdoc.log</code>): <code>tests/package/validation_envelope.toml</code> gained a <code>FourPortBirdcageGeometry</code> node in <code>8261cc33</code> (item 802) and the page was last regenerated in <code>c864aecc</code> (item 781). Known-issues entry "OPEN 2026-11-05 … <code>docs/guide/validation.md</code> is stale against the <code>WF-14</code> registry since item 802" names this as its fix. Items 838 and 839 end on a docrefs / page window that would meet the same reds, so this ≈ 3-minute item goes ahead of them. Family: <code>WF-14</code> page refresh, attempt 1 of 4.</p>
+<p><strong>Code.</strong> No source or test edit. Regenerate <code>docs/guide/validation.md</code> with the generator; if <code>scripts/docs/generate_api_reference.py --check</code> (or its equivalent flag; read its docstring) reports the API pages stale against the same change, regenerate them in the same commit and say so; otherwise leave them.</p>
+<p><strong>Windows.</strong> Bare, foreground, Bash timeout 660000.
+- Wgen <code>WF-14-item841-Wgen</code> (form <code>20261103T135137Z_WF-13-s15-Wval.log:12</code>): <code>scripts/testing/run_and_log.sh WF-14-item841-Wgen "docker compose -f docker/docker-compose.yml exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 60 python3 scripts/docs/generate_validation_page.py --out docs/guide/validation.md'"</code>
+- W1 <code>WF-14-item841-W1</code> (form <code>20261105T152512Z_WF-17-s30-Wdoc.log:12</code>): <code>scripts/testing/run_and_log.sh WF-14-item841-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/package/test_wf14_validation_page.py -v -s --tb=short'"</code></p>
+<p><strong>Anchor (identity).</strong> The page equals the generator's render of the registry: <code>test_wf14_page_nodes_equal_registry</code> (the page's node set = the registry's, <code>['FourPortBirdcageGeometry']</code> missing before), <code>test_wf14_page_is_what_the_generator_emits</code> (byte equality), and every other node of the module green, (D) 0 dead docrefs.</p>
+<p><strong>Control (asserted, the module's own).</strong> <code>test_wf14_page_c4_hand_edit_is_seen</code> — a one-line hand edit to the page is seen by the equality gate (it read <code>assert 1 == 0</code> on 11-05 because the tracked page already differed from the render) — and (c1) the planted unregistered name refused, (c5) the planted dead link seen. All three must be green after the regeneration; a control that cannot fire is a finding, not a pass.</p>
+<p><strong>Tier.</strong> Smoke (generator, 60 s) + standard (<code>-n 2</code>, real; item 827's Wdoc took 9 s). <strong>Class:</strong> ops / docs. <strong>Cost:</strong> ≈ 3.2 measured / 10 predicted min.</p>
+<p><strong>Traps already paid for.</strong> Count verdicts per rank, by token. The <code>git diff</code> of <code>docs/guide/validation.md</code> must touch only the <code>FourPortBirdcageGeometry</code> section (and anything else the generator legitimately changes since <code>c864aecc</code>, each named in the commit). Never hand-edit a generated page.</p>
+<p><strong>Scope.</strong> The page and its gate. <strong>Not claimed:</strong> any solver figure; any new registry node.</p>
+<p><strong>Negative result.</strong> A generator refusal (F1 / F2 / F3, exit 1) or a red node after regeneration: report the refusal text, stop, BLOCKED; the known-issues entry stays open with the reading added. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> The known-issues entry of 2026-11-05 is <strong>removed in the landing commit</strong>; §9's "<code>main</code> has no known red node" bullet holds again. <strong>Depends on:</strong> nothing.</p>
+<p><strong>Outcome 2026-11-05 (12:00 CST slot, ≈ 18:07–18:12 UTC; implementer executor): DONE, green on the first page window.</strong> Wgen <code>20261105T180722Z_WF-14-item841-Wgen.log</code> (4 s, Status 0; stats nodes 378, with_band 243, without_band 135, computed 24, bands 460). The <code>validation.md</code> diff is one added row, <code>tests/package/test_wf15_study_rod_caps.py::test_s13_all_gates</code>, in the <code>FourPortBirdcageGeometry</code> section, and nothing else. W1 <code>20261105T180733Z_WF-14-item841-W1.log</code> 10 passed per rank (20 PASSED tokens over 2 ranks, 14 s). <strong>API pages:</strong> <code>generate_api_reference.py --check</code> then read 1 differing file, <code>['FourPortBirdcageGeometry.md']</code> (<code>20261105T180754Z_WF-14-item841-Wapi.log</code>, Status 1), from the same registry node. Regenerated it in the same commit (<code>…180803Z_WF-14-item841-Wapigen.log</code>): the diff is the same one node in its envelope list. Re-check read 0 differing (<code>…180809Z_WF-14-item841-Wapi2.log</code>, Status 0). W2 re-ran the module on the final tree (<code>20261105T180811Z_WF-14-item841-W2.log</code>, 15 s, Status 0): 10 passed per rank, 20 PASSED tokens; (D) dead=0 over 1587 links / 75 pages; (c1) planted <code>_wf14_planted_name</code> refused (F1); (c4) <code>--check</code> rc 1 on a one-byte edit; (c5) planted copy dead=1 vs 0 unplanted. Known-issues entry retired.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

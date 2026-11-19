@@ -1,0 +1,852 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-99 — A duty-cycled coil drive heats the gel phantom: the on/off history, Duhamel's sum and the half-power stand-in (history) - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-99-a-duty-cycled-coil-drive-heats-the-gel-phantom-the-onoff-history-duhamels-sum-and-the-half-power-stand-in-history" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-99 — A duty-cycled coil drive heats the gel phantom: the on/off history, Duhamel's sum and the half-power stand-in (history)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#proposed-7-row" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Proposed §7 row
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Proposed §7 row">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#9-item-300-2026-10-07-54-example-example-runner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 300 — 2026-10-07 (§5.4 example; example-runner)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-item-306-2026-10-07-54-example-follow-up-example-runner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 306 — 2026-10-07 (§5.4 example follow-up; example-runner)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-07-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-07 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-99-a-duty-cycled-coil-drive-heats-the-gel-phantom-the-onoff-history-duhamels-sum-and-the-half-power-stand-in-history">EX-99 — A duty-cycled coil drive heats the gel phantom: the on/off history, Duhamel's sum and the half-power stand-in (history)<a class="headerlink" href="#ex-99-a-duty-cycled-coil-drive-heats-the-gel-phantom-the-onoff-history-duhamels-sum-and-the-half-power-stand-in-history" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<p><code>EX-99</code> (<code>mat:15</code>) was opened 2026-10-07 by the 10:30 daily review under daily-review.md step 5 (§5.4 ramp). <code>MAT-17</code> step 3 (§9 item 271, §10 chain P12, <code>20261006T201547Z_MAT-17-step3-W1.log</code>) closed two identities on <code>MAT-15</code> P1's coil-driven F-small gel phantom under a 50 % duty schedule: Duhamel superposition at 3.421e-14 (<code>:1970</code>) and the energy identity at ≤ 3.743e-14 (<code>:1976</code>). No example shows a duty-cycled schedule on a coil-driven source:
+- <code>mat:9</code> (<code>EX-79</code>) drives the same phantom with a source that never switches off;
+- <code>mat:11</code> (<code>EX-85</code>) switches a <em>uniform</em> source on <code>MAT-9</code>'s ball.</p>
+<p>The angle here is the drive plus the time history. <code>mat:14</code> belongs to a sibling item (<code>EX-98</code>, the container wall on the coil phantom). This item writes <code>mat:15</code> only.</p>
+<h2 id="proposed-7-row">Proposed §7 row<a class="headerlink" href="#proposed-7-row" title="Permanent link">&para;</a></h2>
+<p>| <code>EX-99</code> | <strong>A duty-cycled coil drive heats the gel phantom: the on/off history, Duhamel's sum and the half-power stand-in</strong> <em>(history and §9 briefs: <code>docs/planning/chunks/EX-99.md</code>)</em> (<code>mat:15</code>; <code>example-runner</code>; opened 2026-10-07 by the 10:30 daily review, §5.4 ramp — <code>MAT-17</code> step 3 (§9 item 271, §10 P12) closed identities and no example shows a schedule on a coil-driven source; angle: drive + time history) <strong>Done-when:</strong> <code>examples/materials/15_duty_cycled_coil_heating_phantom.py</code> + same-stem guide (three required headings + <code>## Setup figure</code>); rule (a) lift of step 3's fixture body to <code>_run_duty(return_fields=False)</code> plus a <code>snapshot_steps=</code> keyword on <code>_transient_s</code>, additive, module re-gated green in-slot, disclosed; <code>L_BAND</code> / <code>D_BAND</code> / <code>E_BAND</code> / <code>D_CONTROL_FLOOR</code> imported by name (<code>is</code> checks), none restated; <code>-n 2</code>, complex: (Δ) ≤ <code>L_BAND</code>, (D′) ≤ <code>D_BAND</code>, (E) every run and (E′) at N and n = 36 ≤ <code>E_BAND</code>, the history runs equal the gate's runs ≤ <code>D_BAND</code>; control (Δ-ctl) &gt; <code>L_BAND</code> (backed <code>…201547Z_MAT-17-step3-W1.log:1971</code>); (d) printed at both placements, asserted by the gate only; records printed beside <code>:1973–1975</code>; combined XDMF, θ time series and mean-history CSV written; census +1 <code>broken=0</code>, docrefs <code>exit != 1</code>; elapsed recorded ⇒ ✅. Not claimed: a pulse sequence, SAR averaging or a regulatory statement, absolute temperature, the tuned coil, 64 MHz, a periodic steady state. | ⬜ Queued 2026-10-07 (§9 item 300). | heavy (<code>-n 2</code>, ≈ 250 s predicted, <code>-t 590</code>) |</p>
+<h3 id="9-item-300-2026-10-07-54-example-example-runner">§9 item 300 — 2026-10-07 (§5.4 example; example-runner)<a class="headerlink" href="#9-item-300-2026-10-07-54-example-example-runner" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-07 10:30 daily review; the review reviews it.</em></p>
+<p><code>EX-99</code> (<code>mat:15</code>) adds:
+- <code>examples/materials/15_duty_cycled_coil_heating_phantom.py</code>;
+- a same-stem guide, <code>15_duty_cycled_coil_heating_phantom.md</code>, with the three required headings plus <code>## Setup figure</code> and <code>## Related</code>;
+- the setup PNG <code>examples/materials/figures/materials_15_duty_cycled_coil_heating_phantom_setup.png</code> (≤ 600 KiB; <code>mat:9</code>'s, made with the same recipe, is 442 KiB, <code>EX-79.md:56</code>).</p>
+<p><code>run_examples.sh</code> lists <code>examples/materials/*.py</code> by glob and selects by the zero-padded prefix <code>15_</code> (<code>scripts/run_examples.sh:129, 206</code>). No registry edit is needed, and the item does not need <code>mat:14</code> to exist.</p>
+<ul>
+<li><strong>Executor:</strong> <code>example-runner</code>. The executor does not spawn agents.</li>
+<li><strong>Tier:</strong> <strong>heavy</strong>; <code>-n 2</code>, complex. Runner <code>-t 590</code>; container <code>timeout -k 30 590</code>, the same ceiling as step 3's W1 (<code>MAT-17.md:278</code>).</li>
+<li><strong>Cost:</strong> ≈ 7 measured (example class median, items 278 / 279 / 280 / 296 / 297 = 7 / 6 / 7 / 15 / 7 min, <code>docs/planning/reviews/2026-10-07-daily-1030.md:12–16</code>) / ≈ 55 predicted min. That is 15 fixed + ≈ 20 for the lift, script and guide + ≈ 20 for windows: three heavy windows of ≈ 4–5 min each, plus censuses, dry run and sweep.</li>
+<li>The honest expectation is ≈ 15–20 min of wall clock in windows. <code>EX-96</code>'s two heavy windows measured 15 min in all (<code>2026-10-07-daily-1030.md:15</code>).</li>
+<li><strong>Depends on:</strong> nothing open. <code>MAT-17</code> step 3 is on <code>main</code> (<code>d8191042</code>), and so is <code>MAT-15</code> step 1's <code>_run_heated</code> lift (<code>04c3850d</code>).</li>
+<li><strong>Never beside another heavy window.</strong></li>
+<li><strong>Spawn prompt</strong> (the slot puts these sentences in verbatim): "Use the example-runner agent to execute <code>EX-99</code>, §9 item 300 (docs/planning/chunks/EX-99.md, heading <code>§9 item 300</code>). Do not spawn agents. Run every harness window in the foreground (Bash <code>timeout: 660000</code>) and never background one; do not end the turn while a window runs. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Make no edit to the script or guide after its last window."</li>
+</ul>
+<p><strong>What is new, and what is not.</strong> No new physics. Every asserted quantity is one that step 3's module already computes, with a band that module already holds. The example adds three things:
+- the <strong>time history</strong>: ⟨θ⟩(tₙ) at all 41 full-step indices, for the duty run and for the continuous run at half power, written to a CSV and a ParaView time series;
+- the <strong>fields</strong> at t*, at the end of the last on phase, and of the half-power stand-in;
+- a guide that reads the drive, the schedule and Duhamel's sum together.</p>
+<p>Step 3's module stores only <code>SNAPS = (32, 35, 36, 39, 40)</code> (<code>test_mat17_duty_cycle_coil_driven.py:73</code>), so the history needs two extra thermal runs (≈ 3.4 s each, <code>…201547Z_MAT-17-step3-W1.log:1956</code>). The anchor (Hist) below ties those runs to the gate's runs.</p>
+<p><strong>Code (rule (a), disclosed; precedent <code>EX-79</code>'s <code>_run_heated</code> lift, <code>EX-79.md:17</code>, which the 2026-10-02 03:00 review accepted as within rule (a)).</strong> Two additive edits to <code>tests/validation/test_mat17_duty_cycle_coil_driven.py</code>, and nothing else:
+1. <code>_transient_s(sub, ft, q, schedule, *, snapshot_steps=SNAPS)</code> (<code>:86–93</code>). The body passes <code>snapshot_steps=snapshot_steps</code>. The default is the old literal, so every existing call is byte-identical.
+2. Move the body of the <code>duty()</code> fixture (<code>:109–245</code>) verbatim into a module-level <code>_run_duty(*, return_fields=False)</code>. The fixture becomes <code>return _run_duty()</code>.
+   - With <code>False</code>, the prints and the keys of <code>out</code> stay byte-identical.
+   - With <code>True</code>, it adds <code>base</code> (the <code>_run_heated(return_fields=True)</code> dict), <code>r_duty</code>, <code>r_one</code>, <code>r_d</code>, <code>q0</code>, <code>dep</code>, <code>sub</code>, <code>ft</code> and <code>ds</code>.
+   - The seven test functions and both band literals (<code>L_BAND</code>, <code>D_BAND</code>, <code>:64–65</code>) are untouched.</p>
+<p>Edit no other gate module. <code>ans:9</code> imports <code>_run_heated</code> from <code>MAT-15</code>'s module, which this item does not touch, and nothing imports the step-3 module (checked at drafting). No <code>src/</code> change.</p>
+<p><strong>Imports (never restated).</strong>
+- <code>from tests.validation import test_mat17_duty_cycle_coil_driven as m17s3</code>, and from it: <code>_run_duty</code>, <code>_transient_s</code>, <code>_chi_duty</code>, <code>L_BAND</code>, <code>D_BAND</code>, <code>E_BAND</code>, <code>D_CONTROL_FLOOR</code>, <code>DUTY</code>, <code>DT</code>, <code>HALF</code>, <code>N_MAIN</code>, <code>N_ON_LAST</code>, <code>SNAPS</code>, <code>T_INF</code>, <code>T_STAR</code>, <code>_allsum</code>.
+- <code>from tests.validation import test_mat15_coil_driven_heating_phantom as m15</code>, <code>test_mat12_transient_sar_heating_sphere as m12</code>, and <code>PHANTOM_CELL_TAG</code>.
+- <code>from tests.validation.test_mat5_em_coupled_sphere import L0_BAND</code> (<code>:104</code>). It is used only for the flag-vs-control comparison of printed records.
+- Setup-figure names as in <code>09_coil_driven_heating_phantom.py:45–64</code>: <code>PORT_LOWER</code>, <code>PORT_UPPER</code>, <code>LEG_COUNT</code> and <code>CONDUCTOR_CELL_TAG</code>.
+- From <code>src</code>: the <code>fem_em_solver.io.paraview_utils</code> writers (<code>write_xdmf_with_tags</code>, <code>write_xdmf_time_series</code>, <code>adopt_host_ownership</code>) and <code>fem_em_solver.post.setup_figure.write_setup_figure</code>.
+- <strong>Structural checks (asserted, printed):</strong> <code>m17s3.E_BAND is m12.E_BAND</code>, <code>m17s3.D_CONTROL_FLOOR is m15.D_CONTROL_FLOOR</code>, <code>m17s3._run_heated is m15._run_heated</code> and <code>m17s3.T_STAR is m15.T_STAR</code>.
+- <strong>No new number.</strong> The script states no k, ρc, h, frequency, period, duty or band. Each comes from the imports, or from the returned dicts, or is the integer step index. The one exception is <code>range(N_MAIN + 1)</code>, which is the full set of snapshot indices.</p>
+<p><strong>Order of calls.</strong> Complex guard (copied from <code>09_…py:76–81</code>) → structural checks → <code>r = _run_duty(return_fields=True)</code> (one EM fixture plus step 3's 13 thermal runs) → setup figure on <code>r["base"]["msh"]</code> / <code>["cell_tags"]</code> → <code>h_duty = _transient_s(sub, ft, q0, _chi_duty, snapshot_steps=range(N_MAIN + 1))</code> → <code>h_one = _transient_s(sub, ft, q0, lambda t: 1.0, snapshot_steps=range(N_MAIN + 1))</code> → readings → asserts → CSV / XDMF.</p>
+<p><strong>(1) Anchors (asserted in-script at the imported bands; each printed beside its step-3 record).</strong>
+- <strong>(S) The schedule.</strong> Assert <code>r["chi_binary"]</code>, and that <code>h_duty.source_multipliers == r["r_duty"].source_multipliers</code> (exact list equality: χ is computed from the integer step index). Print the 41-character string beside <code>11111000011110000111100001111000011110000</code> and the on-time beside 627.0000 s (<code>:1956</code>).
+- <strong>(Δ) Duhamel superposition.</strong> <code>r["Delta"] ≤ L_BAND</code>. Record 3.421e-14 (<code>:1970</code>).
+- <strong>(D′) Duty 1 is P1.</strong> <code>r["D"] ≤ D_BAND</code>. Record 2.119e-15 (<code>:1959</code>).
+- <strong>(E) Every run balances.</strong> Every value in <code>r["E"]</code> ≤ <code>E_BAND</code>, and so are <code>h_duty.max_balance_residual</code> and <code>h_one.max_balance_residual</code>. Record: worst of 12 runs 3.743e-14 (<code>:1976</code>).
+- <strong>(E′) The energy identity from the EM side.</strong> <code>r["Ep_N"] ≤ E_BAND</code> (record 3.317e-15, <code>:1957</code>) and <code>r["Ep_on"] ≤ E_BAND</code> (record 1.399e-14, <code>:1958</code>). Both are normalised by the unscheduled G·P₁, as the module does.
+- <strong>(Hist) The history runs are the gate's runs.</strong> This is a new comparison held at an imported band; predicted ≤ 1e-15 (the same call on the same inputs in the same process).
+  - Whole-submesh relative L2 of <code>h_duty.temperature</code> against <code>r["r_duty"].temperature</code> ≤ <code>D_BAND</code>.
+  - The same for <code>h_one.temperature</code> against <code>r["base"]["T_star"][0]</code>.
+  - At each n in <code>SNAPS</code>, <code>h_duty.snapshots[n]</code> against <code>r["r_duty"].snapshots[n]</code> ≤ <code>D_BAND</code>.
+  - Compute every norm with <code>m17s3._allsum</code> and <code>np.real</code>, the way the module's <code>_l2sq</code> does (<code>:123–126</code>).
+- <strong>Records, printed beside <code>:1973–1975</code>, never asserted</strong> (the gate asserts none of them):
+  - duty ⟨θ⟩(t*) 0.568835514 K against D·P1 0.576656825 K, ratio 0.986437;
+  - the last on/off pair 0.466250330 → 0.584438780 → 0.568835514 K;
+  - the 10 g ball at c₀, duty / (D·P1) 0.967065;
+  - max|Im θ| 0.</p>
+<p>Print each at the gate's format <strong>and</strong> at <code>!r</code>. At the gate's 9 decimals the resolution (≈ 1.8e-9 relative on 0.57 K) is coarser than <code>L0_BAND</code>, so the flag-vs-control comparison needs the full digits.</p>
+<p><strong>(2) Negative controls (rule (e)).</strong>
+- <strong>(Δ-ctl) asserted: one Duhamel term dropped.</strong> Assert <code>r["Delta_ctl"] &gt; L_BAND</code>.
+  - Backing, the same comparison on the same fixture at <code>-n 2</code>: 0.298210 (<code>:1971</code>).
+  - <strong>Ceiling.</strong> Dropping m = 9 leaves θ_duty − Σ′ = −θ[H₉] up to the (Δ) residual. So the miss is ‖θ[H₉]‖ / ‖θ_duty‖ to ≈ 3e-14, which is ≈ 3.0e11× <code>L_BAND</code>. The assertion asks only for &gt; 1×. No saturation applies: the comparator is not bounded by 1.
+- <strong>(d) printed, not asserted: the doubled source, at both placements.</strong>
+  - Print <code>r["ctl_d"]</code> (n = 36, the last on-step; record 1.000000) and <code>r["ctl_d_N"]</code> (N = 40, off-step, blind by linearity; record 2.942e-15), both from <code>:1972</code>, each labelled with its step and χ.
+  - <strong>How this avoids pre-empting the weekly.</strong> The 2026-10-06 18:00 review accepted the move of (d) to n = 36 provisionally and sent it to the 10-07 weekly to ratify (<code>docs/planning/reviews/2026-10-06-daily-1800.md:48, :69</code>). So:
+    - the example asserts no (d), and its asserted control is (Δ-ctl), which does not depend on that ruling;
+    - the gate module keeps asserting (d) where it does now, and the re-gate window runs that assertion as the module's own;
+    - the guide describes what the module asserts and why (at N the source is off, so a doubled source cannot show in the balance), and calls the placement neither ratified nor provisional; it points to <code>docs/planning/chunks/MAT-17.md</code> for the ruling.
+  - If the weekly changes the module before this item runs, step 0 stops it (see (5)).
+- <strong>(c-sched) printed, predicted: the schedule ignored.</strong> Print the whole-submesh relative L2 ‖θ[1] − θ_duty‖ / ‖θ_duty‖ at t*. It has never been measured.
+  - The triangle inequality on logged norms bounds it to [1.067, 3.067]. Those norms are ‖θ[H₀]‖² = 4.332121e-04 (<code>:1960</code>, and θ[H₀] = θ[1]) and ‖θ_duty‖ = ‖θ[H₉]‖ / 0.298210, with ‖θ[H₉]‖² = 9.019510e-06 (<code>:1969</code>, <code>:1971</code>).
+  - Predicted ≈ 1.0–1.2 inside that bracket, because θ[1] ≈ 2·θ_duty. Print it beside the bracket; it is not asserted.</p>
+<p><strong>(3) Printed history (predicted only; rule (e)).</strong> For every full-step index n = 0 … 40, print and write to <code>materials_15_duty_cycled_coil_heating_phantom_mean_history.csv</code>:
+- n and tₙ = n·<code>DT</code>;
+- χ for the step ending at tₙ: <code>h_duty.source_multipliers[n]</code> for n ≥ 2. For n = 1, both start-up half-steps' values, as in the module's <code>_e_prime_at</code> (<code>:101</code>).
+- ⟨θ⟩_duty(tₙ) and D·⟨θ⟩_P1(tₙ), the continuous run at half power, which by linearity deposits the same energy by t*;
+- their ratio.</p>
+<p>No prediction is stated beyond the t* record (0.986437, <code>:1973</code>). The guide reads the on-end and off-end rows in words.</p>
+<p><strong>(4) Windows.</strong> Each Bash call that runs a window is foreground with <code>timeout: 660000</code> and makes one bare, whole, repo-relative harness call. Nothing is chained or piped, and the executor never returns while a window runs.</p>
+<ol>
+<li><strong>Pre-flight.</strong></li>
+<li><code>git log --oneline -1 -- tests/validation/test_mat17_duty_cycle_coil_driven.py</code> must read <code>d8191042</code>. Otherwise see (5).</li>
+<li>Orphan check from a bare shell: <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0.</li>
+<li>Then run the rubric's cache sweep (daily-review.md:426) as one bare call labelled <code>EX-99-cache-sweep</code>.</li>
+<li><strong>Pre-censuses, before any file is written or edited:</strong></li>
+<li><code>scripts/testing/run_and_log.sh EX-99-pre-figures "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_setup_figures.py'"</code></li>
+<li><code>scripts/testing/run_and_log.sh EX-99-pre-docrefs "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py'"</code></li>
+<li>The census was 93 at drafting (<code>EX-97.md:195</code>). <code>EX-98</code> (<code>mat:14</code>) may land first, so take N from this reading.</li>
+<li><strong>The lift, then its re-gate</strong> (heavy; predicted [240, 330] s and 19 passed, from step 3's W1 at 276 s, <code>:2122</code>):</li>
+<li><code>scripts/testing/run_and_log.sh EX-99-mat17s3-regate "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 590 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_mat17_duty_cycle_coil_driven.py -v -s --tb=short'"</code></li>
+<li>The <code>MAT17s3</code> lines must match <code>…201547Z_MAT-17-step3-W1.log:1956–1976</code>: the schedule string is identical, and the residuals and records may differ only at noise. Journal the comparison.</li>
+<li>The module must not be edited after this window (rule (i)).</li>
+<li><strong>Dry run, after the script exists:</strong> <code>scripts/testing/run_and_log.sh EX-99-dryrun "./scripts/run_examples.sh -e mat:15 -n 2 -t 590 --dry-run"</code>. It must print <code>(complex build)</code>.</li>
+<li><strong>Flagged run of record,</strong> predicted [190, 330] s.</li>
+<li>Basis: the <code>MAT-15</code> fixture 168.4 s (<code>:1954</code>), step 3's 13 thermal runs 35.5 s (<code>:1976</code>), two history runs ≈ 7 s (<code>:1956</code>), and ≈ 15 s each for startup and the setup figure, plus ≈ 10 s for the XDMF and time series. That is ≈ 250 s.</li>
+<li>The low end allows for <code>EX-79</code>'s flagged run of the same fixture, which took 162 s (<code>EX-79.md:73</code>).</li>
+<li>Command: <code>scripts/testing/run_and_log.sh EX-99 'docker compose exec -T -e FEM_EM_SETUP_FIGURES=1 fem-em-solver bash -lc "cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 590 mpiexec -n 2 python3 examples/materials/15_duty_cycled_coil_heating_phantom.py"'</code></li>
+<li>The runner's emitted line omits <code>-T</code> (<code>EX-79.md:88</code>) and <code>/workspace</code> on <code>PYTHONPATH</code> (<code>EX-96.md:147</code>). Use this brief's command and note any other difference.</li>
+<li><strong>Control run.</strong> <code>git add</code> the PNG, then rerun the same line without <code>-e FEM_EM_SETUP_FIGURES=1</code>, labelled <code>EX-99-control</code>. <strong>Compare at the band, never bitwise</strong> (2026-10-06 18:00 review §3, the <code>EX-91</code> ruling; the <code>-n 2</code> MUMPS drift is ≈ 1e-10):</li>
+<li>every assertion is green in both runs, each at its own imported band;</li>
+<li>the integers and strings (sub-cell count, schedule string, χ list) are equal;</li>
+<li>the <code>!r</code> records agree within <code>L0_BAND</code> relative;</li>
+<li>wall times may differ.</li>
+<li><strong>Post-censuses:</strong> <code>EX-99-post-figures</code> and <code>EX-99-post-docrefs</code>, the step 1 commands with those labels. Write the prediction first:</li>
+<li>figures: <code>examples</code> N → N + 1, <code>ok</code> +1, <code>broken=0</code>;</li>
+<li>docrefs: runnable +1, <code>dead=0</code>, <code>guide=0</code>, <code>exit != 1</code>.</li>
+</ol>
+<p><strong>Output.</strong>
+- <strong>Combined XDMF</strong> <code>examples/materials/paraview_output/materials_15_duty_cycled_coil_heating_phantom_combined.xdmf</code>.
+  - Write it with <code>write_xdmf_with_tags(…, sub, None, fields)</code> and then <code>adopt_host_ownership</code>, as <code>09_…py:158–173</code> does.
+  - Fields, all K except the source:
+    - P1 <code>theta_duty</code> (θ at t*);
+    - P1 <code>theta_on_end</code> (θ at n = <code>N_ON_LAST</code>);
+    - P1 <code>theta_half_power</code> (D·(T_P1 − T∞) at t*);
+    - DG0 <code>q_h_k0</code> (W/m³ at G = 1 W / P₁).
+- <strong>Time series</strong> <code>…_history.xdmf</code>, via <code>write_xdmf_time_series(…, sub, None, steps)</code>, with 41 steps <code>(tₙ, {"theta": f})</code>. Each Function's <code>name</code> is set to its key.
+- <strong>CSV</strong> <code>…_mean_history.csv</code>, as in (3).
+- <strong>Setup figure.</strong>
+  - Use <code>09_…py:107–123</code>'s recipe and region names: phantom translucent, air hidden, a z-slice.
+  - Title ≤ 130 characters, e.g. <code>mat:15 -- a duty-cycled coil drive heats the gel phantom (MAT-17 step 3)</code>.
+  - It renders after <code>_run_duty</code> returns, because the fixture builds the mesh (disclosed, as in <code>EX-79</code>).
+- <strong>Guide.</strong>
+  - State the drive: <code>ANS-2</code>'s untuned 10 MHz F-small, single-leg drive k = 0 (P1), normalised to 1 W deposited. θ is therefore per deposited watt, not an absolute temperature.
+  - State the schedule: P = t*/5, D = 0.5, every switch on a grid point. Read the values from the module in prose, never as new constants.
+  - State Duhamel's sum in one line, θ[χ] − T∞ = Σ (−1)ᵐ (θ[Hₘ] − T∞), and say what (Δ-ctl) shows.
+  - Explain the energy identity at an off step (normalised by the unscheduled power) and the (d) placement as above.
+  - Read the history: the ripple, and the half-power stand-in at the on-ends and off-ends.
+  - ParaView recipe:
+    - open the history XDMF and play time, coloured by <code>theta</code>;
+    - Plot Data Over Time on the mean (or plot the CSV);
+    - on the combined file, a Calculator <code>theta_duty - theta_half_power</code>.
+  - <code>## Related</code> lists <code>mat:9</code> (<code>examples/materials/09_coil_driven_heating_phantom.md</code>), <code>mat:11</code> (<code>examples/materials/11_duty_cycled_gel_ball.md</code>), <code>tests/validation/test_mat17_duty_cycle_coil_driven.py</code>, <code>tests/validation/test_mat15_coil_driven_heating_phantom.py</code> and <code>src/fem_em_solver/thermal/transient.py</code>.
+  - Do not link <code>mat:14</code>: it may not exist when this runs, and a dead link fails docrefs (the <code>EX-97</code> precedent).
+  - Name every artifact by its full filename (rule (b)). Write "the JSON summary" in words if one is mentioned at all.</p>
+<p><strong>(5) Traps already paid for.</strong>
+- <strong>Bare harness calls.</strong> Every harness call is the whole Bash command: bare, repo-relative, nothing chained or piped, no redirect. Never put <code>-k</code> inside the quoted command. A docker-socket denial means stop and report.
+- <strong>Foreground windows.</strong>
+  - Run foreground with Bash <code>timeout: 660000</code>; never background a window.
+  - The executor never nests: it spawns no agent.
+  - A slot that ended its turn while an executor's window ran was killed with no journal (daily-review.md:436–442).
+- <strong>Never delete a log,</strong> including a red or killed one.
+- <strong><code>-s</code></strong> on the re-gate pytest (rule (g)); without it the <code>MAT17s3</code> readings are swallowed.
+- <strong>Rule (i):</strong>
+  - no edit to the step-3 module after its re-gate;
+  - no edit to the script or guide after the control window.
+  - If either is edited later, re-run the window or say in the row that it was not re-run.
+- <strong>Orphan <code>.c</code>.</strong> The lift recompiles nothing new, but the history runs reuse forms, and a killed compile leaves a live lock. Run <code>pgrep -c python3</code> in the container (it must read 0) before any cache sweep, and sweep any <code>.c</code> that has no <code>.so</code>, never only 0-byte ones (<code>MAT-15</code> item 160's 44 KB orphan). If a run stalls in <code>MPI_Bcast</code>, sweep; never retry blind.
+- <strong>The complex half.</strong> The re-gate pytest needs <code>FEM_EM_REQUIRE_COMPLEX=1</code> and <code>source /usr/local/bin/dolfinx-complex-mode</code>. Without them its <code>@complex_only</code> tests skip and the window proves nothing. The script carries its own complex guard.
+- <strong>HDF5 name collisions.</strong> <code>write_xdmf_with_tags</code> and <code>write_xdmf_time_series</code> name datasets from <code>Function.name</code>. Unnamed θ Functions collided, and <code>EX-79</code>'s first flagged run hung to Status 124 at 480 s (<code>EX-79.md:66–70</code>). Name every Function. Avoid dotted stems (<code>paraview_utils.py:304</code>).
+- <strong>Snapshot indices are full-step indices,</strong> 0 being the initial state (<code>transient.py:125–126</code>). <code>source_multipliers</code> has 41 entries: the two start-up half-steps, then full steps 2 … 40. Index χ as <code>_e_prime_at</code> does (<code>:101</code>).
+- <strong>Collectives.</strong>
+  - <code>_run_duty</code>, <code>_transient_s</code>, <code>_allsum</code> and both writers are collective: call them on every rank.
+  - Rank-0 print blocks hold no collective (item 227).
+  - <code>cell_tags.values</code> and <code>assemble_scalar</code> are rank-local; reduce first.
+  - Take <code>np.real</code> before <code>float</code> and before any max.
+- <strong>Complex operands.</strong> No UFL ordering and no <code>sqrt</code> comparison on complex operands (<code>OPS-22</code>, <code>WF-6</code> 4c). The 10 g ball form is the module's own and is not re-written.
+- <strong>Runner line.</strong> Use this brief's command (see (4) step 4).
+- <strong>No AED number</strong> enters the script or guide. Write <code>≈</code>, never <code>~</code>.</p>
+<p><strong>(6) Scope.</strong>
+- <strong>Covered:</strong> <code>MAT-17</code> step 3's 50 % duty, P = t*/5 schedule on <code>MAT-15</code> P1's untuned 10 MHz drive k = 0, on the 0.0025 m rung. That means P1 thermal (degree 1), gel constants, Robin h 10 and no perfusion, at <code>-n 2</code>. It is shown with its time history and fields.
+- <strong>No new physics.</strong> The <code>MAT-17</code> row is unchanged, and so are its step-3 record sentence and §10 P12 (already closed).
+- <strong>Not claimed:</strong>
+  - any pulse sequence, 6-min SAR averaging or regulatory statement;
+  - absolute temperature (1 W normalisation);
+  - a closed form for the coil-driven θ;
+  - convergence (one rung, degree 1);
+  - the periodic steady state (t* is five periods; τ₁ is far longer);
+  - the tuned or copper fixture, 64 MHz, quadrature drive, tissue, <code>ANS-9</code>;
+  - a ruling on (d)'s placement.
+- <strong>Base-module guard.</strong> If <code>test_mat17_duty_cycle_coil_driven.py</code> has changed since <code>d8191042</code> when the slot starts (for instance, if the weekly edits (d)), the item stops BLOCKED at step 0 with nothing run and nothing written. The unblock condition is that the review re-reads the lift, (2)'s (d) clause and the imports against the module as it then stands.</p>
+<p><strong>(7) Negative result.</strong> In every case: report the measurement and stop. Journal it in <code>docs/testing/attempts.md</code>, park on <code>attempt/EX-99</code>, mark item 300 BLOCKED in the same commit (rule (d)), and leave <code>EX-99</code> ⬜. Never widen a band.
+- <strong>Re-gate red, or its <code>MAT17s3</code> digits off W1 beyond noise:</strong> the lift changed behaviour. Revert the module edit and report.
+- <strong>(Δ), (D′), (E), (E′) or (S) red in the example with the re-gate green:</strong> a divergence between the example's call and the gate's. Open a known-issues entry. <code>MAT-17</code> ✅ stands.
+- <strong>(Hist) red:</strong> the history runs are not the gate's runs. If the cause is the example's own call (a snapshot index, a schedule object), fix it before the run of record, once. Otherwise stop.
+- <strong>(Δ-ctl) ≤ <code>L_BAND</code>:</strong> a blind comparator. Stop.
+- <strong>Census not +1, or <code>broken</code> &gt; 0:</strong> fix it once; otherwise park.</p>
+<p>A run killed at 590 s is not a result. Check for orphans and stop. The fallback is a re-queue, never a longer timeout.</p>
+<p>No <code>PREDICTED RED:</code> line.</p>
+<p><strong>(8) Status it can move.</strong> The <code>EX-99</code> §7 row moves ⬜ → ✅ (Done-when met, elapsed recorded). Census <code>examples</code> +1 with <code>broken=0</code>; docrefs runnable +1. The review adds the row above in the same commit as this item (rule (j)). Nothing else moves: <code>MAT-17</code> stays ✅, and (d)'s placement stays the weekly's.</p>
+<p><strong>Review rulings (2026-10-07 10:30 daily review, item 300).</strong> (1) <strong>Rule (a) lift</strong> into <code>_run_duty(return_fields=False)</code> plus an additive <code>snapshot_steps=</code> keyword on <code>_transient_s</code>, with the step-3 module re-gated green in the same slot and disclosed: accepted (<code>EX-79</code> precedent). The alternative re-implements the fixture's arithmetic in the example, which an example must not do. (2) <strong>(d) placement:</strong> the example asserts no (d) and prints both placements. The (d) code moves into <code>_run_duty</code> <strong>verbatim</strong>, so a later weekly ruling edits one place. Step 0's check stands: if the step-3 module has changed since <code>d8191042</code> when the slot starts, stop BLOCKED with nothing run. (3) <strong>(c-sched)'s bracket is printed only</strong>; it is the drafter's own arithmetic. (4) Flag-vs-control as <code>EX-98</code> ruling (5). (5) The floor counts it at the example median (7); expect ≈ 15.</p>
+<p><strong>Outcome (2026-10-07, 13:30 CDT slot): ✅ DONE.</strong> Step 0 guard held (<code>d8191042</code>), orphan count 0, cache sweep <code>20261007T183037Z_EX-99-cache-sweep.log</code>. Rule (a) lift disclosed: <code>duty()</code> body moved into <code>_run_duty(*, return_fields=False)</code> and <code>_transient_s</code> gained <code>snapshot_steps=SNAPS</code> in <code>tests/validation/test_mat17_duty_cycle_coil_driven.py</code> (13 insertions, 4 deletions, no band or test touched); re-gate <code>20261007T183221Z_EX-99-mat17s3-regate.log</code> 19 passed in 275.52 s, schedule string and record digits identical to W1, residuals differ at 1e-14. Dry run <code>20261007T183758Z_EX-99-dryrun.log</code> prints <code>(complex build)</code>. Flagged run of record <code>20261007T183803Z_EX-99.log</code> (230 s, inside [190, 330]) and control <code>20261007T184229Z_EX-99-control.log</code> (220 s), both Status 0: (S) exact, χ lists equal; (Δ) 3.719e-14 / 3.562e-14; (D′) 2.120e-15; (E) worst 3.819e-14 (history runs 2.698e-14); (E′) 2.276e-15 / 1.699e-14; (Hist) duty 4.318e-15, χ = 1 2.155e-15, snapshots ≤ 4.9e-15 — inside <code>D_BAND</code>, but above the drafted ≤ 1e-15 prediction (not diagnosed; probably <code>-n 2</code> MUMPS drift); (Δ-ctl) 0.298210 &gt; <code>L_BAND</code>; (d) printed 1.000000 (n = 36) / 2.054e-15 (N = 40); (c-sched) 1.068705, inside [1.067, 3.067] at its lower edge; ⟨θ⟩(t*) 0.568835514 vs D·P1 0.576656825 K, ratio 0.986437, ripple pair as recorded; max|Im θ| 0. Flag vs control: <code>!r</code> records agree ≈ 1e-14 relative (≤ <code>L0_BAND</code>), sub-cell count 58 866 both. Census (predicted +1 first): figures 95 → 96 ok, <code>broken=0</code> (<code>20261007T184611Z_EX-99-post-figures.log</code>); docrefs runnable 95 → 96, <code>dead=0</code>, <code>guide=0</code>, exit 2 stale only (<code>20261007T184615Z_EX-99-post-docrefs.log</code>). PNG 452 562 B. <strong>Deviation:</strong> the 10 g ball record (0.967065) is not printed — <code>_run_duty</code> does not return it and the module was not edited after the re-gate (rule (i)); script and guide cite W1 <code>:1975</code> instead. File times checked against window starts: module, script and guide each precede their last window.</p>
+<p><strong>Audit (2026-10-07 18:00 daily review): PASS</strong> (<code>auditor</code>; re-gate <code>20261007T183221Z_EX-99-mat17s3-regate.log:2118</code>, 19 passed, Status 0 / 277 s; flagged <code>20261007T183803Z_EX-99.log:1938–1953</code>, Status 0 / 230 s; control <code>20261007T184229Z_EX-99-control.log:1931–1946</code>, Status 0 / 220 s; census <code>…184611Z_EX-99-post-figures.log:132</code>). <strong>Rulings:</strong> (1) <strong>The Done-when's "records printed beside <code>:1973–1975</code>" is two-thirds met:</strong> <code>:1975</code> is the 10 g ball record, and the run prints a pointer to it (<code>EX-99.log:1951</code>) because <code>_run_duty</code> does not return it. The Done-when is not amended (it is not loosened to fit the run); the row stays ✅ — every §4 element holds and the missing line is a printed record, never an assertion — and <strong>§9 item 306 below prints it</strong>. (2) The commit message's "(Hist) ≤ 4.9e-15" holds for the flagged run only; the control's worst snapshot is 5.018e-15 (<code>EX-99-control.log:1936</code>), 20× inside <code>D_BAND</code>. (3) "Flag vs control <code>!r</code> ≈ 1e-14 relative" understates: the duty mean differs by ≈ 8.6e-14 and (Δ-ctl) by ≈ 1e-12 relative, both far inside <code>L0_BAND</code>. Nothing moves.</p>
+<h3 id="9-item-306-2026-10-07-54-example-follow-up-example-runner">§9 item 306 — 2026-10-07 (§5.4 example follow-up; example-runner)<a class="headerlink" href="#9-item-306-2026-10-07-54-example-follow-up-example-runner" title="Permanent link">&para;</a></h3>
+<p><strong>Outcome (2026-10-08 00:55Z, ✅):</strong> W1 re-gate 19 passed, Status 0, 300 s (<code>20261008T004416Z_EX-99-item306-regate.log</code>); its <code>MAT17s3 record 10 g ball</code> line equals <code>20261006T201547Z_MAT-17-step3-W1.log:1975</code> at every printed digit. W2 (unflagged, Status 0, 265 s, <code>20261008T004928Z_EX-99-item306.log</code>) prints <code>[record] 10 g ball</code> duty 1.251111962e+00 K, P1 2.587441071e+00 K, ratio 0.967065 (<code>:1945</code>), equal to W1; item 300's anchors green: (Δ) 3.510e-14, (Hist) ≤ 5.035e-15, (E′) 8.327e-17 / 5.662e-15, (Δ-ctl) 0.298210. Post-censuses: figures 98 / 98 ok <code>broken=0</code> (98, not the brief's 97, because <code>EX-102</code> <code>mesh:14</code> landed earlier this slot), docrefs <code>dead=0 guide=0</code> exit 2. Rule (a) edit: <code>ball10_duty</code> / <code>ball10_p1</code> added to <code>_run_duty</code>'s <code>return_fields</code> block only. No band or assertion change.</p>
+<p><em>Written by the 2026-10-07 18:00 daily review from the <code>EX-99</code> audit (ruling (1) above).</em> Print <code>MAT-17</code> step 3's 10 g ball record from <code>mat:15</code>, so the row's Done-when clause "records printed beside <code>:1973–1975</code>" is met in full. <strong>No band, tolerance, Done-when or target is set or moved.</strong></p>
+<ul>
+<li><strong>Executor:</strong> <code>example-runner</code>. It does not spawn agents.</li>
+<li><strong>Tier:</strong> heavy; <code>-n 2</code>, complex; container <code>timeout -k 30 590</code>, as item 300's windows.</li>
+<li><strong>Cost:</strong> ≈ 7 measured (example class median) / ≈ 30 predicted min: 15 fixed + ≈ 5 for the edits + ≈ 10 for two heavy windows (re-gate ≈ 277 s, example ≈ 230 s) and the two censuses.</li>
+<li><strong>Depends on:</strong> nothing open (item 300 is on <code>main</code>, <code>1a39ece3</code>). <strong>Never beside another heavy window.</strong></li>
+<li><strong>Spawn prompt</strong> (the slot puts these sentences in verbatim): "Use the example-runner agent to execute <code>EX-99</code>, §9 item 306 (docs/planning/chunks/EX-99.md, heading <code>§9 item 306</code>). Do not spawn agents. Run every harness window in the foreground (Bash <code>timeout: 660000</code>) and never background one; do not end the turn while a window runs. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Make no edit to the script, guide or module after its last window."</li>
+</ul>
+<p><strong>Code (rule (a), additive, disclosed).</strong>
+1. <code>tests/validation/test_mat17_duty_cycle_coil_driven.py</code>, <code>_run_duty</code>: in the <code>if return_fields:</code> block (<code>:246–248</code>) add <code>ball10_duty=b_duty, ball10_p1=b_p1</code> to the <code>out.update(...)</code> call. With <code>return_fields=False</code> the keys and the prints stay byte-identical; no test function, band or print changes.
+2. <code>examples/materials/15_duty_cycled_coil_heating_phantom.py:233–234</code>: replace the pointer with a <code>[record]</code> line printing <code>r["ball10_duty"]</code> and <code>r["ball10_p1"]</code> at <code>.9e</code> and <code>r["ball10_duty"] / (DUTY * r["ball10_p1"])</code> at <code>.6f</code> — the gate's own formats (<code>test_mat17_duty_cycle_coil_driven.py:238–239</code>) — beside the text "W1 <code>:1975</code>". <code>DUTY</code> is imported from the module by name (already in item 300's import list). Print only; no assertion is added.
+3. The guide, <code>15_duty_cycled_coil_heating_phantom.md:67–68</code>: replace "The 10 g ball record is not returned by the gate; read it at <code>:1975</code>." with one sentence saying the run prints it beside W1 <code>:1975</code>, quoting the values W2 prints.</p>
+<p><strong>Windows (each the whole Bash command; Bash <code>timeout: 660000</code>).</strong> First <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0.
+- <strong>W1 — re-gate (after edit 1, before edit 2):</strong> the command of <code>20261007T183221Z_EX-99-mat17s3-regate.log:12</code>, verbatim (it already carries <code>-s</code>), under chunk ID <code>EX-99-item306-regate</code>. Pass: 19 passed, Status 0, and its <code>MAT17s3 record 10 g ball</code> line equal at every printed digit to <code>20261006T201547Z_MAT-17-step3-W1.log:1975</code>.
+- <strong>W2 — the example (after edits 2 and 3):</strong> the command of <code>20261007T184229Z_EX-99-control.log:12</code>, verbatim (unflagged — the setup PNG on <code>main</code> stays and is not regenerated), under <code>EX-99-item306</code>. Pass: Status 0, every assertion of item 300 green, and the new <code>[record]</code> line equal at every printed digit to W1's <code>MAT17s3 record 10 g ball</code> line.
+- <strong>Post-censuses:</strong> the figure census and the docrefs checker, exactly as item 300's post windows (<code>20261007T184611Z_EX-99-post-figures.log</code> and <code>…184615Z_EX-99-post-docrefs.log</code>, line 12 of each). Expect <code>examples=97 ok=97 broken=0</code> (no new example) and docrefs <code>exit != 1</code>.</p>
+<p><strong>(1) Anchor.</strong> The record identity: W2's printed ball values equal W1's, and W1's equal <code>MAT-17</code> step 3 W1 <code>:1975</code>, digit for digit at the gate's own print precision. Item 300's anchors ((Δ) ≤ <code>L_BAND</code>, (D′) and (Hist) ≤ <code>D_BAND</code>, (E) / (E′) ≤ <code>E_BAND</code>) are re-asserted unchanged by W2.</p>
+<p><strong>(2) Negative control.</strong> Item 300's (Δ-ctl) &gt; <code>L_BAND</code> (asserted, backed <code>…201547Z_MAT-17-step3-W1.log:1971</code>) runs again in W2. No new control: the item adds a print, not a claim.</p>
+<p><strong>(3) Tier.</strong> Heavy, <code>-n 2</code>; ≈ 277 s and ≈ 230 s measured on item 300's windows.</p>
+<p><strong>(4) Traps.</strong> Re-gate before the example runs (rule (a)); no edit after a window (rule (i)) — check file mtimes against W2's start before committing; the orphan check needs <code>-f docker/docker-compose.yml</code> from a bare shell; never run the flagged form (it rewrites the tracked PNG, and a regenerated tracked artifact is committed only if it agrees); never delete a log; on a killed window run the orphan check first, then the cache sweep (daily-review.md rubric (4)), before anything else.</p>
+<p><strong>(5) Scope.</strong> Prints one record. <code>EX-99</code> stays ✅; <code>MAT-17</code> stays ✅; no (d) placement ruling is pre-empted; the 10 g ball is a record, not a gate.</p>
+<p><strong>(6) Negative result.</strong> If W1's ball line differs from step 3's W1 <code>:1975</code> at a printed digit, or W2 fails any item-300 assertion: stop, journal both lines, park on <code>attempt/EX-99-item306-&lt;UTC&gt;</code>, and mark item 306 BLOCKED in the same commit (rule (d)). The row keeps its disclosure.</p>
+<p><strong>(7) Status it can move.</strong> The <code>EX-99</code> §7 state line: "10 g ball record not printed (…)" becomes the printed record with W2's log; the Done-when is then met in full.</p>
+<h2 id="7-row-moved-verbatim-2026-10-07-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-07 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-07-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p><strong>A duty-cycled coil drive heats the gel phantom: the on/off history, Duhamel's sum and the half-power stand-in</strong> <em>(history and §9 briefs: <code>docs/planning/chunks/EX-99.md</code>)</em> (<code>mat:15</code>; <code>example-runner</code>; opened 2026-10-07 by the 10:30 daily review, §5.4 ramp — <code>MAT-17</code> step 3 (§9 item 271, §10 P12) closed identities and no example shows a schedule on a coil-driven source; angle: drive + time history) <strong>Done-when:</strong> <code>examples/materials/15_duty_cycled_coil_heating_phantom.py</code> + same-stem guide (three required headings + <code>## Setup figure</code>); rule (a) lift of step 3's fixture body to <code>_run_duty(return_fields=False)</code> plus a <code>snapshot_steps=</code> keyword on <code>_transient_s</code>, additive, module re-gated green in-slot, disclosed; <code>L_BAND</code> / <code>D_BAND</code> / <code>E_BAND</code> / <code>D_CONTROL_FLOOR</code> imported by name (<code>is</code> checks), none restated; <code>-n 2</code>, complex: (Δ) ≤ <code>L_BAND</code>, (D′) ≤ <code>D_BAND</code>, (E) every run and (E′) at N and n = 36 ≤ <code>E_BAND</code>, the history runs equal the gate's runs ≤ <code>D_BAND</code>; control (Δ-ctl) &gt; <code>L_BAND</code> (backed <code>…201547Z_MAT-17-step3-W1.log:1971</code>); (d) printed at both placements, asserted by the gate only; records printed beside <code>:1973–1975</code>; combined XDMF, θ time series and mean-history CSV written; census +1 <code>broken=0</code>, docrefs <code>exit != 1</code>; elapsed recorded ⇒ ✅. Not claimed: a pulse sequence, SAR averaging or a regulatory statement, absolute temperature, the tuned coil, 64 MHz, a periodic steady state. | ✅ 2026-10-07: rule (a) lift <code>_run_duty(*, return_fields=False)</code> + <code>_transient_s(…, snapshot_steps=SNAPS)</code> re-gated green (19 passed, 275.52 s, <code>20261007T183221Z_EX-99-mat17s3-regate.log</code>, <code>MAT17s3</code> schedule/records identical to W1); flagged <code>20261007T183803Z_EX-99.log</code> (230 s) and control <code>20261007T184229Z_EX-99-control.log</code> (220 s) both Status 0; (S) exact, (Δ) 3.719e-14, (D′) 2.120e-15, (E) ≤ 3.819e-14, (E′) 2.276e-15 / 1.699e-14, (Hist) ≤ 4.9e-15 ≤ <code>D_BAND</code>, (Δ-ctl) 0.298210; (d) printed 1.000000 / 2.054e-15, (c-sched) 1.068705; census 95 → 96, <code>broken=0</code>, docrefs exit 2 (stale only). 10 g ball record printed (item 306, 2026-10-08): duty 1.251111962e+00 K, P1 2.587441071e+00 K, ratio 0.967065, equal digit for digit to W1 <code>:1975</code> (<code>20261008T004928Z_EX-99-item306.log:1945</code>; re-gate 19 passed, <code>20261008T004416Z_EX-99-item306-regate.log</code>). </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

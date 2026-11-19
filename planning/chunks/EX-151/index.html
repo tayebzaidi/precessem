@@ -1,0 +1,680 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-151 — mat:27: a time-step convergence rate under a switched source — backward Euler on the duty-cycled gel ball converges at order ≈ 1.00, and Crank–Nicolson's order 2 falls outside that band - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-151-mat27-a-time-step-convergence-rate-under-a-switched-source-backward-euler-on-the-duty-cycled-gel-ball-converges-at-order-100-and-cranknicolsons-order-2-falls-outside-that-band" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-151 — mat:27: a time-step convergence rate under a switched source — backward Euler on the duty-cycled gel ball converges at order ≈ 1.00, and Crank–Nicolson's order 2 falls outside that band
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-618-2026-10-24-example-54-ramp-from-mat-17-step-2-gate-ii-lane-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 618 — 2026-10-24 (example; §5.4 ramp from MAT-17 step 2 gate (ii); lane 3)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-151-mat27-a-time-step-convergence-rate-under-a-switched-source-backward-euler-on-the-duty-cycled-gel-ball-converges-at-order-100-and-cranknicolsons-order-2-falls-outside-that-band">EX-151 — <code>mat:27</code>: a time-step convergence rate under a switched source — backward Euler on the duty-cycled gel ball converges at order ≈ 1.00, and Crank–Nicolson's order 2 falls outside that band<a class="headerlink" href="#ex-151-mat27-a-time-step-convergence-rate-under-a-switched-source-backward-euler-on-the-duty-cycled-gel-ball-converges-at-order-100-and-cranknicolsons-order-2-falls-outside-that-band" title="Permanent link">&para;</a></h1>
+<p>*History file for the §7 <code>EX-151</code> row (<code>OPS-46</code>). Opened by the 2026-10-24 10:30 daily review under daily-review.md step 5's example ramp (rule (5) supply; lane 3's Phase 8 gel regime). It came from an <code>Explore</code> sweep of gates inside validation modules that an example already references but whose own asserts no example runs. <strong><code>MAT-17</code> is ✅.</strong> Its <strong>step 2</strong> gate (ii) <code>test_ii_be_rate_and_iii_balance</code> (<code>tests/validation/test_mat17_duty_cycle_fem.py:320–332</code>) runs a backward-Euler ladder Δt = 300 / 150 / 75 / 37.5 / 18.75 s on <code>MAT-9</code>'s 0.01 m ball under case A's duty schedule (P 1200 s, D 0.5, to t_end = 14 100 s). Every switch falls on a step boundary. It asserts:
+- the whole-ball self-difference least-squares rate within <code>BE_RATE_BAND</code> (0.9, 1.2);
+- every run's balance ≤ <code>BALANCE_BAND</code> (1e-9);
+- (S0) Σχₙ Δtₙ equal to the on-time at 1e-12, inside <code>_census</code>.</p>
+<p>Readings: d = 2.6051e-03 / 1.3085e-03 / 6.5583e-04 / 3.2832e-04, rate <strong>0.996</strong> (pairwise 0.993 / 0.997 / 0.998). The CN + Rannacher ladder is printed only, at rate 2.104. Worst balance: BE 9.960e-14, CN 2.358e-13 (<code>20261003T171113Z_MAT-17-step2-W1b.log.gz:110–144</code>, real build, Status 0, 124 s; <code>W1b</code> below). <strong>No example asserts a time-step rate.</strong>
+- <code>mat:8</code> (<code>EX-74</code>) prints <code>MAT-9</code>'s BE / CN rates on a <em>constant</em> source beside their records. <code>MAT-9</code>'s rate bars are inline literals, so it does not assert them.
+- <code>mat:11</code> (<code>EX-85</code>) shows <code>MAT-17</code>'s duty cycle at one Δt (gate (i)) with no ladder.
+- <code>grep -rlE "BE_RATE_BAND|BE_DTS" examples</code> is empty.*</p>
+<p><strong>Gap check.</strong> At execution, <code>grep -rlE "BE_RATE_BAND|BE_DTS" examples --include=*.py</code> must be empty (window 0; empty at 2026-10-24 10:30).</p>
+<p><strong>Done-when.</strong>
+- <code>examples/materials/27_duty_cycle_time_step_rate.py</code> and its same-stem guide <code>.md</code> exist.
+- <code>./run_examples.sh -e mat:27 -n 2 -t 420</code> (the <code>mat:</code> group sources the complex build) exits 0 with every gate below asserted.
+- The bands, ladder and helpers imported by name from <code>tests/validation/test_mat17_duty_cycle_fem.py</code> (and the complex-safe norm from <code>tests/validation/test_mat13_transient_perfusion_sphere.py</code>), never restated; no gate module or <code>src/</code> edit.
+- A combined XDMF under <code>examples/materials/paraview_output/</code> of the finest BE run's final θ beside the closed form at t_end, a CSV of the ladder, and a setup figure through <code>write_setup_figure</code>.
+- The census moves by +1, the setup-figure census is <strong>logged as its own harness window</strong> and reads <code>missing=0</code>, and docrefs read <code>dead=0</code>.</p>
+<h3 id="9-item-618-2026-10-24-example-54-ramp-from-mat-17-step-2-gate-ii-lane-3">§9 item 618 — 2026-10-24 (example; §5.4 ramp from <code>MAT-17</code> step 2 gate (ii); lane 3)<a class="headerlink" href="#9-item-618-2026-10-24-example-54-ramp-from-mat-17-step-2-gate-ii-lane-3" title="Permanent link">&para;</a></h3>
+<p><strong>Licence.</strong> Daily-review.md step 5, the example ramp, and §9 rule (5) lane 3 (the Phase 8 gel regime). A gated step (<code>MAT-17</code> step 2 (ii)) is shown from an angle no example covers. The <strong>output quantity</strong> is a <em>temporal</em> convergence order, asserted, under a <strong>switched (duty-cycled) drive</strong>, where <code>mat:8</code> prints the order on a constant source. No band, tolerance, record, Done-when or target is set or moved. Every band is imported by name.</p>
+<p><strong>What the example does.</strong> It runs the gate's ladder, written out for the complex build.
+- <strong>Imports, by name:</strong>
+  - From <code>tests/validation/test_mat17_duty_cycle_fem.py</code>, as module <code>m17</code>: <code>BE_DTS</code>, <code>BE_RATE_BAND</code>, <code>BALANCE_BAND</code>, <code>INTERIOR_BAND</code>, <code>P_A</code>, <code>D_A</code>, <code>T_END_A</code>, <code>ON_TIME_A</code>, <code>_ball</code>, <code>_chi</code>, <code>_n</code>, <code>_run</code>, <code>_census</code>, <code>_exact_duty</code>.
+  - From <code>tests/validation/test_mat13_transient_perfusion_sphere.py</code>, as <code>m13</code>: the complex-safe <code>_rel_diff</code> and <code>_interior_error</code>.
+  - Check every name at execution. Never import a <code>test_*</code> name.
+- <strong>Do not call <code>m17._ladder</code>:</strong> it calls <code>MAT-9</code>'s <code>_rel_diff</code>, which takes <code>float()</code> of a complex value and raises in the complex build (<code>mat:8</code>'s docstring, <code>:14–15</code>). Write the loop out instead (the gate's <code>:295–317</code>), with every call the gate makes:
+  - <code>msh, _, ft = m17._ball(0.01)</code> and <code>chi = m17._chi(P_A, D_A)</code>;
+  - for each <code>dt</code> in <code>BE_DTS</code>: <code>n = m17._n(T_END_A, dt)</code>, <code>s = m17._run(msh, ft, dt, n, 1.0, 0, schedule=chi)</code>, then <code>m17._census(s, dt, 0, ON_TIME_A, label)</code>;
+  - then <code>d_i = m13._rel_diff(msh, sols[i], sols[i+1])</code> and <code>lsq = np.polyfit(np.log(BE_DTS[:len(d)]), np.log(d), 1)[0]</code>, the gate's line.
+  - <strong><code>m13._rel_diff</code> is <code>MAT-9</code>'s formula with <code>np.real</code> before <code>sqrt</code></strong> (<code>:143–148</code> against <code>test_mat9_transient_conduction_sphere.py:118–124</code>: same <code>QDEG</code>, same <code>T_INF</code>). Say so in the guide.
+- <strong>The control ladder.</strong> The same loop with <code>theta=0.5, startup=2</code> (CN + Rannacher), as the gate's second <code>_ladder</code> call.
+- <strong>The closed-form check (printed).</strong> <code>ex = m17._exact_duty(msh, T_END_A, P_A, D_A)</code> and <code>m13._interior_error(msh, T_752, ex)</code>, the gate's <code>:323–326</code> print.
+- <strong>The picture.</strong> The finest BE run's θ at t_end and the closed form interpolated, in one XDMF. The ladder table goes to a CSV.</p>
+<p><strong>Gates (asserted; bands imported) — the gate's asserts.</strong>
+- <strong>(S0)</strong> inside <code>m17._census</code> on every run (Σχₙ Δtₙ = 7 200 s at 1e-12). Record rel 0.000e+00 (<code>W1b:110</code>).
+- <strong>(iii)</strong> every BE and CN run's <code>max_balance_residual</code> ≤ <code>BALANCE_BAND</code>. Records BE 9.960e-14, CN 2.358e-13 (<code>W1b:144</code>).
+- <strong>(ii)</strong> <code>BE_RATE_BAND[0]</code> ≤ BE least-squares rate ≤ <code>BE_RATE_BAND[1]</code>. Record 0.996 (<code>W1b:125</code>).
+- <strong>(c-CN), asserted, backed:</strong> the CN + Rannacher least-squares rate on the same ladder lies <strong>above</strong> <code>BE_RATE_BAND[1]</code>. The band is an order-1 statement, and a second-order scheme must fall outside it. Measured 2.104 on the same fixture, schedule and ladder (<code>W1b:143</code>, real build; the complex build is predicted identical to the printed digits, as <code>MAT-11</code>'s real / complex pair is). The separation is 0.904 above the band's top, ≈ 1.75× the top. The gate prints this rate and does not assert it; the example asserts only "outside the band, above".</p>
+<p><strong>Printed only, never gated.</strong>
+- Per run: N, Δt, wall time and max balance. Per pair: d and the pairwise rates (records 0.993 / 0.997 / 0.998, CN 2.298 / 2.034 / 2.005).
+- BE N = 752 interior error against the closed form, record 1.8819e-03 (<code>W1b:127</code>), printed beside <code>INTERIOR_BAND</code>. <strong>Not asserted:</strong> the gate prints it.
+- The guide's paragraph covers three points:
+  - Why the switch must fall on a step boundary: a mid-step switch is a first-order quadrature error of its own, which would cap even CN at order 1.
+  - Why the self-difference rate needs no exact solution.
+  - Why CN's first pair reads 2.298, above 2: the Rannacher start-up and a pre-asymptotic rung.
+- Print records beside readings; never assert digit equality (item 537).</p>
+<p><strong>Guide (<code>27_duty_cycle_time_step_rate.md</code>).</strong> Use <code>mat:8</code>'s structure:
+- what it shows;
+- how to run it (<code>./run_examples.sh -e mat:27 -n 2 -t 420</code>);
+- the numbers it prints, each cited to this run's harness log by full filename (rule (b));
+- the gates;
+- what it does not show: no spatial rate (<code>mat:26</code>), no coil source, no case B ladder, no CEM43;
+- ParaView steps.</p>
+<p>Point to <code>mat:8</code> (constant source, printed rates) and <code>mat:11</code> (the duty cycle at one Δt) as twins. Write <code>≈</code>, never a tilde.</p>
+<p><strong>Executor:</strong> <code>example-runner</code>. <strong>Tier:</strong> heavy, <strong>complex</strong> build (the <code>mat:</code> group), <code>-n 2</code>.
+- <strong>Prediction:</strong> 30–120 s. In the real build the BE ladder took 7.7 s and the CN ladder 8.2 s at <code>-n 2</code> (<code>W1b:125</code>, <code>:143</code>), plus one closed-form evaluation (≈ 20 000-point chunks) and one export. Use <code>-t 420</code>. Every container <code>timeout</code> carries <code>-k 30</code>.
+- <strong>Class:</strong> example. <strong>Cost:</strong> ≈ 4.3 measured / ≈ 30 predicted slot-minutes.
+- <strong>Depends on:</strong> nothing open. It is independent of items 615–617. Item 616 writes <code>mat:26</code>; this item's number is fixed at 27 whichever lands first.
+- <strong>Family:</strong> <code>EX-151</code>, attempt 1 of 4. <strong>Daytime:</strong> no.</p>
+<p><strong>Windows (each its own bare harness call, foreground, Bash <code>timeout: 660000</code>).</strong>
+1. Window 0: the gap grep above, and the census before (<code>./run_examples.sh --list</code> through the harness, labelled <code>EX-151-census-pre</code>).
+2. The example: write the script first, then run <code>./run_examples.sh -e mat:27 -n 2 -t 420 --dry-run</code>, which must print <code>(complex build)</code>. Run the printed <code>docker compose exec</code> line as its own bare harness call labelled <code>EX-151</code>, with <code>-e FEM_EM_SETUP_FIGURES=1</code> after <code>exec</code>, after <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0.
+3. Afterwards, three windows: the census (<code>EX-151-census-post</code>); <code>scripts/testing/run_and_log.sh EX-151-figures "timeout -k 30 30 python3 scripts/testing/check_example_setup_figures.py --next 3"</code> (must read <code>missing=0</code>); docrefs (<code>dead=0</code>, exit 0 or 2).</p>
+<p><strong>The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped.</strong></p>
+<p><strong>Traps already paid for.</strong>
+- <strong>Complex build, <code>MAT-9</code>'s <code>float()</code> norms</strong> (above). Use <code>m13</code>'s twins. If <code>m17._exact_duty</code> or <code>m17._census</code> raises on a complex value, stop and report; do not patch the gate module.
+- <strong><code>assemble_scalar</code> is rank-local.</strong> The imported norms reduce through <code>_allsum</code>. Any integral the example adds is reduced the same way, with its quadrature degree pinned (<code>QDEG</code>).
+- <strong>Every Δt divides the phases</strong> (the module docstring). Do not add a Δt outside <code>BE_DTS</code>.
+- <strong>Errors are on θ = T − T∞.</strong>
+- <strong>The private-leak commit guard:</strong> if it flags this log, move it unchanged to the gitignored <code>logs/leak-held/</code> and report; never edit a gate reading.
+- <strong>Census convention:</strong> report the <code>--list</code> entry count and the group-prefixed count, before and after.
+- <strong>Rule (i):</strong> no script edit after its window.
+- Never <code>-k</code> in pytest. No pipe. Never delete a log. No AED string.</p>
+<p><strong>Scope.</strong> Covered: <code>MAT-17</code> step 2 gate (ii) re-run as a narrated example in the complex build, plus a CN control the gate prints. <strong>Not claimed:</strong> gate (i)'s accuracy (printed only), case B, the CN rate as a band of its own, any coil-driven or tissue statement.</p>
+<p><strong>Negative result.</strong> Report and stop. Park on <code>attempt/EX-151-*</code> and mark item 618 BLOCKED in the same commit (rule (d)).
+- <strong>(ii) or (iii) red while <code>W1b</code> was green:</strong> a complex / real divergence or an image change. Print the readings beside <code>W1b</code>'s, open a known-issues entry naming both logs, and stop. No band moves.
+- <strong>(c-CN) inside the band:</strong> the θ / start-up arguments did not reach the solve. Stop.
+- <strong>(S0) red:</strong> the schedule is not the gate's. Stop.</p>
+<p>No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> §7 <code>EX-151</code> ⬜ → ✅ on its Done-when. The census moves by +1. <code>MAT-17</code> does not move.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Execute §9 item 618 — <code>EX-151</code> (<code>mat:27</code>) — per <code>docs/planning/chunks/EX-151.md</code> "§9 item 618". Read the brief and any review ruling beneath it first; the rulings hold. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Import <code>tests.validation.test_mat17_duty_cycle_fem as m17</code> and <code>tests.validation.test_mat13_transient_perfusion_sphere as m13</code>, and use the names the brief lists. Never import a <code>test_*</code> name, never call <code>m17._ladder</code> (its <code>MAT-9</code> norm raises in the complex build), and never edit a gate module or <code>src/</code>. Write the BE ladder and the CN control ladder out as the brief states, with <code>m13._rel_diff</code>. Assert (S0), (iii), (ii) and (c-CN), and print the N = 752 closed-form error only. Run window 0 (gap grep, census). Write the script, then run <code>./run_examples.sh -e mat:27 -n 2 -t 420 --dry-run</code>. Run the printed <code>docker compose exec</code> line, with <code>-e FEM_EM_SETUP_FIGURES=1</code> after <code>exec</code>, as its own bare harness call labelled <code>EX-151</code>, after <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0. Then run the census, the logged setup-figure census <code>EX-151-figures</code>, and docrefs, each in the foreground with <code>timeout: 660000</code>. You are the executor — do not spawn agents, never background a harness window. If the docker socket is denied, stop and report the exact command string. If the private-leak guard holds a log, move it unchanged to <code>logs/leak-held/</code> and report. On a red, park on <code>attempt/EX-151-*</code>, mark item 618 BLOCKED in the same commit, and report."</p>
+<p><strong>Outcome (2026-10-24, 17:1x UTC).</strong> Green. <code>20261024T171609Z_EX-151.log</code> (complex build, <code>-n 2</code>, Status 0, 33 s harness / 30.7 s wall). (S0) 0.000e+00 on every run; (iii) worst balance BE 9.321e-14, CN 2.290e-13; (ii) BE rate 0.996 (pairwise 0.993 / 0.997 / 0.998; d equal to <code>W1b</code> at the printed digits); (c-CN) CN + Rannacher rate 2.104 (pairwise 2.298 / 2.034 / 2.005), 0.904 above the band top; BE N = 752 interior error 1.8819e-03 (printed). Census 147 → 148 entries, <code>mat:</code> 26 → 27 as predicted; <code>EX-151-figures</code> <code>missing=0 broken=0</code>; docrefs <code>dead=0</code> exit 2 (staleness only).</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

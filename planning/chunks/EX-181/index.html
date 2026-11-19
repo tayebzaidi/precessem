@@ -1,0 +1,661 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-181 — imp:22: a rod under a duty cycle, as a line and as two tips — the six-minute window and the dose - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-181-imp22-a-rod-under-a-duty-cycle-as-a-line-and-as-two-tips-the-six-minute-window-and-the-dose" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-181 — imp:22: a rod under a duty cycle, as a line and as two tips — the six-minute window and the dose
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-816-2026-11-04-example-54-ramp-from-imp-8-steps-4-and-7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 816 — 2026-11-04 (example; §5.4 ramp from IMP-8 steps 4 and 7)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-181-imp22-a-rod-under-a-duty-cycle-as-a-line-and-as-two-tips-the-six-minute-window-and-the-dose">EX-181 — <code>imp:22</code>: a rod under a duty cycle, as a line and as two tips — the six-minute window and the dose<a class="headerlink" href="#ex-181-imp22-a-rod-under-a-duty-cycle-as-a-line-and-as-two-tips-the-six-minute-window-and-the-dose" title="Permanent link">&para;</a></h1>
+<p><em>History file for the §7 <code>EX-181</code> row (<code>OPS-46</code>). Opened by the 2026-11-04 10:30 daily review under daily-review.md step 5's example ramp, from <code>IMP-8</code> steps 4 and 7 (I59, §9 item 787; I62, §9 item 811, landed this interval).</em></p>
+<ul>
+<li><strong>The gates it draws on:</strong></li>
+<li><code>20261103T211919Z_IMP-8-item787-W1.log</code> (I59, the line under a duty cycle): (D1) 0.000e+00, (Duh) worst 2.952e-16, (Q-d) ≤ 4.042e-16, (Win-d) ≤ 5.720e-16, controls 3.5028e+00 / 1.0722e+00; 6 passed, 1.80 s.</li>
+<li><code>20261104T103134Z_IMP-8-item811-W1.log</code> (I62, the two tips under a duty cycle): (D1) ≤ 3.018e-17, (Duh) worst 2.951e-16, (Q-d) ≤ 2.052e-16, (Win-d) ≤ 3.987e-16, max T 35.004734 °C at 0.5 W, controls 1.1127e+01 / 6.9531e-01.</li>
+<li><strong>Why an example:</strong> <code>imp:21</code> (<code>EX-178</code>) shows the rod's line and tip sources under a continuous source only. <code>imp:17</code> … <code>imp:20</code> show duty cycles and dose on <code>IMP-7</code>'s sphere, not on a rod. <strong>Gap check, run at this review:</strong> <code>grep -ln 'imp8\|line_source' examples/*/*.py</code> hits only <code>examples/implants/21_rod_line_and_tip_sources.py</code>, and no example imports <code>test_imp8_rod_line_source_duty_closed_form</code> or <code>test_imp8_rod_tips_duty_closed_form</code>.</li>
+<li><strong>Its angle:</strong> the output quantity is the <em>dose and the six-minute window near a rod tip under a duty cycle</em>, for two source shapes of the same total power. No example has that.</li>
+</ul>
+<p><strong>Done-when.</strong>
+- <code>examples/implants/22_rod_duty_cycle_window_and_dose.py</code> and its same-stem guide <code>.md</code> exist.
+- The closing window exits 0 with every gate below asserted.
+- Bands and helpers are imported by name, never restated. No gate-module edit and no <code>src/</code> edit.
+- A combined XDMF under <code>examples/implants/paraview_output/</code>. A setup figure through <code>write_setup_figure</code>.
+- Census +1, figures <code>missing=0</code>, docrefs <code>dead=0</code>.</p>
+<h3 id="9-item-816-2026-11-04-example-54-ramp-from-imp-8-steps-4-and-7">§9 item 816 — 2026-11-04 (example; §5.4 ramp from <code>IMP-8</code> steps 4 and 7)<a class="headerlink" href="#9-item-816-2026-11-04-example-54-ramp-from-imp-8-steps-4-and-7" title="Permanent link">&para;</a></h3>
+<p><strong>Licence.</strong> Daily-review.md step 5. No band or target is set or moved. It is not a chain step and takes no count on chain I. It is <strong>not</strong> §10 I61 (the line source <em>and its FEM twin</em>, whose complex-build price is the weekly's question): it is closed form only, no solve.</p>
+<p><strong>What the example does.</strong>
+1. <strong>Histories (the gates).</strong> At <code>POINTS</code> ((2, 15) and (10, 0) mm), for <code>DUTIES</code> (1, 0.5, 0.25), <code>PERIOD</code> 450 s, on <code>T_GRID</code> to <code>T_STAR</code> 900 s: the line's history from <code>test_imp8_rod_line_source_duty_closed_form</code> (<code>_hist</code>, <code>_duhamel</code>, <code>_convolution</code>, <code>_theta_step</code>, <code>_edges</code>) and the tips' from <code>test_imp8_rod_tips_duty_closed_form</code> (<code>_hist</code>, <code>_duhamel</code>, <code>_convolution</code>, <code>_phi_tips_dot</code>, <code>P_DOSE_W</code>). Read each signature first. <code>_hist</code> caches in a module-level <code>_CACHE</code>, which is harmless here.
+2. <strong>A viewing grid (the XDMF).</strong> <code>imp:21</code>'s grid exactly: <code>create_box</code>, half-width 60 mm, 41 cells per axis, so no vertex lies on the line. On P1, per watt, at t* under D = 0.5: θ_line, θ_tips and their ratio. Each one is the Duhamel sum over <code>_edges(0.5)</code> of the step response, with the imported kernels. If <code>_duhamel</code> is scalar, evaluate it per vertex: ≈ 74 000 vertices × 5 edges is seconds. The line's step response at a vertex is <code>imp:21</code>'s local <code>theta_line</code> route (the gate's midpoint sum written with the imported <code>_point</code>; <code>_phi_midpoint</code> is scalar). Disclose that local piece in the docstring, as <code>imp:21</code> does.</p>
+<p><strong>Gates (asserted; bands imported; all collected first, then asserted).</strong>
+- <strong>(D1)</strong> on both kernels, at both points: the D = 1 sum equals the step response within <code>D1_BAND</code> of θ_ss.
+- <strong>(Duh)</strong> on both kernels, at both points and three duties: the step sum against the convolution within <code>DUH_BAND</code> of θ_ss.
+- <strong>(Q-d), (Win-d)</strong> on both kernels at both points and three duties: <code>_q_check_g</code> within <code>DOSE_BAR</code>, <code>_win_check_g</code> within <code>AVG_BAR</code>. The temperature scale is each module's own: <strong>the line at 1 W (item 787), the tips at <code>P_DOSE_W</code> = 0.5 W (item 811's ruling)</strong>. Assert max T &lt; 43 °C on every case (the precondition <code>_q_check_g</code>'s R_below-only quadrature needs).
+- <strong>Reproduction control:</strong> θ(t*) per watt at both points and three duties equals the logs' <code>.9e</code> prints (I59 <code>:54–59</code>, I62 <code>:55–60</code>) to relative ≤ 1e-9. The bound is twice the 10-significant-digit print's worst half-ulp (≈ 5.1e-11 relative at 9.807666287e-01), with margin for the route.
+- <strong>(c-cont)</strong> on both kernels at both points: the continuous form misses the D = 0.5 history at t* by &gt; <code>INTERIOR_BAND</code>, at factor 1 (rule (e)).
+- <strong>(Node):</strong> the grid's vertex-array values at the vertex nearest (20, 0, 0) mm equal the scalar forms at that vertex to <code>B1_BAND</code> (<code>imp:21</code>'s gate).
+- <strong>(Geom):</strong> the nearest vertex to the line lies outside <code>ROD_RADIUS</code>, reduced with <code>comm.allreduce</code>.
+- <strong>max|Im θ|</strong> ≤ 1e-12. The group runs complex.</p>
+<p><strong>Printed only.</strong> For each duty: θ(t*), the six-minute maximum and CEM43 for both shapes at (2, 15) mm, and tips / line, beside items 787 / 811's printed records with the logs named. The two doses are at different powers (1 W and 0.5 W). <strong>Print that beside them, and print no dose ratio.</strong></p>
+<p><strong>Guide.</strong>
+- Use <code>imp:21</code>'s headings. Related examples: <code>imp:21</code>, <code>imp:17</code>, <code>imp:19</code>.
+- Say plainly that this is an infinite gel medium in closed form, with no wall, no rod heat capacity and no FEM, and that neither shape is claimed to be a real rod's.
+- Say that the FEM twins exist as records (I60, I63, <code>≤ 4.4e-3</code> against 1e-2 at r ≥ 10 mm), and that r = 2 mm is 1 mm off the rod surface, where the FEM is not gated.
+- <strong>Round-off digits:</strong> quote a round-off term as a bound, or name the window its digits came from. Write <code>≈</code>, never a tilde.
+- <strong>Check every derived number in the prose by hand.</strong></p>
+<p><strong>Executor:</strong> <code>example-runner</code>, foreground. <strong>Tier:</strong> standard, <code>-n 2</code>.
+- <strong>Prediction:</strong> I59's module took 1.80 s and I62's 6 s for the histories. <code>imp:21</code>'s whole window took 4 s, grid included. The grid Duhamel adds ≈ 5 edges × its cost. So the total is ≈ 20–90 s, figure included. Use <code>-t 180</code>, with <code>-k 30</code> on every container <code>timeout</code>.
+- <strong>Class:</strong> example. <strong>Cost:</strong> ≈ 7.5 measured / 25 predicted min. <strong>Depends on:</strong> nothing. <strong>Family:</strong> <code>EX-181</code>, attempt 1 of 4.</p>
+<p><strong>Windows.</strong> As <code>EX-178.md</code>, with the label <code>EX-181</code>, the group <code>imp:22</code>, <code>-n 2</code> and <code>-t 180</code>. <strong>Closing window:</strong> <code>scripts/testing/run_and_log.sh EX-181 "./scripts/run_examples.sh -e imp:22 -n 2 -t 180"</code>, the last window. The setup figure comes from one earlier flagged window, labelled <code>EX-181-figure</code>, which closes nothing. The guide is written before the closing window, or after it only with digits from the closing log (clause (iii)). <strong>Each harness call is the whole Bash command: bare, repo-relative, nothing chained or piped.</strong></p>
+<p><strong>Traps already paid for.</strong>
+- <strong>The group runs complex.</strong> Put real values into <code>x.array</code>, assert max|Im θ|, and use no ordering comparison on a complex operand.
+- <strong>Item 808's red:</strong> at 1 W the tips reach 50.009 °C at (2, 15) mm, past the 43 °C precondition. The tips' dose is at <code>P_DOSE_W</code> 0.5 W. <strong>Do not move the precondition.</strong>
+- <code>_phi_midpoint</code> is scalar. Test functions and pytest fixtures are not importable, so write their bodies out and disclose that.
+- <strong>Print 7 digits or fewer</strong> in new lines (the reproduction control reads the logs' <code>.9e</code> prints).
+- A kill parks the item; never raise the timeout.</p>
+<p><strong>Scope.</strong> One example. <strong>Not claimed:</strong> any FEM, a wall, a real rod's heat capacity, a dose comparison across the two powers, a recommended duty.</p>
+<p><strong>Negative result.</strong> A gate red: stop, keep the log, BLOCKED. A reproduction-control red with (Duh) green would be a route difference between the example and the module: report the digits and change nothing. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>EX-181</code> ✅; census 174 → 175.</p>
+<p><strong>Outcome (2026-11-04T18:07Z, 12:00 CST slot, <code>example-runner</code>): complete. <code>EX-181</code> ✅.</strong> Closing window <code>20261104T180706Z_EX-181.log</code> (<code>./scripts/run_examples.sh -e imp:22 -n 2 -t 180</code>, <code>Status: 0</code> <code>:73</code>, 5 s, the last window). Gates <code>:54–62</code>, all at the imported bands: (D1) line 0 / 0, tips 0 / 3.018e-17; (Duh) worst line 2.952e-16, tips 2.951e-16; (Q-d) ≤ 4.042e-16; (Win-d) ≤ 5.720e-16; max T line 29.43848 °C at 1 W, tips 35.00473 °C at 0.5 W (&lt; 43); reproduction control worst 3.413e-10 over 12 cases (≤ 1e-9); (c-cont) line 1.0722e+00, tips 6.9531e-01 (&gt; 0.01, factor 1); (Node) 0 / 0; (Geom) 2.0696 mm &gt; 1 mm; max|Im θ| 0. Setup figure from the earlier flagged window <code>20261104T180603Z_EX-181-figure.log</code> (closes nothing; PNG 169 KiB). Census: pre <code>20261104T180441Z_EX-181-census-pre.log</code> 174, post <code>20261104T180659Z_EX-181-census-post.log</code> 175; figures <code>20261104T180700Z_EX-181-figures.log</code> <code>missing=0 broken=0</code>; docrefs <code>20261104T180702Z_EX-181-docrefs.log</code> <code>dead=0</code> (exit 2 on <code>stale=121</code>, unchanged from <code>20261104T180443Z_EX-181-docrefs-pre.log</code>).</p>
+<p><strong>Disclosed (executor).</strong> (1) The 1e-9 bound holds, but the brief's rationale is off: a <code>.9e</code> print near 1.004e+00 has a half-ulp of up to 5e-10 relative, not 5.1e-11, and the measured worst is 3.413e-10. The guide says so, and the bound is unchanged. (2) The line's grid kernel is a local vectorised midpoint sum with the imported <code>_point</code>. The tips use the imported <code>_duhamel</code> with a kernel argument. Both appear in the docstring and guide. (Node) compares the same arithmetic, so its exact 0 pins the broadcast form only. (3) The guide's digits come from the flagged window, which printed values identical to the closing window. No gate module or <code>src/</code> was edited, and no dose ratio is printed.</p>
+<p><strong>Audit PASS (2026-11-04 18:00 daily review, <code>auditor</code>).</strong>
+- The closing window <code>20261104T180706Z_EX-181.log</code> is the <code>./scripts/run_examples.sh -e imp:22 -n 2 -t 180</code> form (<code>:12</code>), Status 0 (<code>:73</code>), 5 s (<code>:74</code>), and the last window.
+- Every gate is an executed assert (<code>examples/implants/22_rod_duty_cycle_window_and_dose.py:318–332</code>). Its digits are at <code>:54–62</code>, and the review re-read them, including repro 3.413e-10 at <code>:59</code>.
+- The bands are imported (<code>.py:63–105</code>) and print at <code>:42</code>.
+- Census: <code>20261104T180445Z_EX-181-figures-pre.log:210</code> reads 174, and <code>20261104T180700Z_EX-181-figures.log:211</code> reads 175 <code>missing=0 broken=0</code>. Docrefs <code>dead=0</code> (<code>20261104T180702Z_EX-181-docrefs.log:161</code>).
+- <strong>Caveats:</strong>
+  - The header commit is the parent <code>4a5b1a0f</code>, the usual pattern.
+  - <code>REPRO_BAND</code>, <code>IM_BAND</code> and <code>T_SAFE</code> are the brief's local constants, not loosenings.
+  - (c-cont) asserts at <code>INTERIOR_BAND</code> 0.01, where I59's own assert reads &gt; 0.1. Both are cleared.
+  - A 5 s run is smoke-sized under a standard label.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

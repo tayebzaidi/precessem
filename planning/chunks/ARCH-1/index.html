@@ -1,0 +1,1359 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>ARCH-1 — The MRI-safety layer becomes solver-agnostic - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#arch-1-the-mri-safety-layer-becomes-solver-agnostic" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              ARCH-1 — The MRI-safety layer becomes solver-agnostic
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-517-2026-10-18-10-u16-arch-1-step-1-chain-step-solve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 517 — 2026-10-18 (§10 U16, ARCH-1 step 1; chain step, solve)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-517b-2026-10-18-10-u16-arch-1-step-1b-chain-step-solve-serial-on-item-517" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 517b — 2026-10-18 (§10 U16, ARCH-1 step 1b; chain step, solve; serial on item 517)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-18-1030-item-517b-blocked-item-533" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-18 10:30 (item 517b BLOCKED → item 533)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-533-2026-10-18-10-u16-arch-1-step-1b-re-pose-u16c-chain-step-no-solve-serial-on-nothing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 533 — 2026-10-18 (§10 U16, ARCH-1 step 1b re-pose / U16c; chain step, no solve; serial on nothing)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-529-2026-10-18-10-u62-palace-backend-guide-page-lane-1-no-solve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 529 — 2026-10-18 (§10 U62, Palace backend guide page; lane 1, no solve)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-18-0300-items-517-517b-529-u16-split-u62" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-18 03:00 (items 517, 517b, 529 — U16 split, U62)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-19-0300-item-529-deviation-casejson-in-the-checker-allowlist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-19 03:00 (item 529 deviation — case.json in the checker allowlist)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-590-2026-10-22-10-u76-chain-step-no-solve-chain-u-9e" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 590 — 2026-10-22 (§10 U76, chain step (no solve); chain U, 9e)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-22-0300-item-590-u76" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-22 03:00 (item 590, U76)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-601-2026-10-22-10-u79-chain-step-no-solve-chain-u-9e-daily-2026-10-22-provisional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 601 — 2026-10-22 (§10 U79, chain step (no solve); chain U, 9e — daily, 2026-10-22 — provisional)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-24-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-24 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="§7 row moved verbatim 2026-10-24 (rotate_plan_archive.py chunks)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#9-item-631-2026-10-25-10-u91-arch-1-step-1f-chain-step-solve-chain-u-9e" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 631 — 2026-10-25 (§10 U91, ARCH-1 step 1f; chain step (solve); chain U, 9e)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="arch-1-the-mri-safety-layer-becomes-solver-agnostic">ARCH-1 — The MRI-safety layer becomes solver-agnostic<a class="headerlink" href="#arch-1-the-mri-safety-layer-becomes-solver-agnostic" title="Permanent link">&para;</a></h1>
+<p><strong>The MRI-safety layer becomes solver-agnostic</strong> — SAR averaging, B₁⁺ maps, loss partition, the thermal solve, the benchmark cases and their gates take fields and S-parameters from <em>any</em> field solver (ours, Palace's output, an HFSS field export) through one interface; the FEniCSx engine stays the in-house backend and the multiphysics home (operator directive 2026-09-20). <strong>EMBARGOED: not before the weekly of 2026-10-17</strong> — four weeks out by the operator's instruction, so that <code>PORT-21</code>, <code>OPS-61</code> (Palace) and the first human-scale physics land first and the interface is designed against two real backends, not one | ⬜ <strong>Not queueable by a daily review</strong> (outside §9 rule (4): it is architecture, not an enumerated chain step) <strong>and not to be scheduled by the weeklies of 09-26, 10-03 or 10-10</strong> — those may only annotate this row with what they learn. <strong>Why:</strong> the project's replaceable part is the curl-curl solve; its hard-to-replace parts are the verification culture, the MRI-safety layer and the multiphysics reach. Today the safety layer is written against DolfinX function spaces, so it can only judge our own fields; decoupled, it is an evidence toolkit that works with the field solver a user already has — the wider audience arrives through "works with Palace / HFSS output", not through replacing the engine — and it is also what lets the engine be dropped later without losing anything else, should the target narrow. <strong>Shape (for the 10-17 weekly to write at execution grain):</strong> (1) a <code>FieldSolution</code> interface — an unstructured mesh with cell tags plus <code>E</code> (complex, cell- or edge-based) and the material map, read from XDMF/VTU or from a <code>dolfinx</code> function directly; and a <code>PortSolution</code> — a Touchstone file plus port metadata; (2) <code>post/sar.py</code>, <code>post/b1.py</code>, the loss partition and <code>thermal/</code> consume only those; (3) two backends gated <em>identically</em>: the DolfinX one reproduces every existing <code>MAT-4</code> / <code>WF-6</code> / <code>TH-14</code> record to the digit (the refactor moves no number), the Palace one reproduces <code>OPS-61</code>'s S and the phantom power on the <code>ANS-4</code> fixture; (4) the benchmark cases' runnable halves dispatch on the backend. <strong>Gate of record:</strong> digit-identical reproduction of every imported band and record on the DolfinX backend before any second backend is wired — a refactor that moves a record is a defect. <strong>Not in scope:</strong> a GUI, a new solver, changing any physics. <strong>Prerequisites the embargo waits on:</strong> <code>OPS-61</code> step 1 (a second backend's fields to design against), <code>PORT-21</code> (so the port interface is not frozen around a known offset), one F-human physics step (so the interface sees a human-scale field once). </p>
+<h3 id="9-item-517-2026-10-18-10-u16-arch-1-step-1-chain-step-solve">§9 item 517 — 2026-10-18 (§10 U16, <code>ARCH-1</code> step 1; chain step, solve)<a class="headerlink" href="#9-item-517-2026-10-18-10-u16-arch-1-step-1-chain-step-solve" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a read-only general-purpose agent for the 2026-10-18 03:00 daily review; the review reviews it. U16 is drafted as two items, <strong>517 (U16a, the Study-side backend, the case writer and the read path, no Palace run)</strong> and <strong>517b (U16b, the Palace runs and the S read-back, no code edit)</strong>: the whole step does not fit one 1-hour slot (≈ 25 min of <code>src/</code> + test code, four re-gate / build windows ≈ 10 min, two Palace windows ≈ 5 min, fixed + commit ≈ 21 min). This is a split on price and on a hard architectural fact (below), not a re-target. Four rulings are asked for at the end.</em></p>
+<p><strong>Licence.</strong> §10 chain U, U16 (PROJECT_PLAN.md:4864–4870), weekly-enumerated (§9 rule (4)), quoted, not reworded: "<code>Study.solve(backend="palace")</code> and <code>femem run --backend palace</code> on the F-small four-port exact fixture: the Study writes the Palace config and mesh through <code>OPS-61</code>'s writer, runs the <code>fem-em-palace</code> service, reads S back; target: equality with <code>OPS-61</code> F26's recorded Palace read at ≤ 1e-9 (same input, same answer) and the tie to our degree-2 record at the recorded (T5) ≤ 1.9e-10 per class; the DolfinX path bitwise unchanged." The 2026-10-17 weekly lifted <code>ARCH-1</code>'s embargo and named U16 its first step, glyph 🟡 when U16 lands (PROJECT_PLAN.md:4705–4709); the row's precondition (digit-identical DolfinX reproduction) is met by <code>WF-16</code> step 1 and <code>WF-14</code>'s snapshot (same lines). The Palace directive (§5.4 (i)–(v), PROJECT_PLAN.md:1176–1197), the sheets-and-κ ruling (exact rectangles, κ off), the 2026-10-13 03:00 rulings (1) and (4) (<code>docs/planning/chunks/OPS-61.md:1208–1213</code>) and the 2026-10-15 03:00 ruling on item 476 (<code>docs/planning/chunks/ANS-4.md:651–653</code>) bind. <strong>No band, tolerance, Done-when or validation target is set or moved.</strong></p>
+<p><strong>Finding that shapes the design: the solver container cannot run Palace.</strong> The <code>fem-em-solver</code> service mounts only <code>..:/workspace</code> and the <code>fem-em-cache</code> volume (<code>docker/docker-compose.yml:8–10</code>); there is no docker socket inside it, and Palace lives only in its own image (<code>fem-em-palace:0.18.1</code>, <code>docker/palace.Dockerfile</code>), which has no DolfinX and no <code>fem_em_solver</code>. Every <code>OPS-61</code> Palace window was a <strong>separate host-side harness call</strong>, <code>docker compose -f docker/docker-compose.yml --profile palace run --rm -T fem-em-palace bash -lc 'cd /workspace/logs/ops61 &amp;&amp; timeout -k 30 590 palace -np 8 &lt;config&gt;.json'</code> (e.g. <code>20261003T110249Z_OPS-61-item194-W4-palace-o2.log:12</code>), between two solver-container windows (write, then read). Mounting the socket is a mount change, which the §9 compose constraint forbids (PROJECT_PLAN.md:3946–3965: a blocked finding for the operator); putting Palace into the solver image is a Dockerfile change and also the operator's. <strong>So <code>Study.solve(backend="palace")</code> cannot literally "run the <code>fem-em-palace</code> service".</strong> The honest design, drafted here for the review to rule on (Ruling R2), is a <strong>three-stage backend</strong>:
+1. <strong>Write.</strong> <code>Study.solve(backend="palace", case_dir=D)</code> builds the Study's mesh, writes <code>D/case.json</code> + <code>D/mesh.msh</code> + <code>D/case.sha256</code> (a manifest of both files), or verifies byte-equality if they already exist. If <code>D/postpro/port-S.csv</code> is absent it raises <code>PalaceRunRequired</code>, whose <code>.argv == ["palace", "-np", "8", "case.json"]</code> and <code>.cwd == D</code>. <code>femem run --backend palace</code> prints the command and returns <strong>3</strong> (proposed new exit code, "external run pending"; R4).
+2. <strong>Run.</strong> A separate harness window runs that command in <code>fem-em-palace</code> (host-side, exactly the <code>OPS-61</code> shape).
+3. <strong>Read.</strong> The same call again rebuilds and verifies the case byte for byte against the manifest, then reads <code>D/postpro/port-S.csv</code> through the lifted <code>OPS-61</code> reader and returns a result carrying <code>s_matrix</code>. <code>femem run --backend palace</code> writes <code>summary.json</code> and returns 0.</p>
+<p>The chain of custody (manifest checked at read time) is what makes "same input, same answer" a statement about the Study's own input, not about whatever sits in the directory.</p>
+<p><strong>Defects in the step text (for the review).</strong>
+- <strong>"<code>OPS-61</code> F26's recorded Palace read" names no Palace read.</strong> F26 is <code>ANS-6</code>'s copper h-rung, <code>xl</code> entry 31 (<code>docs/planning/chunks/ANS-6.md:509</code>, <code>:620</code>); the Palace read on that rung is F37 (§9 item 454: h = 0.0075 <em>hole</em> mesh, <code>Boundaries.Conductivity</code> on 401, four single-excitation windows of 142.9–144.9 s, <code>docs/planning/chunks/OPS-61.md:2076</code>). That is not the Study's F-small default (<code>FourPortBirdcageGeometry.f_small()</code> is the ×1 strip route, σ = 800 S/m volume conductor, <code>src/fem_em_solver/study.py:225–269</code>), and writing it would need a conductivity-boundary writer, <code>as_hole</code> and a resolution knob — three features beyond U16. <strong>Drafted on the fixture that is the Study's <code>f_small()</code> verbatim and that <code>OPS-61</code> did read:</strong> the ×1 exact strip, <code>logs/ops61/ops61_ans4_x1_strip.msh</code> (117 206 tets, F10a), Palace v0.18.1 order 2 at 64 MHz, <code>f05x_o2.json</code> → <code>postpro_f05x_o2/</code> (F17, §9 item 194, <code>20261003T110249Z_OPS-61-item194-W4-palace-o2.log</code>; read <code>20261003T110728Z_OPS-61-item194-W5-read.log:49–56</code>). Ruling R1.
+- <strong>"≤ 1.9e-10 per class" is the figure the 2026-10-15 03:00 review already ruled false</strong> (item 476: the bought maximum is 2.542e-10; the public ceiling is <strong>2.6e-10</strong>, <code>docs/planning/chunks/ANS-4.md:613</code>, <code>:653</code>; <code>20261015T112551Z_ANS-4-item476-ties.log</code>). On the drafted rung the recorded tie is <strong>2.464e-10 / 9.668e-11 / 9.883e-11</strong> (self / adjacent / opposite, <code>20261004T214342Z_OPS-61-item229-W4-read.log:41</code>), so "≤ 1.9e-10" would fail the self class on Palace's own recorded output. Also, no cross-solver band constant exists and ties have been printed, never asserted (2026-10-13 ruling (1), <code>OPS-61.md:1210</code>). Ruling R3.
+- <strong>"through <code>OPS-61</code>'s writer" cannot be an import.</strong> The writer is <code>export()</code> in a 5 410-line probe under <code>scripts/</code> that imports <code>tests/</code> (<code>scripts/probes/ops61_step1a_palace_ans4.py:106–136</code>), and <code>src/</code> may not import either (<code>WF-13</code>'s rule, as <code>WF-16</code> step 1 applied it, <code>docs/planning/chunks/WF-16.md</code>, item 244). U16a <strong>lifts the writer and reader verbatim</strong> into <code>src/</code> — the Gmsh 2.2 writer <code>:213–302</code>, the config dict <code>:315–361</code>, the reader <code>_read_port_s</code> <code>:400–425</code> — and pins the copies with equality anchors against the probe's own files and functions (the <code>WF-16</code> step 1 precedent). The probe is not edited.
+- <strong>§5.4 still says "nothing in <code>src/</code> is built on Palace"</strong> (PROJECT_PLAN.md:1180–1181), and both Palace files say "Never the solver — nothing in src/ uses it" (<code>docker/docker-compose.yml:107</code>, <code>docker/palace.Dockerfile:2</code>). U8 (operator directive 2026-10-05, Palace as an opt-in backend behind the <code>Study</code>) supersedes that sentence in part, but it was never amended. U16 adds a Palace <em>writer and reader</em> to <code>src/</code>: it never imports or links Palace, and the default path never touches it. The plan sentence is the review's / weekly's to amend (Ruling R4). The compose comment is operator-owned (only <code>environment:</code> keys may be edited); flag it, do not edit it.
+- <strong>The <code>ARCH-1</code> row still reads "EMBARGOED … Not queueable by a daily review"</strong> (this file <code>:3</code> and the §7 row). The review amends it when it queues 517.
+- <strong>No Touchstone and no <code>z_matrix</code> on the Palace path.</strong> Palace's <code>z_matrix_ohm</code> is a terminated transimpedance (2026-09-29 ruling, never read), and <code>PortStudyResult.write_touchstone</code> needs an <code>SParameterSweepResult</code> (<code>study.py:597–613</code>). U16's summary carries <code>s_matrix</code> only; a Palace Touchstone is a follow-on, not U16.</p>
+<p><strong><code>ARCH-1</code> step 1a / U16a: the <code>palace</code> backend's write and read stages on the F-small ×1 exact strip, the written case proven equal to <code>OPS-61</code>'s, the read path proven on <code>OPS-61</code>'s recorded output, and the DolfinX path re-gated.</strong>
+- <strong>Executor:</strong> implementer. Additive <code>src/</code> (a new private subpackage plus one dispatch branch each in <code>Study.solve</code>, <code>run_study_file</code> and <code>cli.main</code>), disclosed under ruling (c). One new test module. No probe, gate module, record, registry or generated page is edited.
+- <strong>Tier:</strong>
+  - W0 smoke (<code>-n 1</code>, no mesh);
+  - W1 heavy by ceiling (<code>-n 1</code>, mesh-only builds, no solve; ≈ 6 builds at ≈ 26–31 s each, F10a W3 31 s / mesh 26.4 s, <code>20261001T220353Z_OPS-61-F10a-W3-export.log</code>; predicted 200–330 s);
+  - W2 standard → heavy by ceiling (<code>-n 2</code>; 138 s measured, <code>20261005T202623Z_WF-16-W1-deg1.log</code>);
+  - W3 standard → heavy by ceiling (<code>-n 2</code>; 164 s measured, <code>20261007T051729Z_WF-1-s3-W3-wf1-w2.log</code>);
+  - W4 smoke (<code>-n 1</code>; 17 s measured, <code>20261015T214657Z_WF-17-s6-Wapi.log</code>).
+- <strong>Class:</strong> chain step (solve; the DolfinX re-gates solve). <strong>Cost:</strong> ≈ 18 measured / ≈ 55 predicted slot-minutes: 15 fixed + ≈ 25 code + windows ≈ 10 (10 + 270 + 138 + 164 + 17 s) + commit and journal ≈ 6. Tight. <strong>If W1 is not green by minute 40, park</strong> (rule (d)).
+- <strong>Depends on:</strong>
+  - nothing in §9;
+  - on disk (gitignored, all present 2026-10-18, checked): <code>logs/ops61/ops61_ans4_x1_strip.msh</code> (Oct 1), <code>logs/ops61/ops61_ans4_x1.msh</code> (Sep 29, the ragged control), <code>logs/ops61/f05x.json</code>, <code>logs/ops61/f05x_o2.json</code>, <code>logs/ops61/postpro_f05x/port-S.csv</code>, <code>logs/ops61/postpro_f05x_o2/port-S.csv</code>, <code>logs/ops61/postpro_f05x_o2_f10/port-S.csv</code>.
+  - If any is absent: the test that needs it skips with <code>BLOCKED: &lt;file&gt; absent</code>, and the item lands as BLOCKED with that line. <strong>Never re-export or overwrite an <code>OPS-61</code> file</strong> (their traps: <code>OPS-61.md:20</code>, <code>:98</code>, <code>:244</code>).
+- <strong>Family:</strong> <code>ARCH-1</code> step 1 (U16); attempt 1 of 4.</p>
+<p><strong>What the code is today.</strong>
+- <code>Study.solve(self, comm=MPI.COMM_WORLD)</code> (<code>src/fem_em_solver/study.py:170–197</code>) has no backend: a port geometry dispatches to <code>_solve_ports</code> (<code>:173–174</code> → <code>_study_solve_ports</code>, <code>:616</code>, bound at <code>:687</code>). No <code>palace</code> / <code>backend</code> string exists anywhere in <code>src/</code>.
+- <code>FourPortBirdcageGeometry.build</code> (<code>study.py:271–392</code>) returns the mesh, cell tags, the <strong>narrowed</strong> sheet tags and per-sheet records; the full-sheet tags from <code>_sheet_areas</code> (<code>:317–325</code>) are reassigned and not returned. The writer needs F_i ∖ N_i (attributes 30 + i) to reproduce <code>OPS-61</code>'s file, so it recomputes <code>_sheet_areas</code> from <code>ports/_sheet_geometry.py:93</code> with the geometry's <code>sheet_iface</code> / <code>port_lower</code> / <code>port_upper</code>. <code>build</code> is not edited.
+- <code>run_study_file</code> (<code>src/fem_em_solver/study_yaml.py:1354</code>) calls <code>study.solve(comm)</code> at <code>:1383</code>; the four-port branch writes the Touchstone and <code>s_matrix</code> / <code>z_matrix</code> (<code>:1412–1426</code>).
+- <code>cli.main</code> (<code>src/fem_em_solver/cli.py:120–181</code>) maps <code>StudyConfigError</code> to rc 2 (<code>:178–181</code>); the <code>run</code> parser is <code>:35–48</code>.
+- The probe's writer runs serial only (<code>assert comm.size == 1</code>, <code>ops61_step1a_palace_ans4.py:139</code>).</p>
+<p><strong>Code (additive; disclosed under ruling (c)).</strong>
+- <strong>New <code>src/fem_em_solver/backends/__init__.py</code> (empty) and <code>src/fem_em_solver/backends/palace.py</code></strong> (found by <code>[tool.setuptools.packages.find] where = ["src"]</code>, <code>pyproject.toml:73–74</code>). Nothing is added to <code>fem_em_solver.__all__</code>, so <code>WF-14</code>'s snapshot is unchanged.
+  - <code>PALACE_NARROW_BASE = 20</code>, <code>PALACE_REMAINDER_BASE = 30</code>, <code>PALACE_EXTERIOR_ATTR = 1</code> (the probe's <code>:86–88</code>).
+  - <code>write_gmsh22(path, msh, cell_tags, tri_blocks)</code>: the probe's <code>:213–302</code> verbatim, in operation order (positive-orientation swap, <code>.17g</code> nodes, triangles before tets).
+  - <code>palace_config(*, mesh_name, output, materials, ports, order, freq_ghz)</code>: the probe's <code>config()</code> (<code>:336–361</code>) verbatim, with <code>Order</code> and <code>Freq</code> as arguments. <code>freq_ghz = study.frequency_hz / 1e9</code>, asserted to <code>json.dumps</code> as <code>0.064</code> / <code>0.01</code>.
+  - <code>read_port_s(csv_path)</code>: <code>_read_port_s</code> (<code>:400–425</code>) verbatim, returning the matrix; plus the frequency column. Raises if that column differs from the config's <code>Freq</code>.
+  - <code>write_case(study, built, case_dir)</code>: refuses <code>comm.size != 1</code> (<code>ValueError</code>); writes <code>case.json</code> (<code>Output "postpro"</code>, <code>Model.Mesh "mesh.msh"</code>) and <code>mesh.msh</code>, then <code>case.sha256</code>. If the files exist it compares bytes and raises <code>FileExistsError</code> naming the differing file; it never overwrites.
+  - <code>PalaceRunRequired(RuntimeError)</code> with <code>.argv</code>, <code>.cwd</code>; <code>PalaceStudyResult</code> (dataclass: <code>s_matrix</code>, <code>frequency_hz</code>, <code>order</code>, <code>cells</code>, <code>case_dir</code>, <code>sha256</code>, <code>palace_total_s</code> read from <code>postpro/palace.json</code> <code>ElapsedTime.Durations.Total</code>, <code>backend = "palace"</code>).
+  - Order is <code>study.degree</code> (1 → <code>Order 1</code>, 2 → <code>Order 2</code>); <code>R</code> is <code>LumpedPortDrive.port_impedance_ohm</code>, and <code>z0_ohm != port_impedance_ohm</code> is refused (Palace's S is referenced to <code>R</code>); every sheet must have <code>drive_direction == (0, 0, 1)</code> → <code>"+Z"</code>.
+  - <strong>Refused before any mesh</strong> (<code>TypeError</code> / <code>ValueError</code>, naming the reason): <code>SphereInBoxGeometry</code>, <code>ThermalBallGeometry</code>, <code>FHumanBirdcageGeometry</code>, <code>as_hole=True</code>, a <code>conductor</code>, <code>CapacitorSheets</code>, <code>TwoPortQuadratureDrive</code>, <code>solve_sweep</code>. Materials are the geometry's conductor σ (<code>conductor_sigma_s_per_m</code>, 800) and the Study's phantom σ / εᵣ — as the probe writes them (<code>:317–334</code>).
+- <strong><code>study.py</code>: <code>Study.solve(self, comm=MPI.COMM_WORLD, *, backend="dolfinx", case_dir=None, palace_ranks=8)</code>.</strong> The first new line is <code>if backend != "dolfinx": return _solve_backend(self, backend, comm, case_dir=case_dir, palace_ranks=palace_ranks)</code>; an unknown backend raises <code>ValueError</code> naming <code>("dolfinx", "palace")</code>. <strong>The <code>dolfinx</code> body is not touched, and neither is <code>Study</code>'s class docstring or <code>__init__</code> signature</strong> — the generated API page renders those (<code>scripts/docs/generate_api_reference.py:74–116</code>), so editing them makes <code>test_wf17_api_reference.py</code> (G) red.
+- <strong><code>study_yaml.py</code>: <code>run_study_file(path, *, output_dir=None, comm=..., backend="dolfinx")</code>.</strong> <code>backend == "palace"</code> branches before <code>:1383</code>: it refuses every non-<code>four_port_birdcage</code> family, <code>outputs.sar</code> / <code>b1_plus</code> / <code>tune</code>, a conductor and <code>capacitor_sheets</code> (<code>StudyConfigError</code>, field <code>--backend</code>), calls <code>study.solve(comm, backend="palace", case_dir=out / "palace_case")</code>, and writes <code>summary.json</code> with the existing keys plus <code>"backend": "palace"</code>, <code>"palace": {"case_dir", "order", "sha256", "palace_total_s"}</code>, <code>"s_matrix"</code> — no <code>z_matrix</code>, no Touchstone. <strong>The default path writes no new key.</strong>
+- <strong><code>cli.py</code>:</strong> <code>run.add_argument("--backend", choices=["dolfinx", "palace"], default="dolfinx")</code>, threaded into <code>run_study_file</code>. <code>PalaceRunRequired</code> is caught: the command is printed on rank 0 as <code>femem: palace run required: (cd &lt;cwd&gt; &amp;&amp; palace -np 8 case.json)</code>, and the call returns <strong>3</strong>. <code>--backend palace</code> with <code>--ranks</code> or <code>--estimate</code> returns 2 before any launch.
+- <strong>New <code>tests/package/test_arch1_palace_backend.py</code>.</strong> Docstring paragraph 1 names <code>ARCH-1</code> (the validation page's (I) resolves §7 IDs from it). <code>@complex_only</code> on the mesh nodes. Constants: <code>U16_DIR = ROOT / "logs" / "u16"</code>, <code>D2_CASE = U16_DIR / "f_small_d2_64"</code>, <code>CLI_OUT = U16_DIR / "f_small_d1_64_cli"</code>, <code>READ_ENV = "FEM_EM_U16_PALACE_READ"</code>. The probe is loaded by <code>importlib</code> (the <code>_load</code> precedent, <code>tests/validation/test_wf5_q_two_ways.py:71–78</code>).
+  - <strong>(T0) <code>test_u16_backend_refusals</code></strong> (no mesh): every refusal above, each raising before a mesh (wall time &lt; 2 s, printed), and no file written under <code>tmp_path</code>; <code>backend="hfss"</code> → <code>ValueError</code>; <code>Study.solve</code> at <code>comm.size == 2</code> with <code>backend="palace"</code> → <code>ValueError</code> (asserted in W2's width only if cheap; otherwise by monkeypatching <code>comm</code>).
+  - <strong>(T1) <code>test_u16_case_equals_ops61</code></strong> (<code>-n 1</code>): the Python Study (<code>FourPortBirdcageGeometry.f_small()</code>, phantom 0.5 / 78, <code>LumpedPortDrive()</code>, 64 MHz, <strong>degree 2</strong>) solved with <code>backend="palace", case_dir=D2_CASE</code> raises <code>PalaceRunRequired</code> (D2_CASE has no <code>postpro/</code>); <code>cli.main(["run", "tests/package/wf1/f_small_four_port.yaml", "--output-dir", str(CLI_OUT), "--backend", "palace"])</code> (degree 1) returns 3. Then (W-cfg), (W-msh) and controls (c1) / (c2) on both written cases.
+  - <strong>(T2) <code>test_u16_read_path_on_recorded_output</code></strong> (<code>-n 1</code>): copies <code>D2_CASE</code>'s three files into <code>tmp_path</code> and <strong>copies</strong> (never moves) <code>logs/ops61/postpro_f05x_o2/</code> to <code>tmp_path/postpro/</code>; <code>Study.solve(backend="palace", case_dir=tmp_path)</code> returns a <code>PalaceStudyResult</code>. Asserts (Rd) and (P-rec); then (c3) and (c4).
+  - <strong>(T3) <code>test_u16_cli_read_path_on_recorded_output</code></strong> (<code>-n 1</code>): the same with the degree-1 CLI case and <code>postpro_f05x/</code>; <code>cli.main([... "--backend", "palace"])</code> returns 0; <code>summary["backend"] == "palace"</code>, <code>"z_matrix" not in summary</code>, <code>"touchstone" not in summary</code>, and <code>summary["s_matrix"]</code> equals <code>read_port_s</code> on the copied CSV entry for entry (JSON pairs of floats round-trip exactly).
+  - <strong>(T4) <code>test_u16_palace_read_back</code></strong> and <strong>(T5) <code>test_u16_cli_palace_read_back</code></strong>: item 517b's nodes, skipped unless <code>READ_ENV=1</code> (they are committed here so that 517b edits nothing; rule (i)).</p>
+<p><strong>Anchors (asserted; bands imported, never restated).</strong>
+- <strong>(W-cfg)</strong> <code>json.loads(D2_CASE/"case.json")</code> against <code>logs/ops61/f05x_o2.json</code>: the set of differing key paths is exactly <code>{"Problem.Output", "Model.Mesh"}</code>; every other key and value is equal (<code>Materials</code> including the air list <code>[2, 101…104, 201…204]</code>, <code>PEC [1]</code>, four <code>LumpedPort</code>s on <code>[21]…[24]</code>, <code>+Z</code>, <code>R 50.0</code>, <code>Order 2</code>, <code>Freq [0.064]</code>, <code>Linear</code> block). Likewise the CLI's degree-1 case against <code>logs/ops61/f05x.json</code>.
+- <strong>(W-msh)</strong> each written <code>mesh.msh</code> against <code>logs/ops61/ops61_ans4_x1_strip.msh</code>, parsed: node count, the node coordinate array in file order (exact <code>==</code> on the parsed floats), every element's type / attribute / node list in file order, 117 206 tets (= <code>ANS4_EXACT_STRIP_CELL_RECORD</code>, <code>tests/validation/test_ops61_exact_strip_ports.py:64</code>), per-attribute triangle counts (attributes 1, 21–24, 31–34; 40 triangles on each N_i, F10a W3). <strong>Printed, predicted equal:</strong> the sha256 of both files (the same code at the same width on the same generator kwargs, <code>WF-16</code> (K)).
+- <strong>(Rd)</strong> <code>backends.palace.read_port_s(p)</code> against the probe's <code>_read_port_s(p)[0]</code> on <code>logs/ops61/postpro_f05x_o2/port-S.csv</code> and <code>postpro_f05x/port-S.csv</code>: <code>np.array_equal</code> (the same element-wise arithmetic in the same order; no solve or inverse, so the 2026-10-15 18:00 "bit for bit" note, <code>WF-16.md:1751–1753</code>, does not apply).
+- <strong>(P-rec)</strong> on the planted read: reciprocity ≤ <code>RECIPROCITY_BAND</code> (<code>tests/validation/test_port_lumped_sheet_sweep.py:86</code>), σ_max and every column power ≤ 1 + <code>PASSIVITY_SIGMA_TOLERANCE</code> (<code>tests/validation/test_port_birdcage_four_port.py:129</code>), every S-class spread ≤ <code>ADJACENT_SPREAD_BAND</code> (<code>tests/validation/test_port_birdcage_lumped_column.py:121</code>), pooled ≥ <code>POOLED_SEPARATION_FLOOR</code> × the worst (<code>test_port_birdcage_four_port.py:173</code>), classes from <code>_circulant_classes</code> / <code>_class_spread</code> (<code>:193</code>, <code>:176</code>). σ_max printed beside item 194's 0.999819887373 (<code>20261003T110728Z_OPS-61-item194-W5-read.log:50</code>).
+- <strong>(Bit) the DolfinX path:</strong> W2 reproduces <code>WF-16</code> step 1's degree-1 set (19 passed; (R) 9.557e-11, σ_max 0.999760093664, spreads 0.0747 / 0.0691 / 0.0897 %, <code>20261005T202623Z_WF-16-W1-deg1.log</code>); W3 reproduces <code>WF-1</code>'s F-small CLI set (13 passed; (R1) 9.557e-11, <code>20261007T051729Z_WF-1-s3-W3-wf1-w2.log</code>), with no new key in its <code>summary.json</code>; W4 passes the envelope snapshot, the API-page byte check and the validation page unchanged (22 passed, <code>20261015T214657Z_WF-17-s6-Wapi.log</code>).</p>
+<p><strong>Negative controls.</strong>
+- <strong>Asserted, by construction:</strong>
+  - <strong>(c1)</strong> the CLI's degree-1 <code>case.json</code> against <code>f05x_o2.json</code> differs in exactly <code>{"Problem.Output", "Model.Mesh", "Solver.Order"}</code> — the order mapping reaches the config;
+  - <strong>(c2)</strong> the written mesh against the ragged <code>logs/ops61/ops61_ans4_x1.msh</code> is unequal: 117 206 vs 116 085 tets (<code>20261001T215942Z_OPS-61-F10a-W1.log:3581</code>);
+  - <strong>(c3)</strong> a case in <code>tmp_path</code> holding <code>postpro_f05x_o2_f10/port-S.csv</code> (10 MHz) is refused by the frequency check, naming 0.01 vs 0.064;
+  - <strong>(c4)</strong> a one-byte edit to the copied <code>case.json</code> makes the next <code>solve(backend="palace")</code> raise <code>FileExistsError</code> naming <code>case.json</code> — the manifest check can fail.
+- <strong>Predicted, printed:</strong> W1's summed RSS ≤ 3 GiB.</p>
+<p><strong>Windows.</strong> Each runs in the foreground with Bash <code>timeout: 660000</code>, with <code>-s</code>, in the complex build, never with <code>-k</code>. <strong>The harness call is the whole Bash command.</strong>
+- <strong>W0</strong> (smoke, <code>-n 1</code>, T0 only):
+  <code>scripts/testing/run_and_log.sh ARCH-1-U16a-W0 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 PYTHONPATH=/workspace/src:/workspace timeout -k 30 60 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_arch1_palace_backend.py::test_u16_backend_refusals -v -s --tb=short'"</code>
+- <strong>W1</strong> (<code>-n 1</code>, the whole module, knob unset; T4 / T5 skip; predicted 200–330 s):
+  <code>scripts/testing/run_and_log.sh ARCH-1-U16a-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 PYTHONPATH=/workspace/src:/workspace timeout -k 30 590 mpiexec -n 1 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_arch1_palace_backend.py -v -s --tb=short &gt; /workspace/logs/arch1-u16a-w1-raw.log 2&gt;&amp;1; rc=\$?; echo \"[capture] rc=\$rc\" &gt;&gt; /workspace/logs/arch1-u16a-w1-raw.log; cat /workspace/logs/arch1-u16a-w1-raw.log; exit \$rc'"</code>
+- <strong>Before W2 and W3:</strong> <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0.
+- <strong>W2</strong> (the <code>WF-16</code> step 1 re-gate; that log's <code>:12</code> verbatim, relabelled; 138 s measured):
+  <code>scripts/testing/run_and_log.sh ARCH-1-U16a-W2-regate-wf16 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_WF16_DEGREE=1 timeout -k 30 400 mpiexec -n 2 python3 -m pytest tests/environment tests/package/test_wf16_study_four_port.py -s -v --tb=short'"</code>
+- <strong>W3</strong> (the <code>WF-1</code> F-small CLI re-gate; that log's <code>:12</code> verbatim, relabelled; 164 s measured):
+  <code>scripts/testing/run_and_log.sh ARCH-1-U16a-W3-regate-wf1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 400 mpiexec -n 2 python3 -m pytest tests/environment tests/package/test_wf1_study_yaml.py::test_wf1_cli_f_small_reproduces_wf16 -s -v --tb=short'"</code>
+- <strong>W4</strong> (envelope, API pages, validation page — unchanged; 17 s measured):
+  <code>scripts/testing/run_and_log.sh ARCH-1-U16a-W4-wapi "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 170 python3 -m pytest tests/package/test_wf14_validation_envelope.py tests/package/test_wf17_api_reference.py tests/package/test_wf14_validation_page.py -v -s --tb=short'"</code>
+- No edit to any <code>src/</code> file or the test module after W0 starts (rule (i)); any edit means W0 to W4 again.</p>
+<p><strong>Traps already paid for.</strong>
+- <strong>Never write into <code>logs/ops61/</code>, and never plant output into <code>logs/u16/</code>.</strong> T2 / T3 copy recorded <code>postpro_*</code> into <code>tmp_path</code> only. <code>logs/u16/f_small_d2_64/</code> and <code>logs/u16/f_small_d1_64_cli/palace_case/</code> must reach item 517b holding <code>case.json</code>, <code>mesh.msh</code>, <code>case.sha256</code> and <strong>no <code>postpro/</code></strong>; Palace writes that directory itself.
+- <strong><code>src/</code> imports neither <code>tests/</code> nor <code>scripts/</code>.</strong> The lifted code is a copy; (W-cfg), (W-msh) and (Rd) pin it to the originals.
+- <strong>Freq is in GHz in the config.</strong> <code>64e6 / 1e9</code> must serialise as <code>0.064</code>; (W-cfg) catches a drift. Never round it by hand.
+- <strong>Writer width.</strong> The Gmsh writer is serial (probe <code>:139</code>); a <code>-n 2</code> call must raise before meshing, not write a rank-local file.
+- <strong>The API page renders <code>Study</code>'s class docstring and <code>__init__</code> signature.</strong> Touch neither; <code>backend</code> lives on <code>solve</code>. W4 proves it.
+- <strong>The default <code>summary.json</code> gains no key</strong> (<code>"backend"</code> only on the Palace path).
+- <strong>Harness logs are gzipped after rotation</strong> (<code>docs/testing/logs/*.log.gz</code>); cited <code>.log</code> names are read with <code>zcat</code>.
+- <strong>A killed window:</strong> <code>pgrep -c python3</code> first; at 0, run the rubric-4 cache sweep as <code>ARCH-1-U16a-cache-sweep</code>.
+- Never <code>-k</code>; no pipe; never delete a log; two heavy windows never run at once; durable capture ends in <code>; exit \$rc</code>.
+- Compare S classes only; never read Palace's <code>z_matrix_ohm</code>; never open <code>docs/private/</code>, <code>aed_results/</code> or <code>COMPARISON_private.md</code>.</p>
+<p><strong>Scope.</strong> The backend's dispatch, the written case equal to <code>OPS-61</code>'s, the read path on <code>OPS-61</code>'s recorded output, the CLI's two stages, the DolfinX path re-gated. <strong>Not claimed:</strong> any Palace run, the U16 equality or tie (517b), fields from Palace (SAR, B₁⁺, thermal — <code>ARCH-1</code>'s <code>FieldSolution</code> interface), sweeps, copper / Leontovich / hole routes, F-human, tuning, any accuracy or AED figure.</p>
+<p><strong>Negative result.</strong> Report and stop. Park on <code>attempt/ARCH-1-U16a-*</code>, mark item 517 BLOCKED in the same commit (rule (d)), and withdraw 517b.
+- <strong>(W-cfg) red:</strong> the lifted config differs from the probe's. Fix once inside the new files; otherwise park.
+- <strong>(W-msh) red with 117 206 tets:</strong> the Study's mesh is not <code>OPS-61</code>'s file (an environment move since 2026-10-01). Open a known-issues entry, BLOCKED; 517b cannot claim "same input". This is a <code>record-reconciler</code> question, never a re-export of <code>OPS-61</code>'s mesh.
+- <strong>(Rd) red:</strong> a copy error. Fix once; otherwise park.
+- <strong>W2 / W3 red:</strong> the dispatch moved the default path. Revert the <code>src/</code> diff on the branch; BLOCKED.
+- <strong>W4 red:</strong> a public-surface or docstring leak. Fix in-letter (remove the leak) and re-run W0–W4.
+- Status 124 is not a result; park with the measured time.</p>
+<p>There is no <code>PREDICTED RED:</code> line, so a red anywhere stops the slot.</p>
+<p><strong>Status it can move.</strong> No glyph: the <code>ARCH-1</code> row gains "<strong>Step 1a record</strong> (§9 item 517, U16a): <code>Study.solve(backend="palace")</code> / <code>femem run --backend palace</code> write a Palace case equal to <code>OPS-61</code>'s ×1 exact-strip <code>f05x_o2</code> / <code>f05x</code> inputs (config keys, mesh content), read S through the lifted reader on <code>OPS-61</code>'s recorded output; DolfinX path re-gated (<W2 log>, <W3 log>)". §10 U16 records "a DONE, b open".</p>
+<p><strong>Execution order.</strong> Code → W0 → W1 → <code>pgrep</code> → W2 → <code>pgrep</code> → W3 → W4 → commit (the <code>backends/</code> subpackage, the three dispatch edits, the test module, harness logs, the §7 sentence) → journal.</p>
+<p><strong>Spawn line (if delegated):</strong> "Use the implementer agent to execute <code>ARCH-1</code> §9 item 517 (U16a) per <code>docs/planning/chunks/ARCH-1.md</code> (read the brief and any review ruling beneath it first). The harness call is the <strong>whole</strong> Bash command: bare, repo-relative, nothing chained or piped. Run W0–W4 in order, in the foreground, with <code>timeout: 660000</code>, pytest with <code>-s</code>, container <code>timeout -k 30</code>. Before W2 and W3 run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> and require 0. Never write into <code>logs/ops61/</code>; never put a <code>postpro/</code> into <code>logs/u16/</code>. Do not edit <code>Study</code>'s class docstring or <code>__init__</code>, the probe, any gate module, the registry or any generated page. You are the executor: do not spawn agents and never background a harness window. If the docker socket is denied, stop and report the exact command string. On a red, park on <code>attempt/ARCH-1-U16a-*</code>, mark item 517 BLOCKED in the same commit, and report."</p>
+<h3 id="9-item-517b-2026-10-18-10-u16-arch-1-step-1b-chain-step-solve-serial-on-item-517">§9 item 517b — 2026-10-18 (§10 U16, <code>ARCH-1</code> step 1b; chain step, solve; serial on item 517)<a class="headerlink" href="#9-item-517b-2026-10-18-10-u16-arch-1-step-1b-chain-step-solve-serial-on-item-517" title="Permanent link">&para;</a></h3>
+<p><em>Drafted with item 517; the review reviews both. No code edit.</em></p>
+<p><strong><code>ARCH-1</code> step 1b / U16b: Palace runs on the two cases the <code>Study</code> and <code>femem</code> wrote, and the <code>Study</code> reads S back — equal to <code>OPS-61</code>'s recorded read on the same input, tied to our degree-2 record.</strong>
+- <strong>Executor:</strong> implementer. <strong>No edit to any file</strong> except the commit's record lines.
+- <strong>Tier:</strong>
+  - W1 heavy (Palace <code>-np 8</code>, order 2, 64 MHz; 268 s measured on the same config, <code>20261003T110249Z_OPS-61-item194-W4-palace-o2.log</code> — <code>Total</code> 265.6 s <code>:351</code>, 4 × 37 GMRES iterations <code>:164–320</code>, peak 6.1 G <code>:368</code>; predicted 240–400 s on today's box);
+  - W2 smoke → standard (Palace <code>-np 8</code>, order 1; 26 s measured, <code>20261002T021838Z_OPS-61-F10b-W2-palace-f05x.log</code>, Palace 23.35 s, 1.8 G);
+  - W3 standard (<code>-n 1</code>, two mesh rebuilds and reads; predicted 70–120 s).
+- <strong>Class:</strong> chain step (solve). <strong>Cost:</strong> ≈ 18 measured / ≈ 30 predicted slot-minutes: 15 fixed + windows ≈ 7 (≈ 300 + 26 + 100 s) + pre-checks ≈ 2 + commit and journal ≈ 6. <strong>Start only before minute 30; W1 not started by minute 35 ⇒ do not start it</strong> (the slot rule; the Palace window may not cross the timebox).
+- <strong>Depends on:</strong>
+  - <strong>item 517 DONE on <code>main</code></strong> — skip otherwise;
+  - on disk: <code>logs/u16/f_small_d2_64/{case.json, mesh.msh, case.sha256}</code> and <code>logs/u16/f_small_d1_64_cli/palace_case/{…}</code> with <strong>no <code>postpro/</code></strong>; and <code>logs/ops61/postpro_f05x_o2/port-S.csv</code>, <code>logs/ops61/postpro_f05x/port-S.csv</code>.
+  - If a <code>logs/u16</code> case is absent, re-run item 517's W1 verbatim relabelled <code>ARCH-1-U16b-W0-rewrite</code> first (it writes them). If a <code>postpro/</code> is already there, stop and report: never overwrite a Palace output. If an <code>OPS-61</code> CSV is absent: BLOCKED ("comparand absent"); never re-run <code>OPS-61</code>'s config to make one.
+- <strong>Family:</strong> <code>ARCH-1</code> step 1 (U16); attempt 1 of 4.</p>
+<p><strong>Anchors (asserted, in W3, by T4 / T5 as committed in item 517).</strong>
+- <strong>(E2) same input, same answer, degree 2:</strong> ‖S_study − S_ops61‖_F / ‖S_ops61‖_F ≤ <code>LEG_D0_REPRODUCTION_BAND</code> (<code>tests/validation/test_port_birdcage_four_port.py:165</code>; the weekly's "≤ 1e-9"), S_study from <code>Study.solve(backend="palace", case_dir=D2_CASE)</code> and S_ops61 from <code>read_port_s("logs/ops61/postpro_f05x_o2/port-S.csv")</code> — one reader on both sides. <strong>Predicted ≤ 1e-11</strong> (the CSV prints 13 significant digits; MUMPS / GMRES can drift by an ULP across processes, the <code>OPS-43</code> observation, <code>docs/testing/known-issues.md:79</code>). Entry-wise max printed.
+- <strong>(E1) the CLI, degree 1:</strong> the same against <code>postpro_f05x/port-S.csv</code>, from <code>summary.json</code> after <code>cli.main([... "--backend", "palace"])</code> returns 0.
+- <strong>(P)</strong> on S<strong>tudy and S_cli: (P-rec)'s set, bands i</strong>orted as in item 517.
+- <strong>(Tie2) the tie to our degree-2 record:** per class</strong>klzzwxh:0633mean<strong>tudy −</strong>ean<strong>2| / |mean_P2</strong>zzwxh:0636 against <code>ANS4_EXACT_STRIP_S_P2_X1["64"]</code> (<code>tests/validation/test_ans4_exact_strip_records.py:233</code>), printed in e-notation beside the recorded 2.464e-10 / 9.668e-11 / 9.883e-11 (<code>20261004T214342Z_OPS-61-item229-W4-read.log:41</code>). <strong>Asserted ≤ 2.6e-10 only if the review rules R3 (a)</strong>; otherwise printed, never asserted (2026-10-13 ruling (1)). Never against 1.9e-10.
+- <strong>(Tie1)</strong> per class against <code>ANS4_EXACT_STRIP_S_P1_RECORDS["64"]</code> (<code>:141</code>): printed only (item 159's "0.0000 %", <code>20261002T022338Z_OPS-61-F10b-W6-ours-p1.log:1975</code>).
+- <strong>Palace log check (executor, journalled).</strong> W1 / W2 each show 117 206 elements, <code>Rs = 4.375e+01 Ω/sq</code> on attributes 21–24, ω/2π = 6.400e-02 GHz, four <code>GMRES solver converged</code> lines, and <code>ND (p = 2): 753062</code> (W1) / <code>ND (p = 1): 140460</code> (W2) — item 194's numbers (<code>OPS-61.md:275</code>).</p>
+<p><strong>Negative controls.</strong>
+- <strong>Asserted (backed on the same fixture and comparison):</strong> <strong>(c-order)</strong> S_study's class means against Palace order 1 (<code>postpro_f05x/port-S.csv</code>) differ by &gt; 1e-6 in every class. Measured 6.6674 / 2.5442 / 4.5224 % (<code>20261003T110728Z_OPS-61-item194-W5-read.log:55</code>); the weakest class clears the bar by ≈ 2.5e4×. The ceiling is the order move itself. A reader blind to the case (reading a stale or wrong-order file) fails it.
+- <strong>Predicted, printed:</strong> <strong>(c-freq)</strong> S_study against the 10 MHz order-2 read (<code>postpro_f05x_o2_f10/port-S.csv</code>): predicted O(1e-2 … 1e-1) Frobenius-relative (the 10 → 64 MHz change); not measured as a comparison, so never asserted.</p>
+<p><strong>Windows.</strong> Foreground, bare, <code>timeout: 660000</code>; <code>-np</code> ≤ 12; Palace v0.18.1, image <code>fem-em-palace:0.18.1</code>, profile <code>palace</code>.
+- <strong>Pre-check</strong> (not harness calls): <code>docker compose -f docker/docker-compose.yml ps</code> shows <code>fem-em-solver</code> Up; <code>ls logs/u16/f_small_d2_64/ logs/u16/f_small_d1_64_cli/palace_case/</code> as above. A missing Palace image is a stop (2026-10-13 ruling (4)).
+- <strong>W1</strong> (Palace, the Study's degree-2 case):
+  <code>scripts/testing/run_and_log.sh ARCH-1-U16b-W1-palace-d2 "docker compose -f docker/docker-compose.yml --profile palace run --rm -T fem-em-palace bash -lc 'cd /workspace/logs/u16/f_small_d2_64 &amp;&amp; timeout -k 30 590 palace -np 8 case.json'"</code>
+- <strong>W2</strong> (Palace, the CLI's degree-1 case):
+  <code>scripts/testing/run_and_log.sh ARCH-1-U16b-W2-palace-d1 "docker compose -f docker/docker-compose.yml --profile palace run --rm -T fem-em-palace bash -lc 'cd /workspace/logs/u16/f_small_d1_64_cli/palace_case &amp;&amp; timeout -k 30 590 palace -np 8 case.json'"</code>
+- After any kill: <code>docker compose -f docker/docker-compose.yml ps</code> for a lingering <code>fem-em-palace</code> container before W3.
+- <strong>W3</strong> (the read-back, <code>-n 1</code>, knob on, T4 and T5 only):
+  <code>scripts/testing/run_and_log.sh ARCH-1-U16b-W3-read "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_U16_PALACE_READ=1 PYTHONPATH=/workspace/src:/workspace timeout -k 30 400 mpiexec -n 1 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_arch1_palace_backend.py::test_u16_palace_read_back tests/package/test_arch1_palace_backend.py::test_u16_cli_palace_read_back -v -s --tb=short'"</code></p>
+<p><strong>Traps already paid for.</strong>
+- <strong>"Same input" includes <code>-np 8</code>.</strong> Item 194 ran <code>-np 8</code>; a different width changes Palace's partition and GMRES path. Never change <code>-np</code>, <code>Order</code>, <code>Tol</code> or <code>MaxIts</code> in-slot.
+- <strong>A <code>GMRES … did not converge</code> line is a finding</strong>, not a retry; that run's S is "not measured".
+- <strong>An abort on the port set</strong> (axis alignment) is a finding: never change <code>Direction</code>.
+- <strong>Palace writes <code>postpro/</code> relative to its cwd</strong>; the window must <code>cd</code> into the case directory, as above.
+- The test module is used as committed by item 517 (rule (i)): no edit, not even a comment.
+- Compare S classes only; never read Palace's <code>z_matrix_ohm</code>. Record row and journal carry Palace's numbers in full (version, config, mesh cited) and our-vs-Palace gaps; <strong>no AED figure and no Palace figure set against an AED one</strong> in any tracked file (§5.4 (iv)).
+- Status 124 on W1 is the price finding: record it; never lengthen the timeout.</p>
+<p><strong>Scope.</strong> One fixture (×1 exact strip, κ off), one frequency (64 MHz), orders 1 and 2, S only. <strong>Not claimed:</strong> any other rung or frequency, copper / hole / F-human, fields from Palace (SAR, B₁⁺, the loss partition, thermal — <code>ARCH-1</code> (1)–(2)), the benchmark dispatch (<code>ARCH-1</code> (4)), an in-container Palace launch, accuracy (a cross-solver identity on our discretisation, not an accuracy level), GPU / AMR.</p>
+<p><strong>Negative result.</strong> Report and stop; mark 517b BLOCKED in the same commit if anything parks.
+- <strong>(E2) or (E1) &gt; <code>LEG_D0_REPRODUCTION_BAND</code> with (P) green and the log check green:</strong> Palace does not reproduce its own recorded read on the same input at 1e-9. This is a reading, not a fix: DONE as a record with a known-issues entry ("Palace re-run not reproducible at 1e-9 on <code>f05x_o2</code>"); <code>ARCH-1</code> stays ⬜ and the review / weekly rules.
+- <strong>(E2) red and the log check red</strong> (another element count, Rs, ND or frequency): the case is not <code>OPS-61</code>'s input despite item 517's (W-msh). That is a writer defect; BLOCKED.
+- <strong>(c-order) red:</strong> the read is blind to the case; BLOCKED.
+- <strong>(Tie2) above 2.6e-10 with (E2) green:</strong> impossible unless the record moved; print it and report.
+- Palace aborts: record verbatim, known-issues entry, BLOCKED.
+- No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <strong><code>ARCH-1</code> ⬜ → 🟡</strong> (the 2026-10-17 weekly: "Glyph 🟡 when U16 lands", PROJECT_PLAN.md:4709). Rule (j): the row has no Done-when (it is an embargo description), so the review writes the 🟡 sentence and lifts the "Not queueable" clause in the same commit: "🟡 step 1 (U16, §9 items 517 / 517b): <code>Study.solve(backend="palace")</code> and <code>femem run --backend palace</code> write the Palace case, a separate <code>fem-em-palace</code> window runs it, and the <code>Study</code> reads S back — equal to <code>OPS-61</code>'s recorded read on the same input to (E2) / (E1) at <code>LEG_D0_REPRODUCTION_BAND</code>, tied to our degree-2 record per class at (Tie2), ×1 exact strip at 64 MHz (Palace v0.18.1, orders 2 / 1, <W1 log>, <W2 log>, <W3 log>)". Not ✅: <code>ARCH-1</code>'s gate of record is the whole safety layer on two backends. §10 U16 → DONE; U62 (item 529) becomes runnable.</p>
+<p><strong>Spawn line (if delegated):</strong> "Use the implementer agent to execute <code>ARCH-1</code> §9 item 517b (U16b) per <code>docs/planning/chunks/ARCH-1.md</code>. Skip it unless item 517 is DONE on <code>main</code>. The harness call is the <strong>whole</strong> Bash command: bare, repo-relative, nothing chained or piped; foreground, <code>timeout: 660000</code>. Make no edit to any file but the record lines. Never overwrite a <code>postpro/</code>; never change <code>-np</code>, <code>Order</code>, <code>Tol</code>, <code>MaxIts</code> or <code>Direction</code>. After a kill, check <code>docker compose -f docker/docker-compose.yml ps</code> for a lingering <code>fem-em-palace</code> container. You are the executor: do not spawn agents and never background a harness window. On a red, mark item 517b BLOCKED in the same commit and report."</p>
+<p><strong>Outcome 517b (2026-10-18 14:07 UTC, 09:00 CDT slot): BLOCKED — the gate nodes are stubs.</strong> W1 (<code>20261018T140040Z_ARCH-1-U16b-W1-palace-d2.log</code>, Status 0, 264 s): 117 206 elements, Rs = 4.375e+01 Ω/sq on 21–24, ω/2π = 6.400e-02 GHz, ND (p = 2): 753062, four <code>GMRES solver converged in 37 iterations</code>, Palace <code>Total</code> 261.6 s, peak 6.0 G. W2 (<code>20261018T140512Z_ARCH-1-U16b-W2-palace-d1.log</code>, Status 0, 24 s): the same element count, Rs and frequency, ND (p = 1): 140460, four converged (31 / 31 / 32 / 32 iterations), <code>Total</code> 22.96 s, 1.8 G. W3 (<code>20261018T140543Z_ARCH-1-U16b-W3-read.log</code>, 4 passed / 2 skipped, 3 s): item 517 committed <code>test_u16_palace_read_back</code> / <code>test_u16_cli_palace_read_back</code> as unconditional <code>pytest.skip("item 517b: asserts are written by 517b's brief")</code>. This brief, though, forbids any edit ("No edit to any file except the commit's record lines"; "The test module is used as committed by item 517"). So no anchor was asserted, and a skip closes nothing. <strong>Record only, not a gate:</strong> a gitignored scratch reader (<code>logs/arch1-u16b-record.py</code>, <code>read_port_s</code> + the module's <code>_p_rec</code>, run through the harness as <code>20261018T140633Z_ARCH-1-U16b-record-read.log</code>) reads: (E2) Frobenius-rel 0.000e+00, entry max 0.000e+00 (Palace re-run bitwise equal to <code>postpro_f05x_o2</code>); (E1) 2.149e-14 / 3.893e-14; (P) green on both: d2 reciprocity 9.848e-11, σ_max 0.999819887373, spreads 0.0371 / 0.0248 / 0.0500 %; d1 1.692e-10, 0.999760093669, 0.0852 / 0.0783 / 0.0921 %; (Tie2) 2.464e-10 / 9.668e-11 / 9.883e-11, equal to the recorded values and ≤ 2.6e-10; (Tie1) 2.242e-10 / 9.601e-11 / 1.823e-10; (c-order) 6.6674 / 2.5442 / 4.5224 %, reproducing the measured values; (c-freq) 8.515e-01. That reading compares CSVs; it does not go through <code>Study.solve</code>'s read path. <strong>Side effect for the review:</strong> <code>logs/u16/*/postpro/</code> now exist, as the design intends. Item 517's T1 (<code>D2_CASE</code> has no <code>postpro/</code> ⇒ <code>PalaceRunRequired</code>) and <code>test_u16_cli_write_stage_and_controls</code> (<code>assert not (CLI_CASE / "postpro").exists()</code>) will now go red if re-run. Those nodes need a ruling: move the write stage to <code>tmp_path</code>, or accept them as one-shot. <strong>Unblock:</strong> license a slot to write the T4 / T5 bodies to this brief's anchors (<code>Study.solve(backend="palace", case_dir=D2_CASE)</code> and the CLI <code>summary.json</code>), then run W3 only. Neither Palace window needs re-running.</p>
+<p><strong>Rulings asked of the review (items 517 / 517b).</strong>
+- <strong>R1 — the fixture.</strong> "F26's recorded Palace read" is read as the ×1 exact-strip order-2 64 MHz read (F17, <code>postpro_f05x_o2</code>), the Study's <code>f_small()</code> verbatim; F37's h = 0.0075 hole Cu read would need three features U16 does not name. Ratify, or name the rung.
+- <strong>R2 — the three-stage design</strong> (write → separate <code>fem-em-palace</code> harness window → read, manifest-checked) as the meaning of "runs the <code>fem-em-palace</code> service". The alternative — the <code>Study</code> launching Palace itself — needs a docker-socket mount or Palace in the solver image: an operator decision (compose constraint), not a slot's.
+- <strong>R3 — the tie.</strong> (a) assert (Tie2) ≤ 2.6e-10, item 476's ratified public ceiling, as a transcription correction of the weekly's 1.9e-10 (rule (f), the 2026-10-15 03:00 precedent); or (b) print it beside the recorded per-class values, as every <code>OPS-61</code> tie has been.
+- <strong>R4 — the plan text and the CLI.</strong> §5.4's "nothing in <code>src/</code> is built on Palace" (PROJECT_PLAN.md:1180–1181) amended to admit an opt-in writer / reader that never imports or links Palace (U8); the new CLI exit code 3 ("external run pending") accepted or replaced; the split 517 / 517b accepted. The stale compose / Dockerfile comments go to the operator.</p>
+<h3 id="review-ruling-2026-10-18-1030-item-517b-blocked-item-533">Review ruling 2026-10-18 10:30 (item 517b BLOCKED → item 533)<a class="headerlink" href="#review-ruling-2026-10-18-1030-item-517b-blocked-item-533" title="Permanent link">&para;</a></h3>
+<p>Read: the 517b outcome above, attempts.md 2026-10-18T14:07Z, <code>tests/package/test_arch1_palace_backend.py:47–90</code>, <code>:190–219</code>, <code>:283–290</code> (re-read), and <code>src/fem_em_solver/backends/palace.py:126–204</code> (<code>write_case</code> never overwrites; a differing file raises <code>FileExistsError</code>) and <code>:242–246</code> (the read path takes <code>postpro/port-S.csv</code> when present).
+- <strong>The block is a brief defect, not a solver finding.</strong> Item 517 committed T4 / T5 as stubs whose bodies "are written by 517b's brief", and 517b's brief forbade any test edit. Neither brief owned the bodies. 517b is attempt 1 of 4 in the family; <strong>item 533 is the re-pose (attempt 2)</strong>, same target, under §9 rule (6)'s re-pose clause.
+- <strong>The Palace windows stand.</strong> W1 / W2 ran on the item-517 cases with every log check green. Their <code>postpro/</code> stays on disk. No Palace re-run in 533.
+- <strong>The record read is a record.</strong> (E2) 0.000e+00 compares CSVs, not <code>Study.solve</code>'s read path. It moves nothing.
+- <strong>T1 and <code>test_u16_cli_write_stage_and_controls</code> become repeatable.</strong> Their write stage moves to <code>tmp_path</code>. The on-disk <code>D2_CASE</code> / <code>CLI_CASE</code> are never written again and keep their Palace output. The write is deterministic: <code>write_case</code> writes the same bytes, and T4's <code>Study.solve(case_dir=D2_CASE)</code> re-checks them against today's writer (a differing file raises). So the tmp case asserts what item 517 asserted, on every re-run. "One-shot" nodes are declined: a node that turns red because the design worked is not a gate.
+- <strong>R3 stands as ruled at 03:00.</strong> (Tie2) is asserted at 2.6e-10. (c-order) is asserted at &gt; 1e-6 per class. (c-freq) is printed.
+- <strong>Item 529 now depends on item 533.</strong></p>
+<h3 id="9-item-533-2026-10-18-10-u16-arch-1-step-1b-re-pose-u16c-chain-step-no-solve-serial-on-nothing">§9 item 533 — 2026-10-18 (§10 U16, <code>ARCH-1</code> step 1b re-pose / U16c; chain step, no solve; serial on nothing)<a class="headerlink" href="#9-item-533-2026-10-18-10-u16-arch-1-step-1b-re-pose-u16c-chain-step-no-solve-serial-on-nothing" title="Permanent link">&para;</a></h3>
+<p><em>Written by the 10:30 review. Re-poses item 517b (attempt 2 of 4, family <code>ARCH-1</code> step 1).</em></p>
+<p><strong><code>ARCH-1</code> step 1b / U16c: write T4 / T5's bodies to item 517b's anchors, move T1's and the CLI write stage to <code>tmp_path</code>, and run the module once, whole, with the read knob on.</strong>
+- <strong>Executor:</strong> implementer.
+- <strong>Edits allowed:</strong> <code>tests/package/test_arch1_palace_backend.py</code> only.
+  - <strong>T1 (<code>test_u16_case_equals_ops61</code>)</strong> takes <code>tmp_path</code> and writes to <code>tmp_path / "d2"</code> instead of <code>D2_CASE</code>. Every assertion stays, with <code>D2_CASE</code> replaced by the tmp case.
+  - <strong><code>test_u16_cli_write_stage_and_controls</code></strong> takes <code>tmp_path</code> and passes <code>--output-dir tmp_path / "cli"</code>. Every assertion stays, on the tmp case.
+  - <strong>T4 (<code>test_u16_palace_read_back</code>)</strong> and <strong>T5 (<code>test_u16_cli_palace_read_back</code>):</strong> the stub <code>skip</code> lines are replaced by bodies. The <code>skipif</code> on <code>FEM_EM_U16_PALACE_READ</code> stays. Each body skips "BLOCKED: … absent" when its case, its <code>postpro/port-S.csv</code> or its <code>OPS-61</code> comparand is missing. The module docstring's T4 / T5 sentence is updated.
+  - Nothing in <code>src/</code>, no other test, no registry line. <code>logs/arch1-u16b-record.py</code> is the arithmetic to lift (gitignored; it stays where it is).
+- <strong>Tier:</strong> heavy (one window, <code>-n 1</code>, container <code>timeout -k 30 590</code>). Price: item 517's W1 ran the module in 165 s at <code>-n 1</code> (<code>20261018T101308Z_ARCH-1-U16a-W1.log</code>). T4 and T5 each rebuild the F-small mesh once inside <code>write_case</code>'s check, as T2 / T3 do. <strong>Predicted 200–330 s.</strong>
+- <strong>Class:</strong> chain step (no solve). <strong>Cost:</strong> ≈ 6.6 measured / ≈ 30 predicted slot-minutes.
+- <strong>Depends on:</strong> nothing. On disk: <code>logs/u16/f_small_d2_64/{case.json, mesh.msh, case.sha256, postpro/port-S.csv}</code>, <code>logs/u16/f_small_d1_64_cli/palace_case/{…, postpro/port-S.csv}</code>, and <code>logs/ops61/postpro_f05x_o2/</code>, <code>postpro_f05x/</code>, <code>postpro_f05x_o2_f10/</code> (all present at 10:30, re-listed). A missing one is BLOCKED ("comparand absent"); never re-run Palace or <code>OPS-61</code> to make one.</p>
+<p><strong>Anchors (asserted).</strong>
+- <strong>T4 (E2):</strong> <code>res = _d2_study().solve(MPI.COMM_WORLD, backend="palace", case_dir=D2_CASE)</code> returns a <code>PalaceStudyResult</code> with <code>cells == 117206</code> and <code>order == 2</code>. ‖S_res − S_ops61‖_F / ‖S_ops61‖_F ≤ <code>LEG_D0_REPRODUCTION_BAND</code> (<code>tests/validation/test_port_birdcage_four_port.py:165</code>). S_ops61 = <code>read_port_s(OPS61 / "postpro_f05x_o2" / "port-S.csv")</code>. Entry-wise max printed. The record read gives 0.000e+00.
+- <strong>T4 (P):</strong> <code>_p_rec(res.s_matrix)</code>.
+- <strong>T4 (Tie2):</strong> per class |mean<strong>es − mea</strong>P2| / |mean<strong>2| ≤ 2.6e-10 (the 03</strong>0 R3 ruling; item 476's ratified ceiling). <code>mean_P2</code> is from <code>ANS4_EXACT_STRIP_S_P2_X1["64"]</code> (<code>tests/validation/test_ans4_exact_strip_records.py:233</code>) through <code>_circulant_classes</code> (the record script's <code>means</code>). The recorded 2.464e-10 / 9.668e-11 / 9.883e-11 (<code>20261004T214342Z_OPS-61-item229-W4-read.log:41</code>) are printed beside. Write the 2.6e-10 as a named module constant whose comment cites the ruling.
+- <strong>T5 (E1):</strong> a stale <code>CLI_OUT / "summary.json"</code> is removed first (never the case or <code>postpro/</code>). Then <code>cli.main(["run", str(YAML), "--output-dir", str(CLI_OUT), "--backend", "palace"])</code> returns 0, <code>summary["backend"] == "palace"</code>, and S from <code>summary["s_matrix"]</code> (as T3 parses it) is within <code>LEG_D0_REPRODUCTION_BAND</code> of <code>read_port_s(OPS61 / "postpro_f05x" / "port-S.csv")</code>, Frobenius-relative. Then <code>_p_rec</code> on it.
+- <strong>T1 / CLI write on <code>tmp_path</code>:</strong> item 517's assertions, unchanged in value.</p>
+<p><strong>Negative controls.</strong>
+- <strong>Asserted (c-order), in T4:</strong> each class mean of S_res differs from Palace order 1 (<code>postpro_f05x</code>) by &gt; 1e-6 relative. Backed on the same fixture and comparison: 6.6674 / 2.5442 / 4.5224 % (<code>20261003T110728Z_OPS-61-item194-W5-read.log:55</code>, reproduced by <code>20261018T140633Z_ARCH-1-U16b-record-read.log</code>). The weakest class clears 1e-6 by ≈ 2.5e4×.
+- <strong>Predicted, printed (c-freq), in T4:</strong> Frobenius-relative distance to <code>postpro_f05x_o2_f10</code>. The record read gives 8.515e-01. Never asserted.
+- <strong>Inherited:</strong> T2's (c3) / (c4) stay as committed.</p>
+<p><strong>Window.</strong> One harness call, foreground, the whole Bash command, <code>timeout: 660000</code>:</p>
+<p><code>scripts/testing/run_and_log.sh ARCH-1-U16c-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_U16_PALACE_READ=1 PYTHONPATH=/workspace/src:/workspace timeout -k 30 590 mpiexec -n 1 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_arch1_palace_backend.py -v -s --tb=short'"</code></p>
+<p>Pre-check: <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0 (no heavy window running). <strong>Expected:</strong> every node passes, none skipped (T0, T1, CLI write, T2, T3, T4, T5, Rd ×3).</p>
+<p><strong>Traps already paid for.</strong>
+- <strong>Rule (i):</strong> no edit to the module after W1. An edit means W1 again.
+- <code>-n 1</code> only: the backend refuses a parallel comm by design (T0 asserts it).
+- <strong>The test never writes into <code>D2_CASE</code> or <code>CLI_CASE</code></strong> except T5's <code>summary.json</code> under <code>CLI_OUT</code> (gitignored). <code>write_case</code>'s own check stages and removes a <code>mesh.msh.new</code> and rewrites an identical <code>case.sha256</code> (<code>palace.py:187–205</code>); that is the package's read path, not a test write. Never delete or overwrite a <code>postpro/</code>.
+- No <code>-k</code> selector and no pipe in the harness command. <code>-s</code> is on.
+- Compare S classes only. Never read Palace's <code>z_matrix_ohm</code>. No AED figure, and no Palace figure set beside an AED one (§5.4 (iv)). If the private-leak guard flags the log, move it unchanged to <code>logs/leak-held/</code>, mark the item BLOCKED and stop.</p>
+<p><strong>Scope.</strong> U16 on one fixture: the ×1 exact strip at 64 MHz, orders 2 / 1, S only. Not claimed: anything in 517b's scope list, a Study that launches Palace, or accuracy.</p>
+<p><strong>Negative result.</strong> Report and stop. Mark item 533 BLOCKED in the same commit (rule (d)).
+- (E2) / (E1) red with (P) green: a known-issues entry ("Study read path differs from the CSV read"). The record read says the CSVs agree, so the defect is in the read path. <code>ARCH-1</code> stays ⬜.
+- <code>FileExistsError</code> from T4 / T5: the on-disk case differs from today's writer. Something changed <code>write_case</code> or the fixture after item 517. BLOCKED, named; never delete the case to clear it.
+- (c-order) red: the read is blind to the case. BLOCKED.
+- No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <strong><code>ARCH-1</code> ⬜ → 🟡</strong>, with the sentence item 517b's brief wrote ("🟡 step 1 (U16, §9 items 517 / 517b / 533): …"), citing 517b's W1 / W2 logs and this item's W1 log. The row's "Not queueable" clause is lifted in the same commit. §10 U16 → DONE. Item 529 (U62) becomes runnable.</p>
+<p><strong>Spawn line (if delegated):</strong> "Use the implementer agent to execute <code>ARCH-1</code> §9 item 533 (U16c) per <code>docs/planning/chunks/ARCH-1.md</code> (heading <code>§9 item 533</code> and the 2026-10-18 10:30 ruling above it). The harness call is the <strong>whole</strong> Bash command: bare, repo-relative, nothing chained or piped; foreground, <code>timeout: 660000</code>. Edit only <code>tests/package/test_arch1_palace_backend.py</code>. Never write into <code>logs/u16/*</code> except T5's <code>summary.json</code>, and never touch a <code>postpro/</code>. You are the executor: do not spawn agents and never background a harness window. On a red, mark item 533 BLOCKED in the same commit and report."</p>
+<p><strong>Outcome 533 (2026-10-18 17:28 UTC, 12:00 CDT slot, take-next): DONE, attempt 2 of 4.</strong> Edits only in <code>tests/package/test_arch1_palace_backend.py</code>.
+- T1 and <code>test_u16_cli_write_stage_and_controls</code> now write to <code>tmp_path</code>; every assertion is unchanged in value.
+- T4 / T5 carry bodies. <code>TIE2_BAND = 2.6e-10</code> is a named constant citing the R3 ruling.
+- W1 (<code>20261018T172228Z_ARCH-1-U16c-W1.log</code>, Status 0, 224 s, <code>-n 1</code>): <strong>14 passed, none skipped</strong>.
+  - T4: <code>cells</code> 117 206, order 2. (E2) Frobenius-rel 0.000e+00, entry max 0.000e+00, through <code>Study.solve(backend="palace", case_dir=D2_CASE)</code>.
+  - (P): reciprocity 9.848e-11, σ_max 0.999819887373. (Tie2) 2.464e-10 / 9.668e-11 / 9.883e-11, equal to the record. (c-order) 6.6674 / 2.5442 / 4.5224 %.
+  - (c-freq) 8.515e-01, printed only. The print line's "predicted O(1e-2 .. 1e-1)" text came from 517b's brief; the record read had already measured 0.85, and rule (i) left the line unedited.
+  - T5: <code>cli.main</code> rc 0, <code>backend</code> palace, (E1) 2.149e-14 (entry max 3.893e-14). (P): reciprocity 1.692e-10, σ_max 0.999760093669.
+- No <code>postpro/</code> was touched. <code>ARCH-1</code> → 🟡, and §10 U16 is DONE. Item 529 (U62) is runnable.</p>
+<h3 id="9-item-529-2026-10-18-10-u62-palace-backend-guide-page-lane-1-no-solve">§9 item 529 — 2026-10-18 (§10 U62, Palace backend guide page; lane 1, no solve)<a class="headerlink" href="#9-item-529-2026-10-18-10-u62-palace-backend-guide-page-lane-1-no-solve" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a read-only general-purpose agent for the 2026-10-18 03:00 daily review; the review reviews it.</em></p>
+<p><strong>Licence.</strong> §10 U62 (PROJECT_PLAN.md:4871–4872), weekly-enumerated (§9 rule (4)): "A 'backends' guide page and the envelope entry for the Palace backend; <code>docrefs</code> 0 dead. Serial on U16." §9's "Every item" rule on <code>WF-14</code>'s registry (PROJECT_PLAN.md:4058: regenerate the API pages and <code>docs/guide/validation.md</code> and run the page gates in the same slot). Templates: §9 item 433 (<code>docs/planning/chunks/WF-14.md:196–285</code>, the registry + regeneration windows) and <code>WF-17</code> step 6 (<code>tests/package/test_wf17_tuning_yaml_page.py</code>, the page-as-test). <strong>No band, tolerance, Done-when or target is set or moved.</strong></p>
+<p><strong><code>ARCH-1</code> step 1c / U62: <code>docs/guide/backends.md</code>, a page test that keeps it true, and the U16 nodes registered under <code>Study</code> / <code>run_study_file</code>.</strong>
+- <strong>Executor:</strong> implementer.
+- <strong>Tier:</strong> smoke / standard, no MPI (<code>-n 1</code>): the page test ≈ 5 s (<code>20261015T214647Z_WF-17-s6-W0.log</code>), Wapi 17 s (<code>20261015T214657Z_WF-17-s6-Wapi.log</code>), Wdoc 2 s (<code>20261015T214715Z_WF-17-s6-Wdoc.log</code>), the generators ≈ 2–3 s each (<code>20261014T021649Z_WF-14-u48-Wgen.log</code>, <code>…021653Z…Wval.log</code>).
+- <strong>Class:</strong> lane 1. <strong>Cost:</strong> ≈ 3.5 measured / ≈ 25 predicted slot-minutes: 15 fixed + ≈ 6 page and test + ≈ 1 windows + commit ≈ 3.
+- <strong>Depends on:</strong> <strong>§9 item 517b DONE on <code>main</code></strong> (§10: serial on U16); skip otherwise. If 517b landed as a record with (E2) red or R3 undecided, the page states what landed and no more; if 517b is BLOCKED, skip.
+- <strong>Family:</strong> <code>ARCH-1</code> step 1 (U62); attempt 1 of 4.</p>
+<p><strong>Edits allowed.</strong>
+- <strong>New <code>docs/guide/backends.md</code>.</strong> Sections:
+  - what a backend is — the DolfinX default (reference, coupling host) and the opt-in Palace backend for scale, U8's roles;
+  - the three stages, as three tagged blocks: <code>python</code> <code>palace-backend</code> (one <code>Study.solve(</code> call with <code>backend="palace"</code> and a <code>case_dir</code>), <code>bash</code> <code>palace-backend-cli</code> (<code>femem run &lt;file&gt; --backend palace</code>, then the Palace command, then the same <code>femem run</code> again), <code>text</code> <code>palace-command</code> (the <code>.argv</code> line);
+  - what is refused, and why the Study cannot launch Palace itself (separate image, no socket);
+  - the binding condition: every Palace-backed result names a reduced matched-order cross-check on a shared mesh (U8);
+  - the cross-check of record: U16's nodes, cited as <code>`tests/…::…`</code>, with links to <code>validation.md</code>, <code>api/Study.md</code>, <code>api/run_study_file.md</code> and the public <code>ans:4</code> <code>COMPARISON.md</code> "Palace at matched order" section.
+  - <strong>No number is typed into the page.</strong> The tolerance line is rendered from <code>LEG_D0_REPRODUCTION_BAND</code> and the command line from <code>backends.palace</code> at test time ((E) below). No AED figure, and no Palace figure beside an AED one.
+- <strong>New <code>tests/package/test_wf17_backends_page.py</code></strong>, on <code>test_wf17_tuning_yaml_page.py</code>'s pattern (<code>extract_tagged_block</code> from <code>tests/package/test_wf17_first_study_tutorial.py</code>, <code>run_checker</code> from <code>tests/unit/test_doc_reference_exit_codes.py</code>). Docstring paragraph 1 names <code>ARCH-1</code>.
+- <strong><code>tests/package/validation_envelope.toml</code>:</strong> one comment line <code># U16 Palace backend (§10, weekly 2026-10-17; §9 items 517 / 517b)</code> plus the U16 nodes under <code>[names.Study]</code> (<code>:151</code>): <code>test_arch1_palace_backend.py::test_u16_backend_refusals</code>, <code>::test_u16_case_equals_ops61</code>, <code>::test_u16_read_path_on_recorded_output</code>, <code>::test_u16_palace_read_back</code>; and under <code>[names.run_study_file]</code> (<code>:316</code>): <code>::test_u16_cli_read_path_on_recorded_output</code>, <code>::test_u16_cli_palace_read_back</code>. Function-level IDs, no <code>[param]</code> suffix, no number in the comment (<code>test_registry_restates_no_number</code>). This attribution is the drafter's proposal; the review rules on it.
+- The regenerated <code>docs/guide/api/*.md</code> and <code>docs/guide/validation.md</code> (generated, never hand-edited).
+- Nothing in <code>src/</code>, no gate module, no generator.</p>
+<p><strong>Anchors (asserted).</strong>
+- <strong>(X)</strong> one block per tag; the <code>python</code> block parses with exactly one <code>Study.solve</code> call carrying <code>backend="palace"</code>; the <code>bash</code> block contains <code>femem run</code> and <code>--backend palace</code> twice.
+- <strong>(E)</strong> the <code>palace-command</code> block equals <code>" ".join(PalaceRunRequired(...).argv)</code> built from <code>backends.palace</code> (rendered, not typed); the page's tolerance line equals <code>f"{LEG_D0_REPRODUCTION_BAND:.0e}"</code> (<code>tests/validation/test_port_birdcage_four_port.py:165</code>).
+- <strong>(L)</strong> every cited node is registered under <code>("Study", "run_study_file")</code>; links to <code>validation.md</code>, <code>api/Study.md</code> and <code>api/run_study_file.md</code> resolve, with validation anchors on headings.
+- <strong>(D)</strong> <code>run_checker --docs-root docs/guide --check-links</code> reads 0 dead (the U62 target).
+- <strong>Wapi:</strong> <code>test_wf14_validation_envelope.py</code> collects the new nodes (S / R / C / N); <code>test_wf17_api_reference.py</code> (G) finds the regenerated pages byte-identical; <code>test_wf14_validation_page.py</code> passes (I) with <code>ARCH-1</code> resolved from the new module's docstring.
+- <strong>Wval</strong> prints the node count. Read the current count first; predict +6. Printed only.</p>
+<p><strong>Negative controls (asserted, by construction).</strong>
+- <strong>(c1)</strong> the <code>palace-command</code> block with <code>-np 8</code> → <code>-np 4</code> differs from (E) on exactly one line.
+- <strong>(c2)</strong> a planted unregistered node is named by (L).
+- <strong>(c3)</strong> a tmp copy of the guide tree with one planted dead link reads dead == 1 (the <code>test_wf17_tuning_yaml_page.py:197–215</code> construction).
+- <strong>(C-api) / (C-val):</strong> after the registry edit and <strong>before</strong> Wgen / Wval, both <code>--check</code> runs exit 1, naming <code>Study.md</code> and <code>run_study_file.md</code> (<code>generate_api_reference.py</code>'s differing-files list) and <code>DIFFERS: validation.md</code>. An exit 0 means the lines did not reach the pages: stop.</p>
+<p><strong>Windows.</strong> Foreground, bare, repo-relative, Bash <code>timeout: 660000</code>, <code>-s</code>; item 433's commands with this item's labels.
+1. Write the page and the test; edit the registry.
+2. <strong>C-api</strong> (predicted Status 1):
+   <code>scripts/testing/run_and_log.sh ARCH-1-U62-ctl-api "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 180 python3 scripts/docs/generate_api_reference.py --out docs/guide/api --check'"</code>
+3. <strong>C-val</strong> (predicted Status 1):
+   <code>scripts/testing/run_and_log.sh ARCH-1-U62-ctl-val "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 60 python3 scripts/docs/generate_validation_page.py --out docs/guide/validation.md --check'"</code>
+4. <strong>Wgen:</strong>
+   <code>scripts/testing/run_and_log.sh ARCH-1-U62-Wgen "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 180 python3 scripts/docs/generate_api_reference.py --out docs/guide/api'"</code>
+5. <strong>Wval:</strong>
+   <code>scripts/testing/run_and_log.sh ARCH-1-U62-Wval "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 60 python3 scripts/docs/generate_validation_page.py --out docs/guide/validation.md'"</code>
+6. <strong>W0</strong> (the page test):
+   <code>scripts/testing/run_and_log.sh ARCH-1-U62-W0 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 120 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_wf17_backends_page.py -s -v --tb=short'"</code>
+7. <strong>Wapi:</strong>
+   <code>scripts/testing/run_and_log.sh ARCH-1-U62-Wapi "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 170 python3 -m pytest tests/package/test_wf14_validation_envelope.py tests/package/test_wf17_api_reference.py tests/package/test_wf14_validation_page.py -v -s --tb=short'"</code>
+8. <strong>Wdoc:</strong>
+   <code>scripts/testing/run_and_log.sh ARCH-1-U62-Wdoc "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py --docs-root docs/guide --check-links'"</code>
+9. Commit the page, the test, the registry, the regenerated pages and the logs together.</p>
+<p><strong>Traps already paid for.</strong>
+- <strong>A control window's Status 1 is its pre-registered result</strong>, labelled <code>-ctl-</code>; it is not a red.
+- <strong>Never hand-edit a generated page</strong>; never edit either generator or <code>test_wf17_api_reference.py</code>.
+- <strong>An uncollectable node is a stop.</strong> The envelope test collects with MPI env stripped; the U16 module must import cleanly on the real build (<code>@complex_only</code> on its mesh nodes, as item 517 wrote it).
+- <strong>No number in a registry comment</strong>; no number typed into the page outside a rendered block.
+- <strong>No AED figure and no Palace-beside-AED sentence</strong> (§5.4 (iv); the leak hook).
+- <code>≈</code>, never a tilde, in the page. No <code>-k</code>, no pipe, never delete a log, no edit after the last window (rule (i)).
+- <strong>Registry conflicts:</strong> if another item touched the registry, a rebase keeps both sides and windows 2–8 re-run.</p>
+<p><strong>Scope.</strong> One guide page, its test, six registry lines, regenerated pages. <strong>Not claimed:</strong> that a node is green today (the registry asserts collectability), any figure beyond the rendered constant, any change to <code>WF-14</code>'s Done-when or the public surface, a tutorial that runs Palace (a follow-on example, the daily's to open after U16).</p>
+<p><strong>Negative result.</strong> Report and stop; park on <code>attempt/ARCH-1-U62-*</code> and mark item 529 BLOCKED in the same commit (rule (d)).
+- (C) collection red on a U16 node: BLOCKED for the review's re-attribution.
+- (C-api) / (C-val) exit 0: the edit did not reach the pages; stop.
+- (G) red after Wgen: regenerate once after a rebase; otherwise park.
+- (D) red: a dead link; fix in-letter once, else park.
+- No <code>PREDICTED RED:</code> line; the control windows' Status 1 is their asserted result.</p>
+<p><strong>Status it can move.</strong> No glyph (<code>ARCH-1</code> 🟡 from item 517b; <code>WF-14</code> ✅, Done-when met since 2026-10-04, no rule (j) amendment). The <code>ARCH-1</code> row gains "step 1c (§9 item 529, U62): <code>docs/guide/backends.md</code> and the U16 envelope entry, 0 dead links (<Wdoc log>)"; §10 U62 → DONE; (9d) gains the backends page.</p>
+<p><strong>Spawn line (if delegated):</strong> "Use the implementer agent to execute <code>ARCH-1</code> §9 item 529 (U62) per <code>docs/planning/chunks/ARCH-1.md</code>. Skip it unless item 517b is DONE on <code>main</code>. The harness call is the <strong>whole</strong> Bash command: bare, repo-relative, nothing chained or piped; foreground, <code>timeout: 660000</code>, pytest with <code>-s</code>, container <code>timeout -k 30</code>. Run C-api and C-val before Wgen / Wval and require Status 1 on both; never hand-edit a generated page; no number in a registry comment or typed into the page; no AED figure. You are the executor: do not spawn agents. On a red, park on <code>attempt/ARCH-1-U62-*</code>, mark item 529 BLOCKED in the same commit, and report."</p>
+<p><strong>Outcome 529 (2026-10-19 00:53 UTC, 00:30 UTC slot): DONE, attempt 1 of 4.</strong> Dependency read as item 533 (10:30 ruling).
+- New <code>docs/guide/backends.md</code> and <code>tests/package/test_wf17_backends_page.py</code>. Six U16 nodes registered: four under <code>[names.Study]</code>, two under <code>[names.run_study_file]</code>, all six names verified in <code>test_arch1_palace_backend.py</code>. The comment line names items 517 / 517b / 533 (533 added to the brief's text).
+- C-api (<code>20261019T005017Z_ARCH-1-U62-ctl-api.log</code>, Status 1, 2 s): differing <code>['Study.md', 'run_study_file.md']</code>. C-val (<code>20261019T005022Z_ARCH-1-U62-ctl-val.log</code>, Status 1, 2 s): <code>DIFFERS: validation.md</code>.
+- Wgen (<code>20261019T005038Z…</code>, Status 0, 2 s). Wval (<code>20261019T005044Z…</code>, Status 0, 3 s): nodes 289 → 295, as predicted (+6, printed only).
+- W0, first run (<code>20261019T005051Z_ARCH-1-U62-W0.log</code>, Status 1): (D) and (c3) red. The link pass read 0 dead, but the reference pass found 2 dead: <code>summary.json</code> (prose) and <code>case.json</code> (inside the rendered <code>palace-command</code> block, which must equal <code>PalaceRunRequired.argv</code>). Fixed in-letter once:
+  - the prose was reworded;
+  - <strong><code>case.json</code> got an <code>ALLOWLIST</code> entry, with its reason, in <code>scripts/testing/check_example_doc_references.py</code>.</strong> That is the checker's own exemption mechanism (precedent <code>lineplot.csv</code>). It is outside the brief's edit list and disclosed here. Neither generator was touched.
+- W0, re-run (<code>20261019T005151Z_ARCH-1-U62-W0.log</code>, Status 0, 5 s): <strong>9 passed</strong>. (X) 4 tags, 1 <code>solve</code> call, <code>femem run</code> ×2 with <code>--backend palace</code>. (E) <code>palace -np 8 case.json</code> = argv, and the tolerance <code>1e-09</code> = <code>LEG_D0_REPRODUCTION_BAND</code> at <code>.0e</code>. (c1) differs on 1 line. (L) 6 nodes, 0 unregistered. (c2) planted node named. (D) dead 0. (c3) 0 → 1.
+- Wapi (<code>20261019T005208Z_ARCH-1-U62-Wapi.log</code>, Status 0, 19 s): 22 passed.
+- An extra window, Wchk (<code>20261019T005236Z_ARCH-1-U62-Wchk.log</code>, Status 0, 15 s), ran <code>tests/unit/test_doc_reference_exit_codes.py</code> (20 passed) because the checker was edited.
+- Wdoc (<code>20261019T005254Z_ARCH-1-U62-Wdoc.log</code>, Status 0, 2 s): <code>dead=0</code>, 1 allowlisted, link pass 0 dead.
+- No edit after Wdoc. §10 U62 is DONE. No (9d) page list exists in the plan, so none was extended.</p>
+<h3 id="review-ruling-2026-10-18-0300-items-517-517b-529-u16-split-u62">Review ruling 2026-10-18 03:00 (items 517, 517b, 529 — U16 split, U62)<a class="headerlink" href="#review-ruling-2026-10-18-0300-items-517-517b-529-u16-split-u62" title="Permanent link">&para;</a></h3>
+<p>Accepted as split. Spot-check: <code>docker/docker-compose.yml:8–10</code> mounts only <code>..:/workspace</code> and the cache volume, so there is no docker socket in the solver container (re-read).
+- <strong>R1: accepted.</strong> The fixture is the ×1 exact strip at 64 MHz, order 2 (<code>postpro_f05x_o2</code>). "F26's recorded Palace read" names no Palace read of the Study's default fixture. The target is unchanged in kind ("same input, same answer" at ≤ 1e-9 against the recorded Palace read), and the swap is named for the weekly to ratify.
+- <strong>R2: the three-stage design is accepted:</strong>
+  - <code>Study.solve(backend="palace", case_dir=…)</code> writes the case and raises <code>PalaceRunRequired</code>;
+  - a separate harness window runs the <code>fem-em-palace</code> service;
+  - the same call reads the case back, after a checksum check.</p>
+<p>A Study that launches Palace itself would need a socket mount or Palace inside the solver image. Both are the operator's (the §9 compose constraint) and are named on the dashboard. Exit code 3 for <code>femem run --backend palace</code> is accepted.
+- <strong>R3:</strong>
+  - The same-input equality is <strong>asserted</strong> at <code>LEG_D0_REPRODUCTION_BAND</code> 1e-9.
+  - The tie to our degree-2 record is <strong>asserted at the ratified 2.6e-10 ceiling</strong> (item 476's ruling). The recorded 2.464e-10 / 9.668e-11 / 9.883e-11 (<code>20261004T214342Z_OPS-61-item229-W4-read.log:41</code>) are printed beside it.
+  - §10's "≤ 1.9e-10" is a stale figure, named for the weekly. No band is set here.
+- <strong>R4 — named for the weekly, not edited by a slot:</strong>
+  - §5.4's "nothing in <code>src/</code> is built on Palace" becomes false when 517b lands;
+  - the <code>ARCH-1</code> row's "EMBARGOED" text;
+  - the stale compose / Dockerfile comments, which are the operator's files.
+- <strong>529:</strong> filing the U16 test nodes under <code>Study</code> and <code>run_study_file</code> in the registry is accepted. The WF-14 page-gate rule applies (§9 "Every item").
+- <strong><code>ARCH-1</code> ⬜ → 🟡 when 517b lands</strong>, per the weekly.</p>
+<p><strong>Outcome 517 (2026-10-18 10:16 UTC): DONE.</strong> <code>src/fem_em_solver/backends/palace.py</code> (writer / config / reader lifted; <code>solve_palace</code>), <code>Study.solve(backend=, case_dir=, palace_ranks=)</code>, <code>femem run --backend palace</code> (rc 3 on "run required"; via private <code>_run_study_file_palace</code>, so <code>run_study_file</code>'s signature and body are unchanged — a first W4 had gone red on <code>run_study_file.md</code> when <code>backend</code> was a <code>run_study_file</code> kwarg, fixed in-letter by removing the leak). W1 (<code>20261018T101308Z_ARCH-1-U16a-W1.log</code>, <code>-n 1</code>, 12 passed / 2 skipped, 165 s): (W-cfg) differing keys exactly {Problem.Output, Model.Mesh} for both cases, (c1) adds Solver.Order; (W-msh) <code>mesh.msh</code> byte-identical to <code>ops61_ans4_x1_strip.msh</code> (sha256 b77a7648…6c82, 117 206 tets) for both the Study and CLI cases; (c2) ragged 116 085 tets; (Rd) <code>np.array_equal</code> on all three recorded CSVs; (P-rec) on f05x_o2 reciprocity 9.848e-11, σ_max 0.999819887373 (= item 194), spreads 0.0371 / 0.0248 / 0.0500 %, pooled 844.9× worst; (c3) 0.01 vs 0.064 refused; (c4) one-byte edit → FileExistsError naming case.json; T0 refusals 0.000 s each, <code>-n 2</code> refused by a fake comm. W2 (<code>20261018T100621Z_ARCH-1-U16a-W2-regate-wf16.log</code>, 19 passed, 172 s; (R1) 9.559e-11 vs record 9.557e-11 in band 1e-9, σ_max 0.999760093664, spreads 0.0747 / 0.0691 / 0.0897 %); W3 (<code>20261018T100919Z_ARCH-1-U16a-W3-regate-wf1.log</code>, 13 passed, 166 s, (R1) 9.557e-11); W4 (<code>20261018T101247Z_ARCH-1-U16a-W4-wapi.log</code>, 22 passed). Disclosed: W2 / W3 ran before the <code>study_yaml.py</code> / <code>cli.py</code> fix that moved the palace branch out of <code>run_study_file</code>; the fix returns <code>run_study_file</code> to its pre-edit text and leaves <code>Study.solve</code> untouched since W2, so they were not re-run (tight clock). Also run: the reader-only smoke <code>20261018T100033Z_ARCH-1-U16a-Rd-partial.log</code>, the first W1 <code>20261018T100133Z_ARCH-1-U16a-W1-partial.log</code> and <code>20261018T100319Z_ARCH-1-U16a-W1.log</code> (pre-fix, green), the red W4 <code>20261018T101209Z_ARCH-1-U16a-W4-wapi.log</code>. <code>logs/u16/f_small_d2_64/</code> and <code>logs/u16/f_small_d1_64_cli/palace_case/</code> hold case.json / mesh.msh / case.sha256, no postpro/ — ready for 517b.</p>
+<h3 id="review-ruling-2026-10-19-0300-item-529-deviation-casejson-in-the-checker-allowlist">Review ruling 2026-10-19 03:00 (item 529 deviation — <code>case.json</code> in the checker allowlist)<a class="headerlink" href="#review-ruling-2026-10-19-0300-item-529-deviation-casejson-in-the-checker-allowlist" title="Permanent link">&para;</a></h3>
+<p><strong>The global <code>ALLOWLIST</code> entry stands.</strong> Item 529 added <code>case.json</code> to <code>scripts/testing/check_example_doc_references.py</code> <code>ALLOWLIST</code> with its reason, after the first W0 (<code>20261019T005051Z</code>) read two dead references, and re-gated the checker (<code>tests/unit/test_doc_reference_exit_codes.py</code>, 20 passed, <code>…005236Z_ARCH-1-U62-Wchk</code>). The allowlist is the checker's only exemption mechanism, and <code>lineplot.csv</code> is the precedent: a filename that names a user-run output, never a tracked file. A page-local exemption would be a new checker feature, and nothing here needs one. <strong>Revisit only if</strong> a tracked file named <code>case.json</code> appears in the repo (the entry would then mask a dead reference to it). The disclosure and the extra Wchk window satisfy §9 rule (c).</p>
+<h3 id="9-item-590-2026-10-22-10-u76-chain-step-no-solve-chain-u-9e">§9 item 590 — 2026-10-22 (§10 U76, chain step (no solve); chain U, 9e)<a class="headerlink" href="#9-item-590-2026-10-22-10-u76-chain-step-no-solve-chain-u-9e" title="Permanent link">&para;</a></h3>
+<p><strong>Outcome (2026-10-22, 17:00 UTC slot, second item): DONE.</strong> <code>_run_palace</code> now admits only <code>_PALACE_ROUTED_OUTPUTS = ("directory",)</code> and guards <code>cooling</code>; field <code>--backend</code> on every refusal. W0 real <code>-n 1</code> 3 passed / 3 skipped, 3 s (<code>20261022T171648Z_ARCH-1-U76-W0-real.log</code>): (X) 15 rows, field as predicted, rc (2, 2), nothing written, 0 builds; (Th) <code>palace: thermal is not supported</code>; (A) one solve each, EM keys <code>{s_matrix}</code>; (c-drop) widened allow-list reaches the spy once with no <code>probes</code> key; (Pg) mismatch <code>[]</code>; (c-pg) <code>['refused: missing outputs.probes']</code>. One read change: <code>f_small_sar_b1.yaml</code> now names <code>outputs.b1_plus</code> (sorted keys), not <code>outputs.sar</code>; field unchanged. RG-parse complex <code>-n 2</code> 22 passed, 4 s (<code>20261022T171704Z_ARCH-1-U76-RGparse.log</code>). <code>pgrep -c python3</code> 0, then RG-U16 complex <code>-n 1</code> 14 passed, 220 s (<code>20261022T171719Z_ARCH-1-U76-RGU16.log</code>): (E2) 0.000e+00, (Tie2) 2.464e-10 / 9.668e-11 / 9.883e-11, (c-order) 6.6674 / 2.5442 / 4.5224 %, (E1) 2.149e-14, <code>palace_total_s</code> 261.619549041. W-bit 2 passed (<code>20261022T172109Z_ARCH-1-U76-Wbit.log</code>): (c-bit) <code>['[U16c T4 Tie2]']</code> unequal; (Bit) all four lines string-equal to U16c's. RG-U62 9 passed, (L) 6 nodes, (D) 0 dead (<code>20261022T172119Z_ARCH-1-U76-RGU62.log</code>). C-api Status 1 <code>['StudyConfigError.md']</code>, C-val Status 1 <code>DIFFERS: validation.md</code>; Wgen 46 files; Wval nodes 333 → 334 (+1 as predicted); Wapi 22 passed (21 s); Wdoc <code>dead=0</code>. No Palace run, no <code>postpro/</code> written. Out of scope per ruling (1), unchanged: hole-mesh / degree-3 / <code>-n 2</code> Palace calls still exit by <code>ValueError</code> traceback in <code>solve_palace</code>, not rc 2.</p>
+<p><em>Drafted read-only for the 2026-10-22 03:00 daily review; the review rules on it.</em></p>
+<p><strong>Licence.</strong> §10 chain U, U76, weekly-enumerated 2026-10-21 (§9 rule (4)), quoted: "<strong>U76 (9e; standard, real, <code>-n 1</code>).</strong> <code>_run_palace</code> refuses <code>outputs.probes</code>, <code>sar</code>, <code>b1_plus</code>, <code>tune</code>, <code>thermal</code> and every output it has no route for, by a named field, rc 2 from <code>femem run --backend palace</code>; the backends page says which outputs Palace carries; every Palace-route gate re-run (U16's (E2) / (Tie2) bitwise). Serial on nothing." (<code>PROJECT_PLAN.md:4958–4963</code>). The weekly posed it as one of "two silent-drop defects (read, not observed)" (<code>PROJECT_PLAN.md:4819–4823</code>), from the 2026-10-20 10:30 ruling (4) in <code>docs/planning/chunks/WF-1.md:3021</code> ("<code>_run_palace</code> refuses <code>sar</code> / <code>b1_plus</code> / <code>tune</code> but not <code>outputs.probes</code> … drops the probes silently. Found by reading the code, not observed in a run"). Queue position: after e4 / 3b-iii / U74 / U75 (<code>PROJECT_PLAN.md:5112–5115</code>); the weekly's Palace line: "U76 makes the backend's refusals explicit" (<code>:5095–5096</code>). The newest ruling in this file (2026-10-19 03:00, the <code>case.json</code> allowlist) stands and is not touched. <strong>No band, tolerance, Done-when or validation target is set or moved.</strong> This is <code>ARCH-1</code> <strong>step 1d</strong>.</p>
+<p><strong>What the code is today (read 2026-10-22, <code>11fc13b0</code>).</strong>
+- <code>_run_palace(study, kind, outputs, path, out, digest, started, comm)</code> (<code>src/fem_em_solver/study_yaml.py:1782–1820</code>) refuses, each with field <code>--backend</code>: a family other than <code>four_port_birdcage</code> (<code>:1784–1785</code>); <code>outputs.sar</code> / <code>b1_plus</code> / <code>tune</code> (<code>:1786–1788</code>, a <code>for key in (…)</code> deny-list); <code>study.sweep_hz</code> (<code>:1789–1790</code>, item 572); a conductor (<code>:1791–1792</code>); <code>CapacitorSheets</code> (<code>:1793–1794</code>). Then <code>study.solve(comm, backend="palace", case_dir=out / "palace_case")</code> (<code>:1795</code>) and a summary whose only EM output is <code>s_matrix</code> (<code>:1796–1813</code>).
+- <strong>The silent drop:</strong> a four-port <code>outputs</code> dict can carry <code>directory</code>, <code>sar</code>, <code>b1_plus</code>, <code>probes</code> (<code>_parse_outputs</code>' <code>_unknown</code> tuple, <code>:1142</code>), <code>tune</code> (<code>:1339–1343</code>) and <code>sweep_hz</code> (<code>:1344–1351</code>). <code>probes</code> is on none of <code>_run_palace</code>'s lists, so <code>femem run --backend palace tests/package/wf1/f_small_em_probes.yaml</code> today writes the case and returns 3, and the read stage would return 0 with no <code>probes</code> key. A deny-list also drops any output key added later.
+- <strong><code>thermal</code> is refused already, but not by <code>_run_palace</code>:</strong> <code>_run_study_file_palace</code> (<code>:1855–1869</code>) unpacks <code>_load</code>'s fourth value as <code>_cooling</code> and never passes it on. A <code>thermal:</code> section on a <code>four_port_birdcage</code> is refused at parse with field <code>thermal</code> (<code>_parse_thermal</code>, <code>:603–606</code>; <code>tests/package/wf1/malformed_thermal_on_port.yaml</code>). On <code>f_human_birdcage</code>, <code>thermal_ball</code> and <code>thermal_box</code> files the family check refuses it with <code>--backend</code>. So <code>thermal</code> has no file-reachable silent drop today. It is unguarded only structurally.
+- <code>cli.main</code> maps <code>StudyConfigError</code> to rc 2 and prints <code>femem: error: …</code> on rank 0's stderr (<code>src/fem_em_solver/cli.py:203–206</code>); the Palace branch (<code>:189–200</code>) returns 3 on <code>PalaceRunRequired</code>. <strong>No <code>cli.py</code> edit is needed.</strong>
+- <strong>No existing test asserts <code>_run_palace</code>'s sar / b1_plus / tune refusals.</strong> Only the sweep one is asserted: <code>tests/package/test_wf1_yaml_sweep.py:187–194</code> asserts field <code>--backend</code> and nothing written. U16's T0 (<code>tests/package/test_arch1_palace_backend.py:117–156</code>) covers <code>Study.solve</code>'s refusals, not <code>_run_palace</code>'s. No test asserts any of these message texts (grep <code>is not supported</code> under <code>tests/</code>: no hit).</p>
+<p><strong><code>ARCH-1</code> step 1d / U76: <code>_run_palace</code> admits only what Palace carries and refuses every other output by name, with field <code>--backend</code> and rc 2. The backends page states the carried / refused split, and a test renders it from the code. The U16 gates are re-run and their (E2) / (Tie2) / (c-order) / (E1) lines must be byte-identical to U16c's.</strong>
+- <strong>Executor:</strong> implementer.
+- <strong>Tier:</strong>
+  - W0: standard, real build, <code>-n 1</code>, no mesh.
+  - RG-parse: smoke, complex, <code>-n 2</code>, item 572's landed parse bundle.
+  - RG-U16: <strong>heavy by ceiling</strong>, complex, <code>-n 1</code>, 224 s measured (<code>20261018T172228Z_ARCH-1-U16c-W1.log</code>, <code>Elapsed (s): 224</code>, container <code>timeout -k 30 590</code>). The weekly's "standard" fits the new node, not this re-run. <strong>No Palace window.</strong>
+  - The rest are smoke.
+- <strong>Class:</strong> chain step (no solve). <strong>Cost:</strong> ≈ 8.0 measured / ≈ 37 predicted slot-minutes: 15 fixed, ≈ 10 code (≈ 15 <code>src</code> lines, one module, one page section), ≈ 6 windows (≈ 4.7 min summed below plus harness overhead), ≈ 6 commit and journal.
+- <strong>Depends on:</strong> nothing in §9. On disk (gitignored, all present 2026-10-22, listed): <code>logs/u16/f_small_d2_64/{case.json, mesh.msh, case.sha256, postpro/port-S.csv}</code>, <code>logs/u16/f_small_d1_64_cli/palace_case/{…, postpro/port-S.csv}</code>, and <code>logs/ops61/postpro_f05x_o2/</code>, <code>postpro_f05x/</code>, <code>postpro_f05x_o2_f10/</code>. Any one absent ⇒ BLOCKED ("comparand absent"). Never re-run Palace or <code>OPS-61</code> to make one.
+- <strong>Family:</strong> <code>ARCH-1</code> step 1d (U76); attempt 1 of 4.
+- <strong>Daytime:</strong> no.</p>
+<p><strong>Does the re-run need Palace?</strong> No. Every Palace-route gate reads Palace's <em>recorded</em> output; none runs Palace:
+- T4 reads <code>logs/u16/f_small_d2_64/postpro/port-S.csv</code> through <code>Study.solve(backend="palace", case_dir=D2_CASE)</code>.
+- T5 reads <code>logs/u16/f_small_d1_64_cli/palace_case/postpro/port-S.csv</code> through <code>femem run --backend palace</code>.
+- T2 / T3 read copies of <code>logs/ops61/postpro_*</code> in <code>tmp_path</code>.</p>
+<p>For the record only, a Palace window would be a host-side harness call into the <code>palace</code> profile, e.g. item 544's (<code>EX-134</code>) <code>docker compose -f docker/docker-compose.yml --profile palace run --rm -T fem-em-palace bash -lc 'cd &lt;case&gt; &amp;&amp; timeout -k 30 590 palace -np 8 case.json'</code>:
+- <code>20261019T093301Z_EX-134-palace-d2.log:12</code>, 262 s, order 2;
+- U16b W1 264 s (<code>20261018T140040Z_ARCH-1-U16b-W1-palace-d2.log:373</code>);
+- U16b W2 24 s at order 1 (<code>20261018T140512Z_ARCH-1-U16b-W2-palace-d1.log:347</code>).</p>
+<p><strong>This item runs none, and never writes a <code>postpro/</code>.</strong></p>
+<p><strong>Code (<code>src/fem_em_solver/study_yaml.py</code> only; disclosed under rule (c)).</strong>
+- <strong>New module-level private constants</strong>, beside <code>_run_palace</code>:
+  - <code>_PALACE_ROUTED_OUTPUTS = ("directory",)</code> (the only <code>outputs</code> key the Palace route honours);
+  - <code>_PALACE_OUTPUT_FIELD = {"tune": "tune", "sweep_hz": "study.sweep_hz"}</code> (display names for keys that are not <code>outputs.*</code>).
+  - Nothing goes into <code>__all__</code>, so <code>WF-14</code>'s snapshot is unchanged.
+- <strong><code>_run_palace</code>:</strong>
+  - <strong>Replaced:</strong> the <code>for key in ("sar", "b1_plus", "tune")</code> deny-list and the <code>sweep_hz</code> line (<code>:1786–1790</code>). In their place, one allow-list loop: <code>for key in sorted(outputs): if key not in _PALACE_ROUTED_OUTPUTS: raise StudyConfigError(path, "--backend", f"palace: {_PALACE_OUTPUT_FIELD.get(key, 'outputs.' + key)} is not supported")</code>.
+  - <strong>New keyword-only argument <code>cooling=None</code></strong>, with <code>if cooling is not None: raise StudyConfigError(path, "--backend", "palace: thermal is not supported")</code> placed before the loop.
+  - The family, conductor and <code>CapacitorSheets</code> lines stay byte-unchanged.
+  - The field stays <code>--backend</code> on every refusal: item 572's existing assertion <code>g_pal == "--backend"</code> (<code>test_wf1_yaml_sweep.py:193</code>) must not move, and every existing refusal already uses that field. The message names the key.
+- <strong><code>_run_study_file_palace</code>:</strong> <code>_cooling</code> → <code>cooling</code>, passed as <code>cooling=cooling</code>.
+- <strong>Never:</strong>
+  - touch <code>run_study_file</code> (its body or its docstring; the API page renders the docstring), the module docstring, <code>_parse_*</code>, <code>cli.py</code>, <code>study.py</code>, <code>backends/palace.py</code>, or any existing test;
+  - edit <code>test_arch1_palace_backend.py</code> or <code>test_wf17_backends_page.py</code>. Their windows re-run them as committed.</p>
+<p><strong>New <code>tests/package/test_arch1_u76_palace_outputs.py</code>.</strong> Docstring paragraph 1 names <code>ARCH-1</code> and <code>WF-1</code> (the validation page's (I) resolves §7 IDs from it). It imports cleanly in both builds and builds no mesh. Every <code>*Geometry.build</code> is patched to raise, and 0 calls are asserted (item 572's stub, <code>test_wf1_yaml_sweep.py:126–136</code>). Derived YAML files are written from <code>_mapping</code> (<code>tests/package/test_wf1_study_yaml.py:164</code>) with <code>yaml.safe_dump</code>. Rank 0 writes them into the gitignored scratch <code>logs/arch1/u76/</code> after <code>_fresh_dir</code> (<code>:168</code>), followed by a <code>Barrier</code>. Every <code>--output-dir</code> lives under that scratch too, because the refusal node also runs at <code>-n 2</code> and <code>tmp_path</code> is per-process (item 572's <code>LOGS / "s21" / "palace_refused"</code> precedent). <code>_field</code> is defined locally (the <code>test_wf1_yaml_sweep.py:99–104</code> pattern). The module has three nodes:
+- <strong><code>test_u76_palace_refusals_by_field</code></strong> (W0 real, and again in RG-parse complex).
+  - <strong>Rows.</strong> Each row is one file run through <code>_run_study_file_palace(f, output_dir=scratch/…, comm)</code> and through <code>cli.main(["run", f, "--output-dir", scratch/…, "--backend", "palace"])</code>:
+    - <code>f_small_four_port.yaml</code> with exactly one added key: <code>outputs.sar</code>, <code>outputs.b1_plus</code> (both from <code>f_small_sar_b1.yaml</code>'s mapping), <code>outputs.probes</code> (from <code>f_small_em_probes.yaml</code>) or <code>tune: {}</code>;
+    - the tracked <code>f_small_em_probes.yaml</code>, <code>f_small_sar_b1.yaml</code>, <code>f_small_sweep.yaml</code>, <code>f_small_copper.yaml</code>, <code>f_small_hole_pec_capacitors.yaml</code>, <code>f_small_hole_pec_tune.yaml</code>, <code>sphere_mat4.yaml</code>, <code>f_human_tuned_copper_thermal.yaml</code>, <code>thermal_box_steady_m4.yaml</code> and <code>thermal_ball_wall.yaml</code>;
+    - <code>malformed_thermal_on_port.yaml</code>.
+  - <strong>(X) by field, rc 2, nothing written.</strong> The field is <code>--backend</code> on every row except <code>malformed_thermal_on_port.yaml</code>, whose field is <code>thermal</code> (the parse refusal, unchanged). The single-key rows' messages name <code>outputs.sar</code> / <code>outputs.b1_plus</code> / <code>outputs.probes</code> / <code>tune</code>; the sweep row's names <code>study.sweep_hz</code>. <code>cli.main</code> returns 2 on every rank (<code>_rc_all</code>, <code>tests/package/test_wf1_study_yaml.py:169</code>). Rank 0's stderr carries <code>femem: error:</code> and the key. The output directory does not exist after the call, on every rank.
+  - <strong>(Th) the structural guard:</strong> <code>_run_palace(…, cooling=object())</code> on the plain four-port Study raises with field <code>--backend</code> and message <code>palace: thermal is not supported</code>, with 0 builds.
+- <strong><code>test_u76_palace_admits_and_carries</code></strong> (W0 only, <code>-n 1</code>). <code>fem_em_solver.study.Study.solve</code> is monkeypatched to a spy. It returns a stand-in result (<code>s_matrix</code> = <code>np.eye(4)</code>, <code>cells</code> 0, <code>order</code> 1, <code>case_dir</code>, <code>sha256</code> <code>{}</code>, <code>palace_total_s</code> <code>None</code>) only when called with <code>backend="palace"</code>; otherwise it raises.
+  - <strong>(A) admitted:</strong> <code>f_small_four_port.yaml</code> with no outputs, and the same with only <code>outputs.directory</code>, each reach the spy once. Each writes <code>summary.json</code> whose EM-output keys (∩ {<code>s_matrix</code>, <code>z_matrix</code>, <code>touchstone</code>, <code>sar</code>, <code>b1_plus</code>, <code>probes</code>, <code>tune</code>, <code>temperature</code>, <code>s_matrices</code>}) are exactly <code>{"s_matrix"}</code>.
+  - <strong>(Pg) the page says it:</strong> the new <code>```text palace-outputs</code> block in <code>docs/guide/backends.md</code> has three lines:
+    - <code>honoured: outputs.directory</code>, which must equal <code>["outputs." + k for k in _PALACE_ROUTED_OUTPUTS]</code>;
+    - <code>returns: s_matrix</code>, which must equal (A)'s key set;
+    - <code>refused: …</code>, which must equal, as a set, the key names that (X) / (Th) messages carry. Extract them with <code>palace: (?:a )?(\S+) is not supported</code> over every refusal raised in this module, so <code>outputs.b1_plus outputs.probes outputs.sar study.sweep_hz thermal tune conductor capacitor_sheets</code> is predicted.</p>
+<pre><code>The block is read with `extract_tagged_block` (`tests/package/test_wf17_first_study_tutorial.py:78`).
+</code></pre>
+<ul>
+<li><strong><code>test_u76_u16_readings_bitwise</code></strong> (knob <code>FEM_EM_U76_BIT=1</code>; unset ⇒ skip; <code>"1"</code> ⇒ run with absent inputs <strong>failing</strong>; anything else ⇒ <code>ValueError</code>, the item-576 knob pattern).</li>
+<li>
+<p><strong>(Bit)</strong> It reads two logs from <code>docs/testing/logs/</code> (<code>.log</code> or <code>.log.gz</code>):</p>
+<ul>
+<li>the comparand <code>20261018T172228Z_ARCH-1-U16c-W1.log</code>;</li>
+<li>the newest by name of <code>*_ARCH-1-U76-RGU16*.log</code>.</li>
+</ul>
+<p>In each log, the lines starting <code>[U16c T4 E2]</code>, <code>[U16c T4 Tie2]</code>, <code>[U16c T4 c-order]</code> and <code>[U16c T5 E1]</code> each occur exactly once. Each must be <strong>string-equal</strong> across the two logs: comparand <code>:12548</code>, <code>:12550</code>, <code>:12551</code>, <code>:14336</code>.
+  - This is "U16's (E2) / (Tie2) bitwise" as an assertion on the prints of one function, one batch, one call. The lines print <code>.3e</code> / <code>.4f</code> of exact equalities, and (E2) is 0.000e+00, which a non-zero S difference cannot print.</p>
+</li>
+</ul>
+<p><strong>Page (<code>docs/guide/backends.md</code>).</strong>
+- <strong>New section <code>## What the Palace backend carries</code>,</strong> after "What is refused, and why" (<code>:57–75</code>). It holds the <code>palace-outputs</code> block and one sentence: <code>femem run --backend palace</code> refuses every other output by name, with exit code 2, before anything is written.
+- <strong>"What is refused" gains one bullet</strong> for the YAML refusals. It is prose: name the keys, no number.
+- <strong><code>:12–13</code> and the "Not claimed" line (<code>:121–123</code>) stay.</strong>
+- <strong>The page must cite no new <code>tests/…::node</code>.</strong> The U62 test's (L) asserts exactly six cited nodes (<code>tests/package/test_wf17_backends_page.py:124</code>). Name the new module by its path only (no <code>::</code>), e.g. "<code>tests/package/test_arch1_u76_palace_outputs.py</code>".
+- Write <code>≈</code>, never a tilde. No AED string, no Palace number.</p>
+<p><strong>Registry (lines added only).</strong> One comment line <code># U76 Palace output refusals (§10, weekly 2026-10-21; §9 item 590)</code>, plus <code>tests/package/test_arch1_u76_palace_outputs.py::test_u76_palace_refusals_by_field</code> under <code>[names.StudyConfigError]</code> (<code>tests/package/validation_envelope.toml:338</code>). It has no number in the comment. <strong>The §9 standing rule binds</strong> (<code>PROJECT_PLAN.md:4087</code>, <code>:3965</code>): C-api / C-val, then Wgen / Wval / Wapi / Wdoc in this slot, and the regenerated pages are committed. Wval: read the current node count first and predict +1. It is printed only.</p>
+<p><strong>Anchors (asserted).</strong>
+- <strong>(X)</strong> rc 2 by field, nothing written, on 15 rows (above).
+- <strong>(Th)</strong> the structural <code>thermal</code> guard.
+- <strong>(A)</strong> the admitted path reaches the solve once and carries <code>s_matrix</code> only.
+- <strong>(Pg)</strong> the page's carried / refused lines equal the code's.
+- <strong>(Bit)</strong> U16's four reading lines are string-equal to U16c's.
+- <strong>RG-U16:</strong> the U16 module as committed, 14 passed, none skipped (U16c's count). This includes (E2) ≤ <code>LEG_D0_REPRODUCTION_BAND</code> (<code>tests/validation/test_port_birdcage_four_port.py:165</code>), (Tie2) ≤ <code>TIE2_BAND</code> 2.6e-10 (the module constant, 2026-10-18 03:00 R3), (c-order) &gt; 1e-6 and (E1) ≤ <code>LEG_D0_REPRODUCTION_BAND</code>.
+- <strong>RG-parse:</strong> item 572's 21-node bundle, 21 passed, with the new module's refusal node added (22 predicted). (A) is not run at <code>-n 2</code>: <code>_run_palace</code> writes <code>summary.json</code> on every rank (<code>:1815–1818</code>, no rank-0 guard; the route is serial by design).
+- <strong>RG-U62:</strong> the backends page test as committed, 9 passed. (L) still reads 6 nodes, and (D) reads 0 dead.</p>
+<p><strong>Negative controls (rule (e)).</strong>
+- <strong>Asserted, by construction, backed by the read-only finding (<code>WF-1.md:3021</code>) — (c-drop).</strong> With <code>_PALACE_ROUTED_OUTPUTS</code> monkeypatched to <code>("directory", "probes")</code>, <code>_run_study_file_palace(f_small_em_probes.yaml)</code> reaches the spy once. Its summary has no <code>probes</code> key. That is today's silent drop, reproduced on the same file, and it shows the allow-list is the only thing that refuses. Placed in <code>test_u76_palace_admits_and_carries</code>.
+- <strong>Asserted, by construction — (c-pg).</strong> A tmp copy of the page with <code>outputs.probes</code> deleted from the <code>refused:</code> line fails (Pg)'s comparator, and the comparator names <code>outputs.probes</code>.
+- <strong>Asserted, by construction — (c-bit).</strong> (Bit)'s comparator on a copy of the U16c <code>Tie2</code> line with one digit changed returns unequal. It runs in the knob node before the real comparison.
+- <strong>Predicted, printed:</strong> none needed. (c-order) inside RG-U16 is U16c's own asserted control (6.6674 / 2.5442 / 4.5224 %, <code>20261018T172228Z_ARCH-1-U16c-W1.log:12551</code>).</p>
+<p><strong>Predictions (printed, never asserted).</strong>
+- (X): all 15 rows rc 2 and 0 builds; W0 ≈ 3–8 s.
+- RG-U16: 14 passed, ≈ 220–230 s. (E2) 0.000e+00, (Tie2) 2.464e-10 / 9.668e-11 / 9.883e-11, (E1) 2.149e-14 (entry max 3.893e-14), <code>palace_total_s</code> 261.619549041, identical to U16c.
+- Wval +1 node.
+- The <code>femem_out</code> directory is never created: every call takes an explicit <code>--output-dir</code> under the scratch.</p>
+<p><strong>Windows.</strong> Foreground; <strong>the harness call is the whole Bash command: bare, repo-relative, nothing chained or piped</strong>; Bash <code>timeout: 660000</code>; pytest <code>-s</code>; node IDs, never <code>-k</code>. Run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> before RG-U16; it must read 0. <strong>Order:</strong> code + module + page + registry, W0, RG-parse, RG-U16, W-bit, RG-U62, C-api, C-val, Wgen, Wval, Wapi, Wdoc.</p>
+<table>
+<thead>
+<tr>
+<th>Window</th>
+<th>Price</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>W0 (real, <code>-n 1</code>)</td>
+<td>≈ 5 s</td>
+<td>item 572 W0-r2 4 s (<code>20261020T203852Z_WF-1-s21-W0-r2.log:469</code>)</td>
+</tr>
+<tr>
+<td>RG-parse (complex, <code>-n 2</code>)</td>
+<td>≈ 5 s</td>
+<td>the same log</td>
+</tr>
+<tr>
+<td>RG-U16 (complex, <code>-n 1</code>)</td>
+<td>224 s</td>
+<td><code>20261018T172228Z_ARCH-1-U16c-W1.log:14366</code></td>
+</tr>
+<tr>
+<td>W-bit</td>
+<td>≈ 3 s</td>
+<td>log parsing only</td>
+</tr>
+<tr>
+<td>RG-U62</td>
+<td>5 s</td>
+<td><code>20261019T005151Z_ARCH-1-U62-W0.log:76</code></td>
+</tr>
+<tr>
+<td>C-api / C-val / Wgen / Wval</td>
+<td>2 / 2 / 2 / 3 s</td>
+<td><code>20261019T005017Z</code> … <code>005044Z_ARCH-1-U62-*.log</code></td>
+</tr>
+<tr>
+<td>Wapi / Wdoc</td>
+<td>21 / 2 s</td>
+<td><code>20261021T003644Z_WF-17-s8-Wapi.log:228</code>, <code>20261019T005254Z_ARCH-1-U62-Wdoc.log</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code>scripts/testing/run_and_log.sh ARCH-1-U76-W0-real &quot;docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 180 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_arch1_u76_palace_outputs.py::test_u76_palace_refusals_by_field tests/package/test_arch1_u76_palace_outputs.py::test_u76_palace_admits_and_carries -s -v --tb=short'&quot;
+scripts/testing/run_and_log.sh ARCH-1-U76-RGparse &quot;docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 PYTHONPATH=/workspace/src:/workspace timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_arch1_u76_palace_outputs.py::test_u76_palace_refusals_by_field tests/package/test_wf1_yaml_sweep.py::test_wf1_s21_parse_and_refusals tests/package/test_wf1_yaml_em_probes.py::test_wf1_s20_parse_and_refusals tests/package/test_wf1_yaml_thermal_ball_probes.py::test_wf1_s19_parse_and_refusals tests/package/test_wf1_yaml_thermal_box_quadratic_duty.py::test_wf1_s18_parse_and_refusals tests/package/test_wf1_yaml_thermal_box_probes.py::test_wf1_s17_parse_and_refusals tests/package/test_wf1_yaml_thermal_box.py::test_wf1_s15_parse_and_refusals tests/package/test_wf1_yaml_thermal_box_quadratic.py::test_wf1_s16_parse_and_refusals tests/package/test_wf1_yaml_thermal_ball.py::test_wf1_s14_parse_and_refusals tests/package/test_wf1_yaml_capacitors.py::test_wf1_s13_parse_and_refusals tests/package/test_wf1_yaml_tune.py::test_wf1_s11_tune_parse_and_refusals tests/package/test_wf1_yaml_tune_f_human.py::test_wf1_s12_parse_and_refusals tests/package/test_wf1_check_family.py tests/package/test_wf1_yaml_f_human.py tests/package/test_wf1_yaml_f_human_thermal.py -v -s --tb=short'&quot;
+scripts/testing/run_and_log.sh ARCH-1-U76-RGU16 &quot;docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_U16_PALACE_READ=1 PYTHONPATH=/workspace/src:/workspace timeout -k 30 590 mpiexec -n 1 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_arch1_palace_backend.py -v -s --tb=short'&quot;
+scripts/testing/run_and_log.sh ARCH-1-U76-Wbit &quot;docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_U76_BIT=1 timeout -k 30 60 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_arch1_u76_palace_outputs.py::test_u76_u16_readings_bitwise -s -v --tb=short'&quot;
+scripts/testing/run_and_log.sh ARCH-1-U76-RGU62 &quot;docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 120 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_wf17_backends_page.py -s -v --tb=short'&quot;
+</code></pre>
+<ul>
+<li>RGparse is item 572's W0-r2 command (<code>20261020T203852Z_WF-1-s21-W0-r2.log:12</code>) with the new refusal node prepended. RGU16 is U16c W1's command (<code>20261018T172228Z_ARCH-1-U16c-W1.log:12</code>) verbatim, relabelled. RGU62 is item 529's W0 command verbatim, relabelled.</li>
+<li><strong>C-api</strong> (predicted Status 1, differing <code>['StudyConfigError.md']</code>), <strong>C-val</strong> (predicted Status 1, <code>DIFFERS: validation.md</code>), <strong>Wgen</strong>, <strong>Wval</strong>, <strong>Wapi</strong> and <strong>Wdoc</strong> are item 529's six commands verbatim (<code>ARCH-1.md</code> "§9 item 529", windows 2–5, 7, 8), labelled <code>ARCH-1-U76-ctl-api</code> / <code>-ctl-val</code> / <code>-Wgen</code> / <code>-Wval</code> / <code>-Wapi</code> / <code>-Wdoc</code>. Wdoc reads <code>dead=0</code>.</li>
+<li>No durable capture: every window is well under ≈ 10 min. <strong>No module, page or <code>src</code> edit after W0 starts</strong> (rule (i)); an edit restarts at W0.</li>
+</ul>
+<p><strong>Traps already paid for.</strong>
+- <strong>The U62 page test counts six cited nodes</strong> (<code>test_wf17_backends_page.py:124</code>). A <code>tests/…::…</code> citation added to the page turns RG-U62 red. Cite the module path only. Never edit that test.
+- <strong>Keep the field <code>--backend</code>.</strong> Item 572's assertion reads it, and a field change is an existing-assertion edit by proxy.
+- <strong>Never write into <code>logs/u16/*</code></strong> except T5's <code>summary.json</code>, which the committed module rewrites. Never touch a <code>postpro/</code>, never re-run Palace, and never write into <code>logs/ops61/</code>. <code>write_case</code>'s own check rewrites an identical <code>case.sha256</code>; that is the package's read path (item 533's trap).
+- <strong><code>-n 1</code> for RG-U16:</strong> the backend refuses a parallel comm by design. RG-parse is <code>-n 2</code> because item 572's bundle ran there.
+- <strong>A refusal must precede the mesh:</strong> the build stub's 0-call assertion catches a refusal that moved below <code>study.solve</code>.
+- <strong><code>femem_out</code> is not gitignored:</strong> pass an explicit <code>--output-dir</code> under <code>logs/arch1/u76/</code> on every call; <code>git status --short</code> must read clean before the commit.
+- <strong><code>capsys.readouterr()</code> discards earlier prints</strong> (items 507 / 562): print the table after any capture.
+- <strong>Leak guard:</strong> if a log is flagged, move it unchanged to <code>logs/leak-held/</code>, mark the item BLOCKED and stop.
+- <strong>Harness logs may be gzipped after rotation:</strong> (Bit) reads <code>.log</code> or <code>.log.gz</code>.
+- Never <code>-k</code>; <code>-k 30</code> on every container <code>timeout</code>; no pipe; never delete a log; never import a <code>test_*</code> name; no AED string; write ≈, never a tilde.
+- <strong>Status 124 or a kill:</strong> run <code>pgrep</code> first. At 0 only, run the rubric's orphan-stem sweep, labelled <code>ARCH-1-U76-cache-sweep</code>.</p>
+<p><strong>Scope.</strong> Covered: <code>femem run --backend palace</code> refuses, by field with rc 2 and before any mesh, every <code>outputs</code> key but <code>directory</code>, plus <code>tune</code>, <code>study.sweep_hz</code> and a structural <code>thermal</code>, with conductor / capacitor sheets / other families as before; the page states the carried / refused split from the code; U16's gates re-run with their reading lines byte-identical. <strong>Not claimed:</strong>
+- any new Palace output (SAR, <code>|B₁⁺|</code>, probes or fields from Palace are <code>ARCH-1</code> (1)–(2));
+- refusing <code>geometry.as_hole</code> / degree ∉ {1, 2} / a parallel comm through the YAML route with rc 2 (For the review, 1);
+- <code>Study.solve(backend="palace")</code>'s own refusals, which are unchanged;
+- any Palace run, accuracy figure or AED statement.</p>
+<p><strong>Negative result.</strong> Report and stop. Park on <code>attempt/ARCH-1-U76-*</code> and mark item 590 BLOCKED in the same commit (rule (d)).
+- <strong>(X) red on a pre-existing row</strong> (sar / b1_plus / tune / sweep / conductor / capacitor / family): the allow-list changed an existing outcome. Revert <code>src/</code> and park.
+- <strong>(A) red:</strong> the allow-list refuses an admissible file, and U16's T3 / T5 would go red too. Fix once in-letter; otherwise park.
+- <strong>RG-U16 red, or (Bit) unequal with RG-U16 green:</strong> the Palace read path moved, though this item does not touch it. Open a known-issues entry naming both logs, BLOCKED. Never re-run Palace to "refresh" a comparand.
+- <strong>RG-parse red on a pre-existing node:</strong> a parse regression. Revert and park.
+- <strong>RG-U62 red:</strong> a page defect. Fix the page in-letter once; the clock restarts at W0.
+- <strong>C-api / C-val exit 0:</strong> the registry line did not reach the pages. Stop.</p>
+<p>No <code>PREDICTED RED:</code> line, so a red anywhere stops the slot.</p>
+<p><strong>Status it can move.</strong> <strong>No glyph:</strong> <code>ARCH-1</code> stays 🟡. Under rule (j), the row's Done-when, "digit-identical reproduction of every imported band and record on the DolfinX backend before any second backend is wired" (<code>PROJECT_PLAN.md:1388</code>), is neither met nor touched by this item. The row gains: "Step 1d (§9 item 590, U76): <code>femem run --backend palace</code> refuses every output the Palace route has no path for — <code>outputs.sar</code> / <code>b1_plus</code> / <code>probes</code>, <code>tune</code>, <code>study.sweep_hz</code>, <code>thermal</code> — by field with rc 2, before any mesh; <code>docs/guide/backends.md</code> states the carried / refused split from the code; U16's (E2) / (Tie2) / (c-order) / (E1) lines re-read byte-identical (<RGU16 log>, <Wbit log>)." §10 U76 → DONE. The weekly's silent-drop finding (<code>PROJECT_PLAN.md:4819–4823</code>) is closed for its <code>_run_palace</code> half; U75 holds the other half. No known-issues entry moves, because none was opened (the weekly posed U75 / U76 instead).</p>
+<p><strong>For the review.</strong>
+1. <strong>Non-output refusals still escape as tracebacks.</strong> <code>femem run --backend palace tests/package/wf1/f_small_hole_pec_control.yaml</code> passes <code>_run_palace</code> and raises <code>ValueError("backend='palace': as_hole=True is not supported")</code> inside <code>solve_palace</code> (<code>src/fem_em_solver/backends/palace.py:217–218</code>), uncaught by <code>cli.main</code>. So it exits by traceback, not rc 2. A degree-3 file and <code>mpiexec -n 2 femem run --backend palace …</code> do the same (<code>:231–233</code>). These are geometry and width, not outputs, so they are outside U76's letter. The options:
+   - (a) leave them, print the hole-control row's outcome (<code>ValueError</code>), and assert nothing;
+   - (b) add <code>geometry.as_hole</code> and degree refusals to <code>_run_palace</code> with <code>--backend</code> (two lines, the same gate).</p>
+<p>The drafter's default is (a); (b) is the review's to add.
+2. <strong>Re-gate breadth.</strong> The brief re-runs the Palace-route gates plus item 572's 21-node parse bundle, because <code>run_study_file</code> never calls <code>_run_palace</code>. The 2026-10-20 10:30 ruling (1) (<code>WF-1.md:3018</code>) re-ran every YAML gate for item 572, which edited the parse path. If the review applies it here, add item 572's RG list (≈ 17 min, RG4 at <code>-n 8</code>). Cost is then ≈ 55 predicted minutes.
+3. <strong>Registration.</strong> <code>StudyConfigError</code> only (one line) is the drafter's choice. <code>run_study_file</code> would misdescribe a private route. Unregistered (the <code>WF-17</code> tutorial precedent) would drop C-api … Wval.
+4. <strong>The step's "real, <code>-n 1</code>"</strong> fits W0. RG-U16 is complex and heavy by ceiling (224 s against 180 s), so it needs the <code>pgrep</code> pre-check, and no other heavy window may run beside it.</p>
+<p><strong>Execution order.</strong> Host listing of the eight on-disk inputs → code → module → page → registry → W0 → RG-parse → <code>pgrep</code> → RG-U16 → W-bit → RG-U62 → C-api → C-val → Wgen → Wval → Wapi → Wdoc → commit (<code>study_yaml.py</code>, the module, the page, the registry, the regenerated <code>docs/guide/api/</code> and <code>docs/guide/validation.md</code>, every <code>ARCH-1-U76-*</code> log and its test-results rows, the §7 sentence, §9 item 590 DONE, §10 U76) → journal.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Execute §9 item 590 — <code>ARCH-1</code> step 1d (§10 U76) — per <code>docs/planning/chunks/ARCH-1.md</code> "§9 item 590". Read the brief and any review ruling beneath it first; the rulings hold. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. List <code>logs/u16/f_small_d2_64/postpro/port-S.csv</code>, <code>logs/u16/f_small_d1_64_cli/palace_case/postpro/port-S.csv</code> and <code>logs/ops61/postpro_f05x_o2/</code>, <code>postpro_f05x/</code>, <code>postpro_f05x_o2_f10/</code> first; if any is absent, stop and mark item 590 BLOCKED; never run Palace and never write a <code>postpro/</code>. <code>src/</code> edit: <code>study_yaml.py</code> only — the two private constants, the allow-list loop and <code>cooling=None</code> guard in <code>_run_palace</code>, <code>cooling</code> passed by <code>_run_study_file_palace</code>; keep every refusal's field <code>--backend</code>; do not touch <code>run_study_file</code>, the module docstring, <code>cli.py</code>, <code>study.py</code> or <code>backends/palace.py</code>. Create <code>tests/package/test_arch1_u76_palace_outputs.py</code>; edit <code>docs/guide/backends.md</code> without citing any new <code>tests/…::…</code> node; add one registry line under <code>[names.StudyConfigError]</code>. Never edit <code>test_arch1_palace_backend.py</code>, <code>test_wf17_backends_page.py</code> or any existing test. Run W0, RG-parse, RG-U16 (after <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0), W-bit, RG-U62, C-api, C-val, Wgen, Wval, Wapi, Wdoc in order, in the foreground, with <code>timeout: 660000</code> on every Bash call that runs a window, pytest with -s, container <code>timeout -k 30</code>. Pass an explicit output directory under <code>logs/arch1/u76/</code> on every <code>femem run</code> call; <code>git status --short</code> clean before the commit. You are the executor — do not spawn agents, never background a harness window. If the docker socket is denied, stop and report the exact command string. On a red, park on <code>attempt/ARCH-1-U76-*</code>, mark item 590 BLOCKED in the same commit, and report."</p>
+<h3 id="review-ruling-2026-10-22-0300-item-590-u76">Review ruling 2026-10-22 03:00 (item 590, U76)<a class="headerlink" href="#review-ruling-2026-10-22-0300-item-590-u76" title="Permanent link">&para;</a></h3>
+<p>Binds over the brief. Queued as drafted. (1) Non-output refusals (hole mesh, degree 3, <code>-n 2</code> tracebacks) stay out of scope, named in the outcome. (2) Re-gate breadth: the Palace-route gates plus item 572's parse bundle, not every YAML gate. (3) The refusal node is registered under <code>StudyConfigError</code> only. No Palace window is run.</p>
+<h3 id="9-item-601-2026-10-22-10-u79-chain-step-no-solve-chain-u-9e-daily-2026-10-22-provisional">§9 item 601 — 2026-10-22 (§10 U79, chain step (no solve); chain U, 9e — daily, 2026-10-22 — provisional)<a class="headerlink" href="#9-item-601-2026-10-22-10-u79-chain-step-no-solve-chain-u-9e-daily-2026-10-22-provisional" title="Permanent link">&para;</a></h3>
+<p><em>Written by the 2026-10-22 18:00 daily review under §9 rule (6), from item 590's "For the review" 1 (option (b)) and its outcome's out-of-scope line. The weekly ratifies or reverts.</em></p>
+<p><strong>Licence.</strong> §9 rule (6): the next numbered step of live chain U toward subgoal (9e) and the Phase 9 exit gate. The target is U76's own, applied to the two inputs U76 left out: a usable package refuses an unsupported study by a named field, never by a traceback. <strong>No band, tolerance, record, Done-when or validation target is set or moved.</strong> This is <code>ARCH-1</code> <strong>step 1e</strong>. Every U76 / U16 assertion stays as committed.</p>
+<p><strong>What the code is today (read 2026-10-22, <code>8f89f85a</code>).</strong>
+- <code>_run_palace</code> (<code>src/fem_em_solver/study_yaml.py:1790–1806</code>) refuses, in this order: family (<code>:1793</code>), <code>cooling</code> (<code>:1795</code>), every <code>outputs</code> key but <code>directory</code> (<code>:1797–1801</code>), a conductor (<code>:1802</code>), <code>CapacitorSheets</code> (<code>:1804</code>). It then calls <code>study.solve(comm, backend="palace", …)</code> (<code>:1806</code>).
+- <code>solve_palace</code> (<code>src/fem_em_solver/backends/palace.py:217–233</code>) raises <strong><code>ValueError</code></strong> for <code>geo.as_hole</code> (<code>:218</code>), <code>comm.size != 1</code> (<code>:231</code>) and a degree outside {1, 2} (<code>:233</code>). <code>cli.main</code> maps only <code>StudyConfigError</code> to rc 2. So on the YAML route, two inputs exit by traceback: <code>femem run --backend palace tests/package/wf1/f_small_hole_pec_control.yaml</code> (as_hole, PEC hole wall, no conductor, degree 1), and any file under <code>mpiexec -n 2 femem run --backend palace …</code>.
+- <strong>Degree is already refused at parse</strong> (<code>study_yaml.py:275–278</code>: <code>study.degree</code> must be 1 or 2, field <code>study.degree</code>). Item 590's "For the review" 1 listed "a degree-3 file" as a third traceback. <strong>That reading is wrong for the YAML route:</strong> the file never reaches <code>_run_palace</code>. This item records the parse refusal and adds no degree check.</p>
+<p><strong><code>ARCH-1</code> step 1e / U79: <code>femem run --backend palace</code> refuses a hole-wall birdcage (<code>geometry.as_hole</code>) and a launch wider than one rank. Each refusal has field <code>--backend</code> and rc 2, and comes before any mesh and before anything is written. A degree-3 file is shown refused at parse (field <code>study.degree</code>, rc 2), unchanged.</strong>
+- <strong>Executor:</strong> implementer.
+- <strong>Tier:</strong>
+  - W0: standard, real build, <code>-n 1</code>, no mesh.
+  - W0b: smoke, complex, <code>-n 2</code>: the width row plus U76's refusal node and item 572's parse bundle, i.e. item 590's RG-parse command with the new nodes prepended.
+  - RG-U16: <strong>heavy by ceiling</strong>, complex, <code>-n 1</code>, 220 s measured (<code>20261022T171719Z_ARCH-1-U76-RGU16.log</code>).
+  - RG-U62, C-api, C-val, Wgen, Wval, Wapi, Wdoc: smoke.
+  - <strong>No Palace window.</strong>
+- <strong>Class:</strong> chain step (no solve). <strong>Cost:</strong> ≈ 11.2 measured / ≈ 35 predicted slot-minutes. Item 590 landed in 11.2 on the same window list.
+- <strong>Depends on:</strong> nothing in §9. It needs the same on-disk inputs as item 590 (<code>logs/u16/…</code>, <code>logs/ops61/postpro_*</code>). If any is absent ⇒ BLOCKED ("comparand absent"); never re-run Palace.
+- <strong>Family:</strong> <code>ARCH-1</code> step 1e; attempt 1 of 4. <strong>Daytime:</strong> no.</p>
+<p><strong>Code (<code>src/fem_em_solver/study_yaml.py</code> only; disclosed under rule (c)).</strong>
+- <strong>New private helper</strong> <code>_palace_input_refusal(study, path, comm)</code> beside <code>_run_palace</code>. It raises <code>StudyConfigError(path, "--backend", …)</code>:
+  - <code>if study.geometry.as_hole:</code> → <code>palace: geometry.as_hole is not supported</code>;
+  - <code>if comm.size != 1:</code> → <code>palace: a {comm.size}-rank launch is not supported (the case writer is serial; run at mpiexec -n 1)</code>.
+- <strong>It is called from <code>_run_palace</code> right after the <code>CapacitorSheets</code> line (<code>:1804–1805</code>) and before <code>study.solve</code> (<code>:1806</code>).</strong> Placed after every existing refusal, it leaves every U76 row's outcome and message unchanged. In particular, U76's <code>f_small_hole_pec_capacitors.yaml</code> row is an as_hole file refused first by <code>capacitor_sheets</code>. It must stay that way, because U76's (Pg) set depends on it.
+- Nothing goes into <code>__all__</code>. These stay byte-unchanged: <code>backends/palace.py</code>, <code>cli.py</code>, <code>study.py</code>, <code>run_study_file</code>, the module docstring and every existing test. <code>Study.solve(backend="palace")</code>'s own <code>ValueError</code>s (U16's <code>test_u16_backend_refusals</code>, <code>tests/package/test_arch1_palace_backend.py:117–156</code>) are not touched.</p>
+<p><strong>New <code>tests/package/test_arch1_u79_palace_inputs.py</code>.</strong>
+- Docstring paragraph 1 names <code>ARCH-1</code> and <code>WF-1</code>. The module imports cleanly in both builds and builds no mesh.
+- It reuses helpers by name (never a <code>test_*</code> name): U76's <code>_field</code>, <code>_all</code>, <code>_stub_builds</code>, <code>_write</code> (<code>tests/package/test_arch1_u76_palace_outputs.py:73</code>, <code>:82</code>, <code>:86</code>, <code>:99</code>), and <code>WF1</code>, <code>_fresh_dir</code>, <code>_mapping</code>, <code>_rc_all</code> (<code>tests/package/test_wf1_study_yaml.py</code>).
+- Scratch is gitignored <code>logs/arch1/u79/</code>: rank 0 writes after <code>_fresh_dir</code>, then <code>Barrier</code>. Every <code>--output-dir</code> lives under it.</p>
+<p>Nodes:
+- <strong><code>test_u79_hole_refused_by_field</code></strong> (W0, <code>-n 1</code>, real; again in W0b at <code>-n 2</code>). It runs <code>f_small_hole_pec_control.yaml</code> through <code>_run_study_file_palace</code> and through <code>cli.main(["run", f, "--output-dir", …, "--backend", "palace"])</code>. Asserted: field <code>--backend</code>, message <code>palace: geometry.as_hole is not supported</code>, rc 2 on every rank, 0 builds, output directory absent. At <code>-n 2</code> the as_hole check fires first (it precedes the width check), so the message is the same at both widths.
+- <strong><code>test_u79_width_refused_by_field</code></strong> (W0b only, <code>-n 2</code>). At <code>-n 1</code> it asserts <code>comm.size == 1</code> and skips with the reason printed.
+  - <code>f_small_four_port.yaml</code> with no outputs: field <code>--backend</code>, message starting <code>palace: a 2-rank launch is not supported</code>, rc 2 on both ranks, 0 builds, nothing written.
+  - The order row: the same file with <code>outputs.sar</code> added is still refused by <code>outputs.sar</code>, because the allow-list precedes the width check.
+- <strong><code>test_u79_degree_refused_at_parse</code></strong> (W0, <code>-n 1</code>). <code>f_small_four_port.yaml</code> with <code>study.degree: 3</code>, written from <code>_mapping</code>. Asserted: <code>cli.main([..., "--backend", "palace"])</code> returns rc 2, and <code>_load</code> raises <code>StudyConfigError</code> with field <code>study.degree</code>. This records the existing parse refusal (<code>study_yaml.py:277–278</code>); a spy on <code>_run_palace</code> reads 0 calls.
+- <strong><code>test_u79_admitted_unchanged</code></strong> (W0, <code>-n 1</code>). <code>Study.solve</code> is spied with U76's (A) stand-in result (<code>test_arch1_u76_palace_outputs.py:227–296</code>). <code>f_small_four_port.yaml</code> reaches the spy once, and its summary's EM keys are <code>{"s_matrix"}</code>. So the new helper refuses nothing admissible at <code>-n 1</code>.</p>
+<p><strong>Anchors (asserted).</strong>
+- (H) the hole file is refused by field, rc 2, at both widths.
+- (W) a 2-rank launch is refused by field, rc 2, with the order row.
+- (D) degree 3 is refused at parse, with 0 <code>_run_palace</code> calls.
+- (A′) the admissible file reaches the solve once.
+- <strong>Re-gates:</strong>
+  - U76's module as committed: its two W0 nodes at <code>-n 1</code> (3 passed / 3 skipped, as item 590's W0), and its refusal node inside W0b at <code>-n 2</code>.
+  - Item 572's parse bundle inside W0b, every node passed.
+  - RG-U16: 14 passed, with its four reading lines printed. Item 590's W-bit is <strong>not</strong> re-run: U16's read path is not edited, and RG-U16's own (E2) / (Tie2) asserts stand.
+  - RG-U62: 9 passed, (L) 6 nodes, (D) 0 dead.</p>
+<p><strong>Negative controls (rule (e)).</strong>
+- <strong>(c-helper), asserted, by construction.</strong> With <code>study_yaml._palace_input_refusal</code> monkeypatched to a no-op and <code>Study.solve</code> spied, <code>f_small_hole_pec_control.yaml</code> reaches the spy once at <code>-n 1</code>. That is today's route to <code>solve_palace</code>, where <code>:218</code>'s <code>ValueError</code> fires, and it shows the helper is the only new refusal. Backing: the read of <code>palace.py:217–218</code> above and item 590's outcome line ("hole-mesh … still exit by <code>ValueError</code> traceback in <code>solve_palace</code>").
+- <strong>(c-old), printed.</strong> Run <code>_run_study_file_palace(f_small_hole_pec_control.yaml)</code> with the helper no-op'd, <code>Study.solve</code> <strong>not</strong> spied, and <code>FourPortBirdcageGeometry.build</code> stubbed to raise. Print the exception type and message. Predicted: <code>ValueError("backend='palace': as_hole=True is not supported")</code>, raised before <code>build</code>, because <code>palace.py:217–218</code> precedes <code>:236</code>. Never asserted.</p>
+<p><strong>Page (<code>docs/guide/backends.md</code>).</strong>
+- Add one prose bullet to "What is refused, and why" (<code>:57–77</code>), after the "A study file asking for an output …" bullet. It says that on <code>femem run --backend palace</code>, a hole-wall birdcage (<code>geometry.as_hole</code>) and a launch on more than one rank are refused by name with exit code 2, before anything is written; an element degree other than 1 or 2 is refused when the file is read.
+- <strong>Cite no new <code>tests/…::node</code>:</strong> U62's (L) counts six cited nodes. Name the module by path only.
+- <strong>Do not edit the <code>palace-outputs</code> block.</strong> U76's (Pg) computes its <code>refused:</code> set from U76's own rows, and the new refusals are inputs, not outputs.</p>
+<p><strong>Registry (lines added only).</strong>
+- Add one comment line, <code># U79 Palace input refusals (§10 chain U, daily 2026-10-22 provisional; §9 item 601)</code>, and <code>tests/package/test_arch1_u79_palace_inputs.py::test_u79_hole_refused_by_field</code> under <code>[names.StudyConfigError]</code>, beside item 590's U76 line.
+- The §9 standing rule binds. Run C-api / C-val (predicted Status 1), then Wgen, Wval, Wapi and Wdoc in this slot, and commit the regenerated pages. For Wval, read the node count first and predict +1 (printed).
+- If another landed item regenerated the pages first: rebase, keep both sides, and re-run Wgen / Wval / Wapi / Wdoc (§9 digest).</p>
+<p><strong>Windows.</strong>
+- Foreground. <strong>The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped.</strong> Bash <code>timeout: 660000</code>; pytest <code>-s</code>; node IDs, never <code>-k</code>.
+- <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0 before RG-U16.
+- <strong>Order:</strong> code + module + page + registry → W0 → W0b → <code>pgrep</code> → RG-U16 → RG-U62 → C-api → C-val → Wgen → Wval → Wapi → Wdoc → commit → journal.</p>
+<pre><code>scripts/testing/run_and_log.sh ARCH-1-U79-W0-real &quot;docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 180 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_arch1_u79_palace_inputs.py tests/package/test_arch1_u76_palace_outputs.py::test_u76_palace_refusals_by_field tests/package/test_arch1_u76_palace_outputs.py::test_u76_palace_admits_and_carries -s -v --tb=short'&quot;
+</code></pre>
+<ul>
+<li><strong>W0b</strong> is item 590's RG-parse command (<code>20261022T171704Z_ARCH-1-U76-RGparse.log:12</code>) verbatim, with <code>tests/package/test_arch1_u79_palace_inputs.py::test_u79_hole_refused_by_field tests/package/test_arch1_u79_palace_inputs.py::test_u79_width_refused_by_field</code> inserted after <code>tests/environment/test_complex_mode.py</code>. Label <code>ARCH-1-U79-W0b-n2</code>.</li>
+<li><strong>RG-U16</strong> is item 590's RG-U16 command (<code>20261022T171719Z_ARCH-1-U76-RGU16.log:12</code>) verbatim, labelled <code>ARCH-1-U79-RGU16</code>.</li>
+<li><strong>RG-U62, C-api, C-val, Wgen, Wval, Wapi, Wdoc</strong> are item 590's landed commands (<code>20261022T172119Z_ARCH-1-U76-RGU62.log:12</code> and the <code>ARCH-1-U76-ctl-api</code> … <code>-Wdoc</code> logs, <code>:12</code>), relabelled <code>ARCH-1-U79-…</code>.</li>
+<li>No durable capture: every window is well under ≈ 10 min. <strong>No module, page or <code>src</code> edit after W0 starts</strong> (rule (i)).</li>
+</ul>
+<p><strong>Traps already paid for.</strong>
+- Item 590's list binds verbatim (this file, "§9 item 590", "Traps already paid for"): six cited nodes on the page; field <code>--backend</code>; never write into <code>logs/u16/*</code> except T5's <code>summary.json</code>; <code>-n 1</code> for RG-U16; a refusal precedes the mesh; <code>femem_out</code> is not gitignored; <code>capsys.readouterr()</code> discards earlier prints; the leak guard; gzipped logs; never <code>-k</code>; <code>-k 30</code> on every container <code>timeout</code>; no pipe; never delete a log; never import a <code>test_*</code> name; no AED string; <code>≈</code>, never a tilde.
+- <strong>New here:</strong> at <code>-n 2</code> both ranks must raise before any collective. The helper reads only <code>comm.size</code> and the geometry, so no rank waits in a <code>Barrier</code>. A hang at W0b means a collective slipped in front of the refusal: kill at the ceiling, run <code>pgrep</code>, report.</p>
+<p><strong>Scope.</strong> Covered: the YAML Palace route's two remaining traceback exits become named refusals. <strong>Not claimed:</strong>
+- any Palace run or output;
+- <code>Study.solve(backend="palace")</code>'s own <code>ValueError</code>s, which are unchanged by design (the Python API raises; the CLI refuses);
+- the <code>--ranks</code> / <code>--estimate</code> combinations, which are refused already (<code>cli.py:126–131</code>).</p>
+<p><strong>Negative result.</strong> Report and stop. Park on <code>attempt/ARCH-1-U79-*</code> and mark item 601 BLOCKED in the same commit (rule (d)).
+- <strong>(H) or (W) red:</strong> the helper's placement or message is wrong. Fix once in-letter and restart at W0.
+- <strong>A U76 node red:</strong> the helper moved an existing outcome. Revert <code>src/</code> and park.
+- <strong>RG-U16 red:</strong> open a known-issues entry naming the log, BLOCKED. This item does not touch the read path.
+- <strong>W0b hang:</strong> as in the trap above.</p>
+<p>No <code>PREDICTED RED:</code> line, so a red anywhere stops the slot.</p>
+<p><strong>Status it can move.</strong> No glyph: <code>ARCH-1</code> stays 🟡, because rule (j) leaves its Done-when untouched. The row gains: "step 1e (§9 item 601, U79): <code>femem run --backend palace</code> refuses <code>geometry.as_hole</code> and a launch wider than one rank by field <code>--backend</code>, rc 2, before any mesh; a degree other than 1 or 2 is refused at parse (<code>study.degree</code>)". §10 U79 → DONE. Item 590's out-of-scope line closes.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Execute §9 item 601 — <code>ARCH-1</code> step 1e (§10 U79) — per <code>docs/planning/chunks/ARCH-1.md</code> "§9 item 601". Read the brief and any review ruling beneath it first; the rulings hold. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. List <code>logs/u16/f_small_d2_64/postpro/port-S.csv</code>, <code>logs/u16/f_small_d1_64_cli/palace_case/postpro/port-S.csv</code> and <code>logs/ops61/postpro_f05x_o2/</code>, <code>postpro_f05x/</code>, <code>postpro_f05x_o2_f10/</code> first; if any is absent, stop and mark item 601 BLOCKED; never run Palace. <code>src/</code> edit: <code>study_yaml.py</code> only — the <code>_palace_input_refusal</code> helper, called after the <code>CapacitorSheets</code> line and before <code>study.solve</code>. Create <code>tests/package/test_arch1_u79_palace_inputs.py</code>; add one bullet to <code>docs/guide/backends.md</code> without citing any <code>tests/…::…</code> node and without touching the <code>palace-outputs</code> block; add one registry line under <code>[names.StudyConfigError]</code>. Never edit an existing test. Run W0, W0b, RG-U16 (after <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0), RG-U62, C-api, C-val, Wgen, Wval, Wapi, Wdoc in order, in the foreground, with <code>timeout: 660000</code> on every Bash call that runs a window, pytest with -s, container <code>timeout -k 30</code>. You are the executor — do not spawn agents, never background a harness window. If the docker socket is denied, stop and report the exact command string. On a red, park on <code>attempt/ARCH-1-U79-*</code>, mark item 601 BLOCKED in the same commit, and report."</p>
+<p><strong>Outcome of item 601 (2026-10-23, 00:30 UTC slot): DONE.</strong> <code>_palace_input_refusal(study, path, comm)</code> in <code>study_yaml.py</code>, called from <code>_run_palace</code> after the <code>CapacitorSheets</code> line and before <code>study.solve</code>; field <code>--backend</code> on both refusals; nothing added to <code>__all__</code>. W0 real <code>-n 1</code> 6 passed / 4 skipped, 5 s (<code>20261023T003505Z_ARCH-1-U79-W0-real.log</code>): (H) <code>f_small_hole_pec_control.yaml</code> field <code>--backend</code>, msg <code>palace: geometry.as_hole is not supported</code>, rc (2, 2), nothing written, 0 builds; (D) degree 3: <code>_load</code> field <code>study.degree</code> (<code>must be 1 or 2, got 3</code>), CLI rc (2, 2), 0 <code>_run_palace</code> calls; (A′) <code>f_small_four_port.yaml</code> 1 solve, EM keys <code>{s_matrix}</code>; (c-helper) helper no-op'd → the hole file reaches the spy once; (c-old), printed: <code>ValueError("backend='palace': as_hole=True is not supported")</code>, build calls 0, as predicted; U76's two nodes 3 passed / 3 skipped as item 590's W0 ((X) 15 rows, 0 builds). W0b complex <code>-n 2</code> 24 passed, 5 s (<code>20261023T003520Z_ARCH-1-U79-W0b-n2.log</code>): (H) same message and rc (2, 2) at <code>-n 2</code>; (W) <code>palace: a 2-rank launch is not supported (the case writer is serial; run at mpiexec -n 1)</code>, rc (2, 2), nothing written; order row <code>+outputs.sar</code> still refused by <code>outputs.sar</code>; U76 (X) 15 rows, 0 builds; item 572's parse bundle all passed; no hang. <code>pgrep -c python3</code> 0, then RG-U16 complex <code>-n 1</code> 14 passed, 226 s (<code>20261023T003534Z_ARCH-1-U79-RGU16.log</code>): (E2) 0.000e+00, (Tie2) 2.464e-10 / 9.668e-11 / 9.883e-11, (c-order) 6.6674 / 2.5442 / 4.5224 %, (E1) 2.149e-14. RG-U62 9 passed, (L) 6 nodes, (D) 0 dead (<code>20261023T003926Z_ARCH-1-U79-RGU62.log</code>). C-api Status 1 <code>['StudyConfigError.md']</code>, C-val Status 1 <code>DIFFERS: validation.md</code> (both as predicted); Wgen 46 files; Wval nodes 340 → 341 (+1 as predicted; the 340 is item 589's <code>20261022T201637Z_WF-1-s23-Wval.log</code>, which landed after item 590's 334); Wapi 22 passed, 23 s; Wdoc <code>dead=0</code> (1369 links). No Palace run, no <code>postpro/</code> written. Item 590's out-of-scope line closes: on the YAML route, the hole mesh and an <code>-n 2</code> launch are now rc 2 by name, and a degree-3 file was already refused at parse. One deviation: the module's scratch YAML files are written by U76's reused <code>_write</code>, so they land under the gitignored <code>logs/arch1/u76/yaml/</code> (<code>u79_*.yaml</code>); every <code>--output-dir</code> is under <code>logs/arch1/u79/</code>.</p>
+<h2 id="7-row-moved-verbatim-2026-10-24-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-24 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-24-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p>The MRI-safety layer becomes solver-agnostic | 🟡 step 1 (U16, §9 items 517 / 517b / 533): <code>Study.solve(backend="palace")</code> and <code>femem run --backend palace</code> write the Palace case, a separate <code>fem-em-palace</code> window runs it, and the <code>Study</code> reads S back. That S equals <code>OPS-61</code>'s recorded read on the same input: (E2) 0.000e+00 at degree 2 and (E1) 2.149e-14 at degree 1, both within <code>LEG_D0_REPRODUCTION_BAND</code>. It ties to our degree-2 record per class at (Tie2): 2.464e-10 / 9.668e-11 / 9.883e-11, each ≤ 2.6e-10. Fixture: ×1 exact strip at 64 MHz (Palace v0.18.1, orders 2 / 1; <code>20261018T140040Z_ARCH-1-U16b-W1-palace-d2.log</code>, <code>20261018T140512Z_ARCH-1-U16b-W2-palace-d1.log</code>, <code>20261018T172228Z_ARCH-1-U16c-W1.log</code>). Step 1c (§9 item 529, U62): <code>docs/guide/backends.md</code> and the U16 envelope entry, 0 dead links (<code>20261019T005254Z_ARCH-1-U62-Wdoc.log</code>). Step 1d (§9 item 590, U76): <code>femem run --backend palace</code> refuses every output the Palace route has no path for — <code>outputs.sar</code> / <code>b1_plus</code> / <code>probes</code>, <code>tune</code>, <code>study.sweep_hz</code>, <code>thermal</code> — by field with rc 2, before any mesh; <code>docs/guide/backends.md</code> states the carried / refused split from the code; U16's (E2) / (Tie2) / (c-order) / (E1) lines re-read byte-identical (<code>20261022T171719Z_ARCH-1-U76-RGU16.log</code>, <code>20261022T172109Z_ARCH-1-U76-Wbit.log</code>). Step 1e (§9 item 601, U79): <code>femem run --backend palace</code> refuses <code>geometry.as_hole</code> and a launch wider than one rank by field <code>--backend</code>, rc 2, before any mesh; a degree other than 1 or 2 is refused at parse (<code>study.degree</code>) (<code>20261023T003505Z_ARCH-1-U79-W0-real.log</code>, <code>20261023T003520Z_ARCH-1-U79-W0b-n2.log</code>). Not ✅: <code>ARCH-1</code>'s gate of record is the whole safety layer on two backends. <em>Was (embargo, lifted by the 2026-10-17 weekly):</em> no daily review could queue it; it waited on <code>OPS-61</code> step 1, <code>PORT-21</code> and one F-human physics step, so that the solver-agnostic interface is designed against two real backends. <strong>Done-when:</strong> digit-identical reproduction of every imported band and record on the DolfinX backend before any second backend is wired — a refactor that moves a record is a defect. <em>History: <code>docs/planning/chunks/ARCH-1.md</code>.</em> </p>
+<h3 id="9-item-631-2026-10-25-10-u91-arch-1-step-1f-chain-step-solve-chain-u-9e">§9 item 631 — 2026-10-25 (§10 U91, <code>ARCH-1</code> step 1f; chain step (solve); chain U, 9e)<a class="headerlink" href="#9-item-631-2026-10-25-10-u91-arch-1-step-1f-chain-step-solve-chain-u-9e" title="Permanent link">&para;</a></h3>
+<p><em>Written by the 2026-10-25 03:00 daily review from the 10-24 weekly's enumerated step U91 (§9 rule (4)). <strong>One citation is corrected, not the target.</strong> The weekly cites "<code>OPS-61</code> step 2c's recorded Cu read at degree 2 ((E2-Cu))". Step 2c is the <strong>h = 0.0075</strong> hole rung (226 904 tets, <code>OPS-61.md:1849</code>, <code>:2076</code>). The copper F-small <strong>×1</strong> hole read at order 2 — the fixture <code>ARCH-1</code> runs on — is <strong>step 2b</strong> (§9 item 241, <code>OPS-61.md:569</code>). "(E2-Cu)" is defined nowhere else, so it is defined below by analogy with U16's (E2). The 10-26 weekly confirms or corrects this reading.</em></p>
+<p><strong>Question.</strong> Can <code>Study.solve(backend="palace")</code> run the <strong>copper</strong> F-small (Leontovich wall → Palace's <code>Boundaries.Conductivity</code>) and reproduce the <code>OPS-61</code> probe's own copper read?</p>
+<p><strong>What must change in <code>src/</code> (a feature step; U16–U79 edited <code>backends/palace.py</code> the same way).</strong> <code>solve_palace</code> refuses both inputs today: <code>as_hole=True</code> (<code>src/fem_em_solver/backends/palace.py:217–218</code>) and any conductor (<code>:219–220</code>). <code>write_case</code> writes volume materials only (<code>:175–183</code>), and <code>palace_config</code> writes only PEC on attribute 1 plus <code>LumpedPort</code> (<code>:99–111</code>).
+- <strong>Narrow acceptance:</strong> <code>as_hole=True</code> <strong>together with</strong> <code>conductor=LeontovichWall(σ)</code> is accepted.
+  - Every other combination keeps its refusal by field: <code>as_hole</code> without a conductor, a conductor on a solid geometry, and any non-Leontovich conductor.
+  - The writer adds the hole-wall facet attribute and a <code>Boundaries.Conductivity</code> block with σ, ported from the probe: <code>scripts/probes/ops61_step1a_palace_ans4.py</code> (<code>export_hole_pec</code> <code>:1106</code>, <code>_hole_wall_attr</code> <code>:785</code>, the Conductivity block <code>:1533</code>). Cite those lines in the code.
+  - PEC stays on attribute 1 only, as step 2b's config does (<code>OPS-61.md:1915</code>).
+- <strong>The YAML refusal stays:</strong> <code>_palace_input_refusal</code> refuses <code>geometry.as_hole</code> (<code>study_yaml.py:1798–1799</code>). This step is Python only; the YAML half is the next U step, the weekly's.
+- <strong>Existing refusal tests stay green unedited.</strong> If an existing test asserts exactly the newly accepted combination (<code>as_hole</code> + Leontovich) is refused, <strong>stop and report</strong>: that refusal is a gate, and changing it is the weekly's.</p>
+<p><strong>Anchors.</strong>
+- <strong>(E2-Cu)</strong> The <code>Study</code>-written case on <code>ops61_ans6_x1_hole_strip.msh</code> with σ = 5.8e7 reproduces the probe's own Palace port S (<code>logs/ops61/postpro_h05x_cu_o2/port-S.csv</code>, on disk) at <code>LEG_D0_REPRODUCTION_BAND</code>, entry by entry. This is the same mesh, order and boundary: the analogue of U16's (E2), which read 0.000e+00 on the PEC route (<code>ARCH-1.md:391</code>).
+- <strong>(Tie-Cu)</strong> The Study's class means against <code>ANS6_EXACT_STRIP_CLASS_MEANS_P2["64"]["cu"]</code> at the band step 2b's read asserted (T4) at. Import that band by name from the probe or its test, and say which. Step 2b read 1.612e-10 / 1.586e-10 / 2.033e-10 (<code>20261005T093623Z_OPS-61-item241-W6-read.log.gz:56</code>).
+- <strong>(RG-U16)</strong> The PEC route's (E2) / (Tie2) re-read: (E2) 0.000e+00, (Tie2) 2.464e-10 / 9.668e-11 / 9.883e-11, 14 passed, 220 s (<code>ARCH-1.md:391</code>), unchanged.
+- <strong>Control (asserted):</strong> the same case written with the conductor dropped (the PEC hole) misses the copper read, |S(PEC) − S(Cu)| &gt; <code>NEGATIVE_CONTROL_FLOOR</code>. Backing: <code>WF-1</code>'s PEC-vs-copper miss of 6.422e-04 / 2.812e-04 / 4.863e-04 on the degree-1 classes (<code>20261020T202415Z_WF-1-s21-RGCu-copper.log:2716</code>). At degree 2 the miss is printed beside it.</p>
+<p><strong>Windows (bare harness calls, foreground).</strong>
+1. W0: coding and refusal tests (every refusal field still refused, the new combination accepted at write time, no mesh).
+2. Wwrite <code>ARCH-1-s1f-Wwrite</code>: the case writer at <code>-n 1</code> (it must run at <code>-n 1</code>, <code>palace.py:230–231</code>).
+3. Wpalace <code>ARCH-1-s1f-Wpalace</code>: <code>docker compose -f docker/docker-compose.yml --profile palace run --rm -T fem-em-palace bash -lc 'cd &lt;case_dir&gt; &amp;&amp; timeout -k 30 590 palace -np 8 case.json'</code> (<code>ARCH-1.md:159</code>'s shape). Step 2b's ×1 hole Cu run took 175.950 s Palace Total for four excitations (<code>OPS-61.md:1869</code>).
+4. Wread <code>ARCH-1-s1f-Wread</code>: the Study reads S back; (E2-Cu), (Tie-Cu), the control.
+5. RG-U16: the PEC regression, ≈ 220 s, heavy.</p>
+<p><strong>Tier:</strong> heavy (Wpalace ≈ 180–260 s, RG-U16 220 s). The solver container has no docker socket, so the Study writes the case, a separate window runs Palace, and the Study reads the result back (dashboard item 2). <strong>Class:</strong> chain step (solve). <strong>Cost:</strong> ≈ 6.0 measured / 60 predicted slot-minutes. <strong>Park (rule (d)) if Wpalace has not started by minute 35.</strong> <strong>Executor:</strong> implementer. <strong>Depends on:</strong> nothing. <strong>Family:</strong> <code>ARCH-1</code> step 1f, attempt 1 of 4.</p>
+<p><strong>Traps.</strong>
+- <strong>No Palace number set against an AED one</strong> in any tracked file. Palace's own numbers go public at full detail, with the version (0.18.1), config and mesh cited.
+- The mesh and configs under <code>logs/ops61/</code> are gitignored scratch: read them, never commit them.
+- A Palace window is one-shot <code>run --rm</code>. The <code>fem-em-palace</code> service has its own profile and is not the solver service, so <code>pgrep</code> in the solver container does not see it.
+- <code>-k 30</code> on every container <code>timeout</code>; never background a window.</p>
+<p><strong>Scope boundary.</strong> Python route only, copper ×1 hole only, degree 2. Not closed: the YAML route, other rungs, the loss partition (<code>OPS-61</code> step 2c excluded Palace's surface-loss postprocessing, <code>:2033</code>), field export (which H34 would need, returned to the weekly). <code>ARCH-1</code> stays 🟡.</p>
+<p><strong>A negative result means:</strong>
+- (E2-Cu) red: the writer's case differs from the probe's. Diff the two JSON configs and the attribute census, report, park.
+- (Tie-Cu) red with (E2-Cu) green: impossible by construction unless the record or band was misread. Stop.
+- RG-U16 red: the edit moved the PEC route, a defect. Revert.</p>
+<p><strong>Status it can move.</strong> §10 U91 → DONE. <code>ARCH-1</code>'s state line gains "the copper hole on the Palace backend (step 1f)". The route's refusal list loses <code>as_hole</code> for the Leontovich combination only.</p>
+<p><strong>Outcome of item 631 (2026-10-25, 07:30 CDT slot): DONE.</strong> <code>backends/palace.py</code> only: <code>solve_palace</code> accepts <code>as_hole=True</code> together with <code>LeontovichWall(σ)</code> and nothing else (<code>as_hole</code> without a conductor or with a non-Leontovich one: <code>ValueError</code> "as_hole=True is not supported without a LeontovichWall conductor"; a conductor on a solid geometry: the old "a conductor is not supported"); <code>write_case(..., hole_wall_sigma=σ)</code> splits the exterior into box → attribute 1 and the wall (<code>BIRDCAGE_CONDUCTOR_SURFACE_TAG</code> = 401, read from <code>built["mesh_facet_tags"]</code>) → 401, drops the conductor volume material (phantom + air, the probe's order), and <code>palace_config(conductivity=…)</code> appends <code>Boundaries.Conductivity</code> <code>[{Attributes [401], Conductivity 5.8e7, Permeability 1.0}]</code>; PEC stays on attribute 1 only. Probe lines cited in the code. <code>_palace_input_refusal</code> untouched; no existing test edited (U16's <code>test_u16_backend_refusals</code> passes unedited: it refuses <code>as_hole</code> with no conductor). New <code>tests/package/test_arch1_s1f_palace_copper.py</code>. W0 complex <code>-n 1</code> 6 passed, 3 s (<code>20261025T124940Z_ARCH-1-s1f-W0.log</code>): the three other combinations refused, the new one passes every refusal and reaches <code>build</code> (stubbed); the written <code>Boundaries</code> / <code>Solver</code> equal <code>logs/ops61/h05x_cu_o2.json</code>'s. Wwrite <code>-n 1</code> 25 s (<code>20261025T124955Z_ARCH-1-s1f-Wwrite.log</code>): <code>case.json</code> <code>Domains</code> / <code>Boundaries</code> / <code>Solver</code> equal the probe's; 19 525 nodes both; triangle census on attributes 1 / 401 / 21–24 (3320 / 19928 / 40 × 4) and the tet census per cell tag equal <code>ops61_ans6_x1_hole_strip.msh</code>'s; the one difference is our writer's unreferenced interior remainder blocks 31–34 (48 / 48 / 50 / 50), as on the PEC route. Wpalace (Palace v0.18.1, <code>palace -np 8 case.json</code>, config <code>logs/arch1/s1f/cu_case/case.json</code>, mesh its <code>mesh.msh</code> ≡ the probe's mesh by census, order 2, 64 MHz, four excitations) exit 0, 157 s, Palace Total 155.195 s, peak 4.7 G (<code>20261025T125029Z_ARCH-1-s1f-Wpalace.log</code>). Wread 25 s (<code>20261025T125321Z_ARCH-1-s1f-Wread.log</code>): <strong>(E2-Cu)</strong> entry-wise max |S − S_probe|/|S_probe| 0.000e+00 against <code>postpro_h05x_cu_o2/port-S.csv</code> (Frobenius 0.000e+00; band <code>LEG_D0_REPRODUCTION_BAND</code> 1e-9), cells 80 798; <strong>(Tie-Cu)</strong> 1.612e-10 / 1.586e-10 / 2.033e-10, step 2b's (T4) digits exactly. <strong>Band disclosure:</strong> step 2b's (T4) was <em>printed</em> (predicted ≤ 1e-6, <code>ops61_step1a_palace_ans4.py:1679–1690</code>), never asserted, so no (T4) band exists to import; (Tie-Cu) is asserted at <code>TIE2_BAND</code> = 2.6e-10 imported from <code>tests/package/test_arch1_palace_backend.py</code> (U16's ratified PEC-tie ceiling, tighter than the 1e-6 prediction). <strong>Control (asserted):</strong> the probe's PEC-hole run on the same mesh and order (<code>postpro_h05x_pec_o2</code>, the wall PEC instead of Conductivity — the probe's own copy of "the same case with the conductor dropped"; no second Palace run, because the dropped-conductor case is refused by design) misses the Study's copper class means by 6.332e-04 / 2.867e-04 / 4.949e-04 (&gt; <code>NEGATIVE_CONTROL_FLOOR</code> 1e-5), beside <code>WF-1</code>'s degree-1 6.422e-04 / 2.812e-04 / 4.863e-04. <code>pgrep -c python3</code> 0, then RG-U16 complex <code>-n 1</code> 14 passed, 217 s (<code>20261025T125409Z_ARCH-1-s1f-RGU16.log</code>): (E2) 0.000e+00, (Tie2) 2.464e-10 / 9.668e-11 / 9.883e-11, (c-order) 6.6674 / 2.5442 / 4.5224 %, (E1) 2.149e-14, unchanged. No registry line added (no new refusal type), so no page regeneration. Not claimed: the YAML route (still refuses <code>geometry.as_hole</code>), other rungs, Palace's surface-loss postprocessing, field export.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

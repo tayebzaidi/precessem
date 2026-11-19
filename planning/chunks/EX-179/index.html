@@ -1,0 +1,1705 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-179 — refresh the stale example artifacts, round three (the standing refresh lane) - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-179-refresh-the-stale-example-artifacts-round-three-the-standing-refresh-lane" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-179 — refresh the stale example artifacts, round three (the standing refresh lane)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-794-2026-11-03-ex-179-batch-1-the-oldest-of-the-four-named-groups" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 794 — 2026-11-03 (EX-179 batch 1, the oldest of the four named groups)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-795-2026-11-03-ex-179-batch-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 795 — 2026-11-03 (EX-179 batch 2)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-807-2026-11-03-ex-179-batch-3-the-first-batch-after-the-four-named-groups" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 807 — 2026-11-03 (EX-179 batch 3, the first batch after the four named groups)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-11-05-0300-the-widened-ceiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-11-05 03:00 — the widened ceiling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-832-2026-11-05-lane-1-refresh-lane-ex-179-batch-4-the-last-n-2-set-and-the-first-priced-n-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 832 — 2026-11-05 (lane 1, refresh lane; EX-179 batch 4, the last -n 2 set and the first priced -n 4)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-840-2026-11-05-lane-1-refresh-lane-ex-179-batch-5-one-priced-n-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 840 — 2026-11-05 (lane 1, refresh lane; EX-179 batch 5, one priced -n 4)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-853-2026-11-05-lane-1-refresh-lane-ex-179-batch-6-one-priced-n-8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 853 — 2026-11-05 (lane 1, refresh lane; EX-179 batch 6, one priced -n 8)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-854-2026-11-05-lane-1-refresh-lane-ex-179-batch-7-one-priced-n-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 854 — 2026-11-05 (lane 1, refresh lane; EX-179 batch 7, one priced -n 4)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-861-2026-11-06-lane-1-refresh-lane-ex-179-batch-8-two-n-2-examples-that-aged-in" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 861 — 2026-11-06 (lane 1, refresh lane; EX-179 batch 8, two -n 2 examples that aged in)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-868-2026-11-07-lane-1-refresh-lane-ex-179-batch-9-three-n-2-examples-that-aged-in" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 868 — 2026-11-07 (lane 1, refresh lane; EX-179 batch 9, three -n 2 examples that aged in)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-883-2026-11-08-lane-1-refresh-lane-ex-179-batch-10-the-six-t-600-agers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 883 — 2026-11-08 (lane 1, refresh lane; EX-179 batch 10, the six -t 600 agers)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-919-2026-11-09-lane-1-refresh-lane-ex-179-batch-11-the-10-26-agers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 919 — 2026-11-09 (lane 1, refresh lane; EX-179 batch 11, the 10-26 agers)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-951-2026-11-10-lane-1-refresh-lane-ex-179-batch-12-the-three-n-2-examples-of-the-10-28-wave" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 951 — 2026-11-10 (lane 1, refresh lane; EX-179 batch 12, the three -n 2 examples of the 10-28 wave)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-952-2026-11-10-lane-1-refresh-lane-ex-179-batch-12b-imp17-at-n-4-daytime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 952 — 2026-11-10 (lane 1, refresh lane; EX-179 batch 12b, imp:17 at -n 4, daytime)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-956-2026-11-11-lane-1-refresh-lane-ex-179-batch-13-mat30-the-10-28-waves-last-n-2-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 956 — 2026-11-11 (lane 1, refresh lane; EX-179 batch 13, mat:30, the 10-28 wave's last -n 2 example)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-957-2026-11-11-lane-1-refresh-lane-ex-179-batch-14-mri36-at-n-8-daytime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 957 — 2026-11-11 (lane 1, refresh lane; EX-179 batch 14, mri:36 at -n 8, daytime)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-976-2026-11-13-lane-1-refresh-lane-ex-179-batch-15-mat31-the-10-30-wave" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 976 — 2026-11-13 (lane 1, refresh lane; EX-179 batch 15, mat:31, the 10-30 wave)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-981-2026-11-13-lane-1-refresh-lane-ex-179-batch-16-imp18-at-n-4-daytime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 981 — 2026-11-13 (lane 1, refresh lane; EX-179 batch 16, imp:18 at -n 4, daytime)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-1002-2026-11-15-lane-1-ex-179-batch-17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 1002 — 2026-11-15 (lane 1, EX-179 batch 17)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-1004-2026-11-16-lane-1-ex-179-batch-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 1004 — 2026-11-16 (lane 1, EX-179 batch 18)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-1005-2026-11-16-lane-1-ex-179-batch-19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 1005 — 2026-11-16 (lane 1, EX-179 batch 19)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-1006-2026-11-16-lane-1-ex-179-batch-20-daytime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 1006 — 2026-11-16 (lane 1, EX-179 batch 20, daytime)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-179-refresh-the-stale-example-artifacts-round-three-the-standing-refresh-lane">EX-179 — refresh the stale example artifacts, round three (the standing refresh lane)<a class="headerlink" href="#ex-179-refresh-the-stale-example-artifacts-round-three-the-standing-refresh-lane" title="Permanent link">&para;</a></h1>
+<p><em>History file for the §7 <code>EX-179</code> row (<code>OPS-46</code>). Opened by the 2026-11-03 03:00 daily review under the 11-02 weekly's refresh-lane rule (PROJECT_PLAN §10, "Rulings, 2026-11-02", the <code>EX-175</code> / <code>EX-177</code> bullet): <strong>while the census reads stale &gt; 0 the daily keeps one refresh batch in the queue</strong> (≈ 6 examples, the oldest first, ≤ 480 s each, <code>mri:</code> / <code>ports:</code> / <code>mesh:</code> / <code>ans:</code> before the rest), under <code>EX-177</code>'s Done-when. The <code>mag:</code> family and the <code>-n 4</code> / <code>-n 8</code> examples stay outside until priced. Lane 1's kind of work; not a chain step.</em></p>
+<p><strong>Why.</strong> <code>docrefs</code>' stale rule is a 336 h mtime limit on every referenced artifact (<code>OPS-42</code>), so every example goes stale a fortnight after its last run whether or not anything moved. <code>EX-175</code> and <code>EX-177</code> re-ran 56 examples green with nothing edited and left <code>stale=108</code> (<code>20261103T050726Z_EX-177-b10-docrefs.log:148</code>). The re-runs are a regression result over examples the slots otherwise never re-run. Cost, measured by the weekly: ≈ 7.8 minutes per batch, ≈ 16 measured minutes a day.</p>
+<p><strong>Done-when (per batch, as <code>EX-177</code>'s).</strong> Each batch's windows exit 0 with no script, guide, gate or band edited; each batch's named artifacts leave the stale list <strong>by name</strong> against the previous batch's docrefs log; a red or a kill is filed in known-issues and <strong>nothing is fixed in passing</strong>. The chunk stays 🟡 while the lane runs; the weekly closes it or names a successor.</p>
+<p><strong>The common brief (every batch below).</strong> <strong><code>EX-175.md</code>'s "common brief" binds, verbatim, with <code>EX-177.md</code>'s amendments</strong> (full log basenames in this file; the leak guard on a hit — move the log unchanged to <code>logs/leak-held/</code>, report, go on; <code>./scripts/run_examples.sh</code> is the form to run; <code>-n</code> as the guide's own; no new window after minute 45, unrun windows stay listed and the item lands partial), with the label <code>EX-179-&lt;group&gt;&lt;n&gt;</code> and the docrefs label <code>EX-179-b&lt;k&gt;-docrefs</code>. Each window is one bare harness call, foreground, Bash timeout 660000 ms:</p>
+<pre><code>scripts/testing/run_and_log.sh EX-179-&lt;group&gt;&lt;n&gt; &quot;./scripts/run_examples.sh -e &lt;group&gt;:&lt;n&gt; -n &lt;n&gt; -t &lt;s&gt;&quot;
+</code></pre>
+<p>(the form <code>EX-175</code> … <code>EX-177</code> ran, <code>EX-175.md:12</code>), and the batch closes with one docrefs window: <code>scripts/testing/run_and_log.sh EX-179-b&lt;k&gt;-docrefs "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code>. <strong>Pre-check once per slot:</strong> <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0.</p>
+<p><em>Anchor:</em> each example's own asserted gates (its closing "hold" / "PASS" line and Status 0). <em>Control:</em> the artifact moved — the batch's stems present in the baseline docrefs log and absent from the batch's own. <em>Traps, scope, negative result:</em> as <code>EX-175</code> / <code>EX-177</code>. <strong>A red is the item's most useful outcome: stop, file it, fix nothing.</strong> No <code>PREDICTED RED:</code> line. <strong>Status it can move:</strong> <code>EX-179</code> progress (the stale count by name); a new known-issues entry per red. <strong>Class:</strong> example. <strong>Executor:</strong> the implementer directly. <strong>Depends on:</strong> nothing.</p>
+<p><strong>The <code>-t</code> ceiling (this review's reading of "≤ 480 s each").</strong> Some guides' run lines carry no <code>-n</code> / <code>-t</code>, so <code>run_examples.sh</code> falls back to <code>-n 2 -t 1200</code> (<code>scripts/run_examples.sh:25–26</code>). A 1200 s window breaks §9's ≈ 600 s window rule. Those examples run at <strong><code>-n 2 -t 480</code></strong>, the lane's ceiling, and the outcome says so. A kill at 480 s is a finding about the ceiling: file it and leave the example unedited. It is never a reason to raise the ceiling. Examples whose own guide <code>-t</code> is above 480 s are listed below for the weekly to price; they are not in these batches.</p>
+<h3 id="9-item-794-2026-11-03-ex-179-batch-1-the-oldest-of-the-four-named-groups">§9 item 794 — 2026-11-03 (<code>EX-179</code> batch 1, the oldest of the four named groups)<a class="headerlink" href="#9-item-794-2026-11-03-ex-179-batch-1-the-oldest-of-the-four-named-groups" title="Permanent link">&para;</a></h3>
+<p><code>mesh:1</code>, <code>mesh:2</code>, <code>mesh:4</code>, <code>mesh:5</code>, <code>mesh:3</code>, <code>ports:15</code>, each at <code>-n 2 -t 480</code> (their run lines carry no flags: <code>examples/meshing/01_two_torus_ports.md:66</code>, <code>02_*:78</code>, <code>04_*:108</code>, <code>05_*:125</code>, <code>03_*:108</code>; <code>examples/ports/15_birdcage_sixteen_leg_quadrature_b1.md:66</code>). Artifact ages 1 098.9 h down to 1 073.4 h. Stems: <code>meshing_01_*</code>, <code>meshing_02_*</code>, <code>meshing_04_*</code>, <code>meshing_05_*</code>, <code>meshing_03_*</code>, <code>ports_15_*</code>. <strong>Baseline for "the artifact moved":</strong> <code>20261103T050726Z_EX-177-b10-docrefs.log</code> (<code>stale=108</code>, <code>:148</code>); 11 lines there name this batch's stems. <strong>Cost:</strong> ≈ 7.4 measured / 35 predicted min. The <code>mesh:</code> examples are gmsh-heavy (<code>EX-175</code>'s <code>mesh:7</code>–<code>10</code> logs were 206–853 KiB of filtered gmsh output).</p>
+<p><strong>Outcome (2026-11-03, 16:30 CST slot): DONE, all six, no red.</strong> Each at <code>-n 2 -t 480</code>, Status 0 with its closing line read in the log: <code>mesh:1</code> 18 s <code>20261103T223558Z_EX-179-mesh1.log</code> ("All identities hold."), <code>mesh:2</code> 2 s <code>20261103T223620Z_EX-179-mesh2.log</code> (same), <code>mesh:4</code> 33 s <code>20261103T223626Z_EX-179-mesh4.log</code> (same), <code>mesh:5</code> 10 s <code>20261103T223702Z_EX-179-mesh5.log</code> (same), <code>mesh:3</code> 31 s <code>20261103T223715Z_EX-179-mesh3.log</code> (same), <code>ports:15</code> 231 s <code>20261103T223750Z_EX-179-ports15.log</code> ("All gates hold."); 325 s in all. <strong>The artifact moved:</strong> 11 lines naming the batch's stems in <code>20261103T050726Z_EX-177-b10-docrefs.log</code>, 0 in <code>20261103T224144Z_EX-179-b1-docrefs.log</code>, <code>dead=0 guide=0 stale=115</code>, exit 2 (the rise from 108 is artifacts ageing in by wall clock). <code>git status --porcelain</code> showed only logs and <code>test-results.md</code> after every window. No leak-guard hit. Pre-check <code>pgrep -c python3</code> 0, loadavg 0.61. Closing lines and footers read, no guide digit compared.</p>
+<h3 id="9-item-795-2026-11-03-ex-179-batch-2">§9 item 795 — 2026-11-03 (<code>EX-179</code> batch 2)<a class="headerlink" href="#9-item-795-2026-11-03-ex-179-batch-2" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>mesh:11</code> at <code>-n 2 -t 400</code> (<code>examples/meshing/11_*.md:95</code>)</li>
+<li><code>ports:3</code> at <code>-n 2 -t 480</code> (no flags in its run line, <code>examples/ports/03_lumped_sheet_port_widths.md:113</code>)</li>
+<li><code>mesh:13</code> at <code>-n 2 -t 480</code> (no flags, <code>13_*:105</code>)</li>
+<li><code>mesh:14</code> at <code>-n 2 -t 480</code> (no flags, <code>14_*:106</code>)</li>
+<li><code>mri:2</code> at <code>-n 2 -t 180</code> (<code>examples/mri/02_mass_averaged_sar.md:81</code>)</li>
+</ul>
+<p>Ages run from 977.9 h down to 340.4 h. Stems: <code>meshing_11_*</code>, <code>ports_03_*</code>, <code>meshing_13_*</code>, <code>meshing_14_*</code>, <code>mri_02_*</code> (8 lines in the b10 log). <strong>Baseline:</strong> batch 1's docrefs log if batch 1 landed, otherwise the b10 log; compare by name. <strong>Cost:</strong> ≈ 7.4 / 30.</p>
+<p><strong>Outcome (2026-11-03, 16:30 CST slot): DONE, all five, no red.</strong> Each at <code>-n 2</code> with the <code>-t</code> listed above, Status 0 with its closing line read in the log: <code>mesh:11</code> 109 s <code>20261103T224323Z_EX-179-mesh11.log</code> ("All identities hold at 16 legs across 32 ring ports"), <code>ports:3</code> 213 s <code>20261103T224519Z_EX-179-ports3.log</code> ("All gates hold."), <code>mesh:13</code> 3 s <code>20261103T224856Z_EX-179-mesh13.log</code> ("All identities and controls hold."), <code>mesh:14</code> 220 s <code>20261103T224902Z_EX-179-mesh14.log</code> (same), <code>mri:2</code> 11 s <code>20261103T225243Z_EX-179-mri2.log</code> ("All identities hold."); 556 s in all. <strong>The artifact moved:</strong> 8 lines naming the batch's stems in <code>20261103T224144Z_EX-179-b1-docrefs.log</code> (batch 1 landed, so it is the baseline), 0 in <code>20261103T225301Z_EX-179-b2-docrefs.log</code>, <code>dead=0 guide=0 stale=107</code>, exit 2. <code>git status --porcelain</code> showed only logs and <code>test-results.md</code> after every window. No leak-guard hit. Pre-check <code>pgrep -c python3</code> 0. Closing lines and footers read, no guide digit compared.</p>
+<p><strong>Left out of both batches, for the weekly to price.</strong> These are stale in the four named groups, by reason:
+- <strong>Guide <code>-t</code> above the lane's 480 s:</strong>
+  - <code>-t 590</code>: <code>mri:7</code>, <code>mri:25</code>, <code>mri:29</code>, <code>mri:31</code>, <code>mri:32</code>, <code>ports:21</code>, <code>ans:6</code>
+  - <code>-t 600</code>: <code>ports:13</code>, <code>ports:17</code>, <code>ports:19</code>, <code>mesh:12</code>
+  - <code>-t 540</code>: <code>ports:2</code>
+  - <code>-t 900</code>: <code>ports:16</code>
+  - <code>-t 500</code>: <code>ans:3</code>, <code>ans:4</code>
+- <strong><code>-n 4</code> / <code>-n 8</code>:</strong> <code>mri:3</code>–<code>6</code>, <code>mri:17</code>, <code>mri:18</code>, <code>mri:20</code>, <code>mri:23</code>, <code>mri:28</code>; <code>ports:10</code>, <code>ports:11</code>, <code>ports:20</code>; <code>mesh:15</code>; <code>ans:1</code>, <code>ans:9</code>.
+- <strong><code>mri:30</code>:</strong> the Palace backend's split windows.
+- <strong>After the four named groups:</strong> the <code>imp:</code> (9 lines) and <code>mat:</code> (24 lines) stale examples.</p>
+<p>By group in the b10 log: mri 37, mat 24, mesh 18, ports 15, imp 9, ans 5.</p>
+<h3 id="9-item-807-2026-11-03-ex-179-batch-3-the-first-batch-after-the-four-named-groups">§9 item 807 — 2026-11-03 (<code>EX-179</code> batch 3, the first batch after the four named groups)<a class="headerlink" href="#9-item-807-2026-11-03-ex-179-batch-3-the-first-batch-after-the-four-named-groups" title="Permanent link">&para;</a></h3>
+<p><strong>Why these.</strong> In <code>20261103T225301Z_EX-179-b2-docrefs.log</code> (<code>stale=107</code>) every remaining stale example in <code>mri:</code> / <code>ports:</code> / <code>mesh:</code> / <code>ans:</code> is outside the lane (guide <code>-t</code> above 480 s, <code>-n 4</code> / <code>-n 8</code>, or <code>mri:30</code>'s split windows; listed above), except <code>mri:33</code>, which item 806 re-runs. The stale <code>imp:</code> and <code>mat:</code> examples are all outside too (guides at <code>-t 540</code>–<code>600</code> or <code>-n 4</code> / <code>-n 8</code>: <code>imp:3</code>, <code>imp:6</code>, <code>imp:7</code>, <code>imp:9</code>, <code>imp:10</code>, <code>mat:1</code>, <code>mat:5</code>, <code>mat:14</code>–<code>16</code>, <code>mat:18</code>, <code>mat:20</code>, <code>mat:22</code>, <code>mat:23</code>, <code>mat:25</code>; this review read each run line). <code>mag:</code> stays outside until priced. The oldest eligible are three <code>th:</code> examples:
+- <code>th:3</code> at <code>-n 2 -t 180</code> (<code>examples/time_harmonic/03_dielectric_sphere_in_uniform_field.md:59</code>)
+- <code>th:7</code> at <code>-n 2 -t 400</code> (<code>examples/time_harmonic/07_element_order_lossy_sphere.md:40</code>)
+- <code>th:9</code> at <code>-n 2 -t 300</code> (<code>examples/time_harmonic/09_pec_sphere_as_hole.md:74</code>)</p>
+<p><code>th:6</code> (<code>-t 540</code>) is left out by the ceiling. Stems: <code>time_harmonic_03_*</code>, <code>time_harmonic_07_*</code>, <code>time_harmonic_09_*</code> (all ≈ 337 h). <strong>Baseline:</strong> <code>20261103T225301Z_EX-179-b2-docrefs.log</code>; compare by name. Labels <code>EX-179-th3</code>, <code>EX-179-th7</code>, <code>EX-179-th9</code>, docrefs <code>EX-179-b3-docrefs</code>. <strong>Cost:</strong> ≈ 7.4 measured / 20 predicted min.</p>
+<p><strong>Outcome (2026-11-04, 21:00 CST slot, take-next at minute 27): DONE, all three, no red.</strong> Each at <code>-n 2</code> with the <code>-t</code> listed above, Status 0 with its closing line read in the log: <code>th:3</code> 7 s <code>20261104T032711Z_EX-179-th3.log</code> ("All assertions hold."), <code>th:7</code> 9 s <code>20261104T032725Z_EX-179-th7.log</code> ("All assertions hold at both orders."), <code>th:9</code> 4 s <code>20261104T032741Z_EX-179-th9.log</code> ("All assertions hold."); 20 s in all. <strong>The artifact moved:</strong> 4 lines naming the batch's stems in <code>20261103T225301Z_EX-179-b2-docrefs.log</code>, 0 in <code>20261104T032752Z_EX-179-b3-docrefs.log</code>, <code>dead=0 guide=0 stale=103</code>, exit 2 (107 → 103: these three and <code>mri:33</code>, re-run by item 806 in the same slot). <code>git status --porcelain</code> showed only logs and <code>test-results.md</code> after every window. No leak-guard hit. Pre-check <code>pgrep -c python3</code> 0 for the slot. Closing lines and footers read, no guide digit compared.</p>
+<p><strong>Not in this lane, for the weekly:</strong> with batch 3 the lane's ≤ 480 s, <code>-n 2</code> supply is spent; what remains stale needs a priced ceiling (the <code>-t 500</code>–<code>900</code> guides), the <code>-n 4</code> / <code>-n 8</code> examples, or <code>mag:</code>. The lane cannot drain by its own rule.</p>
+<h3 id="review-ruling-2026-11-05-0300-the-widened-ceiling">Review ruling 2026-11-05 03:00 — the widened ceiling<a class="headerlink" href="#review-ruling-2026-11-05-0300-the-widened-ceiling" title="Permanent link">&para;</a></h3>
+<p>The 11-04 weekly widened the refresh lane. An example whose last closing window ran at <code>-n 4</code> or <code>-n 8</code> in ≤ 400 s may be refreshed at its own rank count with <code>-t 600</code>. The conditions:
+- one such example per batch;
+- only in the 12:00, 13:30 and 15:00 slots;
+- only with loadavg &lt; 8;
+- examples over 400 s and the <code>mag:</code> family stay out.</p>
+<p><strong>The <code>-n 2</code> / ≤ 480 s supply is not quite exhausted.</strong> Three examples have aged in since batch 3: <code>mri:1</code>, <code>th:4</code> and <code>mri:34</code>. Batch 4 takes them, plus the first priced <code>-n 4</code> example. After batch 4 that supply is empty.</p>
+<p><strong>The priced <code>-n 4</code> / <code>-n 8</code> examples</strong>, each with a surviving last window ≤ 400 s, in queue order one per batch:</p>
+<table>
+<thead>
+<tr>
+<th>Example</th>
+<th>Ranks</th>
+<th>Last window</th>
+<th>Seconds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mri:5</code></td>
+<td><code>-n 4</code></td>
+<td><code>20261002T053014Z_EX-78.log</code></td>
+<td>88</td>
+</tr>
+<tr>
+<td><code>ports:20</code></td>
+<td><code>-n 4</code></td>
+<td><code>20261002T140934Z_EX-76.log</code></td>
+<td>71</td>
+</tr>
+<tr>
+<td><code>mri:6</code></td>
+<td><code>-n 8</code></td>
+<td><code>20261002T203221Z_EX-80.log</code></td>
+<td>278</td>
+</tr>
+<tr>
+<td><code>ports:12</code></td>
+<td><code>-n 4</code></td>
+<td><code>20261020T213924Z_POST-8-step3b-ii-e2d-ports12-n4.log</code></td>
+<td>128</td>
+</tr>
+<tr>
+<td><code>imp:3</code></td>
+<td><code>-n 4</code></td>
+<td><code>20261003T051229Z_EX-83.log</code></td>
+<td>223</td>
+</tr>
+<tr>
+<td><code>mat:1</code></td>
+<td><code>-n 8</code></td>
+<td><code>20260923T125310Z_EX-57.log</code></td>
+<td>256</td>
+</tr>
+</tbody>
+</table>
+<p><code>mri:3</code> and <code>ans:1</code> are unpriced: their last-window logs were pruned.</p>
+<h3 id="9-item-832-2026-11-05-lane-1-refresh-lane-ex-179-batch-4-the-last-n-2-set-and-the-first-priced-n-4">§9 item 832 — 2026-11-05 (lane 1, refresh lane; <code>EX-179</code> batch 4, the last <code>-n 2</code> set and the first priced <code>-n 4</code>)<a class="headerlink" href="#9-item-832-2026-11-05-lane-1-refresh-lane-ex-179-batch-4-the-last-n-2-set-and-the-first-priced-n-4" title="Permanent link">&para;</a></h3>
+<p><strong>Executes</strong> this batch under <code>EX-177</code>'s Done-when and this chunk's common brief: the <code>-n 2</code> trio first, then <code>mri:5</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Example</th>
+<th>Command flags</th>
+<th>Guide run line</th>
+<th>Last window (measured)</th>
+<th>Stale lines in baseline</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mri:1</code></td>
+<td><code>-n 2 -t 180</code></td>
+<td><code>examples/mri/01_coil_phantom_fields.md:166</code></td>
+<td><code>20261021T110204Z_POST-8-step3b-ii-e3b-mri1-n2.log</code>, 5 s, Status 0 (a POST-8 pytest wrapper)</td>
+<td><code>mri_01_coil_phantom_*</code>, 9 lines <code>:100–108</code></td>
+</tr>
+<tr>
+<td><code>th:4</code></td>
+<td><code>-n 2 -t 180</code></td>
+<td><code>examples/time_harmonic/04_evanescent_waveguide_decay.md:82</code></td>
+<td><code>20261021T110150Z_POST-8-step3b-ii-e3b-th4-n2.log</code>, 9 s; last writer <code>20261021T110303Z_POST-8-step3b-ii-e3b-th4-n1.log</code>, 11 s</td>
+<td>1 line <code>:160</code></td>
+</tr>
+<tr>
+<td><code>mri:34</code></td>
+<td><code>-n 2 -t 300</code></td>
+<td><code>examples/mri/34_femem_run_sweep_file_touchstone.md:98</code></td>
+<td><code>20261021T020252Z_EX-139.log</code>, 109 s, Status 0 (a <code>FEM_EM_SETUP_FIGURES=1</code> window)</td>
+<td>2 lines <code>:145–146</code></td>
+</tr>
+<tr>
+<td><code>mri:5</code></td>
+<td><code>-n 4 -t 600</code> (the widened rule; the guide says <code>-t 300</code>)</td>
+<td><code>examples/mri/05_birdcage_q_loaded_unloaded.md:62</code></td>
+<td><code>20261002T053014Z_EX-78.log</code>, 88 s at <code>-n 4</code>, Status 0</td>
+<td>1 line <code>:112</code></td>
+</tr>
+</tbody>
+</table>
+<p>The measured total is ≈ 211 s.</p>
+<p><strong>Code.</strong> None.</p>
+<p><strong>Windows.</strong> Bare, foreground, Bash timeout 660000. Check <code>pgrep -c python3</code> reads 0 once per slot before starting.
+- <code>scripts/testing/run_and_log.sh EX-179-mri1 "./scripts/run_examples.sh -e mri:1 -n 2 -t 180"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-th4 "./scripts/run_examples.sh -e th:4 -n 2 -t 180"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-mri34 "./scripts/run_examples.sh -e mri:34 -n 2 -t 300"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-mri5 "./scripts/run_examples.sh -e mri:5 -n 4 -t 600"</code>. Run it only if <code>uptime</code> loadavg (1 min) &lt; 8, checked immediately before.
+- Then <code>scripts/testing/run_and_log.sh EX-179-b4-docrefs "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code>.</p>
+<p><strong>Anchor.</strong> Each example's own asserted gates: its closing "hold" line and Status 0.</p>
+<p><strong>Control (asserted).</strong> The artifact moved, compared by name: 13 lines naming the batch's stems in <code>20261105T031137Z_WEEKLY-DOCREFS.log</code> (<code>stale=125</code>), and 0 in the b4 log.</p>
+<p><strong>Tier.</strong> Standard (<code>-n 2</code>) plus one <code>-n 4</code> window ≤ 600 s. <strong>Daytime:</strong> the 12:00, 13:30 and 15:00 slots only, slot-first, one per slot, loadavg &lt; 8. <strong>Class:</strong> lane-1 revalidation. <strong>Cost:</strong> ≈ 6.0 measured / 20 predicted min.</p>
+<p><strong>Traps already paid for.</strong> Everything in <code>EX-175</code> / <code>EX-177</code> / this chunk's common brief, plus:
+- A leak-guard hit moves the log unchanged to <code>logs/leak-held/</code> (the <code>mat:19</code> precedent).
+- Use <code>./scripts/run_examples.sh</code>, not the guides' root <code>./run_examples.sh</code>.
+- Open no new window after minute 45.
+- <code>git status --porcelain</code> shows only logs and <code>test-results.md</code>.
+- <code>mri:5</code>'s last window ran under <code>FEM_EM_SETUP_FIGURES=1</code>. This refresh does not set it.</p>
+<p><strong>Scope.</strong> A re-run. No <code>EX-*</code> chunk re-closes, and nothing is edited.</p>
+<p><strong>Negative result.</strong>
+- A red or a kill is filed in known-issues, and nothing is fixed.
+- A kill at <code>-t 600</code> on <code>mri:5</code> is a finding about the widened ceiling, for the weekly.
+- No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>EX-179</code> progress (stale lines by name), and a known-issues entry per red.</p>
+<p><strong>Depends on:</strong> nothing.</p>
+<p><strong>Outcome (2026-11-05, 12:00 CST slot, slot-first, loadavg 0.41 at the start and 1.88 before <code>mri:5</code>): DONE, all four, no red.</strong> Every window is Status 0 and I read each one's closing line in its log:
+- <code>mri:1</code>, 6 s, <code>20261105T180101Z_EX-179-mri1.log</code>. The guide prints no "hold" line; it closes on "Example completed".
+- <code>th:4</code>, 5 s, <code>20261105T180114Z_EX-179-th4.log</code> ("All assertions hold.").
+- <code>mri:34</code>, 117 s, <code>20261105T180125Z_EX-179-mri34.log</code> ("All assertions hold.").
+- <code>mri:5</code> at <code>-n 4 -t 600</code>, 87 s, <code>20261105T180327Z_EX-179-mri5.log</code> ("All assertions hold."). Q_field,L reads 920.010244 against Q_slope,L 919.037377 (miss 1.0586e-03 ≤ 3e-03), and Q_field,U 2283.280107 against Q_slope,U 2279.420027 (miss 1.6934e-03 ≤ 2e-03). Both pairs equal the WF-5 records. No kill: the widened ceiling holds with ≈ 513 s to spare.</p>
+<p>That is 215 s in all.</p>
+<p><strong>Control met.</strong> Lines naming the batch's stems: 13 in <code>20261105T031137Z_WEEKLY-DOCREFS.log</code>, 0 in <code>20261105T180458Z_EX-179-b4-docrefs.log</code>. Stale went from 125 to 115.</p>
+<p><strong>Finding (not this batch's).</strong> The b4 log reads <code>dead=2</code>, exit 1, where the baseline read <code>dead=0</code>. Both dead references are bare <code>build.py</code> / <code>box.py</code> citations in the <code>ANS-11</code> SPEC.md, which the 11-04 weekly committed at 03:22Z, after the baseline ran at 03:11Z. This is filed in known-issues 2026-11-05 and is not fixed here.</p>
+<p>After every window <code>git status --porcelain</code> showed only logs and <code>test-results.md</code>. No leak-guard hit. The pre-check <code>pgrep -c python3</code> read 0.</p>
+<h3 id="9-item-840-2026-11-05-lane-1-refresh-lane-ex-179-batch-5-one-priced-n-4">§9 item 840 — 2026-11-05 (lane 1, refresh lane; <code>EX-179</code> batch 5, one priced <code>-n 4</code>)<a class="headerlink" href="#9-item-840-2026-11-05-lane-1-refresh-lane-ex-179-batch-5-one-priced-n-4" title="Permanent link">&para;</a></h3>
+<p><strong>Executes</strong> <code>ports:20</code> at <code>-n 4 -t 600</code>.
+- Guide run line: <code>examples/ports/20_birdcage_eigenmodes.md:55</code>, which says <code>-n 4 -t 300</code>.
+- Last window: <code>20261002T140934Z_EX-76.log</code>, 71 s, <code>-n 4</code>, Status 0.
+- Stale stem: <code>ports_20_*</code>, 1 line.</p>
+<p><strong>Windows.</strong>
+- <code>scripts/testing/run_and_log.sh EX-179-ports20 "./scripts/run_examples.sh -e ports:20 -n 4 -t 600"</code>, with loadavg &lt; 8.
+- Then <code>EX-179-b5-docrefs</code>, in batch 4's form.</p>
+<p><strong>Control.</strong> The baseline is batch 4's docrefs log if batch 4 landed, else the weekly's log. Everything else is as batch 4.</p>
+<p><strong>Tier.</strong> Standard, <code>-n 4</code>. <strong>Daytime.</strong> <strong>Class:</strong> lane-1 revalidation. <strong>Cost:</strong> ≈ 6.0 measured / 8 predicted min.</p>
+<p><strong>Depends on:</strong> nothing. Its baseline is item 832's docrefs log if that item landed.</p>
+<p><strong>Outcome (2026-11-05, 13:30 CST slot, slot-first, loadavg 0.36 immediately before): DONE, no red.</strong> <code>ports:20</code> at <code>-n 4 -t 600</code>, 75 s, Status 0, <code>20261105T193033Z_EX-179-ports20.log</code> ("All imported bands hold."). Its printed records match the gate's: C_mode 6.628769508e-11 F (rel diff 5.904e-11 to the W3 record), eigen pair 6.432991449e+07 / 6.433349959e+07 Hz (rel diff 5.81e-11 / 4.53e-11 to <code>GATE_E_STEP3_PAIR_HZ</code>), [NEG] 2.8653e-01 = W3 record. No kill: the widened ceiling holds with ≈ 525 s to spare. <strong>Control met.</strong> Lines naming <code>ports_20_</code>: 1 in <code>20261105T180458Z_EX-179-b4-docrefs.log</code>, 0 in <code>20261105T193155Z_EX-179-b5-docrefs.log</code>. Stale went from 115 to 114. That log reads <code>dead=2</code>, exit 1, from the same two <code>ANS-11</code> SPEC.md citations (<code>box.py</code>, <code>build.py</code>) that known-issues 2026-11-05 already files. Nothing new, nothing fixed. Pre-check <code>pgrep -c python3</code> 0. <code>git status --porcelain</code> showed only logs and <code>test-results.md</code>. No leak-guard hit.</p>
+<h3 id="9-item-853-2026-11-05-lane-1-refresh-lane-ex-179-batch-6-one-priced-n-8">§9 item 853 — 2026-11-05 (lane 1, refresh lane; <code>EX-179</code> batch 6, one priced <code>-n 8</code>)<a class="headerlink" href="#9-item-853-2026-11-05-lane-1-refresh-lane-ex-179-batch-6-one-priced-n-8" title="Permanent link">&para;</a></h3>
+<p><strong>Executes</strong> <code>mri:6</code> at <code>-n 8 -t 600</code>, the next row of the 03:00 ruling's table.
+- Guide run line: <code>examples/mri/06_f_human_copper_loss_partition.md:46</code>, which says <code>-n 8 -t 480</code>.
+- Last window: <code>20261002T203221Z_EX-80.log</code>, 278 s, <code>-n 8</code>.
+- Stale stem: <code>mri_06_*</code>, 1 line (<code>20261105T193155Z_EX-179-b5-docrefs.log:106</code>, 814.8 h old).</p>
+<p><strong>Windows.</strong>
+- <code>scripts/testing/run_and_log.sh EX-179-mri6 "./scripts/run_examples.sh -e mri:6 -n 8 -t 600"</code>, only with <code>uptime</code> loadavg (1 min) &lt; 8 checked immediately before.
+- Then <code>scripts/testing/run_and_log.sh EX-179-b6-docrefs "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code>.</p>
+<p><strong>Control (asserted).</strong> Lines naming <code>mri_06_</code> : 1 in the baseline docrefs log, 0 in b6. The baseline is item 840's b5 log, or the newest docrefs log on <code>main</code> if a later one exists (item 845's, if it landed).</p>
+<p><strong>Tier.</strong> Standard-to-heavy, <code>-n 8</code>, one window ≤ 600 s. <strong>Daytime:</strong> 12:00, 13:30, 15:00 slots only, slot-first, loadavg &lt; 8. <strong>Class:</strong> lane-1 revalidation. <strong>Cost:</strong> ≈ 6.0 measured / 12 predicted min.</p>
+<p><strong>Traps.</strong> Batch 4's list (above). <code>mri:6</code> is the copper F-human: it builds a large mesh — the 278 s window is the price, and a kill at <code>-t 600</code> is a finding about the widened ceiling for the weekly, never raised.</p>
+<p><strong>Negative result.</strong> A red or a kill is filed in known-issues; nothing is fixed. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>EX-179</code> progress (stale 1 line by name), a known-issues entry per red.</p>
+<p><strong>Depends on:</strong> nothing.</p>
+<p><strong>Outcome (2026-11-06, 12:00 CST slot, slot-first, loadavg 0.20 immediately before): DONE, no red.</strong> <code>mri:6</code> at <code>-n 8 -t 600</code>, 365 s, Status 0, <code>20261106T180031Z_EX-179-mri6.log</code> ("EX-80 anchors, map sums and control: PASS"; every <code>[anchor]</code> line prints its W2 record beside it, and they match, e.g. (iii) sigma_max 0.999993339099 = W2, (iv') worst spread 3.2748e-02 = W2, P_surf-blind control 123.3x = W2 123.3x). No kill: the widened ceiling holds with ≈ 235 s to spare (the window is 87 s longer than <code>20261002T203221Z_EX-80.log</code>'s 278 s). <strong>Control met.</strong> Lines naming <code>mri_06_</code>: 1 in <code>20261106T110047Z_EX-186-docrefs.log</code> (the newest docrefs log on <code>main</code>, <code>:106</code>), 0 in <code>20261106T180641Z_EX-179-b6-docrefs.log</code>, <code>dead=0 guide=0 stale=117</code>, exit 2 (117 → 117: this line left, one aged in by wall clock). Pre-check <code>pgrep -c python3</code> 0. <code>git status --porcelain</code> showed only logs and <code>test-results.md</code>. No leak-guard hit.</p>
+<h3 id="9-item-854-2026-11-05-lane-1-refresh-lane-ex-179-batch-7-one-priced-n-4">§9 item 854 — 2026-11-05 (lane 1, refresh lane; <code>EX-179</code> batch 7, one priced <code>-n 4</code>)<a class="headerlink" href="#9-item-854-2026-11-05-lane-1-refresh-lane-ex-179-batch-7-one-priced-n-4" title="Permanent link">&para;</a></h3>
+<p><strong>Executes</strong> <code>ports:12</code> at <code>-n 4 -t 600</code>.
+- Guide run line: <code>examples/ports/12_birdcage_ring_quarter_turn.md:110</code>, which says <code>-n 4 -t 600</code>.
+- Last window: <code>20261020T213924Z_POST-8-step3b-ii-e2d-ports12-n4.log</code>, 128 s, <code>-n 4</code>.
+- Stale stem: <code>ports_12_*</code>, 1 line (<code>…b5-docrefs.log:143</code>, 381.8 h old).</p>
+<p><strong>Windows.</strong> <code>scripts/testing/run_and_log.sh EX-179-ports12 "./scripts/run_examples.sh -e ports:12 -n 4 -t 600"</code> (loadavg &lt; 8, checked immediately before), then <code>EX-179-b7-docrefs</code> in batch 6's form.</p>
+<p><strong>Control (asserted).</strong> Lines naming <code>ports_12_</code>: 1 in the baseline (the newest docrefs log on <code>main</code> before this batch), 0 in b7.</p>
+<p><strong>Tier.</strong> Standard, <code>-n 4</code>. <strong>Daytime</strong>, as item 853 — and never in the same slot as 853 (one per slot). <strong>Class:</strong> lane-1 revalidation. <strong>Cost:</strong> ≈ 6.0 measured / 8 predicted min.</p>
+<p><strong>Traps / negative result / status.</strong> As item 853.</p>
+<p><strong>Depends on:</strong> nothing. After batch 7 the priced <code>-n 4</code> / <code>-n 8</code> supply with a stale line is empty (<code>imp:3</code>, <code>mat:1</code> read no stale line in the b5 log); the remaining 112 stale lines are examples over 400 s, the <code>mag:</code> family, or unpriced (<code>mri:3</code>, <code>ans:1</code>) — the weekly's.</p>
+<p><strong>Outcome (2026-11-06, 13:30 CST slot, slot-first, loadavg 0.09 immediately before): DONE, no red.</strong> <code>ports:12</code> at <code>-n 4 -t 600</code>, 143 s, Status 0, <code>20261106T193030Z_EX-179-ports12.log</code> ("All gates hold. Total elapsed 137.9 s."). Its printed records match the gates': mesh 270728 cells (record 270728, ratio 1.000000); P17 passivity sum 0.915817419 vs step 2's record 0.915817419 (relative 2.394e-10, rtol 1e-03); power residuals 9.679798e-03 / 9.680240e-03 inside 1e-02; C16 column identity worst 0.1163 % inside 5 %; wrong-rotation control 338.035x the band. No kill: the widened ceiling holds with ≈ 457 s to spare (15 s longer than <code>20261020T213924Z_POST-8-step3b-ii-e2d-ports12-n4.log</code>'s 128 s). <strong>Control met.</strong> Lines naming <code>ports_12_</code>: 1 in <code>20261106T180641Z_EX-179-b6-docrefs.log</code> (<code>:143</code>), 0 in <code>20261106T193258Z_EX-179-b7-docrefs.log</code>, <code>dead=0 guide=0 stale=116</code>, exit 2 (117 → 116). Pre-check <code>pgrep -c python3</code> 0. <code>git status --porcelain</code> showed only logs and <code>test-results.md</code>. No leak-guard hit.</p>
+<h3 id="9-item-861-2026-11-06-lane-1-refresh-lane-ex-179-batch-8-two-n-2-examples-that-aged-in">§9 item 861 — 2026-11-06 (lane 1, refresh lane; <code>EX-179</code> batch 8, two <code>-n 2</code> examples that aged in)<a class="headerlink" href="#9-item-861-2026-11-06-lane-1-refresh-lane-ex-179-batch-8-two-n-2-examples-that-aged-in" title="Permanent link">&para;</a></h3>
+<p><strong>Why these.</strong> The 18:00 review scanned every guide named in <code>20261106T193258Z_EX-179-b7-docrefs.log</code> (<code>stale=116</code>) for its run line. Two examples have aged past the 336 h limit since batch 3 and sit inside the lane's own rule (<code>-n 2</code>, guide <code>-t</code> ≤ 480 s, not <code>mag:</code>): <code>imp:11</code> (354.7 h) and <code>imp:12</code> (346.0 h). Every other stale guide is <code>mag:</code>, has <code>-t</code> above 480 s, runs at <code>-n 4</code> / <code>-n 8</code> with no surviving window ≤ 400 s, or is unpriced. <code>mri:30</code> (<code>-n 1 -t 180</code>) stays out on batch 3's split-window reason.</p>
+<table>
+<thead>
+<tr>
+<th>Example</th>
+<th>Command flags</th>
+<th>Guide run line</th>
+<th>Last window (measured)</th>
+<th>Stale lines in baseline</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>imp:11</code></td>
+<td><code>-n 2 -t 180</code></td>
+<td><code>examples/implants/11_pec_sphere_implant_heating_in_gel_ball.md:43</code></td>
+<td><code>20261023T005150Z_EX-140.log</code>, 19 s, Status 0 (complex; a <code>FEM_EM_SETUP_FIGURES=1</code> window)</td>
+<td><code>implants_11_*</code>, 1 line <code>:53</code></td>
+</tr>
+<tr>
+<td><code>imp:12</code></td>
+<td><code>-n 2 -t 180</code></td>
+<td><code>examples/implants/12_insulating_implant_heating_in_gel_shell.md:52</code> (the guide's root <code>./run_examples.sh</code> form; run the <code>./scripts/</code> form)</td>
+<td><code>20261023T093235Z_EX-141.log</code>, 22 s, Status 0 (a flagged window)</td>
+<td><code>implants_12_*</code>, 1 line <code>:54</code></td>
+</tr>
+</tbody>
+</table>
+<p>The measured total is ≈ 41 s.</p>
+<p><strong>Code.</strong> None.</p>
+<p><strong>Windows.</strong> Bare, foreground, Bash timeout 660000. Check <code>pgrep -c python3</code> reads 0 once before starting.
+- <code>scripts/testing/run_and_log.sh EX-179-imp11 "./scripts/run_examples.sh -e imp:11 -n 2 -t 180"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-imp12 "./scripts/run_examples.sh -e imp:12 -n 2 -t 180"</code>
+- Then <code>scripts/testing/run_and_log.sh EX-179-b8-docrefs "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code>.</p>
+<p><strong>Anchor.</strong> Each example's own asserted gates: its closing "hold" / "PASS" line and Status 0.</p>
+<p><strong>Control (asserted).</strong> The artifact moved, compared by name: 2 lines naming <code>implants_11_</code> / <code>implants_12_</code> in the baseline (the newest docrefs log on <code>main</code> before this batch — <code>20261106T193258Z_EX-179-b7-docrefs.log</code>, <code>:53–54</code>, unless a later one landed), 0 in b8.</p>
+<p><strong>Tier.</strong> Standard, <code>-n 2</code>, complex (the <code>imp:</code> group sources the build itself). <strong>Not daytime</strong> — any slot. <strong>Class:</strong> example (as batches 6 and 7 were timed). <strong>Cost:</strong> ≈ 6.4 measured / 6 predicted min.</p>
+<p><strong>Traps already paid for.</strong> Everything in this chunk's common brief and item 832's list, plus:
+- Both last windows ran under <code>FEM_EM_SETUP_FIGURES=1</code>. This refresh does not set it.
+- Use <code>./scripts/run_examples.sh</code>, not <code>imp:12</code>'s guide's root <code>./run_examples.sh</code>.
+- A leak-guard hit moves the log unchanged to <code>logs/leak-held/</code>, then report and go on.
+- <code>git status --porcelain</code> shows only logs and <code>test-results.md</code>.</p>
+<p><strong>Scope.</strong> A re-run. <code>EX-140</code> / <code>EX-141</code> do not re-close; nothing is edited.</p>
+<p><strong>Negative result.</strong> A red or a kill is filed in known-issues, and nothing is fixed. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>EX-179</code> progress (stale lines by name, 116 → 114 if nothing else ages in), and a known-issues entry per red.</p>
+<p><strong>Depends on:</strong> nothing. After batch 8 the lane's <code>-n 2</code> / ≤ 480 s supply is empty again until the next example ages in.</p>
+<p><strong>Outcome (2026-11-07, 19:30 CST slot, the slot's second item after 862): DONE, no red.</strong> <code>imp:11</code> at <code>-n 2 -t 180</code>, 14 s, Status 0, <code>20261107T013810Z_EX-179-imp11.log</code> ("All imported gates hold.", <code>:62</code>); <code>imp:12</code> at <code>-n 2 -t 180</code>, 14 s, Status 0, <code>20261107T013830Z_EX-179-imp12.log</code> ("All imported gates hold.", <code>:63</code>). Neither window set <code>FEM_EM_SETUP_FIGURES</code>. <strong>Control met.</strong> Lines naming <code>implants_11_</code> / <code>implants_12_</code>: 2 in <code>20261106T193258Z_EX-179-b7-docrefs.log</code> (<code>:53–54</code>, the newest docrefs log on <code>main</code> before this batch), 0 in <code>20261107T013852Z_EX-179-b8-docrefs.log</code>, <code>dead=0 guide=0 stale=117</code>, exit 2 (116 → 117: these two lines left, three aged in by wall clock). Pre-check <code>pgrep -c python3</code> 0. <code>git status --porcelain</code> showed only logs and <code>test-results.md</code>. No leak-guard hit.</p>
+<h3 id="9-item-868-2026-11-07-lane-1-refresh-lane-ex-179-batch-9-three-n-2-examples-that-aged-in">§9 item 868 — 2026-11-07 (lane 1, refresh lane; <code>EX-179</code> batch 9, three <code>-n 2</code> examples that aged in)<a class="headerlink" href="#9-item-868-2026-11-07-lane-1-refresh-lane-ex-179-batch-9-three-n-2-examples-that-aged-in" title="Permanent link">&para;</a></h3>
+<p><strong>Why these.</strong> The 18:00 review read every stale line in <code>20261107T181332Z_EX-187-docrefs.log</code> (<code>stale=124</code>, the newest docrefs log on <code>main</code>) against batch 8's scan (<code>stale=116</code>). Nine examples have aged past the 336 h limit since that scan: <code>imp:13</code>, <code>mat:26</code>, <code>mat:27</code>, <code>ports:22</code>, <code>th:17</code>, <code>th:18</code>, <code>th:19</code>, <code>th:20</code> and <code>th:21</code> (<code>mag:7</code> aged in too and stays out, as <code>mag:</code> does). Three of them sit inside the lane's own rule (<code>-n 2</code>, guide <code>-t</code> ≤ 480 s, not <code>mag:</code>). The other six have guide run lines at <code>-t 600</code>, which is outside the rule, so they are the weekly's to price.</p>
+<table>
+<thead>
+<tr>
+<th>Example</th>
+<th>Command flags</th>
+<th>Guide run line</th>
+<th>Last window (measured)</th>
+<th>Stale lines in baseline</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mat:26</code></td>
+<td><code>-n 2 -t 420</code></td>
+<td><code>examples/materials/26_perfusion_ball_h_convergence_rate.md:56</code></td>
+<td><code>20261024T170646Z_EX-149.log.gz</code>, 17 s, Status 0 (a <code>FEM_EM_SETUP_FIGURES=1</code> window)</td>
+<td><code>materials_26_*</code>, 1 line <code>:96</code></td>
+</tr>
+<tr>
+<td><code>mat:27</code></td>
+<td><code>-n 2 -t 420</code></td>
+<td><code>examples/materials/27_duty_cycle_time_step_rate.md:61</code></td>
+<td><code>20261024T171609Z_EX-151.log.gz</code>, 33 s, Status 0 (a flagged window)</td>
+<td><code>materials_27_*</code>, 2 lines <code>:97–98</code></td>
+</tr>
+<tr>
+<td><code>th:19</code></td>
+<td><code>-n 2 -t 300</code></td>
+<td><code>examples/time_harmonic/19_layered_wall_cavity_q.md:54</code></td>
+<td><code>20261024T003645Z_EX-144.log.gz</code>, 10 s, Status 0 (a flagged window)</td>
+<td><code>time_harmonic_19_*</code>, 1 line <code>:159</code></td>
+</tr>
+</tbody>
+</table>
+<p>The measured total is ≈ 60 s. Each guide's run line uses the root <code>./run_examples.sh</code> form; run the <code>./scripts/</code> form, as batch 8 did.</p>
+<p><strong>Code.</strong> None.</p>
+<p><strong>Windows.</strong> Bare, foreground, Bash timeout 660000. Check <code>pgrep -c python3</code> reads 0 once before starting.
+- <code>scripts/testing/run_and_log.sh EX-179-mat26 "./scripts/run_examples.sh -e mat:26 -n 2 -t 420"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-mat27 "./scripts/run_examples.sh -e mat:27 -n 2 -t 420"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-th19 "./scripts/run_examples.sh -e th:19 -n 2 -t 300"</code>
+- Then <code>scripts/testing/run_and_log.sh EX-179-b9-docrefs "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code>.</p>
+<p><strong>Anchor.</strong> Each example's own asserted gates: its closing "hold" / "PASS" line and Status 0. All three last closed on "All imported gates hold."</p>
+<p><strong>Control (asserted).</strong> The artifact moved, compared by name: 4 lines naming <code>materials_26_</code> / <code>materials_27_</code> / <code>time_harmonic_19_</code> in the baseline (<code>20261107T181332Z_EX-187-docrefs.log</code>, <code>:96–98</code>, <code>:159</code>, unless a later docrefs log landed on <code>main</code>), 0 in b9.</p>
+<p><strong>Tier.</strong> Standard, <code>-n 2</code>, complex (the runner sources the complex build for <code>mat:</code> and <code>th:</code>; both guides say so). <strong>Not daytime:</strong> any slot. <strong>Class:</strong> example. <strong>Cost:</strong> ≈ 5.8 measured / 8 predicted min.</p>
+<p><strong>Traps already paid for.</strong> Everything in this chunk's common brief and item 832's list, plus:
+- All three last windows ran under <code>FEM_EM_SETUP_FIGURES=1</code>. This refresh does not set it.
+- Use <code>./scripts/run_examples.sh</code>, not the guides' root <code>./run_examples.sh</code>.
+- <code>mat:27</code> builds its time loop by hand because a complex-typed comparison raises in the complex build (guide <code>:38</code>). A red there is a finding, not something to patch.
+- A leak-guard hit moves the log unchanged to <code>logs/leak-held/</code>; then report and go on. Never <code>--no-verify</code>.
+- <code>git status --porcelain</code> shows only logs and <code>test-results.md</code>.</p>
+<p><strong>Scope.</strong> A re-run. <code>EX-144</code>, <code>EX-149</code> and <code>EX-151</code> do not re-close, and nothing is edited.</p>
+<p><strong>Negative result.</strong> A red or a kill is filed in known-issues, and nothing is fixed. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>EX-179</code> progress (stale lines by name: 4 → 0 for these stems), and a known-issues entry for each red.</p>
+<p><strong>Depends on:</strong> nothing. After batch 9, the lane's <code>-n 2</code> / ≤ 480 s supply is empty again until the next example ages in.</p>
+<p><strong>Outcome (2026-11-07, 19:30 CST slot): DONE, all three, no red.</strong> <code>mat:26</code> at <code>-n 2 -t 420</code>, 18 s, Status 0, <code>20261108T013025Z_EX-179-mat26.log</code> ("All imported gates hold.", <code>:66</code>); <code>mat:27</code> at <code>-n 2 -t 420</code>, 32 s, Status 0, <code>20261108T013049Z_EX-179-mat27.log</code> (same, <code>:80</code>); <code>th:19</code> at <code>-n 2 -t 300</code>, 9 s, Status 0, <code>20261108T013128Z_EX-179-th19.log</code> (same, <code>:69</code>). None set <code>FEM_EM_SETUP_FIGURES</code>. <strong>Control met.</strong> Lines naming <code>materials_26_</code> / <code>materials_27_</code> / <code>time_harmonic_19_</code>: 4 in <code>20261107T181332Z_EX-187-docrefs.log</code>, 0 in <code>20261108T013143Z_EX-179-b9-docrefs.log</code>, <code>dead=0 guide=0 stale=120</code>, exit 2 (124 → 120). Pre-check <code>pgrep -c python3</code> 0. <code>git status --porcelain</code> showed only logs and <code>test-results.md</code>. No leak-guard hit.</p>
+<h3 id="9-item-883-2026-11-08-lane-1-refresh-lane-ex-179-batch-10-the-six-t-600-agers">§9 item 883 — 2026-11-08 (lane 1, refresh lane; EX-179 batch 10, the six -t 600 agers)<a class="headerlink" href="#9-item-883-2026-11-08-lane-1-refresh-lane-ex-179-batch-10-the-six-t-600-agers" title="Permanent link">&para;</a></h3>
+<p><strong>Why these.</strong> Item 868 left these six outside the lane, because their guide run lines say <code>-t 600</code>. The 11-07 weekly priced and admitted them (<code>PROJECT_PLAN.md</code> §10, "The refresh lane — the six <code>-t 600</code> agers priced and admitted"). Its rule: an example whose guide names <code>-t 600</code> at <code>-n 2</code>, and whose last closing window measured ≤ 400 s, may be refreshed at its guide's own flags in any slot, one batch of up to six. <code>EX-177</code>'s Done-when governs: nothing is edited, and a red or a kill is filed, never fixed.</p>
+<table>
+<thead>
+<tr>
+<th>Example</th>
+<th>Flags (guide run line)</th>
+<th>Last closing window (measured)</th>
+<th>Closing line</th>
+<th>Stale line in baseline</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>imp:13</code></td>
+<td><code>-n 2 -t 600</code> (<code>examples/implants/13_pec_oblate_disc_face_in_gel.md:57</code>)</td>
+<td><code>20261024T170054Z_EX-147-relabel.log.gz</code>, 117 s (<code>:169</code>; Python 113.6 s), Status 0, flagged. The 10-24 first close was <code>20261024T094041Z_EX-147.log.gz</code>, 116 s (test-results <code>:5303</code>)</td>
+<td>"All assertions hold. Total elapsed 113.6 s." <code>:165</code></td>
+<td><code>implants_13_*</code>, <code>:53</code></td>
+</tr>
+<tr>
+<td><code>ports:22</code></td>
+<td><code>-n 2 -t 600</code> (<code>examples/ports/22_power_wave_identity_per_drive.md:62</code>)</td>
+<td><code>20261024T171129Z_EX-150.log.gz</code>, 51 s (<code>:1904</code>), Status 0, flagged</td>
+<td>"All gates hold. Total elapsed 48.3 s." <code>:1900</code></td>
+<td><code>ports_22_*</code>, <code>:151</code></td>
+</tr>
+<tr>
+<td><code>th:17</code></td>
+<td><code>-n 2 -t 600</code> (<code>examples/time_harmonic/17_abc_dipole_sphere.md:54</code>)</td>
+<td><code>20261023T170527Z_EX-142.log.gz</code>, 76 s (<code>:68</code>), Status 0, not flagged</td>
+<td>"All imported gates hold." <code>:64</code></td>
+<td><code>time_harmonic_17_*</code>, <code>:154</code></td>
+</tr>
+<tr>
+<td><code>th:18</code></td>
+<td><code>-n 2 -t 600</code> (<code>examples/time_harmonic/18_abc_oblique_incidence.md:55</code>)</td>
+<td><code>20261024T003217Z_EX-143.log.gz</code>, 17 s (<code>:75</code>), Status 0, flagged</td>
+<td>"All imported gates hold." <code>:71</code></td>
+<td><code>time_harmonic_18_*</code>, <code>:155</code></td>
+</tr>
+<tr>
+<td><code>th:20</code></td>
+<td><code>-n 2 -t 600</code> (<code>examples/time_harmonic/20_debye_plane_wave.md:44</code>)</td>
+<td><code>20261024T004035Z_EX-145.log.gz</code>, 33 s (<code>:71</code>), Status 0, flagged</td>
+<td>"All imported gates hold." <code>:67</code></td>
+<td><code>time_harmonic_20_*</code>, <code>:156</code></td>
+</tr>
+<tr>
+<td><code>th:21</code></td>
+<td><code>-n 2 -t 600</code> (<code>examples/time_harmonic/21_plane_wave_impedance.md:49</code>)</td>
+<td><code>20261024T093646Z_EX-146.log.gz</code>, 31 s (<code>:81</code>), Status 0, flagged</td>
+<td>"All assertions hold." <code>:77</code></td>
+<td><code>time_harmonic_21_*</code>, <code>:157</code></td>
+</tr>
+</tbody>
+</table>
+<p>In the table, "flagged" means a <code>-e FEM_EM_SETUP_FIGURES=1</code> window. Stale lines are those of <code>20261108T013143Z_EX-179-b9-docrefs.log</code> (<code>stale=120</code>, <code>:160</code>), the newest docrefs log on <code>main</code> at this writing.</p>
+<p><strong>The sum fits one slot.</strong> The six last closing windows total 117 + 51 + 76 + 17 + 33 + 31 = <strong>325 s ≈ 5.4 min</strong>; with harness overhead and the docrefs window the batch is ≈ 7 min. The 45-minute split line is not approached, so this is <strong>one item, no split</strong>. The longest single window is 117 s against the 600 s ceiling, a ≈ 5× margin.</p>
+<p><strong>How the last windows ran.</strong> None of the six ran through the runner. Each was <code>docker compose exec [-T] [-e FEM_EM_SETUP_FIGURES=1] fem-em-solver bash -lc "cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src timeout -k 30 600 mpiexec -n 2 python3 examples/&lt;path&gt;.py"</code> (each log's <code>:12</code>). The runner wraps the same <code>timeout -k 30 $TIMEOUT_S mpiexec -n $NPROC</code> (<code>scripts/run_examples.sh:291</code>). So <code>-n 2 -t 600</code> through it is the same compute envelope, minus the figure flag. Examples close on <code>./scripts/run_examples.sh</code> (the 10-31 weekly); this is a refresh and closes nothing.</p>
+<p><strong>Code.</strong> None.</p>
+<p><strong>Windows.</strong> Bare, foreground, Bash timeout 660000 ms. <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0 once before the first window. Run them in this order, the largest first, so a slow box shows early:
+- <code>scripts/testing/run_and_log.sh EX-179-imp13 "./scripts/run_examples.sh -e imp:13 -n 2 -t 600"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-th17 "./scripts/run_examples.sh -e th:17 -n 2 -t 600"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-ports22 "./scripts/run_examples.sh -e ports:22 -n 2 -t 600"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-th20 "./scripts/run_examples.sh -e th:20 -n 2 -t 600"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-th21 "./scripts/run_examples.sh -e th:21 -n 2 -t 600"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-th18 "./scripts/run_examples.sh -e th:18 -n 2 -t 600"</code>
+- Then <code>scripts/testing/run_and_log.sh EX-179-b10-docrefs "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code>.</p>
+<p><strong>Anchor.</strong> Each example's own asserted gates: its closing line as in the table, and Status 0. A digit is not compared against the guide; this is a refresh.</p>
+<p><strong>Control (asserted).</strong> The artifact moved, compared by name. The baseline has 6 lines naming <code>implants_13_</code>, <code>ports_22_</code>, <code>time_harmonic_17_</code>, <code>time_harmonic_18_</code>, <code>time_harmonic_20_</code> and <code>time_harmonic_21_</code> (<code>20261108T013143Z_EX-179-b9-docrefs.log:53</code>, <code>:151</code>, <code>:154–157</code>). If a later docrefs log lands on <code>main</code> before this batch, for example item 871's <code>ANS-11-C36-docrefs</code>, it is the baseline instead, and its own lines are cited. The b10 log must have 0 such lines.</p>
+<p><strong>Tier.</strong> Standard, <code>-n 2</code>, complex (the runner sources the complex build for <code>imp:</code>, <code>ports:</code> and <code>th:</code>, as batches 1, 8 and 9 ran them). <strong>Not daytime:</strong> any slot. <strong>Class:</strong> example. <strong>Cost:</strong> ≈ 5.8 measured / 10 predicted min.</p>
+<p><strong>Traps already paid for.</strong> Everything in this chunk's common brief and item 832's list, plus:
+- <strong><code>th:17</code>'s first close was held by the private-leak guard</strong> on a coincidental digit prefix in a printed 1/(2x²) (<code>EX-142.md:78</code>). The column was suppressed for x &lt; 1 and the example re-run. If the guard fires again, move the log unchanged to <code>logs/leak-held/</code>, report, and go on. <strong>Never <code>--no-verify</code>.</strong>
+- Five of the six last windows set <code>FEM_EM_SETUP_FIGURES=1</code>. This refresh does not set it, so the committed setup PNGs stay as they are and are not regenerated. <code>git status --porcelain</code> must show only logs and <code>test-results.md</code>.
+- <code>-t 600</code> is the §9 ceiling itself (<code>timeout -k 30 600</code> at most). Never raise it. A kill at 600 s is a finding to file, not a re-run at a higher ceiling.
+- Use <code>./scripts/run_examples.sh</code>, not the guides' root <code>./run_examples.sh</code>.
+- <code>imp:13</code> is gmsh-heavy: its relabel log elided 103 optimisation lines (<code>:170</code>). That is normal.
+- Two heavy windows never run at once: run in sequence, in the foreground.</p>
+<p><strong>Scope.</strong> A re-run. <code>EX-142</code>, <code>EX-143</code>, <code>EX-145</code>, <code>EX-146</code>, <code>EX-147</code> and <code>EX-150</code> do not re-close, and nothing is edited.</p>
+<p><strong>Negative result.</strong> A red or a kill is filed in known-issues, and nothing is fixed. The batch goes on to the next window unless the container wedged, in which case use the recovery in known-issues. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>EX-179</code> progress: stale lines by name, 6 → 0 for these stems. After batch 10 the weekly's six are drained; the remainder is the standing stale floor, not a target. Also a known-issues entry for each red.</p>
+<p><strong>Depends on:</strong> nothing.</p>
+<p><strong>Outcome (2026-11-08, 15:00 CST slot, take-next at minute 19): DONE, all six, no red.</strong> Each ran at <code>-n 2 -t 600</code>, with Status 0 and its closing line read in the log:</p>
+<table>
+<thead>
+<tr>
+<th>Example</th>
+<th>Harness</th>
+<th>Log</th>
+<th>Closing line</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>imp:13</code></td>
+<td>114 s</td>
+<td><code>20261108T211934Z_EX-179-imp13.log</code></td>
+<td>"All assertions hold. Total elapsed 112.0 s." <code>:162</code></td>
+</tr>
+<tr>
+<td><code>th:17</code></td>
+<td>75 s</td>
+<td><code>20261108T212131Z_EX-179-th17.log</code></td>
+<td>"All imported gates hold." <code>:68</code></td>
+</tr>
+<tr>
+<td><code>ports:22</code></td>
+<td>47 s</td>
+<td><code>20261108T212249Z_EX-179-ports22.log</code></td>
+<td>"All gates hold. Total elapsed 44.2 s." <code>:1897</code></td>
+</tr>
+<tr>
+<td><code>th:20</code></td>
+<td>28 s</td>
+<td><code>20261108T212338Z_EX-179-th20.log</code></td>
+<td><code>:64</code></td>
+</tr>
+<tr>
+<td><code>th:21</code></td>
+<td>28 s</td>
+<td><code>20261108T212409Z_EX-179-th21.log</code></td>
+<td>"All assertions hold." <code>:74</code></td>
+</tr>
+<tr>
+<td><code>th:18</code></td>
+<td>14 s</td>
+<td><code>20261108T212441Z_EX-179-th18.log</code></td>
+<td><code>:68</code></td>
+</tr>
+</tbody>
+</table>
+<p>None of the six set <code>FEM_EM_SETUP_FIGURES</code>.</p>
+<p><strong>Control met.</strong> A later docrefs log had landed on <code>main</code>, so it is the baseline, as the brief allows. The six stems are named on 6 lines in <code>20261108T211648Z_EX-188-docrefs.log</code> (<code>:53</code>, <code>:153</code>, <code>:159–162</code>) and on 0 lines in <code>20261108T212458Z_EX-179-b10-docrefs.log</code>. The b10 log reads <code>dead=0 guide=0 stale=121</code>, exit 2 (127 → 121).</p>
+<p>Pre-check <code>pgrep -c python3</code> read 0. <code>git status --porcelain</code> showed only logs and <code>test-results.md</code>. No leak-guard hit.</p>
+<h3 id="9-item-919-2026-11-09-lane-1-refresh-lane-ex-179-batch-11-the-10-26-agers">§9 item 919 — 2026-11-09 (lane 1, refresh lane; EX-179 batch 11, the 10-26 agers)<a class="headerlink" href="#9-item-919-2026-11-09-lane-1-refresh-lane-ex-179-batch-11-the-10-26-agers" title="Permanent link">&para;</a></h3>
+<p><strong>Why these.</strong> Batch 10 left the stale count at 121 (<code>20261108T212458Z_EX-179-b10-docrefs.log:161</code>). The newest docrefs log on <code>main</code>, <code>20261109T105522Z_EX-190-docrefs-post.log</code>, reads <code>stale=124</code> (<code>:164</code>). The three new lines are <code>imp:15</code>'s two arms and <code>imp:16</code> (<code>:54–56</code>), now past the 336 h limit. <code>th:23</code>'s artifact was 341.5 h old at 10:30 on 11-09, by file mtime. It aged after that log was written, so it is in this batch too. All three last closed on 2026-10-26. The lane's rule (the 11-07 weekly) is one batch per review while a ≤ 480 s or priced example reads stale. <code>imp:15</code> and <code>th:23</code> run at <code>-t 420</code>. <code>imp:16</code> runs at <code>-t 540</code> and is priced by its own measured window, 180 s. <code>EX-177</code>'s Done-when governs: nothing is edited, and a red or a kill is filed, never fixed.</p>
+<table>
+<thead>
+<tr>
+<th>Example</th>
+<th>Flags (guide run line)</th>
+<th>Last closing window (measured)</th>
+<th>Closing line</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>imp:15</code></td>
+<td><code>-n 2 -t 420</code> (<code>examples/implants/15_rod_heating_matched_phantom.md:63</code>)</td>
+<td><code>20261026T033157Z_EX-155.log.gz</code>, 233 s (<code>:3733</code>), Status 0, flagged</td>
+<td>"All imported gates hold." <code>:3729</code></td>
+</tr>
+<tr>
+<td><code>imp:16</code></td>
+<td><code>-n 4 -t 540</code> (<code>examples/implants/16_implant_heating_curved_p2.md:61</code>)</td>
+<td><code>20261026T095740Z_EX-156.log.gz</code>, 180 s (<code>:63</code>), Status 0, flagged</td>
+<td>"All imported gates hold." <code>:59</code></td>
+</tr>
+<tr>
+<td><code>th:23</code></td>
+<td><code>-n 2 -t 420</code> (<code>examples/time_harmonic/23_cole_cole_plane_wave.md:62</code>)</td>
+<td><code>20261026T110247Z_EX-157.log.gz</code>, 35 s (<code>:75</code>), Status 0, flagged</td>
+<td>"All imported gates hold." <code>:71</code></td>
+</tr>
+</tbody>
+</table>
+<p>Here "flagged" means a <code>-e FEM_EM_SETUP_FIGURES=1</code> window.</p>
+<p><strong>The sum fits one slot.</strong> The three windows total 233 + 180 + 35 = <strong>448 s ≈ 7.5 min</strong>. With harness overhead and the two docrefs windows, the batch is ≈ 9 min. This is <strong>one item, no split</strong>. The tightest margin is <code>imp:15</code>, at 233 s against 420 s (1.8×).</p>
+<p><strong>Code.</strong> None.</p>
+<p><strong>Windows.</strong> Bare, foreground, Bash timeout 660000 ms. Read <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> once before the first window; it must be 0. Run in this order, the largest first:
+- <code>scripts/testing/run_and_log.sh EX-179-b11-docrefs-pre "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-imp15 "./scripts/run_examples.sh -e imp:15 -n 2 -t 420"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-imp16 "./scripts/run_examples.sh -e imp:16 -n 4 -t 540"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-th23 "./scripts/run_examples.sh -e th:23 -n 2 -t 420"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-b11-docrefs "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code></p>
+<p><strong>Anchor.</strong> Each example's own asserted gates: its closing line as in the table, and Status 0. No digit is compared against the guide, because this is a refresh.</p>
+<p><strong>Control (asserted).</strong> The artifacts moved, compared by name. The pre log names <code>implants_15_</code>, <code>implants_16_</code> and <code>time_harmonic_23_</code> on 4 lines: three of them at <code>20261109T105522Z_EX-190-docrefs-post.log:54–56</code>, plus <code>th:23</code>'s new line. If the pre log shows fewer than 4 (for example, <code>th:23</code>'s line missing because the threshold moved), cite what it shows. The b11 log must have 0 such lines.</p>
+<p><strong>Tier.</strong> Heavy label on <code>imp:15</code> (233 s); the others are standard. Runs at <code>-n 2</code> and <code>-n 4</code> in the complex build, which the runner sources for <code>imp:</code> and <code>th:</code>. <strong>Not daytime:</strong> any slot. <strong>Class:</strong> example. <strong>Cost:</strong> ≈ 8.3 measured / 12 predicted min.</p>
+<p><strong>Traps already paid for.</strong> Everything in this chunk's common brief, item 832's list and item 883's list, plus:
+- All three last windows set <code>FEM_EM_SETUP_FIGURES=1</code>. This refresh does not, so the committed setup PNGs stay as they are. <code>git status --porcelain</code> must show only logs and <code>test-results.md</code>.
+- <code>imp:16</code> is the one <code>-n 4</code> window. Its 540 s is the guide's own ceiling. It is under the §9 600 s cap, and is never raised. A kill is a finding to file, not a re-run.
+- <code>imp:15</code> meshes two arms with gmsh (mesh wall 45.6 / 41.0 s in the guide, <code>:103</code>). Its last log ran to 3 700+ lines, which is normal.
+- <code>th:23</code>'s guide run line is the root <code>./run_examples.sh</code>. Use <code>./scripts/run_examples.sh</code>.
+- If the leak guard fires, move the log unchanged to <code>logs/leak-held/</code>, report, and go on. <strong>Never <code>--no-verify</code>.</strong>
+- Two heavy windows never run at once. Run them in sequence, in the foreground.</p>
+<p><strong>Scope.</strong> A re-run. <code>EX-155</code>, <code>EX-156</code> and <code>EX-157</code> do not re-close, and nothing is edited.</p>
+<p><strong>Negative result.</strong> A red or a kill is filed in known-issues, and nothing is fixed. The batch goes on to the next window unless the container wedged; in that case use the recovery in known-issues. There is no <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>EX-179</code> progress: stale lines by name, 4 → 0 for these stems. Also a known-issues entry for each red. The next wave is <code>mri:35</code>, <code>imp:17</code>, <code>mat:28</code> and <code>mat:29</code>, which were ≈ 301 h old at 10:30 on 11-09 and age past 336 h around 21:30 on 11-10. That is a later review's batch.</p>
+<p><strong>Depends on:</strong> nothing.</p>
+<p><strong>Outcome (2026-11-09, 13:30 CST slot, take-next at minute 7): DONE, all three, no red.</strong> Each ran at its listed flags, with Status 0 and its closing line read in the log:</p>
+<table>
+<thead>
+<tr>
+<th>Example</th>
+<th>Harness</th>
+<th>Log</th>
+<th>Closing line</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>imp:15</code></td>
+<td>232 s</td>
+<td><code>20261109T193733Z_EX-179-imp15.log</code></td>
+<td>"All imported gates hold." <code>:3726</code></td>
+</tr>
+<tr>
+<td><code>imp:16</code></td>
+<td>172 s</td>
+<td><code>20261109T194128Z_EX-179-imp16.log</code></td>
+<td>"All imported gates hold." <code>:56</code></td>
+</tr>
+<tr>
+<td><code>th:23</code></td>
+<td>31 s</td>
+<td><code>20261109T194424Z_EX-179-th23.log</code></td>
+<td>"All imported gates hold." <code>:68</code></td>
+</tr>
+</tbody>
+</table>
+<p>None of the three set <code>FEM_EM_SETUP_FIGURES</code>.</p>
+<p><strong>Control met.</strong> The pre log <code>20261109T193726Z_EX-179-b11-docrefs-pre.log</code> names the three stems on 4 lines (<code>:54–56</code>, <code>:162</code>), at <code>stale=125</code>. The b11 log <code>20261109T194459Z_EX-179-b11-docrefs.log</code> names them on 0 lines and reads <code>dead=0 guide=0 stale=121</code>, exit 2 (125 → 121).</p>
+<p>Pre-check <code>pgrep -c python3</code> read 0. <code>git status --porcelain</code> showed only logs and <code>test-results.md</code>. No leak-guard hit.</p>
+<h3 id="9-item-951-2026-11-10-lane-1-refresh-lane-ex-179-batch-12-the-three-n-2-examples-of-the-10-28-wave">§9 item 951 — 2026-11-10 (lane 1, refresh lane; EX-179 batch 12, the three <code>-n 2</code> examples of the 10-28 wave)<a class="headerlink" href="#9-item-951-2026-11-10-lane-1-refresh-lane-ex-179-batch-12-the-three-n-2-examples-of-the-10-28-wave" title="Permanent link">&para;</a></h3>
+<p><em>Written by the 2026-11-10 18:00 daily review from a drafter's census, which was read back here. The wave's fourth example, <code>imp:17</code> (<code>-n 4</code>), is item 952: under this file's 2026-11-05 ruling (§ "Review ruling 2026-11-05 03:00 — the widened ceiling"), a <code>-n 4</code> refresh runs only in the 12:00 / 13:30 / 15:00 slots, and that ruling binds over a brief.</em></p>
+<p><strong>Why these.</strong> Batch 11 left the stale count at 121 (<code>20261109T194459Z_EX-179-b11-docrefs.log</code>). The newest docrefs log on <code>main</code>, <code>20261110T105043Z_ANS-12-C49-docrefs.log</code>, also reads <code>stale=121</code> (<code>:161</code>) and names none of this wave. The three examples last closed on 2026-10-28 UTC. By artifact mtime (read 18:04 CST) they pass the 336 h line at ≈ 21:33 (<code>mat:28</code>), ≈ 21:39 (<code>mri:35</code>) and ≈ 21:44 (<code>mat:29</code>) CST on 11-10. The 11-09 weekly names this wave as lane 1's next target (§10, "Lane 1 and lane 2, targets for the daily"). None is <code>mag:</code>, <code>-n 4</code> or <code>-n 8</code>.</p>
+<p><strong>Not takeable before the 22:30 slot on 11-10.</strong> Before ≈ 21:45 CST the three are not stale. The taking slot proves staleness first: its pre docrefs window must name all three stems before any example runs. If it names fewer, run nothing more, commit the pre log, and leave the item OPEN.</p>
+<table>
+<thead>
+<tr>
+<th>Example</th>
+<th>Flags (guide run line)</th>
+<th>Last closing window (measured)</th>
+<th>Closing line</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mri:35</code></td>
+<td><code>-n 2 -t 300</code> (<code>examples/mri/35_tune_a_saved_result.md:75</code>)</td>
+<td><code>20261028T033751Z_EX-160.log.gz</code>, 46 s (<code>:959</code>), Status 0 (<code>:958</code>), flagged</td>
+<td>"All assertions hold. Total elapsed 43.7 s." <code>:955</code></td>
+</tr>
+<tr>
+<td><code>mat:29</code></td>
+<td><code>-n 2 -t 300</code> (<code>examples/materials/29_gel_box_initial_gradient_drift.md:59</code>)</td>
+<td><code>20261028T034336Z_EX-161.log.gz</code>, 34 s (<code>:73</code>), Status 0 (<code>:72</code>), flagged</td>
+<td>"All imported gates hold." <code>:69</code></td>
+</tr>
+<tr>
+<td><code>mat:28</code></td>
+<td><code>-n 2 -t 300</code> (<code>examples/materials/28_gel_box_meshed_acrylic_wall.md:58</code>)</td>
+<td><code>20261028T033215Z_EX-159.log.gz</code>, 28 s (<code>:66</code>), Status 0 (<code>:65</code>), flagged</td>
+<td>"All imported gates hold." <code>:62</code></td>
+</tr>
+</tbody>
+</table>
+<p>"Flagged" means a <code>FEM_EM_SETUP_FIGURES=1</code> window. This refresh does not set it.</p>
+<p><strong>Code.</strong> None.</p>
+<p><strong>Windows.</strong> Bare, foreground, Bash timeout 660000 ms. <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0 once, before the first window.
+- <code>scripts/testing/run_and_log.sh EX-179-b12-docrefs-pre "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-mri35 "./scripts/run_examples.sh -e mri:35 -n 2 -t 300"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-mat29 "./scripts/run_examples.sh -e mat:29 -n 2 -t 300"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-mat28 "./scripts/run_examples.sh -e mat:28 -n 2 -t 300"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-b12-docrefs "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code></p>
+<p><strong>Anchor.</strong> Each example's own asserted gates: its closing line (table) and Status 0. No guide digit is compared.</p>
+<p><strong>Control (asserted).</strong> The artifacts moved, compared by name.
+- The pre log names <code>mri_35_</code>, <code>materials_28_</code> and <code>materials_29_</code> on <strong>3 lines</strong>, one <code>_combined.xdmf</code> per stem.
+- The setup PNGs are tracked, so the checker exempts them (<code>scripts/testing/check_example_doc_references.py:479–480</code>). <code>mri_35_run/</code>'s <code>.s4p</code> / <code>.yaml</code> carry no artifact suffix (<code>:116</code>).
+- The b12 log names them on 0 lines.</p>
+<p><strong>Tier.</strong> Standard by measurement: 46 s is the longest, and the sum is 108 s. Complex where the runner sources it. <code>-n 2</code>. <strong>Class:</strong> example. <strong>Executor:</strong> the implementer directly (this file's common brief). <strong>Cost:</strong> ≈ 10.3 measured / 8 predicted min.</p>
+<p><strong>Traps already paid for.</strong> This file's common brief and the lists of items 832, 883 and 919, plus:
+- <strong><code>mri:35</code> asserts <code>comm.size == 2</code></strong> (<code>examples/mri/35_tune_a_saved_result.py:101</code>). It deletes and rewrites its gitignored <code>paraview_output/mri_35_run/</code> (<code>:80–83</code>, <code>:104</code>), which is normal. Its last log filtered 1084 gmsh lines (<code>:960</code>).
+- <strong>The windows are unflagged,</strong> so the committed setup PNGs stay as they are. <code>git status --porcelain</code> must show only logs and <code>test-results.md</code>.
+- <strong>Use <code>./scripts/run_examples.sh</code>,</strong> not a guide's root <code>./run_examples.sh</code>.
+- No queued <code>xl</code> / <code>xxl</code> command imports these examples. A 22:30 or 00:00 slot ends well before the 02:00 window (entry 60).
+- <strong>Leak guard:</strong> move the log unchanged to <code>logs/leak-held/</code>, report, and go on. <strong>Never <code>--no-verify</code>.</strong></p>
+<p><strong>Scope.</strong> A re-run. <code>EX-159</code>, <code>EX-160</code> and <code>EX-161</code> do not re-close, and nothing is edited.</p>
+<p><strong>Negative result.</strong> A refresh window that goes red is a finding: stop, file it in known-issues, fix nothing. The batch goes on unless the container wedged. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>EX-179</code> progress: stale lines by name, 3 → 0 for <code>mri_35_</code>, <code>materials_28_</code> and <code>materials_29_</code>. Also a known-issues entry for each red.</p>
+<p><strong>Depends on:</strong> the wall clock only. It is not takeable before the 22:30 slot on 11-10.</p>
+<p><strong>Outcome (2026-11-10, 22:30 CST slot): DONE, all three, no red.</strong> Staleness proved first: the pre log <code>20261111T043020Z_EX-179-b12-docrefs-pre.log</code> names the three stems on 3 lines (<code>:98</code>, <code>:99</code>, <code>:143</code>; 337.0 / 336.8 / 336.9 h against the 336.0 h limit), <code>stale=125</code> (<code>:165</code>). Each ran at <code>-n 2 -t 300</code>, with Status 0 and its closing line read in the log:</p>
+<table>
+<thead>
+<tr>
+<th>Example</th>
+<th>Harness</th>
+<th>Log</th>
+<th>Closing line</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mri:35</code></td>
+<td>38 s</td>
+<td><code>20261111T043027Z_EX-179-mri35.log</code></td>
+<td>"All assertions hold. Total elapsed 34.9 s." <code>:952</code></td>
+</tr>
+<tr>
+<td><code>mat:29</code></td>
+<td>26 s</td>
+<td><code>20261111T043109Z_EX-179-mat29.log</code></td>
+<td>"All imported gates hold." <code>:66</code></td>
+</tr>
+<tr>
+<td><code>mat:28</code></td>
+<td>15 s</td>
+<td><code>20261111T043137Z_EX-179-mat28.log</code></td>
+<td>"All imported gates hold." <code>:59</code></td>
+</tr>
+</tbody>
+</table>
+<p>None of the three set <code>FEM_EM_SETUP_FIGURES</code>.</p>
+<p><strong>Control met.</strong> The b12 log <code>20261111T043156Z_EX-179-b12-docrefs.log</code> names the three stems on 0 lines and reads <code>dead=0 guide=0 stale=122</code>, exit 2 (<code>:162</code>; 125 → 122). The pre log's 125 is 121 plus this wave's three plus <code>imp:17</code> (<code>implants_17_</code>, <code>:54</code> in both logs), which is item 952's.</p>
+<p>Pre-check <code>pgrep -c python3</code> read 0. <code>git status --porcelain</code> showed only logs and <code>test-results.md</code>. No leak-guard hit.</p>
+<h3 id="9-item-952-2026-11-10-lane-1-refresh-lane-ex-179-batch-12b-imp17-at-n-4-daytime">§9 item 952 — 2026-11-10 (lane 1, refresh lane; EX-179 batch 12b, <code>imp:17</code> at <code>-n 4</code>, daytime)<a class="headerlink" href="#9-item-952-2026-11-10-lane-1-refresh-lane-ex-179-batch-12b-imp17-at-n-4-daytime" title="Permanent link">&para;</a></h3>
+<p><em>Written by the 2026-11-10 18:00 daily review. Under the 11-05 widened-ceiling ruling it is one <code>-n 4</code> example per batch, run in the 12:00, 13:30 or 15:00 slot with loadavg (1 min) &lt; 8.</em></p>
+<p><strong>Why.</strong> <code>imp:17</code> (<code>examples/implants/17_implant_heating_transient_duty.md:69</code>, <code>-n 4 -t 480</code>) last closed at <code>20261028T022737Z_EX-158.log.gz</code> in 169 s (<code>:68</code>; <code>[timing]</code> 166.1 s, <code>:62</code>), Status 0 (<code>:67</code>), flagged, with "All imported gates hold." (<code>:64</code>). It passes 336 h at ≈ 20:30 CST 11-10. That is ≤ 400 s at <code>-n 4</code>, so it is in the widened lane, and its guide's own <code>-t 480</code> is kept (≤ 600).</p>
+<p><strong>Not takeable before the 12:00 slot on 11-11, and only in the 12:00 / 13:30 / 15:00 slots,</strong> with <code>uptime</code> loadavg (1 min) &lt; 8 read immediately before. Under the §9 daytime rule it is the slot's first item. 929 (C52) is daytime too but is dated 11-12, so the two do not collide on 11-11.</p>
+<p><strong>Windows.</strong> Bare, foreground, Bash timeout 660000 ms; <code>pgrep -c python3</code> reads 0 first.
+- <code>scripts/testing/run_and_log.sh EX-179-b12b-docrefs-pre "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code> must name <code>implants_17_</code> on 1 line. If it names none, stop and leave the item OPEN.
+- <code>scripts/testing/run_and_log.sh EX-179-imp17 "./scripts/run_examples.sh -e imp:17 -n 4 -t 480"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-b12b-docrefs "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code> must name it on 0 lines.</p>
+<p><strong>Anchor.</strong> "All imported gates hold." and Status 0. <strong>Control:</strong> the pre / post stem lines, 1 → 0, by name.</p>
+<p><strong>Traps.</strong> Item 951's list, plus:
+- <strong><code>imp:17</code>'s first close crashed in non-gate print code.</strong> In <code>20261028T021923Z_EX-158.log.gz</code>, a rank-collective <code>allreduce</code> in the θ(t) print raised <code>ValueError</code> after every gate printed green (<code>:70</code>). The ranks hung to the ceiling, Status 124 at 481 s (<code>:114–115</code>), and <code>EX-158</code> fixed it before its closing window. If that shape recurs, it is a red to file. Nothing is edited in this lane.
+- A kill at 480 s is a finding. The ceiling is never raised.</p>
+<p><strong>Tier.</strong> Standard by measurement (169 s), <code>-n 4</code>, daytime. <strong>Class:</strong> example. <strong>Executor:</strong> the implementer directly. <strong>Cost:</strong> ≈ 10.3 measured / 6 predicted min.</p>
+<p><strong>Scope / negative result / status it can move.</strong> As item 951, for one stem (<code>implants_17_</code>, 1 → 0). With 951 and 952 landed, the lane's ≤ 480 s or priced supply is empty until the next example ages in.</p>
+<p><strong>Depends on:</strong> the wall clock and the daytime rule only.</p>
+<p><strong>Outcome (2026-11-11, 12:00 CST slot): DONE, no red.</strong> Slot-first under the daytime rule; <code>uptime</code> loadavg (1 min) 0.30 immediately before the example window; <code>pgrep -c python3</code> read 0. The pre log <code>20261111T180017Z_EX-179-b12b-docrefs-pre.log</code> names <code>implants_17_</code> on 1 line (<code>:54</code>, 351.5 h), <code>stale=124</code> (<code>:164</code>). <code>imp:17</code> at <code>-n 4 -t 480</code>: Status 0 (<code>:66</code>), harness 152 s (<code>:67</code>), <code>[timing] total 148.7 s at -n 4</code> (<code>:59</code>), "All imported gates hold." (<code>:61</code>), <code>20261111T180023Z_EX-179-imp17.log</code>; unflagged. <strong>Control met:</strong> the post log <code>20261111T180259Z_EX-179-b12b-docrefs.log</code> names <code>implants_17_</code> on 0 lines and reads <code>dead=0 guide=0 stale=123</code>, exit 2 (<code>:163</code>; 124 → 123). The pre log's 124 is the 10:30 review's 123 plus one stem that aged in since: <code>mri_36_tune_a_saved_human_scale_result_combined.xdmf</code> (<code>:142</code>, 336.8 h), not run here — for the review to place. <code>git status --porcelain</code> showed only logs and <code>test-results.md</code>. No leak-guard hit.</p>
+<h3 id="9-item-956-2026-11-11-lane-1-refresh-lane-ex-179-batch-13-mat30-the-10-28-waves-last-n-2-example">§9 item 956 — 2026-11-11 (lane 1, refresh lane; EX-179 batch 13, <code>mat:30</code>, the 10-28 wave's last <code>-n 2</code> example)<a class="headerlink" href="#9-item-956-2026-11-11-lane-1-refresh-lane-ex-179-batch-13-mat30-the-10-28-waves-last-n-2-example" title="Permanent link">&para;</a></h3>
+<p><em>Written by the 2026-11-11 10:30 daily review. The review's own docrefs window is the evidence of staleness.</em></p>
+<p><strong>Why.</strong> <code>mat:30</code> (<code>examples/materials/30_gel_box_wall_heat_capacity_transient.md:58</code>, <code>-n 2 -t 480</code>) last closed at <code>20261028T093706Z_EX-162.log.gz</code>. That window took 142 s (<code>:64</code>; <code>[timing]</code> 138.9 s at <code>-n 2</code>, <code>:58</code>), read Status 0 (<code>:63</code>) and was flagged, with "All imported gates hold." (<code>:60</code>). Its artifact passed the 336 h line at ≈ 03:37 CST on 11-11, after the 03:00 review read the census. The review's docrefs window <code>20261111T163143Z_REVIEW-1030-docrefs.log</code> names <code>materials_30_</code> on 1 line (<code>:98</code>, 342.9 h) and reads <code>dead=0 guide=0 stale=123</code> (<code>:163</code>). That 123 is batch 12's 122 plus this stem. <code>implants_17_</code> (<code>:54</code>) is item 952's. The example is <code>-n 2</code>, guide <code>-t</code> ≤ 480 s and not <code>mag:</code>, so it sits inside the lane's own rule. Every other stale line in that log was examined by batches 3–12 and is outside the rule (<code>mag:</code>, <code>-t</code> above 480 s, <code>-n 4</code> / <code>-n 8</code> with no surviving window ≤ 400 s, or unpriced). No new member is added here.</p>
+<p><strong>Windows.</strong> Bare, foreground, Bash timeout 660000 ms. <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0 once, before the first window.
+- <code>scripts/testing/run_and_log.sh EX-179-b13-docrefs-pre "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code> must name <code>materials_30_</code> on 1 line. If it names none, stop and leave the item OPEN.
+- <code>scripts/testing/run_and_log.sh EX-179-mat30 "./scripts/run_examples.sh -e mat:30 -n 2 -t 480"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-b13-docrefs "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code> must name it on 0 lines.</p>
+<p><strong>Anchor.</strong> The example's own asserted gates: "All imported gates hold." and Status 0. No guide digit is compared.</p>
+<p><strong>Control (asserted).</strong> The artifact moved, compared by name: <code>materials_30_</code> goes 1 → 0 between the pre and post logs. The post log's <code>stale=</code> should read the pre log's less one, unless something else ages in between. If it does, name the stem and do not run it.</p>
+<p><strong>Tier.</strong> Standard by measurement (142 s), complex where the runner sources it, <code>-n 2</code>, not daytime. <strong>Class:</strong> lane 1 (refresh). <strong>Executor:</strong> the implementer directly (this file's common brief). <strong>Cost:</strong> ≈ 6.0 measured / 6 predicted min.</p>
+<p><strong>Traps already paid for.</strong> Item 951's list, plus:
+- <strong>The window is unflagged,</strong> so the committed setup PNG stays as it is. <code>git status --porcelain</code> must show only logs and <code>test-results.md</code>.
+- <strong>Use <code>./scripts/run_examples.sh</code>,</strong> not a guide's root <code>./run_examples.sh</code>.
+- <strong>A kill at 480 s is a finding.</strong> The ceiling is never raised.
+- No queued <code>xl</code> / <code>xxl</code> command imports this example (<code>docs/testing/xl-queue.d/</code>, <code>xxl-queue.d/</code> grepped at this review). The window ends long before 02:00.
+- <strong>Under the §9 daytime rule, 952 is slot-first in the 12:00 / 13:30 / 15:00 slots.</strong> A slot that meets both takes 952 first and this item next (take-next), never the reverse.
+- <strong>Leak guard:</strong> move the log unchanged to <code>logs/leak-held/</code>, report, and go on. <strong>Never <code>--no-verify</code>.</strong></p>
+<p><strong>Scope.</strong> A re-run. <code>EX-162</code> does not re-close, and nothing is edited.</p>
+<p><strong>Negative result.</strong> A refresh window that goes red is a finding: stop, file it in known-issues, fix nothing. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>EX-179</code> progress: stale lines by name, 1 → 0 for <code>materials_30_</code>. Also a known-issues entry on a red. With 952 and 956 landed, the lane's supply that fits its rule is empty until the next example ages in.</p>
+<p><strong>Depends on:</strong> nothing. It is takeable from the 12:00 slot, after 952 in any slot that meets both.</p>
+<p><strong>Outcome (2026-11-11, 12:00 CST slot, take-next after 952 at minute ≈ 5): DONE, no red.</strong> <code>pgrep -c python3</code> read 0. The pre log <code>20261111T180418Z_EX-179-b13-docrefs-pre.log</code> names <code>materials_30_</code> on 1 line (<code>:97</code>, 344.4 h), <code>stale=123</code> (<code>:163</code>). <code>mat:30</code> at <code>-n 2 -t 480</code>: Status 0 (<code>:62</code>), harness 127 s (<code>:63</code>), <code>[timing] total 124.3 s at -n 2</code> (<code>:55</code>), "All imported gates hold." (<code>:57</code>), <code>20261111T180423Z_EX-179-mat30.log</code>; unflagged. <strong>Control met:</strong> the post log <code>20261111T180633Z_EX-179-b13-docrefs.log</code> names <code>materials_30_</code> on 0 lines and reads <code>dead=0 guide=0 stale=122</code>, exit 2 (<code>:162</code>; 123 → 122, the pre less one, nothing aged in between). <code>git status --porcelain</code> showed only logs and <code>test-results.md</code>. No leak-guard hit.</p>
+<h3 id="9-item-957-2026-11-11-lane-1-refresh-lane-ex-179-batch-14-mri36-at-n-8-daytime">§9 item 957 — 2026-11-11 (lane 1, refresh lane; EX-179 batch 14, <code>mri:36</code> at <code>-n 8</code>, daytime)<a class="headerlink" href="#9-item-957-2026-11-11-lane-1-refresh-lane-ex-179-batch-14-mri36-at-n-8-daytime" title="Permanent link">&para;</a></h3>
+<p><em>Written by the 2026-11-11 18:00 daily review. This file's 2026-11-05 ruling (§ "Review ruling 2026-11-05 03:00 — the widened ceiling") binds: one <code>-n 4</code> / <code>-n 8</code> example per batch, 12:00 / 13:30 / 15:00 slots only, loadavg &lt; 8, last closing window ≤ 400 s.</em></p>
+<p><strong>Why.</strong> <code>mri:36</code> (<code>examples/mri/36_tune_a_saved_human_scale_result.md:82</code>, <code>-n 8 -t 540</code>) last closed at <code>20261028T170623Z_EX-163.log.gz</code>. That window read "All assertions hold. Total elapsed 234.6 s." (<code>:7247</code>), Status 0 (<code>:7250</code>) and 238 s harness (<code>:7251</code>), and it was flagged (<code>FEM_EM_SETUP_FIGURES=1</code>, <code>:12</code>). 238 s ≤ 400 s, so the example is in the widened lane. Its guide's own <code>-t 540</code> is kept, because it is ≤ 600. Its artifact aged in at 336.8 h in item 952's pre log, <code>20261111T180017Z_EX-179-b12b-docrefs-pre.log:142</code>, and item 956's post log <code>20261111T180633Z_EX-179-b13-docrefs.log</code> still counts it in <code>stale=122</code>. The slots of 11-11 flagged it four times; no item covered it. No other artifact ages in before ≈ 15:20 CST 11-13 (<code>materials_31_</code>, by mtime at this review), so it is the lane's only in-rule member.</p>
+<p><strong>Not takeable before the 12:00 slot on 11-12, and only in the 12:00 / 13:30 / 15:00 slots,</strong> with <code>uptime</code> loadavg (1 min) &lt; 8 read immediately before. Under the §9 daytime rule it is the slot's first item, one daytime item per slot. 929 (C52) sits above it in list order and is daytime on 11-12 too. So a 12:00 slot that can take 929 takes 929, and this item goes to the next daytime slot. If 929 is not takeable (entry 61 has not run), this item is the 12:00 slot's first.</p>
+<p><strong>Windows.</strong> Bare, foreground, Bash timeout 660000 ms. <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0 immediately before the example window. An <code>-n 8</code> window never runs beside another compute window.
+- <code>scripts/testing/run_and_log.sh EX-179-b14-docrefs-pre "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code> must name <code>mri_36_</code> on 1 line. If it names none, stop and leave the item OPEN.
+- <code>scripts/testing/run_and_log.sh EX-179-mri36 "./scripts/run_examples.sh -e mri:36 -n 8 -t 540"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-b14-docrefs "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code> must name it on 0 lines.</p>
+<p><strong>Anchor.</strong> The example's own asserted gates. These are (CM), (T=), (S0) and the swapped-file control (c-sw), each at U100's imported band. Read the closing line "All assertions hold." and Status 0. No guide digit is compared.</p>
+<p><strong>Control (asserted).</strong> The artifact moved, compared by name: <code>mri_36_</code> goes 1 → 0 between the pre and post logs. The post log's <code>stale=</code> should read the pre log's less one. If something else ages in between, name the stem and do not run it.</p>
+<p><strong>Tier.</strong> Heavy by rank count, ≈ 4 min by measurement (238 s), <code>-n 8</code>, complex (the <code>mri:</code> group sources it). Daytime. <strong>Class:</strong> lane 1 (refresh). <strong>Executor:</strong> the implementer directly (this file's common brief). <strong>Cost:</strong> ≈ 3.5 measured / 8 predicted min.</p>
+<p><strong>Traps already paid for.</strong> Items 951, 952 and 956's lists, plus:
+- <strong><code>mri:36</code> asserts <code>comm.size == RECORD_RANK_WIDTH</code></strong> (<code>examples/mri/36_tune_a_saved_human_scale_result.py:83</code>), so it runs at <code>-n 8</code> and no other width.
+- <strong>It rewrites its gitignored <code>paraview_output/mri_36_run/</code></strong> (<code>:87</code>, <code>:97</code>; the two <code>.s32p</code> files), which is normal.
+- <strong>The copper F-human solve is the price.</strong> <code>mri:6</code>, the same hole mesh, grew from 278 s to 365 s on its refresh (item 853). A similar growth stays inside <code>-t 540</code>. A kill at 540 s is a finding about the widened ceiling, for the weekly, and the ceiling is never raised.
+- <strong>The window is unflagged,</strong> so the committed setup PNG stays as it is. <code>git status --porcelain</code> must show only logs and <code>test-results.md</code>.
+- <strong>Use <code>./scripts/run_examples.sh</code>,</strong> not a guide's root <code>./run_examples.sh</code>.
+- No queued <code>xl</code> / <code>xxl</code> command imports this example (<code>docs/testing/xl-queue.d/</code>, <code>xxl-queue.d/</code> grepped at this review). A daytime window ends long before 02:00.
+- <strong>Leak guard:</strong> move the log unchanged to <code>logs/leak-held/</code>, report, and go on. <strong>Never <code>--no-verify</code>.</strong></p>
+<p><strong>Scope.</strong> A re-run. <code>EX-163</code> does not re-close, and nothing is edited.</p>
+<p><strong>Negative result.</strong> A refresh window that goes red or is killed is a finding: stop, file it in known-issues, fix nothing. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>EX-179</code> progress: stale lines by name, 1 → 0 for <code>mri_36_</code>. Also a known-issues entry on a red or a kill.</p>
+<p><strong>Depends on:</strong> the wall clock and the daytime rule only, with 929 ahead of it in list order.</p>
+<p><strong>Outcome (2026-11-12, 13:30 CST slot): DONE, no red.</strong> Slot-first under the daytime rule (929 closed in the 12:00 slot); <code>uptime</code> loadavg (1 min) 0.24 immediately before the example window; <code>pgrep -c python3</code> read 0. The pre log <code>20261112T193030Z_EX-179-b14-docrefs-pre.log</code> names <code>mri_36_</code> on 1 line (<code>:140</code>, 362.3 h), <code>stale=122</code> (<code>:162</code>). <code>mri:36</code> at <code>-n 8 -t 540</code>: Status 0 (<code>:7249</code>), harness 221 s (<code>:7250</code>), "All assertions hold. Total elapsed 217.5 s." (<code>:7244</code>); (S0) spies 0 / 0 (<code>:7237</code>), (CM) rel 3.222e-13 and (T=) rel 2.931e-14 at <code>REDUCTION_BAND</code> (<code>:7238–7239</code>), (c-sw) miss 4.254907e-01 &gt; <code>LEG_D0_REPRODUCTION_BAND</code> (<code>:7241</code>); <code>20261112T193040Z_EX-179-mri36.log</code>; unflagged. Elapsed 221 s against 238 s at <code>EX-163</code>: no growth. <strong>Control met:</strong> the post log <code>20261112T193427Z_EX-179-b14-docrefs.log</code> names <code>mri_36_</code> on 0 lines and reads <code>dead=0 guide=0 stale=121</code>, exit 2 (<code>:161</code>; 122 → 121, the pre less one, nothing aged in between). <code>git status --porcelain</code> showed only logs and <code>test-results.md</code>. No leak-guard hit.</p>
+<h3 id="9-item-976-2026-11-13-lane-1-refresh-lane-ex-179-batch-15-mat31-the-10-30-wave">§9 item 976 — 2026-11-13 (lane 1, refresh lane; EX-179 batch 15, <code>mat:31</code>, the 10-30 wave)<a class="headerlink" href="#9-item-976-2026-11-13-lane-1-refresh-lane-ex-179-batch-15-mat31-the-10-30-wave" title="Permanent link">&para;</a></h3>
+<p><em>Written by the 2026-11-13 03:00 daily review. The 11-11 18:00 and 11-12 reviews named <code>materials_31_</code> as the lane's next member, ageing in ≈ 15:20 CST 11-13 by mtime.</em></p>
+<p><strong>Why.</strong> <code>mat:31</code> (<code>examples/materials/31_gel_box_wall_duty_cycled_transient.md:61</code>, <code>-n 2 -t 480</code>) last closed at <code>20261030T201705Z_EX-164.log.gz</code>. That window read "All imported gates hold." (<code>:62</code>), Status 0 (<code>:65</code>), 191 s harness (<code>:66</code>), <code>[timing] total 188.3 s at -n 2</code> (<code>:60</code>), and it was flagged (<code>FEM_EM_SETUP_FIGURES=1</code>, <code>:12</code>). Its artifact passes the 336 h line on the afternoon of 11-13. Item 957's post log <code>20261112T193427Z_EX-179-b14-docrefs.log</code> read <code>stale=121</code> without it. The example is <code>-n 2</code>, guide <code>-t</code> ≤ 480 s and not <code>mag:</code>, so it sits inside the lane's own rule.</p>
+<p><strong>Not takeable until the artifact has aged in.</strong> The pre window is the check: if it does not name <code>materials_31_</code>, stop at no cost and leave the item OPEN. The next slot retries. Expect the 16:30 slot on 11-13 to be the first that finds it (15:00 if the mtime is earlier than the reviews read).</p>
+<p><strong>Windows.</strong> Bare, foreground, Bash timeout 660000 ms. <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0 once, before the first window.
+- <code>scripts/testing/run_and_log.sh EX-179-b15-docrefs-pre "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code> must name <code>materials_31_</code> on 1 line. If it names none, stop and leave the item OPEN.
+- <code>scripts/testing/run_and_log.sh EX-179-mat31 "./scripts/run_examples.sh -e mat:31 -n 2 -t 480"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-b15-docrefs "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code> must name it on 0 lines.</p>
+<p><strong>Anchor.</strong> The example's own asserted gates: "All imported gates hold." and Status 0. No guide digit is compared.</p>
+<p><strong>Control (asserted).</strong> The artifact moved, compared by name: <code>materials_31_</code> goes 1 → 0 between the pre and post logs. The post log's <code>stale=</code> should read the pre log's less one, unless something else ages in between. If it does, name the stem and do not run it.</p>
+<p><strong>Tier.</strong> Standard by measurement (191 s), complex where the runner sources it, <code>-n 2</code>, not daytime. <strong>Class:</strong> lane 1 (refresh). <strong>Executor:</strong> the implementer directly (this file's common brief). <strong>Cost:</strong> ≈ 3.5 measured / 6 predicted min.</p>
+<p><strong>Traps already paid for.</strong> Items 951, 956 and 957's lists, plus:
+- <strong>The window is unflagged,</strong> so the committed setup PNG stays as it is. <code>git status --porcelain</code> must show only logs and <code>test-results.md</code>.
+- <strong>Use <code>./scripts/run_examples.sh</code>,</strong> not a guide's root <code>./run_examples.sh</code>.
+- <strong>A kill at 480 s is a finding.</strong> The ceiling is never raised.
+- No queued <code>xl</code> / <code>xxl</code> command imports this example (<code>docs/testing/xl-queue.d/</code>, <code>xxl-queue.d/</code> grepped at this review). The window ends long before 02:00.
+- <strong>Leak guard:</strong> move the log unchanged to <code>logs/leak-held/</code>, report, and go on. <strong>Never <code>--no-verify</code>.</strong></p>
+<p><strong>Scope.</strong> A re-run. <code>EX-164</code> does not re-close, and nothing is edited.</p>
+<p><strong>Negative result.</strong> A refresh window that goes red is a finding: stop, file it in known-issues, fix nothing. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>EX-179</code> progress: stale lines by name, 1 → 0 for <code>materials_31_</code>. Also a known-issues entry on a red.</p>
+<p><strong>Depends on:</strong> the artifact's age only (the pre window decides).</p>
+<p><strong>Outcome (2026-11-13, 15:00 CST slot): DONE, no red.</strong> <code>pgrep -c python3</code> read 0 before the first window. The pre log <code>20261113T210027Z_EX-179-b15-docrefs-pre.log</code> names <code>materials_31_</code> on 1 line (<code>:97</code>, 336.7 h), <code>stale=122</code> (<code>:162</code>). <code>mat:31</code> at <code>-n 2 -t 480</code>: "All imported gates hold." (<code>:59</code>), Status 0 (<code>:64</code>), harness 188 s (<code>:65</code>), <code>[timing] total 184.8 s at -n 2</code> (<code>:57</code>); <code>20261113T210034Z_EX-179-mat31.log</code>; unflagged. Elapsed 188 s against 191 s at <code>EX-164</code>: no growth. <strong>Control met:</strong> the post log <code>20261113T210347Z_EX-179-b15-docrefs.log</code> names <code>materials_31_</code> on 0 lines and reads <code>dead=0 guide=0 stale=121</code>, exit 2 (<code>:161</code>; 122 → 121, the pre less one, nothing aged in between). <code>git status --porcelain</code> showed only logs and <code>test-results.md</code>. No leak-guard hit.</p>
+<h3 id="9-item-981-2026-11-13-lane-1-refresh-lane-ex-179-batch-16-imp18-at-n-4-daytime">§9 item 981 — 2026-11-13 (lane 1, refresh lane; EX-179 batch 16, <code>imp:18</code> at <code>-n 4</code>, daytime)<a class="headerlink" href="#9-item-981-2026-11-13-lane-1-refresh-lane-ex-179-batch-16-imp18-at-n-4-daytime" title="Permanent link">&para;</a></h3>
+<p><em>Written by the 2026-11-13 18:00 daily review. This file's 2026-11-05 ruling (§ "Review ruling 2026-11-05 03:00 — the widened ceiling") binds: one <code>-n 4</code> / <code>-n 8</code> example per batch, 12:00 / 13:30 / 15:00 slots only, loadavg &lt; 8, last closing window ≤ 400 s.</em></p>
+<p><strong>Why.</strong> <code>imp:18</code> (<code>examples/implants/18_implant_thermal_dose.md:93</code>, <code>-n 4 -t 480</code>) last closed at <code>20261031T094231Z_EX-165.log.gz</code>. That window read <code>[timing] total 131.4 s at -n 4</code> (<code>:73</code>), "All imported gates hold." (<code>:75</code>), Status 0 (<code>:78</code>) and 134 s harness (<code>:79</code>), and it was flagged (<code>FEM_EM_SETUP_FIGURES=1</code>, <code>:12</code>). 134 s ≤ 400 s, so the example is in the widened lane, and its guide's own <code>-t 480</code> is kept (≤ 600). Its artifact <code>examples/implants/paraview_output/implants_18_implant_thermal_dose_combined.xdmf</code> has mtime 2026-10-31 04:44 CST (read at this review), so it passes the 336 h line at ≈ 04:44 CST on 11-14. It is the next artifact to age in (no other example artifact has an mtime between 10-30 18:00 and 11-01 06:00 CST). The example imports only <code>test_imp7_*</code>, <code>test_mat12_*</code>, <code>test_mat13_*</code>, <code>test_mat20_*</code> and <code>test_mat21_wall_duty_dose_closed_form</code> (<code>examples/implants/18_implant_thermal_dose.py:63–101</code>) — no module that a queued window (<code>xxl</code> 62, <code>xl</code> 64 / 65) runs or imports, and no queue file names <code>imp:18</code> (grepped at this review).</p>
+<p><strong>Not takeable before the 12:00 slot on 11-14, and only in the 12:00 / 13:30 / 15:00 slots,</strong> with <code>uptime</code> loadavg (1 min) &lt; 8 read immediately before. Under the §9 daytime rule it is the slot's first item. <strong><code>xxl</code> entry 62 runs from 02:00 11-14 for up to 8 h on 16 ranks:</strong> if it is still running, loadavg reads ≥ 8 and the slot skips this item at no cost; the next daytime slot retries.</p>
+<p><strong>Windows.</strong> Bare, foreground, Bash timeout 660000 ms. <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0 immediately before the example window.
+- <code>scripts/testing/run_and_log.sh EX-179-b16-docrefs-pre "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code> must name <code>implants_18_</code> on 1 line. If it names none, stop and leave the item OPEN.
+- <code>scripts/testing/run_and_log.sh EX-179-imp18 "./scripts/run_examples.sh -e imp:18 -n 4 -t 480"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-b16-docrefs "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code> must name it on 0 lines.</p>
+<p><strong>Anchor.</strong> The example's own asserted gates: "All imported gates hold." and Status 0. No guide digit is compared.</p>
+<p><strong>Control (asserted).</strong> The artifact moved, compared by name: <code>implants_18_</code> goes 1 → 0 between the pre and post logs. The post log's <code>stale=</code> should read the pre log's less one, unless something else ages in between. If it does, name the stem and do not run it.</p>
+<p><strong>Tier.</strong> Standard by measurement (134 s), <code>-n 4</code>, complex where the runner sources it, daytime. <strong>Class:</strong> lane 1 (refresh). <strong>Executor:</strong> the implementer directly (this file's common brief). <strong>Cost:</strong> ≈ 3.5 measured / 8 predicted min.</p>
+<p><strong>Traps already paid for.</strong> Items 951, 952, 956 and 976's lists, plus:
+- <strong>The window is unflagged,</strong> so the committed setup PNG stays as it is. <code>git status --porcelain</code> must show only logs and <code>test-results.md</code>.
+- <strong>Use <code>./scripts/run_examples.sh</code>,</strong> not a guide's root <code>./run_examples.sh</code>.
+- <strong>A kill at 480 s is a finding.</strong> The ceiling is never raised.
+- <strong>Leak guard:</strong> move the log unchanged to <code>logs/leak-held/</code>, report, and go on. <strong>Never <code>--no-verify</code>.</strong></p>
+<p><strong>Scope.</strong> A re-run. <code>EX-165</code> does not re-close, and nothing is edited.</p>
+<p><strong>Negative result.</strong> A refresh window that goes red or is killed is a finding: stop, file it in known-issues, fix nothing. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>EX-179</code> progress: stale lines by name, 1 → 0 for <code>implants_18_</code>. Also a known-issues entry on a red or a kill.</p>
+<p><strong>Depends on:</strong> the wall clock, the artifact's age (the pre window decides) and the daytime rule.</p>
+<p><strong>Outcome (2026-11-14, 12:00 CST slot): DONE, no red.</strong> Slot-first under the daytime rule; <code>uptime</code> loadavg (1 min) 0.20 immediately before the example window; <code>pgrep -c python3</code> read 0. The pre log <code>20261114T180040Z_EX-179-b16-docrefs-pre.log</code> names <code>implants_18_</code> on 1 line (<code>:54</code>, 344.3 h), <code>stale=122</code> (<code>:162</code>). <code>imp:18</code> at <code>-n 4 -t 480</code>: "All imported gates hold." (<code>:72</code>), Status 0 (<code>:77</code>), harness 131 s (<code>:78</code>), <code>[timing] total 123.5 s at -n 4</code> (<code>:70</code>); <code>20261114T180048Z_EX-179-imp18.log</code>; unflagged. Elapsed 131 s against 134 s at <code>EX-165</code>: no growth. <strong>Control met:</strong> the post log <code>20261114T180307Z_EX-179-b16-docrefs.log</code> names <code>implants_18_</code> on 0 lines and reads <code>dead=0 guide=0 stale=121</code>, exit 2 (<code>:161</code>; 122 → 121, the pre less one, nothing aged in between). <code>git status --porcelain</code> showed only logs and <code>test-results.md</code>. No leak-guard hit.</p>
+<h3 id="9-item-1002-2026-11-15-lane-1-ex-179-batch-17">§9 item 1002 — 2026-11-15 (lane 1, EX-179 batch 17)<a class="headerlink" href="#9-item-1002-2026-11-15-lane-1-ex-179-batch-17" title="Permanent link">&para;</a></h3>
+<p><em>Written by the 2026-11-15 18:00 daily review. <strong>Executor: the implementer directly</strong> (review ruling: <code>EX-179.md:17</code>'s common brief says so, and batches 13–16 ran that way). Every harness window is foreground with Bash timeout 660000 ms. The 11-14 18:00 review named the 11-01 19:31–19:36 CST wave as the lane's next members. <code>imp:19</code> is in that wave, but it runs at <code>-n 4</code>. This file's 2026-11-05 ruling (§ "Review ruling 2026-11-05 03:00 — the widened ceiling") binds over a brief: one <code>-n 4</code> / <code>-n 8</code> example per batch, in the 12:00 / 13:30 / 15:00 slots only. So <code>imp:19</code> is not in this item.</em></p>
+<p><strong>Why these.</strong> The newest docrefs log on <code>main</code>, <code>20261115T181347Z_ANS-12-C58-docrefs.log</code>, reads <code>stale=121</code> (<code>:161</code>) and names neither stem. Batch 16's post log <code>20261114T180307Z_EX-179-b16-docrefs.log</code> also reads 121 (<code>:161</code>). Two <code>-n 2</code> examples last closed in <code>OPS-74</code>'s closing windows on 2026-11-02 UTC. Their artifacts' mtimes were read at this review (<code>ls -l --time-style=full-iso</code>). They pass the 336 h line on 11-15:</p>
+<table>
+<thead>
+<tr>
+<th>Example</th>
+<th>Flags (guide run line)</th>
+<th>Artifact (mtime, CST)</th>
+<th>Ages in (CST, 11-15)</th>
+<th>Last closing window (measured)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mat:33</code></td>
+<td><code>-n 2 -t 300</code> (<code>examples/materials/33_gel_box_pre_equilibration_bias.md:60</code>)</td>
+<td><code>examples/materials/paraview_output/materials_33_gel_box_pre_equilibration_bias_combined.xdmf</code>, 2026-11-01 19:31:34</td>
+<td>≈ 19:31:35</td>
+<td><code>20261102T013021Z_EX-169-close.log.gz</code>, Status 0, 74 s harness (<code>docs/testing/test-results.md:5901</code>); first close <code>20261101T223957Z_EX-169.log</code>, 74 s harness / 72.0 s in-script, flagged (<code>EX-169.md:57</code>)</td>
+</tr>
+<tr>
+<td><code>mat:32</code></td>
+<td><code>-n 2 -t 480</code> (<code>examples/materials/32_gel_box_wall_thermal_dose.md:70</code>)</td>
+<td><code>examples/materials/paraview_output/materials_32_gel_box_wall_thermal_dose_combined.xdmf</code>, 2026-11-01 19:33:38</td>
+<td>≈ 19:33:38</td>
+<td><code>20261102T013146Z_EX-166-close.log.gz</code>, Status 0, 112 s harness (<code>test-results.md:5902</code>); first close <code>20261101T211827Z_EX-166.log</code>, 117 s, "red: none of 44" (<code>EX-166.md:58</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>The 11-02 audit read both closing windows' command and footer lines: <code>…013021Z_EX-169-close.log:12,76,81–82</code> and <code>…013146Z_EX-166-close.log:12,67,75–76</code> (<code>docs/planning/reviews/2026-11-02-daily.md:56</code>). Both scripts end on <code>"All imported gates hold."</code> (<code>examples/materials/33_gel_box_pre_equilibration_bias.py:280</code>, <code>32_gel_box_wall_thermal_dose.py:312</code>). Neither is <code>mag:</code>, <code>-n 4</code> or <code>-n 8</code>, and both guides' <code>-t</code> are ≤ 480 s, so both sit inside the lane's own rule. Each guide carries its own <code>-t</code>, so neither is a run-line-less <code>-t 480</code> case. Both import only <code>tests/validation/test_imp7_*</code>, <code>test_mat10_*</code>, <code>test_mat12_*</code>, <code>test_mat13_*</code>, <code>test_mat15_*</code>, <code>test_mat20_*</code> and <code>test_mat21_*</code> modules (<code>32_*.py:62–104</code>, <code>33_*.py:66–107</code>). The two queue files, <code>xl-queue.d/20261116-GEO-38-C35w.env</code> and <code>xxl-queue.d/20261128-GEO-38-P33-d2.env</code>, name neither example (grepped at this review). The run order is oldest first.</p>
+<p><strong>Not takeable before 19:34 CST on 11-15.</strong> <code>mat:32</code> is not stale until ≈ 19:33:38. A 19:30 slot reaches its first window in under a minute: item 981's pre log ran 40 s into its slot. So a 19:30 slot takes this item only if it reads <code>date</code> at ≥ 19:34 CST. That holds if take-next brings it here, or if an item ahead runs first. Otherwise the 21:00 slot on 11-15 (a Sunday, so no weekly) takes it. <strong>The pre window is the check.</strong> It must name both stems before any example runs. If it names fewer, run nothing more, commit the pre log and leave the item OPEN; the next slot retries at no cost.</p>
+<p><strong>Code.</strong> None.</p>
+<p><strong>Windows.</strong> Bare, foreground, Bash timeout 660000 ms. <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0 once, before the first window.
+- <code>scripts/testing/run_and_log.sh EX-179-b17-docrefs-pre "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code> must name <code>materials_33_</code> and <code>materials_32_</code> on 1 line each (2 lines). If it names fewer, stop and leave the item OPEN.
+- <code>scripts/testing/run_and_log.sh EX-179-mat33 "./scripts/run_examples.sh -e mat:33 -n 2 -t 300"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-mat32 "./scripts/run_examples.sh -e mat:32 -n 2 -t 480"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-b17-docrefs "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code> must name both stems on 0 lines.</p>
+<p><strong>Anchor.</strong> Each example's own asserted gates, in the refresh window. Read the closing line "All imported gates hold." and Status 0. For <code>mat:33</code> the gates are (I), (E), (Sym′), the reference reproduction (c-ref) and the Dirichlet-z control (c-Dz), at item 720's imported bands. For <code>mat:32</code> they are (E), (S0), (T) at 4 t*, (Q-wf), the window check, (c-mass) and (c-cont), at item 708's imported bands. <strong>The stale census delta is the second half of the anchor:</strong> the two stems leave the stale list by name between the pre and post logs. No guide digit is compared, and the outcome quotes closing-log digits only.</p>
+<p><strong>Control (asserted).</strong> The artifacts moved, compared by name: <code>materials_33_</code> and <code>materials_32_</code> go 2 → 0 lines between the pre and post logs. The post log's <code>stale=</code> should read the pre log's less two. <strong>Expect the pre log to read 123 or 124, not 121.</strong> It reads 123 (121 plus these two) if it runs before ≈ 19:36:45 CST. It reads 124 if it runs after: <code>implants_19_implant_dose_against_duty_combined.xdmf</code> (mtime 2026-11-01 19:36:45) has aged in, and that stem is the companion daytime item's, not this one's. If any stem ages in between the pre and post windows, name it in the outcome and do not run it. That includes <code>materials_34_</code> (≈ 00:18 11-16) and <code>mri_39_</code> (≈ 00:25 11-16) if the item slips past midnight. The setup PNGs are tracked and exempt (<code>scripts/testing/check_example_doc_references.py:479–480</code>).</p>
+<p><strong>Tier.</strong> Standard by measurement: 112 s is the longer window, and the two sum to 186 s. <code>-n 2</code>, complex where the runner sources it, not daytime. <strong>Class:</strong> lane 1 (refresh). <strong>Executor:</strong> the implementer directly. <strong>Cost:</strong> ≈ 3.6 measured (the lane-1 refresh class median) / 8 predicted min. The predicted 8 is the two recorded windows (74 + 112 s), two docrefs windows and the spawn.</p>
+<p><strong>Traps already paid for.</strong> Items 951, 956, 976 and 981's lists, plus:
+- <strong>The age-in minute.</strong> A pre window run before 19:34 CST names at most one stem and stops the item. That is a no-cost OPEN, not a red.
+- <strong>The windows are unflagged,</strong> so the committed setup PNGs stay as they are. <code>git status --porcelain</code> must show only logs and <code>test-results.md</code>.
+- <strong>Use <code>./scripts/run_examples.sh</code>,</strong> not a guide's root <code>./run_examples.sh</code>. <code>EX-166.md:12</code> and <code>EX-169.md:12</code> print the root form.
+- <strong>A kill at the guide's <code>-t</code> (300 s / 480 s) is a finding.</strong> The ceiling is never raised. <code>mat:33</code> at 74 s and <code>mat:32</code> at 112 s leave ≥ 4× headroom.
+- <strong>Do not run <code>imp:19</code> here,</strong> even though the pre log names it after 19:36:45. It is <code>-n 4</code>, daytime only, and has its own item.
+- <strong>Every window goes foreground;</strong> a backgrounded harness call is SIGKILLed when the turn ends (daily-review.md rubric item 4).
+- <strong>Leak guard:</strong> move the log unchanged to <code>logs/leak-held/</code>, report, and go on. <strong>Never <code>--no-verify</code>.</strong></p>
+<p><strong>Scope.</strong> A re-run. <code>EX-166</code> and <code>EX-169</code> do not re-close, nothing is edited, and <code>MAT-21</code> does not move. The item closes nothing for <code>imp:19</code>, <code>mat:34</code> or <code>mri:39</code>.</p>
+<p><strong>Negative result.</strong> A refresh window that goes red is a finding: stop, file it in known-issues, fix nothing. Name the window, its Status and the first red gate's line. The batch goes on to the next example unless the container wedged; the red example's stem stays stale. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>EX-179</code> progress: the stale count by name, k = 2 → 0 for <code>materials_33_</code> and <code>materials_32_</code> (pre − 2 on the post log's <code>stale=</code>). Also a known-issues entry for each red. The <code>EX-179</code> §7 row stays 🟡.</p>
+<p><strong>Depends on:</strong> the wall clock (≥ 19:34 CST 11-15) and the artifacts' age only. The pre window decides.</p>
+<p><strong>Outcome (2026-11-15, 21:00 CST slot): DONE, no red.</strong> Taken third by take-next (after 999 and 1000) at minute 15. <code>pgrep -c python3</code> read 0 before the first window. The pre log <code>20261116T031521Z_EX-179-b17-docrefs-pre.log</code> names <code>materials_32_</code> and <code>materials_33_</code> on 1 line each (<code>:98–99</code>, 337.7 h each) and reads <code>stale=124</code> (<code>:164</code>), the brief's "124 if after ≈ 19:36:45" (the <code>implants_19_</code> age-in, not run here). <code>mat:33</code> at <code>-n 2 -t 300</code>: "All imported gates hold." (<code>:76</code>), Status 0 (<code>:81</code>), harness 69 s (<code>:82</code>), <code>[timing] total 66.5 s at -n 2</code> (<code>:74</code>); <code>20261116T031526Z_EX-179-mat33.log</code>. <code>mat:32</code> at <code>-n 2 -t 480</code>: "All imported gates hold." (<code>:70</code>), Status 0 (<code>:75</code>), harness 109 s (<code>:76</code>), <code>[timing] total 107.0 s at -n 2</code> (<code>:68</code>); <code>20261116T031638Z_EX-179-mat32.log</code>. Both unflagged. Elapsed 69 / 109 s against 74 / 112 s at <code>EX-169</code> / <code>EX-166</code>: no growth. <strong>Control met:</strong> the post log <code>20261116T031830Z_EX-179-b17-docrefs.log</code> names both stems on 0 lines and reads <code>dead=0 guide=0 stale=122</code>, exit 2 (<code>:162</code>; 124 → 122, the pre less two, nothing aged in between). <code>git status --porcelain</code> showed only logs and <code>test-results.md</code>. No leak-guard hit.</p>
+<h3 id="9-item-1004-2026-11-16-lane-1-ex-179-batch-18">§9 item 1004 — 2026-11-16 (lane 1, EX-179 batch 18)<a class="headerlink" href="#9-item-1004-2026-11-16-lane-1-ex-179-batch-18" title="Permanent link">&para;</a></h3>
+<p><em>Written by the 2026-11-16 03:00 daily review. <strong>Executor: the implementer directly</strong> (<code>EX-179.md:17</code>). Every window foreground, Bash timeout 660000 ms.</em></p>
+<p><strong>Why these.</strong> Batch 17's post log <code>20261116T031830Z_EX-179-b17-docrefs.log</code> (21:18 CST 11-15, <code>stale=122</code>, <code>:162</code>) names neither stem. By mtime (read at this review) both passed 336 h at 00:18:08 / 00:25:17 CST 11-16, so both are stale now:</p>
+<table>
+<thead>
+<tr>
+<th>Example</th>
+<th>Flags (guide)</th>
+<th>Last closing window (measured)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mat:34</code></td>
+<td><code>-n 2 -t 300</code> (<code>examples/materials/34_gel_box_wait_in_dose.md:53</code>)</td>
+<td><code>20261102T061623Z_EX-171.log.gz</code>, Status 0, 105 s harness / 102.2 s in-script, unflagged (<code>EX-171.md:55</code>, <code>test-results.md:5937</code>)</td>
+</tr>
+<tr>
+<td><code>mri:39</code></td>
+<td><code>-n 2 -t 300</code> (<code>examples/mri/39_tune_any_frequency_of_a_sweep.md:78</code>)</td>
+<td><code>20261102T062422Z_EX-172.log.gz</code>, Status 0, 55 s / 52.5 s (<code>EX-172.md:57</code>, <code>test-results.md:5947</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>Both are <code>-n 2</code>, guide <code>-t</code> ≤ 480 s, not <code>mag:</code>: inside the lane's own rule, not daytime. <code>xl-queue.d/</code> is empty; the 11-28 <code>xxl</code> file names neither. One line per stem (<code>.png</code> tracked, <code>.s4p</code> unchecked; <code>check_example_doc_references.py:116</code>, <code>:479</code>).</p>
+<p><strong>Windows.</strong> <code>pgrep -c python3</code> in the container reads 0 once, first.
+- <code>scripts/testing/run_and_log.sh EX-179-b18-docrefs-pre "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code> must name <code>materials_34_</code> and <code>mri_39_</code> on 1 line each, else stop at no cost, item OPEN.
+- <code>scripts/testing/run_and_log.sh EX-179-mat34 "./scripts/run_examples.sh -e mat:34 -n 2 -t 300"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-mri39 "./scripts/run_examples.sh -e mri:39 -n 2 -t 300"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-b18-docrefs "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code></p>
+<p><strong>Anchor.</strong> Each example's own gates, closing line and Status 0; no guide digit compared. <code>mat:34</code>: (I), (E), (Sym′), (Q-wf), (c-dose), (c-ref), "All imported gates hold." (<code>34_*.py:309</code>). <code>mri:39</code>: (C=), (I=), (f=), (S0), (c-next), (Ref), "All assertions hold. Total elapsed …" (<code>39_*.py:228</code>).</p>
+<p><strong>Control (asserted).</strong> By name, both stems 2 → 0 lines, post <code>stale=</code> = pre − 2; expect pre 124 (122 + these two). After 06:11:49 CST <code>materials_35_</code>, <code>mri_37_</code> (06:20:42), <code>implants_20_</code> (06:41:50) may age in: name them, do not run them.</p>
+<p><strong>Tier.</strong> Standard by measurement (105 s the longer, 160 s summed), <code>-n 2</code>, complex as the runner sources it, not daytime. <strong>Cost:</strong> ≈ 3.6 measured / 8 predicted min.</p>
+<p><strong>Traps already paid for.</strong> Items 951, 956, 976, 981 and 1002's lists, plus:
+- <strong><code>mri:39</code> asserts <code>comm.size == 2</code></strong> (<code>39_*.py:88</code>) and rewrites gitignored <code>paraview_output/mri_39_run/</code> (normal). Its 10 MHz <code>float.hex</code> moves at round-off between runs (<code>EX-172.md:58</code>); (I=) compares within one run.
+- <strong>Unflagged:</strong> <code>git status --porcelain</code> shows only logs and <code>test-results.md</code>. Use <code>./scripts/run_examples.sh</code>. A kill at 300 s is a finding; the ceiling is never raised. No window starts after 01:45. Leak guard: move the log unchanged to <code>logs/leak-held/</code>; never <code>--no-verify</code>.</p>
+<p><strong>Scope.</strong> A re-run; <code>EX-171</code> / <code>EX-172</code> do not re-close, nothing is edited, nothing closes for <code>mat:35</code>, <code>imp:19</code>, <code>imp:20</code>, <code>mri:37</code>.</p>
+<p><strong>Negative result.</strong> A red is filed in known-issues (window, Status, first red gate's line), nothing is fixed; the batch goes on unless the container wedged. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>EX-179</code> progress, 2 → 0 by name; a known-issues entry per red. §7 row stays 🟡.</p>
+<p><strong>Depends on:</strong> nothing; the pre window decides.</p>
+<p><strong>Outcome (2026-11-16, 04:30 CST slot): DONE, no red.</strong> Taken second by take-next (after 1003) at minute 7. <code>pgrep -c python3</code> read 0 before the first window. The pre log <code>20261116T103747Z_EX-179-b18-docrefs-pre.log</code> names <code>materials_34_</code> (<code>:98</code>, 340.3 h) and <code>mri_39_</code> (<code>:142</code>, 340.2 h) on 1 line each and reads <code>stale=124</code> (<code>:164</code>), as expected. <code>mat:34</code> at <code>-n 2 -t 300</code>: "All imported gates hold." (<code>:79</code>), Status 0 (<code>:84</code>), harness 107 s (<code>:85</code>), <code>[timing] total 103.1 s at -n 2</code> (<code>:77</code>); <code>20261116T103753Z_EX-179-mat34.log</code>. <code>mri:39</code> at <code>-n 2 -t 300</code>: "All assertions hold. Total elapsed 52.3 s." (<code>:1921</code>), Status 0 (<code>:1926</code>), harness 55 s (<code>:1927</code>); <code>20261116T103942Z_EX-179-mri39.log</code>. Both unflagged. Elapsed 107 / 55 s against 105 / 55 s at <code>EX-171</code> / <code>EX-172</code>: no growth. <strong>Control met:</strong> the post log <code>20261116T104042Z_EX-179-b18-docrefs.log</code> names both stems on 0 lines and reads <code>dead=0 guide=0 stale=122</code>, exit 2 (<code>:162</code>; 124 → 122, the pre less two, nothing aged in between). <code>git status --porcelain</code> showed only logs and <code>test-results.md</code>. No leak-guard hit.</p>
+<h3 id="9-item-1005-2026-11-16-lane-1-ex-179-batch-19">§9 item 1005 — 2026-11-16 (lane 1, EX-179 batch 19)<a class="headerlink" href="#9-item-1005-2026-11-16-lane-1-ex-179-batch-19" title="Permanent link">&para;</a></h3>
+<p><em>Written by the 2026-11-16 03:00 daily review. <strong>Executor: the implementer directly</strong> (<code>EX-179.md:17</code>). Every window foreground, Bash timeout 660000 ms. <strong><code>imp:20</code> is not in this item, nor in the lane:</strong> <code>-n 4 -t 560</code> (<code>examples/implants/20_implant_dose_time_step_ladder.md:63</code>), last close <code>20261102T123354Z_EX-174.log.gz</code> at 475 s (<code>EX-174.md:47</code>), over the 11-05 ruling's 400 s (<code>EX-179.md:67–71</code>) — the weekly's to price.</em></p>
+<p><strong>Why.</strong> <code>mat:35</code> (<code>examples/materials/35_gel_box_dose_between_mesh_planes.md:55</code>, <code>-n 2 -t 300</code>) last closed at <code>20261102T121038Z_EX-173.log.gz</code>: Status 0 (<code>:77</code>), 71 s harness / 68.2 s in-script (<code>:70</code>, <code>:78</code>; <code>test-results.md:5964</code>), unflagged. Its <code>_combined.xdmf</code> mtime is 2026-11-02 06:11:49 CST (read at this review), so it passes 336 h at <strong>06:11:49 CST 11-16</strong>; the b17 post log (<code>stale=122</code>, <code>:162</code>) does not name it. <code>-n 2</code>, guide <code>-t</code> ≤ 480 s, not <code>mag:</code>: inside the lane's own rule. <code>xl-queue.d/</code> is empty; the 11-28 <code>xxl</code> file names neither it nor its <code>test_mat10/12/13/15/21</code> imports (<code>35_*.py:63–107</code>).</p>
+<p><strong>Not takeable before 06:13 CST 11-16.</strong> A 06:00 slot reaches its first window in under a minute, so it takes this item only if <code>date</code> reads ≥ 06:13 (take-next); else the 07:30 slot. <strong>The pre window is the check.</strong></p>
+<p><strong>Windows.</strong> <code>pgrep -c python3</code> in the container reads 0 once, first.
+- <code>scripts/testing/run_and_log.sh EX-179-b19-docrefs-pre "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code> must name <code>materials_35_</code> on 1 line, else stop at no cost, item OPEN.
+- <code>scripts/testing/run_and_log.sh EX-179-mat35 "./scripts/run_examples.sh -e mat:35 -n 2 -t 300"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-b19-docrefs "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code></p>
+<p><strong>Anchor.</strong> The example's own asserted gates: (I), (E), (Q-wf), (Grid), (c-rep), (c-plane), at item 742's imported bands. Read the closing line "All imported gates hold." (<code>35_*.py:323</code>) and Status 0. No guide digit is compared.</p>
+<p><strong>Control (asserted).</strong> By name, <code>materials_35_</code> 1 → 0, post <code>stale=</code> = pre − 1. With 1004 landed, expect pre 123 before 06:20:42, 124 to 06:41:50, 125 after (122 + <code>materials_35_</code>, <code>mri_37_</code>, <code>implants_20_</code>); 2 more if 1004 has not landed. Name any stem that ages in between pre and post; do not run it.</p>
+<p><strong>Tier.</strong> Standard by measurement (71 s), <code>-n 2</code>, complex as the runner sources it (<code>EX-173.md:53</code>), not daytime. <strong>Cost:</strong> ≈ 3.6 measured / 6 predicted min.</p>
+<p><strong>Traps already paid for.</strong> Items 951, 956, 976, 1002 and 1004's lists, plus:
+- <strong>The age-in minute:</strong> a pre window before 06:12 is a no-cost OPEN, not a red.
+- <strong>Do not run <code>imp:20</code> or <code>mri:37</code></strong>, though the pre log names them.
+- Unflagged: <code>git status --porcelain</code> shows only logs and <code>test-results.md</code>. Use <code>./scripts/run_examples.sh</code>. A kill at 300 s is a finding; the ceiling is never raised. Leak guard: move the log unchanged to <code>logs/leak-held/</code>; never <code>--no-verify</code>.</p>
+<p><strong>Scope.</strong> A re-run. <code>EX-173</code> does not re-close, and nothing is edited.</p>
+<p><strong>Negative result.</strong> A red is filed in known-issues, and nothing is fixed. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>EX-179</code> progress: 1 → 0 for <code>materials_35_</code>, and a known-issues entry on a red.</p>
+<p><strong>Depends on:</strong> the artifact's age only. The pre window decides.</p>
+<h3 id="9-item-1006-2026-11-16-lane-1-ex-179-batch-20-daytime">§9 item 1006 — 2026-11-16 (lane 1, EX-179 batch 20, daytime)<a class="headerlink" href="#9-item-1006-2026-11-16-lane-1-ex-179-batch-20-daytime" title="Permanent link">&para;</a></h3>
+<p><em>Written by the 2026-11-16 03:00 daily review. <strong>Executor: the implementer directly</strong> (<code>EX-179.md:17</code>). This file's 2026-11-05 ruling binds (<code>EX-179.md:65–71</code>): one <code>-n 4</code> / <code>-n 8</code> example per batch, 12:00 / 13:30 / 15:00 slots only, loadavg &lt; 8, last closing window ≤ 400 s.</em></p>
+<p><strong>Why.</strong> <code>imp:19</code> (<code>examples/implants/19_implant_dose_against_duty.md:87</code>, <code>-n 4 -t 480</code>) last closed in <code>OPS-74</code>'s <code>20261102T013342Z_EX-168-close.log.gz</code>: Status 0, 183 s harness (<code>test-results.md:5903</code>; <code>OPS-74.md:42</code>); the 11-02 audit read <code>:12,102,107–108</code> (<code>2026-11-02-daily.md:56</code>). First close <code>20261101T223205Z_EX-168.log</code>, flagged, 190 s / 186.2 s (<code>EX-168.md:59</code>).
+- 183 s ≤ 400 s: in the widened lane, guide <code>-t 480</code> kept (≤ 600).
+- <strong>Already stale:</strong> <code>20261116T031830Z_EX-179-b17-docrefs.log:54</code> names <code>implants_19_</code> (337.7 h); the ruling held it out of 1002.
+- Imports <code>test_imp7_*</code>, <code>test_mat12/13/20/21</code> (<code>19_*.py:63–106</code>); <code>xl</code> queue empty, the 11-28 <code>xxl</code> file names none.</p>
+<p><strong>Daytime only:</strong> the 12:00 / 13:30 / 15:00 slots on 11-16, with <code>uptime</code> loadavg (1 min) &lt; 8 read immediately before. Under the §9 daytime rule it is the slot's first item. <strong>Prefer the 12:00 slot.</strong> Two artifact waves age in during the later slots: <code>implants_01_</code> at 13:34:29, then the <code>mat:</code> / <code>imp:</code> / <code>th:</code> wave through 14:00:08, and <code>meshing_06_</code> … <code>10_</code> from 15:01:19 (mtimes read at this review); they muddy the control, not the item.</p>
+<p><strong>Windows.</strong> <code>pgrep -c python3</code> in the container reads 0 immediately before the example window; never beside another compute window.
+- <code>scripts/testing/run_and_log.sh EX-179-b20-docrefs-pre "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code> must name <code>implants_19_</code> on 1 line, else stop at no cost, item OPEN.
+- <code>scripts/testing/run_and_log.sh EX-179-imp19 "./scripts/run_examples.sh -e imp:19 -n 4 -t 480"</code>
+- <code>scripts/testing/run_and_log.sh EX-179-b20-docrefs "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code></p>
+<p><strong>Anchor.</strong> The example's own asserted gates, (E), (S0), (T), (c-cont) and (c-50), at I50's imported bands. Read the closing line "All imported gates hold." (<code>19_*.py:347</code>) and Status 0. No guide digit is compared.</p>
+<p><strong>Control (asserted).</strong> By name, <code>implants_19_</code> 1 → 0, post <code>stale=</code> = pre − 1. With 1004 and 1005 landed, expect pre 124 at 12:00 (122 + <code>mri_37_</code>, <code>implants_20_</code>). Name any stem that ages in between pre and post; do not run it.</p>
+<p><strong>Tier.</strong> Standard by measurement (183 s), <code>-n 4</code>, complex as the runner sources it, daytime. <strong>Cost:</strong> ≈ 3.6 measured / 8 predicted min.</p>
+<p><strong>Traps already paid for.</strong> Items 952, 957, 981 and 1002's lists, plus:
+- <strong>(E) moves at round-off between runs:</strong> 5.910e-12 against 5.740e-12 (<code>OPS-74.md:44</code>). It is not a red inside its band.
+- Unflagged: <code>git status --porcelain</code> shows only logs and <code>test-results.md</code>. Use <code>./scripts/run_examples.sh</code>. A kill at 480 s is a finding; the ceiling is never raised. Every window runs foreground. Leak guard: move the log unchanged to <code>logs/leak-held/</code>; never <code>--no-verify</code>.</p>
+<p><strong>Scope.</strong> A re-run. <code>EX-168</code> does not re-close, <code>IMP-7</code> does not move, and nothing is edited.</p>
+<p><strong>Negative result.</strong> A red or a kill is filed in known-issues (the window, Status, and the first red gate's line), and nothing is fixed. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>EX-179</code> progress: 1 → 0 for <code>implants_19_</code>, and a known-issues entry on a red or a kill.</p>
+<p><strong>Depends on:</strong> the wall clock and the daytime rule only.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,583 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>PORT-16 — The ≈1 %-of-supplied accounting gap on the 4-leg fixture - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#port-16-the-1-of-supplied-accounting-gap-on-the-4-leg-fixture" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              PORT-16 — The ≈1 %-of-supplied accounting gap on the 4-leg fixture
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="port-16-the-1-of-supplied-accounting-gap-on-the-4-leg-fixture">PORT-16 — The ≈1 %-of-supplied accounting gap on the 4-leg fixture<a class="headerlink" href="#port-16-the-1-of-supplied-accounting-gap-on-the-4-leg-fixture" title="Permanent link">&para;</a></h1>
+<p><strong>The ≈1 %-of-supplied accounting gap on the 4-leg fixture</strong> — every single drive on the loaded F-small birdcage reads <code>P_acc − ½∫σ\|E\|²</code> ≈ 6.7e-05 W, the same absolute figure on all four ports (0.23 % scatter, <code>POST-6</code> step 1b) and 0.98 % of supplied power, i.e. sitting at 0.98× the imported 1e-2 <code>POWER_BALANCE_BAND</code>. Diagnosis chunk (opened 2026-09-06 weekly review; serial on nothing): attribute the gap to one term by measurement — candidates, each a separate in-run print: (a) the lumped sheet's own dissipation <code>½ Re(Z_p)∫\|K\|² dA</code> versus the volume loss the sheet's box carries; (b) the conductor/phantom partition of <code>∫σ\|E\|²</code> against the sheet-facet flux; (c) <code>h</code>: the same three prints on <code>WF-6</code> step 3f's finer phantom mesh and on <code>PORT-14</code> step 1b's ×0.75 / ×0.6 conductor rungs, so the gap's exponent in <code>h</code> is measured, not guessed. Done-when: one candidate reproduces the gap on the record mesh to ≤ 10 % of itself with the other two printed and separated, a negative control (the sheet resistivity ×2 must move (a) and not (b)), and the gap's <code>h</code>-rate printed — then the review decides whether <code>POWER_BALANCE_BAND</code> is a band or a record. No band moves in this chunk. <strong>Step 1 scoped 2026-09-06 18:00 review (§9 item 4, ruling (5)) — the exact discrete power identity first:</strong> the fixture's <code>supplied</code> and <code>sheets</code> are both built from the sheet <em>terminal</em> currents (<code>test_birdcage_b1_plus_map.py::_power_shares</code>, <code>½ Re(V_src Ī)</code> and <code>½\|I\|² Re Z_p</code>) while the volume loss is an exact integral, and by Cauchy–Schwarz the terminal form of a sheet's dissipation is a <strong>lower bound</strong> on <code>½∫Re(Y_s)\|E_t\|² dA</code> whenever <code>E_t</code> is not uniform across the sheet — a ≈1% effect with the gap's sign. Step 1 assembles <code>P_src,exact = −½ Re ∫ J_src·Ē dA</code>, <code>P_sheet,exact</code> and <code>P_vol</code> on all four drives and asserts (i) the discrete identity <code>P_src,exact = P_vol + P_sheet,exact</code> at 1e-6 (a theorem of the Galerkin solution, solver residual 1e-10-class), (ii) the Cauchy–Schwarz inequality on every sheet, (iii) the attribution <code>(sheets_exact − sheets_terminal) + (supplied_terminal − supplied_exact)</code> reproducing the gap to ≤ 10% of itself; the ×2 sheet-resistivity control must leave (i) closed and move the sheet term (size predicted). Standard, <code>-n 2</code>, ≈ 140 s (3g's 106 s + one control solve). Candidate (c) — the <code>h</code> rungs — is step 2 if the split does not attribute the gap. <strong>Step 1 executed 2026-09-07, 00:00 implementer slot — the gap is attributed to candidate (a), and nothing leaks.</strong> <code>tests/validation/test_birdcage_power_identity.py</code>, <code>20260907T051231Z_PORT-16.log</code>, <code>16 passed … 129.04s</code> (<code>:1997</code>), Status 0 / Elapsed 131 s (<code>:2065–2066</code>), standard, <code>timeout -k 30 300</code>, <code>-n 2</code>, complex, one window (plus a collect-only smoke, <code>20260907T050807Z_PORT-16.log</code>, and one discarded window whose sign bug is recorded below). <strong>(i) closes at machine precision:</strong> the real part of <code>a(E,E) = L(E)</code> — <code>P_src,exact = P_vol + P_sheet,exact</code>, assembled through the package's own <code>lumped_port_bilinear_term</code> / <code>lumped_port_linear_term</code> with the solved phasor in both argument slots — reads <strong>6.760e-15 / 9.656e-15 / 1.048e-14 / 4.414e-15</strong> on P1–P4 against the pre-registered 1e-6 (<code>:1882–1893</code>), so the assembly does not leak power and <code>POST-6</code>'s mechanism (b), "a real un-accounted loss channel", is <strong>excluded</strong>. <strong>(ii) holds on all sixteen sheet readings</strong> with the ratio <code>ceiling/terminal</code> at <strong>1.010592–1.010593</strong> (<code>:1895–1910</code>). <em>The item's pre-registered field-only form of (ii) is not a theorem on the driven sheet</em> — <code>I</code> there is driven by <code>E_t + E_src ĥ</code> while <code>P_sheet,exact</code> carries <code>E_t</code> alone — so the provable total-field form is asserted on all four sheets and the item's literal form on the twelve undriven ones, with the driven sheet's field-only ratio (0.2292) printed; the derivation is in the module docstring and the repair was made on paper before the first run. <strong>(iii) is arithmetic and attributes nothing:</strong> it reproduces the gap to 3.148e-13 by construction while splitting it into <strong>−54.2765×</strong> and <strong>+55.2765×</strong> itself (<code>:1912–1915</code>). <strong>(iv), the finding, registered on window 1's measurement and asserted in window 2 at the row's own ≤10% done-when bar:</strong> the gap <strong>is</strong> the Cauchy–Schwarz deficit of the terminal-current sheet form. <code>C ≡ Σ_sheets ½Re(Y_s)∫\|E_t + E_src ĥ\|² dA</code> gives <code>C − sheets_terminal</code> = the gap to <strong>3.212e-13 / 4.770e-13 / 5.086e-13 / 2.276e-13</strong>, and <code>P_vol + C = supplied_terminal</code> to all ten printed digits (<code>:1917–1920</code>) — i.e. <code>½\|I\|²Re Z_p</code> is the uniform-field <em>lower</em> bound on the dissipation the sheet's own constitutive law deposits, and the 1.06% by which the sheet field departs from uniform across the sheet is the whole of the 0.98%-of-supplied gap. <strong>Negative control:</strong> <code>Z_p</code> ×2 leaves (i) at 1.369e-15 and moves <code>P_sheet,exact</code> by a factor <strong>0.484102</strong> (<code>:1922–1923</code>) — just outside the item's predicted [0.5, 2] window, which is <em>printed and never asserted</em> per rule (e); asserted were the sign (it moved, ≥1e-3 relative) and the exact ceiling <code>P_sheet,exact ≤ P_src,exact</code>. Phantom/conductor ratio 1.633092e-04 (control) vs 1.257803e-04 (unmodified P1). <strong>No band moved</strong>, no <code>src/</code> change, <code>POWER_BALANCE_BAND</code> untouched and the <code>POST-6</code> red still red. <strong>Window 1 (<code>20260907T050816Z_PORT-16.log</code>, <code>3 failed, 12 passed … 146.73s</code>, Status 1) is committed as evidence</strong>: it read <code>rel dev</code> = <em>exactly</em> 2.000e+00 on every drive and on the control, the signature of <code>P_src = −(P_vol + P_sheet)</code> — a sign transcription in this module's own <code>_source_power_w</code> (<code>L = −jωμ₀∫K·conj(E)</code> already carries the load convention's minus, so <code>P_src,exact = +Im L(E)/(2ωμ₀)</code>), fixed in the test, not in <code>src/</code>, and not by touching a band. <strong>Step 2 (<code>h</code> rungs) is no longer needed to attribute the gap</strong> — its remaining value is the gap's <code>h</code>-exponent, which is now a question about the sheet field's non-uniformity and not about a missing loss channel; the review owns whether to run it and whether <code>POWER_BALANCE_BAND</code> is a band or a record. <strong>Step 2 executed 2026-09-07, 06:00 implementer slot — the attribution carries to the <em>superposed</em> drive and the deliberate red is re-pointed, not widened.</strong> <code>tests/validation/test_port_drive_superposition.py</code> only (no <code>src/</code>, no edit to step 1's module — no helper signature changed, so rule (c)'s re-run was not triggered; the step-1 import is lazy because <code>test_birdcage_power_identity</code> imports <code>_loss_power_w</code> from the superposition module at its <code>:162</code> and pytest collects it first alphabetically, a genuine collection-order cycle). <code>20260907T110826Z_PORT-16.log</code>, <code>23 passed … 101.91s</code> (<code>:2038</code>), Status 0 / Elapsed 104 s (<code>:2106–2107</code>), standard by measurement (<code>timeout -k 30 400</code>), <code>-n 2</code>, complex; plus a collect-only smoke (<code>…110534Z</code>, 4 s), a first green main window on the pre-docstring-correction tree (<code>…110545Z</code>, <code>23 passed … 104.33s</code>, same digits to the last place), and a re-collect (<code>…110815Z</code>, 4 s). <strong>(i) the exact discrete identity holds on the superposed field:</strong> ccw <code>P_src,exact 3.837471142e-03 W</code> = <code>P_vol 2.663302665e-03</code> + <code>P_sheet,exact 1.174168477e-03</code>, <strong>rel dev 5.877e-15</strong>; cw <strong>1.435e-14</strong>, both against the imported <code>DISCRETE_IDENTITY_RTOL</code> 1e-6 (<code>:1942–1943</code>). <strong>(ii) the attribution closes:</strong> ccw <code>P_acc − P_vol = 3.511221378e-04 W</code> = <code>C − sheets_terminal = 3.511221378e-04 W</code>, <strong>rel dev 9.881e-14</strong>; cw <strong>1.581e-13</strong>, against the imported <code>ATTRIBUTION_RTOL</code> 1e-1 (<code>:1945–1946</code>) — the <em>whole</em> of the drive-level residual is step 1's Cauchy–Schwarz deficit, measured on a drive none of step 1's four solves is. <strong>Control of the generalisation (asserted at 1e-12):</strong> <code>w = e_k</code> reproduces step 1's own <code>_exact_shares</code> for drive k — <code>p_src</code>, <code>sheet_field_total</code>, <code>sheet_ceiling_total</code> — at <strong>rel dev 0.000e+00 on all twelve readings</strong> (<code>:1948–1951</code>), bit for bit as predicted, so the weight-vector generalisation is linearity and nothing else. New <code>_exact_shares_w</code> builds sheet <code>s</code> as <code>replace(spec.sheet(driven=True), source_voltage_v=w_s·V_src)</code> and sums step 1's own helpers; the <code>_source_power_w</code> sign trap cannot recur because the sign is never re-transcribed. <strong>Nothing widened:</strong> <code>POWER_BALANCE_BAND</code> keeps 1e-2, its import and its three green asserts (single-drive residuals 9.795751e-03 / 9.796209e-03 / 9.794985e-03 / 9.795283e-03, <code>:1914</code>; <code>CROSS_TERM_TRIGGER</code>; <code>BLIND_SUM_MIN_MISS</code>), and the 1.164806e-01 terminal residual is <strong>printed</strong> on both senses beside the band and asserted nowhere (<code>:1917</code>, <code>:1921</code>). The <code>POST-6</code> known-issues entry retires in this commit. <strong>Step 3 (the gap's <code>h</code>-exponent on the ×0.75 / ×0.6 rungs) is the weekly's to commission</strong> — it is a question about the sheet field's non-uniformity, not about a missing loss channel. | ✅ <em>(2026-09-07 — the exact discrete power identity closes at 1e-14 on every single drive and on the superposed quadrature drive, the ≈6.7e-05 W gap is attributed to the terminal form's Cauchy–Schwarz deficit at 1e-13, and the drive-level assertion is re-pointed at the identity; <code>POWER_BALANCE_BAND</code> ruled a record and unmoved. Step 3's <code>h</code>-rate is optional and unclaimed)</em> </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

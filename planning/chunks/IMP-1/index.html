@@ -1,0 +1,726 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>IMP-1 — history - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#imp-1-history" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              IMP-1 — history
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-146-2026-10-01-chain-i2b-queued-by-the-1030-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 146 — 2026-10-01 (chain I2b; queued by the 10:30 review)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-165-2026-10-01-lane-3-phase-7-imp-1-step-3c-queued-by-the-1800-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 165 — 2026-10-01 (lane 3, Phase 7 — IMP-1 step 3(c); queued by the 18:00 review)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-01-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-01 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="§7 row moved verbatim 2026-10-01 (rotate_plan_archive.py chunks)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ruling-2026-10-02-1030-daily-review-item-165s-rounding-deviation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ruling — 2026-10-02 10:30 daily review (item 165's rounding deviation)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="imp-1-history">IMP-1 — history<a class="headerlink" href="#imp-1-history" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history moved out of PROJECT_PLAN §9 (operator directive 2026-10-01). The §7 row is the status of record. Step 3(a)'s brief (§9 item 135) is archived verbatim in <code>docs/planning/plan-archive.md</code> § "§9 digest and restock of the 2026-10-01 03:00 review".</p>
+<h3 id="9-item-146-2026-10-01-chain-i2b-queued-by-the-1030-review">§9 item 146 — 2026-10-01 (chain I2b; queued by the 10:30 review)<a class="headerlink" href="#9-item-146-2026-10-01-chain-i2b-queued-by-the-1030-review" title="Permanent link">&para;</a></h3>
+<p><code>IMP-1</code> step 3(b) — the three rungs with the exact finite-k trace (implementer; heavy, <code>-n 2</code>, complex; ≈ 10 measured / ≈ 55 predicted min; depends on nothing — item 135 landed <code>31f754bc</code>). <strong>Pre-registered red:</strong> both decision tests are predicted red; a red inside its range with every other assertion green parks the item and the slot continues.</p>
+<ul>
+<li><strong>Code.</strong> Additive keyword <code>dirichlet_e_field=None</code> on <code>_solve</code> (<code>test_imp1_pec_sphere_lossy_host.py:198–211</code>); <code>None</code> means <code>_pec_exterior_numpy()</code>, byte-identical (rule (a), disclosed, re-gated in W0). New <code>tests/validation/test_imp1_step3b_exact_trace.py</code> importing <code>RUNG_COARSE/FINE/OUT</code> and <code>BANKED_RHO</code> (<code>test_imp1_step2_refinement.py</code>) and <code>_hole_mesh</code>, <code>_shell_mask</code>, <code>_phi_closed_form_on_mask</code> (step 1); one module-scoped fixture runs the three rungs in one process. Trace: <code>pec_sphere_l1_tm_field(x.T, k=K_FIXTURE, radius=a).T</code> (zero for r &lt; a(1 − 1e-12), so (iii) holds as before). Φ_ex,h: a numpy degree-8 quadrature over <code>_shell_mask</code>'s owned cells of the unmasked <code>pec_sphere_l1_tm_parts</code> (E_reg + β_k·E_out) — the same analytic continuation <code>_phi_closed_form_on_mask</code> uses on chord points.</li>
+<li><strong>Re-prediction (I2a forces it).</strong> Switching the comparand: Φ_exact/Φ_qs(1) − 1 = 1.595464/1.592593 − 1 = +0.180 %. Switching the trace: the quasi-static-trace β 1.003255 / 1.003015 against the exact field's LSQ β 1.001933 gives Re δ ≈ +0.12 %, so Φ_h falls by ≈ 2·Re δ ≈ 0.24 %. From the banked total misses (+0.0743 / +0.6915 / +0.7956 %), ρ^ex is predicted ≈ 0.35 / 0.27 / 0.38 % at a/6 / a/10 / a/12; the a/10 → a/12 rise (+0.12 % banked) persists, because the trace change is smooth and resolved alike on every rung. The β-removed quasi-static ρ_h is printed beside <code>BANKED_RHO</code>, predicted ≈ 1.01 / 0.30 / 0.42 %. The chain's "under 0.1 % and falling" is therefore predicted red; a green reading would mean the box trace carries the floor.</li>
+<li><strong>Anchors (asserted).</strong> (L) the trace at s·k, s = 1e-6, equals <code>_pec_exterior_numpy()</code> ≤ 1e-9 on 1 000 points (the (3, N) layout check). (Mesh) cells 13 467 / 54 524 / 90 713 equal the banked counts (<code>20261001T033100Z_IMP-1-land-W1.log:371,445,528</code>). (M′) at each rung, the numpy quadrature of the quasi-static field with β = 1 equals <code>_phi_closed_form_on_mask(…, 1.0)</code> ≤ 1e-12. At each rung: (i) |β_h − 1| ≤ <code>TH15_BETA_BAND</code>; (ii) |Φ_h/Φ_ex,h − 1| ≤ 10 %; (iii) the cavity holds. Decision tests <code>test_rho_exact_a12_within_0p1_percent</code>, <code>test_rho_exact_falls_a10_to_a12</code>.</li>
+</ul>
+<p>PREDICTED RED: test_imp1_step3b_exact_trace.py::test_rho_exact_a12_within_0p1_percent range [0.15 %, 0.65 %]
+PREDICTED RED: test_imp1_step3b_exact_trace.py::test_rho_exact_falls_a10_to_a12 range [+0.01 %, +0.25 %] (ρ^ex(a/12) − ρ^ex(a/10))</p>
+<ul>
+<li><strong>Printed.</strong> Per rung: signed ρ^ex, Φ_h beside the banked Φ_h (Δ_trace), β_h beside 1.001933.</li>
+<li><strong>Negative control (predicted, rule (e) — the trace changed).</strong> Natural cavity at a/10 with the exact trace; the quasi-static-trace record on the same mesh is β −0.438932, miss 43.94 % (<code>20261001T033747Z_IMP-1-land-W2.log:152–153</code>). Predicted miss 40–48 %, |Δβ| ≈ 1.44; assert only above the bands (ceilings 4.4× and 29×).</li>
+<li><strong>Windows</strong> (complex).</li>
+<li>W0 (≈ 81 s): the <code>20261001T034025Z_IMP-1-land-W3.log:12</code> command verbatim, relabelled <code>IMP-1-step3b-W0</code> (the rule (a) re-gate).</li>
+<li>W1 (≈ 420 s; land-W1 measured 401 s): <code>scripts/testing/run_and_log.sh IMP-1-step3b-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 600 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_pec_sphere_hole.py tests/validation/test_imp1_step3b_exact_trace.py::test_three_rung_exact_trace tests/validation/test_imp1_step3b_exact_trace.py::test_rho_exact_a12_within_0p1_percent tests/validation/test_imp1_step3b_exact_trace.py::test_rho_exact_falls_a10_to_a12 -s -v --tb=short'"</code></li>
+<li>W2 (≈ 160 s): label <code>IMP-1-step3b-W2</code>, <code>timeout -k 30 400</code>, <code>tests/environment tests/validation/test_imp1_step3b_exact_trace.py::test_control_exact_trace</code>.</li>
+<li><strong>Traps.</strong> Use <code>pec_sphere_l1_tm_field</code>'s mask for the trace but <strong>never</strong> for Φ_ex,h (chord quadrature points would read zero). Guard N = 0 on a rank inside the callable. Peak memory 19.4 GiB summed at a/12. No <code>-k</code> selection. Foreground, <code>timeout: 660000</code>; no edit after the last window.</li>
+<li><strong>Scope.</strong> A record on a ✅ chunk. No glyph, no band moved, no convergence claim.</li>
+<li><strong>Status it can move.</strong> The <code>IMP-1</code> row's step 3(b) sentence (re-posed by the 10:30 review).</li>
+<li><strong>Negative result.</strong> Reds inside their ranges: recorded as "not model error, not box trace — discretisation / rung scatter, unseparated"; the slot continues. A red outside its range, or any of (i)–(iii), (L), (Mesh), (M′) red: stop, park, BLOCKED.</li>
+</ul>
+<p><strong>Outcome (2026-10-01 16:30 CDT slot): 🚫 BLOCKED — the pre-registered red, inside its range; the review reads it.</strong> Parked <code>attempt/IMP-1-step3b-20261001T214500Z</code> (<code>de5582d6</code>: the test module, the additive <code>dirichlet_e_field=None</code> keyword, three logs). W0 <code>20261001T213241Z_IMP-1-step3b-W0.log</code> (84 s, 17 passed) re-gates rule (a): β 0.985596, Φ_h 1.606456, miss 0.0743 %, identical to banked (<code>:372–373</code>). W1 <code>20261001T213412Z_IMP-1-step3b-W1.log</code> (405 s, 17 passed, 1 failed): (L) 1.244e-14 (<code>:320</code>); (Mesh) 13 467 / 54 524 / 90 713 (<code>:373,442,521</code>); (M′) ≤ 2.26e-14 (<code>:378,447,526</code>); (i)–(iii) green on every rung. Signed ρ^ex −0.9522 / −0.3400 / −0.2370 % at a/6 / a/10 / a/12 (<code>:528</code>); <code>test_rho_exact_a12_within_0p1_percent</code> <strong>red</strong> at 0.2370 % (<code>:543</code>, inside [0.15, 0.65] %); <code>test_rho_exact_falls_a10_to_a12</code> <strong>green</strong> (−0.1029 %, <code>:536–537</code>) — predicted red in [+0.01, +0.25] %, so a prediction miss, not a red. Prediction misses for the review (rule (e), printed, not asserted): Δ_trace (Φ_h vs banked) −0.8465 % on every rung to four digits (predicted ≈ −0.24 %); β_h 0.981501 / 0.999084 / 0.998845 (exact-field LSQ 1.001933); ρ^ex negative on every rung (predicted positive); the β-removed quasi-static ρ_h +0.6175 / −0.0927 / +0.0283 % against <code>BANKED_RHO</code> 1.1650 / 0.4473 / 0.5694 % (<code>:377,446,525</code>); Φ_ex,h/Φ_qs,h(1) − 1 = +0.180 % as predicted. W2 <code>20261001T214112Z_IMP-1-step3b-W2.log</code> (159 s, 13 passed): control β −0.437061, |Δβ| 1.4371, miss 44.51 % (<code>:150–151</code>), inside 40–48 %. Untested reading for the review: a rung-independent −0.85 % shift in Φ_h from a trace change is a uniform amplitude difference between the exact and quasi-static traces on the box, larger than (a)'s 1.56e-2 face departure would predict, so the trace does carry the banked floor's size — the brief's red/green reading table did not cover "≤ 0.1 % red, fall green".</p>
+<p><strong>Read by the 2026-10-01 18:00 review (<code>log-pathologist</code>, COUNTABLE; branch blobs, <code>W1:320–544</code>, <code>W0:372–375,449</code>, <code>W2:150–152</code>).</strong>
+- <strong>Claim 1 CONFIRMED.</strong> ρ^ex is −0.9522 / −0.3400 / −0.2370 % with every anchor green. The only red is the a/12 level test. The fall test is green on |ρ| only: signed ρ^ex <em>rises</em> from a/10 to a/12. It turned green because the trace change moved ρ^ex negative, so it is not independent evidence of convergence.
+- <strong>Claim 2: the arithmetic is CONFIRMED.</strong> ρ^ex·N² = 34.28 / 34.00 / 34.13, pairwise rates 2.02 / 1.98. The zero-offset reading is <strong>not established</strong>. Cells grow as N^2.74–2.79, and on h_eff ∝ cells^(−1/3) a C·h² + floor fit leaves a floor of +0.017 to +0.042 %. A floor of 0.01–0.04 % cannot be excluded on any h definition.
+- <strong>Claim 3: CONFIRMED as consistency.</strong> Δ_trace is −0.84652 / −0.84651 / −0.84657 %, one scalar rescaling of the drive. |Im E|/|Re E| dropped from 1.21e-2 to 3.37e-3, matching the exact field's 3.39e-3, which rules out a real-valued normalisation slip. The sign and order are plausible: the regular part's l = 1 projection between box and shell gives ≈ −0.6 %. The brief's −0.24 % prediction left out that term.
+- <strong>Claim 4: half confirmed.</strong> The banked ladder was already C·h² (C ≈ 34) plus ≈ +1.03 % offset. That offset splits into the trace (−0.85 %) and the comparand switch (+0.18 %), so the box trace carries ≈ 4/5 of it. The banked a/10 → a/12 rise in the β-removed metric survives the exact trace (+0.121 %). That rise is an artefact of the Re-only 48-point β fit absorbing part of the h² error, not scatter in Φ. Quadrature, mask, normalisation and sign convention are excluded. A common error in <code>pec_sphere_l1_tm_field</code> / <code>_parts</code> / <code>_beta</code> is constrained only by step 3(a)'s checks.</p>
+<p><strong>Disposition.</strong> By the pre-registered table, ρ^ex(a/12) &gt; 0.1 % selects the "otherwise" sentence, and the row records it. The trace attribution is a <strong>post-hoc</strong> reading: printed beside that sentence, not banked as the row's verdict. The pathologist's cheapest discriminator is the a/6 rung at degree 3 on the same mesh with the exact trace. It is queued as §9 item 165 (lane 3, an <code>IMP-1</code> record on a ✅ chunk), together with landing 3(b)'s module as the record its brief called for. The weekly may re-home it.</p>
+<h3 id="9-item-165-2026-10-01-lane-3-phase-7-imp-1-step-3c-queued-by-the-1800-review">§9 item 165 — 2026-10-01 (lane 3, Phase 7 — <code>IMP-1</code> step 3(c); queued by the 18:00 review)<a class="headerlink" href="#9-item-165-2026-10-01-lane-3-phase-7-imp-1-step-3c-queued-by-the-1800-review" title="Permanent link">&para;</a></h3>
+<p><code>IMP-1</code> step 3(c): land step 3(b)'s module as a record, then solve the a/6 rung at degree 3 with the exact trace (implementer; heavy, <code>-n 2</code>, complex; ≈ 15 measured / ≈ 50 predicted min; depends on nothing). Family <code>IMP-1</code> step 3: 3(a) registered a record, 3(b) was attempt 1, so this is attempt 2 of 4.</p>
+<ul>
+<li><strong>Code.</strong> Take by path from <code>attempt/IMP-1-step3b-20261001T214500Z</code>: <code>tests/validation/test_imp1_step3b_exact_trace.py</code>, <code>tests/validation/test_imp1_pec_sphere_lossy_host.py</code> (the additive <code>dirichlet_e_field=None</code> keyword; first check <code>git diff --stat de5582d6^ main -- tests/validation/test_imp1_pec_sphere_lossy_host.py</code> is empty) and the three logs (new files). Append the three <code>test-results.md</code> rows <strong>by hand</strong> from the branch diff — never a path checkout of <code>test-results.md</code>. Then edit the module:</li>
+<li>(1) Replace the two decision tests with <code>test_rho_exact_recorded</code>. It prints signed ρ^ex per rung beside a module constant <code>BANKED_RHO_EX = {"a/6": -0.9522, "a/10": -0.3400, "a/12": -0.2370}</code> (%, <code>W1:528</code>). It asserts only that each rung's Φ_h reproduces W1's printed Φ_h to 1e-7 relative, a record-reproduction band, not a gate. The docstring states that the pre-registered level test read 0.2370 % against 0.1 %, red inside its pre-registered range, and was recorded as that rule's disposition required.</li>
+<li>(2) Add <code>test_a6_degree3_exact_trace</code>: the a/6 mesh (<code>_hole_mesh</code> at <code>RUNG_COARSE</code>'s resolutions), <code>_solve(..., degree=3, dirichlet_e_field=&lt;exact trace&gt;)</code>, and the same rung at degree 3 with the quasi-static trace (<code>dirichlet_e_field=None</code>).</li>
+<li><strong>Anchors (asserted).</strong></li>
+<li>At degree 3, on both traces: (L) is not re-run (it is degree-independent and asserted in W1); (M′) the numpy quadrature of the quasi-static field equals <code>_phi_closed_form_on_mask</code> ≤ 1e-12 on the degree-3 run's quadrature points; (i) |β_h − 1| ≤ <code>TH15_BETA_BAND</code>; (ii) |Φ_h/Φ_ex,h − 1| ≤ <code>MAT4_BAND</code>; (iii) cavity max |E| &lt; 1e-12 (degree-3 cavity dofs located and nonzero).</li>
+<li>Cell count 13 467.</li>
+<li>The landed three-rung test passes as committed (rule (i)).</li>
+<li><strong>Pre-registered reading rule (printed; no decision assert).</strong> Let ρ³ = Φ_h/Φ_ex,h − 1 at a/6, degree 3, exact trace.</li>
+<li><strong>Geometric:</strong> |ρ³| ≥ 0.80 %, meaning it stays near the degree-2 −0.9522 %. The h² term is faceting / chord sliver, which carries no floor, and the row may read "residual geometric h², C ≈ 34 % · (h/a)²".</li>
+<li><strong>FE approximation:</strong> |ρ³| ≤ 0.30 %. The h² term was the field's approximation error, and the 0.01–0.04 % floor question stays open.</li>
+<li><strong>Mixed:</strong> anything between.</li>
+<li>Also printed: Δ_trace at degree 3 (exact vs quasi-static trace Φ_h), predicted −0.8465 % ± 0.01 % if the trace acts as one scalar rescaling (claim 3); β_h at degree 3 beside 0.981501 (degree 2) and the exact LSQ 1.001933; |Im E|/|Re E| (predicted ≈ 3.4e-3 exact / ≈ 1.2e-2 quasi-static).</li>
+<li><strong>Negative control.</strong> Item 146's W2 is re-run as committed: <code>test_control_exact_trace</code>, natural cavity at a/10 with the exact trace. It measured β −0.437061 and a miss of 44.51 % (<code>W2:150–151</code>). Its asserted form (above the bands) is unchanged.</li>
+<li><strong>Windows</strong> (complex; foreground; Bash <code>timeout: 660000</code>).</li>
+<li>W0 (≈ 84 s): <code>20261001T213241Z_IMP-1-step3b-W0.log:12</code> verbatim, relabelled <code>IMP-1-step3c-W0</code>. This is the rule (a) re-gate of the additive keyword.</li>
+<li>W1 (measured 405 s): <code>scripts/testing/run_and_log.sh IMP-1-step3c-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 600 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_imp1_step3b_exact_trace.py::test_three_rung_exact_trace tests/validation/test_imp1_step3b_exact_trace.py::test_rho_exact_recorded -s -v --tb=short'"</code></li>
+<li>W2 (predicted 120–300 s): the same shape, label <code>IMP-1-step3c-W2</code>, <code>timeout -k 30 600</code>, target <code>tests/environment tests/validation/test_imp1_step3b_exact_trace.py::test_a6_degree3_exact_trace</code>. Print dofs, solve time and summed RSS per degree-3 solve. The a/6 degree-2 solve has ≈ 90 k dofs; degree 3 is predicted ≈ 2.4× that.</li>
+<li>W3 (159 s): label <code>IMP-1-step3c-W3</code>, <code>timeout -k 30 400</code>, target <code>tests/environment tests/validation/test_imp1_step3b_exact_trace.py::test_control_exact_trace</code>.</li>
+<li><strong>Traps.</strong> These are item 146's, all live. Use <code>pec_sphere_l1_tm_field</code>'s mask for the trace and never for Φ_ex,h. Guard N = 0 on a rank. No <code>-k</code> selection. Peak memory 19.4 GiB summed at a/12. In addition: if <code>TimeHarmonicSolver</code> rejects degree 3, or the degree-3 cavity has no located dofs, record that verbatim and stop at W2. Do not substitute degree 1 (its own Φ error is 0.93 % at a/6). The interpolated trace at degree 3 needs the degree-3 space: do not reuse a degree-2 interpolant. Sweep 0-byte <code>.c</code> stubs first if any earlier window today was killed. No edit after a file's last window.</li>
+<li><strong>Scope.</strong> A record on a ✅ chunk. No glyph and no band move, and no convergence claim beyond the printed reading.</li>
+<li><strong>Status it can move.</strong> The <code>IMP-1</code> row's step 3 sentence: 3(b) landed as a record, and 3(c)'s reading (geometric / FE approximation / mixed). The two branches <code>attempt/IMP-1-step3b-20261001T214500Z</code> and the 3(c) work are deleted or landed accordingly.</li>
+<li><strong>Negative result.</strong> Any anchor red at degree 3 ((i)–(iii), (M′)), or W1's Φ_h not reproducing 3(b) to 1e-7: stop, park, BLOCKED; the review reads it. Degree 3 unavailable: record it, land W0 / W1 / W3 (the 3(b) record) alone, and mark the item DONE-partial with the reason.</li>
+</ul>
+<p><strong>Outcome 2026-10-02 (09:00 CDT slot): DONE, a record, no glyph change.</strong> The executor was the implementer, in the foreground.</p>
+<p>Files taken from <code>attempt/IMP-1-step3b-20261001T214500Z</code>:
+- path checkout of the two test files and the three 3(b) logs, after the <code>git diff --stat</code> precondition came back empty;
+- the three <code>test-results.md</code> rows, appended by hand;
+- the module was then edited per (1) and (2).</p>
+<p>Windows, all Status 0, <code>-n 2</code> complex, container timeouts 590 s:
+- W0 <code>20261002T141422Z_IMP-1-step3c-W0.log</code>: 17 passed, 83 s. β 0.985596, Φ_h 1.606456 (<code>:372–373</code>).
+- W1 <code>…141648Z_IMP-1-step3c-W1.log</code>: 14 passed, 411 s.
+  - Anchors: (L) 1.2e-14; cells 13 467 / 54 524 / 90 713; (M′) ≤ 2.3e-14; (i)–(iii) green.
+  - Signed ρ^ex −0.9522 / −0.3400 / −0.2370 %, equal to <code>BANKED_RHO_EX</code>.
+  - Φ_h against 3(b)'s six-decimal print: +2.9e-7 / −4.3e-8 / +3.5e-8 relative unrounded, and 0 after rounding to six decimals.
+  - <strong>Executor deviation, disclosed:</strong> the 1e-7 band is applied to Φ_h rounded to the printed precision, because a six-decimal print carries up to ≈ 3e-7 of rounding. Review: rule on it. (This is the same class of question as <code>PORT-3</code>'s (A2), item 154.)
+- W2 <code>…142346Z_IMP-1-step3c-W2.log</code> (<code>:139–149</code>): 13 passed, 230 s.
+  - a/6 at degree 3: 13 467 cells, 265 689 dofs, 11 853 located cavity dofs.
+  - Cost per solve: 93.5 s / 7.85 GiB on the exact trace, 87.8 s / 7.99 GiB on the quasi-static trace.
+  - Exact trace: β 0.992781, (ii) 0.9410 %, (iii) 0.
+  - Quasi-static trace: β 0.996925, (ii) 0.0953 %, (iii) 0.
+  - (M′) 3.11e-15.
+  - <strong>ρ³ = −0.9410 %</strong> (Φ_h 1.593038 / Φ_ex,h 1.608170). |ρ³| ≥ 0.80 % selects <strong>geometric</strong>: the h² term is faceting / chord sliver, the residual geometric h² is C ≈ 34 % · (h/a)², and it carries no floor.
+  - Δ_trace −0.8465 %, exactly the prediction (claim 3 holds at degree 3).
+  - |Im E|/|Re E| 3.37e-3 exact / 1.21e-2 quasi-static, as predicted.
+  - Cosmetic: the quasi-static line labels its degree-2 reference "exact-trace".
+- W3 <code>…142743Z_IMP-1-step3c-W3.log</code> (<code>:150–151</code>): 13 passed, 161 s. β −0.437061, miss 44.5105 %, identical to 3(b)'s W2.</p>
+<p>Branch disposition: <code>attempt/IMP-1-step3b-20261001T214500Z</code>'s content is now on <code>main</code>. I left the branch for the review to delete, since slots do not delete branches they did not create.</p>
+<h2 id="7-row-moved-verbatim-2026-10-01-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-01 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-01-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p><em>(history and §9 briefs: <code>docs/planning/chunks/IMP-1.md</code>)</em> <strong>A PEC-sphere implant in a lossy host under an imposed quasi-static field — Phase 7 step 1</strong> (§9 rule (5) lane 3; opened by the 2026-09-29 18:00 daily review under lane 3's closed-form licence — <strong>the weekly ratifies the chunk and its family ID, or re-homes it</strong>, dashboard). <strong>Ratified by the 2026-09-30 weekly (§10 rulings): the family ID <code>IMP</code> stands, and the bands-only closure proposed by the 18:00 review is ratified — ✅ on (i)–(iii) at three rungs, (M), (iv′) and the control when §9 item 123 lands them green on <code>main</code>; ρ's floor is a record, its model-error reading is unverified until step 3 (§10 I2: the exact finite-k l = 1 comparand), and no convergence claim is licensed.</strong> <code>TH-15</code>'s hole route (<code>sphere_in_box_domain(…, as_hole=True)</code>) at a = 5 mm in a 10 mm half-width box (|k_host|b = 0.179, <code>MAT-4</code>'s gated reach), host σ 0.57 / εᵣ 78 at 64 MHz, degree 2. <strong>Done-when (rule (j)).</strong> <em>Step 1:</em> (i) the fitted exterior dipole coefficient |β − 1| ≤ <code>TH-15</code>'s imported band (4.886 %); (ii) the shell-mean SAR enhancement Φ = ⟨|E|²⟩/E₀² over a &lt; r &lt; 1.5a against the closed form 1 + 2β²(a/c)³ = 1.5926, integrated over the same discrete mask, within <code>MAT-4</code>'s 10 %; (iii) cavity dofs max |E| &lt; 1e-12; the natural-cavity control (β → −½) misses (ii) by &gt; 10 % ⇒ 🟡. Pointwise pole SAR (9×) is printed only. <em>Step 2 (amended 2026-09-30 10:30 review, rule (j), for the weekly to ratify):</em> (i)–(iii) as written at a/6, a/10 and an out-of-sample third rung a/12, degree 2, in one process; (iv′) |β − 1| at a/12 ≤ at a/6; (v′) the β-removed shell residual ρ_h = |Φ_h/Φ_cf,h(β_h) − 1| — the same masked closed form evaluated at the rung's fitted β_h — at a/12 ≤ at a/10; the natural-cavity control at a/10 misses (i) and (ii) ⇒ ✅ (§9 item 106). <strong>Banked red, not erased:</strong> as first written the clause read "with neither miss growing" between a/6 and a/10; |β − 1| fell (1.4404 % → 0.3255 %, green) and the total Φ miss grew (0.0743 % → 0.6915 %, red; §9 item 102, <code>20260930T111403Z_IMP-1-step2-W1.log:449,456</code>). That clause is withdrawn as a convergence statement and no band moved: the total miss is the sum of a β term (−1.064 % → +0.243 %) and a non-dipole residual (≈ +1.17 % → +0.448 %) that cancel at a/6 and add at a/10 — a reading formed on those two rungs, which is why the re-posed clause is tested on a rung it has not seen. The total miss stays printed at every rung and is asserted only within <code>MAT-4</code>'s 10 % (that is (ii)). If (v′) is red with (i)–(iii) green, ρ is the fixture's measured model-error floor: 🟡 held, and the next review banks it and closes on the bands alone with the weekly's ratification — no further rung. Phase 7's published-data targets belong to later chunks the weekly writes. <strong>State (2026-09-29 22:30, step 1 closed, §9 item 91):</strong> <code>tests/validation/test_imp1_pec_sphere_lossy_host.py</code>, 13 467 cells, degree 2: (i) β 0.985596, |β − 1| 1.440 % vs 4.886 %; (ii) Φ_h 1.606456 vs Φ_cf,h 1.605264, miss 0.074 % vs 10 %; (iii) 5 670 cavity dofs, max |E| 0; Φ_cf,h is +0.80 % off 1.5926 (mask faceting). Records: degree 1 same mesh β 1.027080 (2.708 %), Φ miss 0.933 %; |Im E|/|Re E| 1.21e-2 (predicted ≈ 0.5 %, a prediction miss); SAR/SAR₀ at 1.2a 4.529 (3°) / 0.207 (87°) vs quasi-static 4.642 / 0.190. Control (natural cavity): β −0.432813, |Δβ| 1.433; Φ_h 0.894 (not the void 1.148), miss 44.3 % — <strong>over the item's predicted 27.9 % "ceiling"</strong>; asserted only &gt; 10 %, so a negative result on the prediction, not the gate (rule (e)); untested reading: the box's Dirichlet trace carries the β = 1 dipole, so the control's shell field is not the free-space void closed form. <em>(2026-09-30 03:00 review: that reading is adopted and the item's "27.9 % ceiling" is withdrawn as a drafting error — the void form does not bound a control solved inside a box that carries the β = +1 dipole; step 2's control prediction is this measured 44.3 %. Step 2 queued, §9 item 102.)</em> <code>TH-15</code> premise green in-window. <code>20260930T033210Z_IMP-1-step1-W1.log</code> (92 s, 17 passed). <em>(Step 2 attempt 1, 2026-09-30 06:00 slot, §9 item 102 — <strong>🟡 held, the item's pre-registered negative result:</strong> at a/10 (54 524 cells, 366 574 degree-2 dofs, 92.0 s, 10.05 GiB) (i)–(iii) are green at both rungs and <strong>(iv) green</strong> — |β − 1| 1.4404 % → 0.3255 % (β 0.985596 → 1.003255) — but <strong>(v) is red: the Φ miss grows 0.0743 % → 0.6915 %</strong> (Φ_h 1.606456 → 1.604703 on Φ_cf,h 1.605264 → 1.593682), inside the 10 % band at both rungs. The row's "neither miss growing" is not met; no band moved; code parked on <code>attempt/IMP-1-step2-20260930T111700Z</code>; W2 (control) not run — the item says stop. <code>20260930T111403Z_IMP-1-step2-W1.log:371–378,442–449,456</code> (160 s, 15 passed, 1 failed). The review re-scopes.)</em> <em>(<strong>Ruled 2026-09-30 10:30 review</strong> (<code>docs/planning/reviews/2026-09-30-daily-1030.md</code> §4): (v) is banked red as written; the step is re-posed as 2b on the β-removed residual at an out-of-sample rung a/12 — the Done-when above — attempt 2 of 4, §9 item 106.)</em> <em>(Step 2b, 2026-09-30 12:00 slot, §9 item 106 — <strong>🟡 held, the item's pre-registered negative result: (v′) red.</strong> At a/12 (90 713 cells, 604 884 degree-2 dofs, 236.7 s, 19.65 GiB summed peak) (i)–(iii) and (M) are green at all three rungs (β 0.985596 / 1.003255 / 1.003015; total Φ miss +0.0743 / +0.6915 / +0.7956 %, band 10 %; cavity max |E| 0; (M) 0.0 relative) and <strong>(iv′) green</strong> (|β − 1| 1.4404 % → 0.3015 %), but <strong>ρ_h = +1.1650 % → +0.4473 % → +0.5694 %</strong>: a/10 → a/12 grows (predicted ≈ 0.32 %; pairwise rates 1.874, −1.324). ρ matches the item's a/6 and a/10 predictions to three figures (the mask's cross term is ≤ 3.2e-6); a/12 reads as a floor near 0.5 %, or rung-to-rung scatter that the item left unmeasured — not separable at three rungs. Control (W2) green: β −0.438932, Φ miss 43.94 % (predicted ≈ 44 %). No band moved. Code parked on <code>attempt/IMP-1-step2b-20260930T171300Z</code> (in <code>test_control</code> the only edit is the <code>CELL_CEILING</code> → <code>CELL_GUARD</code> rename). <code>20260930T170159Z_IMP-1-step2b-W1.log:528–544,551</code> (428 s, 15 passed, 1 failed), <code>20260930T170916Z_IMP-1-step2b-W2.log:152–153</code> (161 s, 13 passed). Per the Done-when above, the next review banks ρ as the fixture's floor and closes on the bands alone, with the weekly's ratification.)</em> <em>(<strong>Banked 2026-09-30 18:00 review:</strong> (v′) red is banked as a record — ρ_h 1.1650 / 0.4473 / 0.5694 % at a/6 / a/10 / a/12, all positive — the fixture's measured floor near 0.5 %, model error (the quasi-static comparand against a finite-k host, (|k|a)² ≈ 0.8 %) and unmeasured rung-to-rung scatter not separable at three rungs. (v′) is withdrawn from the Done-when as a gate; no band moved; the step family (2, 2b) is closed to further rungs by the item's own rule. <strong>Proposed closure, for tonight's weekly to ratify:</strong> ✅ on (i)–(iii) at three rungs, (M), (iv′) and the control — all green in <code>…170159Z_IMP-1-step2b-W1.log</code> / <code>…170916Z_IMP-1-step2b-W2.log</code>. The landing (the parked test on <code>main</code> with (v′) printed as banked, W1 / W2 re-run on the committed bytes, rule (i)) is §9 item 123, <strong>serial on that ratification</strong>. <code>attempt/IMP-1-step2-20260930T111700Z</code> deleted (its files are on the step-2b branch).)</em> <strong>✅ 2026-10-01 (§9 item 123, on the bands-only closure ratified by the 2026-09-30 weekly, <code>aab0fbf2</code>):</strong> the parked test landed on <code>main</code> with (v′) printed beside <code>BANKED_RHO</code>, and (i)–(iii), (M), (iv′) and the control are green on the committed bytes — <code>20261001T033100Z_IMP-1-land-W1.log:610</code> (401 s, 16 passed; β 0.985596 / 1.003255 / 1.003015 at <code>:373,447,530</code>), <code>…033747Z_IMP-1-land-W2.log:152–153,218</code> (153 s, 13 passed; β −0.438932, miss 43.94 %), <code>…034025Z_IMP-1-land-W3.log:449</code> (81 s, 17 passed). ρ re-read 1.1650 / 0.4473 / 0.5694 % to the record digit (<code>W1.log:545</code>), a record not a gate, with no convergence claim; <code>attempt/IMP-1-step2b-20260930T171300Z</code> deleted. <em>Audited PASS 2026-10-01 03:00 review (<code>W1.log:373–545,610,677–680</code>; <code>W2.log:152–153</code>).</em> <strong>Step 3 (§10 I2; records on a ✅ chunk, no glyph; written 2026-10-01 03:00 review, rule (j)):</strong> (a) the exact l = 1 TM field in the lossy host in numpy — n × E on r = a ≤ 1e-12, curl-curl residual ≤ 1e-4 at |k|a = 1, <code>TH-5</code>'s real-k identity ≤ 1e-12, the k → 0 limit second order; ρ_model printed as (b)'s prediction (§9 item 135); (b) <em>(re-posed 2026-10-01 10:30 review after (a)'s ρ_model +0.0363 %; §9 item 146)</em> the three rungs with the exact field's trace on the box and Φ_ex,h, the exact field over the same mask: ρ^ex ≤ 0.1 % at a/12 and a/12 ≤ a/10 ⇒ the row reads "the ≈ 0.5 % floor is the quasi-static box trace"; otherwise "the floor is neither comparand model error nor box trace — discretisation / rung scatter, not separated". Pre-registered red (≈ 0.27 / 0.38 % predicted at a/10 / a/12). <em>(<strong>Step 3(a) DONE 2026-10-01 (09:00 CDT slot, third item, §9 item 135):</strong> additive <code>pec_sphere_l1_tm_beta</code> / <code>pec_sphere_l1_tm_field</code> / <code>pec_sphere_l1_tm_parts</code> in <code>utils/analytical.py</code> (j₁ via J_{3/2}, h₁⁽²⁾ in e^{+jωt}, no conjugation), <code>tests/validation/test_imp1_step3_exact_comparand.py</code>. Fixture k = 15.178 − 9.489j 1/m, |k|a 0.0895, arg k −32.01°. Asserted green: (X) real-k identity with <code>TH-5</code>'s dipole 6.2e-16 (outgoing) / 1.2e-14 (regular); (P) max|r̂ × E|/E₀ 1.2e-15 (fixture k) / 1.1e-15 (k_H); (H) curl-curl residual at |k_H|a = 1 1.496e-5, δ-ratio 4.000 (fixture k printed 1.9e-3); (Q) 7.95e-7 / 1.99e-7 at s = 1e-2 / 5e-3, ratio 3.999; (Φ0) 1.1e-14; controls (c1) 1.0000, (c2) 0.9993, (c3) 1.7979 (predicted 1.798). Printed: β_k − 1 = +5.85e-4 − 2.10e-3j (|·| 0.218 %, predicted 0.22 %); <code>IMP-1</code>'s Re-E LSQ β on the exact field 1.001933; max|Im E|/|Re E| 3.39e-3 (predicted ≈ 3e-3; FEM record 1.21e-2); max|E_exact − E_qs| on the box faces 1.56e-2 — <strong>a prediction miss</strong> (predicted ≈ 3e-3, printed, rule (e)): the box's Dirichlet trace departs from the exact field by ≈ 1.6 %; <strong>ρ_model = Φ_exact/Φ_qs(β_fit) − 1 = +0.0363 %</strong> on the continuous shell (Φ_exact 1.595463908, Φ_qs 1.594885225) against the banked ρ 0.4473 / 0.5694 % — <strong>≪ 0.45 %: the item's pre-registered negative result — the quasi-static vs finite-k model error in the comparand does not explain the ≈ 0.5 % floor; the review re-predicts I2b; nothing re-gated.</strong> Not separated here: whether the 1.6 % box-trace departure (which the comparand does not see) carries the floor. <code>20261001T142052Z_IMP-1-step3a-W1.log:169–194</code> (45 s, 21 passed, 4 skipped, <code>-n 2</code>, real; <code>tests/unit/test_analytical_lightweight.py</code> re-run green beside it, rule (c)).)</em> <em>(<strong>Step 3(b) parked 2026-10-01 (16:30 CDT slot, §9 item 146) — the pre-registered red, inside its range; the review reads it:</strong> every anchor green, ρ^ex(a/12) = 0.2370 % &gt; 0.1 % (range [0.15, 0.65] %) while the fall a/10 → a/12 came out <strong>green</strong> (−0.3400 % → −0.2370 %, predicted red) — but ρ^ex is <strong>negative</strong> on all three rungs and the exact trace moved Φ_h by −0.8465 % on every rung (predicted −0.24 %), collapsing the β-removed quasi-static ρ_h to −0.09 / +0.03 % at a/10 / a/12; history <code>docs/planning/chunks/IMP-1.md</code> § item 146, parked <code>attempt/IMP-1-step3b-20261001T214500Z</code>.)</em> <em>(<strong>Read 2026-10-01 18:00 review (<code>log-pathologist</code>, COUNTABLE):</strong> by the pre-registered table, ρ^ex(a/12) 0.2370 % &gt; 0.1 % selects the "otherwise" sentence — <strong>the floor is neither comparand model error nor box trace alone; discretisation not separated</strong> — and that is this row's record. The fall test's green is on |ρ| only, so it is not independent evidence. Printed beside it, and <strong>post hoc, not banked</strong>: the banked ladder was C·h² (C ≈ 34 %·(h/a)²) plus ≈ +1.03 % offset. That offset splits as box trace −0.85 % and comparand +0.18 %, so the trace carries ≈ 4/5 of it. A residual floor of 0.01–0.04 % cannot be excluded on the cell-count h. The banked a/10 → a/12 rise is an artefact of the Re-only β fit in the β-removed metric. The pathologist's cheapest discriminator, a/6 at degree 3 with the exact trace (geometric h² vs FE approximation), is queued as §9 item 165 (lane 3, a record; 3(b)'s module lands with it).)</em> | ✅ </p>
+<h3 id="ruling-2026-10-02-1030-daily-review-item-165s-rounding-deviation">Ruling — 2026-10-02 10:30 daily review (item 165's rounding deviation)<a class="headerlink" href="#ruling-2026-10-02-1030-daily-review-item-165s-rounding-deviation" title="Permanent link">&para;</a></h3>
+<p><strong>Ratified.</strong> The brief asked that "each rung's Φ_h reproduces W1's printed Φ_h to 1e-7 relative". The comparand is a six-decimal print, so it carries up to ≈ 3e-7 of rounding. A 1e-7 reproduction band therefore sat below its comparand's own ceiling, and it was unreachable by construction. The rubric's element 2 names this ceiling ("compute the ceiling before naming a factor").</p>
+<p>Applying the band to Φ_h rounded to the printed precision is the reading the brief's words allow. The unrounded residuals (+2.9e-7 / −4.3e-8 / +3.5e-8) are printed beside it. This is a record-reproduction band, not a gate, and no physics band moved.</p>
+<p>Ruling for briefs: a reproduction band against a <strong>printed</strong> value is never tighter than ½ ulp of the printed mantissa, relative. Where a tighter band is wanted, compare a stored (JSON / npz) value. The same ruling covers <code>PORT-3</code>'s (A2) (item 154, re-briefed as item 178).</p>
+<p>Branch: <code>attempt/IMP-1-step3b-20261001T214500Z</code> was deleted by this review. Its code and three logs are on <code>main</code>, and its three <code>test-results.md</code> rows were appended by hand.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

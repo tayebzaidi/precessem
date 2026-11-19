@@ -1,0 +1,913 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>Daily review — 2026-09-26 03:00 (Saturday) - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#daily-review-2026-09-26-0300-saturday" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Daily review — 2026-09-26 03:00 (Saturday)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-what-happened" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. What happened
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-tree-branches-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Tree, branches, service
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-audit-4-two-chunks-newly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Audit (§4) — two chunks newly ✅
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-incomplete-attempts-geo-34-step-1b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Incomplete attempts — GEO-34 step 1b
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-xxl-09-26-wf-7-step-0d-chain-h2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. xxl 09-26 — WF-7 step 0d (chain H2)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-10-assessment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. §10 assessment
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-xl-clerk-step-6b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. XL clerk (step 6b)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-restock-step-6-and-9-hygiene-6c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Restock (step 6) and §9 hygiene (6c)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-for-the-2026-09-26-weekly-not-ruled-here" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. For the 2026-09-26 weekly (not ruled here)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="daily-review-2026-09-26-0300-saturday">Daily review — 2026-09-26 03:00 (Saturday)<a class="headerlink" href="#daily-review-2026-09-26-0300-saturday" title="Permanent link">&para;</a></h1>
+<p>Model <code>claude-opus-5-5</code> (the daily review's dated override, through
+2026-09-29). Interval: 2026-09-25 03:00 (<code>0e86d58</code>) → 2026-09-26 03:00.</p>
+<h2 id="1-what-happened">1. What happened<a class="headerlink" href="#1-what-happened" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>When</th>
+<th>Who</th>
+<th>Outcome</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>09-25 04:30 slot</td>
+<td>implementer</td>
+<td><code>8643f53</code> <strong><code>WF-7</code> step 3 (H5) → <code>WF-7</code> ✅</strong>; take-next <code>a9ef2f8</code> <code>GEO-34</code> step 1b <strong>negative, parked</strong></td>
+</tr>
+<tr>
+<td>09-25 06:00 slot</td>
+<td>implementer</td>
+<td><code>d6289ac</code> <strong><code>OPS-63</code> ✅</strong>; take-next <code>80acb42</code> <code>EX-57</code> <code>th:1</code>; fallback <code>34cedc6</code> <code>th:2</code></td>
+</tr>
+<tr>
+<td>09-25 07:30 slot</td>
+<td>implementer</td>
+<td>fallback <code>4e4e1e0</code> <code>EX-57</code> <code>th:3</code>; stopped after one figure</td>
+</tr>
+<tr>
+<td>09-25 09:00 slot</td>
+<td>implementer</td>
+<td>fallback <code>21234c6</code> <code>EX-57</code> <code>th:4</code>; stopped after one figure</td>
+</tr>
+<tr>
+<td>09-25 10:33</td>
+<td>operator session</td>
+<td><code>197bb25</code> <code>EX-57</code> batching (up to three figures per <code>example-runner</code> run)</td>
+</tr>
+<tr>
+<td>09-26 02:00</td>
+<td>cron <code>xxl</code></td>
+<td><code>cb24dab</code> <code>WF-7</code> step 0d, Status 0, 646 s</td>
+</tr>
+</tbody>
+</table>
+<p>All four slots fired. Two chunks closed; one item was parked with a
+negative result; four fallback figures were drawn. The 07:30 and 09:00
+slots each stopped after one fallback figure because the §9 paragraph
+licensed one. The 07:30 slot asked whether that was intended. It is now
+moot: the paragraph describes the operator's batch (below).</p>
+<h2 id="2-tree-branches-service">2. Tree, branches, service<a class="headerlink" href="#2-tree-branches-service" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Tracked tree clean; no untracked files.</strong> No <code>recovered/*</code>.</li>
+<li><strong><code>attempt/*</code>: six.</strong> The five from 09-07 … 09-20 are kept under the 09-09
+  ruling. The new <code>attempt/GEO-34-step1b-20260925T094541Z</code> (<code>92d03fa</code>) holds
+  the parked module that §9 item 47 takes by path. Delete it once item 47
+  lands.</li>
+<li><strong>The ordinary service is up.</strong> This review's census ran through it
+  (<code>20260926T080136Z_EX-57-next.log</code>, Status 2 = staleness only, 1 s).</li>
+</ul>
+<h2 id="3-audit-4-two-chunks-newly">3. Audit (§4) — two chunks newly ✅<a class="headerlink" href="#3-audit-4-two-chunks-newly" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong><code>WF-7</code> (<code>8643f53</code>) — auditor PASS.</strong> 41/41 digits traced. The four
+  executed asserts are <code>test_wf7_f_human_sar10g_hotspot.py:378–410</code>. The
+  step 2 edit is purely additive (<code>phantom_resolution=None</code>); no <code>src/</code>.
+  Tier heavy: 352 s and 210 s. Re-verified by this review:
+  <code>20260925T093315Z_WF-7-step3.log:11615</code> (C16 worst 0.4904 %, ASSERTED
+  ≤ 5.0 %), <code>:11616</code> (mirror 0.0502 %) and <code>:11617</code> (coverage 9.592e-14 /
+  1.297e-13 ≤ 1e-10). Caveats, carried as disclosed: the row's ball-mass
+  range 9.984–10.024 g covers the nine lattice balls only (the 30 balls span
+  9.979–10.031 g); c* lies on the mirror plane, so (iii) is cw vs ccw at one
+  point, not an off-plane reflection.</li>
+<li><strong><code>OPS-63</code> (<code>d6289ac</code>) — auditor PASS.</strong> 14/14 digits traced. The
+  footer's Status 1 is the chained comparator looking in <code>paraview_output/</code>
+  for a file the script writes beside <code>metrics.json</code>. The example itself
+  exited 0: <code>20260925T110348Z_OPS-63.log:1953</code> "ALL ANCHORS GREEN" and
+  <code>:1954</code> "[window] example exited 0", both re-read by this review. The
+  corrected comparator passed at
+  <code>20260925T110725Z_OPS-63-leaf-identity.log:37</code> (9.646362e-11 ≤ 1e-10,
+  re-read). The first leaf-identity log's Status 128 is an in-container
+  <code>git status</code> refused for dubious ownership, not a test. No tracked file
+  still carries the AED figure.</li>
+</ul>
+<p>Nothing demoted.</p>
+<h2 id="4-incomplete-attempts-geo-34-step-1b">4. Incomplete attempts — <code>GEO-34</code> step 1b<a class="headerlink" href="#4-incomplete-attempts-geo-34-step-1b" title="Permanent link">&para;</a></h2>
+<p><strong>Diagnosis from the log and the parked diff:</strong> on the imported mesh,
+anchors (iv), (i) and (ii) pass and the swapped control fails as asserted.
+(iii′) misses with a structured two-fold split, Z₁₁ ≈ Z₃₃ ≠ Z₂₂ ≈ Z₄₄. No
+<code>log-pathologist</code> ruling was needed: the reading is the executor's own, it
+is unsurprising given the log, and it moves no status beyond the BLOCKED
+the slot already recorded.</p>
+<p><strong>What <code>GEO-31</code> adds, and why the hypothesis is not yet a conclusion:</strong>
+<code>GEO-31</code> measured the primitive ×1 sheets as the same support and boundary
+with a <em>different interior cut</em>: P3 and P4 are 0.53 ℓ from P1's rotated
+centroids while the counts are 58/58/58/58. On that same mesh <code>PORT-9</code>
+passes (iii′) at 0.0553 %. So "the import's cut is not C4-congruent" would
+not explain a 60× larger spread by itself. It would have to differ in kind
+(support or boundary) or in pattern (a C2 split matching Z).</p>
+<p><strong>Rescope</strong> (§7 <code>GEO-34</code> row; known-issues unblock cell). There are two
+independent items, and no band moves:</p>
+<ul>
+<li><strong>§9 item 46</strong> (<code>mesh-probe</code>): <code>GEO-31</code>'s metrics on the primitive and
+  the import, side by side. Its reading fills the <em>Cause</em> cell.</li>
+<li><strong>§9 item 47</strong> (implementer): an additive <code>import_step</code> config key binds
+  the four imported sheets to sheet 1 with <code>setPeriodic</code> under
+  <code>_z_rotation_affine</code> (<code>GEO-32</code>'s cut, which took the 10 MHz degree-2
+  self spread from 0.4451 to 0.0303 % on the primitive). The parked module
+  is re-run on it.</li>
+<li>If it is green, the step closes and the entry retires.</li>
+<li>If it is red with provably congruent sheets, the sheets are excluded.
+    The named next suspect is the volume sizing: the import's background
+    field is the conductor Threshold alone, while the primitive's also
+    carries a phantom <code>Box</code>.</li>
+</ul>
+<p><strong>Family count</strong> ("step 1b"): 1b = 1; items 46 and 47 make 3. A red 47
+leaves one letter.</p>
+<h2 id="5-xxl-09-26-wf-7-step-0d-chain-h2">5. <code>xxl</code> 09-26 — <code>WF-7</code> step 0d (chain H2)<a class="headerlink" href="#5-xxl-09-26-wf-7-step-0d-chain-h2" title="Permanent link">&para;</a></h2>
+<p><strong><code>log-pathologist</code>: COUNTABLE; claims 1–6 CONFIRMED; 7 = time INSIDE,
+memory OUTSIDE (below).</strong> Re-read by this review: residual min
+<code>:11187</code> (1.081e-02, P31) and max <code>:11397</code> (1.179e-02, P36); numeric
+factorisation <code>:10541</code> (231.568 s); drive 1 <code>:10598</code> (322.95 s).</p>
+<ul>
+<li>Result: the full degree-2 32×32 took <strong>10.65 min in-probe at 103.06 GiB
+  peak</strong>. That is one factorisation plus 31 held back-substitutions at
+  5.73 s each by the cumulative counter (printed 4.19–6.40 s).</li>
+<li>Reciprocity: <strong>9.715e-14, asserted.</strong> σ_max is 0.999914 (printed).</li>
+<li>Entry 9's decision rule:</li>
+<li>The human-scale degree-2 S sweep is an ordinary <code>xl</code>-sized job.</li>
+<li>There is no reciprocity or passivity miss, so there is no <code>PORT</code>
+    finding.</li>
+<li>The terminal residual sits at <strong>1.08–1.18e-2 on every column</strong>, 2.6×
+    degree 1's. So step 0b's reading is not P17-specific. The rule sends
+    this to a <code>POST</code> item on the accounting's degree-2 quadrature or sheet
+    term, never a band change. <strong>This review does not write that item.</strong>
+    Its anchor, <code>PORT-16</code>'s exact discrete identity at degree 2 on F-human,
+    needs a degree-2 F-human solve (≈ 103 GiB at <code>-n 16</code>), which is <code>xl</code>
+    work and a new script. That is the weekly's to commission. The 09-19
+    weekly already framed this reading as κ-class and unattributed.</li>
+<li>The P17 value reproduces 0b to every digit, so the 5.50 % order move is
+  a reprint, not a second measurement.</li>
+<li>Label traps are listed in the ledger row. Entry 9's warning about stale
+  brackets was overtaken by <code>OPS-52</code>.</li>
+</ul>
+<h2 id="6-10-assessment">6. §10 assessment<a class="headerlink" href="#6-10-assessment" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>H:</strong> H1–H5 are landed, and H2 was ruled today. <strong>Chain H's executable
+  steps are exhausted.</strong> H6 (<code>GEO-33</code>) is the weekly's, and it is in
+  conflict with the strip-conductor note. <code>WF-7</code> ✅ closes the first
+  human-scale safety quantity, with one phantom and no compliance claim.</li>
+<li><strong>F:</strong> F2's 10 MHz rung (3g) is unconverged on <code>S₁₁</code> and the weekly
+  rules tonight. 3h / 3i run 09-27 / 09-28 and 3j runs 09-30. F4 is the
+  weekly's; F5 is the operator's.</li>
+<li><strong>T:</strong> T5 gate (a) and T6 are the weekly's. The T9b probe runs 09-29.
+  T10 is the operator's.</li>
+<li><strong><code>GEO-34</code></strong> (off-chain, operator directive): rescoped above.</li>
+</ul>
+<p>The backlog still leads to the mission, and no physics gap was filled
+here. <strong>Examples (§5.4):</strong> <code>WF-7</code> closed a quantitative gate. No example
+solves a human-scale coil for a safety quantity: <code>mri:3</code> / <code>ans:2</code> are
+F-small, <code>ports:15</code> reads <code>|B₁⁺|</code> only, <code>mesh:12</code> does not solve. So
+<strong><code>EX-62</code> was opened</strong> (§7, item 48). <code>OPS-63</code> is a defect fix, so no
+example is owed for it.</p>
+<h2 id="7-xl-clerk-step-6b">7. XL clerk (step 6b)<a class="headerlink" href="#7-xl-clerk-step-6b" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Marked RUN:</strong> entry 9. The <code>xxl</code> ledger row was filled from the
+   pathologist's reading.</li>
+<li><strong>Queued:</strong> nothing new. There is no READY entry, and entries 12–15 were
+   already queued (09-27 … 09-30).</li>
+<li><strong>Budget and floor:</strong> <code>xl</code> has 6 of 6 charged in the trailing 7 days
+   (09-20 … 09-25). Each queued night counts 5 at its own cutoff, as the
+   09-25 review computed, so every queued night runs. <strong>4 <code>xl</code> ahead (floor
+   4) — met. 0 <code>xxl</code> ahead (floor 1) — NOT met</strong> (dashboard 🔴).</li>
+<li><strong>Shortfall not filled under the daily licence.</strong> The only <code>xxl</code>-priced
+   family is the F-human cost probe. Its knobs are degree and port set
+   only (<code>wf7_step0_f_human_cost.py:117</code>, <code>:139</code>), and both are now spent
+   at degree 2 / all ports. A frequency or resolution variant would need
+   code, so it is not a variant. A rank-count variant answers nothing. A
+   cost probe on a new case (a finer <code>ANS-4</code> rung for F2) is a physics
+   choice that turns on tonight's F2 ruling. <strong>Tonight's weekly (21:00)
+   runs before the next <code>xxl</code> night (Sat 10-03) and commissions it.</strong></li>
+</ol>
+<h2 id="8-restock-step-6-and-9-hygiene-6c">8. Restock (step 6) and §9 hygiene (6c)<a class="headerlink" href="#8-restock-step-6-and-9-hygiene-6c" title="Permanent link">&para;</a></h2>
+<p>Queue on arrival: items 39, 41–45 DONE; 40 BLOCKED. The census
+(<code>--next 3</code>) printed <code>th:5</code>, <code>th:6</code>, <code>th:7</code>, all in one group directory.</p>
+<p>New items (all independent):</p>
+<ul>
+<li>46: <code>GEO-34</code> 1b-probe, 40 slot-min.</li>
+<li>47: <code>GEO-34</code> 1b′, 50.</li>
+<li>48: <code>EX-62</code>, 60.</li>
+<li>49: the <code>EX-57</code> batch, 40.</li>
+</ul>
+<p><strong>190 slot-min against 240: short 50 min. 4 items against 5: short one.</strong>
+Nothing else is ready. Every executable chain step is landed or waits on
+tonight's weekly or on the operator. The batched fallback covers the gap.</p>
+<p>§9 hygiene:</p>
+<ul>
+<li>Items 39–45 collapsed; item 40 marked SUPERSEDED.</li>
+<li>The fallback paragraph now describes the batch.</li>
+<li>Digest rewritten.</li>
+<li><strong>§9 is 37.5 KB</strong> (39.3 KB at <code>HEAD</code>). Four full-rubric items take
+  ≈ 20 KB and the standing rules ≈ 10 KB. As on 09-25, the rule that falls
+  short is item size, not collapse.</li>
+</ul>
+<h2 id="9-for-the-2026-09-26-weekly-not-ruled-here">9. For the 2026-09-26 weekly (not ruled here)<a class="headerlink" href="#9-for-the-2026-09-26-weekly-not-ruled-here" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Commission the next <code>xxl</code> window</strong>: the floor is 0 of 1 (§7).</li>
+<li>0d's every-column residual (§5). Decide whether to commission the
+  <code>POST</code> item at <code>xl</code> (a degree-2 F-human solve asserting <code>PORT-16</code>'s exact
+  identity).</li>
+<li>Carried from 09-25:</li>
+<li>F2 at 10 MHz (3g falling, not converged) and T6's pre-registered flip.</li>
+<li>The <code>ANS-2</code> (a) band into the private file.</li>
+<li>H6 vs the strip-conductor note; B1 <code>TH-5</code>; <code>OPS-54</code>; <code>OPS-61</code>.</li>
+<li>The <code>xl-run.sh</code> orphan check.</li>
+<li>The untracked-output gap.</li>
+<li>The 09-23 service outage (cause still unknown).</li>
+<li>§2 carries no human-scale sentence. <code>WF-7</code> ✅ (the first human-scale
+  safety quantity, degree 1, one phantom) may warrant one; this review did
+  not write it.</li>
+<li>The operator's 09-25 commit says the <code>example-runner</code> agent-file change
+  "lands as its own commit". It is not on <code>main</code>: the last change to that
+  file is 09-13 (dashboard item 7).</li>
+<li><code>WF-7</code>'s off-plane mirror check. The 04:30 slot suggested a lattice off
+  the az_ref ray; that would be new work, so it is the weekly's call.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

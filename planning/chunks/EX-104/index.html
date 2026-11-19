@@ -1,0 +1,775 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-104 — mat:17, thermal dose and the six-minute average on closed-form histories - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-104-mat17-thermal-dose-and-the-six-minute-average-on-closed-form-histories" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-104 — mat:17, thermal dose and the six-minute average on closed-form histories
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-338-2026-10-08-example-54-ramp-from-mat-20-steps-12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 338 — 2026-10-08 (example; §5.4 ramp from MAT-20 steps 1–2)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-104-mat17-thermal-dose-and-the-six-minute-average-on-closed-form-histories">EX-104 — mat:17, thermal dose and the six-minute average on closed-form histories<a class="headerlink" href="#ex-104-mat17-thermal-dose-and-the-six-minute-average-on-closed-form-histories" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<p><code>EX-104</code> (<code>mat:17</code>) was opened 2026-10-08 by the 18:00 daily review under daily-review.md step 5 (§5.4 ramp). Its base is <code>MAT-20</code> steps 1 and 2, closed-form half, both landed 2026-10-08:
+- <strong>Step 1</strong> (§9 item 318): <code>thermal/dose.py</code> <code>cem43</code>, exact on the piecewise-linear interpolant. (A1) three ramps ≤ 6.3e-16 against the analytic (R^(43−a) − R^(43−a−bτ))/(b ln R); (A2) <code>MAT-9</code>'s step response at N = 2¹⁸, 8.98e-12; (Rc) the planted R swap misses by ≥ 0.194. Log <code>docs/testing/logs/20261008T171434Z_MAT-20-step1.log</code>, test <code>tests/validation/test_mat20_cem43_closed_form.py</code>.
+- <strong>Step 2</strong> (§9 item 319): <code>running_average</code>. (B1) the integer-period window mean equals D × θ_ss(0) on <code>MAT-17</code> case A's closed form to ≤ 1.03e-14; (B2) the window maximum lies within 0.40 sample of the brentq phase; (Wc) the control misses. Log <code>docs/testing/logs/20261008T171843Z_MAT-20-step2.log</code>, test <code>tests/validation/test_mat20_running_average.py</code>.</p>
+<p><code>MAT-20</code> is 🟡. The FEM clause of step 2 (<code>D_BAND</code> on <code>MAT-17</code> step 3's history) is the weekly's under ruling 319-3 and is <strong>not</strong> gated. This example therefore uses closed-form histories only: <code>MAT-17</code>'s duty-cycled closed form, linear ramps, and <code>MAT-9</code>'s step response. It never uses an FEM history.</p>
+<p><strong>Gap.</strong> No example computes a thermal dose or a six-minute average.
+- <code>grep -rnlE 'cem43|running_average|thermal\.dose|CEM43' examples --include=*.py</code> returns nothing.
+- <code>mat:11</code> (<code>EX-85</code>) switches the same source on the same ball and says in its guide "Not claimed: … any pulse-sequence, 6-minute-averaging, IEC 60601-2-33 or other regulatory statement". <code>mat:15</code> (<code>EX-99</code>, duty-cycled coil heating) reads θ, not dose.</p>
+<h3 id="9-item-338-2026-10-08-example-54-ramp-from-mat-20-steps-12">§9 item 338 — 2026-10-08 (example; §5.4 ramp from MAT-20 steps 1–2)<a class="headerlink" href="#9-item-338-2026-10-08-example-54-ramp-from-mat-20-steps-12" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-08 18:00 daily review; the review reviews it.</em> <strong>This brief sets and moves no band, tolerance, record, Done-when or target.</strong> Every band is imported from the two <code>MAT-20</code> gate modules.</p>
+<p><code>EX-104</code> (<code>mat:17</code>) adds three tracked files:
+- <code>examples/materials/17_thermal_dose_duty_cycle.py</code>;
+- the same-stem guide <code>examples/materials/17_thermal_dose_duty_cycle.md</code>, with the three required headings (<code>## 1. What this demonstrates</code>, <code>## 2. How to run it</code>, <code>## 3. How to analyze it, step by step</code>) plus <code>## Setup figure</code> and <code>## Related</code>;
+- <code>examples/materials/figures/materials_17_thermal_dose_duty_cycle_setup.png</code>, ≤ 600 KiB.</p>
+<p><strong>The angle: a gel-phantom exposure story.</strong> The 10 cm Robin gel ball of <code>MAT-9</code> / <code>MAT-17</code> is switched 0/1 with P = 1200 s and D = 0.5 (case A). The example asks what two regulatory post-processors report on this history, and checks each against a closed form:
+1. <strong>The six-minute average of the power.</strong> The source schedule χ(t) is on for 600 s, and 600 s exceeds the 360 s window. The six-minute mean of χ therefore peaks at <strong>1, full power</strong>, while its whole-period mean is exactly <strong>D = 0.5</strong>. A six-minute SAR-style average reads twice the period average on this schedule.
+2. <strong>The six-minute average of the temperature.</strong> The thermal mass (τ₁ = 1.9155e4 s ≫ P) flattens this. The six-minute mean of θ at the centre peaks only ≈ +0.8 % above D·θ_ss(0), at t ≈ 780 s (<code>MAT-20</code> (B2)). A window of a whole number of periods sees D·θ_ss exactly ((B1)).
+3. <strong>CEM43 of the same history.</strong> The temperatures are re-based to 37 °C, as <code>MAT-20</code> (A2) did: θ is unchanged and only the additive base moves. The centre's periodic state then sits at 43.04–43.18 °C. Because 2^(T−43) is convex, the duty-cycled history's dose per period exceeds that of the average-power stand-in (θ ≡ D·θ_ss) by ≈ 4e-4 relative (Jensen). That holds only where T stays on one side of 43 °C. CEM43's R switch makes the integrand <strong>concave</strong> at 43 °C (slope 2 ln 2 below against ln 2 above), so the reading flips sign near the mean-43 °C isotherm (r ≈ 20 mm). The map shows this.
+4. <strong>The same dose for a bench gel.</strong> On a 20 °C base the centre dose per period is ≈ 1e-7 s. CEM43 is a tissue metric. The 37 °C base is the gate's re-basing, not a claim about any phantom.</p>
+<p>The gated operator anchors (A1), (A2), (Rc), (B1), (B2) and (Wc) are recomputed through imported helpers. Their printed values equal the gate logs' records.</p>
+<ul>
+<li><strong>Executor:</strong> <code>example-runner</code>. It does not spawn agents.</li>
+<li><strong>Class:</strong> example. <strong>Tier:</strong> standard, <code>-n 2</code>, complex build (the <code>mat:</code> group sources it; nothing here needs complex numbers).</li>
+<li><strong>Cost:</strong> ≈ 13 measured (example class median, 03:00 restock table) / ≈ 40 predicted min (15 fixed + ≈ 20 code and guide + ≈ 5 windows). Price basis:</li>
+<li><code>MAT-20</code> step 1's whole module took 12 s at <code>-n 2</code> (<code>20261008T171434Z_MAT-20-step1.log:145–146</code>; 8 passed in 11.03 s, <code>:139</code>), and the A2 test is most of it. Step 2's two modules took 19 s (<code>20261008T171843Z_MAT-20-step2.log:160–167</code>).</li>
+<li>The ball mesh at res 0.02 has 2 571 cells (<code>20260929T112146Z_MAT-9-step2.log:87</code>) and builds in under 1 s.</li>
+<li>The closed-form map is evaluated at ≈ 600 P1 vertices × 2 049 times × 400 terms ≈ 5e8 multiply-adds, split over the owned vertices, ≈ 5–15 s.</li>
+<li>The setup figure adds ≈ 15 s (<code>EX-89</code> item 238's example overhead with the figure).</li>
+<li><strong>The example window:</strong> predicted [30, 120] s; runner <code>-t 180</code>, container <code>timeout -k 30 180</code>.</li>
+<li>Dry run plus four census windows: ≈ 1.5 min together.</li>
+<li>Smoke would be under-priced, so the tier is standard.</li>
+<li><strong>Depends on:</strong> nothing open. <code>MAT-20</code> steps 1 and 2 are on <code>main</code>. The <code>17_</code> prefix is free (<code>examples/materials/</code> holds 01–16).</li>
+<li><strong>Shared files.</strong> This item adds only the three paths above. It edits no gate module, nothing under <code>src/</code>, and not <code>thermal/__init__.py</code> (<code>dose.py</code> stays unexported; import <code>fem_em_solver.thermal.dose</code> directly). No rule (a) lift is needed.</li>
+</ul>
+<p><strong>Imports (never restated).</strong> Import the modules under aliases, never their names bare: both gate modules define <code>BAR</code>, <code>R</code>, <code>K</code>, <code>Q</code>, <code>H</code> and <code>_p</code> with different values.
+- <code>import tests.validation.test_mat20_cem43_closed_form as s1</code>: <code>s1.BAR</code>, <code>s1.RAMPS</code>, <code>s1.SAMPLINGS</code>, <code>s1.ramp_dose</code>, <code>s1._side</code>, <code>s1._ramp</code>, <code>s1._rect_sum</code>, <code>s1._rel</code>, <code>s1._T_centre</code>, <code>s1.PHYS</code>, <code>s1.T_BASE</code>, <code>s1.T_END</code>.
+- <code>import tests.validation.test_mat20_running_average as s2</code>: <code>s2.BAR</code>, <code>s2.P</code>, <code>s2.D</code>, <code>s2.TH_SS0</code>, <code>s2.M_SEQ</code>, <code>s2.W_B2</code>, <code>s2._theta</code>, <code>s2._series</code>, and <code>s2.R</code>, <code>s2.K</code>, <code>s2.RHO_C</code>, <code>s2.Q</code>, <code>s2.H</code>.
+- <code>import tests.validation.test_mat17_duty_cycle_closed_form as m17cf</code>: <code>CASES</code>, <code>TH_SS0</code>, <code>TAU1</code>, <code>_modal</code>, and the left-limit idiom of <code>mat:11</code>'s <code>_periodic</code> (<code>11_duty_cycled_gel_ball.py:98–102</code>) for the peak and trough.
+- <code>from tests.validation.test_mat17_duty_cycle_fem import _chi</code>. It is the schedule's own definition, a scalar callable; apply it with <code>np.fromiter</code>.
+- <code>from tests.validation.test_mat9_transient_conduction_sphere import _ball</code> (<code>MeshGenerator.ball_domain</code>, as <code>mat:11</code> uses through <code>m17._ball</code>).
+- From <code>src</code>: <code>cem43</code>, <code>running_average</code> (<code>fem_em_solver.thermal.dose</code>), <code>robin_sphere_duty_cycle_temperature</code>, <code>robin_sphere_steady_temperature</code> (<code>utils.analytical</code>), <code>write_setup_figure</code>, <code>write_xdmf_with_tags</code>, <code>write_xdmf_time_series</code>, <code>adopt_host_ownership</code>.
+- <strong>Structural asserts at start-up</strong> (<code>mat:11</code> precedent, <code>:117–122</code>):
+  - <code>(s2.P, s2.D) == m17cf.CASES["A"]</code>;
+  - <code>s2.TH_SS0 == m17cf.TH_SS0</code>;
+  - <code>(s2.R, s2.K, s2.RHO_C, s2.Q, s2.H) == (m17cf.R, m17cf.K, m17cf.RHO_C, m17cf.Q, m17cf.H)</code>;
+  - <code>(s1.PHYS["radius"], s1.PHYS["k"], s1.PHYS["rho_c"], s1.PHYS["q"], s1.PHYS["h"]) == (m17cf.R, m17cf.K, m17cf.RHO_C, m17cf.Q, m17cf.H)</code>.</p>
+<p>One ball, three gate modules.
+- <strong>Numerical settings copied verbatim, with line citations, not bands:</strong>
+  - A2's <code>brentq(..., xtol=1e-12, rtol=4*eps)</code> and its two <code>quad(..., epsabs=1e-13, epsrel=1e-13, limit=2000)</code> split at t₄₃ (<code>test_mat20_cem43_closed_form.py:142–149</code>);
+  - B2's bracket <code>D·P + 1, D·P + W − 1</code> and <code>brentq</code> (<code>test_mat20_running_average.py:106–109</code>).</p>
+<p>The record digits depend on them.
+- Nothing else carries a number. The 37 °C base is <code>s1.T_BASE</code>. The 20 °C bench base is <code>m17cf.T_INF</code>.</p>
+<p><strong>(1) Anchor.</strong> Part A recomputes the gated operator identities. Each printed value must equal its gate-log record at the gate's print format; copy the gate's format specs. The example prints once, on rank 0. The gate logs print the step 1 lines twice, one copy per rank, so compare values, not line counts.
+- <strong>(A1) three ramps × <code>s1.SAMPLINGS</code>.</strong> <code>rel = s1._rel(cem43(t, T), s1.ramp_dose(...)) ≤ s1.BAR</code>. Print ref and op at <code>.15e</code>, rel at <code>.3e</code>, and <code>rect_sum</code> at <code>.10e</code>.
+  - Records: rise <code>:51–53</code>, shallow <code>:59–61</code>, fall <code>:67–69</code> of <code>20261008T171434Z_MAT-20-step1.log</code>.
+  - ref and rect_sum must match to every printed digit. op and rel are round-off readings, asserted at the band only.
+- <strong>(A2) <code>MAT-9</code>'s step response re-based to 37 °C.</strong> Build <code>t_fine = np.linspace(0, s1.T_END, 2**19 + 1)</code> and <code>T_fine = s1._T_centre(t_fine)</code> exactly as the gate does (<code>:157–158</code>). N = 2¹⁷ and N = 2¹⁸ are the strides 4 and 2.
+  - Reference: brentq t₄₃ and quad, as above.
+  - <em>Asserted:</em> <code>rel(N = 2¹⁸) ≤ s1.BAR</code>.
+  - <em>Printed beside the records:</em> bracket <code>:113</code>; t₄₃ = 14087.0956163533 and quad = 1.708516120835631e+05 (<code>:114</code>); op = 1.708516120774260e+05 at N = 131 072 (<code>:122</code>); op = 1.708516120820288e+05, rel 8.980e-12 and pred 8.980e-12 at N = 262 144 (<code>:123–124</code>).
+  - N = 2¹⁸ is the gate's recorded selection (<code>:124</code>). The example does not re-run the selection loop.
+- <strong>(B1) integer-period mean</strong>, k ∈ {1, 2} × <code>s2.M_SEQ</code>, through <code>s2._series(M, k + 1)</code> and <code>running_average(..., window=k*s2.P)</code>. Assert <code>max |mean − s2.D·s2.TH_SS0| / (s2.D·s2.TH_SS0) ≤ s2.BAR</code>. Print the window count and the residual at <code>.3e</code>. Records: <code>20261008T171843Z_MAT-20-step2.log:144, :146, :148, :150</code> (5.959e-15 / 8.139e-15 / 1.032e-14 / 9.011e-15; window counts 4097 / 8193).
+- <strong>(B2) window-maximum phase</strong>, W = <code>s2.W_B2</code>, restricted to the second period, as <code>:110–122</code> does. Assert <code>|t_max − root| ≤ Δt</code>. Print root and t_max at <code>.6f</code> and the offset in samples at <code>+.3f</code>. Records <code>:154, :156</code>: root 779.999309 s; t_max 779.882812 / 780.029297 s; offsets −0.398 / +0.205 samples.</p>
+<p>Part B adds example-side assertions. Each is exact on its stated premise, and all use the imported <code>s2.BAR</code>.
+- <strong>(S1) the power's six-minute maximum.</strong> On χ sampled on <code>s2._series</code>'s grid (<code>t = arange × P/M</code>, switch times on the grid, M = <code>s2.M_SEQ[0]</code>, two periods), <code>running_average(t, χ, window=s2.W_B2)</code> has maximum 1 within <code>s2.BAR</code>. Every window that ends at or before D·P − Δt lies wholly in the on phase.
+- <strong>(S2) the power's whole-period mean.</strong> The same χ with <code>window=s2.P</code> gives every window mean equal to D within <code>s2.BAR</code>·D. The interpolant's two switch segments lose and gain Δt/2 each, so each period integrates to exactly D·P. This is the same kink cancellation that makes (B1) hold.
+- <strong>(J) Jensen at the centre</strong>, on the periodic θ of case A at r = 0 and M = <code>s2.M_SEQ[0]</code>, re-based to <code>s1.T_BASE</code>, over the second period.
+  - <em>Precondition, asserted first:</em> <code>min T &gt; 43</code>, so a single R branch applies. Trough predicted 43.039341 °C (<code>37 + 6.039341</code>, <code>mat:11</code> guide step 1 / <code>MAT-17</code> step 1 S1 log <code>:144</code>).
+  - <em>Asserted:</em> <code>cem43(t, T)</code> over the period &gt; <code>cem43([0, P], [T̄, T̄])</code>, with T̄ = <code>s1.T_BASE + s2.D·s2.TH_SS0</code>. The stand-in's dose is taken through the operator on a two-sample constant series, so the R rule is not restated.
+  - The margin is predicted [2e-4, 8e-4] relative: (ln 2)²/2 · Var θ, with a triangular ripple of 0.1435 K p-p giving ≈ 4.1e-4. That is ≥ 10⁸ × the interpolant's discretisation error and the (B1) mean residual, so the strict inequality is decisive.</p>
+<p><strong>(2) Negative controls (rule (e)).</strong>
+- <strong>(Rc), asserted.</strong> <code>cem43(..., r_above=0.25, r_below=0.5)</code> misses (A1) by &gt; <code>s1.BAR</code> on every ramp and sampling. Records 1.3784 / 0.1937 / 1.3982 (<code>step1.log:83–91</code>), printed at <code>.4f</code>. The shallow ramp is the binding case, at ≈ 2 × 10⁹ × the bar.
+- <strong>(Wc), asserted.</strong> W = kP + P/2 misses (B1) by &gt; <code>s2.BAR</code>. Records 1.957e-3 (k = 1) and 1.174e-3 (k = 2) at both M (<code>step2.log:145, :147, :149, :152</code>), each with its printed O(ripple) ceiling 3.915e-3 / 2.349e-3.
+- <strong>(Sc), printed only.</strong> No split at 43 °C: 1.2973 / 0.1292 / 0.1096 (<code>step1.log:103–105</code>), through <code>s1._side</code>.
+- <strong>(S1c), asserted.</strong> The power's whole-period-mean control: <code>window = s2.P + s2.P/2</code> on χ misses D by &gt; <code>s2.BAR</code>·D. Predicted max miss 1/3 (window means between 1/3 and 2/3). The ceiling is exactly 1/3, from (D·P + 0)/(1.5 P) against D, so no factor is asserted.
+- <strong>(Jc), printed only.</strong> The Jensen premise control: the map's minimum per-vertex excess (dose_duty / dose_stand-in − 1) over all vertices.
+  - It is predicted <strong>negative</strong>, in [−3e-2, −1e-4], at vertices whose mean T straddles 43 °C (r ≈ 20 mm; D·θ_ss(r) = 6 K ⇔ r = 0.0200 m from the steady closed form).
+  - It shows the concave kink of the R switch. A non-negative minimum is reported, not asserted.</p>
+<p><strong>Printed (no band; predicted beside measured).</strong>
+- τ₁ = <code>m17cf.TAU1</code> (1.915501e4 s) and P/τ₁ = 0.0626 (<code>mat:11</code>'s records).
+- Centre periodic peak / trough / mean: 6.182881 / 6.039341 / 6.111111 K, through <code>m17cf._modal</code> and <code>mat:11</code>'s left-limit idiom. As °C on the 37 base: 43.182881 / 43.039341 / 43.111111.
+- <strong>Power:</strong> the six-minute max of χ = 1, the period mean = 0.5, so the six-minute average reads 2.000 × the period average.
+- <strong>Temperature:</strong> the six-minute max of θ at the centre is predicted 6.1614 K [6.150, 6.172], +0.82 % [+0.6, +1.0] % over D·θ_ss(0), at t_max ≈ 780 s (the (B2) record).
+- <strong>Dose, centre, 37 °C base, periodic state, per period:</strong>
+  - stand-in P·2^(D·θ_ss(0) − 6) = 1296.07 s = 21.601 min (arithmetic, printed beside);
+  - duty ≈ 1296.6 s [1296.3, 1297.2];
+  - dose per minute of exposure ≈ 1.080.
+- <strong>Dose at the surface</strong> (r = R, D·θ_ss(R) = 3.333 K, T ≈ 40.33 °C, R = 0.25 branch) per period: ≈ 30 s [20, 45].
+- <strong>Bench gel, 20 °C base</strong> (<code>m17cf.T_INF</code>), centre per period: ≈ 8e-8 s [1e-8, 1e-6].
+- <strong>Continuous heating from rest</strong> ((A2)'s history): 1.708516e5 s = 2847.5 min over 10 h (the <code>:123</code> record ÷ 60). The ten-hour exposure is the gate's T_END, chosen to cross 43 °C, and is not a protocol.
+- (Pc) one-sample-short windows: <code>step2.log:155, :157</code>.</p>
+<p><strong>Output.</strong>
+- <strong>Setup figure</strong> <code>examples/materials/figures/materials_17_thermal_dose_duty_cycle_setup.png</code>, through <code>write_setup_figure</code>, called right after <code>_ball(0.02)</code>:
+  - <code>region_names={1: "gel ball R = 0.1 m (Robin h = 10; closed-form histories only, no FEM solve)"}</code>;
+  - <code>translucent_tags=(1,)</code>, slice z = 0 through the origin;
+  - title ≤ 130 characters, e.g. "mat:17 -- 10 cm Robin gel ball (MAT-9 / MAT-17 fixture): CEM43 and six-minute average from closed forms".
+  - If the PNG is over 600 KiB, re-render once with <code>show_edges_on_slice=False</code>.
+- <strong>Why a mesh at all.</strong> The harness (<code>scripts/run_examples.sh</code>) runs any script and does not look at outputs. But the setup-figure census (<code>scripts/testing/check_example_setup_figures.py:82–110</code>) counts an example whose guide lacks a <code>## Setup figure</code> PNG under <code>figures/</code> as <code>missing</code>. All 98 current examples build a mesh and call <code>write_setup_figure</code> (<code>20261008T172115Z_EX-89-item332-pre-figures.log:35–134</code>, <code>ok=98 missing=0</code>). There is no no-mesh precedent. A closed-form-only example without a mesh would therefore leave the census at <code>missing=1</code>.
+  - The example builds the ball the closed form describes, at res 0.02 (2 571 cells). It uses it for the figure and as the support of a <strong>closed-form field map</strong>: the radial closed form evaluated at each owned P1 dof's radius |x|. This is not an FEM solve and not an FEM history; nothing is assembled or solved.
+- <strong>Map XDMF</strong> <code>examples/materials/paraview_output/materials_17_thermal_dose_duty_cycle_map_combined.xdmf</code>, through <code>write_xdmf_with_tags(…, msh, cell_tags, fields, comm=comm)</code> + <code>adopt_host_ownership</code>.
+  - Every field is P1 and named, with the 37 °C base, the periodic case A, M_map = 2¹⁰ per period, and two periods:
+    - <code>theta_mean_K</code> = D·θ_ss(r);
+    - <code>T_six_min_max_C</code>;
+    - <code>six_min_excess_pct</code>;
+    - <code>cem43_duty_per_period_min</code>;
+    - <code>cem43_stand_in_per_period_min</code>;
+    - <code>jensen_excess</code> (the (Jc) reading);
+    - <code>above_43_mean</code> (1 where 37 + D·θ_ss(r) ≥ 43).
+  - Use the operators' 2-D (n_t, n_vertices) call. Its column-wise equality is gated (<code>step1.log:75–77</code>; step 2 ramp test <code>:69–75</code>).
+- <strong>Time series</strong> <code>…_period_combined.xdmf</code> (<code>write_xdmf_time_series</code>): 17 frames, t = P + 75 j s for j = 0…16 (64 samples at M_map = 2¹⁰, on the grid), with fields <code>T_C</code> and <code>T_six_min_mean_C</code>.
+- <strong>CSV</strong> <code>…_centre_history.csv</code>: one row per sample over the second period at M = <code>s2.M_SEQ[0]</code>, with columns t_s, theta_K, T37_C, chi, chi_six_min_mean, theta_six_min_mean_K, cumulative_cem43_min.
+- The XDMF / H5 / CSV are under the gitignored <code>paraview_output/</code>. Only the PNG is tracked; window 6 confirms this.
+- <strong>Guide.</strong> The three required headings, <code>## Setup figure</code> and <code>## Related</code>. <code>Related</code> lists <code>mat:11</code> first, then <code>mat:15</code>, then the two gate modules and <code>tests/validation/test_mat17_duty_cycle_closed_form.py</code> by full filename (rule (b)). The guide explains:
+  - why the six-minute average of the <strong>power</strong> reads full power on this schedule, while the <strong>temperature</strong>'s barely moves (τ₁ ≫ P);
+  - why a whole-period window hides the ripple exactly ((B1), (S2));
+  - CEM43 as the exact integral of the interpolant (ruling 318-1), and why the Σ R^(43−Tᵢ)Δtᵢ rectangle sum is printed only (37.5 against 750.65 on the rise at 2 samples, <code>:51</code>);
+  - Jensen at the centre, and its failure across 43 °C;
+  - that the 37 °C base is the gate's re-basing and that a 20 °C bench gel accumulates ≈ 0;
+  - a ParaView recipe: open the map, colour by <code>cem43_duty_per_period_min</code> on Slice z = 0, Contour <code>above_43_mean</code> = 0.5 for the r ≈ 20 mm isotherm, colour by <code>jensen_excess</code> to see the sign flip; open the period series and Play; open the CSV in ParaView (CSV reader, Line Chart View) and plot <code>chi_six_min_mean</code> against <code>theta_six_min_mean_K</code>.
+  - Write <code>≈</code>, never <code>~</code>.</p>
+<p><strong>Windows.</strong> Each Bash call that runs a window is foreground with <code>timeout: 660000</code> and makes one bare harness call. Before window 1, <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0.
+1. <strong>Pre-censuses, before any file is written</strong> (the commands of <code>20261008T172115Z_EX-89-item332-pre-figures.log:12</code> and <code>20261008T172117Z_EX-89-item332-pre-docrefs.log:12</code>, relabelled):
+   - <code>scripts/testing/run_and_log.sh EX-104-pre-figures "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_setup_figures.py'"</code>
+   - <code>scripts/testing/run_and_log.sh EX-104-pre-docrefs "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py'"</code>
+   - Record N, ok, missing and broken, and the docrefs <code>dead=</code> list. It read <code>examples=98 ok=98 missing=0 broken=0</code> and <code>dead=2 guide=0 stale=56 exit=1</code> at 17:21 UTC (<code>:134</code> / <code>:98</code>). The two dead references are <code>ans9_aed_results.json</code> and <code>ans9_corrected_rows.json</code> from <code>examples/ansys_benchmarks/ans9_coil_driven_gel_heating_10MHz/SPEC.md:36, :38</code>, unrelated to this item. Take N fresh, since another example may land first.
+2. <strong>Dry run</strong>, after the script exists: <code>scripts/testing/run_and_log.sh EX-104-dryrun "./scripts/run_examples.sh -e mat:17 -n 2 -t 180 --dry-run"</code>. It must print <code>(complex build)</code> and the line below, apart from <code>-T</code>.
+3. <strong>Flagged run</strong> (predicted [30, 120] s):
+   <code>scripts/testing/run_and_log.sh EX-104 'docker compose exec -T -e FEM_EM_SETUP_FIGURES=1 fem-em-solver bash -lc "cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src timeout -k 30 180 mpiexec -n 2 python3 examples/materials/17_thermal_dose_duty_cycle.py"'</code>
+   - Pass: Status 0, every assertion green, and every recomputed row equal to its record as in (1).
+4. <strong>Control:</strong> <code>git add</code> the PNG, then run the same line without <code>-e FEM_EM_SETUP_FIGURES=1</code>, labelled <code>EX-104-control</code>. The readings must be unchanged; every closed-form number is computed redundantly per rank and is deterministic, so they are predicted bitwise.
+5. <strong>Post-censuses</strong> <code>EX-104-post-figures</code> / <code>EX-104-post-docrefs</code> (window 1's commands with those labels), run after the guide is final.
+   - <strong>Write the prediction first:</strong> examples N → N + 1, <code>ok</code> +1, <code>missing</code> unchanged, <code>broken=0</code>.
+   - Docrefs: <strong>no new dead reference.</strong> The <code>dead=</code> list is identical to window 1's (today the two <code>ans9</code> SPEC entries, <code>dead=2</code>), with <code>guide=0</code>. <code>exit=1</code> is expected for that unrelated reason and is not this item's failure. Any dead reference naming a <code>materials_17_*</code> file or <code>17_thermal_dose_duty_cycle.md</code> fails the item.
+6. <strong>Final check:</strong> <code>git status --porcelain examples/</code> lists exactly the three new tracked paths. No other code path is modified.</p>
+<p><strong>(3) Tier.</strong> Standard, <code>-n 2</code>, complex build (group-sourced). The predicted example window is [30, 120] s. The heaviest measured analogue is <code>MAT-20</code> step 2's 19 s two-module window. There is no <code>-n 4</code> window: nothing reduces except the collective mesh, figure and XDMF calls, and the scalar readings are rank-redundant.</p>
+<p><strong>(4) Traps already paid for.</strong>
+- <strong>Harness shape.</strong> Every harness call is the whole Bash command: bare, repo-relative, no <code>cd … &amp;&amp;</code>, no <code>; date</code> / <code>| tail</code>, no redirect (<code>bash_guard</code> rule 3). <code>./scripts/run_examples.sh</code> is host-side: emit it with <code>--dry-run</code>, then pass the string to the harness. Never wrap it in <code>docker compose exec</code> (the Status-127 trap). A docker-socket denial means stop and report.
+- <strong>Timeouts.</strong> Bash <code>timeout: 660000</code> on every window, and container <code>timeout -k 30 180</code>. Status 124 is a finding, never a retry; never raise the timeout.
+- <strong>Blocked closed-form evaluation.</strong> <code>robin_sphere_*</code> broadcast to (n_points × 400 terms). An unblocked 2¹⁹ + 1 call is ≈ 1.7 GB per temporary. Use <code>s1._T_centre</code> (8192-point blocks) for (A2), and evaluate the map in ≤ 8192-point blocks of (vertex, time) pairs.
+- <strong>(A2) digit equality needs the gate's grid.</strong> Stride a 2¹⁹ + 1 <code>linspace</code>; never build a fresh 2¹⁸ + 1 <code>linspace</code>, whose last ulp can differ.
+- <strong>Switch times on the grid.</strong> <code>robin_sphere_duty_cycle_temperature</code>'s docstring warns against evaluating within a few 1/s_N of a switch. The gate's grid <code>s2._series</code> puts samples exactly on switches and held (B1) to 1e-14. Use only that grid (t = arange × P/M) for every asserted quantity and for χ. Frame times must be grid samples.
+- <strong>NaN head.</strong> <code>running_average</code> returns NaN where t − W &lt; t₀. Use <code>np.nanargmax</code> or the gate's <code>np.where(sel, means, -np.inf)</code> idiom, and restrict to the second period for (B2) and the map.
+- <strong>The complex build.</strong> P1 <code>Function</code> arrays are complex. Build every history as a real numpy array from the closed form, and never feed <code>.x.array</code> to <code>cem43</code> / <code>running_average</code> (they raise on a non-zero imaginary part by design). Assign real values into the Functions and <code>scatter_forward</code>.
+- <strong>Rank safety.</strong> Mesh build, <code>write_setup_figure</code>, both XDMF writes and <code>adopt_host_ownership</code> are collective. Call them on every rank, never inside <code>rank == 0</code>. The map is evaluated on owned dofs only. Print on rank 0.
+- <strong>Name every Function.</strong> <code>EX-79</code>'s HDF5 name collision cost a window.
+- <strong>Import collisions.</strong> Use module aliases (<code>s1</code>, <code>s2</code>, <code>m17cf</code>). Never import another example's module. Insert <code>_REPO_ROOT</code> into <code>sys.path</code> (<code>11_duty_cycled_gel_ball.py:55–57</code>).
+- <strong>Units.</strong> <code>cem43</code> returns equivalent seconds; divide by 60 for minutes and label every printed dose with its unit.
+- <strong>No FEM history, no <code>D_BAND</code>.</strong> Do not import <code>test_mat17_duty_cycle_coil_driven.py</code> or <code>test_mat17_duty_cycle_fem</code>'s runners (<code>_run</code>, <code>_run_duty</code>). The FEM clause is the weekly's (ruling 319-3). <code>_chi</code> is the only name taken from <code>test_mat17_duty_cycle_fem</code>.
+- <strong>The Jensen premise.</strong> Assert <code>min T &gt; 43</code> before (J). The R switch makes the integrand concave at 43 °C, and the map's (Jc) reading is expected to be negative there.
+- <strong>PNG ≤ 600 KiB</strong> (<code>ans:8</code>'s first was 631 KiB).
+- <strong>Rule (i) freeze.</strong> The script is frozen once window 3 starts, and the guide before window 5.</p>
+<p><strong>(5) Scope.</strong> Closed-form histories only: linear ramps, <code>MAT-9</code>'s step response re-based to 37 °C, and <code>MAT-17</code> case A's periodic closed form on <code>MAT-9</code>'s ball. <code>cem43</code> and <code>running_average</code> are gated against closed forms; the map is the radial closed form at vertex radii.
+- Not claimed:
+  - a CEM43 limit, damage threshold, or IEC 60601-2-33 / six-minute SAR compliance statement;
+  - tissue, perfusion, or the 37 °C base as a phantom temperature;
+  - any FEM history or <code>MAT-20</code>'s FEM clause (<code>D_BAND</code>, weekly);
+  - <code>MAT-17</code> case B, a coil-driven or SAR-shaped source, or a pulse sequence.
+- <code>MAT-20</code> and <code>MAT-17</code> do not move.</p>
+<p><strong>(6) Negative result.</strong>
+- <strong>A recomputed record off its log digits</strong> ((A1) ref / rect_sum, (A2) t₄₃ / quad / op, (B1), (B2), (Rc), (Wc)), or an anchor red: an example/test divergence. Print the first differing value. Write a known-issues entry, park on <code>attempt/EX-104-&lt;UTC&gt;</code>, and mark item 338 BLOCKED (rule (d)). Never re-record from the example side and never loosen <code>s1.BAR</code> / <code>s2.BAR</code>.
+- <strong>(S1) / (S2) red:</strong> χ is off the grid or a switch sample has the wrong phase. Print χ around D·P, fix it once in-slot and re-run window 3; otherwise park.
+- <strong>(J) red with its premise green:</strong> a strict convexity inequality has failed. That is an operator finding. Stop, write a known-issues entry, and report; do not drop the assertion.
+- <strong>(J) premise red</strong> (min T ≤ 43): the re-basing or the closed form moved. Stop and report.
+- <strong>(S1c) inside the bar:</strong> the window did not reach the operator. Stop and report.
+- <strong>Over 180 s, Status 124, or the slot at minute 50 before window 4:</strong> park on <code>attempt/EX-104-&lt;UTC&gt;</code> with the last printed line and journal it; the review re-tiers.
+- <strong>A printed value outside its prediction</strong> (six-minute θ excess, duty dose, surface or bench dose, (Jc) sign): report it. It has no status effect.
+- There is no <code>PREDICTED RED</code> line.</p>
+<p><strong>(7) Status it can move.</strong> <code>EX-104</code> ⬜ → ✅ under its §7 Done-when, and the census N → N + 1. <code>MAT-20</code> stays 🟡; this example neither executes nor substitutes for its FEM clause. No §2 sentence moves.</p>
+<p><strong>Executor prompt (verbatim, for the <code>example-runner</code> spawn):</strong></p>
+<blockquote>
+<p>Execute <code>EX-104</code> (§9 item 338) exactly as briefed in <code>docs/planning/chunks/EX-104.md#§9-item-338</code>; you are the executor — do not spawn agents, never background a harness window. Pass <code>timeout: 660000</code> on every Bash call that runs a harness window, and never delete a log. Call <code>scripts/testing/run_and_log.sh</code> bare and repo-relative, with no <code>cd</code> and nothing chained. The harness call is the whole Bash command — nothing piped or redirected. Add only the three <code>examples/materials/</code> paths; edit no gate module, nothing under <code>src/</code>, and not <code>thermal/__init__.py</code>. Use closed-form histories only, never an FEM history. Make no edit to the script after window 3 starts or to the guide after window 5 starts. Return the windows' log names, every asserted and printed value beside its record (log:line) or prediction, and the census before / after with the docrefs <code>dead=</code> list.</p>
+</blockquote>
+<p><strong>Review rulings (2026-10-08 18:00 review) on item 338 — these outrank the brief above.</strong> (1) The figure mesh carrying a closed-form P1 map is accepted, labelled in the guide and XDMF as "closed form evaluated at vertex radii — not an FEM history". (2) (S1), (S2) are exact premises and are asserted at <code>s2.BAR</code>; (J) is asserted as a strict inequality only behind its asserted min T &gt; 43 °C premise; (S1c) asserted. (3) Copied quad / brentq settings with citations are settings, not bands — accepted; no lift. (4) Asserting (A2) at the recorded N = 2¹⁸ without the selection loop is accepted. (5) No <code>-n 4</code> control; the usual flagged + unflagged <code>-n 2</code> pair (<code>EX-57</code> convention) is the control, compared at the bands.</p>
+<p><strong>Outcome (item 338, 2026-10-08, 22:30 slot, take-next): DONE, <code>EX-104</code> ✅.</strong> No lift, no gate or <code>src/</code> edit. Dry run <code>20261009T034920Z_EX-104-dryrun.log</code> (complex build). Two unflagged shake-down windows ran before the run of record (<code>20261009T034925Z_EX-104-shakedown.log</code>, exit 1 on an XDMF frame-padding bug in the script; <code>20261009T035022Z_EX-104-shakedown2.log</code>, exit 0); the script was frozen before the flagged run (mtime 22:50:18 &lt; 22:51:11). Run of record <code>20261009T035111Z_EX-104.log</code>: Status 0, 45 s <code>-n 2</code> (predicted [30, 120]). (A1) ref = rect_sum to every digit, rel ≤ 6.268e-16; (A2) t₄₃ 14087.0956163533 s, quad 1.708516120835631e+05, op rel 8.980e-12 at N = 2¹⁸; (B1) 5.959e-15 / 8.139e-15 / 1.032e-14 / 9.011e-15; (B2) root 779.999309 s, t_max −0.398 / +0.205 samples; (Rc) 1.3784 / 0.1937 / 1.3982; (Wc) 1.957e-03 / 1.174e-03 under their ceilings — all equal the step 1 / 2 logs. (S1) six-minute max of χ = 1 exactly; (S2) period-window mean = D, deviation 0 over 4097 windows; (S1c) 0.333171 miss; (J) premise min T 43.039341 °C, margin +4.125e-04 in [2e-4, 8e-4]; (Jc) −3.698e-03 in its predicted range. Six-minute θ max 6.1614 K at 779.883 s, +0.82 %. Control <code>20261009T035203Z_EX-104-control.log</code> 45 s, identical apart from the figure line. Census figures 99 → 100, <code>broken=0</code>; docrefs <code>dead=0 guide=0 stale=56 exit=2</code> before and after (the brief's dead=2 was retired by item 336). PNG 227 KiB. Both XDMFs carry a provenance <code>Information</code> element with ruling (1)'s label.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

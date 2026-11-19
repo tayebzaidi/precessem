@@ -1,0 +1,728 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-147 — imp:13: a PEC disc face-on to the field — the pole enhancement 1/L_z of an oblate spheroid in gel, and the edge-on drive that misses it - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-147-imp13-a-pec-disc-face-on-to-the-field-the-pole-enhancement-1l_z-of-an-oblate-spheroid-in-gel-and-the-edge-on-drive-that-misses-it" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-147 — imp:13: a PEC disc face-on to the field — the pole enhancement 1/L_z of an oblate spheroid in gel, and the edge-on drive that misses it
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-613-2026-10-24-example-54-ramp-from-imp-6-step-3-lane-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 613 — 2026-10-24 (example; §5.4 ramp from IMP-6 step 3; lane 3)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-615-2026-10-24-example-maintenance-the-1030-reviews-audit-caveat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 615 — 2026-10-24 (example maintenance; the 10:30 review's audit caveat)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-24-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-24 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-147-imp13-a-pec-disc-face-on-to-the-field-the-pole-enhancement-1l_z-of-an-oblate-spheroid-in-gel-and-the-edge-on-drive-that-misses-it">EX-147 — <code>imp:13</code>: a PEC disc face-on to the field — the pole enhancement 1/L_z of an oblate spheroid in gel, and the edge-on drive that misses it<a class="headerlink" href="#ex-147-imp13-a-pec-disc-face-on-to-the-field-the-pole-enhancement-1l_z-of-an-oblate-spheroid-in-gel-and-the-edge-on-drive-that-misses-it" title="Permanent link">&para;</a></h1>
+<p><em>History file for the §7 <code>EX-147</code> row (<code>OPS-46</code>). Opened by the 2026-10-24 03:00 daily review under daily-review.md step 5's example ramp (rule (5) supply; lane 3's implant geometry), from an <code>Explore</code> sweep of validation modules that no example references. <strong><code>IMP-6</code> is ✅</strong> (audit PASS); its <strong>step 3</strong> gates the <strong>axial</strong> (face-on) drive at aspect 2 and 5 on step 1's meshes. The least-squares amplitude β_axial of the closed-form axial scattered field is within <code>TH15_BETA_BAND</code>, and the pole-ball mean Φ_pole,h = ⟨|E|²⟩/E₀² (cells within r_p = a/5 of (0, 0, ±c)) matches the axial closed form integrated over the same cells within <code>MAT4_BAND</code>. The in-plane drive misses both on the same mesh (<code>20261013T050558Z_IMP-6-step3-W1b.log:189–192</code>, Status 0, 135 s; <code>20261013T050819Z_IMP-6-step3-W2.log:191–194</code>, Status 0, 132 s; <code>W1b</code> / <code>W2</code> below). <strong>No example shows the face-on pole gate.</strong> <code>imp:8</code> (<code>EX-111</code>) shows the same aspect-5 disc edge-on (the rim, 1/L_x). It runs the axial drive only as a negative control against the rim gates, with β_axial printed as a record, not asserted; Φ_pole is never computed.</em></p>
+<p><strong>Gap check.</strong> At execution, <code>grep -rlE "test_imp6_oblate_axial_fem|_solve_pole" examples --include=*.py</code> must be empty (window 0; empty at 2026-10-24 03:00).</p>
+<p><strong>Done-when.</strong>
+- <code>examples/implants/13_pec_oblate_disc_face_in_gel.py</code> and its same-stem guide <code>.md</code> exist.
+- <code>./run_examples.sh -e imp:13 -n 2 -t 600</code> (the <code>imp:</code> group sources the complex build) exits 0 with every gate below asserted.
+- The bands and helpers imported by name from <code>IMP-6</code> step 3's / step 1's / <code>IMP-1</code>'s modules, never restated; no gate module or <code>src/</code> edit.
+- A combined XDMF under <code>examples/implants/paraview_output/</code> of the aspect-5 axial solve (|E|² / E₀² as DG0, the pole mask) and a setup figure through <code>write_setup_figure</code>.
+- The census moves by +1, the setup-figure census is <strong>logged as its own harness window</strong> and reads <code>missing=0</code>, and docrefs read <code>dead=0</code>.</p>
+<h3 id="9-item-613-2026-10-24-example-54-ramp-from-imp-6-step-3-lane-3">§9 item 613 — 2026-10-24 (example; §5.4 ramp from <code>IMP-6</code> step 3; lane 3)<a class="headerlink" href="#9-item-613-2026-10-24-example-54-ramp-from-imp-6-step-3-lane-3" title="Permanent link">&para;</a></h3>
+<p><strong>Licence.</strong> Daily-review.md step 5, the example ramp, and §9 rule (5) lane 3 (implant geometry). A gated step (<code>IMP-6</code> step 3) shown from an angle no example covers:
+- <strong>Drive:</strong> the field normal to the disc (axial, E₀ ẑ), where <code>imp:8</code> drives it in-plane.
+- <strong>Output quantity:</strong> the pole enhancement E_z = E₀/L_z (L_z = 0.750484 at aspect 5) and the pole-ball Φ, where <code>imp:8</code> shows the rim, 1/L_x.</p>
+<p>No band, tolerance, record, Done-when or target is set or moved. Every band is imported by name.</p>
+<p><strong>What the example does.</strong> Two gate solves and one picture solve, all on the cached aspect-5 mesh (32 676 cells).
+- <strong>Imports, by module, as <code>imp:8</code> does</strong> (<code>examples/implants/08_pec_oblate_disc_edge_in_gel.py:70–71</code>): <code>import tests.validation.test_imp6_oblate_axial_fem as m6a</code>, <code>import tests.validation.test_imp6_oblate_fem as m6</code>. By name: <code>MAT4_BAND</code>, <code>TH15_BETA_BAND</code>, <code>E0</code> from <code>tests.validation.test_imp1_pec_sphere_lossy_host</code>; <code>oblate_spheroid_depolarisation</code> from <code>fem_em_solver.utils.analytical</code>. Never a <code>test_*</code> name.
+- <strong>Gate solve:</strong> <code>d = m6a._solve_pole(5.0, "axial")</code>, then <code>m6a._report_and_gate(5.0, d)</code>. That runs the gate's own prints and asserts (<code>:220–245</code>), including the cavity-zero assert, whose 1e-12 literal the example does not restate.
+- <strong>Control solve:</strong> <code>c = m6a._solve_pole(5.0, "inplane")</code>, then the control's two asserts, written from the imported bands as the gate writes them (<code>:284–286</code>).
+- <strong>Picture solve:</strong> <code>m6._solve_oblate(5.0, "axial", return_fields=True)</code>, the additive keyword <code>imp:8</code> already uses (<code>EX-111</code>, rule (a)). Its <code>fields</code> give |E|²/E₀² as a DG0 function, as <code>imp:8</code>'s <code>_dg0_sar</code> does, plus <code>m6a._pole_mask(msh, 5.0)</code> as a DG0 indicator.</p>
+<p><strong>Gates (asserted; bands imported).</strong>
+- <strong>(β)</strong> |β_axial − 1| ≤ <code>TH15_BETA_BAND</code>. Record 1.005469, 0.5469 % against 4.8860 % (<code>W1b:190</code>).
+- <strong>(Φ)</strong> |Φ_pole,h / Φ_pole,cf,h − 1| ≤ <code>MAT4_BAND</code>. Records 1.683758 / 1.667975, +0.9463 % against 10 % (<code>W1b:191</code>).
+- <strong>(cav)</strong> cavity dofs &gt; 0, max |E| below the gate's literal. Asserted inside <code>_report_and_gate</code>; record 19 952 dofs, 0.000e+00 (<code>W1b:192</code>).
+- <strong>(c-β), the in-plane control, asserted, backed:</strong> |β − 1| &gt; <code>TH15_BETA_BAND</code>. Record −0.032226, so |β − 1| = 1.0322 (<code>W2:192</code>), ≈ 21× the band.
+- <strong>(c-Φ), the in-plane control, asserted, backed:</strong> |Φ_pole,h / Φ_pole,cf,h − 1| &gt; <code>MAT4_BAND</code>. Record 0.043756 against 1.667975, a 97.3767 % miss (<code>W2:193</code>), ≈ 9.7× the band. Ceiling: a miss cannot exceed 100 %, so 10× is the most this fixture can show.</p>
+<p><strong>Printed only, never gated.</strong>
+- L_z 0.750484 and the pointwise (1/L_z)² = 1.775 beside Φ_pole,cf,h 1.667975. The ball mean is below the pointwise pole value because the ball reaches off the pole (<code>W0:303</code>).
+- |Im E|/|Re E| 9.846e-03 (<code>W1b:190</code>); pole-mask cells 154, h_pole 1.948 mm, body-volume deficit −5.777e-03 (<code>W1b:189</code>).
+- The guide's sentence: face-on, a thin disc concentrates the field at its faces only by 1/L_z ≈ 1.33. Edge-on, its rim reaches 1/L_x ≈ 8 (<code>imp:8</code>). So the orientation of a flat implant against E sets which feature heats, and the face-on case is the mild one.
+- Print records beside readings; never assert digit equality (item 537).</p>
+<p><strong>Outputs.</strong>
+- One combined XDMF of the axial picture solve through <code>write_xdmf_with_tags</code>, as <code>imp:8</code> does: |E|²/E₀² (DG0) and the pole mask (DG0). DG0 cell fields export exactly; any P1 export of the N1curl field is a qualitative picture (known-issues "Every XDMF/VTX export of a Nédélec or DG field …"), and the guide says so in one sentence.
+- A setup figure through <code>write_setup_figure</code>.
+- A <code>RECORD</code> dict of the printed records.</p>
+<p><strong>Guide (<code>13_pec_oblate_disc_face_in_gel.md</code>).</strong> Use <code>imp:8</code>'s structure:
+- what it shows;
+- how to run it (<code>./run_examples.sh -e imp:13 -n 2 -t 600</code>);
+- the numbers it prints, each cited to this run's harness log by full filename (rule (b));
+- the gates;
+- what it does not show: a quasi-static imposed field, not a coil; aspect 2's gate (<code>W1a</code>) not run; no SAR figure, no tissue, no external check;
+- ParaView steps.</p>
+<p>Add one sentence pointing to <code>imp:8</code> as the edge-on twin. Write <code>≈</code>, never a tilde.</p>
+<p><strong>Executor:</strong> <code>example-runner</code>. <strong>Tier:</strong> heavy, complex build, <code>-n 2</code>.
+- <strong>Prediction:</strong> 150–300 s. Each aspect-5 solve read 45.5–45.7 s at <code>-n 2</code> (<code>W1b:189</code>, <code>W2:191</code>), the mesh 5.2 s (<code>W0:301</code>), and the gate windows were 135 / 132 s with all of <code>tests/environment</code>. Three solves, the picture fields and the XDMF come to ≈ 160 s. Use <code>-t 600</code>; every container <code>timeout</code> carries <code>-k 30</code>.
+- <strong>Class:</strong> example. <strong>Cost:</strong> ≈ 4.3 measured / ≈ 35 predicted slot-minutes.
+- <strong>Depends on:</strong> nothing open. Independent of items 611, 612 and 614.
+- <strong>Family:</strong> <code>EX-147</code>, attempt 1 of 4. <strong>Daytime:</strong> no.</p>
+<p><strong>Windows (each its own bare harness call, foreground, Bash <code>timeout: 660000</code>).</strong>
+1. Window 0: the gap grep above, and the census before (<code>./run_examples.sh --list</code> through the harness, labelled <code>EX-147-census-pre</code>).
+2. The example: <code>./run_examples.sh -e imp:13 -n 2 -t 600 --dry-run</code>, then the printed <code>docker compose exec</code> line as its own bare harness call labelled <code>EX-147</code> (after <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0).
+3. Afterwards, three windows: the census (<code>EX-147-census-post</code>); <code>scripts/testing/run_and_log.sh EX-147-figures "timeout -k 30 30 python3 scripts/testing/check_example_setup_figures.py --next 3"</code> (must read <code>missing=0</code>); docrefs (<code>dead=0</code>, exit 0 or 2).</p>
+<p><strong>The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped.</strong></p>
+<p><strong>Traps already paid for.</strong>
+- <strong>Complex build.</strong> No <code>ufl.max_value</code> and no ordering comparison on a complex operand (<code>OPS-22</code>). A <code>sqrt</code> in UFL is complex-typed (<code>WF-6</code> 4c): compare squares. The pole mask is a numpy interpolation (<code>m6a._pole_mask</code>); keep it that way.
+- <strong>The β basis follows the comparison, and the uniform part follows the drive</strong> (the gate's own trap comment, <code>:136–138</code>). Call <code>_solve_pole</code> and never re-derive β.
+- <strong><code>_report_and_gate</code> and <code>_solve_pole</code> contain collectives</strong> (<code>_rss_gib</code>, allreduces). Call them on every rank, never inside a rank-0 branch.
+- <strong>Rank-local counts.</strong> Any count, norm or max the example adds is reduced before it is printed or asserted. <code>evaluate_vector_field_parallel</code> is the only point evaluator.
+- <strong>The private-leak commit guard</strong> held <code>EX-142</code>'s first log on a coincidental digit prefix of a closed-form print. If it flags this log, do not edit a gate reading: move the log unchanged to the gitignored repo-root <code>logs/leak-held/</code> (never <code>docs/private/</code>) and report. A closed-form print column may be dropped and the window re-run, disclosed.
+- <strong><code>EX-140</code>'s first docrefs run was red</strong> on a bare file token in its guide. Every path token in the guide is a full, resolvable repo path.
+- <strong>Census convention:</strong> report the <code>--list</code> entry count (<code>grep -c ' -&gt; '</code>) before and after.
+- <strong>A killed compile leaves an orphan <code>.c</code>.</strong> Sweep only at <code>pgrep</code> 0, with the rubric's command, labelled <code>EX-147-cache-sweep</code>.
+- <strong>Rule (i):</strong> no edit to the script or guide after its last window.
+- Never <code>-k</code> in pytest. No pipe. Never delete a log. No AED string.</p>
+<p><strong>Scope.</strong> Covered: <code>IMP-6</code> step 3's aspect-5 axial gate and its in-plane control, re-run as a narrated example with ParaView output. <strong>Not claimed:</strong> aspect 2 (<code>W1a</code>); a coil-driven field or SAR; tissue; any implant-safety statement; an external check.</p>
+<p><strong>Negative result.</strong> Report and stop. Park on <code>attempt/EX-147-*</code> and mark item 613 BLOCKED in the same commit (rule (d)).
+- <strong>(β), (Φ) or (cav) red while <code>W1b</code> was green:</strong> an image or library change since 2026-10-13. Print readings beside <code>W1b</code>'s, open a known-issues entry naming both logs, and stop. No band moves.
+- <strong>(c-β) or (c-Φ) inside its band:</strong> the drive did not switch. Stop.
+- <strong>A wall-clock overrun:</strong> a killed window is not a result. Run the <code>pgrep</code> check first, then report.</p>
+<p>No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> §7 <code>EX-147</code> ⬜ → ✅ on its Done-when. The census moves by +1. <code>IMP-6</code> does not move.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Execute §9 item 613 — <code>EX-147</code> (<code>imp:13</code>) — per <code>docs/planning/chunks/EX-147.md</code> "§9 item 613". Read the brief and any review ruling beneath it first; the rulings hold. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Import <code>tests.validation.test_imp6_oblate_axial_fem as m6a</code> and <code>tests.validation.test_imp6_oblate_fem as m6</code> as modules, as <code>imp:8</code> does. Import <code>MAT4_BAND</code>, <code>TH15_BETA_BAND</code> and <code>E0</code> from <code>tests/validation/test_imp1_pec_sphere_lossy_host.py</code> and <code>oblate_spheroid_depolarisation</code> from <code>src</code>, by name. Never import a <code>test_*</code> name, and never edit a gate module or <code>src/</code>. Run <code>m6a._solve_pole(5.0, 'axial')</code> with <code>m6a._report_and_gate</code>, then the in-plane control with its two asserts, then <code>m6._solve_oblate(5.0, 'axial', return_fields=True)</code> for the picture. Print every record beside its reading; never assert digit equality. Run window 0 (gap grep, census), then <code>./run_examples.sh -e imp:13 -n 2 -t 600 --dry-run</code>. Run the printed <code>docker compose exec</code> line as its own bare harness call labelled <code>EX-147</code>, after <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0. Then run the census, the logged setup-figure census <code>EX-147-figures</code>, and docrefs, each in the foreground with <code>timeout: 660000</code>. You are the executor — do not spawn agents, never background a harness window. If the docker socket is denied, stop and report the exact command string. If the private-leak guard holds a log, move it unchanged to <code>logs/leak-held/</code> and report. On a red, park on <code>attempt/EX-147-*</code>, mark item 613 BLOCKED in the same commit, and report."</p>
+<p><strong>Outcome (2026-10-24 09:30 UTC slot, complete).</strong> <code>20261024T094041Z_EX-147.log</code>: exit 0, 116 s harness / 114.1 s in Python at <code>-n 2</code> (prediction 150-300 s; solves 40.6 / 36.0 / 35.4 s), run with <code>-e FEM_EM_SETUP_FIGURES=1</code> after <code>exec</code>. (β) 1.005469 (0.5469 % against 4.8860 %), (Φ) 1.683758 / 1.667975 = +0.9463 % (band 10 %), (cav) 19 952 dofs, max |E| 0; pole-mask cells 154, h_pole 1.948 mm, deficit -5.777e-03, |Im E|/|Re E| 9.846e-03; in-plane control β -0.032226 (21.1x band), Φ 0.043756, miss 97.3767 % (9.7x band); all equal to <code>W1b:189-192</code> / <code>W2:192-193</code> at the printed digits. Census 143 -&gt; 144 (<code>20261024T094006Z_EX-147-census-pre.log</code>, <code>20261024T094258Z_EX-147-census-post.log</code>; predicted +1), figures <code>examples=144 ok=144 missing=0 broken=0</code> (<code>20261024T094302Z_EX-147-figures.log</code>, PNG 233 KiB), docrefs <code>dead=0 guide=0</code> exit 2 (<code>20261024T094305Z_EX-147-docrefs.log</code>). Deviations: none in gates. One cosmetic: the picture solve prints <code>beta (axial basis) -0.001796</code>, but <code>m6._solve_oblate</code> fits the in-plane basis; the label is wrong, the value equals <code>imp:8</code>'s control record, and the guide says so (rule (i): script not edited after its window). <code>pgrep -c python3</code> read 0 before the run; <code>paraview_output/</code> gitignored.</p>
+<h3 id="9-item-615-2026-10-24-example-maintenance-the-1030-reviews-audit-caveat">§9 item 615 — 2026-10-24 (example maintenance; the 10:30 review's audit caveat)<a class="headerlink" href="#9-item-615-2026-10-24-example-maintenance-the-1030-reviews-audit-caveat" title="Permanent link">&para;</a></h3>
+<p><strong>Licence.</strong> The 2026-10-24 10:30 review's audit of <code>EX-147</code> (PASS) confirmed the Outcome's one cosmetic deviation. <code>examples/implants/13_pec_oblate_disc_face_in_gel.py:202</code> prints <code>beta (axial basis)</code> for the picture solve's β. That β comes from <code>m6._solve_oblate</code>, which fits the <strong>in-plane</strong> basis (<code>tests/validation/test_imp6_oblate_fem.py:252</code>: <code>_beta(e_re, points, aspect, "inplane", uniform_axis)</code>). The tutorial prints a wrong label, and its guide (<code>…13_pec_oblate_disc_face_in_gel.md</code> "Step 4") explains the slip instead of the physics. The asserted β values are untouched: (β) and the control β come from <code>m6a._solve_pole</code>, which uses the axial basis (<code>test_imp6_oblate_axial_fem.py:130–132</code>), and the control's "(axial basis)" label at <code>:147</code> is <strong>correct</strong> and stays. No band, tolerance, record, Done-when or target is set or moved.</p>
+<p><strong>What the item does.</strong>
+- Edit one f-string at <code>:202</code> to <code>beta (in-plane basis, the routine's fit; record of imp:8's control) {pic['beta']:.6f}</code> or equivalent wording. Change nothing else in the script.
+- Re-run the example once through the harness.
+- Rewrite the guide's "Step 4" paragraph so it states what the printed β is, without the mislabel disclosure, and re-cite the new log by full filename (rule (b)). Re-cite every other number the guide quotes to the new log only where its digits are identical. Do not re-word the rest of the guide.
+- Update the §7 <code>EX-147</code> row's log of record to the new window and add a dated line under this item. The glyph stays ✅.</p>
+<p><strong>Anchor (asserted, unchanged).</strong> The example's own asserts, with the bands imported by name: (β) |β_axial − 1| ≤ <code>TH15_BETA_BAND</code>, (Φ) |Φ_pole,h/Φ_pole,cf,h − 1| ≤ <code>MAT4_BAND</code>, cavity max |E| &lt; 1e-12 (inside <code>m6a._report_and_gate</code>), and the in-plane control's two <code>&gt;</code> asserts. <strong>Bitwise check (printed comparison, call by call on the same batch):</strong> every printed reading equals <code>20261024T094041Z_EX-147.log:145–151, :160</code> at the printed digits: β_axial 1.005469, Φ 1.683758 / 1.667975, control β −0.032226, control Φ 0.043756, and the picture β −0.001796. A label-only edit cannot move a digit. Any moved digit is a finding: stop and report it.</p>
+<p><strong>Negative control.</strong> The previous log's line <code>:160</code> carries the old label. The new log's picture line must carry the new label and the same β −0.001796. <code>grep -c "beta (axial basis) -0.001796"</code> on the new log must read 0, and the control line's <code>beta (axial basis) = -0.032226</code> must still be present.</p>
+<p><strong>Executor:</strong> <code>example-runner</code>. <strong>Tier:</strong> heavy (as the item-613 window was), complex, <code>-n 2</code>, <code>./run_examples.sh -e imp:13 -n 2 -t 600</code>.
+- <strong>Prediction:</strong> 110–150 s for the window. 613 measured 116 s harness. <strong>Class:</strong> example. <strong>Cost:</strong> ≈ 4.3 measured / 20 predicted slot-minutes.
+- <strong>Depends on:</strong> nothing. <strong>Family:</strong> <code>EX-147</code> maintenance, attempt 1 of 4. <strong>Daytime:</strong> no.</p>
+<p><strong>Windows (each its own bare harness call, foreground, Bash <code>timeout: 660000</code>).</strong>
+1. <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0.
+2. <code>./run_examples.sh -e imp:13 -n 2 -t 600 --dry-run</code>. Run the printed <code>docker compose exec</code> line as its own bare harness call labelled <code>EX-147-relabel</code>, with <code>-e FEM_EM_SETUP_FIGURES=1</code> after <code>exec</code> as item 613 ran it.
+3. After the guide edit: <code>scripts/testing/run_and_log.sh EX-147-relabel-figures "timeout -k 30 30 python3 scripts/testing/check_example_setup_figures.py --next 3"</code> (must read <code>missing=0</code>), then docrefs (<code>dead=0</code>, exit 0 or 2).</p>
+<p><strong>The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped.</strong></p>
+<p><strong>Traps already paid for.</strong>
+- <strong>Rule (i).</strong> The script edit comes <em>before</em> window 2. No script edit after it. The guide edit comes after window 2 and before window 3, which reads the guide (<code>EX-148</code>'s figures run ordering, ruled acceptable by the 10:30 audit).
+- <strong>Item 537.</strong> Compare printed digits, never assert byte equality across runs.
+- <strong>The private-leak guard:</strong> if it holds the log, move it unchanged to the gitignored <code>logs/leak-held/</code> and report.
+- <strong>Census:</strong> no new example, so the <code>--list</code> count must not change. Do not run a census window; the figures window's <code>examples=145</code> line is the check.
+- Do not touch the control's label at <code>:147</code>. It is correct.
+- Never <code>-k</code> in pytest. No pipe. Never delete a log. No AED string.</p>
+<p><strong>Scope.</strong> Covered: a correct label on one printed record, and a guide that explains the physics. <strong>Not claimed:</strong> anything about <code>IMP-6</code>; no new gate.</p>
+<p><strong>Negative result.</strong> Report and stop. Park on <code>attempt/EX-147-relabel</code> and mark item 615 BLOCKED in the same commit (rule (d)).
+- <strong>Any printed digit differs from <code>:145–151, :160</code>:</strong> stop. That is a finding about the image or library, not a label. Open a known-issues entry naming both logs.
+- <strong>An assert red:</strong> stop. No band moves.</p>
+<p>No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> The §7 <code>EX-147</code> row's log of record moves to the relabelled window, and the guide's mislabel disclosure is retired. The glyph stays ✅, and <code>IMP-6</code> does not move.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Execute §9 item 615 — <code>EX-147</code> relabel — per <code>docs/planning/chunks/EX-147.md</code> "§9 item 615". Read the brief first. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Edit only the f-string at <code>examples/implants/13_pec_oblate_disc_face_in_gel.py:202</code> so the picture β is labelled as the in-plane-basis fit; leave <code>:147</code> alone. Then check <code>pgrep -c python3</code> reads 0 and run <code>./run_examples.sh -e imp:13 -n 2 -t 600 --dry-run</code>. Run the printed <code>docker compose exec</code> line, with <code>-e FEM_EM_SETUP_FIGURES=1</code> after <code>exec</code>, as its own bare harness call labelled <code>EX-147-relabel</code>. Compare every printed reading against <code>20261024T094041Z_EX-147.log:145–151, :160</code> at the printed digits; any difference stops the item. Then rewrite the guide's Step 4 paragraph, re-cite the new log by full filename, and run <code>EX-147-relabel-figures</code> and docrefs, each in the foreground with <code>timeout: 660000</code>. You are the executor — do not spawn agents, never background a harness window. If the docker socket is denied, stop and report the exact command string. On a red, park on <code>attempt/EX-147-relabel</code>, mark item 615 BLOCKED in the same commit, and report."</p>
+<p><strong>Outcome 2026-10-24 (17:00 UTC slot).</strong> DONE. Window <code>20261024T170054Z_EX-147-relabel.log</code> (117 s harness, Status 0): beta_axial 1.005469, Phi 1.683758 / 1.667975, control beta -0.032226, control Phi 0.043756, picture beta -0.001796 all equal to <code>20261024T094041Z_EX-147.log:145-151, :160</code>; picture line now reads "beta (in-plane basis, ...)"; old-label grep 0, control label kept. Figures <code>20261024T170313Z_EX-147-relabel-figures.log</code> examples=145 missing=0 broken=0; docrefs <code>20261024T170324Z_EX-147-relabel-docrefs.log</code> dead=0 guide=0 exit 2.</p>
+<h2 id="7-row-moved-verbatim-2026-10-24-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-24 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-24-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p><strong>A PEC disc face-on to the field: the pole enhancement 1/L_z of an oblate spheroid in gel, and the edge-on drive that misses it</strong> (<code>imp:13</code>; <code>example-runner</code>; §5.4 ramp from <code>IMP-6</code> step 3, <code>20261013T050558Z_IMP-6-step3-W1b.log</code>, <code>…050819Z_IMP-6-step3-W2.log</code>; opened and queued 2026-10-24 03:00 as §9 item 613 — <code>imp:8</code> shows the same disc edge-on only). <em>History and brief: <code>docs/planning/chunks/EX-147.md</code>.</em> | ✅ 2026-10-24 (log of record <code>20261024T170054Z_EX-147-relabel.log</code>, relabelled print, 117 s harness-wall / 113.6 s in Python, Status 0, every printed digit equal to the first window <code>20261024T094041Z_EX-147.log</code> (116 s / 114.1 s); figures <code>20261024T170313Z_EX-147-relabel-figures.log</code> <code>examples=145 ok=145 missing=0 broken=0</code>, docrefs <code>20261024T170324Z_EX-147-relabel-docrefs.log</code> <code>dead=0 guide=0</code> exit 2; <code>-n 2</code> complex, flagged): (β) β_axial 1.005469 (0.5469 % against 4.8860 %), (Φ) 1.683758 / 1.667975 = +0.9463 % (band 10 %), (cav) 19 952 dofs at max |E| 0; in-plane control β −0.032226 (|β − 1| 1.0322, ≈ 21.1× the band), Φ 0.043756, miss 97.3767 % (≈ 9.7× the band); all equal to <code>20261013T050558Z_IMP-6-step3-W1b.log:189–192</code> / <code>…050819Z_IMP-6-step3-W2.log:192–193</code> at the printed digits. Census 143 → 144 listed entries (predicted +1) (<code>20261024T094006Z_EX-147-census-pre.log</code>, <code>20261024T094258Z_EX-147-census-post.log</code>), figures <code>examples=144 ok=144 missing=0 broken=0</code> (<code>20261024T094302Z_EX-147-figures.log</code>), docrefs <code>dead=0 guide=0</code> exit 2 (<code>20261024T094305Z_EX-147-docrefs.log</code>). <code>IMP-6</code> unchanged. The picture solve's β print now names the in-plane basis (§9 item 615, done). <strong>Done-when:</strong> <code>examples/implants/13_pec_oblate_disc_face_in_gel.py</code> + same-stem guide; <code>./run_examples.sh -e imp:13 -n 2 -t 600</code> exits 0 (complex) asserting step 3's aspect-5 axial gate — β_axial within <code>TH15_BETA_BAND</code>, Φ_pole within <code>MAT4_BAND</code> of the axial closed form, cavity zero — and the in-plane control missing both, every band and helper imported by name, no gate or <code>src/</code> edit; combined XDMF + setup figure; census +1, logged <code>missing=0</code>, docrefs <code>dead=0</code>. </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

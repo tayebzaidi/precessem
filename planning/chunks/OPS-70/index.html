@@ -1,0 +1,1020 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>OPS-70 — package regression re-gate after the 2026-10-08 study.py / cli.py edits - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ops-70-package-regression-re-gate-after-the-2026-10-08-studypy-clipy-edits" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              OPS-70 — package regression re-gate after the 2026-10-08 study.py / cli.py edits
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-335-2026-10-08-lane-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 335 — 2026-10-08 (lane 1)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-not-queued-the-degree-2-legs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2 (not queued) — the degree-2 legs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-09-1800-review-on-item-335s-red-pin-not-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling (2026-10-09 18:00 review) on item 335's red — pin, not API
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-347-2026-10-09-ops-docs-fix-for-item-335s-red" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 347 — 2026-10-09 (ops / docs; fix for item 335's red)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-348-2026-10-09-lane-1-step-1-re-run-whole-on-a-new-h" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 348 — 2026-10-09 (lane 1; step 1 re-run whole on a new H)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-349-2026-10-09-lane-1-step-2-the-degree-2-legs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 349 — 2026-10-09 (lane 1; step 2, the degree-2 legs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-10-0300-review-on-item-349-a-price-not-a-regression-step-2b-split-in-two" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling (2026-10-10 03:00 review) on item 349 — a price, not a regression; step 2b split in two
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-352-2026-10-10-lane-1-step-2b-1-the-three-n-2-degree-2-legs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 352 — 2026-10-10 (lane 1; step 2b-1, the three -n 2 degree-2 legs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-353-2026-10-10-lane-1-step-2b-2-the-three-n-8-degree-2-legs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 353 — 2026-10-10 (lane 1; step 2b-2, the three -n 8 degree-2 legs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-10-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-10 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ops-70-package-regression-re-gate-after-the-2026-10-08-studypy-clipy-edits">OPS-70 — package regression re-gate after the 2026-10-08 study.py / cli.py edits<a class="headerlink" href="#ops-70-package-regression-re-gate-after-the-2026-10-08-studypy-clipy-edits" title="Permanent link">&para;</a></h1>
+<p><em>Opened 2026-10-08 by the 18:00 daily review under §9 rule (5), lane 1 (🧪/⚠️ revalidation). On 2026-10-08 seven commits edited <code>src/fem_em_solver/study.py</code> and <code>cli.py</code>: <code>e763fa93</code> (<code>Study.sar</code>), <code>24728153</code> (<code>b1_plus</code>), <code>df25001f</code> (copper / <code>LeontovichWall</code> / <code>as_hole</code>, also 3 lines of <code>test_wf16_study_four_port.py</code>), <code>ee87e99b</code> (<code>femem run --estimate</code>, <code>cli.py</code>), <code>b9ad9e94</code> (<code>Study.probe</code>), <code>384b0a88</code> (<code>femem figure</code>, <code>cli.py</code>; <code>comm</code> hoisted above the run / check branch), <code>f7315c43</code> (thermal-only <code>Study</code>: <code>frequency_hz</code> now Optional, <code>solve()</code> refuses a thermal-only geometry, <code>Study.__init__</code> / <code>solve</code> edited). Each slot re-ran only its own windows. The auditors found that these modules were never run on the final tree: after <code>384b0a88</code>'s <code>cli.py</code> edit, <code>test_wf13_cli_estimate.py</code>, <code>test_wf1_installed_cli.py</code>, <code>test_wf1_study_yaml.py</code>, <code>test_wf1_yaml_thermal.py</code> and <code>test_wf13_launch_helper.py</code>; after <code>f7315c43</code>'s <code>Study.__init__</code> / <code>solve</code> edits, <code>test_wf15_study_probe.py</code>, <code>test_wf16_study_four_port.py</code>, <code>test_wf16_study_sweep.py</code>, <code>test_wf16_study_sar.py</code>, <code>test_wf16_study_b1.py</code>, <code>test_wf16_study_copper.py</code>, <code>test_wf17_first_study_tutorial.py</code> and <code>test_wf17_more_tutorials.py</code>. No new code, test, assertion or band.</em></p>
+<p><strong>Proposed §7 row.</strong> See the review's return. In short: <code>OPS-70</code> ⬜, heavy, step 1 = every <code>tests/package/</code> module (plus <code>tests/post/test_wf8_figures.py</code>) on one HEAD, each degree-1 / non-degree-2 node at its gated width; step 2 = the degree-2 legs (not queued here).</p>
+<h3 id="9-item-335-2026-10-08-lane-1">§9 item 335 — 2026-10-08 (lane 1)<a class="headerlink" href="#9-item-335-2026-10-08-lane-1" title="Permanent link">&para;</a></h3>
+<p><strong>Outcome 2026-10-08 (21:00 slot): RED at W7 — stopped, §9 item 335 BLOCKED.</strong> <code>H</code> = <code>9b50dab5</code>; every log header <code>Commit:</code> reads <code>H</code>. W1 11 passed 61 s (<code>20261009T021639Z_OPS-70-W1-cli-thermal-probe.log</code>; controls thermal (c1) 1.0649, probe (c1) 7.5333e-03 = priors), W2 5 passed 26 s (<code>…021745Z_OPS-70-W2-probe-n1.log</code>; (W) max 4.608e-11 ≤ 1e-9), W3 15 passed 101 s (<code>…021816Z_OPS-70-W3-yaml.log</code>; (c2) 3.4937 %), W4 13 passed 145 s (<code>…022005Z_OPS-70-W4-yaml-f-small.log</code>; (R1) 9.559e-11, (c3) 0.0491, (c4) 0.2492), W5 1 passed 15 s (<code>…022235Z_OPS-70-W5-installed-cli.log</code>), W6 9 passed 51 s (<code>…022259Z_OPS-70-W6-launch.log</code>; (c2) 3.4937 %). <strong>W7 1 failed / 15 passed 124 s</strong> (<code>…022354Z_OPS-70-W7-wf16-deg1-fp-sweep.log:5645</code>): <code>test_wf16_study_sweep.py::test_wf16_sweep_api_and_refusals</code> (K′) pins <code>Study.__init__</code>'s parameter tuple without <code>conductor</code>, which <code>df25001f</code> added (last green <code>20261006T033609Z_WF-16-s2-W1-deg1.log</code> at <code>5404e634</code>). All numeric four-port / sweep nodes in W7 green (sweep (R′1) 6.601e-11, four-port (c1) 0.0491 / (c2) 0.2492 at priors). Per ruling (6): no fix, known-issues entry <code>OPS-70: … red on H</code>, §7 notes on <code>WF-16</code> and <code>OPS-70</code>. W8–W20 not run. Unblock: a fix chunk decides pin vs API, re-gates the sweep module, then step 1 re-runs whole on a new <code>H</code>.</p>
+<p><strong>Executor.</strong> The implementer slot runs this itself. No executor is spawned: it runs only harness windows, with no new code and no example. <strong>Tier.</strong> Heavy. Windows are standard (container <code>timeout</code> 180 s) or heavy (400 s). None exceeds 400 s, so none comes near the 590 s ceiling. Ranks are <code>-n 2</code> everywhere except W2 (<code>-n 1</code>, the probe's gated width) and the single-process windows W10 / W11 and the installed-CLI W5, which were gated without <code>mpiexec</code>. <strong>Cost.</strong> ≈ 35 min of container compute is summed from the cited prior elapsed times (table below), plus ≈ 5 min of harness overhead over 20 windows and ≈ 10 min of reading, journaling and committing, for ≈ 50 min predicted. This is a long item. It fills the slot, and take-next does not apply.</p>
+<p><strong>HEAD rule (the item's procedural control).</strong> Before W1, <code>git status</code> must be clean. Record <code>git rev-parse HEAD</code> as <code>H</code>. Every window's log header <code>Commit:</code> must read <code>H</code>, and the tree must be unmodified between windows. A window whose header reads anything else is void and is re-run. The defect this item exists for is windows run on a tree that was not the final one, so an <code>H</code> mismatch is the one failure the item must not buy again. Pull nothing mid-item.</p>
+<p><strong>Anchor.</strong> Each module's own pre-existing asserted gates, at their imported bands. These are records and identities, re-executed without edits. None is added and none moves. The key ones, by module:
+- <code>test_wf1_study_yaml.py:342–346</code>: YAML sphere = <code>WF-15</code> record at <code>L0_BAND</code>, (G) at <code>MAT4_BAND</code>. <code>:424–439</code>: f-small S = record at <code>LEG_D0_REPRODUCTION_BAND</code>, Touchstone, <code>RECIPROCITY_BAND</code>, <code>ADJACENT_SPREAD_BAND</code>.
+- <code>test_wf13_cli_estimate.py:128–129</code>: CLI <code>--estimate</code> unknowns / cells <code>==</code> <code>WF15_DEG2_UNKNOWNS_RECORD</code> / <code>WF15_CELLS_RECORD</code> (exact integers).
+- <code>test_wf13_launch_helper.py:136–139</code>: <code>femem run --ranks N</code> SAR = record at <code>L0_BAND</code>, (G) <code>MAT4_BAND</code>.
+- <code>test_wf1_yaml_thermal.py:245–250</code>: (A) / (P) / (B) / (C) at their bands, (IT) at <code>L0_BAND</code>.
+- <code>test_wf15_study_probe.py:209–241</code>: (A) whole-ball identity ≤ <code>B_BAND</code>, (W) ≤ <code>WIDTH_BAND</code> across <code>-n 1 / 2</code>.
+- <code>test_wf16_study_four_port.py:320, :361, :385–400</code>: S / Touchstone = <code>P1</code> at <code>LEG_D0_REPRODUCTION_BAND</code>, <code>PORT-11</code> gates.
+- <code>test_wf16_study_sar.py:251, :296</code>: (R) and the 10 g C4 pairs ≤ <code>C4_COVARIANCE_BAND</code>.
+- <code>test_wf16_study_b1.py:189, :198</code>: C4 covariance ≤ <code>C4_COVARIANCE_BAND</code>, API <code>array_equal</code> hand chain.
+- <code>test_wf16_study_copper.py:171, :179, :200–203</code>: hole cell record, Cu / PEC class means at <code>LEG_D0_REPRODUCTION_BAND</code>, <code>TH-14</code> gates.
+- <code>test_wf15_study_transient.py:263–265, :343–346</code>: (IT) <code>L0_BAND</code>, balance <code>BALANCE_BAND</code>, (G) <code>INTERIOR_BAND</code>.
+- <code>test_wf15_study_lossy_sphere.py:323–346, :446–448, :501</code>: (I), (G) <code>MAT4_BAND</code>, (D1) / (R1).
+- <code>test_wf16_study_sweep.py</code>'s S = records per frequency.
+- <code>test_wf13_study_estimate.py</code>'s leave-one-out ×2 bracket.
+- <code>test_wf14_validation_envelope.py</code> / <code>test_wf17_api_reference.py</code>: surface snapshot = registry = pages.
+- <code>test_wf8_figures.py</code>: (S) / (X) / (P) bitwise.</p>
+<p><strong>The <code>f7315c43</code> canary.</strong> <code>test_wf15_study_lossy_sphere.py::test_wf15_study_default_degree_is_two</code> (<code>:406</code>) is the direct check that making <code>frequency_hz</code> Optional did not shift <code>Study.__init__</code>'s positional or default arguments. It runs in W16. If it is red, every other <code>Study</code> reading is suspect: stop at once.</p>
+<p><strong>Negative control (rule (e)).</strong>
+- <strong>Inside the modules: asserted controls with measured values.</strong> Every one already has a measured value in a cited log, so each is labelled <strong>asserted</strong>. Each shows that its comparator is not blind, so a regression that moved the reading would be caught. The controls:
+  - yaml (c2) / (c3) / (c4) <code>&gt; L0_BAND</code> / <code>&gt; LEG_D0_REPRODUCTION_BAND</code> (<code>test_wf1_study_yaml.py:346, :425, :432</code>);
+  - four-port wrong-record and (c1) / (c2) (<code>test_wf16_study_four_port.py:321, :362, :415–416</code>);
+  - SAR mispaired, 87.94–88.93 % &gt; 5 % (<code>test_wf16_study_sar.py:332</code>);
+  - B1 mis-rotation, 35.00 % &gt; 5 % (<code>test_wf16_study_b1.py:218</code>);
+  - PEC misses Cu by 6.420e-4 &gt; 1e-5 (<code>test_wf16_study_copper.py:183</code>);
+  - probe (c1) 7.5333e-03 &gt; <code>WIDTH_BAND</code> (<code>test_wf15_study_probe.py:213</code>);
+  - thermal YAML (c1) 1.0649 &gt; <code>A_BAND</code> (<code>test_wf1_yaml_thermal.py:249</code>);
+  - transient (c1) 9.7087e-01 and (c2) 5.3140e-02 &gt; <code>INTERIOR_BAND</code> (<code>test_wf15_study_transient.py:276, :348</code>). (c1) was <em>predicted</em> at item 330 (ruling 6) and is now measured, so it is asserted here.
+  - launch (c2) (<code>test_wf13_launch_helper.py:139</code>);
+  - lossy-sphere (c3) (<code>:502</code>);
+  - estimate planted-price and n-blind (<code>test_wf13_study_estimate.py:180, :201</code>);
+  - envelope (c1) / (c2) (<code>test_wf14_validation_envelope.py:216, :232</code>);
+  - API planted controls (<code>test_wf17_api_reference.py:211</code>);
+  - tutorials: planted degree-1 block (<code>test_wf17_first_study_tutorial.py:272</code>), planted page (<code>:201</code>), planted frequency / h (<code>test_wf17_more_tutorials.py:229, :239</code>);
+  - WF-8 (c1) / (c2).</p>
+<p>Each control's reading must sit within ≈ 1 % of its prior value (printed, not asserted). A control that reads exactly its band, or 0, means the comparator went blind: stop.
+- <strong>Item-level control: the HEAD rule above.</strong> It is mechanical, not a factor. No new planted defect is introduced, and there is no <code>HEAD:</code> copy (the stale-control trap).</p>
+<p><strong>Windows</strong> (in this order: P1 is the auditors' list, P2 is the rest of <code>tests/package/</code>). Each is one bare, whole, foreground harness call with Bash <code>timeout: 660000</code>, run serially, never two at once. "Prior" is the last green log of that node set.</p>
+<table>
+<thead>
+<tr>
+<th>W</th>
+<th>build</th>
+<th><code>-n</code></th>
+<th><code>timeout</code></th>
+<th>prior (s)</th>
+<th>log</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>W1 cli-estimate + yaml-thermal + probe n2</td>
+<td>complex</td>
+<td>2</td>
+<td>180</td>
+<td>14 + 39 + 22</td>
+<td><code>20261008T200148Z_WF-13-s4-W1</code>, <code>20261007T051444Z_WF-1-s3-W1-thermal</code>, <code>20261008T201316Z_WF-15-s4-W1-n2</code></td>
+</tr>
+<tr>
+<td>W2 probe n1</td>
+<td>complex</td>
+<td>1</td>
+<td>180</td>
+<td>26</td>
+<td><code>20261008T201344Z_WF-15-s4-W2-n1</code></td>
+</tr>
+<tr>
+<td>W3 yaml (3 nodes)</td>
+<td>complex</td>
+<td>2</td>
+<td>180</td>
+<td>101–121</td>
+<td><code>20261008T200210Z_WF-13-s4-W2-wf1-w1</code></td>
+</tr>
+<tr>
+<td>W4 yaml f-small</td>
+<td>complex</td>
+<td>2</td>
+<td>400</td>
+<td>164</td>
+<td><code>20261007T051729Z_WF-1-s3-W3-wf1-w2</code></td>
+</tr>
+<tr>
+<td>W5 installed CLI</td>
+<td>real venv</td>
+<td>—</td>
+<td>90</td>
+<td>15</td>
+<td><code>20261008T200450Z_WF-13-s4-W4-wf1-w5</code></td>
+</tr>
+<tr>
+<td>W6 launch helper</td>
+<td>both venvs</td>
+<td>1, 2</td>
+<td>120 / 90</td>
+<td>52</td>
+<td><code>20261008T200357Z_WF-13-s4-W3-launch</code></td>
+</tr>
+<tr>
+<td>W7 four-port + sweep, degree 1</td>
+<td>complex</td>
+<td>2</td>
+<td>400</td>
+<td>199</td>
+<td><code>20261006T033609Z_WF-16-s2-W1-deg1</code></td>
+</tr>
+<tr>
+<td>W8 SAR + B1, degree 1</td>
+<td>complex</td>
+<td>2</td>
+<td>400</td>
+<td>≈ 160 (sar+sweep 114, b1 43)</td>
+<td><code>20261008T184215Z_WF-16-s4-W1-deg1</code>, <code>20261008T185141Z_WF-16-s5-W1-deg1</code></td>
+</tr>
+<tr>
+<td>W9 copper</td>
+<td>complex</td>
+<td>2 (asserted, <code>:116</code>)</td>
+<td>300</td>
+<td>69</td>
+<td><code>20261008T190119Z_WF-16-s7-W1</code></td>
+</tr>
+<tr>
+<td>W10 envelope + API + first-study docs nodes</td>
+<td>real</td>
+<td>—</td>
+<td>180</td>
+<td>8 + 15</td>
+<td><code>20261008T214403Z_WF-15-s3-W5-wf17</code>, <code>20261006T004352Z_WF-17-W0-docs</code></td>
+</tr>
+<tr>
+<td>W11 step-3 tutorial nodes</td>
+<td>complex</td>
+<td>—</td>
+<td>180</td>
+<td>5</td>
+<td><code>20261008T202649Z_WF-17-step3-W0</code></td>
+</tr>
+<tr>
+<td>W12 tutorial solves (planted deg-1, four-port, temperature)</td>
+<td>complex</td>
+<td>2</td>
+<td>400</td>
+<td>81 + 104 + 85</td>
+<td><code>20261006T004414Z_WF-17-W1-planted-deg1</code>, <code>20261008T202702Z_WF-17-step3-W1-four-port</code>, <code>20261008T202852Z_WF-17-step3-W2-temperature</code></td>
+</tr>
+<tr>
+<td>W13 transient (whole module)</td>
+<td><strong>real</strong></td>
+<td>2</td>
+<td>400</td>
+<td>124 + 133</td>
+<td><code>20261008T213834Z_WF-15-s3-W1a-duty</code>, <code>20261008T214046Z_WF-15-s3-W1b-wall</code></td>
+</tr>
+<tr>
+<td>W14 WF-8 figures</td>
+<td><strong>real</strong></td>
+<td>2</td>
+<td>180</td>
+<td>72</td>
+<td><code>20261008T202057Z_WF-8-W0</code></td>
+</tr>
+<tr>
+<td>W15 <code>Study.estimate</code> (whole module)</td>
+<td>complex</td>
+<td>2</td>
+<td>400</td>
+<td>104 + 128</td>
+<td><code>20261007T033535Z_WF-13-s2-r-W1</code>, <code>20261007T033308Z_WF-13-s2-r-W1b-p4-unknowns</code></td>
+</tr>
+<tr>
+<td>W16 lossy sphere, degree-1 nodes</td>
+<td>complex</td>
+<td>2</td>
+<td>180</td>
+<td>119</td>
+<td><code>20261008T213439Z_WF-15-s3-W0a-wf15</code></td>
+</tr>
+<tr>
+<td>W17 temperature spec + degree 1</td>
+<td>complex</td>
+<td>2</td>
+<td>180</td>
+<td>≤ 104</td>
+<td><code>20261008T213645Z_WF-15-s3-W0b-temp</code></td>
+</tr>
+<tr>
+<td>W18 installed location</td>
+<td>both venvs</td>
+<td>2</td>
+<td>40 / 75</td>
+<td>35</td>
+<td><code>20261008T214317Z_WF-15-s3-W4-wf13</code></td>
+</tr>
+<tr>
+<td>W19 installed sphere</td>
+<td>complex venv</td>
+<td>2</td>
+<td>120 / 90</td>
+<td>41</td>
+<td><code>20261007T050136Z_WF-1-s2-W1-installed-sphere</code></td>
+</tr>
+<tr>
+<td>W20 installed f-small</td>
+<td>complex venv</td>
+<td>2</td>
+<td>200 / 90</td>
+<td>65</td>
+<td><code>20261007T050226Z_WF-1-s2-W2-installed-f-small</code></td>
+</tr>
+</tbody>
+</table>
+<p>Sum of priors ≈ 2 090 s ≈ 35 min (P1 ≈ 1 170 s, P2 ≈ 920 s). <strong>Park rule:</strong> if W12 has not returned by slot minute 30, or any window has not started by minute 45, launch no further window. Commit the logs taken, and mark the remainder as step 1b BLOCKED-on-time (rule (d)). That is a price finding, not a regression.</p>
+<p>Commands (verbatim; each is the whole Bash command):</p>
+<ul>
+<li>W1: <code>scripts/testing/run_and_log.sh OPS-70-W1-cli-thermal-probe "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_wf13_cli_estimate.py tests/package/test_wf1_yaml_thermal.py tests/package/test_wf15_study_probe.py::test_wf15_probe_spec_and_refusals tests/package/test_wf15_study_probe.py::test_wf15_probe_identity_n2 -v -s --tb=short'"</code></li>
+<li>W2: <code>scripts/testing/run_and_log.sh OPS-70-W2-probe-n1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 180 mpiexec -n 1 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_wf15_study_probe.py::test_wf15_probe_width_n1 -v -s --tb=short'"</code></li>
+<li>W3: <code>scripts/testing/run_and_log.sh OPS-70-W3-yaml "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment tests/package/test_wf1_study_yaml.py::test_wf1_good_files_build_the_python_studies tests/package/test_wf1_study_yaml.py::test_wf1_malformed_files_name_their_field tests/package/test_wf1_study_yaml.py::test_wf1_cli_sphere_reproduces_wf15 -v -s --tb=short'"</code></li>
+<li>W4: <code>scripts/testing/run_and_log.sh OPS-70-W4-yaml-f-small "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 400 mpiexec -n 2 python3 -m pytest tests/environment tests/package/test_wf1_study_yaml.py::test_wf1_cli_f_small_reproduces_wf16 -v -s --tb=short'"</code></li>
+<li>W5: <code>scripts/testing/run_and_log.sh OPS-70-W5-installed-cli "docker compose exec -T fem-em-solver bash -lc 'timeout -k 10 50 bash /workspace/scripts/package/wf13_setup.sh real &amp;&amp; mkdir -p /tmp/wf13/run/tests/package/wf1 &amp;&amp; cp /workspace/tests/package/test_wf1_installed_cli.py /tmp/wf13/run/tests/package/ &amp;&amp; cp /workspace/tests/package/wf1/*.yaml /tmp/wf13/run/tests/package/wf1/ &amp;&amp; cd /tmp/wf13/run &amp;&amp; env -u PYTHONPATH WF13_INSTALLED_CHECK=1 timeout -k 10 90 /tmp/wf13/venv/bin/python -m pytest -p no:cacheprovider tests/package/test_wf1_installed_cli.py -v -s --tb=short'"</code></li>
+<li>W6: <code>scripts/testing/run_and_log.sh OPS-70-W6-launch "docker compose exec -T fem-em-solver bash -lc 'timeout -k 10 50 bash /workspace/scripts/package/wf13_setup.sh real &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; timeout -k 10 15 bash /workspace/scripts/package/wf13_setup.sh complex &amp;&amp; mkdir -p /tmp/wf13/run/u19 &amp;&amp; cp /workspace/tests/package/wf1/sphere_mat4.yaml /tmp/wf13/run/u19/ &amp;&amp; cd /tmp/wf13/run/u19 &amp;&amp; env -u PYTHONPATH FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 120 /tmp/wf13/venv/bin/femem run --ranks 1 sphere_mat4.yaml --output-dir /tmp/wf13/run/u19/out/n1 &amp;&amp; env -u PYTHONPATH FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 120 /tmp/wf13/venv/bin/femem run --ranks 2 sphere_mat4.yaml --output-dir /tmp/wf13/run/u19/out/n2 &amp;&amp; cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 WF13_LAUNCH_OUT=/tmp/wf13/run/u19/out timeout -k 30 90 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_wf13_launch_helper.py -s -v --tb=short'"</code></li>
+<li>W7: <code>scripts/testing/run_and_log.sh OPS-70-W7-wf16-deg1-fp-sweep "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_WF16_DEGREE=1 timeout -k 30 400 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_wf16_study_four_port.py tests/package/test_wf16_study_sweep.py -v -s --tb=short'"</code></li>
+<li>W8: <code>scripts/testing/run_and_log.sh OPS-70-W8-wf16-deg1-sar-b1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_WF16_DEGREE=1 timeout -k 30 400 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_wf16_study_sar.py tests/package/test_wf16_study_b1.py -v -s --tb=short'"</code></li>
+<li>W9: <code>scripts/testing/run_and_log.sh OPS-70-W9-copper "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 300 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_wf16_study_copper.py -v -s --tb=short'"</code></li>
+<li>W10: <code>scripts/testing/run_and_log.sh OPS-70-W10-envelope-api-docs "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 180 python3 -m pytest tests/package/test_wf14_validation_envelope.py tests/package/test_wf17_api_reference.py tests/package/test_wf17_first_study_tutorial.py -v -s --tb=short'"</code>. This uses the real build, so the module's <code>@complex_only</code> nodes skip there, as at <code>WF-17-W0-docs</code>; W12 carries the planted-degree-1 node.</li>
+<li>W11: <code>scripts/testing/run_and_log.sh OPS-70-W11-step3-nodes "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 180 python3 -m pytest tests/package/test_wf17_more_tutorials.py::test_wf17_step3_extracts_exactly_one_block tests/package/test_wf17_more_tutorials.py::test_wf17_four_port_block_configures_the_p1_study tests/package/test_wf17_more_tutorials.py::test_wf17_temperature_block_configures_the_mat10_study tests/package/test_wf17_more_tutorials.py::test_wf17_step3_planted_untagged_and_doubled_pages_raise tests/package/test_wf17_more_tutorials.py::test_wf17_four_port_planted_frequency_is_caught tests/package/test_wf17_more_tutorials.py::test_wf17_temperature_planted_h_is_caught tests/package/test_wf17_more_tutorials.py::test_wf17_step3_expected_outputs_state_the_records tests/package/test_wf17_more_tutorials.py::test_wf17_step3_docrefs_guide_has_zero_dead_links -v -s --tb=short'"</code></li>
+<li>W12: <code>scripts/testing/run_and_log.sh OPS-70-W12-tutorial-solves "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 400 mpiexec -n 2 python3 -m pytest tests/environment tests/package/test_wf17_first_study_tutorial.py::test_wf17_planted_degree1_block_misses_the_record tests/package/test_wf17_more_tutorials.py::test_wf17_four_port_block_reproduces_p1 tests/package/test_wf17_more_tutorials.py::test_wf17_temperature_block_reproduces_mat10 -v -s --tb=short'"</code></li>
+<li>W13: <code>scripts/testing/run_and_log.sh OPS-70-W13-transient-real "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 400 mpiexec -n 2 python3 -m pytest tests/environment tests/package/test_wf15_study_transient.py -v -s --tb=short'"</code></li>
+<li>W14: <code>scripts/testing/run_and_log.sh OPS-70-W14-wf8-real "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment tests/post/test_wf8_figures.py -v -s --tb=short'"</code></li>
+<li>W15: <code>scripts/testing/run_and_log.sh OPS-70-W15-estimate "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 400 mpiexec -n 2 python3 -m pytest tests/environment tests/package/test_wf13_study_estimate.py -v -s --tb=short'"</code></li>
+<li>W16: <code>scripts/testing/run_and_log.sh OPS-70-W16-lossy-deg1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment tests/package/test_wf15_study_lossy_sphere.py::test_wf15_imposed_field_is_mat4_wall_data_bitwise tests/package/test_wf15_study_lossy_sphere.py::test_wf15_study_default_degree_is_two tests/package/test_wf15_study_lossy_sphere.py::test_wf15_degree1_reproduces_mat4_record tests/package/test_wf15_study_lossy_sphere.py::test_wf15_preset_leg_reproduces_mat1_record -v -s --tb=short'"</code></li>
+<li>W17: <code>scripts/testing/run_and_log.sh OPS-70-W17-temperature-deg1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment tests/package/test_wf15_study_temperature.py::test_wf15_temperature_spec_and_refusals tests/package/test_wf15_study_temperature.py::test_wf15_temperature_degree1_reproduces_mat10_record -v -s --tb=short'"</code></li>
+<li>W18: the command at <code>20261008T214317Z_WF-15-s3-W4-wf13.log:12</code> (item 220's, <code>WF-13.md:64</code>), verbatim, under tag <code>OPS-70-W18-installed-location</code>.</li>
+<li>W19 / W20: the commands at <code>20261007T050136Z_WF-1-s2-W1-installed-sphere.log:12</code> and <code>20261007T050226Z_WF-1-s2-W2-installed-f-small.log:12</code>, verbatim, under tags <code>OPS-70-W19-installed-sphere</code> / <code>OPS-70-W20-installed-f-small</code>.</li>
+</ul>
+<p>For W18–W20, copy each command from its log header line exactly (read with Read or <code>zcat</code> if gzipped). Do not retype it.</p>
+<p><strong>Traps already paid for.</strong>
+- Every harness call is the <strong>whole</strong> Bash command: bare, repo-relative, no <code>cd … &amp;&amp;</code>, no <code>| tail</code>, no redirect. Use Bash <code>timeout: 660000</code> and run in the foreground. Never background a window and end the turn.
+- Use <code>-v -s</code> (pytest captures prints without <code>-s</code>). Use <code>timeout -k 30</code> (<code>-k 10</code> only inside the verbatim WF-13 installed commands, as gated). Never pipe pytest.
+- Never use <code>-k a or b</code>: node IDs are listed explicitly because <code>-k</code> splits inside the quoted container command.
+- Frequency-domain windows source <code>dolfinx-complex-mode</code>, set <code>FEM_EM_REQUIRE_COMPLEX=1</code> and lead with <code>tests/environment/test_complex_mode.py</code> (or <code>tests/environment</code>). <strong>W13 and W14 run in the real build</strong>, where their records were taken (item 330 ruling 4; WF-8 W0). Sourcing complex there changes the build under the record.
+- <strong>Never set <code>FEM_EM_WF16_DEGREE=2</code> in this item.</strong> Unset, the four-port / sweep / SAR / B1 degree-gated nodes skip. W7 / W8 set it to 1, as gated.
+- W9 asserts <code>comm.size == ANS6_EXACT_STRIP_RECORD_RANK_WIDTH</code> (<code>test_wf16_study_copper.py:116</code>). Do not change its <code>-n 2</code>.
+- The WF-13 installed windows (W5, W6, W18–W20) reinstall <code>/tmp/wf13/venv</code> from <code>/workspace</code>. They run serially, and never while another window runs.
+- Before the first window, and after any killed window, check for orphans with <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> (it must read 0). Never use <code>pgrep -f "python3 -m pytest"</code>: <code>bash_guard.py</code> denies it.
+- Run the orphan-<code>.c</code> cache sweep (daily-review rubric item 4) <strong>only</strong> after a killed window. It is not a routine step. The <code>WF-16</code> slots' pre-degree-2 sweeps are not needed for degree-1 windows.
+- <strong>Tracked files must not change.</strong> After W10 (API pages), W14 (figures) and W12, <code>git status</code> must show only new logs and <code>test-results.md</code> rows. If a tracked artifact was regenerated, restore it with <code>git checkout -- &lt;path&gt;</code> and disclose it. A regenerated tracked artifact is committed only if it agrees to 1e-6 or a ✅ chunk is named (§9 standing rule).
+- If the service is down, run <code>scripts/testing/run_and_log.sh SERVICE-START "docker compose up -d fem-em-solver"</code> once. Never <code>build</code>.
+- Never delete a log.</p>
+<p><strong>Scope boundary.</strong> Step 1 re-gates every <code>tests/package/</code> module, plus <code>tests/post/test_wf8_figures.py</code>, at its degree-1 / non-degree-2 nodes on one HEAD. It does <strong>not</strong> re-run:
+- the degree-2 legs (<code>WF-15</code> lossy W2a / W2b, temperature degree-2, <code>WF-16</code> four-port / sweep / SAR / B1 at <code>-n 8</code>, <code>WF-17</code> first-study degree-2). These are step 2 below, not queued by this item;
+- upstream validation modules (<code>MAT-4</code>, <code>MAT-10</code>, <code>MAT-17</code>, <code>MAT-18</code>), which are not edited by the seven commits;
+- any <code>xl</code> / <code>xxl</code> window.</p>
+<p>A green step 1 says the 2026-10-08 edits did not regress any degree-1 / API / CLI / installed-package gate. It says nothing new about the degree-2 records. No band, record or §2 sentence moves. No <code>WF-*</code> glyph changes: all are ✅ already.</p>
+<p><strong>Negative result.</strong>
+- <strong>Any red assertion</strong> is a regression on the final tree. Report it and stop the slot, with no in-slot fix, not even a one-line one. Record:
+  - the node, its reading against its band, its last green log, and <code>git log --oneline &lt;that log's commit&gt;..H -- src/fem_em_solver/study.py src/fem_em_solver/cli.py</code>;
+  - a known-issues entry (<code>OPS-70: &lt;node&gt; red on H</code>);
+  - a dated §7 note on the owning chunk's row and on <code>OPS-70</code>;
+  - §9 item 335 marked BLOCKED (rule (d)).</p>
+<p>Commit the red log, which is the evidence. Nothing is parked, because there is no code change.
+- <strong>A comparator gone blind</strong> (a control reading 0 or at its band) is reported the same way.
+- <strong>A window killed by its <code>timeout</code></strong> is a price finding, not a regression. Check for orphans, sweep the cache, record the elapsed, mark the remainder step 1b BLOCKED-on-time, and do not re-run at a larger timeout.
+- <strong>A log <code>Commit:</code> ≠ H</strong> voids that window: re-run it.</p>
+<p>There are no <code>PREDICTED RED:</code> lines: every assertion is expected green, and a red anywhere stops the slot.</p>
+<p><strong>Status it can move.</strong>
+- <strong>All of W1–W20 green, on <code>H</code>, with controls at their priors:</strong> <code>OPS-70</code> ⬜ → ✅, and the auditors' caveats on <code>WF-8</code> (item 328) and <code>WF-15</code> step 3 (item 330) are closed. Record that in this file and as a dated line in <code>docs/planning/chunks/WF-8.md</code> and <code>docs/planning/chunks/WF-15.md</code> (step 3 section), naming <code>H</code> and the log range. The <code>WF-13</code> step 4, <code>WF-15</code> step 4, <code>WF-16</code> steps 4 / 5 / 7 and <code>WF-17</code> step 3 records each gain a final-tree log, cited on their §7 rows' history lines without a glyph change.
+- <strong>Any red:</strong> a known-issues entry plus a §7 note as above. The owning record is contested until a fix chunk re-gates it.
+- <strong>Step 1b (time-parked):</strong> <code>OPS-70</code> stays ⬜ with the green subset recorded.</p>
+<h3 id="step-2-not-queued-the-degree-2-legs">Step 2 (not queued) — the degree-2 legs<a class="headerlink" href="#step-2-not-queued-the-degree-2-legs" title="Permanent link">&para;</a></h3>
+<p>Step 2 is for the review to queue as a separate heavy item if it wants the degree-2 records re-gated on <code>H</code>. Prices: lossy W2a 428 s and W2b 314 s (<code>20261005T170537Z</code> / <code>171253Z_WF-15-r2-*</code>, <code>-n 2</code>, <code>timeout 590</code>, box-speed gate W2a &gt; 450 s ⇒ stop), temperature degree-2 353 s (<code>20261006T040151Z_WF-15-s2-W2-deg2</code>, <code>-n 2</code>, 590), four-port degree-2 268 s (<code>20261005T203015Z_WF-16-W2-deg2</code>, <code>-n 8</code>, 590), sweep degree-2 303 s (<code>20261006T034120Z_WF-16-s2-W2-deg2</code>, <code>-n 8</code>, 590), SAR + B1 degree-2 117 + 98 s (<code>20261008T184556Z</code> / <code>185400Z</code>, <code>-n 8</code>, 590; one window ≈ 215 s), first-study degree-2 340 s (<code>20261006T004709Z_WF-17-W2-first-study-deg2</code>, <code>-n 2</code>, 590). That totals ≈ 2 220 s ≈ 37 min of compute in seven heavy windows, ≈ 50 min of slot. Each window is that log's header command verbatim under an <code>OPS-70-S2-*</code> tag. The four <code>-n 8</code> windows are never side by side.</p>
+<p><strong>Review rulings (2026-10-08 18:00 review) on item 335 — these outrank the brief above.</strong> (1) Measured minutes: the item is counted at the sum of its windows' prior elapsed (≈ 35 min), not the lane-1 median, because that sum is itself measured; the brief's park rule (step 1b BLOCKED-on-time) stands. (2) Step 2 (the degree-2 legs) stays written and unqueued; a later review queues it if step 1 is green. (3) The auditors' caveats are recorded in <code>docs/planning/reviews/2026-10-08-daily-1800.md</code> §3 (<code>WF-8</code>: <code>cli.py</code> edit not regression-run; <code>WF-15</code> step 3: <code>Study.__init__</code> / <code>solve()</code> edits not re-run against <code>WF-16</code> / <code>WF-17</code> / YAML); the item writes its close-out line into <code>WF-8.md</code> and <code>WF-15.md</code>. (4)–(5) accepted as drafted. (6) Any red: stop and report — known-issues entry, §7 note on the owning row, no in-slot fix of any size.</p>
+<h3 id="review-ruling-2026-10-09-1800-review-on-item-335s-red-pin-not-api">Review ruling (2026-10-09 18:00 review) on item 335's red — pin, not API<a class="headerlink" href="#review-ruling-2026-10-09-1800-review-on-item-335s-red-pin-not-api" title="Permanent link">&para;</a></h3>
+<p><code>df25001f</code> (<code>WF-16</code> step 7 / U26, §9 item 324, audited PASS 2026-10-08 18:00) added <code>conductor=None</code> to <code>Study.__init__</code> <strong>on purpose</strong>: it is the documented copper entry point, and <code>WF-1</code> step 4 (U32) and <code>EX-108</code> now drive it. The (K′) test's stated purpose (<code>test_wf16_study_sweep.py:159</code>, "scalar constructor pinned") is that the frequency sweep stays a <em>method</em> and the constructor keeps a scalar <code>frequency_hz</code>. Adding a keyword-only argument with a <code>None</code> default does not touch that property. <strong>So the stale side is the pin.</strong> Amending it to the current, intended signature is a record update, not a loosened assertion: no band, tolerance or numeric record moves, and the amended pin is <em>stricter</em> (it also pins <code>conductor</code>'s default and its keyword-only kind). The fix is item 347; step 1 then re-runs whole on a new <code>H</code> (item 348), and step 2 — the degree-2 legs, written above and unqueued until now — follows only on a green step 1 (item 349).</p>
+<h3 id="9-item-347-2026-10-09-ops-docs-fix-for-item-335s-red">§9 item 347 — 2026-10-09 (ops / docs; fix for item 335's red)<a class="headerlink" href="#9-item-347-2026-10-09-ops-docs-fix-for-item-335s-red" title="Permanent link">&para;</a></h3>
+<p><strong>Executor.</strong> Implementer, in-slot. <strong>Tier.</strong> Standard, <code>-n 2</code>, one window ≈ 130 s (W7's 124 s, <code>20261009T022354Z_OPS-70-W7-wf16-deg1-fp-sweep.log</code>). <strong>Predicted</strong> 15 min.</p>
+<p><strong>Edit (the whole code change).</strong> In <code>tests/package/test_wf16_study_sweep.py::test_wf16_sweep_api_and_refusals</code> (<code>:160–171</code>): append <code>"conductor"</code> as the last element of the pinned tuple, and add, beside the two existing default asserts, <code>assert params["conductor"].default is None</code> and <code>assert params["conductor"].kind is inspect.Parameter.KEYWORD_ONLY</code>. Amend the docstring to "(K′) scalar constructor pinned (<code>conductor</code> added by <code>df25001f</code>, ruled 2026-10-09)". Nothing else in the file, and no <code>src/</code> edit.</p>
+<p><strong>Anchor.</strong> The module's own asserted gates, unchanged: sweep (R′1) S per frequency = record at <code>LEG_D0_REPRODUCTION_BAND</code> (W7 read 6.601e-11), (G′) reciprocity at <code>RECIPROCITY_BAND</code> (3.190e-15), the four-port (R) / (T2) / <code>PORT-11</code> gates; plus the amended pin.</p>
+<p><strong>Negative control.</strong> <em>Asserted</em> (measured on the same node): the unamended pin is red on this signature — <code>20261009T022354Z_OPS-70-W7-wf16-deg1-fp-sweep.log:5645</code> is that measurement, so no planted control is re-run. <em>Recorded:</em> the slot quotes <code>src/fem_em_solver/study.py:100–110</code> in the journal as the signature the pin now encodes.</p>
+<p><strong>Window</strong> (the whole Bash command, <code>timeout: 660000</code>, foreground) — W7's command verbatim under a new tag:
+<code>scripts/testing/run_and_log.sh OPS-70-item347-W7 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_WF16_DEGREE=1 timeout -k 30 400 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_wf16_study_four_port.py tests/package/test_wf16_study_sweep.py -v -s --tb=short'"</code></p>
+<p><strong>Traps.</strong> Every harness call bare, whole, repo-relative, foreground; <code>-s</code>; never pipe pytest. Rule (i): no edit to the test after the window. If the service is down, <code>SERVICE-START</code> once, never <code>build</code>. Orphan check <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0 before the window. Never delete a log.</p>
+<p><strong>Scope.</strong> Retires the known-issues entry <code>OPS-70: … red on H</code> only; it re-gates one window. It does <strong>not</strong> close <code>OPS-70</code> (item 348 does) and moves no <code>WF-16</code> glyph.</p>
+<p><strong>Negative result.</strong> Any other node red in the window ⇒ a new regression: stop, known-issues entry, item 347 BLOCKED (rule (d)), no in-slot fix. Green ⇒ the entry is RETIRED in place in the same commit, citing the log.</p>
+<p><strong>Status it can move.</strong> known-issues 2026-10-08 <code>OPS-70: … red on H</code> → RETIRED; item 348 unblocked.</p>
+<p><strong>Outcome (2026-10-09 21:00 slot): ✅ done.</strong> The pin edit as written, nothing else (<code>git diff -- src/</code> empty). <code>20261010T020048Z_OPS-70-item347-W7.log</code> — 16 passed in 130.54 s (132 s elapsed, <code>-n 2</code>, <code>FEM_EM_WF16_DEGREE=1</code>); sweep (R′1) 6.601e-11 / 9.557e-11 / 9.449e-11 at 10 / 64 / 128 MHz (band 1e-9, controls (c1′) 0.0102 / 0.0491 / 0.0555), (G′) reciprocity 3.190e-15 / 4.509e-16 / 5.601e-16, all four-port nodes green. The known-issues entry is RETIRED in place. The window's header <code>Commit:</code> is the pre-edit HEAD <code>22f57739</code> with the pin edit in the working tree; item 348's <code>H</code> is the commit that lands this.</p>
+<h3 id="9-item-348-2026-10-09-lane-1-step-1-re-run-whole-on-a-new-h">§9 item 348 — 2026-10-09 (lane 1; step 1 re-run whole on a new <code>H</code>)<a class="headerlink" href="#9-item-348-2026-10-09-lane-1-step-1-re-run-whole-on-a-new-h" title="Permanent link">&para;</a></h3>
+<p><strong>The brief is item 335's above, verbatim, with three changes.</strong> (1) <code>H</code> is the HEAD <em>after</em> item 347 lands (and after any earlier item in the same slot); W1–W20 all run on it — W7 again included, under tag <code>OPS-70-W7-…</code> as written. (2) Since item 335 was written, <code>study_yaml.py</code> gained <code>conductor:</code> / <code>outputs.sar</code> / <code>outputs.b1_plus</code> / <code>outputs.probes</code> (<code>da2d6a65</code>, <code>e84c9edb</code>, <code>22131f80</code>) and three new package modules landed: <code>tests/package/test_wf1_yaml_copper.py</code>, <code>test_wf1_yaml_sar_b1.py</code>, <code>test_wf1_yaml_probes.py</code>, plus <code>test_wf2_bundle_reproducible.py</code> (<code>531108c0</code>). <strong>Add four windows</strong> after W20, each its landing log's header command verbatim (read the <code>Command:</code> line at <code>:12</code>) under tag <code>OPS-70-W21…W24-&lt;name&gt;</code>: <code>20261009T004108Z_WF-1-s4-W1-copper.log</code> (94 s), <code>20261009T005219Z_WF-1-s5-W1-sar-b1.log</code> (119 s), <code>20261009T020231Z_WF-1-s6-W1-probes.log</code> (40 s), and the two <code>WF-2</code> windows <code>20261009T053015Z_WF-2-W1-sphere.log</code> (48 s) / <code>20261009T053110Z_WF-2-W2-four-port.log</code> (77 s) as W24a / W24b. (3) Prior sum rises to ≈ 2 470 s ≈ 41 min, so the park rule binds harder: <strong>if W12 has not returned by minute 30, or any window has not started by minute 45, launch nothing further</strong>, commit the logs taken, and mark the remainder step 1b BLOCKED-on-time (a price finding, not a regression).</p>
+<p><strong>Depends on item 347</strong> landing green; if it did not, skip. <strong>Status it can move:</strong> as item 335's brief (<code>OPS-70</code> ⬜ → ✅ on a green W1–W24, the <code>WF-8</code> / <code>WF-15</code> step 3 auditor caveats closed); a red anywhere stops the slot, known-issues entry, no in-slot fix. No <code>PREDICTED RED:</code> lines.</p>
+<p><strong>Outcome (2026-10-09 21:00 slot): ✅ green, <code>OPS-70</code> closed.</strong> <code>H</code> = <code>1edad4aca4d2bf7a6c476afad42d6f33fa18252b</code>; clean tree before W1, no tracked edit until after W24b; every header <code>Commit:</code> = <code>H</code>. 25 windows, 278 passed / 0 failed / 10 skipped, 1 993 s summed. W1 11 p 64 s (<code>20261010T020624Z_OPS-70-W1-cli-thermal-probe.log</code>; thermal (c1) 1.0649, probe (c1) 7.5333e-03), W2 5 p 27 s (<code>…020736Z</code>), W3 15 p 103 s (<code>…020808Z</code>; (R1) 6.222e-11, (c2) 3.4937 %), W4 13 p 147 s (<code>…020956Z</code>; (R1) 9.557e-11, (c3) 0.0491, (c4) 0.2492), W5 1 p 15 s (<code>…021231Z</code>), W6 9 p 52 s (<code>…021251Z</code>; (c2) 3.4937 %), W7 16 p 127 s (<code>…021350Z</code>; sweep (R′1) 6.601e-11 / 9.557e-11 / 9.449e-11, (c1′) 0.0102 / 0.0491 / 0.0555), W8 16 p 102 s (<code>…021557Z</code>; SAR (c1) 87.9–88.9 %), W9 13 p 68 s (<code>…021746Z</code>), W10 18 p / 2 s 11 s (<code>…021856Z</code>, real build), W11 10 p 4 s (<code>…021912Z</code>), W12 15 p 138 s (<code>…021923Z</code>), W13 11 p / 4 s 198 s (<code>…022152Z</code>, real), W14 17 p / 4 s 75 s (<code>…022514Z</code>, real), W15 18 p 166 s (<code>…022638Z</code>), W16 16 p 121 s (<code>…022928Z</code>; <code>f7315c43</code> canary <code>test_wf15_study_default_degree_is_two</code> green), W17 14 p 88 s (<code>…023137Z</code>), W18 6 p 35 s (<code>…023312Z</code>), W19 5 p 28 s (<code>…023356Z</code>), W20 5 p 49 s (<code>…023430Z</code>), W21 11 p 96 s (<code>…023536Z</code>), W22 13 p 122 s (<code>…023716Z</code>), W23 9 p 38 s (<code>…023922Z</code>), W24a 6 p 46 s (<code>…024009Z</code>), W24b 5 p 73 s (<code>…024102Z</code>). After W10 / W12 / W14 <code>git status</code> showed only new logs and <code>test-results.md</code>. Measured price ≈ 33 min of compute against ≈ 41 predicted.</p>
+<h3 id="9-item-349-2026-10-09-lane-1-step-2-the-degree-2-legs">§9 item 349 — 2026-10-09 (lane 1; step 2, the degree-2 legs)<a class="headerlink" href="#9-item-349-2026-10-09-lane-1-step-2-the-degree-2-legs" title="Permanent link">&para;</a></h3>
+<p><strong>The brief is "Step 2 (not queued)" above, now queued</strong> under ruling (2) of the 10-08 18:00 review ("a later review queues it if step 1 is green"). Seven heavy windows, each that log's header command verbatim under an <code>OPS-70-S2-*</code> tag, run serially (the four <code>-n 8</code> windows never side by side); ≈ 2 220 s of priors, container <code>timeout</code> 590 s each. Box-speed gate: lossy W2a &gt; 450 s ⇒ stop and record the price. <strong>H rule as step 1</strong>: one recorded HEAD, every header <code>Commit:</code> equal to it. <strong>Anchor:</strong> each module's degree-2 records at their imported bands (<code>WF-15</code> lossy W2a / W2b, temperature degree 2, <code>WF-16</code> four-port / sweep / SAR + B1 at <code>-n 8</code>, <code>WF-17</code> first-study degree 2). <strong>Control:</strong> each module's own asserted controls at their priors (≈ 1 %, printed). <strong>Depends on item 348 landing green on every window</strong>; if it parked or went red, skip. <strong>Park rule:</strong> a window not started by minute 40 is not started; record the rest as step 2b BLOCKED-on-time. <strong>Status it can move:</strong> the degree-2 records gain a final-tree log each (history lines, no glyph); any red ⇒ known-issues entry, the owning row contested, stop. No <code>PREDICTED RED:</code> lines.</p>
+<p><strong>Outcome (2026-10-10 00:00 slot): 🚫 blocked on the box-speed gate (a price finding).</strong> <code>H</code> = <code>2b2cbe78c071a1c365d9544c79d2a68a708b6b55</code>, clean tree, zero orphan <code>python3</code> before the window. S2-W2a (the <code>20261005T170537Z</code> header command verbatim) is <strong>green</strong>: 13 passed, Status 0, <code>20261010T050041Z_OPS-70-S2-W2a-wf15-lossy-deg2-study.log</code>. The readings match the priors: (G) degree-2 closed SAR 8.008354e-08 against FEM 8.011658e-08, err 0.041 %; Im/Re err 0.490 %; (U) / (P) exact (0.0 deltas); (c2) relative 1.382e-14; (c4) −3.3757 %; 74 020 cells, 482 158 dofs. But the window took <strong>566 s</strong> (prior 428 s), over the brief's 450 s gate. The in-test Study solve+mesh took 367.7 s (prior 282.4 s), still inside its own 450 s gate. Box load average was 2.3 at the end of the window. <strong>The slot stopped</strong> as the gate requires. At ≈ 1.3× the priors, the six windows left (≈ 1 790 s of priors) would have run past the minute-40 park rule. <strong>Step 2b</strong> (W2b, temperature degree 2, four-port, sweep, SAR + B1, first-study) is left for a later slot. The degree-2 lossy Study record gains one final-tree log, on a history line only, with no glyph change.</p>
+<h3 id="review-ruling-2026-10-10-0300-review-on-item-349-a-price-not-a-regression-step-2b-split-in-two">Review ruling (2026-10-10 03:00 review) on item 349 — a price, not a regression; step 2b split in two<a class="headerlink" href="#review-ruling-2026-10-10-0300-review-on-item-349-a-price-not-a-regression-step-2b-split-in-two" title="Permanent link">&para;</a></h3>
+<p>S2-W2a is <strong>green on its own anchors</strong> and its readings equal the priors, so the degree-2 lossy Study record gains its final-tree log (<code>20261010T050041Z_OPS-70-S2-W2a-wf15-lossy-deg2-study.log</code>) and needs no re-run. The 450 s gate was a scheduling guard against the 590 s container ceiling and the minute-40 park rule, not an assertion; it fired correctly (566 s against a 428 s prior, ≈ 1.32×, load 2.3). No band moves, and the in-test 450 s Study gate stands as written. The six windows left are split into two independent items so that each fits a slot at ≈ 1.3× the priors: <strong>item 352</strong> (the three <code>-n 2</code> windows, ≈ 1 007 s of priors) and <strong>item 353</strong> (the three <code>-n 8</code> windows, ≈ 786 s). Each item records its own <code>H</code> (every header <code>Commit:</code> within the item equals it); the two items need not share one. The step-2 Done-when reads per window, so the union of S2-W2a, 352 and 353 covers it.</p>
+<h3 id="9-item-352-2026-10-10-lane-1-step-2b-1-the-three-n-2-degree-2-legs">§9 item 352 — 2026-10-10 (lane 1; step 2b-1, the three <code>-n 2</code> degree-2 legs)<a class="headerlink" href="#9-item-352-2026-10-10-lane-1-step-2b-1-the-three-n-2-degree-2-legs" title="Permanent link">&para;</a></h3>
+<p><strong>Executor.</strong> Implementer, in-slot. <strong>Tier.</strong> Heavy, <code>-n 2</code>, three serial windows, container <code>timeout -k 30 590</code> each. <strong>Cost.</strong> Priors 314 + 353 + 340 = 1 007 s ≈ 17 min (the 10-08 ruling (1) rule: counted at the sum of its windows' prior elapsed); ≈ 22 min at the 10-10 box speed (1.32×). <strong>Predicted</strong> 30 min of slot.</p>
+<p><strong>Windows</strong> (each the whole Bash command, <code>timeout: 660000</code>, foreground; the command is the cited log's header <code>Command:</code> line verbatim, only the tag changed): S2-W2b ← <code>20261005T171253Z_WF-15-r2-W2b-*</code> (314 s); S2-W3 ← <code>20261006T040151Z_WF-15-s2-W2-deg2*</code> (353 s); S2-W7 ← <code>20261006T004709Z_WF-17-W2-first-study-deg2*</code> (340 s). Tags <code>OPS-70-S2-W2b-…</code>, <code>OPS-70-S2-W3-…</code>, <code>OPS-70-S2-W7-…</code>.</p>
+<p><strong>Anchor.</strong> Each module's own asserted degree-2 records at their imported bands, as each prior log reads them: <code>WF-15</code> lossy W2b, <code>WF-15</code> step 2 temperature degree 2, <code>WF-17</code> first-study degree 2. <strong>Control.</strong> Each module's own asserted controls (planted misses, reproduction controls) at their priors — <em>asserted</em> by the modules themselves, measured on the same nodes in the cited logs; the slot prints each control beside its prior and quotes both in the journal.</p>
+<p><strong>Box-speed guard (replaces the 450 s gate).</strong> If the first window's elapsed exceeds <strong>1.5×</strong> its prior (471 s for W2b), launch nothing further: the 353 s temperature window would then reach ≈ 530 s against the 590 s ceiling. Record the price and mark the rest BLOCKED-on-time. <strong>Park rule:</strong> a window not started by minute 40 is not started.</p>
+<p><strong>Traps.</strong> Every harness call bare, whole, repo-relative, foreground; <code>-s</code> is in the prior commands (add nothing, change nothing but the tag); never pipe the test runner. A window killed at 590 s is not a result — run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> first, then the orphan-<code>.c</code> sweep (rubric element 4) only if it reads 0. One HEAD across the three windows; no tracked edit until the last one returns. Never delete a log. Item 353's <code>-n 8</code> windows never run beside these.</p>
+<p><strong>Scope.</strong> Re-gates three degree-2 records on a final tree; adds no assertion and moves no band, record or glyph. It does not cover the <code>-n 8</code> legs (item 353).</p>
+<p><strong>Negative result.</strong> Any red: stop, a known-issues entry naming the module and node, a §7 note on the owning row (the record is contested until a fix chunk re-gates it), item 352 BLOCKED (rule (d)); no in-slot fix of any size. No <code>PREDICTED RED:</code> lines.</p>
+<p><strong>Status it can move.</strong> The <code>WF-15</code> (lossy W2b, step 2 temperature) and <code>WF-17</code> degree-2 records each gain a final-tree log on their chunk-file history lines (no glyph); with item 353 and S2-W2a, <code>OPS-70</code> step 2 closes as a record in this file.</p>
+<p><strong>Outcome (2026-10-10 07:30 slot): ✅ done, all three green.</strong> <code>H</code> = <code>143a8ed2dfa5430f89ab5d72891ae8794feb9c16</code>, clean tree, zero orphan <code>python3</code> before S2-W2b; every header <code>Commit:</code> = <code>H</code>; no tracked edit until after S2-W7. Each window 13 passed, Status 0. <strong>S2-W2b</strong> (<code>20261010T123053Z_OPS-70-S2-W2b-wf15-lossy-deg2-direct.log</code>, 352 s against prior 314 s, 1.12×, under the 471 s guard): precondition cells 74 020 / dofs 482 158 equal; (I) cross-process SAR study 8.0116577245e-08 vs direct 8.0116577249e-08, rel 5.723e-11, <E_z> rel 2.923e-11 (band <code>L0_BAND</code> 1e-9; prior 2.633e-11 / 1.312e-11); direct solve 272.3 s (prior 247.3 s). The hand-off it read is S2-W2a's (written 2026-10-10 05:10 UTC). <strong>S2-W3</strong> (<code>20261010T123653Z_OPS-70-S2-W3-wf15-temperature-deg2.log</code>, 320 s, prior 353 s): (UT) 19 496 / 19 496 sub cells, 3 086 Robin facets, q_h max|d| 0.0; (c2) planted spacing 2.2737e-13 read back, differing 1 (prior identical); (IT) 1.160e-13 (band 1e-9; prior 8.697e-14); (G) (A) 2.5900737525e-03 (band 0.11; prior 2.5900737960e-03), (P) 3.1923343273e-03 (= prior), (B) 8.301e-16, (C) 1.075e-13; (c1) 2G comparator 9.9523e-01 (= prior). <strong>S2-W7</strong> (<code>20261010T124220Z_OPS-70-S2-W7-wf17-first-study-deg2.log</code>, 315 s, prior 340 s): (Deg) degree 2 throughout, 74 020 cells / 482 158 dofs; (R) SAR 8.0116577252e-08 vs record 8.0116577245e-08, rel 8.553e-11 (band 1e-9; prior 2.007e-11); (G) closed form 8.008354e-08, rel 0.0413 % (band 0.1 %; = prior). Summed 987 s against 1 007 s of priors: the box was back at its 10-05/10-06 speed. With S2-W2a (item 349) this covers the three <code>-n 2</code> legs of step 2; the <code>-n 8</code> legs are item 353.</p>
+<h3 id="9-item-353-2026-10-10-lane-1-step-2b-2-the-three-n-8-degree-2-legs">§9 item 353 — 2026-10-10 (lane 1; step 2b-2, the three <code>-n 8</code> degree-2 legs)<a class="headerlink" href="#9-item-353-2026-10-10-lane-1-step-2b-2-the-three-n-8-degree-2-legs" title="Permanent link">&para;</a></h3>
+<p><strong>Executor.</strong> Implementer, in-slot. <strong>Tier.</strong> Heavy, <code>-n 8</code>, three serial windows (never side by side, never beside another heavy window), container <code>timeout -k 30 590</code> each. <strong>Cost.</strong> Priors 268 + 303 + 215 = 786 s ≈ 13 min; ≈ 17 min at 1.32×. <strong>Predicted</strong> 25 min of slot.</p>
+<p><strong>Windows</strong> (whole Bash command each, <code>timeout: 660000</code>, foreground; the cited log's header <code>Command:</code> verbatim, tag changed): S2-W4 ← <code>20261005T203015Z_WF-16-W2-deg2*</code> (four-port, 268 s); S2-W5 ← <code>20261006T034120Z_WF-16-s2-W2-deg2*</code> (sweep, 303 s); S2-W6 ← the <code>WF-16</code> steps 4–5 degree-2 SAR + B1 windows <code>20261008T184556Z</code> / <code>20261008T185400Z</code> (117 + 98 s) — as their two commands verbatim, S2-W6a / S2-W6b, unless both logs carry one identical command. Tags <code>OPS-70-S2-W4…W6-…</code>.</p>
+<p><strong>Anchor.</strong> Each module's asserted degree-2 records at their imported bands: four-port (R) at <code>LEG_D0_REPRODUCTION_BAND</code> and the <code>PORT-11</code> gates, sweep (R′1) and (G′) reciprocity, 10 g C4 worst 0.5961 % and B₁⁺ CG1 C4 1.4607 % against 5 % (U23 / U24 at degree 2). <strong>Control.</strong> Each module's own asserted controls at their priors — <em>asserted</em>, same nodes, cited logs; printed beside the priors in the journal.</p>
+<p><strong>Box-speed guard.</strong> First window &gt; 1.5× its prior (402 s for S2-W4) ⇒ launch nothing further, record the price, BLOCKED-on-time. <strong>Park rule:</strong> no window starts after minute 40.</p>
+<p><strong>Traps.</strong> As item 352; additionally <code>-n 8</code> is the heavy width — check <code>pgrep -c python3</code> reads 0 before each window so no other heavy window is still running.</p>
+<p><strong>Scope / negative result / status it can move.</strong> As item 352, for the <code>WF-16</code> four-port, sweep and SAR + B1 degree-2 records. Depends on nothing (independent of item 352).</p>
+<p><strong>Outcome (2026-10-10 07:30 slot, after item 352): ✅ done, all four green.</strong> <code>H</code> = <code>bad6a7c704164dfc3ab3990968b0ad86c38ee12b</code>, clean tree, <code>pgrep -c python3</code> read 0 before each window; every header <code>Commit:</code> = <code>H</code>; no tracked edit until after S2-W6b. The two step 4–5 logs carry different commands, so S2-W6 ran as S2-W6a / S2-W6b. <strong>S2-W4</strong> (<code>20261010T125012Z_OPS-70-S2-W4-wf16-four-port-deg2.log</code>, 19 passed, 269 s against prior 268 s, under the 402 s guard): (F) 117 206 cells = record; (U) DG0 max|d| 0.0; (T2) 8.185e-11 (band 1e-9; prior 8.177e-11); (T1) 5.803e-14 (prior 5.716e-14); (I) study-vs-direct 7.617e-13 (prior 2.038e-13); <code>PORT-11</code> (G) reciprocity 2.807e-15 (prior 2.143e-15), σ_max 0.999819887372, spreads 0.0333 / 0.0338 / 0.0441 %, separation 957.45× (all = prior); controls (c1) 0.0495, (c2) 0.2542, (c3) 1.11e-16 on 537 dofs (= prior). <strong>S2-W5</strong> (<code>20261010T125449Z_OPS-70-S2-W5-wf16-sweep-deg2.log</code>, 17 passed, 315 s, prior 303 s): (R′2) 7.340e-11 / 8.187e-11 / 7.735e-11 at 10 / 64 / 128 MHz (band 1e-9; prior 7.323e-11 / 8.195e-11 / 7.747e-11); (G′) reciprocity 1.135e-14 / 2.429e-15 / 1.588e-15 (prior 1.494e-14 / 3.187e-15 / 4.156e-15), σ_max and separations = prior; controls (c1′) 0.0102 / 0.0495 / 0.0559, (c5) 1.3138 / 8.19e-11 / 1.2592, (c6) planted 2.9823e-09 (= prior). <strong>S2-W6a</strong> (<code>20261010T130011Z_OPS-70-S2-W6a-wf16-sar-deg2.log</code>, 11 passed, 113 s, prior 117 s): (R) 8.198e-11 (prior 8.189e-11); 10 g cyclic pairs 0.0189 / 0.5961 / 0.2117 / 0.4005 %, worst 0.5961 % (≤ 5 %; = prior to every digit printed); (i) power rel 5.329e-15; (iii) 0.0; control (c1) 85.4440 / 85.5507 / 85.6962 / 85.6884 % (= prior). <strong>S2-W6b</strong> (<code>20261010T130209Z_OPS-70-S2-W6b-wf16-b1-deg2.log</code>, 9 passed, 98 s, prior 98 s): (B1) 1.3563 / 1.4607 / 1.2824 % (≤ 5 %; = prior); (B2) 2.840e-16; (B3) 51 / 51 points each; control P2@−D 35.2720 % (= prior). Summed 795 s against 786 s of priors. <strong>With S2-W2a (item 349) and item 352, every step-2 window is green on a final tree, so <code>OPS-70</code> step 2 closes as a record.</strong> No band, record or glyph moved.</p>
+<h2 id="7-row-moved-verbatim-2026-10-10-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-10 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-10-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p>Package regression re-gate after the 2026-10-08 <code>study.py</code> / <code>cli.py</code> edits (<code>e763fa93</code>, <code>24728153</code>, <code>df25001f</code>, <code>ee87e99b</code>, <code>b9ad9e94</code>, <code>384b0a88</code>, <code>f7315c43</code>) <em>(brief: <code>docs/planning/chunks/OPS-70.md</code>; opened 2026-10-08 18:00 review, lane 1)</em> | ✅ <strong>2026-10-09 (§9 item 348, 21:00 slot): step 1 green whole on <code>H</code> = <code>1edad4ac</code></strong> — W1–W24b (25 windows) all green, every header <code>Commit:</code> = <code>H</code>, 278 passed / 0 failed / 10 skipped (build-gated skips, real-build W10 / W13 / W14), 1 993 s summed elapsed (<code>20261010T020624Z_OPS-70-W1-cli-thermal-probe.log</code> … <code>20261010T024102Z_OPS-70-W24b-wf2-four-port.log</code>); controls at priors (thermal (c1) 1.0649, probe (c1) 7.5333e-03, yaml (c2) 3.4937 %, four-port (R1) 9.557e-11 / (c3) 0.0491 / (c4) 0.2492, sweep (R′1) 6.601e-11 / 9.557e-11 / 9.449e-11); no tracked artifact regenerated; <code>WF-8</code> / <code>WF-15</code> step 3 auditor caveats closed. Earlier: <strong>2026-10-08 (§9 item 335, 21:00 slot): step 1 RED at W7, stopped</strong> — <code>test_wf16_sweep_api_and_refusals</code> (K′) pin lacks <code>df25001f</code>'s <code>conductor</code> kwarg (<code>20261009T022354Z_OPS-70-W7-wf16-deg1-fp-sweep.log:5645</code>, 1 failed / 15 passed, 124 s); W1–W6 green on <code>H</code> = <code>9b50dab5</code> (61 / 26 / 101 / 145 / 15 / 51 s, <code>20261009T021639Z</code>…<code>022259Z_OPS-70-W*.log</code>), controls at priors; W8–W20 not run; known-issues entry filed; no fix in slot (ruling (6)). <strong>Ruled 2026-10-09 18:00 review: the pin is stale, not the API</strong> (<code>OPS-70.md</code>); fix item 347, step 1 re-run whole item 348 (plus the four package modules landed since), step 2 item 349. The auditors found 13 package modules not re-run on the final tree after <code>384b0a88</code> (<code>cli.py</code>) and <code>f7315c43</code> (<code>Study.__init__</code> / <code>solve</code>). <strong>Done-when (§4):</strong> step 1 — every <code>tests/package/</code> module plus <code>tests/post/test_wf8_figures.py</code> run through the harness on one recorded HEAD (every log header <code>Commit:</code> equal), each degree-1 / non-degree-2 node at its gated width and build, all green with each module's own records, identities and asserted controls at their imported bands (no assertion added, no band touched), elapsed recorded ⇒ ✅, and the <code>WF-8</code> / <code>WF-15</code> step 3 auditor caveats closed in their chunk files. Any red ⇒ known-issues entry plus a §7 note on the owning row. Not claimed: degree-2 records (step 2, written, not queued). </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

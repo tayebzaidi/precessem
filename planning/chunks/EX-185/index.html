@@ -1,0 +1,660 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-185 — imp:25: the implant as the heat source — the core-source composite cylinder, closed form and FEM - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-185-imp25-the-implant-as-the-heat-source-the-core-source-composite-cylinder-closed-form-and-fem" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-185 — imp:25: the implant as the heat source — the core-source composite cylinder, closed form and FEM
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-857-2026-11-06-example-10-i74-chain-i-daily-2026-11-06-0300-provisional-under-rule-6-54-ramp-from-imp-8-i70-i71" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 857 — 2026-11-06 (example; §10 I74, chain I — daily, 2026-11-06 03:00, provisional under rule (6); §5.4 ramp from IMP-8 I70 / I71)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-185-imp25-the-implant-as-the-heat-source-the-core-source-composite-cylinder-closed-form-and-fem">EX-185 — <code>imp:25</code>: the implant as the heat source — the core-source composite cylinder, closed form and FEM<a class="headerlink" href="#ex-185-imp25-the-implant-as-the-heat-source-the-core-source-composite-cylinder-closed-form-and-fem" title="Permanent link">&para;</a></h1>
+<p><em>History file for the §7 <code>EX-185</code> row (<code>OPS-46</code>). Opened by the 2026-11-06 03:00 daily review as §10 I74, chain I (daily, provisional under rule (6); the 11-07 weekly ratifies or reverts), from <code>IMP-8</code> steps 12 and 14 / I70 and I71 (§9 items 847 and 852).</em></p>
+<ul>
+<li><strong>The gates it draws on:</strong></li>
+<li>I70, <code>20261106T015337Z_IMP-8-item847-W1.log</code>: (St) residuals ≤ 4.478e-14, (En) 0, (Lim) 2.093e-16, (Bq) 0; control 0.2752.</li>
+<li>I71, <code>20261106T032719Z_IMP-8-item852-W1.log</code>: 53 504 curved-P2 cells, (I) ≤ 1.713e-03, (I0) 5.458e-04 at t* and 4.044e-04 at steady, (E) 3.009e-13, (S0) 3.553e-15 with ∫q dx(2) = 0; control 0.2161.</li>
+<li><strong>Why an example:</strong> <code>imp:24</code> (<code>EX-184</code>) heats the gel shell around a passive core. No example puts the source <strong>in</strong> the implant. <strong>Gap check, run at this review:</strong> <code>grep -l 'core_source\|Q_CORE' examples/implants/*.py</code> is empty.</li>
+<li><strong>Its angle:</strong> the drive. The source is the core itself, 1 W per metre in r &lt; a, and the core's own k and ρc set its temperature. At steady state the shell sees only the total power (θ(a) is the same for every k_r), while the axis depends on k_r.</li>
+</ul>
+<p><strong>Done-when.</strong>
+- <code>examples/implants/25_rod_core_source_heat.py</code> and its same-stem guide <code>.md</code> exist.
+- The closing window exits 0 with every gate below asserted. Bands and helpers are imported by name. There is no gate-module edit and no <code>src/</code> edit.
+- A combined XDMF under <code>examples/implants/paraview_output/</code> holds θ_FEM at t* and steady, with the k / ρc / q DG0 fields. There is a setup figure through <code>write_setup_figure</code>.
+- Census +1, docrefs <code>dead=0</code> and <code>guide=0</code>.</p>
+<h3 id="9-item-857-2026-11-06-example-10-i74-chain-i-daily-2026-11-06-0300-provisional-under-rule-6-54-ramp-from-imp-8-i70-i71">§9 item 857 — 2026-11-06 (example; §10 I74, chain I — daily, 2026-11-06 03:00, provisional under rule (6); §5.4 ramp from <code>IMP-8</code> I70 / I71)<a class="headerlink" href="#9-item-857-2026-11-06-example-10-i74-chain-i-daily-2026-11-06-0300-provisional-under-rule-6-54-ramp-from-imp-8-i70-i71" title="Permanent link">&para;</a></h3>
+<p><strong>Licence.</strong> Rule (6), chain I's sixth provisional step since the 11-04 weekly. Its target is (7e), "implant-driven heating in closed form, then FEM". No band or target is set or moved.</p>
+<p><strong>What the example does.</strong> Item 852's construction, written out in <code>main()</code>, because pytest fixtures cannot be imported:
+- <code>_composite_cylinder(comm)</code> (imported from <code>test_imp8_composite_cylinder_fem</code>, with its sizing defaults);
+- q = <code>_dg0(msh, ct, Q_CORE, 0.0)</code>, with DG0 k / ρc by item 837's route;
+- one CN run and one steady solve, with item 837's settings and <code>snapshot_steps</code> imported, never retyped.
+The comparand is item 847's <code>_theta</code> / <code>_theta_ss</code> (Ti core) and the gel-core variant (<code>k_r=K_GEL</code>, <code>rhoc_r=RHO_C</code>).</p>
+<p><strong>Gates (asserted; bands imported; all collected first, then asserted).</strong>
+- <strong>(I)</strong> |θ_FEM/θ_cf − 1| ≤ <code>INTERIOR_BAND</code> at (a, 0) and ((a+b)/2, 0), at t* and at steady. <strong>(I0)</strong> applies the same bound on the axis at t* and at steady. These are item 852's six reads; its records are listed above.
+- <strong>(E)</strong> ≤ <code>E_BAND</code>. <strong>(S0)</strong> ∫q dx = <code>Q_CORE</code>·V_core,h within <code>B_BAND</code>, and ∫q dx(2) = 0.
+- <strong>Closed form, re-asserted on the page</strong> (cheap, numpy): (St) and (Lim) at <code>B1_BAND</code>, as item 847's module asserts them. Call its helpers; never restate a band.
+- <strong>Control (asserted, factor 1):</strong> the k_r = <code>K_GEL</code> steady θ(0) comparand misses θ_FEM(0, steady) by more than <code>INTERIOR_BAND</code>. The record is 0.2161; the gate's sign convention is θ_FEM/comparand − 1, so the predicted value is −0.2158 (item 852's disclosure 1).
+- <strong>max|Im θ|</strong> = 0 if the group runs complex. <code>imp:24</code> did; see Traps.</p>
+<p><strong>Printed only.</strong>
+- The Ti and gel-core θ(r, t) table at r ∈ {0, a, (a+b)/2} and t ∈ {t_c, t*, steady} (closed form), beside θ_FEM for Ti.
+- The source-in-core θ(a, steady) beside item 843's source-in-shell value, ratio 3.717461 (<code>…item847-W1.log</code>).
+- The t_c read at (3, 0) mm, labelled "small-number relative error, not gated" (item 852's disclosure 1: 1.143e-02).
+- The z-invariance at (a, ±L/4) and the Robin offset (item 852 read 7.456e-06).</p>
+<p><strong>Guide.</strong> <code>imp:24</code>'s headings; Related <code>imp:24</code>, <code>imp:23</code>, <code>imp:15</code>. Say plainly:
+- the Ti pair is <strong>nominal</strong> (from memory; no source in the repo);
+- the geometry is an infinite cylinder with a Dirichlet wall and a uniform core source;
+- at steady state θ(a) = q_c a² ln(b/a)/(2k_g), independent of k_r, so the rod's conductivity shows only inside the rod;
+- a real implant's Joule heating is not uniform (no step has that SAR shape).
+Quote any round-off term as a bound, or name its window. Write <code>≈</code>, never a tilde. Quote only closing-log digits, or arithmetic on them (implementer-run.md step 3 clause 3: <code>EX-183</code>'s guide was corrected for a figure-window digit at the 2026-11-06 03:00 review).</p>
+<p><strong>Executor:</strong> <code>example-runner</code>, foreground. <strong>Tier:</strong> heavy label, <code>-n 2</code>.
+- <strong>Prediction:</strong> item 852's W1 took 32 s real (<code>t_build</code> 4.3 s, transient 19.6 s, steady 3.0 s). <code>imp:24</code> on the same mesh took 44 s complex. Total ≈ 60–200 s. Use <code>-t 480</code>.
+- <strong>Class:</strong> example. <strong>Cost:</strong> ≈ 6.0 measured / 30 predicted min. <strong>Family:</strong> <code>EX-185</code>, attempt 1 of 4.
+- <strong>Skip this slot</strong> if <code>pgrep -c python3</code> in the container reads above 0.</p>
+<p><strong>Windows.</strong> As <code>EX-184.md</code>, with label <code>EX-185</code>, group <code>imp:25</code>, <code>-n 2</code>, <code>-t 480</code>.
+- <strong>Closing window:</strong> <code>scripts/testing/run_and_log.sh EX-185 "./scripts/run_examples.sh -e imp:25 -n 2 -t 480"</code>, run last.
+- One earlier flagged window, <code>EX-185-figure</code>, closes nothing.
+- Nothing is edited after the closing window, the guide included. If the guide must change (<code>EX-184</code> re-sourced a timing line afterwards, disclosed), re-run the closing window.</p>
+<p><strong>Traps already paid for.</strong>
+- <code>EX-184</code>'s figure-window failures, fixed there and to be copied:
+  - <code>fem.Constant(msh, 1.0)</code> is float64, and the complex form constructor rejects it. Use <code>imp:24</code>'s <code>_one(msh)</code>.
+  - XDMF refuses a P1 function on the curved P2 mesh. Write the fields at degree 2.
+- Conjugate the test function in any linear form the page builds (<code>ArityMismatch</code>; <code>OPS-82</code>). Wrap <code>main()</code> so that a raise calls <code>MPI.COMM_WORLD.Abort(1)</code>.
+- Classify end faces with <code>|z_max − z_min| &lt; 1e-3 L</code>. Import <code>_composite_cylinder</code>; never copy it.
+- Never evaluate the series at t = 0. <code>_modes</code> is <code>lru_cache</code>d, so pass floats.
+- <code>.eval</code> bytes depend on the batch. Print ≤ 7 digits. A kill parks the item.</p>
+<p><strong>Scope.</strong> One example. <strong>Not claimed:</strong> a finite rod (I73), a Ti property, a rate, or an implant SAR shape.</p>
+<p><strong>Negative result.</strong> A gate red: stop, keep the log, BLOCKED. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>EX-185</code> ✅; census +1; §10 I74 DONE.</p>
+<p><strong>Depends on:</strong> nothing (items 847 and 852 are on <code>main</code>).</p>
+<p><strong>Outcome (2026-11-06T10:56Z, 04:30 slot, run by the implementer in the example-runner role): complete. <code>EX-185</code> ✅.</strong> Closing window <code>20261106T105319Z_EX-185.log</code> (<code>./scripts/run_examples.sh -e imp:25 -n 2 -t 480</code>, <code>Status: 0</code>, 43 s harness, in-script 40.3 s; the last window). An earlier closing-shaped window <code>20261106T105218Z_EX-185.log</code> (also Status 0, 45 s) read (E) 2.998e-13 against the guide's first draft 2.996e-13 (figure window), so the guide's (E) line was changed to a round-off bound and the closing window re-run, per the rule. Flagged figure window <code>20261106T105059Z_EX-185-figure.log</code> (48 s; PNG 220 KiB; no failure, the <code>imp:24</code> traps <code>_one</code> and degree-2 XDMF carried over). Readings, all at the imported bands and equal to item 847 / 852 records: 53 504 cells; (E) 2.998e-13; (S0) 3.553e-15, shell 0; (I) 5.426e-04 / 1.713e-03 / 3.979e-04 / 1.423e-03; (I0) 5.458e-04 (t*), 4.044e-04 (steady); (St) 0, (Lim) 2.093e-16; control θ_FEM/comparand − 1 = −2.1612e-01 (predicted −0.2158); max|Im θ| 0; Robin offset 7.4560e-06; ratio 3.717461; t_c read at (3, 0) mm 1.143e-02, printed. Census: pre <code>20261106T104950Z_EX-185-census-pre.log</code> 179 → predicted 180 → post <code>20261106T105408Z_EX-185-census-post.log</code> 180 (match); figures <code>20261106T105409Z_EX-185-figures.log</code> <code>ok=180 missing=0 broken=0</code>; docrefs pre <code>20261106T104951Z_EX-185-docrefs-pre.log</code> and post <code>20261106T105411Z_EX-185-docrefs.log</code> both <code>dead=0 guide=0</code>, stale 117 unchanged, exit 2. Deviations: none in the gates; <code>_one(msh)</code> and degree-2 XDMF fields as <code>imp:24</code>; the q DG0 field added to the XDMF.</p>
+<p><em>Audited PASS by the 2026-11-06 10:30 daily review</em> (<code>20261106T105319Z_EX-185.log:44–59</code>, <code>:75</code>, <code>:84–85</code>; census 179 → 180; docrefs dead=0, <code>20261106T105411Z_EX-185-docrefs.log:157</code>). The two closing-shaped windows differ in timing only; the guide quotes no window-specific digit and was not edited after the closing window.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

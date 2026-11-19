@@ -1,0 +1,740 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>PORT-3 — history - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#port-3-history" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              PORT-3 — history
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-154-2026-10-01-lane-1-revalidation-the-2026-09-30-weeklys-lane-1-target-queued-by-the-1030-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 154 — 2026-10-01 (lane 1 revalidation, the 2026-09-30 weekly's lane-1 target; queued by the 10:30 review)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-178-2026-10-02-lane-1-port-3-attempt-2-of-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 178 — 2026-10-02 (lane 1; PORT-3 attempt 2 of 4)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="port-3-history">PORT-3 — history<a class="headerlink" href="#port-3-history" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history moved out of PROJECT_PLAN §9 (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<h3 id="9-item-154-2026-10-01-lane-1-revalidation-the-2026-09-30-weeklys-lane-1-target-queued-by-the-1030-review">§9 item 154 — 2026-10-01 (lane 1 revalidation, the 2026-09-30 weekly's lane-1 target; queued by the 10:30 review)<a class="headerlink" href="#9-item-154-2026-10-01-lane-1-revalidation-the-2026-09-30-weeklys-lane-1-target-queued-by-the-1030-review" title="Permanent link">&para;</a></h3>
+<p><code>PORT-3</code> — the <code>PORT-9</code> / <code>PORT-11</code> four-port gates as one callable (implementer; standard, <code>-n 1</code>, real; ≈ 3 measured / ≈ 47 predicted min; depends on nothing).</p>
+<ul>
+<li><strong>Code (new, additive): <code>src/fem_em_solver/ports/network_gates.py</code></strong> (it does not exist yet; the item's letter, not a rule (c) case). Band constants as defaults: <code>RECIPROCITY_BAND = 1e-3</code>, <code>PASSIVITY_SIGMA_TOLERANCE = 1e-9</code>, <code>C4_SPREAD_BAND = 0.005</code>, <code>POOLED_SEPARATION_FLOOR = 10.0</code>. <code>terminated_z_from_s(s, z0)</code>: <code>Z[:, j] = z0 (e_j + S[:, j]) / (1 − S_jj)</code> (the matched-load route's <code>z_matrix</code>; checked by hand at 4 digits against <code>Z_11</code>, <code>Z_21</code> at 10 MHz, <code>LEG_D0_Z_COLUMN</code>, and <code>Z_11</code> at 64 MHz, <code>…PORT-11-step2.log.gz:9259</code>). <code>circulant_classes</code> and <code>class_spread</code> copied verbatim from <code>test_port_birdcage_four_port.py:176–215</code>. <code>four_port_network_gates(s, *, z=None, z0_ohm=50.0, &lt;bands&gt;)</code> returns a frozen dataclass with reciprocity, <code>sigma_max</code>, <code>column_power</code>, spreads, pooled spread, separation, the four verdicts and <code>passed</code>, with the expressions of <code>test_port_birdcage_leg_offset_sweep.py:387–399</code>; <code>z=None</code> derives Z from S. Exported from <code>ports/__init__.py</code>.</li>
+<li><strong>Test: new <code>tests/ports/test_network_gates.py</code>.</strong></li>
+<li>(A0) each default band equals its test constant (<code>RECIPROCITY_BAND</code>, <code>PASSIVITY_SIGMA_TOLERANCE</code>, <code>ADJACENT_SPREAD_BAND</code>, <code>POOLED_SEPARATION_FLOOR</code>).</li>
+<li>(A1) for both stored S (<code>LEG_D_S_MATRIX_10MHZ</code>; <code>PORT11_S_64MHZ_RECORD</code>, which lives in <code>test_ans4_resolution_ladder.py:209</code> as a printed control and is input data here), every reading equals (<code>==</code>) the in-test expressions recomputed with the imported <code>_circulant_classes</code> / <code>_class_spread</code>.</li>
+<li>(A2) records — 64 MHz: spreads 0.0573 / 0.0599 / 0.0370 %, pooled 40.1838 %, separation 671.0527×, σ_max 0.999721388, max column power 0.804704664 (<code>…PORT-11-step2.log.gz:9269–9271,13920–13928</code>); 10 MHz: 0.0553 / 0.0353 / 0.0214 %, separation 166.6766×, σ_max 0.999992805 — each at its print precision; all verdicts pass. Reciprocity on stored S reads 0.0 exactly (the printed S is symmetric): expected, not a finding (the (d3c) rule).</li>
+<li>(A3) derived Z vs <code>LEG_D0_Z_COLUMN</code> and vs the logged 64 MHz Z (<code>:9259–9262</code>, restated as a version-tagged record), relative ≤ <code>FREQUENCY_CONTROL_BAND</code> (1e-6); predicted ≲ 1e-8.</li>
+<li><strong>Negative controls (planted; predicted, binary).</strong> Each planted case passes the unplanted derived Z explicitly, so only the planted gate can move: (N1) <code>S[0, 1] *= 1.01</code> → only <code>reciprocal</code> False; (N2) <code>S *= (1 + 1e-6)/σ_max</code> → only <code>passive</code> False; (N3) <code>z[0, 0] *= 1.01</code> → self spread ≈ 1 %, only <code>c4</code> False; (N4) adjacent entries set equal to the opposite class mean → only <code>resolved</code> False.</li>
+<li><strong>Window.</strong> W1 (≈ 15 s): <code>scripts/testing/run_and_log.sh PORT-3-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 120 mpiexec -n 1 python3 -m pytest tests/environment tests/ports/test_network_gates.py tests/ports/test_port_definition.py -s -v --tb=short'"</code> (<code>test_port_definition.py</code> holds D1's checklist checks, <code>4de76c5c</code>, the code this 🧪 row was opened on).</li>
+<li><strong>Traps.</strong> Import only constants and helpers from test modules — never <code>test_*</code> names or the <code>larmor_rungs</code> fixture. Never <code>HEAD:</code> pins. Harness bare, foreground, <code>timeout: 660000</code>; no edit after the last window.</li>
+<li><strong>Scope.</strong> Stored matrices only; no solve; the <code>PORT-9</code> / <code>PORT-11</code> modules are not rewired onto the callable.</li>
+<li><strong>Status it can move.</strong> <code>PORT-3</code> 🧪 → ✅ on the Done-when written by the 10:30 review.</li>
+<li><strong>Negative result.</strong> (A1) not bitwise: the expression order differs — fix once, then park. (A3) &gt; 1e-6: the derived-Z relation is wrong — print every entry and stop, BLOCKED. A planted case flipping two gates: report and stop.</li>
+</ul>
+<p><strong>Outcome (2026-10-02 07:30 slot, third item, <code>implementer</code>): BLOCKED, attempt 1 of 4.</strong> Branch <code>attempt/PORT-3-20261002T125518Z</code>. W1 is <code>20261002T125356Z_PORT-3-W1.log</code>, <code>-n 1</code>: 25 passed, 1 failed, 4 skipped, 49 s.
+- (A0) green.
+- (A1) every reading <code>==</code> at 10 and 64 MHz. No expression-order fix was needed.
+- (A2) spreads, pooled spread, σ_max and column power match at print precision. Reciprocity reads 0.0 on the stored S, as expected.
+- (A3) derived Z: worst entry 2.5e-10 against <code>LEG_D0_Z_COLUMN</code> and 3.4e-10 against the 64 MHz Z, restated as <code>PORT11_Z_64MHZ_RECORD</code>.
+- (N2) flips only <code>passive</code>, (N3) only <code>c4</code> (self spread 1.006 %), (N4) only <code>resolved</code> (separation 0.646×).
+- <strong>(N1) red, the brief's own stop condition.</strong> <code>S[0,1] *= 1.01</code> gives reciprocity 3.3e-3, which flips <code>reciprocal</code>. It also lifts σ_max to 1.000695, so <code>passive</code> flips too: the 64 MHz record has only 2.8e-4 of passivity headroom, and a 1 % change to an entry of magnitude ≈ 0.42 adds ≈ 1e-3. No real factor isolates the gate: reciprocity crosses 1e-3 at ≈ 1.003, and σ_max crosses 1 at ≈ 1.0029. Re-brief with a plant that keeps σ_max, such as a phase rotation of <code>S[0,1]</code> alone or an antisymmetric perturbation, pre-computed on the record.
+- <strong>For the review (a band question):</strong> the executor compares the (A2) separation to its record at 1e-6 relative instead of print precision. The readings are 671.05257 against 671.0527 and 166.67665 against 166.6766. Both records were printed from unrounded Z, while our input is S rounded to 10 digits, and separation is a ratio of spreads near 5e-4. Rule whether that comparison stands.
+- The planted cases use the 64 MHz record, because at 10 MHz (N3) would also flip <code>resolved</code> (pooled 9.2 %).</p>
+<h3 id="9-item-178-2026-10-02-lane-1-port-3-attempt-2-of-4">§9 item 178 — 2026-10-02 (lane 1; PORT-3 attempt 2 of 4)<a class="headerlink" href="#9-item-178-2026-10-02-lane-1-port-3-attempt-2-of-4" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a read-only <code>Plan</code> agent and reviewed by the 2026-10-02 10:30 daily review.</em></p>
+<p><strong>Outcome (2026-10-02 15:00 slot, <code>implementer</code>): DONE, attempt 2 of 4; <code>PORT-3</code> 🧪 → ✅.</strong> W2 is <code>20261002T201726Z_PORT-3-W2.log</code>, real, <code>-n 1</code>: 26 passed, 0 failed, 4 skipped, Status 0, 51 s — exactly as predicted.
+- (A0) green; (A1) every reading <code>==</code> at 10 and 64 MHz (<code>:69–93</code>).
+- (A2) every named reading within ½ ulp (<code>:95–119</code>). Tightest: 64 MHz self spread 0.0573415 % vs 0.0573, gap 4.147e-5 ≤ 5e-5 (margin 8.5e-6). σ_max gaps 2.60e-10 / 3.73e-10 ≤ 5e-10 at 64 / 10 MHz; column power 1.78e-10. Separation printed, not asserted: 671.0525735× vs 671.0527 (2.53 half-ulps, 1.885e-7) and 166.6766550× vs 166.6766 (1.10 half-ulps, 3.298e-7), as predicted. All verdicts pass.
+- (A3) derived Z within 1e-6 at both frequencies (<code>:121–143</code>).
+- (N1) φ = 1°: reciprocity 1.878257e-2 (= the predicted 2|sin φ|K, K = 0.538108; 18.78× band); σ_max(S′) − σ_max(S) = 0.0; max |Δ column power| 1.1e-16; spreads / pooled / separation unchanged; only <code>reciprocal</code> False (<code>:145–150</code>).
+- (N2) only <code>passive</code> (σ_max 1.000001); (N3) only <code>c4</code> (self 1.0058 %, separation 39.95×); (N4) only <code>resolved</code> (separation 0.6460×) (<code>:152–162</code>).
+- Code by path from <code>attempt/PORT-3-20261002T125518Z</code>; <code>network_gates.py</code> / <code>__init__.py</code> unchanged; only the test edited. The branch was deleted locally after landing.</p>
+<p><strong>Read by the review (item 154).</strong> The diagnosis holds on the parked module. <code>PORT11_S_64MHZ_RECORD</code> has only 2.786e-4 of passivity headroom (σ_max 0.9997213883), so a real scale of one off-diagonal entry cannot isolate reciprocity: reciprocity crosses 1e-3 at a factor of 1.003, and σ_max crosses 1 at ≈ 1.0029. That is a brief defect, not a callable defect. The callable read every gate correctly: (N2)–(N4) were green, and (N1) printed the 3.3e-3 / 1.000695 that its plant implies. (N1) is now re-planted as a unitary similarity, which preserves σ_max and the column powers exactly and breaks only symmetry. <strong>(A2) is ruled:</strong> see "Ruling on (A2)" below. No gate band changes.</p>
+<p><code>PORT-3</code>: the <code>PORT-9</code> / <code>PORT-11</code> four-port gates as one callable. This is item 154's parked code with (N1) re-planted and (A2) re-ruled.
+- <strong>Executor:</strong> implementer. <strong>Tier:</strong> standard, <strong><code>-n 1</code></strong>, real, as the Done-when says.
+- <strong>Cost:</strong> ≈ 4 measured / ≈ 20 predicted min.
+- <strong>Depends on:</strong> nothing. <strong>Attempt 2 of 4.</strong></p>
+<p><strong>Code (by path, no <code>src/</code> edit):</strong>
+- Run <code>git checkout attempt/PORT-3-20261002T125518Z -- src/fem_em_solver/ports/network_gates.py src/fem_em_solver/ports/__init__.py tests/ports/test_network_gates.py</code> (branch commit <code>057d0b67</code>). <code>git diff --stat</code> should list exactly those three paths.
+- The branch carries no log or record row: its W1 log and <code>test-results.md</code> row are already on <code>main</code>. Take nothing else, and never path-checkout <code>docs/testing/test-results.md</code>.
+- <code>main</code> has not touched <code>src/fem_em_solver/ports/</code> or <code>tests/ports/</code> since the branch base <code>54f9ce89</code>.
+- <code>network_gates.py</code> and <code>__init__.py</code> land unchanged. Only <code>tests/ports/test_network_gates.py</code> is edited, in two places:
+  1. <strong>(N1) re-planted.</strong>
+     - Replace <code>test_n1_planted_asymmetry_fails_only_reciprocity</code> with <code>test_n1_planted_nonreciprocal_phase_fails_only_reciprocity</code>.
+     - Set <code>N1_PHASE_RAD = np.deg2rad(1.0)</code>. On <code>_base()</code>, for k in 1..3: <code>s[0, k] *= np.exp(1j*N1_PHASE_RAD)</code> and <code>s[k, 0] *= np.exp(-1j*N1_PHASE_RAD)</code>. Write it as an elementwise loop and leave the diagonal untouched bitwise. Do not build it as a <code>D @ S @ D.conj().T</code> matmul.
+     - The plant is S′ = D S Dᴴ with D = diag(e^{jφ}, 1, 1, 1): a lossless non-reciprocal phase shifter in port 1's feed.
+     - Call <code>_planted("N1", s, z, "reciprocal")</code> with the <strong>unplanted</strong> derived <code>z</code>.
+     - Print σ_max(S′) − σ_max(S) and the max |Δ column power| against the unplanted S.
+     - The docstring cites this item and the identity.
+  2. <strong>(A2), per the ruling below.</strong>
+     - Store each record as the string the log printed (e.g. <code>"0.0573"</code>, <code>"0.999721388"</code>).
+     - Set the tolerance to <code>_half_ulp(text) = 0.5·10^(−decimals after the point)</code>.
+     - Assert <code>|reading − float(text)| ≤ _half_ulp(text)</code> for: the three class spreads at both frequencies, the pooled spread at 64 MHz, σ_max at both frequencies, and max column power at 64 MHz.
+     - <strong>Delete</strong> the <code>sep_rel &lt;= FREQUENCY_CONTROL_BAND</code> assertion and its comment. Print the separation beside its record, as the deviation in half-ulps and as a relative figure, labelled "printed, not asserted (item 178 ruling)".
+     - <code>FREQUENCY_CONTROL_BAND</code> stays imported for (A3).</p>
+<p><strong>Anchors (asserted):</strong>
+- <strong>(A0)</strong> Default bands <code>==</code> the test constants.
+- <strong>(A1)</strong> Every reading <code>==</code> the in-test arithmetic at 10 and 64 MHz. Measured bitwise in W1, <code>20261002T125356Z_PORT-3-W1.log:69–92</code>.
+- <strong>(A2)</strong> Each reading within ½ ulp of its printed record (W1 readings <code>:98–118</code>; every one is inside):
+  - <strong>64 MHz:</strong>
+    - spread self 0.057341 % vs 0.0573 %: gap 4.15e-5 ≤ 5e-5, the tightest margin;
+    - spread adjacent 0.059882 % vs 0.0599 %;
+    - spread opposite 0.037040 % vs 0.0370 %;
+    - pooled 40.183832 % vs 40.1838 %;
+    - σ_max 0.999721388260 vs 0.999721388;
+    - max column power 0.804704664178 vs 0.804704664.
+  - <strong>10 MHz:</strong>
+    - spreads 0.055266 / 0.035303 / 0.021392 % vs 0.0553 / 0.0353 / 0.0214 %;
+    - σ_max 0.999992804627 vs 0.999992805: gap 3.7e-10 ≤ 5e-10.
+  - Every verdict passes. Reciprocity reads 0.0 exactly, because the stored S is symmetric.
+  - Separation, printed only: predicted 2.53 half-ulps (1.885e-7 relative) at 64 MHz and 1.10 half-ulps (3.298e-7) at 10 MHz. Its <code>resolved</code> verdict (≥ 10) is asserted through all-pass, at margins of 67× and 16.7×.
+- <strong>(A3)</strong> Derived Z vs <code>LEG_D0_Z_COLUMN</code> and <code>PORT11_Z_64MHZ_RECORD</code> ≤ 1e-6 relative. Predicted worst 2.5e-10 / 3.4e-10 (<code>:144</code>).
+- <strong>The identity behind (N1).</strong> For a unitary diagonal D, σ(D S Dᴴ) = σ(S) and |S′_ik| = |S_ik|, so <code>passive</code> cannot move. The plant's reciprocity residual is ‖S′ − S′ᵀ‖_F / ‖S′‖<em>F = 2|sin φ|·K, with K = √(2 Σ</em>{k=1..3} |S_0k|²) / ‖S‖_F = 0.538108 on the 64 MHz record.</p>
+<p><strong>Negative controls (the 64 MHz record, each passed the unplanted derived <code>z</code>).</strong> Each verdict pattern is <strong>asserted</strong>: it is the Done-when's "each fail exactly their own gate", and N2–N4 are backed by W1 <code>:151–160</code>. Every numeric factor is <strong>predicted</strong> and printed beside its reading (rule (e)).
+- <strong>(N1)</strong> φ = 1°.
+  - Reciprocity predicted 1.8783e-2, i.e. 18.8× <code>RECIPROCITY_BAND</code>.
+  - The crossing is at φ ≈ 0.0532°; every φ in (0.0532°, 179.95°) isolates the gate.
+  - |Δσ_max| ≲ 1e-15 (round-off), and the max |Δ column power| ≤ 2e-16.
+  - Spreads, pooled spread and separation are identical to the unplanted ones.
+  - Only <code>reciprocal</code> reads False.
+- <strong>(N2)</strong> <code>S *= (1 + 1e-6)/σ_max</code>. This puts the plant 1000× over the <code>passive</code> tolerance.
+  - Reciprocity stays 0.0 exactly; max column power is 0.805155 &lt; 1.
+  - No other gate has a crossing on this plant (<code>:151</code>).
+- <strong>(N3)</strong> <code>z[0,0] *= 1.01</code>, with S untouched.
+  - <code>c4</code> crosses at a factor of ≈ 1.00492 and <code>resolved</code> at ≈ 1.0405.
+  - Predicted self spread 1.0058 % (2.0× the 0.5 % band) and separation 39.95× (<code>:155</code>).
+- <strong>(N4)</strong> The adjacent entries set to the opposite-class mean, with S untouched.
+  - Predicted separation 0.6460×, 15.5× under the floor (<code>:159</code>).
+  - The spreads only shrink, so <code>c4</code> cannot flip.
+- The planted cases stay at 64 MHz. At 10 MHz the pooled spread is 9.2 %, so (N3) would also flip <code>resolved</code>.</p>
+<p><strong>Window W2 (≈ 50 s; W1 took 49 s).</strong> One bare, foreground harness call, with Bash <code>timeout: 660000</code>:</p>
+<p><code>scripts/testing/run_and_log.sh PORT-3-W2 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 120 mpiexec -n 1 python3 -m pytest tests/environment tests/ports/test_network_gates.py tests/ports/test_port_definition.py -s -v --tb=short'"</code></p>
+<p>Predicted: 30 collected, <strong>26 passed, 0 failed, 4 skipped</strong> (the complex-only environment checks), Status 0.</p>
+<p>There is no PREDICTED RED line: any red stops the slot.</p>
+<p><strong>Traps:</strong>
+- Pass the <strong>unplanted</strong> derived <code>z</code> to every plant. Re-deriving Z from the (N1) S′ rotates the off-diagonal Z by e^{±jφ}. That opens an adjacent-class gap of ≈ 3.5 % and flips <code>c4</code> too.
+- Build (N1) elementwise, never by matmul.
+- Do not assert the separation at any band. In particular, do not reuse <code>FREQUENCY_CONTROL_BAND</code>.
+- Run no probe outside the harness. Item 154 ran a bare <code>docker compose exec … python3 -c</code>, and host <code>python3</code> is denied.
+- Import only constants and helpers from the test modules, never <code>test_*</code> names or the <code>larmor_rungs</code> fixture. No <code>HEAD:</code> pins.
+- The harness call is the <strong>whole</strong> Bash command: bare, repo-relative, nothing chained or piped.
+- Run with <code>-s</code>. Make no edit after W2 (rule (i)).
+- <code>git diff --stat</code> shows only insertions on record files.</p>
+<p><strong>Scope.</strong> Stored matrices only; no solve. The <code>PORT-9</code> / <code>PORT-11</code> modules are not rewired onto the callable. No band moves: 1e-3, 1 + 1e-9, 0.5 %, 10× and (A3)'s 1e-6 all stay as they are.</p>
+<p><strong>Status it can move.</strong> <code>PORT-3</code> 🧪 → ✅ on the §7 Done-when, as amended by this review with the (A2) parenthetical. Every clause has its check:
+- the callable with test-constant defaults: (A0);
+- bitwise readings: (A1);
+- print precision and all-pass: (A2);
+- Z to 1e-6: (A3);
+- each plant failing alone: (N1)–(N4);
+- <code>test_port_definition.py</code> in the same window, real, <code>-n 1</code>: W2.</p>
+<p><strong>On landing green:</strong>
+- Commit the three code paths with the W2 log, and append the <code>test-results.md</code> row by hand if one is missing.
+- Write the attempts.md entry and mark item 178 DONE in the same commit.
+- Then delete the branch with <code>git branch -D attempt/PORT-3-20261002T125518Z</code> (local only) and journal the deletion.</p>
+<p><strong>Negative result.</strong>
+- <strong>(N1) flips <code>passive</code>, or |Δσ_max| &gt; 1e-12:</strong> the callable's σ does not come from the S it was passed. That is a code defect: print every σ and stop.
+- <strong>(N1) reciprocity ≤ 1e-3:</strong> the gate is blind to phase non-reciprocity. Stop.
+- <strong>(N1) flips <code>c4</code> / <code>resolved</code>:</strong> the plant re-derived Z. Fix it once in the test, re-run once, then park.
+- <strong>(A1) is not bitwise, or (A2) misses by more than ½ ulp:</strong> the module drifted. Stop.
+- <strong>On any stop:</strong> park on a new <code>attempt/PORT-3-&lt;UTC&gt;</code> and mark item 178 BLOCKED with its unblock condition in the same commit (rule (d)). That spends attempt 2 of 4.</p>
+<p><strong>Ruling on (A2) (2026-10-02 10:30 review).</strong> The Done-when's words are "reproduce the logged <strong>spreads / σ_max</strong> at print precision". So (A2) asserts |reading − record| ≤ ½ unit in the last printed digit, on exactly those quantities, plus max column power, which item 154 listed. All of them pass at that bound in W1 (<code>:98–118</code>).</p>
+<p>The separation is not named in the Done-when. Its printed digit lies below the input's information floor. S is rounded to 10 digits, which gives ≈ 3e-10 relative in Z (<code>:144</code>); dividing by a worst spread of ≈ 6e-4 leaves the ratio uncertain to ≈ 1e-7 to 1e-6 relative, while the record prints it to 7.5e-8 / 3.0e-7.</p>
+<p>The executor's <code>FREQUENCY_CONTROL_BAND</code> assertion on the separation is therefore <strong>struck, not ratified</strong>: it was a band chosen in-slot and borrowed from an unrelated gate. The separation is printed against its record, and its <code>resolved</code> gate stays asserted. This is the same class of ruling as <code>IMP-1</code> item 165's: a reproduction band against a printed value is never tighter than ½ ulp of the printed mantissa. No gate band changes.</p>
+<p><strong>Audit, 2026-10-02 18:00 daily review — PASS</strong> (<code>auditor</code>; the review re-read W2:111, gap 4.147e-05 ≤ 5e-05). Evidence: <code>20261002T201726Z_PORT-3-W2.log:69–93,95–119,121–143,145–162,163–170,234,236–238</code>; record strings <code>20260826T110434Z_PORT-11-step2.log.gz</code> (zcat) :4675, :9269–9271, :13920–13928; asserts <code>tests/ports/test_network_gates.py:180–184,211–223,244–245,253–264</code>. <code>git diff 057d0b67 ab060446</code> on the two <code>src/</code> files is empty. Caveats: the log header is the parent <code>0862918b</code> (dirty tree; timestamps consistent); the 64 MHz self-spread margin is thin (8.5e-6 of 5e-5); the (N1) Δσ_max 0.0 is printed, not asserted.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

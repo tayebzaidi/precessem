@@ -1,0 +1,1028 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>Daily review — 2026-10-05 03:00 (Monday) - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#daily-review-2026-10-05-0300-monday" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Daily review — 2026-10-05 03:00 (Monday)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-what-happened" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. What happened
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-tree-branches-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Tree, branches, service
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-audit-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Audit (§4)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-attempts-and-rulings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Attempts and rulings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-10-assessment-and-plan-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. §10 assessment and plan work
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-restock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Restock
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6b-xl-clerk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6b. XL clerk
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6c-9-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6c. §9 size
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Dashboard
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="daily-review-2026-10-05-0300-monday">Daily review — 2026-10-05 03:00 (Monday)<a class="headerlink" href="#daily-review-2026-10-05-0300-monday" title="Permanent link">&para;</a></h1>
+<p>Model <code>claude-opus-5-5</code> (standing daily choice). Documentation only: no solves and no meshing. Two harness calls were made: the setup-figure census (<code>20261005T080249Z_EX-57-next.log</code>) and the plan index.</p>
+<h2 id="1-what-happened">1. What happened<a class="headerlink" href="#1-what-happened" title="Permanent link">&para;</a></h2>
+<p>Since <code>6a5b69c7</code> (the 18:00 review), four slots fired: 19:30, 21:00, 22:30 and 00:00. There were <strong>eleven outcomes on eleven items: ten DONE and one BLOCKED.</strong> One <code>xl</code> window ran (10-05 02:00, entry 27).</p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Slot</th>
+<th>Outcome</th>
+<th>Commit</th>
+<th>Class</th>
+<th style="text-align: right;">Minutes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>231 <code>WF-7</code> 0e r3 (H15a)</td>
+<td>19:30</td>
+<td>DONE. W0–W2 green; entry 29 READY</td>
+<td><code>a135354b</code></td>
+<td>chain solve</td>
+<td style="text-align: right;">11</td>
+</tr>
+<tr>
+<td>232 <code>ANS-6</code> 5 @128 (F19)</td>
+<td>19:30 (take-next)</td>
+<td>DONE. F19 complete at 10 / 64 / 128 MHz</td>
+<td><code>d365e58e</code></td>
+<td>chain solve</td>
+<td style="text-align: right;">14</td>
+</tr>
+<tr>
+<td>233 <code>TH-20</code> 1 (H13a)</td>
+<td>21:00</td>
+<td>DONE. (A) 2.106e-11 against 1e-9; <code>TH-20</code> ⬜ → 🟡</td>
+<td><code>3cc4aca9</code></td>
+<td>chain solve</td>
+<td style="text-align: right;">16</td>
+</tr>
+<tr>
+<td>234 <code>OPS-61</code> 2 (F22)</td>
+<td>21:00 (take-next)</td>
+<td>DONE. Palace PEC on the hole mesh, orders 1 / 2, ours = Palace 0.0000 %</td>
+<td><code>5517942e</code></td>
+<td>chain solve</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr>
+<td>220 <code>WF-13</code> 1 (U1)</td>
+<td>21:00 (take-next)</td>
+<td>DONE. <code>WF-13</code> ✅</td>
+<td><code>1241d226</code></td>
+<td>chain no-solve</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td>221 <code>WF-14</code> 1 (U2)</td>
+<td>21:00 (take-next)</td>
+<td>DONE. <code>WF-14</code> ✅</td>
+<td><code>14742258</code></td>
+<td>chain no-solve</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td>222 <code>GEO-37</code> 1 (U6)</td>
+<td>22:30</td>
+<td>DONE, GREEN. <code>GEO-37</code> ✅</td>
+<td><code>315ba1be</code></td>
+<td>chain no-solve</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td>223 <code>EX-88</code> <code>imp:6</code></td>
+<td>22:30 (take-next)</td>
+<td>DONE. <code>EX-88</code> ✅</td>
+<td><code>7cba55d6</code></td>
+<td>example</td>
+<td style="text-align: right;">13</td>
+</tr>
+<tr>
+<td>235 <code>IMP-3</code> 3 (I9)</td>
+<td>22:30 (take-next)</td>
+<td>DONE. Palace twin with and without the rod, ours = Palace ≤ 2.2e-10</td>
+<td><code>dd5007aa</code></td>
+<td>chain solve</td>
+<td style="text-align: right;">11</td>
+</tr>
+<tr>
+<td>236 <code>MAT-15</code> 3 (P5)</td>
+<td>22:30 (take-next)</td>
+<td>DONE. Heating per accepted watt on tuned copper, 13 / 13</td>
+<td><code>71e54677</code></td>
+<td>chain solve</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr>
+<td>237 <code>MAT-5</code> 3 (P6)</td>
+<td>00:00</td>
+<td>BLOCKED. (R0c) red against an unbacked band, plus a box-speed gate</td>
+<td><code>3bed6c8f</code></td>
+<td>chain solve</td>
+<td style="text-align: right;">(12)</td>
+</tr>
+</tbody>
+</table>
+<p>The 19:30 slot correctly left item 233 for the 21:00 slot. It would have started at minute 26, and its brief prices ≈ 30 min of code (attempts.md 00:57 UTC).</p>
+<h2 id="2-tree-branches-service">2. Tree, branches, service<a class="headerlink" href="#2-tree-branches-service" title="Permanent link">&para;</a></h2>
+<ul>
+<li>The tree was clean at the start, and there are no <code>recovered/*</code> branches.</li>
+<li><strong>Kept:</strong> <code>attempt/MAT-5-step3-20261005T0512Z</code>. Item 239 lands its four code files and four logs by path and then deletes the branch.</li>
+<li><strong>Deleted as fully captured:</strong> <code>attempt/WF-7-step0e-r2-20261004T1714Z</code>. Item 231 landed its module by path, and <code>main</code> carries it with the fix.</li>
+<li><strong>Carried (five):</strong> <code>OPS-50-20260920T125900Z</code>, <code>POST-1-step7b-20261003T141500Z</code> (item 245 may lift code from it), <code>TH-15-step2proper-20260907T213739Z</code>, <code>WF-10-step1b-20260929T020339Z</code>, <code>WF-10-step1d-20261001T140319Z</code>. Their reasons are unchanged.</li>
+<li><strong>Service:</strong> not probed. Slots ran windows until 00:12, and the <code>xl</code> service ran 02:00–02:27.</li>
+</ul>
+<h2 id="3-audit-4">3. Audit (§4)<a class="headerlink" href="#3-audit-4" title="Permanent link">&para;</a></h2>
+<p>Four chunks turned ✅ this interval. The <code>auditor</code> gave all four a <strong>PASS</strong>. Evidence re-cited:</p>
+<ul>
+<li><strong><code>WF-13</code> (item 220).</strong></li>
+<li>Footer: <code>20261005T022512Z_WF-13-W1.log:334–335</code> (Status 0, 35 s). The header commit <code>5517942e</code> is the closing commit's parent, and the test file's sha256 in the log equals the committed blob.</li>
+<li>Anchors are asserted, not printed: <code>TH-6</code> α / β 0.017 / 0.060 % (<code>:305</code>; <code>test_lossy_plane_wave.py:265,270</code>, bands 5 %), and these are bit-identical to <code>20260929T183252Z_MAT-3-step1.log:143–145</code>. <code>MAG-14</code> 0.671 % (<code>:258</code>; <code>test_helmholtz_magnitude.py:184</code>). Location <code>__file__</code> is under the venv in both builds (<code>:94–98</code>, <code>:293–297</code>).</li>
+<li>Caveats, none demoting:<ul>
+<li>The install is <code>--no-index --no-deps</code> from a <code>/tmp</code> copy, so it is not a dependency-resolving install. The brief's "not claimed" covers this.</li>
+<li><code>MAG-14</code>'s 0.671 % differs from the brief's pre-0.11 0.728 % record. It is printed only, and it is a (1*) re-record candidate for the weekly.</li>
+</ul>
+</li>
+<li><strong><code>WF-14</code> (item 221).</strong></li>
+<li>Footer: <code>20261005T022839Z_WF-14-W1.log:92–93</code> (Status 0, 4 s).</li>
+<li>Anchors: (S) <code>:44</code>, (R) <code>:47</code>, (C) <code>:50–52</code> (42 references and 123 collected IDs, rc 0), and controls c1 / c2 <code>:80–86</code>. Asserts are at <code>test_wf14_validation_envelope.py:167,175–176,184,188,203–212,221,226,229,234,239</code>.</li>
+<li><strong>Ruling on §4 element 3:</strong> the assertions are exact set-equality and completeness identities, each with a planted control showing it can fail. They are structural rather than numeric. This review reads them as meeting §4.3 <em>as the row's Done-when states it</em> (an identity is a §4.3 class, and none is finiteness-only). The weekly may tighten the reading.</li>
+<li>Caveat: (C) proves only that each node is collectable, not that it exercises its name. The registry's weak nodes (two <code>PortDefinition</code> / <code>validate_required_port_tags_exist</code> error-path checks) are named in attempts.md.</li>
+<li><strong><code>GEO-37</code> (item 222).</strong></li>
+<li>Footer: <code>20261005T033214Z_GEO-37-W2.log:72–73</code> (Status 0, 5 s). W1 (<code>…033147Z…</code>, Status 1) was a fixture-classifier fault in the chunk's own new probe. It was disclosed and fixed before W2.</li>
+<li>Anchors: area − 0.48 = +1.1e-16 / +5.6e-17 / 0 against 1e-9 (<code>:48/50/52</code>; <code>test_a3</code>), and count 192 = N_gmsh at every width (<code>test_a2</code>).</li>
+<li>§3's "measurement-only is 🧪" does not bite, because the step ships executed area and count gates. The row's "⇒ native facet tagging is the (9b) CAD-port route" reaches slightly past its scope: no <code>dS</code> assembly over the native tag was exercised, and §10 U6 now says so.</li>
+<li><strong><code>EX-88</code> (item 223).</strong></li>
+<li>Footers: <code>20261005T033928Z_EX-88.log:174–177</code> (Status 0, 154 s); control <code>…034212Z…:167–170</code>; re-gate <code>…033404Z…:424–427</code> (17 passed, 211 s).</li>
+<li>The asserts are listed in the example at <code>:330–347,362–364,389–392,416</code>, and all 44 traced digits match.</li>
+<li>Rule (a): keyword-only, defaults unchanged, the re-gate is digit-identical to <code>IMP-5</code> W0–W2b, and the module mtime precedes the re-gate.</li>
+<li>Census <code>20261005T034538Z_EX-88-post-figures.log:118,120</code> reads 84 / 83 / <strong>1</strong> / 0. <strong>The <code>missing=1</code> is <code>ans:9</code></strong>, which landed 10-04 09:00 without a setup figure. The 10-04 18:00 review's "<code>EX-57</code>: <code>missing=0</code>" was wrong. This review queues the <code>EX-57</code> filler (item 250).</li>
+</ul>
+<p>No other chunk turned ✅. <code>TH-20</code> moved ⬜ → 🟡 on a gate (step 1), and the ✅ needs step 2.</p>
+<h2 id="4-attempts-and-rulings">4. Attempts and rulings<a class="headerlink" href="#4-attempts-and-rulings" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Item 237 (P6, attempt 1 of 4): <code>log-pathologist</code>, COUNTABLE on both claims.</strong></li>
+<li><strong>(A) The box was not slow; the gate was mispriced.</strong> P1's 81.3 s EM interval (<code>20261001T123309Z_MAT-15-step1-W1.log:1924</code>) spans <strong>four</strong> <code>_solve_driven</code> calls, not eight; the 8 at <code>:1953</code> counts thermal runs. So P1's own price is 20.3 s per solve, and the two re-gates read 18.0 / 18.4 s (<code>20261002T112729Z_EX-79-mat15-regate.log:1924</code>, <code>20261004T141433Z_ANS-9-step1a-mat15-regate.log:1924</code>). W1's 20.5–21.6 s is ordinary spread. The 92 s mesh gate was also priced off a window that includes the four-port sweep; like-for-like <code>build_only</code> builds read 38.8–40.7 s.</li>
+<li><strong>(B) (R0c)'s 2.747e-12 is band calibration, not a map defect.</strong> At α = 0 the σ is <code>sigma_ref</code> exactly (<code>materials/temperature.py:43–56</code>), and each iterate factorises afresh. (R0a) in the same window shows two in-process solves on equal σ differing by 1.7e-12 in P, and W0's <code>-n 1</code> comparison is bitwise. Whether MUMPS or the Robin solve carries the noise is not established.</li>
+<li><strong>Re-posed as item 239 (attempt 2 of 4).</strong><ul>
+<li>Land the parked code by path. <code>git diff --stat 71e54677 main -- src tests</code> is empty.</li>
+<li>(R0c) imports <code>L0_BAND</code> 1e-9, provisional, and the weekly ratifies or reverts it. This is the same band (R0a) applies to the same class of in-process repeat.</li>
+<li>Two separation diagnostics are printed: σ over owned + ghost dofs, and ‖ΔE‖.</li>
+<li>The box-speed gate is re-priced at 30 s per solve and 61 s per build-only. That is a price, not a band.</li>
+<li>W2 is re-priced at 330–380 s against <code>-k 30 590</code>.</li>
+</ul>
+</li>
+<li>The brief-drafting lesson goes in the §9 digest: <strong>a per-solve price divides by the number of solves in the cited interval, read from the code that produced it.</strong></li>
+<li><strong>Items 231–236:</strong> no attempts. Each slot's printed misses are in its journal entry, and none is a status matter.</li>
+</ul>
+<h2 id="5-10-assessment-and-plan-work">5. §10 assessment and plan work<a class="headerlink" href="#5-10-assessment-and-plan-work" title="Permanent link">&para;</a></h2>
+<p><strong>Chains still lead to the exits.</strong> This interval closed the following steps; §10 now marks each DONE:
+- <strong>F19:</strong> 128 MHz.
+- <strong>F22:</strong> Palace on the PEC hole mesh, at both orders.
+- <strong>H15a</strong>, and with it <strong>H13a</strong> (<code>TH-20</code> 🟡).
+- <strong>I9:</strong> the Palace rod twin.
+- <strong>P5:</strong> heating on tuned copper.
+- <strong>U1 / U2 / U6:</strong> <code>WF-13</code> / <code>WF-14</code> / <code>GEO-37</code> ✅.
+- <strong>F18b:</strong> ran on <code>xl</code>. Its public half of (i′) is met, and the column clause is the weekly's tonight.</p>
+<p>What remains for Phase 6 is the weekly's: T6 / T13 on F18b and T12′ (10-08), H12c's gate, and H13b's pose.</p>
+<ul>
+<li><strong>§2:</strong> a new §2.1 bullet records the first Phase 9 measurements (install, registry, facet tags) with their "not" list.</li>
+<li><strong>Rule (6) provisional steps written (two, one per chain):</strong></li>
+<li><strong>F23</strong> (<code>OPS-61</code> 2b, Palace <code>Conductivity</code> on the copper wall against our Leontovich records) follows from F22's "the copper half is now enumerable".</li>
+<li><strong>I12</strong> (<code>IMP-3</code> 4, Palace <code>Probe</code> / <code>Energy</code> CSV against ours near the rod tip) takes up <code>ANS-10</code>'s re-homed tip-field question, which I9's S could not answer.</li>
+<li>Both are Target: Palace, as their chains' last steps. Neither sets a band, and the weekly ratifies or reverts both.</li>
+<li><strong>Lane 1, <code>GEO-28</code> … <code>GEO-32</code> (the weekly's "run once on the exact fixture or 🚫 by 10-10"):</strong> all five are closed 🚫 as overtaken. A drafter read every chunk file, and this review verified the <code>GEO-32</code> citation (<code>io/mesh.py:4266–4271</code>). Its reasons:</li>
+<li><strong><code>GEO-28</code> and <code>GEO-29</code> are not ragged-cut censuses</strong>, which corrects the weekly's description. <code>GEO-28</code>'s only consumer, <code>WF-6</code>, closed. <code>GEO-29</code>'s ladder was re-measured on the exact fixture by <code>ANS-4</code> items 212 / 225.</li>
+<li><strong><code>GEO-30</code>:</strong> <code>ANS-4</code>'s (F) asserts every exact strip at <code>STRIP_BAND</code> on three rungs, with C4-equal facet counts.</li>
+<li><strong><code>GEO-31</code> / <code>GEO-32</code>:</strong> both are moot on CAD rectangles, and <code>GEO-32</code>'s switch refuses the exact-strip knob.</li>
+<li><strong>Rule (j) row amendments, five:</strong></li>
+<li><code>WF-15</code>: "digit-identically" is read as bitwise before the solve plus <code>L0_BAND</code> after it, and "material preset" as <code>MAT-1</code>'s class. Weekly ratifies.</li>
+<li><code>MAT-19</code>: the owner-rule parenthetical becomes an owned-cell integral, because the field is on a submesh. Weekly ratifies.</li>
+<li><code>POST-1</code>: "C4 images" becomes "D2 image pairs", the weekly's own 7b′ ruling.</li>
+<li><code>PORT-18</code> / <code>PORT-2</code>: both rows had no Done-when. Each was written from the weekly's lane-1 target. <code>PORT-18</code>'s premise is corrected: the 09-10 record had no ragged discrepancy to collapse.</li>
+<li><strong>Examples (§5.4):</strong> of the newly-✅ gates, <code>EX-88</code> is itself an example. <code>WF-13</code>, <code>WF-14</code> and <code>GEO-37</code> are Phase 9 infrastructure, and their user-facing demonstration is U7's tutorial (<code>WF-17</code>, serial on U3), so no standalone example chunk was opened.</li>
+<li><strong>For the weekly:</strong></li>
+<li>Ratify or revert (R0c)'s <code>L0_BAND</code> import, F23, I12 and the <code>WF-15</code> / <code>MAT-19</code> readings.</li>
+<li><code>MAG-14</code>'s centre-field figure now reads 0.671 % against the pre-0.11 0.728 %. That is a (1*) re-record candidate.</li>
+<li><code>WF-14</code>'s §4.3 reading for structural identities.</li>
+<li><code>GEO-37</code>'s open <code>dS</code>-over-native-tag question before any CAD port solve.</li>
+<li><code>PORT-18</code>'s weekly premise was off.</li>
+</ul>
+<h2 id="6-restock">6. Restock<a class="headerlink" href="#6-restock" title="Permanent link">&para;</a></h2>
+<p><strong>Measured class table.</strong> Durations come from commit times: first item from the slot start, take-next from the previous outcome. Only landed items count.</p>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th style="text-align: right;">n</th>
+<th style="text-align: right;">Median (min)</th>
+<th>Items read</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>chain step (solve)</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;"><strong>11</strong></td>
+<td>236 (8), 235 (11), 234 (8), 233 (16), 232 (14)</td>
+</tr>
+<tr>
+<td>chain step (no solve)</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;"><strong>3</strong></td>
+<td>222 (3), 221 (3), 220 (2), plus 198 / 197 carried. Three of five are ≤ 3, so the median is 3 whatever the carried values are</td>
+</tr>
+<tr>
+<td>lane-1 revalidation</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">8</td>
+<td>carried</td>
+</tr>
+<tr>
+<td>lane-2 feature</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">7</td>
+<td>carried</td>
+</tr>
+<tr>
+<td>lane-3 closed form</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">12</td>
+<td>carried</td>
+</tr>
+<tr>
+<td>example</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;"><strong>16</strong></td>
+<td>223 (13), 230 (26), 209 (16), 208 (18), 207 (13)</td>
+</tr>
+<tr>
+<td>ops / docs</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">—</td>
+<td>uncalibrated; none queued</td>
+</tr>
+</tbody>
+</table>
+<p>Item 231 (11) is the sixth-latest chain solve and falls outside the five. Item 237 (12) is excluded as unlanded. <strong>The chain-solve median falls from 16 to 11</strong>: the 21:00 and 22:30 slots each landed four items.</p>
+<p><strong>Queue at the start: one open item</strong> (238, ≈ 16 measured minutes). <strong>Short ≈ 144 against the 160 floor.</strong></p>
+<p><strong>Supply written:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Chain / lane</th>
+<th>What</th>
+<th>Review notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>239</td>
+<td>P6</td>
+<td><code>MAT-5</code> 3 re-pose, attempt 2 of 4</td>
+<td>Written by this review from the pathologist's ruling (§4)</td>
+</tr>
+<tr>
+<td>240</td>
+<td>U3</td>
+<td><code>WF-15</code> <code>Study</code> v0</td>
+<td>Drafted. New <code>study.py</code> (three public names) and an additive imposed-field function. W2 at degree 2 is heavy (≈ 370 s). Tight for one hour, so it carries a box-speed stop</td>
+</tr>
+<tr>
+<td>241</td>
+<td>F23 (provisional)</td>
+<td><code>OPS-61</code> 2b, Palace <code>Conductivity</code></td>
+<td>The Palace keyword is not confirmed from a repo file, so a ≤ 30 s config check stops it BLOCKED if the keyword is rejected. (Z) is an arithmetic identity at 1e-9</td>
+</tr>
+<tr>
+<td>242</td>
+<td>I12 (provisional)</td>
+<td><code>IMP-3</code> 4, Palace <code>Probe</code> / <code>Energy</code></td>
+<td>Feasible: <code>Probe</code> / <code>Energy</code> write CSV (the image's own example, <code>20260929T110106Z_OPS-61-step1a-W0.log:65,97–117</code>). Item 235's meshes are not submeshes. The fallback if GSLIB is missing is energy-only</td>
+</tr>
+<tr>
+<td>243</td>
+<td>P7</td>
+<td><code>MAT-19</code> virtual probe</td>
+<td>Owned-cell lattice integral and an exact ball mean of the series (the Helmholtz mean-value factor). The displaced-probe miss is predicted at 5.5× the band</td>
+</tr>
+<tr>
+<td>245</td>
+<td>lane 1</td>
+<td><code>POST-1</code> 7b′</td>
+<td>Drives on the whole cut-plane box face (an exact CAD face), not <code>TH-16</code>'s narrowed sheet. Imported 5 % band. Attempt 2 of the 7b family</td>
+</tr>
+<tr>
+<td>246</td>
+<td>lane 1</td>
+<td><code>PORT-18</code> 2</td>
+<td><code>'+'</code> against <code>'−'</code> on the exact strip, solved field, <code>EXACTNESS_BAND</code></td>
+</tr>
+<tr>
+<td>247</td>
+<td>lane 1</td>
+<td><code>PORT-2</code> 1</td>
+<td>Tag round trip; the swap control shows the existence validator is blind to swaps</td>
+</tr>
+<tr>
+<td>244</td>
+<td>U4</td>
+<td><code>WF-16</code>, serial on 240</td>
+<td>See below</td>
+</tr>
+<tr>
+<td>250</td>
+<td>filler</td>
+<td><code>EX-57</code> <code>ans:9</code></td>
+<td>Written by this review</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Queue: 11 items</strong> (12 with 244) in the order 241, 239, 243, 242, 240, 245, 246, 247, 238, 244, 250. That is <strong>≈ 122 measured minutes</strong> (6 × 11 + 3 × 8 + 2 × 16, counting 244), <strong>short ≈ 38 against the 160 floor.</strong> The prediction is ≈ 430 min. Everything enumerated and unblocked is queued. Rule (6) was used on two chains. The remaining chain work (T13 / T6, H12c, H13b, U5 / U7) waits on tonight's weekly or on serial prerequisites, and lanes 2 and 3 have no ready target (<code>TH-5</code> step 2 is the weekly's; <code>MAT-3</code> step 2 needs the Gabriel table). <strong>The shortfall is reported for the weekly; no work was invented.</strong></p>
+<h2 id="6b-xl-clerk">6b. XL clerk<a class="headerlink" href="#6b-xl-clerk" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Marked:</strong> entry 27 is <code>RUN 20261005T070009Z_ANS-4-step6b.log</code>. It ran 16 passed / 5 skipped with Status 0, in 1 635 s and 90.76 GiB, inside its price. <strong>The ledger row was a skeleton</strong> (elapsed only), and this review filled it from the log (<code>:2169</code>, <code>:3707–3728</code>, <code>:3788–3789</code>, <code>:3823–3859</code>, <code>:4910–4919</code>). The public half of decision rule (i′): the self class moves 0.25 / 0.23 / 0.22 % against ×1 at 10 / 64 / 128 MHz, under the 2.32 % / 0.94 % thresholds. The private column clause is the weekly's.</li>
+<li><strong>Queued:</strong> entry 29 (H15b) for <strong>Fri 10-09</strong>, <code>xl-queue.d/20261009-WF-7-step0e-H15b.env</code>. <strong>This review issued the command:</strong></li>
+<li>entry 21's durable-capture shape;</li>
+<li><code>FEM_EM_WF7_DEGREE=2</code>;</li>
+<li><code>FEM_EM_WF7_IDENTITY_COLUMNS</code> unset, since it is exclusive with the save knob, so all 32 columns run;</li>
+<li><code>FEM_EM_WF7_SAVE_NPZ=/workspace/logs/wf7/wf7-s32-degree2-n16.npz</code>;</li>
+<li><code>FEM_EM_WF7_ORIENTATION_CONTROL=split</code>, which is item 231 W2's green configuration.</li>
+</ul>
+<p>The degree-1 records are printed only at degree 2 (<code>test_wf7_f_human_ring_matrix.py:634–635,841,867</code>). The queue file's command line has the same md5 as the pending entry's.
+- <strong>Budget:</strong> at 10-09 the trailing 7 days hold 10-04, 10-05 (run) and 10-06 … 10-09 (queued), which is 6. <strong><code>xl</code>: 4 ahead (10-06 entry 25, 10-07 entry 26, 10-08 entry 28, 10-09 entry 29). Floor 4: met.</strong>
+- <strong><code>xxl</code>: 0 ahead (floor 1), not met, by the weekly's ruling</strong> ("<code>xxl</code> 10-10: not spent"). Reported, not filled.</p>
+<h2 id="6c-9-size">6c. §9 size<a class="headerlink" href="#6c-9-size" title="Permanent link">&para;</a></h2>
+<p>The 18:00 review's digest and restock, with items 231–238 as they stood, are archived verbatim in <code>plan-archive.md</code> § "§9 digest and restock of the 2026-10-04 18:00 review, with items 231–238". They were appended by <code>sed -n</code> line ranges, so the archived bytes are the removed bytes. After this review §9 is <strong>≈ 37.8 KB</strong> against a ≈ 25 KB target, up from 36.6 KB. The class table in the restock and two provisional-step items added text. As before, collapsing DONE items is not enough while the standing-rule text stays in §9. Consolidating it is the weekly's job (carried).</p>
+<h2 id="7-dashboard">7. Dashboard<a class="headerlink" href="#7-dashboard" title="Permanent link">&para;</a></h2>
+<p>Refreshed. <code>START_HERE.md</code> was regenerated through <code>PLAN-INDEX</code>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

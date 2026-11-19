@@ -1,0 +1,583 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>OPS-26 — Systematic dolfinx-0.11 migration completeness sweep - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ops-26-systematic-dolfinx-011-migration-completeness-sweep" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              OPS-26 — Systematic dolfinx-0.11 migration completeness sweep
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ops-26-systematic-dolfinx-011-migration-completeness-sweep">OPS-26 — Systematic dolfinx-0.11 migration completeness sweep<a class="headerlink" href="#ops-26-systematic-dolfinx-011-migration-completeness-sweep" title="Permanent link">&para;</a></h1>
+<p><strong>Systematic dolfinx-0.11 migration completeness sweep</strong> — re-run <code>OPS-17</code>'s "observed in a completed run" census on the 0.11 image and statically sweep <code>src/</code> for un-migrated call sites. Two silently-broken gates have already been found <em>by examples rather than by the upgrade's own re-gate</em> (<code>TH-9</code> cavity, <code>OPS-24</code>; straight-wire h-refinement, red on <code>main</code>, found 2026-08-25 by <code>mag:6</code>); a third is likelier than not. <strong>Commissioned 2026-08-25 by operator directive, interactive session</strong> — queue at the next review. <em>Queued 2026-08-25 10:30 review: step 1 is §9 item 3; step 2 held until step 1's site list lands.</em> <em><strong>Step 1 ✅ 2026-08-25, 15:00 slot</strong> — <code>src</code>/<code>tests</code> clean at 434 call sites / 29 APIs, negative control binding and passing, two survivors filed in <code>scripts/probes/</code>; step 2 (execution census) is now unblocked.</em> <em><strong>Step 2 leg (a) DONE 2026-08-27 (four consecutive slots, 19:30 → 00:00)</strong> — the seven cheap roots at <strong>184 / 189 observed (182 green, 2 red), 5 deferred</strong>, every deferral with a substantive reason and <code>182 + 2 + 5 = 189</code>; two reds and one rank-dependent deadlock filed in known-issues (all three carry the 0.11 "overlapping facets" string on <em>different</em> generators — owner <strong><code>GEO-23</code></strong>, commissioned by the 03:00 review), one dead module filed. The fix that unstuck <code>tests/solver</code> (0 → 47/51 in ≈220 s) was one command per module; leg (b) adopts it from the start. Step 2 stays 🟡 on leg (b) (§9 item 1).</em> <em><strong>Step 2 leg (b) PARTIAL 2026-08-27 (04:30 slot)</strong> — denominator re-derived at <strong>289 / 63 modules</strong> (<code>validation</code> 272/59, <code>ports</code> 17/4); <strong>22 observed (19 green, 3 red), 267 deferred</strong>, <code>tests/ports</code> <strong>complete at 17/17</strong>, <code>tests/validation</code> at 5/272. New defect class found (</em>*finding 12**): <code>tests/ports/test_port_orientation_sensitivity.py</code> is red because <code>OPS-14</code>'s rank-safety <code>comm.allgather</code> outgrew its <code>_DummyComm</code> double — not a 0.11 break, and invisible to step 1's static sweep by construction. The owed <code>materials</code> complex conversion <strong>failed onto a fifth <code>GEO-23</code> "overlapping facets" site</strong>, the second rank-dependent one; leg (a)'s 184/189 is unchanged with that name's deferral reason upgraded. Two known-issues entries filed. Leg (c) owns the ≈267-name <code>tests/validation</code> remainder.* <em><strong>Step 2 leg (b) PARTIAL, second slot 2026-08-27 (06:00)</strong> — <strong>139 / 289 observed (136 green, 3 red), 150 deferred</strong>; <code>tests/validation</code> <strong>5 → 122 of 272</strong>, this slot's <strong>117 names all green</strong>, twenty-seven module-per-command runs, no batching, <strong>no red, no no-footer deferral, no exit 124</strong>, 2 028 s. <strong>Finding 15:</strong> <code>grep -L complex tests/validation/test_*.py</code> returns <strong>6 of 59</strong> — 53 modules are complex-gated, so the real build scores them as runtime skips, which is the structural reason attempt 1 banked 5 names; running the complex build for the 53 and the real build for the 6 banked <strong>117</strong> in one slot at the cost of one zero-compute grep, and all 6 real-build modules are now green, so the remainder is entirely complex work. <strong>Finding 16:</strong> cost is concentrated, not spread — gap-voltage 483 s + circular-loop 350 s are 41% of the slot for 20% of its names — and thirteen 0.11 prices are banked for leg (c). <strong>Finding 17:</strong> <code>test_circular_loop.py</code>, which stopped <code>OPS-17</code> (b2) attempts 1–2 with the JIT failure that commissioned <code>OPS-22</code>, is <code>3 passed in 348.74s</code> complex — the fixture fix holds on 0.11. Leg (c) owns the remaining <strong>150</strong> names over <strong>28</strong> modules (<code>coil_loading_*</code> 58, <code>dodd_deeds_*</code> 38, birdcage 32, straight-wire 7, a 13-name cheap remainder, the one complex-only skip).</em> <em><strong>Step 2 leg (c) PARTIAL 2026-08-27 (07:30 slot)</strong> — <strong>188 / 289 observed (184 green, 4 red), 101 deferred</strong>; <code>tests/validation</code> <strong>122 → 171 of 272</strong>, fourteen module-per-command runs, 1 874 s. The <strong>birdcage <code>PORT-9</code>/<code>PORT-11</code> block is complete at 32/32 green</strong> for 593 s (18.5 s/name, the census's best rate — priced blocks before unpriced cheap tails is what bought the slot 49 names). <strong>Finding 18 — leg (b)'s build classifier is unsound and its failure mode is invisible to the fail-closed control:</strong> <code>grep -L complex</code> misfiled the real-build magnetostatics module <code>test_straight_wire.py</code> as complex-gated on a <em>comment</em> at line 94, and running it in the complex build produced a <strong>footered Status-1 red</strong> (<code>TypeError: '&gt;' not supported between instances of 'complex' and 'float'</code>, 3 failed / 4 passed, 192 s) indistinguishable from a genuine red; in the real build the same module is <strong>7 passed, Status 0, 314 s</strong>. Sound classifier, now used: grep the actual gate (<code>complex_mode|requires_complex|is_complex|skipif</code>). <strong>Finding 19 (red, filed):</strong> leg (b)'s owed complex conversion of <code>test_geometry_floor_discriminator.py</code> lands on a genuine red — it asserts the <strong>pre-<code>OPS-18</code></strong> 128 MHz record 1.8260% and measures <code>OPS-18</code>'s 1.7686% (3.14% &gt; 1%); a stale constant, not a <code>TH-10</code> finding. <strong>Finding 20:</strong> <code>test_helmholtz_v2.py</code>, the <code>OPS-17</code> (b2) attempt-2 <em>hang</em>, is <code>1 passed in 1.24s</code> in the <strong>real</strong> build — the hang was a finding-18-class build-gate artifact. <strong>Finding 21:</strong> <code>test_port_gap_voltage_padding.py</code>, the <code>OPS-17</code> (b2) formal deferral, re-priced not inherited — <strong>Status 124 at 400 s with zero <code>PASSED</code>/<code>FAILED</code> lines printed</strong>, i.e. it completed none of its 2 tests in the window; deferral upgraded from inherited to measured. Leg (d) owns the remaining <strong>101</strong> names over <strong>16</strong> modules: <code>coil_loading_*</code> 58, <code>dodd_deeds_*</code> 38, <code>test_port_systematics_composition.py</code> 3, and finding 21's 2.</em> <em><strong>Step 2 leg (d) PARTIAL 2026-08-27 (09:00 slot)</strong> — <strong>207 / 289 observed (202 green, 5 red), 82 deferred</strong>; <code>tests/validation</code> <strong>171 → 190 of 272</strong>, four module-per-command runs, 704 s, three footered (Status 0/0/1) and one Status 124. <strong>Finding 23 (red, filed):</strong> <code>test_coil_loading_larmor_mesh_cache.py::test_the_cached_rung_is_the_priced_mesh</code> asserts the <strong>exact</strong> 0.7.2-era cell count 2 807 309 and 0.11's gmsh meshes <strong>2 808 204</strong> — <strong>+0.032%</strong>, a mesher-version drift against an equality record, with the module's other 4 names green in the same run. That is the <strong>third</strong> site of the class leg (c)'s finding 19 named (<code>test_geometry_floor_discriminator.py</code>) and <code>GEO-16</code> first showed: <strong>records made on 0.7.2 and not swept when <code>OPS-18</code> re-recorded</strong>. The class, not the constant, is the deliverable — a review should commission one sweep over all exact-equality records rather than three one-constant fixes. <strong>Finding 24:</strong> the real-build route for <code>larmor_mesh_cache</code> is real and cheap — <code>OPS-17</code> (b2) priced it at 445.55 s <strong>complex</strong>, this slot ran it <strong>real at 219 s (2.03×)</strong>, and its 4 environment skips are all complex-only tests outside the census roots, so a gate-classifier "not complex-gated" verdict (finding 18's rule) is worth <strong>half the window</strong> on this module. <strong>Finding 25:</strong> <code>test_coil_loading_larmor_third_rung.py</code> did <strong>not</strong> reproduce its <code>OPS-17</code> (b2) record — recorded <code>11 passed / 174.86 s / exit 0</code> at <code>-n 8</code> with <code>TH11_STEP5_RUNG=fine</code>, this slot <strong>Status 124 at 300 s</strong> with only the module's first (non-solving) test out, <code>deferred — no footer</code>. The likely cause is <strong>ordering</strong>: in attempt 8 <code>mesh_cache</code> ran immediately <em>before</em> it and populated the rung's on-disk cache, so 174.86 s is a <strong>warm-cache</strong> price, not the module's. Leg (e) should run <code>mesh_cache</code> first and <code>third_rung</code> second in the same slot, at <code>-k 30 500</code>. <strong>Rate note (finding 22 confirmed):</strong> the two priced <code>dodd_deeds</code> modules returned <strong>14 names for 184 s = 13 s/name</strong>, the census's best rate to date, against 219 s for 5 names on the unpriced-in-this-build <code>mesh_cache</code>. Leg (e) owns the remaining <strong>82</strong> names over <strong>13</strong> modules: <code>coil_loading_*</code> 53 (of which <code>degree2</code>'s 14 are the <code>TH-12</code> structural defer and <code>third_rung</code>'s 7 need the cache ordering), <code>dodd_deeds_*</code> 24 over 5 modules (all ≈400 s single-fixture files, widths in the leg-(c) price table), <code>test_port_systematics_composition.py</code> 3, <code>test_port_gap_voltage_padding.py</code> 2.</em> <em>Queued as leg (e) by the 2026-08-27 10:30 review (§9 item 1); the three stale-record reds are <code>OPS-27</code>, finding 12's test double is <code>OPS-28</code>.</em> <em><strong>Step 2 leg (e) PARTIAL 2026-08-27 (12:00 slot)</strong> — <strong>214 / 289 observed (208 green, 6 red), 75 deferred</strong>; <code>tests/validation</code> <strong>190 → 197 of 272</strong>, five compute windows, 1 853 s, three footered (Status 1/1/1) and two Status 124. <strong>Finding 25 CONFIRMED and the ordering remedy works:</strong> <code>mesh_cache</code> real first (262 s, its 4 green + the filed finding-23 red reproduced verbatim), then <code>third_rung</code> complex <code>-n 8</code> <code>fine</code> against the warm cache — which <strong>footered at 304 s</strong>, where the same command cold had been Status 124 at 301 s. The recorded 174.86 s was indeed a warm-cache price; the module's own cold price is ≥ 500 s. <strong>Finding 27 — the trap list's "sweep 0-byte FFCx stubs first" is not optional, and skipping it cost this slot a 329 s window.</strong> The first warm <code>third_rung</code> attempt returned a <strong>footered Status 1 with all 7 census names in ERROR</strong>, every one <code>RuntimeError: Failed JIT compilation of form: JIT compilation timed out, probably due to a failed previous compile … libffcx_forms_1ea5a4c22c3fbbdfad7ef834d249519203ba0bb6.c</code>. The cache held <strong>exactly one</strong> 0-byte <code>.c</code>, timestamped 14:07 — i.e. created by <em>leg (d)'s own</em> 300 s kill of this very module five hours earlier. One <code>rm</code> and the identical command produced <code>1 failed, 17 passed</code>. <strong>This is the failure mode the fail-closed control cannot see</strong> (compare finding 18): a poisoned stub yields a <em>footered</em> run whose names are ERROR, not absent, so a census that trusted the footer would have recorded 7 spurious reds. <strong>Rule, now mandatory: sweep <code>find /root/.cache/fenics -name '*.c' -size 0</code> before the first window of every slot, and again after any exit-124 window, because a killed window poisons the cache for the next one.</strong> <strong>Finding 28 (red, filed, the fourth stale-record site):</strong> <code>third_rung::test_the_rung_is_inside_the_priced_ceiling</code> asserts the exact 0.7.2 fine-rung count <strong>417 914</strong> and 0.11 meshes <strong>418 888</strong> — <strong>+0.233%</strong>, seven times the <code>mesh_cache</code> site's relative drift, same sign, with the module's other 6 names (both complex-power identities, the free-solve dissipation identity, and <code>test_the_fine_rung_reproduces_step2s_recorded_deviation</code>) green in the same run. So the rung's <em>physics</em> reproduces its <code>TH-11</code> record while only its cell count does not. <strong>Note for <code>OPS-27</code>: its planned <code>grep -rn '0\.7\.2' tests/</code> would not necessarily reach this constant</strong> — it was found by reading a red's assertion message, so the sweep clause should be widened to exact-equality mesh counts regardless of version tag. <strong>Finding 29 — two <code>dodd_deeds</code> prices from leg (c) did not hold on this image, both near-misses:</strong> <code>reactance_combined_knobs</code> <code>-n 8</code> (recorded 421.90 s) was <strong>Status 124 at 521 s</strong> having printed one <code>PASSED</code>, and <code>resistance_slab_resolution</code> <code>-n 2</code> (recorded 386.82 s) was <strong>Status 124 at 437 s</strong> having reached <strong>100% of its progress bar on both ranks</strong> before dying in teardown/summary. Both are <code>deferred — no footer</code> by the fail-closed control despite the second one visibly finishing its tests — the control is working as designed, and the remedy is width, not interpretation: budget these two at <strong>≥ 600 s</strong> (slab is worth ≈450 s + margin, knobs unknown above 520 s). No stub and no stray <code>python3</code> was left by either kill. Leg (f) owns the remaining <strong>75</strong> names over <strong>12</strong> modules: <code>dodd_deeds_*</code> 24 over 5 (two of them now re-priced upward), <code>coil_loading_*</code> 46 (of which <code>degree2</code>'s 14 remain the <code>TH-12</code> structural defer), <code>test_port_systematics_composition.py</code> 3, <code>test_port_gap_voltage_padding.py</code> 2.</em> <em><strong>Step 2 leg (f) PARTIAL 2026-08-27 (13:30 slot)</strong> — <strong>255 / 289 observed (242 green, 13 red), 34 deferred</strong>; <code>tests/validation</code> <strong>197 → 238 of 272</strong>, six compute windows, 2 314 s, five footered (Status 1 ×5) and one Status 124; <strong>41 names banked</strong>, the census's best rate on the expensive tail. <strong>Finding 30 — the stale-record class collapses to shared meshes, and it re-shapes <code>OPS-27</code>:</strong> this slot's six reds are all of that class, and pooling them with legs (c)–(e) gives <strong>nine red names over eight modules carrying only FOUR distinct 0.7.2-era cell counts</strong> — 138 619 → 138 490 (</em>*−0.093%<strong>) in <code>richardson_ladder</code> ×2 params, <code>larmor_probe</code> and <code>transition_30mhz</code>; 417 914 → 418 888 (</strong>+0.233%<strong>) in <code>slab_resolution</code>, <code>larmor_resolution</code> and <code>third_rung</code>; 697 401 → 697 926 (</strong>+0.075%<strong>) in <code>combined_knobs</code>; 2 807 309 → 2 808 204 (</strong>+0.032%<strong>) in <code>mesh_cache</code>. Two consequences: the <strong>unit of repair is the mesh, not the file</strong> (a per-file fix leaves siblings red; one re-record retires up to four names, so <code>OPS-27</code> is <strong>four measurements and \~nine edits</strong>, not nine measurements), and the <strong>drift is per-mesh, not a global offset</strong> (it does not even share a sign, so no unmeasured record can be predicted from a measured one). Leg (e)'s note that <code>grep -rn '0\.7\.2' tests/</code> is insufficient is confirmed twice over — none of the five new sites was reachable by version tag; all were found by reading a red's assertion message. <strong>The census is the sweep: <code>OPS-27</code> should take its site list from finding 30's table, not re-derive it by grep.</strong> <strong>Finding 31 — item 1's own draw order is lossy and cost-relevant:</strong> <code>richardson_ladder</code> was budgeted as two commands / 800 s, but <code>OPS-17</code> step 3j had already refuted the split in the journal (<code>TH11_STEP4_RUNG</code> selects the <em>mesh</em>, <code>FREQ_MHZ=10,30</code> selects both parametrisations) — <strong>one command, all 14 names, 143 s</strong>; and the "unpriced" <code>larmor_probe</code>/<code>transition_30mhz</code> pair was priced in the journal at 137.18 s and reproduced at <strong>137.35 s (+0.12%) for 12 names</strong>. Two zero-compute greps turned a budgeted 800 s + "unpriced" into 282 s for 26 of the slot's 41 names. <strong>Rule: grep <code>attempts.md</code> for the module name before sizing any window.</strong> <strong>Finding 32:</strong> finding 29's ≥ 1.5× sizing rule is validated — <code>slab_resolution</code> footered at 429.91 s (+11.1% over record) and <code>combined_knobs</code> at 568.26 s (</strong>+34.7%<strong>, the census's largest under-pri</strong>, which is why its 520 s and 615 s windows fell on opposite sides) — but <code>reactance_box_truncation</code> is not a pricing near-miss: at <code>-n 8</code> / 600 s it died <strong>inside its first</strong>alidation test<strong> w</strong>h no other name started, so it is <code>deferred — measured, first test alone &gt; 590 s at -n 8</code> and must not get a third <code>-n 8</code> window without a by-name split or a width change (its first test is itself another cell-count equality, so finding 30 predicts a tenth red behind it). Finding 27's cache sweep was run before window 1 and again after the exit 124 — <strong>c</strong>an both times<strong>, zero st</strong>y <code>python3</code>. Leg (g) owns the remaining <strong>34*</strong>names over <strong>6</strong> modules, of which only <strong>20 over 5</strong> are reachable (<code>degree2</code>'s 14 stay the <code>TH-12</code> structural defer): the three untried <code>dodd_deeds_*</code> 15, <code>test_port_systematics_composition.py</code> 3, <code>test_port_gap_voltage_padding.py</code> 2 — one slot should finish the tail <strong>and</strong> write the chunk-level reconciliation.* <em><strong>Step 2 leg (g) PARTIAL 2026-08-27 (15:00 slot)</strong> — <strong>264 / 289 observed (250 green, 14 red), 25 deferred</strong>; <code>tests/validation</code> <strong>238 → 247 of 272</strong>, four compute windows, 1 606 s, three footered (Status 0/0/1) and one Status 124; <strong>9 names banked</strong>, and the reachable tail is down to <strong>9 names over 3 modules</strong>. The two <code>PORT</code> unknowns are now resolved in opposite directions: <code>test_port_systematics_composition.py</code> is <strong>14 passed / 363.35 s</strong> (<code>-n 2</code>, +0.87% on its <code>20260821T034507Z</code> record of 360.23 s) — its 3 census names green, and the <code>PORT-10</code> batch-C killer is simply an expensive file, not a broken one. <strong>Finding 33 — <code>test_port_gap_voltage_padding.py</code> is a measured structural deferral, not a pricing miss, and it is now cited to two windows at the same width:</strong> at <code>-n 2</code> / <strong>590 s</strong> it printed <code>collected 2 items</code> and then the name of its first test and nothing else — Status 124, zero <code>PASSED</code>/<code>FAILED</code> lines, exactly as at 400 s (finding 21). Its <code>gap_ports_padded</code> fixture is <code>scope="module"</code>, so a by-name split cannot help — it would pay the same setup twice — and the deferral reason is upgraded to <strong><code>deferred — measured, module fixture alone &gt; 590 s at -n 2</code>, two windows (400 s, 590 s)</strong>. That makes it the same shape as <code>box_truncation</code> (finding 32) and a <em>substantive</em> reason for step 2's close criterion, not a <code>not reached in slot</code>. <strong>Finding 34 — finding 31's journal-grep rule paid a third time, and <code>reactance_wire_resolution</code> was never unpriced:</strong> item 1 budgets it as "record 491.96 s with 2 deselected, full file unpriced, ≥ 740 s" and therefore unrunnable in one foreground window, but the journal carries <strong>two disjoint <code>-k</code> halves</strong> from 2026-08-20 (<code>pinned</code> 242.68 s, <code>projected or refinement</code> 499.80 s) that together cover all 6 validation names. Run at those boundaries — with the environment root dropped and the second half selected by <strong>node id</strong> rather than <code>-k "a or b"</code> (the quoting trap) — the halves came in at <strong>214.36 s (−11.7%)</strong> and <strong>434.40 s (−13.1%)</strong>, <em>both under their records</em>, and the file is complete at 6/6 in 649 s against a budgeted ≥ 740 s for one window that could not have run. Note the sign: this is the first module family to come in <strong>under</strong> its 0.7.2-era price, which is why finding 29's ≥ 1.5× rule must stay a <em>sizing</em> rule and never becomes a prediction. <strong>Finding 35 (red, filed) — a tenth stale-record name, a fifth mesh, and it has no sibling:</strong> <code>wire_resolution::test_the_refinement_landed_on_the_wire_and_not_on_the_far_field</code> asserts the exact 0.7.2 count <strong>366 207</strong> and 0.11 meshes <strong>365 970</strong> (</em>*−0.0647%<strong>, the second negative drift), with the module's other 5 names green across the two halves. A zero-compute <code>grep -rn '366207' tests/</code> finds <strong>only this site</strong> — so finding 30's "one re-record retires up to four names" is an upper bound and the value→module map is ragged (</strong>4, 3, 1, 1, 1<strong>); <code>OPS-27</code> should size </strong>self as <strong>fi</strong> measurements, \~ten edits<strong>.</strong>inding 27's cache sweep ran before window 1 and again after the exit 124 — clean both times, zero stray <code>python3</code>. Leg (h) owns the remaining <strong>25** nam</strong> over <strong>4</strong> modules, of which only <strong>9 over 2** are reachable: klzzwxh:0</strong>8 <strong>4</strong> (journal-priced at <strong>559</strong>8 s full file at <code>-n 2</code><strong>, or two recorded <code>-k</code> halves of 271.08 s + 260.07 s — take t</strong> halves, the full file was 98.2% of its window) and <code>box_truncation</code> <strong>5</strong> (finding 32: <code>-n 2</code> or a by-name split, never a third <code>-n 8</code> window); <code>degree2</code>'s 14 and <code>gap_voltage_padding</code>'s 2 are both defers-with-reason and are <strong>not</strong> to be re-opened. <strong>Leg (h) should finish the tail and owes the chunk-level reconciliation.</strong>* <em><strong>Step 2 ✅ 2026-08-27 (16:30 slot, leg (h)) ⇒ chunk ✅.</strong> Final: <strong>268 / 289 observed (254 green, 14 red), 21 deferred</strong>; <code>tests/validation</code> <strong>247 → 251 of 272</strong>, <code>tests/ports</code> 17/17. Three windows, 1 166 s, two footered (Status 0/0) and one Status 124. <code>reactance_box_size</code> is <strong>4/4 green</strong> on its two recorded <code>-k</code> halves (282.59 s + 289.44 s = 572 s, +4.2% / +11.3% on the 2026-08-20 record — <strong>finding 37</strong>: taking the halves was right, the full file's 559.58 s + 11% would have blown a 590 s window). <strong>Finding 36:</strong> <code>reactance_box_truncation</code> is a <strong>permanent measured deferral</strong> — Status 124 at both <code>-n 8</code>/600 s (leg (f)) and <code>-n 2</code>/590 s (this slot), each dying inside its first validation test; its <code>projected_xlarge_box</code> fixture is <code>scope="module"</code> and all five tests consume it, so width is not the constraint and a by-name split cannot help. It needs a <em>smaller fixture</em>, not a different selection — a <code>MAT-6</code> pricing question, not a census one. Finding 30's predicted eleventh red sits behind that fixture and is <strong>pending</strong>, not falsified. <strong>Chunk-level reconciliation (written in <code>attempts.md</code>, 2026-08-27T22:20Z):</strong> repo-wide over both censuses, <strong>478 collected → 452 observed (436 green, 16 red), 26 deferred</strong> (452 + 26 = 478), i.e. <strong>94.6% of the repo's collected tests observed in a footered run on 0.11</strong>, with <strong>zero <code>not reached in slot</code> and zero <code>deferred — no footer</code></strong> surviving. The <strong>seed list of four is green by name</strong> — <code>test_convergence.py</code> <strong>1 passed / 141.51 s</strong> (its <code>test_h_refinement_straight_wire</code>, cited in this chunk's own rationale as <em>red on <code>main</code> right now</em>, <strong>PASSED</strong>; <code>MAG-20</code> owns the band, but the gate executes), <code>test_port_lumped_two_torus.py</code> 5 passed / 90.97 s, <code>test_cavity_resonances.py</code> 3 passed / 5.59 s, <code>test_birdcage_conductor_sizing.py</code> PASSED in leg (a)'s 38-item run. The <strong>16 reds are exactly three families with named owners</strong>: ten stale 0.7.2-era exact records over 8 modules but only <strong>5 distinct meshes</strong> (<code>OPS-27</code>), three "overlapping facets" reds (five <code>GEO-23</code> <em>sites</em> counting the dead <code>test_cylindrical_domain.py</code> module and the rank-divergent <code>materials</code> conversion — 10 + 3 + 3 = 16), and three test-double-drift names (<code>OPS-28</code>, finding 12 — invisible to step 1's static sweep by construction). The <strong>26 deferrals</strong> are <code>degree2</code> 14 (<code>TH-12</code> memory wall), <code>box_truncation</code> 5 (finding 36), <code>gap_voltage_padding</code> 2 (finding 33), leg (a)'s 5 (all <code>GEO-23</code>/filed) — every one a measured cost or a filed defect. <strong>No band was loosened and no red fixed in-slot across seven census slots.</strong> <strong>Answer to the operator's directive:</strong> the 0.11 transition worked; the three exception families are stale <em>records</em> (the physics reproduces), one gmsh boundary-mesh family, and one mock a prior chunk's rank-safety fix outgrew — <strong><code>OPS-18</code>'s §4 close stands</strong>, every §2 physics claim's gate was observed executing and passing on 0.11.</em> <em>Audited COMPLIANT 2026-08-27 18:00 review — all 18 leg (e)–(h) footers re-read (statuses and per-leg elapsed sums 1 853 / 2 314 / 1 606 / 1 166 s reproduce from the logs), 18 matching <code>test-results.md</code> rows, reconciliation arithmetic verified (268 + 21 = 289, 452 + 26 = 478, 16 = 10 + 3 + 3, 26 = 14 + 5 + 2 + 5); one wording defect corrected in this row (the reds-vs-sites conflation above). The §7 prose entry below narrates step 1 and leg (a) only — the leg (b)–(h) evidence lives in this row and <code>attempts.md</code>.</em> | ✅ </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

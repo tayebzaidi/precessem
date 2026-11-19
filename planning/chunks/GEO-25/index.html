@@ -1,0 +1,583 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>GEO-25 — F-human cost probe - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#geo-25-f-human-cost-probe" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              GEO-25 — F-human cost probe
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="geo-25-f-human-cost-probe">GEO-25 — F-human cost probe<a class="headerlink" href="#geo-25-f-human-cost-probe" title="Permanent link">&para;</a></h1>
+<p><strong>F-human cost probe</strong> — <code>birdcage_port_domain</code> at <code>ring_radius</code> 0.07 → 0.15 m (30 cm coil, the operator's 2026-08-25 directive), a parameter set on the existing constructor, not a new one; cell count and mesh time per rung, conductor sizing <strong>not</strong> coarser than the 4.8 mm floor without re-measuring it (known-issues <code>GEO-21</code> ruling) | ✅ <strong>step 2 closed 2026-09-05 13:30 implementer slot — the §3 route back was walked, the row is ✅ again.</strong> New <code>tests/validation/test_birdcage_f_human_rung.py</code>, <code>2 passed in 194.05s</code>, Elapsed 196 s, heavy by ceiling (<code>timeout -k 30 560</code>), <code>-n 2</code>, real build, <code>docs/testing/logs/20260905T183654Z_GEO-25.log:20030</code>. <strong>Every step-1 reading now reproduces at <code>-n 2</code> as an executed assert, to the digit.</strong> Branch B (the fixture, <code>scale_sizing=False</code>): cells <strong>504 642 vs record 504 642, relative 0.000e+00</strong> at the imported <code>CELL_COUNT_BAND</code> = 0.01; volume partition <strong>1.000000000000</strong> at the imported <code>GEO-18</code> <code>EXACT</code> = 1e-9; terminal-area ratio <strong>0.974454791 … 0.974455230 on all 32 ring ports</strong>, inside the <code>GEO-19</code> closed-form [0.95, 1.0]; meshed/CAD conductor <strong>0.965414</strong>, clearing the imported <code>CAD_MASS_GATE</code> = 0.95 by <strong>+0.015414</strong> (<code>:9730–9735</code>, mesh 109.35 s). Branch A (the negative control, <code>scale_sizing=True</code>): cells <strong>204 977 vs record 204 977, relative 0.000e+00</strong>; the same partition and terminal identities hold (0.974445583 … 0.974446474); meshed/CAD <strong>0.893028</strong>, i.e. <strong>0.056972 BELOW</strong> the same gate (<code>:20017–20022</code>, mesh 63.50 s). The separation assert <code>control &lt; CAD_MASS_GATE &lt;= fixture</code> reads <strong>0.893028 &lt; 0.95 ≤ 0.965414, separation 0.072387</strong> (<code>:20024–20027</code>) — <strong>fixed absolute mesh sizing is now a gated conclusion, not an ungated reading</strong>: a similar-mesh F-human coil fails the existing <code>GEO-15</code>/<code>GEO-21</code> conductor-mass gate and the fixed-sizing one clears it. Two version-tagged cell records registered under the (1*) licence at <code>tests/validation/test_birdcage_f_human_rung.py</code> (<code>F_HUMAN_BRANCH_B_CELL_RECORD</code>, <code>F_HUMAN_BRANCH_A_CELL_RECORD</code>), both asserted at the imported band and never at equality (the <code>OPS-27</code> stale-exact class). <strong>The step-1 determinism worry is answered for this rung</strong>: the repeat was on the 0.10 m branch-A rung, and both 0.15 m rungs now reproduce at <code>-n 2</code> in a different process at 0.000e+00 — no known-issues entry needed. <code>_params</code> moved verbatim into the gate module, which is now the single source of the F-human parameter set, and <code>scripts/probes/geo25_ring_radius_cost_probe.py</code> imports it (plus <code>BASE_RING_RADIUS</code>, <code>LEG_COUNT</code>) back; all 16 printed parameters verified unmoved against step 1's own log (<code>20260905T184025Z_GEO-25.log</code> vs <code>20260904T214031Z_GEO-25.log:36–50</code>). Two builds per process, cached — the module never rebuilds a rung for a second assert. Nothing in <code>src/</code> changed; no solve, no port gate, no physics claim. The step-1 measurement block below is untouched. ~~🧪 <strong>demoted ✅ → 🧪 by the 2026-09-04 18:00 review on the §3 rule</strong>~~ — a measurement-only step is 🧪, never ✅: the probe script says "asserts nothing" in its own docstring (<code>scripts/probes/geo25_ring_radius_cost_probe.py:3</code>) and contains no <code>assert</code>, so no executed quantitative assertion exists (audit DEMOTE, evidence re-read by the review). The commission text below said "anchors, asserted per rung" while naming <code>mesh-probe</code> as executor, whose definition says "never an assertion" — the two were in conflict and the executor followed its definition; the review's fault, not the slot's. <strong>Every measurement below stands untouched</strong>; the route back is <strong>step 2 (the gate)</strong> scoped at the end of this row. <strong>Rungs 1, 2 and 3 all measured, 2026-09-04 16:30 implementer slot</strong> (<code>mesh-probe</code>, six foreground windows, all Status 0, 554 s total). <strong>Negative control passed exactly:</strong> the 0.07 m rung reproduces <code>mesh:9</code>'s <strong>265 621 cells at relative 0.000e+00</strong> (<code>20260904T213333Z_GEO-25.log:10182,10190</code>), terminal-ratio range 0.974454791–0.974455668 matching <code>EX-35</code>'s record digit for digit. Volume partition <strong>1.000000000000</strong> and terminal ratio in [0.95, 1.0] on all 32 ports at every rung and both branches — the <code>GEO-18</code>/<code>GEO-19</code> identities are genuinely scale-free. The row's phrase "phantom/air <strong>sizing</strong> scaled with the radius" is ambiguous (mesh size field vs geometric size), so the probe measured <strong>both branches</strong> rather than guess; the choice inverts the sign of the answer. <strong>Branch A</strong> (global <code>resolution</code> scales too — geometrically similar meshes): 0.07 m <strong>265 621</strong> cells / 72.35 s / 0.548 GiB (<code>…213333Z:10182–10189</code>); 0.10 m <strong>244 056</strong> / 67.82 s / 0.538 GiB (<code>20260904T213508Z_GEO-25.log:10126–10133</code>); 0.15 m <strong>204 977</strong> / 69.98 s / 0.505 GiB (<code>20260904T213646Z_GEO-25.log:10331–10338</code>). <strong>Branch B</strong> (<code>resolution</code> held at <code>mesh:9</code>'s 0.015 m — fixed absolute element size, the only reading under which the <code>r³</code> prediction is testable): 0.10 m <strong>352 984</strong> / 90.21 s / 0.627 GiB (<code>20260904T213833Z_GEO-25.log:10248–10255</code>); 0.15 m <strong>504 642</strong> / 112.27 s / 0.752 GiB (<code>20260904T214031Z_GEO-25.log:9733–9740</code>). <strong>The pre-registered <code>r³</code> prediction is wrong on both readings</strong> — branch A 0.07→0.15 measures 204 977 against a predicted 2 613 618 (0.0784×, fitted exponent <strong>−0.34</strong>), branch B 0.0784→0.1931× (fitted exponent <strong>+0.84</strong>, time exponent +0.58). The mesh is dominated by the pinned 1.6 mm conductor refinement region, whose count grows roughly <em>linearly</em> with conductor length, not with domain volume; <strong>≈ 0.84 is the honest cost exponent</strong> for the same coil made bigger at fixed absolute fidelity, and §10 Phase 6 should date itself from that, not from <code>r³</code>. <strong>The stop rule was never approached</strong> — worst rung 504 642 cells (17% of the 3 M ceiling), 112.27 s (19% of 600 s), peak RSS 0.752 GiB; conductor sizing never coarsened; rung 3 was licensed by the row's own arithmetic on both branches (<code>3.375 × 67.816 = 228.9 s</code> and <code>3.375 × 90.205 = 304.4 s</code>, both &lt; 600 s) and run. <strong>Determinism:</strong> the 0.10 m branch-A rung re-run in a fresh process reproduces every reported digit (<code>20260904T214248Z_GEO-25.log:10126–10133</code>); only wall time (67.82 → 68.55 s) and <code>ru_maxrss</code> move. <strong>No <code>GEO-21</code>-class negative result</strong> — every rung meshes, no mesher fallback and no invalid-boundary line in any log. <strong>One ungated reading for the weekly review:</strong> under branch A the conductor's meshed/CAD mass recovery falls monotonically <strong>0.976465 → 0.959483 → 0.893028</strong>, so at 0.15 m it is <em>below</em> <code>CAD_MASS_GATE = 0.95</code> — an F-human coil built by scaling the mesh sizing with the radius would <strong>fail the existing <code>GEO-15</code>/<code>GEO-21</code> conductor-mass gate</strong>, while branch B stays 0.976465 → 0.972185 → 0.965414. That is an independent argument that <strong>fixed absolute sizing is the right scaling for this generator</strong>; nothing was asserted or moved on it. Probe script <code>scripts/probes/geo25_ring_radius_cost_probe.py</code> (measurement only, asserts nothing, imported by nothing). Two deviations, both disclosed: (a) <code>conductor_resolution</code> pinned at <code>mesh:9</code>'s <strong>1.6e-3 m</strong>, which is <em>finer</em> than the 4.8 mm <code>GEO-21</code> figure — the rule as written is "not <strong>coarser</strong> than the floor", 4.8e-3 is <code>GEO-21</code>'s coarse <em>control</em> (0.846 mass recovery), and 1.6 mm is the only value that reproduces the mandated 265 621-cell control; (b) <code>leg_spacing</code> scaled with <code>coil_length</code> (the row names only <code>coil_length</code>) — an unscaled 11 cm ring separation inside a 30 cm coil is not a similar geometry. <strong>Also unscaled and worth the weekly's attention: the conductor <em>cross-section</em> (<code>leg_width</code>, <code>ring_minor_radius</code>) is held at the 7 cm coil's values at every rung</strong>, so these are cost figures for a human-sized cage built from small-coil stock, not a re-proportioned conductor. A price, not a fixture: no record moved, no default changed, no solve, no assertion written. Original commission text follows. <em>(commissioned 2026-08-30 02:15 weekly review; <strong>the ruling text was lost with that session</strong> — what survived is the dashboard summary and the <code>GEO-21</code> known-issues ruling's two sentences. <strong>Re-scoped 2026-09-02 weekly review — queueable.</strong> Executor <code>mesh-probe</code>, measurement only, no solve. Ladder on the existing constructor: <code>ring_radius</code> 0.07 → 0.10 → 0.15 m with <code>coil_length</code> and the phantom radius scaled by the same factor (a 6 cm phantom in a 30 cm coil is not a load), 16 legs, ring-gap (high-pass) layout as <code>mesh:9</code>, conductor sizing pinned at the 4.8 mm <code>GEO-21</code> floor, phantom/air sizing scaled with the radius. <strong>Anchors, asserted per rung:</strong> the scale-free CAD identities <code>GEO-18</code>/<code>GEO-19</code> already gate — volume partition 1.000000000000 and terminal-area ratio in [0.95, 1.0] on every port; the cell count per rung against the r³ prediction from the 0.07 m rung (report the fitted exponent; <code>GEO-19</code> measured 2.6472× cells / 3.2357× mesh time for 4 → 16 legs at fixed radius, the only cost rung above F-small on record). <strong>Stop rule (pre-registered):</strong> a rung whose mesh exceeds <strong>3 M cells</strong> or <strong>600 s</strong> is the finding — record it and stop, do not shrink the conductor sizing to make it fit. <strong>Negative control:</strong> the 0.07 m rung reproduces <code>mesh:9</code>'s 265 621 cells at 0.000e+00 relative. Tier heavy by ceiling (<code>timeout -k 30 1200</code>, gmsh is serial so <code>-n 1</code>), three windows ≈ 5 + 12 + 30 min predicted from the r³ scaling. <strong>Scope:</strong> a price, not a fixture — no record moves, no default changes, no solve; the exponent and the 0.15 m cell count are what §10 Phase 6 dates itself from. <strong>Negative result:</strong> a rung that does not mesh is a <code>GEO-21</code>-class known-issues entry; §10 subgoal 4 is explicitly <strong>not</strong> blocked on it. <strong>Queued 2026-09-03 18:00 review as §9 item 5 (spare), sized to the 20-minute rule:</strong> rungs 1 and 2 only, rung 3 attempted only if <code>3.375 × t_2 &lt; 600 s</code> from rung 2's mesh time; otherwise the prediction is the finding and the 0.15 m rung is the weekly's to re-rung)</em> <strong>Step 2 — the gate (scoped 2026-09-04 18:00 review, the §3 route back to ✅; §9 item 6).</strong> New <code>tests/validation/test_birdcage_f_human_rung.py</code>, <code>-n 2</code>, heavy by ceiling (<code>timeout -k 30 600</code>; the two builds measured 112.27 + 69.98 s at <code>-n 1</code>, so ≈ 200–250 s expected). Move the probe's <code>_params(radius, scale_sizing=…)</code> verbatim into the module as the single source of the F-human parameter set and have the probe import it (additive; the probe's printed digits must not move). Build the <strong>branch-B 0.15 m rung</strong> (<code>scale_sizing=False</code>) and assert, every band imported: (i) cells = <strong>504 642</strong> at <code>CELL_COUNT_BAND</code> — a new version-tagged record <code>F_HUMAN_BRANCH_B_CELL_RECORD</code> registered by this step under the (1*) licence; (ii) volume partition 1.000000000000 at the <code>GEO-18</code> band; (iii) terminal-area ratio in [0.95, 1.0] on all 32 ports (the <code>GEO-19</code> band); (iv) meshed/CAD conductor mass recovery ≥ <code>CAD_MASS_GATE</code> (0.95, imported from <code>tests/mesh/test_birdcage_conductor_sizing.py:63</code>) — measured 0.965414. <strong>Negative control:</strong> the <strong>branch-A</strong> 0.15 m rung (<code>scale_sizing=True</code>, second build in the same window) must read <em>below</em> <code>CAD_MASS_GATE</code> — measured 0.893028, 5.7 pp under against the fixture's 1.5 pp over; assert <code>control &lt; CAD_MASS_GATE &lt;= fixture</code>, margins printed, and its cells 204 977 reproduced at <code>CELL_COUNT_BAND</code> (a second record, control only). <strong>Traps:</strong> <code>cell_tags.values</code> and facet areas are rank-local — reduce before asserting (the probe already does); gmsh builds on rank 0; a build that fails at <code>-n 2</code> deadlocks — both rungs are known to mesh, so <code>-n 2</code> is licensed. <strong>Scope:</strong> registers the F-human branch-B rung's CAD identities and its cell record — <em>not</em> a solve, not a port gate, not a physics fixture; F-human physics stays Phase 6's and the weekly's. <strong>Negative result:</strong> cells not reproducing 504 642 at the band (the probe's determinism repeat was on the 0.10 m rung, not this one) is a known-issues entry with the measured spread and the record registered at the observed value with its band stated — never widened to swallow it; mass recovery below 0.95 on branch B is the finding that the F-human coil needs its own conductor sizing, known-issues entry, row stays 🧪. </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

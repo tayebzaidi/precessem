@@ -1,0 +1,583 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>PORT-20 — The gap-voltage (current-drive) route must report the S-matrix - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#port-20-the-gap-voltage-current-drive-route-must-report-the-s-matrix" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              PORT-20 — The gap-voltage (current-drive) route must report the S-matrix
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="port-20-the-gap-voltage-current-drive-route-must-report-the-s-matrix">PORT-20 — The gap-voltage (current-drive) route must report the S-matrix<a class="headerlink" href="#port-20-the-gap-voltage-current-drive-route-must-report-the-s-matrix" title="Permanent link">&para;</a></h1>
+<p><strong>The gap-voltage (current-drive) route must report the S-matrix</strong> — on that route the undriven ports are open, so <code>S_ij = b_i/a_j</code> is not a column of S; the route's <code>Z</code> is the open-circuit matrix and <code>z_to_s(Z)</code> is S (opened 2026-09-19 by the weekly from the <code>ANS-3</code> adjudication; known-issues 2026-09-19; serial on nothing; <code>OPS-57</code>'s single impedance-to-S implementation is the conversion to call if it has landed, otherwise the existing <code>sparameters_from_impedance</code>) | ✅ <strong>2026-09-20 — steps 1–3 all executed</strong> (steps 1–2 in the 04:30 slot, item 11; <strong>step 3 in the 09:00 slot, item 17</strong>). <strong>Step 3 (records, <code>-n 2</code>, complex, standard):</strong> the four S-derived records are re-recorded under <code>S = z_to_s(Z)</code> with the power-wave digits kept beside them and <em>asserted</em> to fail each record's own band, and step 2's strict <code>xfail</code> is removed. <code>ports:2</code> green — <code>20260920T140828Z_PORT-20.log</code>, Status 0, <strong>181 s</strong>: measured <code>‖S − Sᵀ‖/‖S‖ = 3.112130445718013e-05</code> and <code>‖S‖₂ = 0.8613568944845725</code>, reproducing the new records at <strong>1.59e-11 absolute / 1.43e-12 relative</strong> against the unmoved 1e-6 bands; the <code>PORT-1</code> step-4 gate module green — <code>20260920T141141Z_PORT-20.log</code>, <strong>18 passed / 190 s</strong> (was 17 passed / 1 xfailed), <code>passivity_max_sigma 0.8613568944814173</code> vs the new record 0.861356894 (miss 4.814e-10, band 1e-6) and symmetry ratio <code>3.1121289645891435e-05</code> vs 3.112129e-05 (miss 3.541e-13, band 5e-7). <strong>Negative control, asserted per record:</strong> the superseded power-wave digits miss the corrected run by <strong>1.647e-05 absolute</strong> in the symmetry residual and <strong>3.992e-03 relative</strong> in <code>‖S‖₂</code> (gate module: 1.646e-05 / 3.453e-03) — the predicted ≈ 0.016-in-<code>\|S₂₁\|</code> size, each &gt; its band. <strong>Anchors held:</strong> every <code>Z</code>-derived record is digit-identical, reproducing at 2.10e-10 / 2.06e-10 relative (raw / corrected mutual ratio) — nothing about <code>Z</code> moved, so the negative-result branch did not fire; reciprocity and passivity at <strong>unmoved</strong> bands. <strong>The <code>ans:3</code> leg was not run — pre-registered stop:</strong> <code>03_two_torus_gap_ports_10MHz.py:725-727</code> rewrites the gitignored <code>COMPARISON_private.md</code> unconditionally whenever <code>aed_results/</code> is present (it is), which the step forbids, so that case's <em>generated</em> <code>metrics.json</code> / <code>COMPARISON.md</code> still carry the pre-correction S table — filed as a 🟡 known-issues entry (2026-09-20) with its unblock condition; its <em>records</em> are imported from <code>examples/ports/02_…py</code> and are already corrected. <strong>For the next interactive session:</strong> CLAUDE.md's "<code>PORT-20</code>" open-finding clause (§ the two external findings paragraph) is now stale — the current-route finding is fixed; CLAUDE.md is the operator's file and no slot edits it. <em>History (steps 1–2, item 11):</em> The change landed as pre-registered: <code>run_n_port_sparameter_sweep</code> routes the gap-voltage branch through the new <code>_assemble_current_drive_route_matrices</code> → <code>sparameters_from_impedance(Z)</code>; the lumped-sheet branch is untouched. <strong>Step 1</strong> (<code>20260920T095207Z_PORT-20.log</code>, smoke, <code>-n 2</code>, 2 s, 3 passed, <code>tests/unit/test_port20_current_route_s.py</code>): on the T-network 2-port and the seeded random reciprocal 3-port the route's assembly reproduces <code>Z</code> and the analytic <code>(Z − z0)(Z + z0)⁻¹</code> at <strong>max|Δ| = 0.000e+00</strong> against the 1e-12 band; the <strong>asserted negative control</strong> — the pre-<code>PORT-20</code> power-wave assembly on the same open-port states — misses the analytic <code>S₂₁</code> by <strong>|ΔS₂₁| = 6.614030e-02</strong> (floor 1e-2, ceiling 2; the review's hand arithmetic of ≈ 0.066 recomputed independently, power-wave <code>0.44+0.08j</code> vs analytic <code>0.49397886+0.04177931j</code>). <strong>Step 2</strong> (<code>20260920T095318Z_PORT-20.log</code>, standard, <code>-n 2</code>, complex build, 201 s, 17 passed / 1 xfailed): on the two-torus fixture <code>‖S − z_to_s(Z)‖/‖S‖ = **9.417603e-17**</code> ≤ 1e-12 against <code>ports/circuit.py</code>'s independent implementation; reciprocity <code>‖S − Sᵀ‖/‖S‖ = 3.1121e-05</code> inside the <strong>unmoved</strong> 1e-3, passivity <code>‖S‖₂ = 0.861357</code> ≤ 1, <code>passivity_max_column_power_sum = 0.741120</code> ≤ 1; <code>PORT-1</code> step 4's mutual-ratio record reproduced untouched (raw miss 2.960e-11 / corrected 2.905e-11 vs 1e-6, read off <code>Z</code>) and the heuristic control still separates (max|S_heur − S_field| = 3.031724e-01, σ separation 0.138629 &gt; 0.13). <strong>Printed, predicted, not asserted</strong> (rule (e)): tabulated-vs-implied |S₂₁| = <strong>0.021598 vs 0.037654</strong> (|Δ| 0.016698) against the known-issues reading ≈ 0.0216 vs ≈ 0.0377 — both predictions met. The lumped route's <strong>byte-identity control</strong> re-ran green and <strong>digit-identical</strong>: <code>20260920T095659Z_PORT-20.log</code>, 16 passed in 66.28 s, <code>‖S − Sᵀ‖/‖S‖ = 1.044255156e-14</code>, <code>‖Z − Zᵀ‖/‖Z‖ = 8.814400604e-05</code>, σ_max 0.999992805, class spreads 0.0553 / 0.0353 / 0.0214 % — every digit as in <code>20260914T004031Z_PORT-14-step3-port9-gate.log</code>. No band moved and no record was edited: the two S-derived records in <code>test_port_package_sparameters.py</code> (<code>RECORDED_PASSIVITY_MAX_SIGMA</code> 0.864809457 — now reading 0.861356894 — and <code>RECORDED_S_SYMMETRY_RATIO</code>) are records of the superseded quantity, so their test carries a <strong>strict</strong> <code>xfail</code> citing known-issues 2026-09-19 until step 3 re-records them. Remaining: <strong>Step 1 (smoke, pure numpy — the closed form).</strong> A synthetic passive reciprocal 2-port and 3-port with a known <code>Z</code> (a T-network and a random <code>R + jX</code> with <code>R</code> positive-definite): build the per-drive port states the route would see (<code>I_j</code> impressed, others open, <code>V = Z I</code>), run them through the route's assembly, and assert the reported <code>S</code> equals the analytic <code>(Z − z0)(Z + z0)⁻¹</code> at 1e-12. <strong>Negative control (asserted):</strong> the present per-port power-wave assembly on the same states misses that <code>S</code> by more than 1e-2 on the off-diagonal — so the test is red before the fix and says why. <strong>Step 2 (standard, <code>-n 2</code>, the two-torus fixture).</strong> <code>run_n_port_sparameter_sweep(gap_voltage_ports=…)</code> returns <code>S = z_to_s(Z)</code>; assert <code>‖S − z_to_s(Z)‖/‖S‖ ≤ 1e-12</code>, reciprocity and passivity at their <strong>unmoved</strong> bands, and <code>PORT-1</code> step 4's mutual-ratio record reproduced untouched (it is read from <code>Z</code>). The lumped-sheet route is asserted byte-identical by re-running <code>PORT-9</code> leg (d)'s 10 MHz 4×4 record. <strong>Step 3 (records).</strong> <code>EX-20</code>, <code>ans:3</code> and <code>PORT-1</code> step 4's S-derived records (<code>‖S‖₂</code>, the S table, any Touchstone fixture) are re-recorded under the corrected definition, each old value kept beside the new one in the module as the negative control (old misses new by &gt; the record band). <strong>Done-when (§4):</strong> steps 1–3 executed by the implementer, the closed-form identity and both negative controls asserted, elapsed recorded, the known-issues entry retired, §2.1's <code>PORT-1</code> line gains "S on the current route is <code>z_to_s(Z)</code> since <code>PORT-20</code>". No band moves; a reciprocity or passivity red on the corrected <code>S</code> is a finding — stop, known-issues. </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

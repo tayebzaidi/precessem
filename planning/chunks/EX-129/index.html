@@ -1,0 +1,963 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-129 — The F2182 gel box under the transverse eddy-SAR source 3Q(y² + z²)/(B² + C²): hot side walls, the heat leaving through ±y, and the thin-axis term in ParaView (mat:23) - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-129-the-f2182-gel-box-under-the-transverse-eddy-sar-source-3qy2-z2b2-c2-hot-side-walls-the-heat-leaving-through-y-and-the-thin-axis-term-in-paraview-mat23" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-129 — The F2182 gel box under the transverse eddy-SAR source 3Q(y² + z²)/(B² + C²): hot side walls, the heat leaving through ±y, and the thin-axis term in ParaView (mat:23)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-509-2026-10-17-example-54-ramp-example-runner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 509 — 2026-10-17 (example, §5.4 ramp; example-runner)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-17-0300-item-509-overrides-the-brief-where-they-differ" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-17 03:00 (item 509; overrides the brief where they differ)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-17-1030-audit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-17 10:30 (audit)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-129-the-f2182-gel-box-under-the-transverse-eddy-sar-source-3qy2-z2b2-c2-hot-side-walls-the-heat-leaving-through-y-and-the-thin-axis-term-in-paraview-mat23">EX-129 — The F2182 gel box under the transverse eddy-SAR source 3Q(y² + z²)/(B² + C²): hot side walls, the heat leaving through ±y, and the thin-axis term in ParaView (<code>mat:23</code>)<a class="headerlink" href="#ex-129-the-f2182-gel-box-under-the-transverse-eddy-sar-source-3qy2-z2b2-c2-hot-side-walls-the-heat-leaving-through-y-and-the-thin-axis-term-in-paraview-mat23" title="Permanent link">&para;</a></h1>
+<p>Opened by the 2026-10-17 03:00 daily review under the §5.4 ramp, from <code>MAT-21</code> step 9 (§10 chain P36, §9 item 497, <code>7e03fc01</code>; provisional until the 10-17 weekly ratifies P34–P36). Gap evidence (drafter, checked 2026-10-17):
+- Every box example heats along x or not at all. <code>examples/materials/19_f2182_gel_box_slab_and_faces.py</code> (<code>mat:19</code>, <code>EX-112</code>) uses a <strong>uniform</strong> q. <code>examples/materials/20_f2182_gel_box_end_weighted_source.py:207</code> (<code>mat:20</code>, <code>EX-119</code>) uses Q[1 − cos(πx/A)], which varies along <strong>x only</strong>.
+- No <code>examples/materials/*.py</code> builds a source from <code>xs[1]</code> or <code>xs[2]</code>. None imports <code>test_mat21_box_quadratic_*</code> or calls <code>robin_box_quadratic_*</code> / <code>robin_slab_quadratic_coefficients</code> (grep, 2026-10-17).
+- The other eddy-shaped sources are elsewhere. <code>mat:2</code> / <code>mat:4</code> / <code>mat:7</code> carry the lossy-sphere EM SAR in a 10 mm ball under an imposed field. <code>mat:9</code> / <code>14</code> / <code>15</code> / <code>16</code> / <code>18</code> / <code>22</code> carry coil SAR on the F-small cylinder. No example puts a source with physical CP eddy weights into the F2182 box, and none has its hot spot on the ±y side walls or its heat leaving preferentially through ±y. <code>mat:20</code>'s cosine moved heat toward ±x (<code>20261016T112833Z_EX-119.log:80–82</code>).</p>
+<h3 id="9-item-509-2026-10-17-example-54-ramp-example-runner">§9 item 509 — 2026-10-17 (example, §5.4 ramp; example-runner)<a class="headerlink" href="#9-item-509-2026-10-17-example-54-ramp-example-runner" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-17 03:00 daily review; the review reviews it.</em> This brief sets and moves no band, record or Done-when.</p>
+<p><code>EX-129</code> (<code>mat:23</code>) is executed by <code>example-runner</code>, which spawns no agents. It adds exactly three tracked files and edits nothing else:
+- <code>examples/materials/23_f2182_gel_box_transverse_eddy_source.py</code>;
+- the same-stem guide, with <code>## 1. What this demonstrates</code>, <code>## 2. How to run it</code>, <code>## Setup figure</code>, <code>## 3. How to analyze it, step by step</code> and <code>## Related</code>;
+- <code>examples/materials/figures/materials_23_f2182_gel_box_transverse_eddy_source_setup.png</code>, ≤ 600 KiB.</p>
+<p><strong>Angle (the drive).</strong> P36 heats the 650 × 420 × 90 mm box with q = 3Q(y² + z²)/(B² + C²) = Q[w_y(y/B)² + w_z(z/C)²], where w_y = 2.868293 and w_z = 0.131707. This is the transverse SAR shape of a long body in a circularly polarised B₁: E_x = jω(B_z y − B_y z), so |E_x|² ∝ y² + z² (<code>MAT-21.md:1403–1409</code>). In the F2182 placement x is the bore axis (<code>GEO-38.md:354</code>).
+- The weights are physics, not tuning (10:30 ruling, <code>MAT-21.md:1658</code>).
+- The mean source is exactly Q, so the source power is the same 49.14 W as in <code>mat:19</code> / <code>mat:20</code>.</p>
+<p>Four things are new to the examples:
+1. <strong>A source that varies along the two transverse axes.</strong> The hot spot sits next to the long ±y side walls, not at the centre (<code>mat:19</code>) or the ±x ends (<code>mat:20</code>).
+2. <strong>The y centre line.</strong> The P2 solve is plotted against the quadratic series and the uniform-source run.
+3. <strong>The face-heat split moves toward ±y</strong>, the opposite pair from <code>mat:20</code>.
+4. <strong>The thin-axis term in ParaView.</strong> The z² term carries 4.4 % of the power on the 90 mm axis. The gate's (c-z) shows the solve resolves it, and the example shows where it sits (<code>theta_quad_minus_noz_series</code>).</p>
+<p>Printed only: the centre-versus-side ratio at t* against steady state. This is a probe-placement reading, with no compliance claim.</p>
+<p>The source is handed over as the gate's UFL polynomial. <strong>A P2 / DG0 hand-off is out of scope:</strong> a quadratic is exactly P2, so the P2 path would be an identity (<code>MAT-21.md:1627</code>), and <code>mat:20</code> already shows the hand-offs.</p>
+<p><strong>Imports (never restated).</strong> <code>_REPO_ROOT</code> goes on <code>sys.path</code>, and the gate is imported as a module: <code>import tests.validation.test_mat21_box_quadratic_fem as g9</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Names</th>
+<th>Lines</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/validation/test_mat21_box_quadratic_fem.py</code> (<code>g9</code>)</td>
+<td><code>_quad_ex</code>, <code>_quad_trans_ex</code>, <code>_quad_floor</code>; through its namespace <code>INTERIOR_BAND</code>, <code>S2_GAUSS_BAND</code>, <code>E_BAND</code>, <code>ROBIN_TAG</code>, <code>RHO_C</code>, <code>_allsum</code>, <code>_max_imag</code></td>
+<td><code>:85–112</code>, <code>:33–42</code></td>
+</tr>
+<tr>
+<td><code>test_mat21_box_quadratic_closed_form.py</code></td>
+<td><code>WEIGHTS</code>, <code>WEIGHTS_NOZ</code>, <code>QUAD_TERMS</code></td>
+<td><code>:46–49</code></td>
+</tr>
+<tr>
+<td><code>test_mat21_box_separable_fem.py</code></td>
+<td><code>M4</code>, <code>STEP3_M4</code>, <code>_point_vals</code></td>
+<td><code>:57–58</code>, <code>:100</code></td>
+</tr>
+<tr>
+<td><code>test_mat21_box_fem_p2.py</code></td>
+<td><code>DEGREE</code>, <code>CMP_DEGREE</code>, <code>QDEG_P</code>, <code>_dofs_pred</code>, <code>_exact_p</code>, <code>_rel_p</code>, <code>_rung_p</code></td>
+<td>as <code>20_…py:72–80</code></td>
+</tr>
+<tr>
+<td><code>test_mat21_box_fem.py</code></td>
+<td><code>T_STAR</code>, <code>V_BOX</code>, <code>_interior_chi</code>, <code>_steady_ex</code>, <code>_trans_ex</code></td>
+<td><code>g9:54</code></td>
+</tr>
+<tr>
+<td><code>test_mat21_box_closed_form.py</code></td>
+<td><code>A_BOX</code>, <code>B_BOX</code>, <code>C_BOX</code>, <code>HALF</code>, <code>SERIES_TERMS</code>, <code>Q</code></td>
+<td><code>g9:43–52</code></td>
+</tr>
+<tr>
+<td><code>test_mat15_coil_driven_heating_phantom.py</code></td>
+<td><code>H_GEL</code>, <code>K_GEL</code>, <code>N_MAIN</code>, <code>T_INF</code></td>
+<td><code>g9:36–41</code></td>
+</tr>
+</tbody>
+</table>
+<p>Copy the gate's solver calls and source from <code>g9</code>:
+- the uniform rung, <code>:125–134</code>;
+- <code>q_quad</code>, <code>:141–142</code>;
+- the steady solve, <code>:143–144</code>;
+- Gauss, <code>:149–151</code>;
+- the comparands and crosses, <code>:155–163</code>;
+- CN, <code>:180–183</code>;
+- the transient comparands and crosses, <code>:189–193</code>.</p>
+<p>Never call the <code>quad_m4</code> fixture or import any <code>test_*</code> name or <code>_Clock9</code>. Use an example-local clock with the prefix <code>EX-129</code>.</p>
+<p>The closed form is <code>robin_box_quadratic_steady_temperature</code> / <code>robin_box_quadratic_transient_temperature</code> (<code>src/fem_em_solver/utils/analytical.py:2268</code>, <code>:2291</code>), with the projection E_n from <code>robin_slab_quadratic_coefficients</code> (<code>:2240</code>). The example reaches all three only through <code>g9._quad_ex</code> / <code>_quad_trans_ex</code> / <code>_quad_floor</code>.</p>
+<p><strong>Records.</strong> Record digits go only in an example-local <code>REC</code> dict. Each carries its <code>log:line</code> in <code>20261016T171904Z_MAT-21-step9-W2-quadratic-fem.log</code> (<code>GATE</code>) unless marked otherwise. They are printed beside the readings at the gate's printed digits and never asserted by equality:</p>
+<table>
+<thead>
+<tr>
+<th>Record</th>
+<th>Value</th>
+<th>Line</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(U) whole / interior</td>
+<td>2.489307e-05 / 1.669359e-05 (also <code>STEP3_M4</code>)</td>
+<td><code>:70</code></td>
+</tr>
+<tr>
+<td>(S1-quad) interior / whole</td>
+<td>7.219878e-05 / 9.086572e-05</td>
+<td><code>:76</code></td>
+</tr>
+<tr>
+<td>θ_h(0), θ_h(0, 0.9B, 0), θ_h(0.9A, 0, 0)</td>
+<td>4.276604 / 13.337975 / 2.682175 K</td>
+<td><code>:76</code></td>
+</tr>
+<tr>
+<td>series at the same three points</td>
+<td>4.276700 / 13.337014 / 2.682231 K</td>
+<td><code>:76</code></td>
+</tr>
+<tr>
+<td>(S2-quad)</td>
+<td>9.775e-14 (round-off floor, band only)</td>
+<td><code>:73</code></td>
+</tr>
+<tr>
+<td>source_power/(Q·V_h) − 1</td>
+<td>−1.350e-13</td>
+<td><code>:73</code></td>
+</tr>
+<tr>
+<td>(c-src) / (c-src′) / (c-z)</td>
+<td>4.4856e-01 / 5.1471e-01 / 4.7893e-02</td>
+<td><code>:77–79</code></td>
+</tr>
+<tr>
+<td>(T-quad) interior / whole</td>
+<td>2.694340e-04 / 4.310154e-04</td>
+<td><code>:83</code></td>
+</tr>
+<tr>
+<td>θ_h(0, t*), θ_h(0, 0.9B, 0, t*)</td>
+<td>0.063442 / 2.893351 K (series 0.063466 / 2.892661)</td>
+<td><code>:83</code></td>
+</tr>
+<tr>
+<td>(E-quad)</td>
+<td>2.285e-13 (round-off floor, band only)</td>
+<td><code>:84</code></td>
+</tr>
+<tr>
+<td>(c-src-T)</td>
+<td>6.9562e-01</td>
+<td><code>:85</code></td>
+</tr>
+<tr>
+<td>comparand floor at <code>QUAD_TERMS</code></td>
+<td>1.2484e-06</td>
+<td><code>:86</code></td>
+</tr>
+<tr>
+<td>(Q1) / (Q1b) worst; (Q5) y-route / z-route</td>
+<td>2.904e-15 / 2.492e-15; 2.484e-09 / 1.460e-11</td>
+<td><code>20261016T171632Z_MAT-21-step9-W1-closed-form.log:236</code>, <code>:254</code></td>
+</tr>
+<tr>
+<td>uniform ±y face share</td>
+<td>0.126246</td>
+<td><code>20261016T112833Z_EX-119.log:81</code></td>
+</tr>
+</tbody>
+</table>
+<p>The W1 (Q1) / (Q5) lines are printed as provenance for the closed form, which was checked by quadrature and two reduced routes. The example does not re-run the numpy module.</p>
+<p>Structural asserts: the build is complex, <code>comm.size == 2</code>, <code>DEGREE == 2</code> and <code>M4 == 4</code>.</p>
+<p><strong>(1) Anchor.</strong> The gate's anchors, asserted at the imported bands. The closed form is the gate's separable Robin series of the quadratic source, <code>robin_box_quadratic_steady_temperature</code> / <code>_transient_temperature</code> at <code>QUAD_TERMS</code> = (80, 80, 40).</p>
+<table>
+<thead>
+<tr>
+<th>Anchor</th>
+<th>Assertion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(Pdeg)</td>
+<td>dofs = <code>_dofs_pred(M4)</code> = 116 025 on all three solves (uniform, quadratic steady, CN)</td>
+</tr>
+<tr>
+<td>(S1-quad)</td>
+<td>quadratic steady interior vs <code>_quad_ex()</code> ≤ <code>INTERIOR_BAND</code></td>
+</tr>
+<tr>
+<td>(S2-quad)</td>
+<td>Gauss h∮θ vs <code>source_power</code> ≤ <code>S2_GAUSS_BAND</code></td>
+</tr>
+<tr>
+<td>(T-quad)</td>
+<td>CN N = <code>N_MAIN</code> interior at t* vs <code>_quad_trans_ex(T_STAR)</code> ≤ <code>INTERIOR_BAND</code></td>
+</tr>
+<tr>
+<td>(E-quad)</td>
+<td>CN <code>max_balance_residual</code> ≤ <code>E_BAND</code></td>
+</tr>
+</tbody>
+</table>
+<p>Printed beside the record, not asserted:
+- (U) against <code>STEP3_M4</code>;
+- <code>source_power/(Q·V_h) − 1</code>;
+- <code>_quad_floor()</code> and (S1-quad)/floor (record 57.8, <code>:86</code>);
+- the three steady points and two transient points from one <code>_point_vals</code> call each;
+- max|Im θ|.</p>
+<p>Example-side anchors (exact identities):
+- <strong>(F0)</strong> Six example-local face tags partition the Robin facets. Copy <code>20_…py:307–338</code> and its <code>FACES</code> / <code>LHALF</code> / <code>AXNAME</code> (<code>:121–124</code>). The owned counts are reduced and must equal 512 / 512 / 832 / 832 / 3 328 / 3 328 = 9 344 in integers (<code>20261016T112833Z_EX-119.log:68–74</code>).
+- <strong>(F1)</strong> For the quadratic run and the uniform run, the six face powers h∮θ sum to that run's <code>source_power</code> within <code>S2_GAUSS_BAND</code>. Copy <code>20_…py:340–355</code>.</p>
+<p>Printed only:
+- <strong>Face shares.</strong> Each face pair's share of the heat, quadratic beside uniform. The ±y share is <em>predicted</em> to rise from 0.126246 to roughly 0.25, range [0.15, 0.40], and the ±z share to fall. This is drafter arithmetic with no logged backing, and it is not asserted.
+- <strong>The y centre line</strong> (x = 0, z = 0) at 129 points, y ∈ [−0.995B, 0.995B]. Each point carries P2 quadratic θ, the series <code>np.real(g9._quad_ex()(…))</code>, and uniform-source θ, all through <code>_point_vals</code> and written to the CSV.
+  - Print max θ and its |y|/B. That location is <em>predicted</em> in [0.75, 0.97]: inside the Robin layer, because θ(0.9B) = 13.34 K and θ(0) = 4.28 K.
+  - Print max|P2 − series| along the line.
+- <strong>Centre-versus-side ratio.</strong> θ(0)/θ(0, 0.9B, 0) at t* and at steady state. From the records it is 0.021927 at t* and 0.320634 steady, computed from <code>:83</code> and <code>:76</code>. The point: a centre probe reads ≈ 2 % of the side-wall rise after 47 min.
+- <strong>The thin-axis term.</strong> max |θ_quad − θ_noz-series| over owned P1 dofs, reduced with <code>MPI.MAX</code>, beside (c-z).</p>
+<p><strong>(2) Negative controls.</strong> These follow §9 rule (e): predicted controls print, backed controls assert.
+- <strong>Backed, asserted &gt; <code>INTERIOR_BAND</code></strong> (the gate asserts exactly this, <code>g9:255–272</code>):
+  - (c-src): the quadratic FEM against the uniform series, backed 0.44856 (<code>:77</code>);
+  - (c-src′): the uniform FEM against the quadratic series, backed 0.51471 (<code>:78</code>);
+  - (c-z): the quadratic FEM against the no-z series, backed 0.047893 (<code>:79</code>);
+  - (c-src-T): CN against the uniform transient series, backed 0.69562 (<code>:85</code>).</p>
+<p>Each prints beside its record. <strong>No factor bar is posed on (c-z):</strong> its ceiling is the z² term's own share, ≈ 4.8× the band (<code>MAT-21.md:1559</code>), so a 5× bar would be unreachable.
+- <strong>(cF), example-side.</strong> With the <strong>+y</strong> face dropped, Σ P_f misses <code>source_power</code> by more than <code>S2_GAUSS_BAND</code>. Only the separation is asserted, as <code>EX-119</code>'s (cF) was (<code>20_…py:355</code>).
+  - The factor is <em>predicted</em> in [0.075, 0.20], which is half the predicted ±y share, by y-mirror symmetry.
+  - The same miss on the uniform run is 0.063123 (half of <code>EX-119.log:81</code>). Print it beside the quadratic run's.
+  - Ceiling: 0.5.</p>
+<p><strong>Outputs.</strong>
+- <strong>Setup figure:</strong> <code>write_setup_figure</code>, as <code>20_…py:173–189</code>, but on the <strong>x = 0 slice</strong> (<code>slice_normal=(1.0, 0.0, 0.0)</code>, <code>slice_origin=(0.0, 0.0, 0.0)</code>, <code>clip_normal=(-1.0, 0.0, 0.0)</code>). The title is ≤ 130 characters, e.g. "mat:23 -- F2182-sized gel box, Robin on all six faces, transverse source 3Q(y^2 + z^2)/(B^2 + C^2): x = 0 slice".
+- <strong>Combined XDMF:</strong> <code>examples/materials/paraview_output/materials_23_f2182_gel_box_transverse_eddy_source_combined.xdmf</code>.
+  - Every field is P1, interpolated from its source as in <code>20_…py:397–418</code>:
+    - <code>q_quad</code>: a P1 interpolant of the polynomial, for display only;
+    - <code>theta_quad_steady</code>;
+    - <code>theta_quad_series_steady</code> (from <code>ex_q</code>);
+    - <code>theta_quad_minus_series</code>;
+    - <code>theta_uniform_steady</code>;
+    - <code>theta_noz_series_steady</code> (from <code>ex_z</code>);
+    - <code>theta_quad_minus_noz_series</code>;
+    - <code>theta_tstar_quad</code>;
+    - <code>theta_tstar_quad_series</code> (from <code>ex_t</code>).
+  - Add the six face tags.
+  - Take the real part explicitly, and make every dict key equal to its Function's <code>name</code>.
+  - Call <code>adopt_host_ownership</code> last.
+- <strong>CSV:</strong> <code>…_y_centre_line.csv</code> in <code>paraview_output/</code>.</p>
+<p><strong>Guide.</strong>
+- <code>## 1</code>: state the physics derivation in three lines from <code>MAT-21.md:1403–1410</code>, including its "Not claimed: … the box's own EM SAR" (end-face current return, wavelength effects).
+- ParaView recipe:
+  - <code>theta_quad_steady</code> on the x = 0 slice, to show the hot side walls;
+  - Plot Over Line along y at x = z = 0, <code>theta_quad_steady</code> beside <code>theta_uniform_steady</code>;
+  - <code>theta_quad_minus_noz_series</code> on the x = 0 slice, to show the z² term's footprint near the ±z faces;
+  - <code>theta_tstar_quad</code> against <code>theta_quad_steady</code> for the centre-probe reading.
+- In <code>## 2</code>, one sentence: <code>./scripts/run_examples.sh -e mat:23 -n 2 -t 590</code>, heavy tier, with the measured wall time.
+- <code>Related</code>, by full filename: <code>examples/materials/20_f2182_gel_box_end_weighted_source.md</code>, <code>examples/materials/19_f2182_gel_box_slab_and_faces.md</code>, <code>tests/validation/test_mat21_box_quadratic_fem.py</code> and <code>tests/validation/test_mat21_box_quadratic_closed_form.py</code>.
+- Write <code>≈</code>, never a tilde.</p>
+<p><strong>(3) Tier and windows.</strong> Heavy by ceiling, <code>-n 2</code>, complex build.</p>
+<p><strong>Price</strong> (measured inputs):
+- The gate's fixture took 122.9 s inside a 126 s window (<code>GATE:86</code>, <code>:115</code>). Per phase (<code>:67–85</code>): build 0.2, uniform 10.8 + 8.2 + 0.3, quadratic solve 11.8, <code>ex_q</code> 20.2, <code>ex_z</code> 8.5, CN 31.7, transient interpolations 30.5 s.
+- The example adds:
+  - face tags and powers for two runs, ≈ 4 s (<code>EX-119.log:83</code>);
+  - the centre line, &lt; 1 s, plus a series call at 129 points;
+  - P1 interpolation and output, ≈ 2–5 s;
+  - the setup figure, ≈ 2–10 s (<code>EX-119.log:49</code>).
+- That predicts the run of record at <strong>≈ 145 s, range [120, 330] s</strong>. The upper end allows a host ≈ 2× slow (<code>EX-125</code> ran 1.5–1.9× slow on 10-17). Run under <code>-t 590</code>.
+- Item minutes: <strong>≈ 8.8 measured (example class) / 45 predicted.</strong> Of the 45: windows ≈ 6 (censuses 4 × ≈ 10 s, dry run, one run of record ≈ 2.5–5.5 min), code ≈ 20, guide ≈ 10, fixed ≈ 9.</p>
+<p>Every window runs in the foreground with Bash <code>timeout: 660000</code>, as one bare, whole, repo-relative harness call:
+0. <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0, and no other heavy, <code>xl</code> or <code>xxl</code> window may be live. Confirm <code>examples/materials/23_*</code> does not exist.
+1. <strong>Pre-censuses, before any file is written:</strong>
+   - <code>scripts/testing/run_and_log.sh EX-129-pre-figures "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_setup_figures.py'"</code>
+   - <code>scripts/testing/run_and_log.sh EX-129-pre-docrefs "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py'"</code></p>
+<p>The last reading on <code>main</code> was figures 122 → 123 <code>missing=0 broken=0</code>, and docrefs <code>dead=0</code> exit 2 (<code>EX-125</code>, 10-17 00:00). Other items may land first, so use whatever the pre-census reads. Exit 2 is staleness; exit 1 is a failure.
+2. <strong>Dry run</strong>, after the script exists: <code>scripts/testing/run_and_log.sh EX-129-dryrun "./scripts/run_examples.sh -e mat:23 -n 2 -t 590 --dry-run"</code>. It must print <code>(complex build)</code>.
+3. <strong>Run of record, labelled <code>EX-129</code>:</strong> the emitted string with <code>-T</code> and <code>-e FEM_EM_SETUP_FIGURES=1</code> added. Pass means all of:
+   - Status 0;
+   - every structural check, anchor and backed control green;
+   - (F0), (F1) and (cF) green;
+   - the closing "All assertions hold" line.
+4. <code>git add</code> the PNG and check it is ≤ 600 KiB. If it is larger, re-render once with <code>show_edges_on_slice=False</code> through a second flagged run; that is the only permitted re-run. <strong>No unflagged control re-run:</strong> one is asked for only when a figure is retrofitted (<code>EX-122.md:154</code>).
+5. <strong>The guide</strong>, written from window 3's log. Then <code>EX-129-post-figures</code> and <code>EX-129-post-docrefs</code> (window 1's commands, relabelled). Predicted: figures N → N + 1, <code>missing=0 broken=0</code>; docrefs <code>dead=0</code>, exit ≠ 1. Any dead reference naming <code>materials_23_*</code> or <code>23_f2182_gel_box_transverse_eddy_source.md</code> fails the item.
+6. <code>git status --porcelain examples/ tests/ src/</code> lists only the three new paths.
+7. The leak guard (<code>scripts/testing/check_private_leak.py</code>) runs on the staged logs. This fixture has no AED counterpart, but the guard still runs.</p>
+<p>After Status 124 or a kill: run <code>pgrep -c python3</code> first. Only at 0, run the orphan-<code>.c</code> sweep (daily-review.md rubric 4) labelled <code>EX-129-cache-sweep</code>, with the <code>$</code> kept escaped.</p>
+<p><strong>(4) Traps already paid for.</strong>
+- <strong>Rank-0-only return values.</strong> <code>write_xdmf_with_tags</code> returns <code>None</code> off rank 0. Any <code>xdmf_path.name</code> (or other rank-0 value) formatted outside <code>if rank0:</code> crashes ranks ≠ 0 after every assertion is green, and rank 0 then hangs to Status 124 (<code>EX-127</code>, 10-17 22:30 slot, <code>attempt/EX-127-20261017T034400Z</code>). Keep the whole tail print block under <code>if rank0:</code> as <code>20_…py:428–437</code> does, and read every tail f-string before window 3.
+- <strong>XDMF needs P1.</strong> dolfinx's <code>write_function</code> needs the mesh's degree, so interpolate every P2 / P3 field into P1 first (<code>examples/mri/14_study_sar_and_b1.py:367</code>; <code>20_…py:397–418</code>).
+- <strong>Complex build.</strong>
+  - No UFL comparison, <code>max_value</code>, <code>conditional</code> or <code>sqrt</code> (<code>OPS-22</code>; <code>WF-6</code> 4c).
+  - The source is products of <code>SpatialCoordinate</code> components and constants only (<code>g9:142</code>). Write the squares as products.
+  - Take <code>np.real</code> before every <code>float</code>.
+- <strong>Gate fidelity.</strong>
+  - The anchors' comparands use <code>QUAD_TERMS</code> = (80, 80, 40), because (40, 40, 40) misses by 8e-5 K (<code>MAT-21.md:1488–1494</code>). The no-z control and the uniform comparands stay at <code>SERIES_TERMS</code>.
+  - Never use P32's <code>SEP_TERMS</code> or <code>_sep_floor()</code>, which belong to the cosine profile.
+  - No <code>metadata</code> on the source.
+  - Every error goes through <code>_rel_p</code> against a P3 comparand, never step 1's <code>_rel</code>.
+- <strong>Weights.</strong> Never substitute equal weights or w_z = 1.5. The weights come from <code>WEIGHTS</code> (10:30 ruling, <code>MAT-21.md:1658</code>).
+- <strong>Rank safety.</strong>
+  - Use <code>_allsum</code> for every assembled scalar.
+  - (F0) counts owned facets only, reduced.
+  - Nodal maxima use owned dofs and <code>allreduce(op=MPI.MAX)</code>.
+  - Point values go through <code>_point_vals</code> (<code>evaluate_vector_field_parallel</code>), called on every rank.
+  - No collective inside an <code>if rank0:</code> branch.
+- <strong>Runner.</strong>
+  - <code>run_examples.sh</code> runs host-side. Take its line from <code>--dry-run</code>, and never wrap it in <code>docker compose exec</code>. Use <code>-k 30</code>.
+  - Never background a window.
+  - A docker-socket denial means stop and report the exact string.
+  - Never raise <code>-t</code> or <code>-n</code>.
+- <strong>Rule (i).</strong> No script edit after window 3 starts, and no guide edit after window 5 starts. Check mtimes before committing.
+- <strong>Host speed.</strong> If the run of record approaches 590 s, that is a kill, not a result: report it.</p>
+<p><strong>(5) Scope boundary.</strong> Covered: one prescribed analytic source, the long-prism CP eddy-SAR <strong>shape</strong>, on the m = 4 rung at P2, <code>-n 2</code>, steady and CN to t* = 2 821.5 s, with Robin walls, one h, the gel constants and the F2182-sized box. <strong>Not claimed:</strong>
+- the box's own EM SAR: the end-face current return near x = ±A, and wavelength effects at 64 / 128 MHz. <strong>No EM is solved, and no coil is involved</strong> (P33 / C6);
+- linear polarisation or any other weight pair;
+- a P2 / DG0 hand-off of this source;
+- the product with P32's axial cosine, any h-rate, another rung or degree 1;
+- an absolute SAR or temperature for a real scanner (Q = 2000 W/m³ is the gate's normalisation);
+- F2182 compliance or probe placement advice;
+- perfusion, a container wall, <code>ANS-9</code> or any external check.</p>
+<p><code>MAT-21</code> does not move.</p>
+<p><strong>(6) What a negative result means.</strong> Report and stop. Journal it in <code>docs/testing/attempts.md</code>, park on <code>attempt/EX-129-&lt;UTC&gt;</code>, and mark item 509 BLOCKED with the unblock condition in the same commit (rule (d)). Never widen a band, and never edit <code>tests/</code> or <code>src/</code>.
+- <strong>A gate anchor red, or (U) off <code>STEP3_M4</code>:</strong> <code>main</code> has drifted from the gate. Print the first differing value beside its <code>log:line</code> and file a known-issues entry against <code>MAT-21</code> step 9.
+- <strong>(F0) or (F1) red:</strong> a finding about the face tagging. Print the per-face sums.
+- <strong>A backed control inside its band:</strong> a mislabelled comparand, or the wrong weights for (c-z). Print both readings and stop.
+- <strong>(cF) inside its band:</strong> the +y tag is empty or mislocated. Print the per-tag counts.
+- <strong>A printed prediction missed</strong> (the ±y share, the max-θ location or the (cF) factor outside its range): report it in the guide and journal. It has no status effect.
+- <strong>A defect after every assertion is green</strong> (figure, XDMF, CSV or tail print; the <code>EX-127</code> shape): BLOCKED with the <code>log:line</code>. No in-slot fix after window 3.
+- <strong>Status 124 or a kill at 590 s:</strong> not a result. Run <code>pgrep -c python3</code> first, then report the last <code>EX-129</code> clock.</p>
+<p>There is no <code>PREDICTED RED:</code> line, so any red stops the slot.</p>
+<p><strong>(7) Status it can move.</strong>
+- <code>EX-129</code> ⬜ → ✅ on the §7 Done-when, which the review pastes in the same commit as this item (rule (j)). <strong>This is provisional on P36's ratification.</strong> The 10-17 weekly ratifies or reverts P34–P36 together (<code>MAT-21.md:1657</code>).
+  - If the weekly reverts P36, <code>EX-129</code> is <strong>withdrawn</strong>: it is unqueued if not yet run, or its row is struck and the example removed by the review if it has run.
+  - Unlike <code>EX-119</code>, which could fall back on P32's ratified anchors, this example has no other basis.
+- The census rises by one (N → N + 1) with <code>broken=0</code>, and docrefs read <code>dead=0</code>.
+- <code>MAT-21</code> (✅; step 9 is a record) and §2 are unchanged.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Use the example-runner agent to execute <code>EX-129</code>, §9 item 509 (<code>docs/planning/chunks/EX-129.md</code>, heading <code>§9 item 509</code>).
+- Read the brief and any review ruling beneath it first; the rulings hold. If the 10-17 weekly has reverted §10 P36, stop without writing anything and report.
+- You are the executor — do not spawn agents. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Never background a window. Run every window in the foreground, pass <code>timeout: 660000</code> on every Bash call that runs a harness window, and never delete a log.
+- Before windows 1 and 3, run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> and require 0. Confirm no other heavy, <code>xl</code> or <code>xxl</code> window is live. Confirm <code>examples/materials/23_*</code> does not exist. Run both pre-censuses before writing any file.
+- Edit nothing under <code>tests/</code> or <code>src/</code>. Import the gate as <code>tests.validation.test_mat21_box_quadratic_fem</code> (as <code>g9</code>) and take every band through its namespace. Copy its solver calls and source verbatim. Never call the <code>quad_m4</code> fixture, never import a <code>test_*</code> name or <code>_Clock9</code>, and never substitute equal weights.
+- Anchor comparands use <code>QUAD_TERMS</code> = (80, 80, 40); controls and uniform comparands use <code>SERIES_TERMS</code>.
+- Every value that exists only on rank 0, including the return of <code>write_xdmf_with_tags</code>, is used only inside <code>if rank0:</code>. Read every tail f-string before window 3. No collective inside <code>if rank0:</code>.
+- Emit the runner line with <code>--dry-run</code> and pass it to the harness; never wrap <code>run_examples.sh</code> in <code>docker compose exec</code>. Container <code>timeout -k 30 590</code>; an overrun parks the item — never raise a timeout or <code>-n</code>.
+- If <code>check_private_leak.py</code> blocks a log, move it unchanged to <code>logs/leak-held/</code>, mark item 509 BLOCKED (not ✅) and stop.
+- No edit to the script after window 3 starts, or to the guide after window 5 starts.
+- If the docker socket is denied, stop and report the exact command string. On a red, park on <code>attempt/EX-129-*</code>, mark item 509 BLOCKED in the same commit, and report.
+- Return the windows' log names, every asserted and printed value beside its record (log:line) or prediction, the face shares and centre-line readings, the census before / after with the docrefs <code>dead=</code> list, and elapsed."</p>
+<h3 id="review-ruling-2026-10-17-0300-item-509-overrides-the-brief-where-they-differ">Review ruling 2026-10-17 03:00 (item 509; overrides the brief where they differ)<a class="headerlink" href="#review-ruling-2026-10-17-0300-item-509-overrides-the-brief-where-they-differ" title="Permanent link">&para;</a></h3>
+<p>(1) <strong>Queued, narrowly:</strong> the drive is new — the long-prism CP eddy-SAR shape 3Q(y² + z²)/(B² + C²), with its weights fixed by physics (<code>MAT-21.md:1403–1409</code>), whereas <code>mat:19</code> is uniform and <code>mat:20</code> varies in x only. The outputs are also new: the hot ±y walls and the ±y face share. A second analytic source in the same box is the floor of §5.4's "drive" angle, so the next box example must bring a new geometry, material or delivery mechanism. (2) <strong>Withdrawn if tonight's weekly reverts P36.</strong> It runs before the weekly (04:30–09:00 slots) on the same basis that <code>EX-119</code> (P34 / P35) and <code>EX-124</code> (U57) ran on: every anchor is asserted in a landed module. (3) Records print beside the gate log, as in <code>EX-119</code>. The three drafter predictions with no logged backing (the ±y share, the (cF) factor, the max-θ location) are <strong>printed, never asserted</strong>; only (cF)'s separation is asserted (rule (e)). (4) Last in the queue.</p>
+<p><strong>Outcome (2026-10-17 06:00 slot): DONE, ✅ pending audit, provisional on P36.</strong> Run of record <code>20261017T110217Z_EX-129.log</code> Status 0 in 164 s, every anchor and backed control equal to its gate record, (F0) / (F1) / (cF) green, all three printed predictions inside their ranges (±y share 0.2256, max θ at |y|/B = 0.824, (cF) 0.1128); census 124 → 125 <code>broken=0</code>, docrefs <code>dead=0</code>. Journal: <code>docs/testing/attempts.md</code> 2026-10-17T11:08Z.</p>
+<h3 id="review-ruling-2026-10-17-1030-audit">Review ruling 2026-10-17 10:30 (audit)<a class="headerlink" href="#review-ruling-2026-10-17-1030-audit" title="Permanent link">&para;</a></h3>
+<p><strong>PASS</strong> (<code>auditor</code>; the review re-read <code>20261017T110217Z_EX-129.log:67</code>, <code>:101</code> and <code>:105</code>, and gate <code>20261016T171904Z_MAT-21-step9-W2-quadratic-fem.log:84</code>). The anchors and backed controls equal the gate record. One wording note: (E-quad) reads 2.288e-13 against the record 2.285e-13. That is a round-off floor asserted at <code>E_BAND</code> = 1e-9, so "equals its gate record" holds for the band, not for the last digit. The disclosed (U)-asserted deviation is a stronger gate. The example is still withdrawn if the weekly reverts P36.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

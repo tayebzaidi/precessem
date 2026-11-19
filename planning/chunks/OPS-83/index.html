@@ -1,0 +1,642 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>OPS-83 — the (S2-tip) comparand's form on a rough DG0 source: a stub measurement that separates the two readings - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ops-83-the-s2-tip-comparands-form-on-a-rough-dg0-source-a-stub-measurement-that-separates-the-two-readings" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              OPS-83 — the (S2-tip) comparand's form on a rough DG0 source: a stub measurement that separates the two readings
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-859-2026-11-06-lane-1-known-issues-diagnosis-implementer-standard-n-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 859 — 2026-11-06 (lane 1, known-issues diagnosis; implementer; standard, -n 2)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ops-83-the-s2-tip-comparands-form-on-a-rough-dg0-source-a-stub-measurement-that-separates-the-two-readings">OPS-83 — the (S2-tip) comparand's form on a rough DG0 source: a stub measurement that separates the two readings<a class="headerlink" href="#ops-83-the-s2-tip-comparands-form-on-a-rough-dg0-source-a-stub-measurement-that-separates-the-two-readings" title="Permanent link">&para;</a></h1>
+<p><em>History file for the §7 <code>OPS-83</code> row (<code>OPS-46</code>). Opened by the 2026-11-06 03:00 daily review (lane 1, known-issues diagnosis) from the known-issues entry of the same date: <code>xl</code> entry 55's (S2-tip) red, which <code>WF-15</code> step 14 / U127 met first. The weekly re-poses the gate; this chunk only measures.</em></p>
+<p><strong>Why.</strong> Two windows have failed the same assertion on field-derived sources, and the gel twin of entry 55 misses it too. The global (S2) on those runs is green. The gate is |ρc·⟨θ¹⟩_B/(Δt₁·⟨q⟩_B) − 1| ≤ <code>S2_BAND</code>. One reading is that the comparand has the wrong form: one BE step from rest gives ρc·θ¹/Δt₁ → M⁻¹b as Δt → 0, the consistent-mass L2 projection Πq of the DG0 q onto P1, and Πq keeps the domain mean but not a ball mean. The other reading is physics the gate is meant to catch. Under the form reading, (i) the gap needs a rough source, (ii) it does not scale with Δt₁, and (iii) it vanishes against ⟨Πq⟩_B. U127's Δt₁/10 control already saw (ii) (<code>log-pathologist</code>, 2026-11-06). The pathologist named this measurement as the cheap check.</p>
+<p><strong>Done-when.</strong> <code>tests/validation/test_ops83_s2tip_form_on_stub.py</code> lands, with every asserted gate below green at <code>-n 2</code> in the complex build, and the separating table printed. The known-issues entry's Cause line is updated with the measured reading, confirmed or refuted, and the entry stays open; it resolves with the weekly's re-pose ⇒ ✅.</p>
+<h3 id="9-item-859-2026-11-06-lane-1-known-issues-diagnosis-implementer-standard-n-2">§9 item 859 — 2026-11-06 (lane 1, known-issues diagnosis; implementer; standard, <code>-n 2</code>)<a class="headerlink" href="#9-item-859-2026-11-06-lane-1-known-issues-diagnosis-implementer-standard-n-2" title="Permanent link">&para;</a></h3>
+<p><strong>Code.</strong> New <code>tests/validation/test_ops83_s2tip_form_on_stub.py</code>, complex build. No <code>src/</code> edit; no landed module edited.
+- <strong>Imports, unchanged, from <code>test_geo36_rod_f_clinical_heating</code>:</strong> <code>_columns_e_sup</code>, <code>_merge_rod_into_phantom</code>, <code>_tag_submesh</code>, <code>_outer_robin_tags</code>, <code>_heat_source</code>, <code>_transient</code>, <code>_ball_reader</code>, <code>DT_1_BOX</code>, <code>STUB_CENTRE</code>, <code>STUB_PROBES</code>, <code>RHO_C</code>, <code>T_INF</code>, <code>S2_BAND</code>, <code>E_BAND</code>, <code>QUADRATURE_DEGREE</code>, <code>ROBIN_TAG</code>, <code>PHANTOM_CELL_TAG</code>, <code>ONE_GRAM_KG</code>, <code>PHANTOM_RHO_KG_PER_M3</code>, <code>averaging_ball_radius</code>, <code>_allsum</code>, <code>_say</code>. Also <code>_k9_fixture</code> from <code>test_geo36_rod_f_clinical_drive</code>.
+- <strong>Read every signature first.</strong> Copy K10es's set-up exactly (<code>test_geo36_rod_f_clinical_heating.py:656–666</code>): the stub mesh, <code>_columns_e_sup</code> under <code>monkeypatch.context()</code>, the merged arm, <code>_tag_submesh</code> and <code>_outer_robin_tags</code> with <code>STUB_CENTRE</code>. Do not call <code>_thermal_arm</code>: its (B) compares against G·P, which a hand-made source does not satisfy.
+- <strong>Sources</strong> (DG0 on the submesh):
+  - <strong>(u)</strong> q_u = <code>_heat_source(…)</code> with G = 1/P_gel, as K10es does.
+  - <strong>(r)</strong> q_r = q_u·(1 + ½·s), where s = sign(sin(πx/h₀)·sin(πy/h₀)·sin(πz/h₀)) at each cell midpoint and h₀ = 0.1/12 m, the stub's <code>create_box</code> cube size (<code>test_geo36_rod_f_clinical_drive.py:1188</code>). Every tet of one hex cube gets the same sign, which gives a rank-independent checkerboard with cell-scale jumps of the kind a degree-1 |E|² has. Print its owned min / max, allreduced.
+- <strong>Projection:</strong> Πq solves (u, v) = (q, v) on the temperature space V1 = <code>res.temperature.function_space</code>. Use <code>ufl.inner(u, v)</code> and <code>ufl.inner(q, v)</code> (conjugated test function, complex build) and a direct LU (<code>petsc_options_prefix</code> unique). Also form the lumped projection Π_L q = b / (M·1), printed only.
+- <strong>Runs:</strong> BE one step from T∞ with <code>_transient(sub, ft, q, dt=DT_1_BOX, n_steps=1, theta=1.0)</code>, for q ∈ {q_u, q_r} and Δt ∈ {<code>DT_1_BOX</code>, <code>DT_1_BOX</code>/10}. That is four solves on a 12³ stub.
+- <strong>Ball reads:</strong> <code>_ball_reader(sub, {"th1": θ¹ − T∞, "q": q, "pq": Πq, "plq": Π_L q})</code> at the stub tip <code>fx[4]["a"]</code> (K10es's <code>tips</code>) and at <code>STUB_PROBES["interior"]</code>, radius a_1g. If a ball is not wholly in the submesh, print its volume against 4/3·π·a³.</p>
+<p><strong>Gates (asserted; bands imported).</strong>
+- <strong>(E)</strong> <code>max_balance_residual</code> ≤ <code>E_BAND</code> on all four solves.
+- <strong>(S2) global</strong>: |ρc·θ̄¹/(Δt·q̄) − 1| ≤ <code>S2_BAND</code> on all four solves, with θ̄¹ and q̄ as submesh means. The projection keeps the domain mean, so this is predicted green on (r), as it read green in entry 55 and U127.
+- <strong>Reproduction control:</strong> on (u) at <code>DT_1_BOX</code>, the tip value of |ρc⟨θ¹⟩_B/(Δt⟨q⟩_B) − 1| equals K10-S's printed tip 8.0400e-06 (<code>20261101T103929Z_GEO-36-I32a-W0b.log:76</code>) within 5e-11, its last printed digit.
+- <strong>Projection identity:</strong> on (u), |⟨Πq_u⟩_B/⟨q_u⟩_B − 1| ≤ 1e-10 at both balls. A field in V1 projects to itself, and q_u is uniform on the stub (K10-q). The bound is the LU round-off ceiling, not a physics band.</p>
+<p><strong>Printed (the separating measurement; no band set).</strong> For each source, Δt and ball:
+- R_DG0 = |ρc⟨θ¹⟩/(Δt⟨q⟩) − 1|, which is the gate as written;
+- R_Π = |ρc⟨θ¹⟩/(Δt⟨Πq⟩) − 1|;
+- R_L = |ρc⟨θ¹⟩/(Δt⟨Π_L q⟩) − 1|;
+- the Δt-ratio R(Δt₁)/R(Δt₁/10) for each.
+<strong>The pre-stated reading</strong> (printed as one line, never asserted):
+- <strong>"form CONFIRMED"</strong> if on (r) R_DG0 &gt; <code>S2_BAND</code> with Δt-ratio in [0.5, 2] (Δt-independent), and R_Π ≤ <code>S2_BAND</code> with Δt-ratio ≥ 5 (an O(Δt) residual);
+- <strong>"form REFUTED"</strong> if R_Π &gt; <code>S2_BAND</code> on (r);
+- <strong>"INCONCLUSIVE"</strong> otherwise, including when R_DG0 on (r) is itself ≤ <code>S2_BAND</code> (the stub is too smooth to show the gap).
+The predicted values come from unlogged review arithmetic. R_DG0(r) should be at the per-cent level, because the ball (a_1g ≈ 6.2 mm) is smaller than the 8.3 mm cube and straddles checkerboard jumps. R_Π(r) should be at the 1e-5 level of K10-S's slope (2.0247e-05).</p>
+<p><strong>Window.</strong> W1: <code>scripts/testing/run_and_log.sh OPS-83-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/validation/test_ops83_s2tip_form_on_stub.py -v -s --tb=short'"</code>. This is a bare foreground call with Bash timeout 660000 ms. The form is <code>20261101T103929Z_GEO-36-I32a-W0b.log:12</code> with this module added. <strong>Price:</strong> I32a's whole stub module ran 7 tests in 14 s at <code>-n 2</code> (<code>…W0b.log:133</code>). Four BE solves plus two projections should take ≈ 20–60 s.</p>
+<p><strong>Tier.</strong> Standard, <code>-n 2</code>, complex. <strong>Class:</strong> lane-1 revalidation (diagnosis). <strong>Cost:</strong> ≈ 6.0 measured / 20 predicted min. <strong>Family:</strong> <code>OPS-83</code>, attempt 1 of 4. It is not an attempt on U127's or entry 55's family: it executes neither step and moves neither gate.</p>
+<p><strong>Traps already paid for.</strong>
+- <code>ArityMismatch</code> is a <code>BaseException</code> and <code>mpi_jit</code> raises it on rank 0 alone, so a raising rank hangs its peer to the ceiling (item 849). Conjugate every test function and never put a deliberate complex refusal inside <code>pytest.raises</code> around <code>fem.form</code>.
+- <code>ufl.lt</code> on complex operands is wrapped in <code>ufl.real</code> in <code>_ball_reader</code> already; any new comparison must do the same (<code>OPS-22</code>).
+- <code>sign(sin…)</code> is computed in numpy on the midpoints, never in UFL. Midpoints come from <code>dolfinx.mesh.compute_midpoints</code> over owned + ghost cells, and the DG0 dofs are set from them, then <code>scatter_forward</code>.
+- Reduce before asserting; count verdicts per rank by token; use <code>-s</code>.
+- K10es runs under <code>monkeypatch.context()</code> because <code>_columns_e_sup</code> rebinds module names. Do the same, and do the ball reads inside the context.</p>
+<p><strong>Scope.</strong> A stub measurement on a 12³ box. <strong>Not claimed:</strong> a re-pose of U127 or of entry 55's gate (the weekly's), a new band, any clinical-scale number, or a fix to <code>_thermal_failures</code>.</p>
+<p><strong>Negative result.</strong> A red on (E), the global (S2), the reproduction control or the projection identity means the stub route is not K10es's: print everything, stop, BLOCKED. Any of the three readings is a result, not a failure: write it into the known-issues entry's Cause line (hypothesis → measured, or refuted) in the same commit. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> The known-issues entry of 2026-11-06 gains a measured Cause, or a refuted hypothesis. The 11-07 weekly's re-pose of the tip gate (U127, entry 55, and entry 61's EM twin if it ever gains heating) gets its evidence. <code>OPS-83</code> ✅.</p>
+<p><strong>Depends on:</strong> nothing.</p>
+<p><strong>Outcome (2026-11-06, 06:00 CST slot — 12:00 UTC; label corrected by the 10:30 review): DONE, form CONFIRMED.</strong> <em>Audited PASS by the 2026-11-06 10:30 review (<code>20261106T120232Z_OPS-83-W1.log:68–84</code>, <code>:92–95</code>).</em> W1 <code>20261106T120232Z_OPS-83-W1.log</code> (standard, <code>-n 2</code>, complex; Status 0, 13 s; 5 passed per rank). Gates: (E) ≤ 3.450e-10; global (S2) 2.0247e-05 (Δt₁) / 2.0249e-06 and 2.0246e-06 (Δt₁/10) on both sources; K10-S tip 8.039988e-06 vs 8.0400e-06 (|diff| 1.183e-11); projection identity 6.661e-16 at both balls. Table (tip / interior; Δt₁ → Δt₁/10, ratio): (u) all three R coincide, 8.0400e-06 → 8.0980e-07 (9.928) / 8.3513e-06 → 8.3959e-07 (9.947). (r) R_DG0 1.5793e-03 → 1.5732e-03 (1.004) / 2.1076e-03 → 2.1146e-03 (0.997); R_Π 6.8172e-06 → 6.8552e-07 (9.944) / 7.9282e-06 → 8.5219e-07 (9.303); R_L 5.1545e-05 → 4.5413e-05 (1.135) / 1.5441e-05 → 8.3648e-06 (1.846). q_r on [500, 1500] W/m³; ball volumes 1.005418 / 0.999642 × 4/3·π·a³ (both balls inside the submesh). The predicted R_DG0(r) "per-cent level" read at 0.16–0.21 %; R_Π(r) at the 1e-5 level as predicted. Not claimed: that the clinical-scale reds are this gap alone; a re-pose; a band.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

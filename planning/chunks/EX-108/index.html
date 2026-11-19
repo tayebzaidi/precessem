@@ -1,0 +1,775 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-108 — mri:16, the Study on a copper birdcage - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-108-mri16-the-study-on-a-copper-birdcage" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-108 — mri:16, the Study on a copper birdcage
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-342-2026-10-08-example-54-ramp-from-wf-16-step-7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 342 — 2026-10-08 (example; §5.4 ramp from WF-16 step 7)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-108-mri16-the-study-on-a-copper-birdcage">EX-108 — mri:16, the Study on a copper birdcage<a class="headerlink" href="#ex-108-mri16-the-study-on-a-copper-birdcage" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<p>Opened 2026-10-08 by the 18:00 daily review (step 5, §5.4 ramp). The base is <code>WF-16</code> step 7 (§9 item 324, DONE 2026-10-08, <code>df25001f</code>; <code>docs/planning/chunks/WF-16.md:559–591</code>). It added <code>LeontovichWall</code> and <code>FourPortBirdcageGeometry(as_hole=True, strip_fraction=…)</code> to the <code>Study</code> API, gated by <code>tests/package/test_wf16_study_copper.py</code>.</p>
+<p>No example runs a copper coil through the <code>Study</code> API. Checked at drafting:
+- <code>ports:18</code> (<code>examples/ports/18_birdcage_copper_leontovich.py</code>, <code>EX-59</code>) is copper, but it drives the solver directly (<code>_sheets_build</code>, <code>_build_ports</code>, <code>run_n_port_sparameter_sweep</code>) on the <strong>ragged</strong> port sheet at 10 MHz.
+- <code>mri:8</code> (<code>examples/mri/08_study_four_port_birdcage.py</code>, <code>EX-92</code>) is the <code>Study</code> on the σ = 800 S/m solid conductor.
+- <code>mri:6</code> is the F-human copper loss partition, also off the API.</p>
+<p>The angle: the same F-small birdcage on exact rectangles, κ off, through the <code>Study</code> API twice — once on copper, once on PEC — in a few lines of user code. The example then reads the loss partition (sheets / phantom / copper) of the copper <code>Study</code> and shows where on the coil the copper loss sits.</p>
+<h3 id="9-item-342-2026-10-08-example-54-ramp-from-wf-16-step-7">§9 item 342 — 2026-10-08 (example; §5.4 ramp from WF-16 step 7)<a class="headerlink" href="#9-item-342-2026-10-08-example-54-ramp-from-wf-16-step-7" title="Permanent link">&para;</a></h3>
+<p><strong>Outcome (2026-10-09, 00:00 CDT slot, take-next): ✅ complete.</strong> Run of record <code>20261009T052039Z_EX-108.log</code> (76 s) and control <code>…052203Z_EX-108-control.log</code> (75 s) green. (W) 2; (M) 80 798 cells for Cu and PEC; (R) Cu 4.093e-11 / 8.673e-11 / 1.376e-10, PEC 5.052e-11 / 3.878e-11 / 5.875e-11 against the step 7 records; (b) <code>p_surf</code> 1.5168731494522984e-06 W equal to <code>20261008T190119Z_WF-16-s7-W1.log:1823</code>, residual 8.507e-13; (L) per-cell sum 3.211e-15; (c1) asserted, gate form 6.420e-04 / 2.811e-04 / 4.861e-04 = <code>:1826</code>; (g) reciprocity / σmax / spreads printed only (ruling 4); partition P_coil / P_in 0.4478617, P_phantom / P_in 0.5521383 — a record on this fixture at degree 1. (c2) dropped (ruling 2). Control equal on M, W and partition; (R) PEC differs in the 4th digit (5.052e-11 vs 5.048e-11), inside the band. Census figures 103 → 104, docrefs <code>dead=0</code> before and after. No dry-run harness log was written (the dry run is host-side; the run-of-record line is the brief's form). Rule (i): script 05:20:35Z &lt; run 05:20:39Z; guide 05:23:52Z &lt; post-censuses 05:23:56Z.</p>
+<p><em>Drafted by a general-purpose agent for the 2026-10-08 18:00 daily review; the review reviews it.</em> Licence: §5.4 example ramp on a closed step (<code>WF-16</code> step 7, §9 item 324). <strong>No band, tolerance, record, Done-when or validation target is set or moved.</strong> Every band, record and helper is imported by name.</p>
+<p><code>EX-108</code> (<code>mri:16</code>) adds <code>examples/mri/16_study_copper_birdcage.py</code> and the same-stem guide <code>16_study_copper_birdcage.md</code>. The guide carries the three required headings (<code>## 1. What this demonstrates</code>, <code>## 2. How to run it</code>, <code>## 3. How to analyze it, step by step</code>) plus <code>## Setup figure</code> and <code>## Related</code>. The setup PNG is ≤ 600 KiB (<code>scripts/testing/check_example_setup_figures.py:124</code>).</p>
+<p><strong>Numbering.</strong> <code>examples/mri/</code> holds <code>01_</code> … <code>13_</code> at drafting. This item writes <code>16_</code> only, as the review assigned (<code>14_</code> / <code>15_</code> are left to the review's other items). <code>run_examples.sh</code> auto-discovers by number, so no registry edit is needed. If <code>mri:16</code> is taken when the slot starts, use the next free number and note it. The script imports nothing from <code>examples/</code>.</p>
+<ul>
+<li><strong>Executor:</strong> <code>example-runner</code>. The executor is the executor: it does not spawn agents.</li>
+<li><strong>Build:</strong> <strong>complex</strong>. The <code>mri:</code> group sources it automatically (<code>scripts/run_examples.sh:273</code>). The gate window ran complex (<code>20261008T190119Z_WF-16-s7-W1.log:12</code>).</li>
+<li><strong>Tier:</strong> <strong>standard</strong>, <code>-n 2</code>, degree 1, 64 MHz. <code>-n 2</code> is the record's width (<code>ANS6_EXACT_STRIP_RECORD_RANK_WIDTH</code>, <code>tests/validation/test_ans6_exact_strip.py:144</code>). Runner <code>-t 300</code>; container <code>timeout -k 30 300</code>.</li>
+<li><strong>Cost:</strong> <strong>≈ 13 measured</strong> (example class median) / <strong>≈ 40 predicted</strong> min: 15 fixed + ≈ 15 script and guide + ≈ 10 windows (two ≈ 1.5 min example windows, a dry run, four census windows).</li>
+<li><strong>Depends on:</strong> nothing open. <code>WF-16</code> step 7 is on <code>main</code> (item 324, <code>df25001f</code>).</li>
+<li><strong>Spawn prompt</strong> (the slot puts these sentences in verbatim): "Use the example-runner agent to execute <code>EX-108</code>, §9 item 342 (docs/planning/chunks/EX-108.md, heading <code>§9 item 342</code>). You are the executor — do not spawn agents, never background a harness window. Pass timeout: 660000 on every Bash call that runs a harness window, and never delete a log. Call scripts/testing/run_and_log.sh bare and repo-relative, with no cd and nothing chained. Make no edit to the script or guide after its last window."</li>
+</ul>
+<p><strong>What the user code looks like.</strong> The guide's section 1 shows these lines, and the script uses them as written:</p>
+<pre><code class="language-python">phantom = GelledSalinePhantomMaterial(SALINE_SIGMA, SALINE_EPSILON_R, FREQUENCY_64_HZ)
+geometry = FourPortBirdcageGeometry(as_hole=True, strip_fraction=GATED_WIDTH_FRACTION)
+cu = Study(geometry, phantom, LumpedPortDrive(), frequency_hz=FREQUENCY_64_HZ,
+           degree=1, conductor=LeontovichWall(COPPER_SIGMA)).solve(comm)
+pec = Study(geometry, phantom, LumpedPortDrive(), frequency_hz=FREQUENCY_64_HZ,
+            degree=1, conductor=None).solve(comm)
+</code></pre>
+<p>Build a fresh geometry per <code>Study</code>, as the gate's <code>_geometry()</code> does (<code>test_wf16_study_copper.py:80–81</code>).</p>
+<p><strong>Imports (never restated).</strong>
+- From <code>fem_em_solver</code>: <code>FourPortBirdcageGeometry</code>, <code>LeontovichWall</code>, <code>LumpedPortDrive</code>, <code>Study</code>. From <code>fem_em_solver.study</code>: <code>GATED_WIDTH_FRACTION</code>, <code>COPPER_SIGMA</code>, and <code>_conductor_setup</code> (for (c2) only). From <code>fem_em_solver.materials</code>: <code>GelledSalinePhantomMaterial</code>. From <code>fem_em_solver.ports.lumped</code>: <code>run_lumped_sheet_port_case</code>. From <code>fem_em_solver.io.mesh</code>: <code>BIRDCAGE_CONDUCTOR_SURFACE_TAG</code>. From <code>fem_em_solver.io.paraview_utils</code>: <code>write_xdmf_with_tags</code>, <code>adopt_host_ownership</code>. From <code>fem_em_solver.post.setup_figure</code>: <code>write_setup_figure</code>.
+- From the gate module <code>tests.package.test_wf16_study_copper</code> (unedited):
+  - <code>KEY</code> (<code>:65</code>), <code>NEGATIVE_CONTROL_FLOOR</code> (<code>:68</code>);
+  - helpers <code>_rel_means</code> (<code>:76</code>) and <code>_identity</code> (<code>:84–110</code>).
+  - <code>_identity</code> re-runs the P1 field solve with the Study's own <code>conductor_terms</code> and returns the power dict. The example calls it unchanged, so the partition it prints is the gate's computation.
+- Through the gate module's own imports, re-imported from their defining modules:
+  - <code>tests.validation.test_ans6_exact_strip</code>: <code>ANS6_EXACT_STRIP_CLASS_MEANS_P1</code>, <code>ANS6_EXACT_STRIP_HOLE_CELL_RECORD</code>, <code>ANS6_EXACT_STRIP_RECORD_RANK_WIDTH</code>, <code>CLASSES</code>, <code>_class_means</code>;
+  - <code>tests.validation.test_birdcage_power_identity</code>: <code>DISCRETE_IDENTITY_RTOL</code>;
+  - <code>tests.validation.test_lossy_sphere_fullwave</code>: <code>FREQUENCY_64_HZ</code>, <code>SALINE_EPSILON_R</code>, <code>SALINE_SIGMA</code>;
+  - <code>tests.validation.test_port_birdcage_four_port</code>: <code>LEG_D0_REPRODUCTION_BAND</code>, <code>PASSIVITY_SIGMA_TOLERANCE</code>;
+  - <code>tests.validation.test_port_birdcage_lumped_column</code>: <code>ADJACENT_SPREAD_BAND</code>, <code>PHANTOM_CELL_TAG</code>;
+  - <code>tests.validation.test_port_lumped_sheet_sweep</code>: <code>RECIPROCITY_BAND</code>;
+  - <code>tests.validation.test_th14_birdcage_copper as th14</code>: <code>th14.DRIVEN</code>, <code>th14.FREQUENCIES_HZ</code>, <code>th14._sweep_record</code>.
+- Assert by import, as the gate does (<code>:152–157</code>): <code>fem_em_solver.study.GATED_WIDTH_FRACTION == tests.validation.test_port_lumped_narrowed_sheet.GATED_WIDTH_FRACTION</code> and <code>COPPER_SIGMA == th14.COPPER_SIGMA</code>.
+- <strong>No new number.</strong> The script states no band, record, σ, frequency, power or cell count as a literal. <strong>Default: no gate-module edit.</strong> If an import fails, stop and report; never lift or edit a gate module in this item.</p>
+<p><strong>Order of calls in the script.</strong> All on every rank; prints under <code>rank == 0</code> with no collective inside (item 227's deadlock).
+1. (W), then the two import-equality asserts, then (c2) (no mesh).
+2. The copper <code>Study</code>: <code>solve(comm)</code>.
+3. The setup figure, from <code>cu.mesh</code> / <code>cu.cell_tags</code> (a no-op unless <code>FEM_EM_SETUP_FIGURES=1</code>).
+4. The PEC <code>Study</code>: <code>solve(comm)</code>.
+5. <code>power = _identity(cu, study_cu.omega, comm)</code>.
+6. One more P1 field solve for the XDMF: <code>run_lumped_sheet_port_case(cu.problem, cu.port_definitions, cu.specs, facet_tags=cu.facet_tags, driven_port_id=th14.DRIVEN, verbose=False, return_fields=True, extra_bilinear_terms=cu.conductor_terms, degree=cu.degree)</code>. This is <code>_identity</code>'s own call (<code>:85–88</code>) repeated, because <code>_identity</code> returns no field.
+7. Fields and the XDMF, then prints, then asserts.</p>
+<p><strong>(1) Anchors (asserted in-script, <code>-n 2</code>).</strong> Every record is from <code>20261008T190119Z_WF-16-s7-W1.log</code> (Status 0, 13 passed, 69 s, <code>:1841–1848</code>).
+- <strong>(W) width:</strong> <code>comm.size == ANS6_EXACT_STRIP_RECORD_RANK_WIDTH</code> before any comparison.
+- <strong>(M) mesh:</strong> <code>cu.cells == pec.cells == ANS6_EXACT_STRIP_HOLE_CELL_RECORD</code> (80 798; <code>:943</code>, <code>:1821</code>). Equality, as the gate asserts (<code>:169–171</code>).
+- <strong>(R) records:</strong> <code>_rel_means(_class_means(cu.s_matrix), ANS6_EXACT_STRIP_CLASS_MEANS_P1[KEY]["cu"])</code> ≤ <code>LEG_D0_REPRODUCTION_BAND</code> per class, and the same for <code>pec</code> against <code>["pec"]</code>.
+  - Records: Cu 4.093e-11 / 8.673e-11 / 1.376e-10 (<code>:1824</code>); PEC 5.052e-11 / 3.878e-11 / 5.875e-11 (<code>:1825</code>).
+  - Print the 10-digit class means as the gate does (<code>:944</code>, <code>:1822</code>).
+- <strong>(b) the copper power identity:</strong> on <code>power</code>, <code>p_surf &gt; 0</code> and <code>residual ≤ DISCRETE_IDENTITY_RTOL</code>. Record: <code>p_surf</code> 1.5168731494522984e-06 W, residual 8.507e-13 (<code>:1823</code>).
+- <strong>(g) <code>TH-14</code>'s gates, both columns:</strong> <code>th14._sweep_record(res.sweep)</code>; <code>reciprocity ≤ RECIPROCITY_BAND</code>, <code>max(sigma) ≤ 1 + PASSIVITY_SIGMA_TOLERANCE</code>, every spread ≤ <code>ADJACENT_SPREAD_BAND</code> (the gate's <code>:198–203</code>). The gate log does not print these values, so print them as new readings, with no record to compare.
+- <strong>(L) the copper loss on the coil adds up:</strong> the DG0 field <code>coil_surface_loss_per_cell_W</code> (see Output) summed over owned dofs and <code>allreduce</code>d equals <code>power["p_surf"]</code> within <code>DISCRETE_IDENTITY_RTOL</code> relative.
+  - This is a consistency check by construction (DG0 partition of unity, the <code>ports:18</code> precedent, <code>examples/ports/18_birdcage_copper_leontovich.py:157–183</code>), on a second solve of the same system.
+  - Predicted ≤ 1e-12. It is not a physics claim.</p>
+<p><strong>The loss partition (printed, not asserted; no gate band exists).</strong> From <code>power</code>:
+- <code>p_src</code>, <code>p_sheets</code>, <code>p_phantom</code>, <code>p_non_phantom</code>, <code>p_surf</code>;
+- <code>P_in = p_src − p_sheets</code>, <code>P_coil/P_in = p_surf / P_in</code>, and <code>P_phantom/P_in</code>.</p>
+<p>Predicted from <code>:1823</code>:
+- <code>P_in</code> 3.386923e-06 W;
+- <code>P_coil/P_in</code> 0.4478617, equal to <code>ANS-6</code> step 4's 64 MHz exact-route reading <code>20261003T095650Z_ANS-6-item193-W2-solve.log:3094</code> (<code>P_coil/P_in 0.4478617</code>, same definition <code>p_surf / (p_src − p_sheets)</code>, <code>test_ans6_exact_strip.py:532–533</code>);
+- <code>P_phantom/P_in</code> 0.5521383;
+- <code>p_non_phantom</code> 0.0 (the hole route has no conductor cells, and the air is lossless).</p>
+<p>The guide reads the result as: on this fixture, at 64 MHz, copper takes ≈ 45 % of the power delivered past the port sheets, and the gel takes ≈ 55 %. It says that <code>ANS-6</code> checked this partition externally (public verdict AGREE, no number) and that it is a model reading on one fixture at degree 1, not an accuracy figure.</p>
+<p><strong>(2) Negative controls (rule (e)).</strong>
+- <strong>(c1) asserted — the PEC <code>Study</code> cannot stand in for copper.</strong> <code>_rel_means(_class_means(pec.s_matrix), ANS6_EXACT_STRIP_CLASS_MEANS_P1[KEY]["cu"])</code> &gt; <code>NEGATIVE_CONTROL_FLOOR</code> per class (the gate's <code>:183–186</code>).
+  - <strong>Backing:</strong> the gate log prints the related gap |cu − pec|/|pec|: 6.420e-04 / 2.811e-04 / 4.861e-04 (<code>20261008T190119Z_WF-16-s7-W1.log:1826</code>). The registered columns behind it are <code>20261003T095650Z_ANS-6-item193-W2-solve.log:3095–3096</code>. <strong>Lines <code>:3090–3092</code> are the 10 MHz rows, not the 64 MHz ones.</strong>
+  - The asserted expression is relative to the Cu record, not to the PEC means. The two differ by a factor 1 + O(6e-4), so the example prints both:
+    - the gate's form, to compare with <code>:1826</code> digit for digit;
+    - the asserted form, predicted equal to it at 3 significant figures.
+  - <strong>Ceiling / separation:</strong> the floor is 1e-5. The measured gap is ≥ 2.8e-4 (28× the floor), and ≥ 2.8e5× <code>LEG_D0_REPRODUCTION_BAND</code>. The ceiling is the physical Cu − PEC difference itself, so no factor is asserted beyond the gate's floor.
+- <strong>(c2) asserted — the API refuses copper on a solid conductor.</strong> <code>_conductor_setup(Study(FourPortBirdcageGeometry(), phantom, LumpedPortDrive(), frequency_hz=FREQUENCY_64_HZ, conductor=LeontovichWall()), {}, comm)</code> raises <code>ValueError</code> matching <code>as_hole</code>, on every rank, before any mesh. This is the gate's <code>test_leontovich_needs_hole_route</code> (<code>:160–165</code>). A deterministic raise, no factor. The guide states it as the user rule: copper needs the hole geometry.</p>
+<p><strong>Flag versus control.</strong> The <code>mri:8</code> pattern (<code>EX-92</code>):
+- the run of record is flagged (<code>FEM_EM_SETUP_FIGURES=1</code>, it writes the PNG);
+- the control is the same line unflagged, after <code>git add</code> of the PNG.</p>
+<p>The executor compares the two logs <strong>at the band, never bitwise</strong>:
+- (M) as integers;
+- (R), (b), (g), (L) and (c1) each on the right side of its imported band or floor at both runs;
+- the loss partition ratios equal to 7 significant digits (printed, predicted).</p>
+<p>The flagged run's printed rows must also equal the gate log's (<code>:943–944</code>, <code>:1821–1826</code>) at the printed digits, except times. A mismatch with every assertion green is reported, not a stop.</p>
+<p><strong>(3) Windows.</strong> Each Bash call that runs a window is foreground with <code>timeout: 660000</code> and makes one bare, whole, repo-relative harness call. Nothing is chained or piped. <strong>Never beside another heavy window.</strong>
+0. <strong>Orphan check:</strong> <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0.
+1. <strong>Pre-censuses, before any file is written</strong> (the headers of <code>20261008T172115Z_EX-89-item332-pre-figures.log:12</code> and <code>20261008T172117Z_EX-89-item332-pre-docrefs.log:12</code>):
+   - <code>scripts/testing/run_and_log.sh EX-108-pre-figures "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_setup_figures.py'"</code>
+   - <code>scripts/testing/run_and_log.sh EX-108-pre-docrefs "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py'"</code>
+   - At drafting: figures <code>examples=98 ok=98 missing=0 broken=0</code>. Docrefs <code>dead=2 guide=0 stale=56 exit=1</code>, where both dead entries are <code>examples/ansys_benchmarks/ans9_coil_driven_gel_heating_10MHz/SPEC.md:36, :38</code> (<code>ans9_aed_results.json</code>, <code>ans9_corrected_rows.json</code>; <code>…pre-docrefs.log:36–38</code>), unrelated to this item. Use whatever the pre-census reads.
+2. <strong>Dry run, after the script exists:</strong> <code>scripts/testing/run_and_log.sh EX-108-dryrun "./scripts/run_examples.sh -e mri:16 -n 2 -t 300 --dry-run"</code>. It must print <code>(complex build)</code> (<code>run_examples.sh:281</code>). Pass the emitted docker line to the harness as its own call (<code>run_examples.sh</code> is host-side).
+3. <strong>Run of record (flagged), <code>-n 2</code>.</strong>
+   - Predicted ≈ 85 s, range [65, 160].
+   - Basis: the gate's W1 took 69 s: Cu <code>Study</code> 31.8 s (mesh 22.3 s), PEC <code>Study</code> 28.9 s, identity solve 4.6 s (<code>:943</code>, <code>:1821</code>, <code>:1823</code>). The example adds one field solve (≈ 5 s), the XDMF (≈ 3 s) and the figure (≈ 6 s: <code>mri:8</code> flagged 51 s against unflagged 45 s, <code>20261007T094132Z_EX-92.log:1900</code>, <code>20261007T094301Z_EX-92-control.log:1893</code>).
+   - Command (the <code>EX-92</code> run-of-record form, <code>20261007T094132Z_EX-92.log:12</code>; take the dry-run's line and add the flag):
+     <code>scripts/testing/run_and_log.sh EX-108 'docker compose exec -T -e FEM_EM_SETUP_FIGURES=1 fem-em-solver bash -lc "cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src timeout -k 30 300 mpiexec -n 2 python3 examples/mri/16_study_copper_birdcage.py"'</code>
+   - The script reaches <code>tests.*</code> by inserting the repo root into <code>sys.path</code>, as <code>mri:8</code> does (<code>08_study_four_port_birdcage.py:56–58</code>), so <code>PYTHONPATH</code> stays the dry run's <code>/workspace/src</code>. The only difference from the dry-run line is the <code>-e FEM_EM_SETUP_FIGURES=1</code> flag; note any other.
+4. <strong>Control, unflagged:</strong> <code>git add</code> the PNG first. Then run the same line without <code>-e FEM_EM_SETUP_FIGURES=1</code>, labelled <code>EX-108-control</code>. Predicted ≈ 78 s, range [60, 150].
+5. <strong>Guide</strong>, written from the run-of-record log before the post-censuses. Rule (i): no script edit after window 3, and no guide edit after window 6.
+6. <strong>Post-censuses:</strong> <code>EX-108-post-figures</code> / <code>EX-108-post-docrefs</code>, the window 1 commands with those labels. Write the prediction first:
+   - figures: <code>examples</code> N → N + 1, <code>ok</code> +1, <code>missing=0</code>, <code>broken=0</code>;
+   - docrefs: runnable +1, <code>guide=0</code>, <strong>no new dead reference</strong> (the dead list is the pre-census list, name for name). <code>exit=1</code> is expected while the two <code>ans9</code> entries stand.</p>
+<p><strong>Output.</strong>
+- <strong>Combined XDMF</strong> <code>examples/mri/paraview_output/mri_16_study_copper_birdcage_combined.xdmf</code>, written with <code>write_xdmf_with_tags(…, cu.mesh, cu.cell_tags, {...}, facet_tags=cu.conductor_facet_tags, comm=comm)</code>. <code>cu.conductor_facet_tags</code> is the mesh facet tag set that carries tag 401 (<code>study.py:526</code>). Then call <code>adopt_host_ownership</code>. Fields, real-valued, set on owned dofs and scattered:
+  - <code>E_abs</code>: |E| of the copper <code>Study</code>'s P1 drive, interpolated to P1 Lagrange (the <code>mri:8</code> pattern, <code>08_study_four_port_birdcage.py:213–219</code>);
+  - <code>coil_surface_loss_per_cell_W</code>: DG0, <code>½Re(1/Z_s)|n×E|²</code> over tag <code>BIRDCAGE_CONDUCTOR_SURFACE_TAG</code> with a DG0 test function inserted (the <code>ports:18</code> helper, <code>18_birdcage_copper_leontovich.py:157–183</code>, rewritten in the script with a comment citing it; examples never import each other).
+    - <code>Z_s = LeontovichWall(COPPER_SIGMA).surface_impedance_ohm(study_cu.omega)</code>.
+    - It is the facet-integrated loss per adjacent cell, in watts, <strong>not a density</strong>; the field name, the print and the guide all say so.
+- <strong>Setup figure</strong> <code>examples/mri/figures/mri_16_study_copper_birdcage_setup.png</code> from the copper <code>Study</code>'s mesh.
+  - Region names: <code>PHANTOM_CELL_TAG</code> "gel phantom" (translucent), with the air tags hidden and labelled "air (outer box PEC)".
+  - Build the air tags as <code>mri:8</code> does: every reduced cell tag that is not the phantom (<code>08_…py:127–136</code>). The hole route has no conductor cells, so the coil is the empty cavity.
+  - <code>slice_normal=(0, 0, 1)</code> through the origin.
+  - Title ≤ 130 characters, e.g. <code>mri:16 -- Study on the copper F-small birdcage: Leontovich wall on the coil hole (WF-16 step 7, degree 1)</code>.
+  - The guide says the coil is drawn as a void, because the renderer takes cell tags only and the copper is a facet condition on tag 401. The port sheets are facet tags and are not drawn either.
+- <strong>Guide.</strong>
+  - The <code>Study</code> lines above.
+  - The rule: a <code>LeontovichWall</code> needs <code>as_hole=True</code>, and (c2) shows the refusal.
+  - A table of copper against PEC class means (10 digits) with the record gaps.
+  - The loss partition table, quoted from the run's own log with <code>log:line</code>.
+  - Reading rules:
+    - the Cu − PEC S shift is ≈ 3e-4 to 6e-4 relative at 64 MHz on this fixture, so S alone barely shows copper. The loss partition shows it: ≈ 45 % of the delivered power;
+    - (L) proves the per-cell field is the same <code>p_surf</code>, not a different estimator.
+  - ParaView: open the combined XDMF; select the facet block, Threshold tag 401, and colour <code>coil_surface_loss_per_cell_W</code> on a log scale to see where on the legs and rings the copper loss concentrates; slice <code>E_abs</code> through z = 0.
+  - Scope sentences (below).
+  - <code>## Related</code>, every artifact by full repo-relative filename (rule (b)):
+    - <code>examples/mri/08_study_four_port_birdcage.md</code> (the same fixture on the σ = 800 S/m solid conductor);
+    - <code>examples/ports/18_birdcage_copper_leontovich.md</code> (copper off the API, ragged sheet, 10 MHz);
+    - <code>examples/mri/06_f_human_copper_loss_partition.md</code>;
+    - <code>tests/package/test_wf16_study_copper.py</code>, <code>tests/validation/test_ans6_exact_strip.py</code>, <code>tests/validation/test_th14_birdcage_copper.py</code>;
+    - <code>src/fem_em_solver/study.py</code>.</p>
+<p><strong>(4) Traps already paid for.</strong>
+- <strong>Complex build only;</strong> the runner sources it for <code>mri:</code>. Never set any <code>FEM_EM_ANS6_*</code> / <code>FEM_EM_EXACT_ANS6*</code> variable (item 324 trap: <code>ans:7</code>'s <code>main()</code> refuses them), and do not run <code>ans:6</code> / <code>ans:7</code>.
+- <strong>Rank-local quantities:</strong> <code>cell_tags.values</code>, <code>assemble_scalar</code> and local DG0 sums. <code>_identity</code> reduces its own powers. (L)'s owned sum uses <code>index_map.size_local</code> and <code>allreduce</code>. Gather the setup-figure tag set with <code>allgather</code> as <code>mri:8</code> does.
+- <strong>Collectives on every rank:</strong> both <code>solve</code>s, <code>_identity</code>, <code>run_lumped_sheet_port_case</code>, <code>fem.assemble_vector</code>, <code>write_xdmf_with_tags</code>, <code>write_setup_figure</code>. (c2)'s raise is caught on every rank, never under <code>rank == 0</code>.
+- <strong>The DG0 loss form in complex mode</strong> needs <code>ufl.conj(v)</code> on the test function (<code>18_…py:173</code>). No <code>ufl.max_value</code> or comparison on complex operands; take <code>np.real</code> after assembly.
+- <strong><code>-k 30</code></strong> on every container timeout. Status 124 is a finding: check orphans, then stop; never lengthen the timeout.
+- <strong>Cache sweep only at <code>pgrep -c python3</code> = 0,</strong> as one bare call (daily-review.md rubric (4)), labelled <code>EX-108-cache-sweep</code>. Never clear the cache wholesale.
+- <strong>Bare harness calls:</strong> <code>cd … &amp;&amp;</code>, <code>; date</code>, <code>| tail</code> and redirects are denied by <code>bash_guard.py</code>. The orphan check from a bare shell needs <code>-f docker/docker-compose.yml</code>. A docker-socket denial means stop and report (the <code>EX-89</code> item 332 post-figures precedent).
+- <strong>Docrefs:</strong> name no scratch path in guide prose (<code>EX-93</code>'s first post-docrefs exited 1 on a bare filename). Write every artifact by full repo-relative filename.
+- <strong>No AED value anywhere</strong> (the ANS-6 partition verdict is quoted as AGREE only). Write <code>≈</code>, never a tilde.</p>
+<p><strong>(5) Scope.</strong>
+- <strong>Covered:</strong> the F-small four-port birdcage on exact rectangles, κ off, hole route, 80 798 cells, degree 1, 64 MHz, <code>-n 2</code>, through the <code>Study</code> API on copper (Leontovich, σ = <code>COPPER_SIGMA</code>) and PEC.
+  - (R) both columns against <code>ANS-6</code> step 4's registered means;
+  - the copper power identity and <code>TH-14</code>'s gates;
+  - the per-cell copper loss field summing to <code>p_surf</code>;
+  - the PEC control and the solid-conductor refusal.
+- <strong>Not claimed:</strong>
+  - an absolute S₁₁ / Z_in, a resonance, tuning or Q figure (<code>ANS-6</code> / <code>ANS-7</code> stay 🟡);
+  - degree 2 (the <code>_P2</code> record at <code>-n 8</code>), 10 / 128 MHz, F-human (U27), κ;
+  - an accuracy statement on the copper loss: the partition is a model reading on one fixture at degree 1, and its external check is <code>ANS-6</code>'s verdict, not this example's;
+  - a surface loss <em>density</em>;
+  - anything <code>WF-16</code> step 7 does not claim.</p>
+<p><strong>(6) Negative result.</strong> If (W), (M), (R), (b), (g), (L), (c1) or (c2) misses, or a window hangs:
+- report the measurement and stop;
+- journal it in <code>docs/testing/attempts.md</code>, park on <code>attempt/EX-108-&lt;UTC&gt;</code>, and mark item 342 BLOCKED with the unblock condition in the same commit (rule (d));
+- leave <code>EX-108</code> ⬜. Never widen a band, edit <code>src/</code> or a gate module, or re-record a constant.</p>
+<p>What each miss means:
+- <strong>(M), (R), (b), (g) or (c1) red through the example path:</strong> contradicts <code>WF-16</code> step 7's green W1 at the same width. That is an example/test <strong>divergence finding</strong>: a known-issues entry and a §7 annotation on <code>WF-16</code> for the review, not an example fix.
+- <strong>(R) missing by ≈ 1e-13 with (b) and (g) green:</strong> not possible through <code>_identity</code>'s path (the γ literal was ruled in 324-3). Report it.
+- <strong>(L) red with (b) green:</strong> the example's DG0 form differs from <code>th14._surface_loss_w</code> (<code>test_th14_birdcage_copper.py:174–182</code>). That is an example defect: fix the form only if the cause is shown, before any window of record. Otherwise park.
+- <strong>(c2) does not raise:</strong> a <code>study.py</code> <code>_conductor_setup</code> regression; stop and report.
+- <strong>Cells ≠ 80 798 with an image change:</strong> a mesher-version event (rule (1*)) for <code>record-reconciler</code>. Stop.</p>
+<p>No <code>PREDICTED RED:</code> line.</p>
+<p><strong>(7) Status it can move.</strong> A new §7 row <code>EX-108</code> (the review adds it in the same commit as this item, rule (j)) moves ⬜ → ✅: Done-when met, elapsed recorded.
+- Census <code>examples</code> +1 (98 → 99 at drafting), <code>broken=0</code>; docrefs runnable +1, <code>guide=0</code>, no new dead reference.
+- It is the first example of a copper coil through the <code>Study</code> API.
+- Phase 9 (9d), "tutorials drawn from <code>examples/</code>", gains the copper-<code>Study</code> tutorial; §10 chain U's U26 gains its example.
+- <code>WF-16</code>, <code>ANS-6</code> and <code>TH-14</code> do not move.</p>
+<p><strong>Review rulings (2026-10-08 18:00 review) on item 342 — these outrank the brief above.</strong> (1) <code>mri:16</code> stands (<code>mri:14</code> / <code>mri:15</code> are <code>EX-106</code> / <code>EX-107</code>). (2) Drop (c2): the example stays on the public API; (c1) is the control. (3) Keep (L) asserted with the extra ≈ 5 s P1 solve; no rule (a) lift. (4) The (g) values are new printed readings with no log record to match — print them, compare nothing. (5) The partition wording is acceptable as "on this fixture, at degree 1 — a record; <code>ANS-6</code> stays 🟡". The backing-line correction (<code>…item193-W2-solve.log:3095–3096</code>, 64 MHz) and the asserted-vs-logged control form are accepted as drafted.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

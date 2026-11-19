@@ -1,0 +1,994 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>ANS-11 — the ASTM-box-loaded F-clinical-1.5T under the two-port drive at its Larmor root, 64 MHz - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ans-11-the-astm-box-loaded-f-clinical-15t-under-the-two-port-drive-at-its-larmor-root-64-mhz" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              ANS-11 — the ASTM-box-loaded F-clinical-1.5T under the two-port drive at its Larmor root, 64 MHz
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-11-05-0300-what-the-ans-page-from-entry-52s-log-no-run-means" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-11-05 03:00 — what "the ans: page from entry 52's log, no run" means
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-833-2026-11-05-lane-1-chain-c-step-c7-ans-11-the-ans11-record-page-degree-1-column" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 833 — 2026-11-05 (lane 1, chain C step C7; ANS-11 the ans:11 record page, degree-1 column)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-845-2026-11-05-ops-docs-the-resolves-with-of-known-issues-2026-11-05-the-ans-11-specs-two-dead-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 845 — 2026-11-05 (ops / docs; the "Resolves with" of known-issues 2026-11-05, the ANS-11 SPEC's two dead references)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-871-2026-11-08-10-c36-chain-c-ans-11s-comparison-script-lane-1-chain-step-no-solve-standard-n-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 871 — 2026-11-08 (§10 C36, chain C — ANS-11's comparison script; lane 1 → chain step (no solve), standard, -n 1)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-880-2026-11-08-10-c43-chain-c-the-ans11-page-gains-spec-v2s-node-section-lane-1-docs-n-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 880 — 2026-11-08 (§10 C43, chain C — the ans:11 page gains SPEC v2's node section; lane 1, docs, -n 2)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-983-2026-11-14-10-c37-chain-c-rule-4-the-11-07-weeklys-step-after-window-licence-on-xxl-entry-62-chain-step-no-solve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 983 — 2026-11-14 (§10 C37, chain C — rule (4), the 11-07 weekly's step, after-window licence on xxl entry 62; chain step (no solve))
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ans-11-the-astm-box-loaded-f-clinical-15t-under-the-two-port-drive-at-its-larmor-root-64-mhz">ANS-11 — the ASTM-box-loaded F-clinical-1.5T under the two-port drive at its Larmor root, 64 MHz<a class="headerlink" href="#ans-11-the-astm-box-loaded-f-clinical-15t-under-the-two-port-drive-at-its-larmor-root-64-mhz" title="Permanent link">&para;</a></h1>
+<p><em>History file for the §7 <code>ANS-11</code> row (<code>OPS-46</code>). Commissioned by the 2026-11-04 weekly (chain C's C7). The SPEC is <code>examples/ansys_benchmarks/ans11_f_clinical_1p5t_box_loaded_64MHz/SPEC.md</code>. The adjudication column is the degree-2 one (C19, <code>xxl</code> entry 62); the degree-1 column (entry 52) is a record. AED values never enter this file.</em></p>
+<h3 id="review-ruling-2026-11-05-0300-what-the-ans-page-from-entry-52s-log-no-run-means">Review ruling 2026-11-05 03:00 — what "the <code>ans:</code> page from entry 52's log, no run" means<a class="headerlink" href="#review-ruling-2026-11-05-0300-what-the-ans-page-from-entry-52s-log-no-run-means" title="Permanent link">&para;</a></h3>
+<p>The page is a <strong>record reader</strong>, on the <code>ans:4</code> item 417 precedent (<code>docs/planning/chunks/ANS-4.md:468–577</code>), which landed in one slot. It parses the tracked C6 log, and makes no solve and builds no mesh.
+- <strong>Why a reader:</strong> C6 itself (868 s, 41 GiB, <code>-n 8</code>) cannot run in a slot. The gitignored <code>logs/geo38/c6-node-193.5996.json</code> is not reproducible from a fresh clone, so the tracked log is the source.
+- <strong>What it meets:</strong> Done-when (1)'s degree-1 half only. The degree-2 rows wait on C19, so the glyph can move ⬜ → 🟡, not ✅.
+- <strong>The setup figure:</strong> <code>write_setup_figure</code> needs a mesh (<code>src/fem_em_solver/post/setup_figure.py:180</code>), so the census carries this guide as <code>missing</code>. That is named for the figure lane.</p>
+<h3 id="9-item-833-2026-11-05-lane-1-chain-c-step-c7-ans-11-the-ans11-record-page-degree-1-column">§9 item 833 — 2026-11-05 (lane 1, chain C step C7; <code>ANS-11</code> the <code>ans:11</code> record page, degree-1 column)<a class="headerlink" href="#9-item-833-2026-11-05-lane-1-chain-c-step-c7-ans-11-the-ans11-record-page-degree-1-column" title="Permanent link">&para;</a></h3>
+<p><strong>Executes</strong> the 11-04 weekly's lane-1 target "<code>ANS-11</code>'s runnable half" under the ruling above. Family <code>ANS-11</code> page, attempt 1 of 4.</p>
+<p><strong>Code.</strong>
+- <strong>New script</strong> <code>examples/ansys_benchmarks/ans11_f_clinical_1p5t_box_loaded_64MHz/11_f_clinical_1p5t_box_loaded_64MHz.py</code>, built from pure functions:
+  - <code>_read_log</code>, copied from <code>ans:4</code> <code>:301–311</code>, with a <code>.log.gz</code> fallback.
+  - <code>parse_c6_log(path)</code>. It <code>re.search</code>es <code>[GEO-38 C6a]</code> lines and keeps each token's <strong>string</strong> and 1-based line number:
+    - <code>(Z) node</code> at <code>:12063</code> (V_s, Z_th);
+    - <code>S2</code> at <code>:12281</code>;
+    - <code>Y_in ccw</code> / <code>cw</code> at <code>:12285–12286</code>;
+    - <code>mean |B1+|_ccw</code> at <code>:12288</code>;
+    - the 18 <code>lattice</code> lines at <code>:12289–12306</code>;
+    - <code>c*</code> at <code>:12307</code>;
+    - <code>normalisers:</code> at <code>:12310</code>;
+    - <code>wrote</code> at <code>:12311</code>;
+    - <code>price:</code> at <code>:12312</code>.
+  - It writes <code>metrics.json</code> (<code>json.dumps(indent=1, sort_keys=True)+"\n"</code>).
+  - A <code>COMPARISON.md</code> writer for SPEC rows 1–6, with three columns:
+    - ours, degree 1 (entry 52, a record, never adjudicated);
+    - ours, degree 2 (C19, <em>pending</em>, blank);
+    - AED First Order (blank).
+- <strong>Imports</strong> from C6's module (<code>tests/validation/test_geo38_f_clinical_box_loaded.py</code>): <code>_lattice</code> (<code>:116</code>), <code>BRIEF_LATTICE_N</code> (<code>:51</code>), <code>C6A_LATTICE_DZ_M</code> (<code>:53</code>) and <code>_p_acc_spec</code> (<code>:376</code>). Never import a <code>test_*</code> name, and never re-implement a readout.
+- <strong>Private side:</strong> no private writer and no <code>aed_results/</code> read. Honour <code>FEM_EM_ANS_SKIP_PRIVATE</code>.
+- <strong>Same-stem guide <code>.md</code>:</strong>
+  - the run line <code>./scripts/run_examples.sh -e ans:11 -n 1 -t 180</code>;
+  - what is parsed, and from which lines;
+  - "a degree-1 record; the adjudication column is C19";
+  - links to SPEC.md and COMPARISON.md.
+- <strong>Other files:</strong>
+  - Declare <code>metrics.json</code> in <code>LISTED_EXAMPLE_ARTIFACTS</code> (<code>tests/unit/test_doc_reference_exit_codes.py:473</code>) in the same commit.
+  - New <code>tests/unit/test_ans11_record_page.py</code>.
+  - No SPEC edit; the SPEC's status ticks are the weekly's.</p>
+<p><strong>Windows.</strong> Bare, foreground, Bash timeout 660000.
+1. <code>scripts/testing/run_and_log.sh ANS-11-page-list-pre "./scripts/run_examples.sh --list"</code> (ans 8).
+2. Code.
+3. W1: <code>scripts/testing/run_and_log.sh ANS-11-page-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_ANS_SKIP_PRIVATE=1 PYTHONPATH=/workspace/src:/workspace timeout -k 30 180 python3 -m pytest tests/environment/test_complex_mode.py tests/unit/test_ans11_record_page.py tests/unit/test_doc_reference_exit_codes.py -v -s --tb=short'"</code>
+4. Closing window: <code>scripts/testing/run_and_log.sh ANS-11-page "./scripts/run_examples.sh -e ans:11 -n 1 -t 180"</code>
+5. <code>ANS-11-page-list-post</code> (ans 9, census 175 → 176).
+6. <code>ANS-11-page-docrefs</code> (<code>timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py</code>, dead = 0).
+7. <code>ANS-11-page-figures</code> (<code>timeout -k 30 60 python3 scripts/testing/check_example_setup_figures.py</code>). It reads <code>missing</code> +1, exit 2; name it.</p>
+<p><strong>Anchor (asserted in the script and in W1).</strong>
+- <strong>(X) Extraction.</strong>
+  - The 18 lattice lines' labels equal <code>_lattice()</code>'s, in order.
+  - Every SPEC-quoted value equals its parsed token: S, Y_in, the means, c*, and P_box / P_src / P_acc (<code>SPEC.md:117–123</code>).
+  - The 36 six-digit lattice entries (<code>:129–131</code>) equal <code>f"{float(tok):.6e}"</code>.
+  - SPEC values are parsed from SPEC.md, never retyped.
+- <strong>(D) Derived quantities</strong> from the parsed tokens, each at half a unit in its last printed digit:
+  - <code>_p_acc_spec(S2, (1, −1j), V_s, 50.0)</code> against SPEC's P_acc (rel ≤ 1e-8);
+  - SAR10g(c*)/P_acc against 2.274234e-03 (≤ 5e-10);
+  - P_box/P_acc against 5.285093e-02 (≤ 5e-9);
+  - the 18-point lattice mean against the SPEC's 1.49792e-08 (≤ 5e-14);
+  - the argmax of the 18 SAR values equals the c* label, and the c* SAR string equals that lattice line's string;
+  - the S₁₂ string equals the S₂₁ string.
+- <strong>(R)</strong> The writer, run on the committed <code>metrics.json</code>, reproduces the committed <code>COMPARISON.md</code> byte for byte.</p>
+<p><strong>Control (asserted).</strong>
+- <strong>(N-digit-log):</strong> in a tmp copy of the log, change one digit of the c* lattice line's SAR. (D)'s c* string equality fails, and so does (X).
+- <strong>(N-drop):</strong> delete one lattice line. The parser raises (17 ≠ <code>BRIEF_LATTICE_N</code>).
+- <strong>(N-doc):</strong> a one-digit change to a tmp <code>COMPARISON.md</code> differs from the render.
+- <strong>(N-sense):</strong> the cw weights (1, +1j) miss P_acc. The size is predicted from hand arithmetic, so it is printed, not asserted (rule (e)).</p>
+<p><strong>Tier.</strong> Smoke / standard, <code>-n 1</code>, complex build (the C6 import pulls in dolfinx). <strong>Class:</strong> example. <strong>Cost:</strong> ≈ 7.3 measured / 50 predicted min. This is item 417's footprint plus a guide. If W1 is not green by minute 45, park.</p>
+<p><strong>Traps already paid for.</strong>
+- Pytest output is interleaved on log lines (e.g. <code>:12321 …SKIPPEDPASSED</code>). Use <code>re.search</code>, never <code>startswith</code>.
+- Retention gzips logs: read either suffix, and cite the base name.
+- The private-leak commit hook (<code>MIN_SIGNIFICANT_DIGITS = 8</code>) can flag a derived digit string, as it did item 417's class means. If it does, print fewer digits and move the first log, unchanged, to <code>logs/leak-held/</code>.
+- Declare the artifact in <code>LISTED_EXAMPLE_ARTIFACTS</code>.
+- Never run C6, never hand-edit <code>COMPARISON.md</code>, and enter no AED value.
+- The 400-centroid mean is a second record beside the lattice mean, not the comparison row (the 11-04 weekly's correction (i)).</p>
+<p><strong>Scope.</strong> Degree-1 record rows only. <strong>Not claimed:</strong> the degree-2 rows, an adjudication or any AED number, the node (SPEC v2's), or a setup figure.</p>
+<p><strong>Negative result.</strong>
+- (X) red: the parser is wrong, or the log moved. Report the first mismatch and stop.
+- (D) red with (X) green: a printed figure does not follow from its printed inputs (P_acc's convention, say). That is a finding for the review: park, BLOCKED, never retune.
+- A mismatch between the SPEC and the log is a SPEC transcription error for the weekly. Do not edit the SPEC.
+- No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong>
+- <code>ANS-11</code> ⬜ → 🟡: Done-when (1) is met for the degree-1 column. The degree-2 rows land with entry 62.
+- Census 175 → 176 (ans 8 → 9).</p>
+<p><strong>Depends on:</strong> nothing. It does not wait for entry 56; the node changes only SPEC v2.</p>
+<p><strong>Outcome (2026-11-05, 16:30 slot, implementer): DONE.</strong> The page parses <code>20261103T080009Z_GEO-38-C6.log</code> at the cited lines; (X) green (18 labels, 20 SPEC values, 36 / 36 six-digit entries), (D) green (P_acc rel 1.255e-10; SAR10g(c*)/P_acc 3.2e-10, P_box/P_acc 3.7e-9, lattice mean 2.7e-14 inside half a printed unit; argmax = c*), (R) 4 566 B identical; (N-digit-log), (N-drop), (N-doc) caught; (N-sense) cw/ccw P_acc ratio 1.0053, printed. Closing window <code>20261105T223815Z_ANS-11-page.log</code> (30 PASS, 3 s); W1 <code>…223748Z_ANS-11-page-W1d.log</code> (28 passed, 2 failed = the filed dead=2 SPEC entry, which turns two <code>test_doc_reference_exit_codes.py</code> nodes red — added to that entry). Census 176 → 177 (ans 8 → 9; the brief's 175 was one behind); figures <code>missing=1</code> is this page (no mesh, so no setup figure). <code>ANS-11</code> ⬜ → 🟡.</p>
+<h3 id="9-item-845-2026-11-05-ops-docs-the-resolves-with-of-known-issues-2026-11-05-the-ans-11-specs-two-dead-references">§9 item 845 — 2026-11-05 (ops / docs; the "Resolves with" of known-issues 2026-11-05, the <code>ANS-11</code> SPEC's two dead references)<a class="headerlink" href="#9-item-845-2026-11-05-ops-docs-the-resolves-with-of-known-issues-2026-11-05-the-ans-11-specs-two-dead-references" title="Permanent link">&para;</a></h3>
+<p><strong>Why first.</strong> The SPEC's bare basenames <code>build.py</code> / <code>box.py</code> make the docrefs checker read <code>dead=2</code> (exit 1) and turn two <code>tests/unit/test_doc_reference_exit_codes.py</code> nodes red (<code>20261105T223748Z_ANS-11-page-W1d.log:919–921</code>), so <code>main</code> has two known red test nodes and every example closing since 11-05 has had to disclose <code>dead=2</code> (<code>EX-182</code>, item 833, batches 4–5). <strong>Identified by this review</strong> (read, not executed): the eleven citations <code>build.py:46</code> … <code>build.py:59</code> are <code>tests/validation/test_geo38_f_clinical_build.py</code> (line 59 <code>shield_radius=0.3725</code>, 58 <code>air_padding</code>, 55 <code>port_box_size</code>, 46–51 <code>ring_radius</code> … <code>ring_gap_length</code>) and the two <code>box.py:51</code> / <code>box.py:60–62</code> are <code>tests/validation/test_geo38_f_clinical_box.py</code> (line 51 <code>TABLE_OFFSET_M = 0.0</code>, 60–62 <code>phantom_box</code> <code>size_m</code>). The SPEC already cites <code>tests/validation/test_geo38_f_clinical_build.py:44–64</code> in full at <code>:44</code>.</p>
+<p><strong>Edit.</strong> In <code>examples/ansys_benchmarks/ans11_f_clinical_1p5t_box_loaded_64MHz/SPEC.md</code>, on lines 51–60 only, replace each <code>`build.py:N`</code> with <code>`test_geo38_f_clinical_build.py:N`</code> and each <code>`box.py:N`</code> with <code>`test_geo38_f_clinical_box.py:N`</code> (the basename the checker resolves; same line numbers). <strong>Before rewriting, read each cited line in its file and confirm it holds the value the SPEC sentence quotes</strong>; if any does not, stop and journal (a wrong citation is the weekly's to correct, not a rename). No number, no SPEC version and no line count changes (the page's parser reads <code>SPEC.md:117–131</code>; assert <code>wc -l</code> is unchanged). No other file edited. The known-issues entry is removed in the same commit.</p>
+<p><strong>Anchor.</strong> The checker's own contract (<code>OPS-19</code>): <code>RESULT: dead=0</code> and exit ≠ 1; the two named nodes green; <code>test_ans11_record_page.py</code> still green with its (X) / (D) / (R) gates (the page reads values, not citations).</p>
+<p><strong>Control.</strong> The same checker on the pre-edit tree read <code>dead=2</code> naming exactly these two basenames (<code>20261105T193155Z_EX-179-b5-docrefs.log</code>, the <code>RESULT:</code> line <code>:156</code>); the post-edit log names neither (<code>grep -c 'build.py\|box.py: no such file'</code> 0). The stale count is information and is not compared.</p>
+<p><strong>Windows.</strong> Bare, foreground, Bash timeout 660000 ms.
+- <code>scripts/testing/run_and_log.sh ANS-11-spec-docrefs "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code>
+- <code>scripts/testing/run_and_log.sh ANS-11-spec-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_ANS_SKIP_PRIVATE=1 PYTHONPATH=/workspace/src:/workspace timeout -k 30 180 python3 -m pytest tests/environment/test_complex_mode.py tests/unit/test_ans11_record_page.py tests/unit/test_doc_reference_exit_codes.py -v -s --tb=short'"</code> — item 833's W1d form (<code>…W1d.log:12</code>); expect 30 passed, 0 failed.</p>
+<p><strong>Tier.</strong> Smoke / standard, <code>-n 1</code>, no solve. Predicted ≈ 25 s of windows. <strong>Class:</strong> ops / docs. <strong>Cost:</strong> ≈ 3.4 measured / 10 predicted min.</p>
+<p><strong>Traps already paid for.</strong> A harness call is the whole Bash command; <code>FEM_EM_ANS_SKIP_PRIVATE=1</code> on any <code>ans:</code> run; no <code>docs/private/</code> or <code>aed_results/</code> read; quote no AED number; count verdicts per rank by token; a regenerated <code>metrics.json</code> / <code>COMPARISON.md</code> is restored unless byte-identical.</p>
+<p><strong>Scope.</strong> Two citations' spelling. <strong>Not claimed:</strong> any SPEC content, SPEC v2, the <code>ans:11</code> setup figure (item 855).</p>
+<p><strong>Negative result.</strong> <code>dead</code> still &gt; 0: print the checker's FAIL lines, stop, BLOCKED (the checker's basename rule is then the finding). A cited line that does not hold its quoted value: journal it for the weekly, edit nothing. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> Known-issues 2026-11-05 (the SPEC's dead references) retired; §9's red-node bullet back to "no known red test node".</p>
+<p><strong>Depends on:</strong> nothing.</p>
+<p><strong>Outcome (2026-11-05, 19:30 slot, implementer): DONE.</strong> Each cited line read first and found to hold its quoted value (build <code>:46</code>–<code>:51</code>, <code>:55</code>, <code>:58</code>, <code>:59</code>; box <code>:51</code>, <code>:60–62</code>); eleven <code>`build.py:N`</code> → <code>`test_geo38_f_clinical_build.py:N`</code> and two <code>`box.py:N`</code> → <code>`test_geo38_f_clinical_box.py:N`</code>, SPEC lines 51–60 only, <code>wc -l</code> 153 before and after. Docrefs <code>RESULT: dead=0 guide=0 stale=116 … exit=2</code> (<code>20261106T013105Z_ANS-11-spec-docrefs.log:156</code>; the two basenames 0 times). W1 <code>20261106T013115Z_ANS-11-spec-W1.log</code>: 30 passed, 0 failed, 24 s, both named nodes PASSED, <code>test_ans11_record_page.py</code> green. Known-issues 2026-11-05 entry removed.</p>
+<h3 id="9-item-871-2026-11-08-10-c36-chain-c-ans-11s-comparison-script-lane-1-chain-step-no-solve-standard-n-1">§9 item 871 — 2026-11-08 (§10 C36, chain C — ANS-11's comparison script; lane 1 → chain step (no solve), standard, -n 1)<a class="headerlink" href="#9-item-871-2026-11-08-10-c36-chain-c-ans-11s-comparison-script-lane-1-chain-step-no-solve-standard-n-1" title="Permanent link">&para;</a></h3>
+<p><em>Written by the 2026-11-08 03:00 daily review from the 11-07 weekly's enumerated C36 (<code>PROJECT_PLAN.md</code> §10 chain C, "C36 (now; lane 1 → chain step, standard, <code>-n 1</code>, no solve; serial on nothing)"), under §9 rule (4). Family C36, attempt 1 of 4. The 2026-11-05 03:00 ruling above binds: the page is a record reader, makes no solve and builds no mesh.</em></p>
+<p><strong>The weekly's text (binds).</strong> "<code>COMPARISON.md</code>'s rows generated from a reader over entry 52's tracked log (the degree-1 record column, as the <code>ans:11</code> page already parses it) and over the JSON names entry 62 will write (<code>h9p-node-185.7629-d2.json</code> and the grid / rod JSONs; blank until they exist), the AED columns blank; (K) the degree-1 rows equal the SPEC's table by string; (D) the SPEC v2 node 185.7629 pF and R_p ‖ C figures re-derived from the module constants to the printed digit; <code>docrefs</code> 0 dead. Landing ⇒ C37 is one slot after entry 62."</p>
+<p><strong>The JSON names, read against the code (a correction of spelling, not of target).</strong> No module writes <code>h9p-node-185.7629-d2.json</code> (that is <code>WF-10</code>'s F-human family, <code>test_wf10_f_human_tuned_b1_sar.py:165</code>). Entry 62's two calls (<code>docs/testing/xl-pending.md:2453</code>) write:
+- call 1, C6's module at degree 2: <code>/workspace/logs/geo38/c6-node-185.7629-d2.json</code> (<code>test_geo38_f_clinical_box_loaded.py:739–741</code>, <code>C6_JSON_DIR</code> <code>:79</code>). The box-wide grid is <strong>a <code>"grid"</code> key inside that file</strong> (<code>:756–764</code>, present only with <code>FEM_EM_GEO38_C6_GRID=1</code>, which call 1 sets), not a separate JSON. C6's file has no <code>"degree"</code> key (<code>:740</code>, "no new key"); the <code>-d2</code> suffix is the only degree mark.
+- call 2, I36b's module at degree 2: <code>/workspace/logs/geo36/i36-node-185.7629-d2.json</code> (<code>_i36_json_path</code>, <code>test_geo36_rod_f_clinical_drive.py:219–224</code>; <code>I36_JSON_DIR</code> <code>:66</code>), which carries <code>"degree": 2</code> (<code>:610</code>).</p>
+<p>These are the "grid / rod JSONs". Both are gitignored, and neither exists before 2026-11-14.</p>
+<p><strong>Code: <code>examples/ansys_benchmarks/ans11_f_clinical_1p5t_box_loaded_64MHz/11_f_clinical_1p5t_box_loaded_64MHz.py</code> and <code>tests/unit/test_ans11_record_page.py</code> only.</strong> Pure functions, added beside the existing ones. No <code>src/</code> edit, no SPEC edit, no edit to C6's, I36b's, C18's or <code>WF-10</code>'s module.
+1. <strong><code>read_c19(c_pf="185.7629", c6_dir=None, i36_dir=None)</code>.</strong> The paths are <code>os.path.join(c6_dir or C6_JSON_DIR, f"c6-node-{c_pf}-d2.json")</code> and <code>i36._i36_json_path(float(c_pf), 2)</code>, the latter re-rooted on <code>i36_dir</code> when one is given. Import <code>C6_JSON_DIR</code> and <code>K8_JSON_KEYS</code> (<code>test_geo38_f_clinical_box_loaded.py:79</code>, <code>:1231</code>) and <code>_i36_json_path</code> / <code>I36_JSON_DIR</code>. It returns <code>{"c6": rec | None, "i36": rec | None, "paths": [...]}</code>. An absent file gives <code>None</code> and no error. A present file is validated:
+   - C6: <code>set(rec) == K8_JSON_KEYS</code> or <code>K8_JSON_KEYS | {"grid"}</code>, and <code>f"{rec['c_pf']:.4f}" == c_pf</code>;
+   - I36: <code>rec["degree"] == 2</code>, and <code>f"{rec['c_pf']:.4f}" == c_pf</code>.
+   Anything else raises <code>ValueError</code> naming the file and the key.
+2. <strong><code>degree2_cells(c19)</code>.</strong> Returns <code>{row label: cell string}</code> for the degree-2 column, with every cell <code>""</code> when <code>c19["c6"]</code> is <code>None</code>. The mapping, from the C6 JSON keys <code>:742–755</code>:
+   - S₁₁, S₁₂ = S₂₁, S₂₂ ← <code>s2</code>;
+   - Y_in ccw P33 / P41 ← <code>y_in["ccw"]</code>;
+   - the 18-point lattice mean and its value per √P_acc ← the mean of <code>lattice[*]["b_plus_ccw"]</code>, and <code>p_acc</code>;
+   - c* ← <code>star_label</code>; SAR10g(c*) and its value per P_acc ← <code>sar_star</code>, <code>p_acc</code>; the cw ball ← <code>sar_star_cw</code>;
+   - the box-wide 10 g maximum ← <code>grid["star_label"]</code> / <code>grid["sar_star"]</code> when <code>"grid"</code> is present;
+   - the 400-centroid mean and its value per √P_acc ← <code>mean_b_plus["ccw"]</code>;
+   - P_box / P_src / P_acc; gel fraction P_box / P_acc;
+   - sense ← <code>mean_b_plus["ccw"] / mean_b_minus["ccw"]</code>.
+   Raw values use the C6 module's own print formats (<code>.10e</code> for S as at <code>:12281</code>, <code>.9e</code> elsewhere). Derived values use the page's existing derived formats (<code>.6e</code> / <code>.5e</code> / <code>.4e</code>, ≤ 7 significant digits, the leak hook's floor), so that C37's degree-1 → degree-2 move is a like-for-like string per row. The copper / ESR fractions row stays <code>""</code> (C37's to decide). <strong>The I36 record maps to no row:</strong> the SPEC has no rod row ("Out of scope: no implant"). It is read and validated only.
+3. <strong><code>render_comparison(m, c19=None)</code></strong> takes its degree-2 cells from <code>degree2_cells(c19)</code>. With <code>c19=None</code>, or with both files absent, the output is <strong>byte-identical</strong> to today's committed <code>COMPARISON.md</code> (4 566 B). <code>build_metrics</code> is unchanged when absent (<code>"degree2_c19": "pending (xxl entry 62)"</code>). <code>main()</code> calls <code>read_c19()</code> and prints one line naming both paths and <code>present</code> / <code>absent</code>. It writes nothing new.
+4. <strong>(K) <code>check_k(spec, comparison_text)</code>.</strong> It parses the degree-1 cell (third column) of each COMPARISON row by its Quantity label. The normalisation N is: drop every <code>(…)</code> parenthetical, delete spaces, map <code>−</code> → <code>-</code>, strip one leading <code>+</code>. It asserts that N(SPEC token) occurs in N(cell) for every token <code>parse_spec</code> returns:
+   - <code>s2</code> (s11, s12, s22) and <code>y_in_ccw</code> (p33, p41);
+   - <code>means.b1p_ccw</code>, <code>means.sense</code> and <code>lattice_mean</code>;
+   - <code>c_star</code> (sar10g, sar10g_cw);
+   - <code>powers</code> (p_box, p_src, p_acc);
+   - <code>per_p_acc</code> (all three).
+   It also asserts that the SPEC's 36 six-digit lattice entries equal <code>f"{float(cell):.6e}"</code> of COMPARISON's lattice table, matched by label. SPEC tokens that COMPARISON does not carry (<code>means.b1m_ccw</code>, <code>means.cv</code>, and <code>c_star</code>'s x / z / r / az in the SPEC's form) are <strong>printed as "not carried"</strong>, and their count is asserted equal to that list of 6, so no omission can be silent. The SPEC table sits at <code>SPEC.md:120–126</code> and <code>:132–134</code> since v2. <code>parse_spec</code> reads by regex, not by line, but the script's docstrings still cite v1's <code>:117–123</code> / <code>:129–131</code>. Correct those two citations in the same edit, disclosed.
+5. <strong>(D) <code>node_figures(c_f, frequency_hz=FREQUENCY_HZ_C4, r_ohm=ESR_OHM, z0=50.0)</code>.</strong> The constants are <code>FREQUENCY_HZ_C4</code> (<code>test_geo38_f_clinical_esr_root.py:67</code>) and <code>ESR_OHM</code> (<code>test_wf10_f_human_copper_esr_root.py:53</code>). Z_RC comes from that module's <code>_z_rc</code> (<code>:188–191</code>) and Z_th from its <code>_thevenin_feed_impedance</code> (<code>:144</code>); never re-implement either. With ω = 2π·f, it returns:
+   - Q_C = 1/(ωCr);
+   - R_p by the SPEC's stated high-Q form 1/(ω²C²r) (<code>SPEC.md:75</code>);
+   - C_p = C/(1 + Q_C⁻²);
+   - Z_RC and Z_th.
+   <code>parse_spec_node(path)</code> parses, by regex and never by retyping:
+   - the node string at <code>SPEC.md:14</code> and its repeat at <code>:75</code>;
+   - <code>:75</code>'s v2 figures (R_p, the C beside it, Q_C, C_p, Z_RC);
+   - <code>:75</code>'s v1 parenthetical (R_p, C, Q_C, C_p, Z_RC);
+   - <code>:77</code>'s v2 Z_th and the v1 Z_th beside it.
+   Compare each derived value to the SPEC's string at that string's own printed decimals.</p>
+<p><strong>Gates (asserted, in the unit test and in the script's <code>[PASS]</code> lines).</strong>
+- <strong>(R) unchanged.</strong> The committed <code>metrics.json</code> (6 025 B) and <code>COMPARISON.md</code> (4 566 B) regenerate byte for byte. <code>git diff --stat</code> after the page window is empty on both files.
+- <strong>(C19-absent).</strong> On this tree both entry-62 paths are absent. <code>read_c19()</code> returns <code>None</code> / <code>None</code>, and every degree-2 cell is <code>""</code>.
+- <strong>(C19-stub)</strong>, on <code>tmp_path</code> with rank 0 writing and a bcast. A C6 stub has exactly <code>K8_JSON_KEYS ∪ {"grid"}</code> (values are arbitrary floats; the two-sense <code>y_in</code> / <code>mean_b_plus</code> shape follows <code>:745–748</code>). An I36 stub has <code>{"c_pf": 185.7629, "degree": 2}</code>. On these stubs:
+  - each mapped degree-2 cell is non-empty;
+  - every degree-1 cell is unchanged;
+  - (K) is still green on the stub render, which shows that (K) reads only the degree-1 column.
+- <strong>(K)</strong> green on the committed <code>COMPARISON.md</code>, with the six "not carried" tokens printed.
+- <strong>(D-node)</strong> The SPEC's node string (<code>:14</code>, <code>:75</code>) equals <code>f"{ROOT_D2_PF:.4f}"</code> = <code>185.7629</code> (<code>test_geo38_c18_degree2_c_mode.py:100</code>, entry 56's crossing 185.762904 pF).
+- <strong>(D-v1), the anchor that ties the page's arithmetic to the module's own print.</strong> At C = 193.5996 pF (the C6 log's <code>node</code> token, <code>20261103T080009Z_GEO-38-C6.log:12063</code>):
+  - <code>f"{z_rc:.9e}"</code> and <code>f"{z_th:.9e}"</code> equal that line's <code>Z_RC 2.000000000e-01-1.284504713e+01j</code> and <code>Z_th 3.259458821e+00-1.195984969e+01j</code> strings;
+  - R_p 825.0, Q_C 64.2, C_p 193.5527 and Z_RC −12.845047127j equal the SPEC's v1 parenthetical (<code>:75</code>).
+- <strong>(D-v2).</strong> R_p, Q_C, C_p, Z_RC and Z_th equal the SPEC's v2 strings (<code>:75</code>, <code>:77</code>: 896.1, 66.9, 185.7215, −13.386935347j, 3.505604063 − 12.39875443j), derived <strong>at C = <code>ROOT_D2_PF</code> = 185.762904 pF</strong>.
+- <strong>Printed, not asserted (rule (e); review arithmetic, unlogged):</strong> the same figures at the <strong>node</strong> C = 185.7629 pF, the value entered in HFSS and in entry 62's <code>FEM_EM_GEO36_S8_DRIVE_C_PF</code>. Predicted: R_p 896.1 and Q_C 66.9 unchanged, but C_p <strong>185.7214</strong>, Z_RC −13.386935636j and Z_th 3.505604196 − 12.39875466j, so they move in the last printed digit(s). Printed beside them: R_p by the binding ruling's exact form r(1 + Q²), predicted 896.3 at either C, where the SPEC prints the high-Q form.</p>
+<p><strong>Controls (asserted).</strong>
+- <strong>(N-K)</strong> One digit of S₁₁ changed in a tmp copy of SPEC.md: (K) goes red naming S₁₁, and (X) goes red too.
+- <strong>(N-D)</strong> The v2 figures derived at C = 193.5996 pF miss SPEC v2's R_p string (825.0 ≠ 896.1).
+- <strong>(N-stub-key)</strong> A C6 stub with one <code>K8_JSON_KEYS</code> key removed makes <code>read_c19</code> raise <code>ValueError</code> naming that key.
+- <strong>(N-stub-node)</strong> A C6 stub whose <code>c_pf</code> is 193.5996, written under the 185.7629 name, raises.
+- <strong>(N-stub-deg)</strong> An I36 stub with <code>"degree": 1</code> raises.
+- <strong>(N-digit-log), (N-drop), (N-doc)</strong> stay as they are.</p>
+<p><strong>Windows.</strong> Bare, foreground, Bash timeout 660000 ms. No compute runs beside them; <code>pgrep -c python3</code> in the container reads 0 first.
+- <strong>W1:</strong> <code>scripts/testing/run_and_log.sh ANS-11-C36-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_ANS_SKIP_PRIVATE=1 PYTHONPATH=/workspace/src:/workspace timeout -k 30 180 python3 -m pytest tests/environment/test_complex_mode.py tests/unit/test_ans11_record_page.py tests/unit/test_doc_reference_exit_codes.py -v -s --tb=short &gt; /workspace/logs/ans11-c36-w1-raw.log 2&gt;&amp;1; rc=\$?; echo \"[capture] rc=\$rc\" &gt;&gt; /workspace/logs/ans11-c36-w1-raw.log; cat /workspace/logs/ans11-c36-w1-raw.log; exit \$rc'"</code>. This is item 845's W1 (<code>20261106T013115Z_ANS-11-spec-W1.log:12</code>; 30 passed, 24 s, <code>:905</code>, <code>:909</code>) inside the durable capture of <code>20261015T171259Z_GEO-38-s1a-W2-r2-a2.log:12</code>, escaped as <code>GEO-38.md:233</code> spells it. Expect 30 passed plus the new nodes, 0 failed.
+- <strong>Page:</strong> <code>scripts/testing/run_and_log.sh ANS-11-C36-page "./scripts/run_examples.sh -e ans:11 -n 1 -t 180"</code> (3 s, <code>20261105T223815Z_ANS-11-page.log:78</code>). Every <code>[PASS]</code> line is followed by the new <code>read_c19</code> line (<code>absent</code>). Run <code>git diff --stat</code> on <code>metrics.json</code> / <code>COMPARISON.md</code> afterwards; it must be empty.
+- <strong>Docrefs:</strong> <code>scripts/testing/run_and_log.sh ANS-11-C36-docrefs "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code>, which must read <code>dead=0</code> (item 845's <code>20261106T013105Z_ANS-11-spec-docrefs.log:156</code>).</p>
+<p><strong>Tier.</strong> Standard, <code>-n 1</code>, complex (the C6 import pulls in dolfinx), no solve. <strong>Class:</strong> chain step (no solve). <strong>Cost:</strong> ≈ 4.8 measured / 30 predicted min. The windows sum to ≈ 35 s; the hour goes on code.</p>
+<p><strong>Traps already paid for.</strong>
+- Pytest output is interleaved: use <code>re.search</code>, never <code>startswith</code> (item 833).
+- Retention gzips logs, so read either suffix and cite the base name.
+- The private-leak hook (<code>MIN_SIGNIFICANT_DIGITS = 8</code>) can flag a derived digit string. Print derived values at ≤ 7 digits. On a hit, move the log unchanged to <code>logs/leak-held/</code>, report, and <strong>never <code>--no-verify</code></strong>.
+- <code>FEM_EM_ANS_SKIP_PRIVATE=1</code> on every <code>ans:</code> run. Read no <code>aed_results/</code>, <code>COMPARISON_private.md</code> or <code>docs/private/</code>, and enter no AED value.
+- A regenerated <code>metrics.json</code> / <code>COMPARISON.md</code> is restored unless it is byte-identical.
+- Stubs live on <code>tmp_path</code>: rank 0 writes, then a bcast. <strong>Never write under <code>/workspace/logs/geo38</code> or <code>/workspace/logs/geo36</code></strong>, which are entry 62's own directories.
+- <code>_p_acc_spec</code> now sits at <code>test_geo38_f_clinical_box_loaded.py:510</code> (item 833 cited <code>:376</code>). Import it by name.
+- Count pytest verdicts per rank, by token.</p>
+<p><strong>Scope.</strong> The reader, the mapping, (K) and (D), with the degree-2 column blank. <strong>Not claimed:</strong>
+- any degree-2 value (C37's, after entry 62);
+- the move per row or the order rule (C37);
+- the rod rows (C40);
+- an adjudication or any AED number;
+- a SPEC edit.</p>
+<p><strong>Negative result.</strong>
+- (R) red means the reader leaked into the render. Fix the render's default path, keep the first log, and re-run W1 once (rule (i)).
+- (K) red on the committed files means the SPEC and the page disagree as strings: a SPEC transcription question for the weekly. Report the first mismatch, edit neither file, and mark BLOCKED.
+- (D-v1) red means the page's arithmetic is not the module's. That is a finding: park and BLOCKED.
+- (D-v2) red means the SPEC's v2 digits do not follow from C18's constant either. Print every figure at both C values, stop, and journal it for the weekly.
+- No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong>
+- §10 C36 → DONE. C37 is then one slot after entry 62.
+- <code>ANS-11</code> stays 🟡; Done-when (1) closes on C37.
+- The node-C digit moves are named for the weekly. They read as a SPEC v2 transcription question: the node is 185.7629 pF, but its C_p / Z_RC / Z_th digits were computed at 185.762904 pF, and its R_p uses rQ², not the binding ruling's r(1 + Q²). The weekly rules on them; no slot edits the SPEC.</p>
+<p><strong>Depends on:</strong> nothing. Item 880 (C43) edits the same two files and runs after this item.</p>
+<p><strong>Outcome (06:00 slot, 2026-11-08): DONE, every gate green.</strong> The page gains <code>read_c19</code>, <code>degree2_cells</code>, <code>comparison_cells</code>, <code>check_k</code>, <code>node_figures</code>, <code>parse_spec_node</code> and <code>check_d</code>; <code>render_comparison(m, c19=None)</code> takes its degree-2 cells from <code>degree2_cells</code>. W1 <code>20261108T120606Z_ANS-11-C36-W1.log</code>: 39 passed, 0 failed, 23 s (item 845's 30 plus nine new nodes). Page <code>20261108T120640Z_ANS-11-C36-page.log</code>: 64 <code>[PASS]</code>, 0 <code>[FAIL]</code>, 2 s, and the <code>read_c19</code> line reads both paths <code>absent</code>. <code>git diff --stat</code> on <code>metrics.json</code> / <code>COMPARISON.md</code> is empty, so (R) holds. Docrefs <code>20261108T120659Z_ANS-11-C36-docrefs.log</code>: <code>dead=0 guide=0</code>, exit 2 on the stale report, as item 845's. (K) is 18/18 green, with the six "not carried" tokens printed. (C19-stub) fills 16 cells, and only the copper / ESR row stays blank. (D-node) holds: 185.7629 at <code>:14</code> = <code>:75</code> = <code>f"{ROOT_D2_PF:.4f}"</code>. (D-v1) is 9/9: both <code>.9e</code> node tokens equal <code>:12063</code>, and R_p 825.0 / Q_C 64.2 / C_p 193.5527 / Z_RC / Z_th equal v1's strings. (D-v2) is 6/6 at C = <code>ROOT_D2_PF</code>. Controls (N-K), (N-D), (N-stub-key), (N-stub-node) and (N-stub-deg) are all as predicted.
+- <strong>Printed, not asserted (rule (e)), at the node C = 185.7629 pF.</strong> R_p 896.1 and Q_C 66.9 are unchanged. C_p is 185.7214 against SPEC v2's 185.7215. The SPEC v2 strings move, in units of their last printed digit, by −Im Z_RC +289, Re Z_th +133 and −Im Z_th +23. The exact r(1 + Q²) gives 896.3 at either C. All of this is as the brief predicted, and it is named for the weekly (the SPEC v2 transcription question above). No SPEC edit.
+- <strong>Disclosed.</strong>
+  - The two docstring citations were corrected to <code>SPEC.md:120–126</code> / <code>:132–134</code>.
+  - The page window ran as the brief spells it, and the page printed <code>FEM_EM_ANS_SKIP_PRIVATE=unset</code>, as item 833's page log did. <code>run_examples.sh</code> does not forward the variable, and the page has no private read path.
+  - The degree-2 sense cell uses <code>.6f</code>, the C6 log's own format, so that it compares like-for-like with the degree-1 cell.</p>
+<h3 id="9-item-880-2026-11-08-10-c43-chain-c-the-ans11-page-gains-spec-v2s-node-section-lane-1-docs-n-2">§9 item 880 — 2026-11-08 (§10 C43, chain C — the ans:11 page gains SPEC v2's node section; lane 1, docs, -n 2)<a class="headerlink" href="#9-item-880-2026-11-08-10-c43-chain-c-the-ans11-page-gains-spec-v2s-node-section-lane-1-docs-n-2" title="Permanent link">&para;</a></h3>
+<p><em>Written by the 2026-11-08 03:00 daily review from the 11-07 weekly's enumerated C43 (<code>PROJECT_PLAN.md</code> §10 chain C, "C43 (now; lane 1, docs, <code>-n 2</code>, no solve; serial on nothing)"), under §9 rule (4). Family C43, attempt 1 of 4. <strong>Queued after item 871</strong>, which adds <code>node_figures</code> / <code>parse_spec_node</code> and edits the same script and test. The weekly's "serial on nothing" holds for its inputs; the order exists only because both items touch the same files.</em></p>
+<p><strong>The weekly's text (binds).</strong> "The <code>ans:11</code> page gains SPEC v2's node section (185.7629 pF; R_p = 896.1 Ω ‖ C, Q_C = 66.9, C_p = 185.7215 pF — the figures derived in the page's own code from the module's ω, C and r, asserted equal to the SPEC's by string); <code>docrefs</code> 0 dead."</p>
+<p><strong>Code.</strong> Three files only: the page script, its guide <code>.md</code>, and <code>tests/unit/test_ans11_record_page.py</code>. No SPEC edit, no <code>metrics.json</code> / <code>COMPARISON.md</code> change; (R) stays byte-identical.
+1. <strong>Script.</strong> <code>node_section_lines(spec_node)</code> returns the section's printed lines, built only from item 871's <code>node_figures</code> / <code>parse_spec_node</code>. <code>main()</code> prints them after the <code>[PASS]</code> block:
+   - the node line, which gives C = 185.7629 pF = <code>f"{ROOT_D2_PF:.4f}"</code> and its source (entry 56's crossing 185.762904 pF, <code>SPEC.md:17–19</code>);
+   - one <code>[PASS]</code> / <code>[FAIL]</code> line per v2 figure (R_p, Q_C, C_p, Z_RC, Z_th) against the SPEC's string, derived at <code>ROOT_D2_PF</code>, as (D-v2);
+   - one printed line of the same figures at the node C, each with its last-digit move against the SPEC's string;
+   - the line "R_p by r(1 + Q²) printed beside the SPEC's high-Q form".
+   A <code>[FAIL]</code> adds to <code>failed</code>, so the page exits 1.
+2. <strong>Guide.</strong> It gains <code>## 4. SPEC v2's node (the capacitor the operator enters)</code>, after section 3. The section:
+   - says the node is 185.7629 pF on all 64 gaps with r = 0.2 Ω, and that the R_p ‖ C below is HFSS's parallel entry at 64 MHz;
+   - quotes <strong>only the closing window's printed digits</strong> (rule: closing-log digits only);
+   - names the node-C digit moves as printed, not asserted, and as the weekly's to rule;
+   - says the degree-1 record column above ran at 193.5996 pF, and that 185.7629 pF is the degree-2 adjudication column's node (entry 62).
+   The guide's "Not claimed" paragraph drops "SPEC v2's node" and keeps "the degree-2 rows". No other guide line changes.
+3. <strong>Test.</strong> <code>test_c43_node_section</code>:
+   - every <code>[PASS]</code> line of <code>node_section_lines</code> is a PASS;
+   - every numeric token in the guide's section 4 (regex <code>[-+−]?\d+\.\d+(?:e[-+]\d+)?</code>, the hyphen first so it is literal) occurs in <code>node_section_lines</code>' output, so the guide quotes no digit the page does not print;
+   - the section heading occurs exactly once.</p>
+<p><strong>Anchor (asserted).</strong>
+- (D-v2) through the page's printed lines: R_p 896.1, Q_C 66.9, C_p 185.7215, Z_RC −13.386935347j and Z_th 3.505604063 − 12.39875443j equal <code>SPEC.md:75</code>, <code>:77</code> by string. They are derived from <code>FREQUENCY_HZ_C4</code>, <code>ESR_OHM</code> and <code>ROOT_D2_PF</code> through <code>_z_rc</code> / <code>_thevenin_feed_impedance</code>, never retyped.
+- (D-node): the SPEC's node string = <code>f"{ROOT_D2_PF:.4f}"</code>.
+- The guide-digit check above.
+- <code>docrefs</code> <code>dead=0</code>.</p>
+<p><strong>Controls (asserted).</strong>
+- <strong>(N-guide)</strong> A tmp copy of the guide with one digit of the section's C_p changed fails the guide-digit check.
+- <strong>(N-node)</strong> <code>node_section_lines</code> on a tmp SPEC whose node reads 193.5996 prints <code>[FAIL]</code> on R_p (825.0 ≠ 896.1).</p>
+<p><strong>Windows.</strong> Bare, foreground, Bash timeout 660000 ms. <code>pgrep -c python3</code> reads 0 first.
+1. <strong><code>ANS-11-C43-page-pre</code>:</strong> <code>scripts/testing/run_and_log.sh ANS-11-C43-page-pre "./scripts/run_examples.sh -e ans:11 -n 1 -t 180"</code>, after the script edit and before the guide edit. It gives the printed lines the guide quotes. It closes nothing.
+2. Edit the guide.
+3. <strong><code>ANS-11-C43-W1</code>:</strong> item 871's W1 command, labelled <code>ANS-11-C43-W1</code>, with raw log <code>ans11-c43-w1-raw.log</code>, <strong>under <code>mpiexec -n 2</code></strong> (the weekly's width; every unit node is rank-agnostic or rank-0-writes-then-bcast), <code>timeout -k 30 180</code>. Expect item 871's count plus one.
+4. <strong>Closing, <code>ANS-11-C43-page</code>:</strong> <code>scripts/testing/run_and_log.sh ANS-11-C43-page "./scripts/run_examples.sh -e ans:11 -n 1 -t 180"</code>. This is the guide's own flags (<code>-n 1</code>; examples close on their guide's run line), run after the guide edit. Its node lines must equal the pre-window's by string; the arithmetic is deterministic. If they differ, re-quote and re-run the closing window.
+5. <strong><code>ANS-11-C43-docrefs</code></strong>, item 871's form, which must read <code>dead=0</code>.
+6. <strong><code>ANS-11-C43-figures</code>:</strong> <code>scripts/testing/run_and_log.sh ANS-11-C43-figures "timeout -k 30 60 python3 scripts/testing/check_example_setup_figures.py"</code>. <code>ans:11</code>'s figure is <code>mesh:17</code>'s committed copy (the 11-07 weekly's ratification). Name the result.</p>
+<p><strong>Tier.</strong> Smoke / standard, <code>-n 2</code> for W1, <code>-n 1</code> for the page, complex, no solve. <strong>Class:</strong> ops / docs. <strong>Cost:</strong> ≈ 5.1 measured / 25 predicted min. Windows are measured at ≈ 3 s per page run (<code>20261105T223815Z_ANS-11-page.log:78</code>) and 24 s for W1 at <code>-n 1</code> (<code>20261106T013115Z_ANS-11-spec-W1.log:909</code>).</p>
+<p><strong>Traps already paid for.</strong>
+- Item 871's list.
+- A guide is never edited after its closing window. If the guide changes, re-run the closing window (the 18:00 ruling of 11-07).
+- A guide quotes a round-off term as a bound, or names the window its digits came from (03:00 ruling, <code>EX-171</code>).
+- Use <code>./scripts/run_examples.sh</code>, not the guide's root form.
+- The census is unchanged (ans 9); this item adds no example.</p>
+<p><strong>Scope.</strong> The page's node section and the guide's text. <strong>Not claimed:</strong>
+- any degree-2 value;
+- the SPEC's node-C digits (the weekly's ruling, item 871);
+- the HFSS session;
+- the setup figure.</p>
+<p><strong>Negative result.</strong>
+- A <code>[FAIL]</code> on a v2 figure means the SPEC's v2 strings do not follow from the module constants. Stop, BLOCKED, and journal it for the weekly. Never edit the SPEC.
+- A guide-digit miss means the guide quotes a digit the page does not print. Fix the guide and re-run the closing window, once.
+- No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong>
+- §10 C43 → DONE.
+- The <code>ans:11</code> page shows the operator the node to enter, with its R_p ‖ C derived in code (<code>ANS-11</code> replication readiness).
+- <code>ANS-11</code>'s glyph stays 🟡.</p>
+<p><strong>Depends on:</strong> item 871 (same script and test; uses its functions).</p>
+<p><strong>Outcome (09:00 slot, 2026-11-08): DONE, every gate green.</strong> The page gains <code>node_section_lines</code>, printed after the <code>[PASS]</code> block; a <code>[FAIL]</code> there joins <code>failed</code>. Page-pre <code>20261108T152453Z_ANS-11-C43-page-pre.log</code> and closing page <code>20261108T152642Z_ANS-11-C43-page.log</code> (2 s, exit 0, 71 <code>[PASS]</code>, 0 <code>[FAIL]</code>): the node lines are equal by string. The node line is <code>[PASS]</code> (185.7629 at <code>:14</code> = <code>:75</code> = <code>f"{ROOT_D2_PF:.4f}"</code>, the crossing 185.762904 pF). The six v2 lines are <code>[PASS]</code> at C = <code>ROOT_D2_PF</code>: R_p 896.1, Q_C 66.9, C_p 185.7215, −Im Z_RC 13.386935347, Re Z_th 3.505604063 and −Im Z_th 12.39875443, each +0 in its last digit. At the node C, printed only: R_p +0, Q_C +0, C_p 185.7214 (−1), −Im Z_RC +289, Re Z_th +133, −Im Z_th +23. r(1 + Q²) gives 896.3 at either C. (R) holds: <code>git status</code> shows no change to <code>metrics.json</code> / <code>COMPARISON.md</code>. W1 at <code>-n 2</code>: <code>20261108T152614Z_ANS-11-C43-W1-r2.log</code>, 42 passed per rank, 0 failed, 21 s. The guide's section 4 carries 15 numeric tokens and misses none. (N-guide) misses exactly <code>185.7216</code>, and (N-node) prints <code>[FAIL]</code> on R_p (824.9762, i.e. 825.0 at one decimal, vs 896.1). Docrefs <code>20261108T152647Z_ANS-11-C43-docrefs.log</code>: <code>dead=0 guide=0</code>, exit 2 on the stale report, as item 871's. Figures <code>20261108T152649Z_ANS-11-C43-figures.log</code>: 182 ok, 0 missing, 0 broken; <code>ans:11</code> ok on <code>mesh:17</code>'s copy.
+- <strong>Disclosed.</strong>
+  - The first W1, <code>20261108T152538Z_ANS-11-C43-W1.log</code> (41 passed, 1 failed per rank), is kept. Its one failure was the test's own (N-node) check: a substring <code>"825.0"</code> test against the <code>.7g</code> FAIL print <code>824.9762</code>. The control itself went red as predicted. The check now reads the printed value at the SPEC's one decimal. It was re-run once as <code>-r2</code>, and no bound changed.
+  - W1 adds three nodes, not one: <code>test_c43_node_section</code>, plus the two controls <code>test_c43_n_guide</code> / <code>test_c43_n_node</code>.
+  - The v2 figures are derived at <code>ROOT_D2_PF</code> when the SPEC's node names it. Otherwise they are derived at the node as printed, which is how (N-node) fails by arithmetic.
+  - The guide's section 4 names the degree-1 node by its log line (<code>:12063</code>), not its digits, because the node section does not print them.</p>
+<h3 id="9-item-983-2026-11-14-10-c37-chain-c-rule-4-the-11-07-weeklys-step-after-window-licence-on-xxl-entry-62-chain-step-no-solve">§9 item 983 — 2026-11-14 (§10 C37, chain C — rule (4), the 11-07 weekly's step, after-window licence on <code>xxl</code> entry 62; chain step (no solve))<a class="headerlink" href="#9-item-983-2026-11-14-10-c37-chain-c-rule-4-the-11-07-weeklys-step-after-window-licence-on-xxl-entry-62-chain-step-no-solve" title="Permanent link">&para;</a></h3>
+<p><em>Written by the 2026-11-14 10:30 daily review from the 11-07 weekly's C37 (<code>PROJECT_PLAN.md</code> §10 chain C: "<code>ANS-11</code>'s degree-2 rows filled from entry 62's JSONs, the degree-1 → degree-2 move per row printed, the 10-24 exit's order rule applied; JSON written. A record; <code>ANS-11</code>'s Done-when (1) closes on it."), under §9 rule (4). It does not count against rule (6). Family C37, attempt 1 of 4. <strong>Takeable now under the after-window licence:</strong> this review read entry 62 mechanically and wrote its <code>xxl-ledger.md</code> row (2026-11-14 10:30, from a <code>log-pathologist</code> reading). Entry 62's decision rule's green branch <em>is</em> this step ("<code>ANS-11</code>'s <code>COMPARISON.md</code> rows are filled from it, the moves are records, the order rule applies"); what the order rule's verdict then means for the clinical figures is the weekly's.</em></p>
+<p><strong>One correction of route, not of target (binding ruling, §9 digest: "every new step's reader of a pending window parses its tracked log, not the host JSON … the host JSON, where present, is only a custody check").</strong> The weekly wrote "from entry 62's JSONs" before that ruling. The JSONs are gitignored (<code>/workspace/logs/geo38/c6-node-185.7629-d2.json</code>, <code>/workspace/logs/geo36/i36-node-185.7629-d2.json</code>), so a <code>COMPARISON.md</code> rendered from them cannot regenerate on a clone. <strong>The degree-2 cells are therefore parsed from entry 62's tracked log, <code>docs/testing/logs/20261114T080009Z_GEO-38-C19.log</code>, and C36's <code>read_c19()</code> JSONs become the custody check (J62).</strong> The rows, the moves and the order rule are the weekly's, unchanged.</p>
+<p><strong>Facts verified for this brief (10:30 review, by <code>grep</code> on the tracked log).</strong>
+- Every <code>_SINGLETONS</code> line of the page prints <strong>exactly once</strong> in entry 62's log, all in call 1 (call 1 ends at <code>[C19] call 1 … rc1=0</code>, <code>:12703</code>; call 2's lines carry other tags): <code>(Z) node 185.7629 pF</code> <code>:12160</code>; <code>kinds … S2</code> <code>:12379</code>; <code>Y_in ccw</code> <code>:12383</code>; <code>Y_in cw</code> <code>:12384</code>; <code>mean |B1+|_ccw</code> <code>:12387</code>; <code>c*</code> <code>:12406</code>; <code>normalisers</code> <code>:12410</code>; <code>wrote …c6-node-185.7629-d2.json</code> <code>:12411</code>; <code>price</code> <code>:12412</code>. The 18 <code>lattice</code> lines are present (count 18). So <strong><code>parse_c6_log(C19_LOG)</code> reads entry 62 unedited</strong> — its own duplicate check is the "exactly one distinct match" rule (10:30 11-12 ruling).
+- The box-wide grid's result is one line, <code>:12407</code>: <code>[GEO-38 C6a] (C6b) grid n 90 (72 new balls, 18 lattice values reused); g* x+157.5mm y+0.0mm dz+0.0mm (0.157500, 0.000000, 0.000000) m: SAR10g &lt;F&gt; W/kg (ccw), (1,+1j) ball &lt;F&gt; W/kg; beside c* …</code>. Its label form (<code>x… y… dz…</code>, one decimal) is <strong>not</strong> <code>_LABEL</code>'s; it needs its own regex. <code>:12162</code> is the grid's census line (<code>n 90 of 91 candidates kept …</code>).
+- The <code>(Z) node</code> line ends <code>… failures none (ASSERTED)</code>; <code>_SINGLETONS["node"]</code> uses <code>re.search</code>, so the suffix does not matter.
+- <strong>Entry 62 is green on every asserted gate</strong> (<code>log-pathologist</code> reading, ledger row 2026-11-14): Status 0, <code>rc1=0</code> <code>:12703</code>, <code>rc2=0</code> <code>:25454</code>, 16 / 16 rank summaries per call, FAILED / ERROR 0. <strong>The log prints no degree-1 comparand</strong>, so every move is computed by this step from entry 52's tracked log (the page's <code>SOURCE_LOG</code>), never read from entry 62. In call 1 "P_rod" (<code>:12380</code>) is tag 403 counted as gel, not a rod. Whether g* at x = +157.5 mm lies on the grid's edge is not established: print g*'s coordinates beside the grid's extent if the module exposes it, and claim nothing about a maximum outside the grid.</p>
+<p><strong>Code: the <code>ans:11</code> page script and <code>tests/unit/test_ans11_record_page.py</code>; the page window regenerates <code>ans:11</code>'s <code>metrics.json</code> and <code>COMPARISON.md</code>. Nothing else</strong> (no <code>src/</code>, no SPEC, no C6 / I36 / C33 / <code>ans:12</code> / <code>ans:13</code> module edit).
+1. <strong><code>C19_LOG_BASENAME = "20261114T080009Z_GEO-38-C19.log"</code>, <code>C19_LOG</code></strong> beside <code>SOURCE_LOG</code> (read through <code>_read_log</code>, so a gzipped copy still reads).
+2. <strong><code>parse_c19_grid(path)</code></strong> — one new regex for <code>:12407</code>'s form; returns <code>{"line", "n", "label", "x_m", "y_m", "z_m", "sar10g", "sar10g_cw"}</code> as printed strings; raises <code>ValueError</code> on zero or more than one match.
+3. <strong><code>degree2_block(path=C19_LOG)</code></strong> — <code>p2 = parse_c6_log(path)</code>, <code>d2 = derived(p2)</code>, <code>g = parse_c19_grid(path)</code>; asserts <code>p2["node"]["c_pf"] == C19_NODE_PF</code>; returns <code>{"source_log": C19_LOG_BASENAME, "parsed": p2, "derived": &lt;the same derived-key dict</code>build_metrics<code>writes, from d2&gt;, "grid": g, "moves": …, "order_rule": …}</code>.
+   - <strong><code>moves</code></strong>: for each row with a degree-1 and a degree-2 number — S₁₁ / S₂₂ magnitude, |Y_in| ccw P33 / P41, the lattice mean and its per-√P_acc value, SAR10g(c*) and per P_acc, the cw ball, the centroid mean and its per-√P_acc value, P_box / P_src / P_acc, the gel fraction, the sense — <code>f"{x2 / x1 - 1:+.3e}"</code> (≤ 4 significant digits; a ratio, never an AED figure).
+   - <strong><code>order_rule</code></strong>: the 10-24 exit's rule applied to the <strong>per-watt rows</strong> (lattice mean per √P_acc, SAR10g(c*) per P_acc, centroid mean per √P_acc, gel fraction P_box / P_acc): the list of rows whose |move| &gt; 2 %, and the sentence "clinical figures quoted at degree 2 only" if that list is non-empty, else "the 2 % order rule does not fire". <strong>A printed verdict, not an assertion</strong>; the 2 % is the exit's pre-registered threshold, not a band this step sets.
+   - c*'s label moving (degree-1 c* vs degree-2 c*) is printed as a fact; the box-wide g* is a degree-2-only row (entry 52 ran no grid).
+4. <strong><code>build_metrics(parsed, d, case="ans11")</code></strong>: for <code>"ans11"</code>, <code>"degree2_c19"</code> becomes <code>degree2_block()</code> (the tracked log, so <code>build_metrics(parsed, derived(parsed))</code> stays a pure function of tracked files and the landed nodes <code>test_r_regeneration</code> / <code>test_c49_k_ans11_default_byte_identical</code> stay green <strong>unedited</strong> on the regenerated files). <code>"ans12"</code> is unchanged (<code>"pending (entry 66)"</code>); ANS-12's <code>COMPARISON.md</code> byte-identical.
+5. <strong><code>render_comparison(m, c19=None, case)</code></strong>: when <code>c19</code> is given (C36's stub path) the cells come from <code>degree2_cells(c19)</code> as today, so <code>test_c19_stub</code> stays green unedited; <strong>when <code>c19</code> is <code>None</code> and <code>m["degree2_c19"]</code> is a dict, the degree-2 cells come from that block</strong>, in the <strong>same cell formats as the degree-1 column</strong> (row by row, the d1 f-string with the degree-2 tokens and their <code>:line</code>), so each row reads like-for-like. The grid row gets <code>g</code>'s label and SAR10g with <code>:12407</code>. The copper / ESR row stays <code>""</code> (entry 62 prints no per-partition fractions either; say so in its cell text only if <code>CASES</code> already carries such text for d1). A third section <strong>"Degree 1 → degree 2 (records)"</strong> lists <code>moves</code> and the <code>order_rule</code> sentence. <code>CASES["ans11"]</code>'s <code>title</code>, <code>adjudication</code>, <code>h2</code>, <code>not_claimed</code> texts are updated to say the degree-2 column is entry 62's record (<code>xxl</code> 62, <code>-n 16</code>, degree 2) and still un-adjudicated (Done-when (2) is the weekly's). <strong>Before editing <code>CASES["ans11"]</code>, <code>grep -rn 'CASES\[' tests/ examples/</code></strong>: any reader found must stay green unedited, or stop.
+6. <strong><code>main()</code></strong> passes <code>None</code> (not <code>read_c19()</code>) to <code>render_comparison</code>, so the committed render is the tracked-log render; it still calls <code>read_c19()</code> and runs <strong>(J62)</strong> below, printing one <code>[PASS]</code>/<code>[FAIL]</code> line; and it prints the <code>moves</code> table and the <code>order_rule</code> sentence.
+7. <strong><code>custody_c19(block, c19)</code></strong> — (J62): for each raw field the C6 JSON carries and the log prints (S2 four entries, Y_in ccw / cw P33 / P41, the 18 lattice <code>b_plus_ccw</code> / SAR values by label, c*'s label / SAR / cw SAR, <code>mean_b_plus["ccw"]</code>, P_box / P_src / P_acc, the grid's star label / SAR), format the JSON value <strong>in the log token's own print format</strong> (<code>.10e</code> for S, <code>.9e</code> elsewhere, the label as printed) and compare strings. Returns <code>(n_fields, mismatches, print_form_only)</code>. Per the 10:30 11-12 ruling a value-equal, print-form-only difference is listed in <code>print_form_only</code> and printed, <strong>not</strong> red; a value mismatch is red. With the JSON absent (a clone) it returns <code>None</code> and prints "absent; custody not run" — the tracked-log route is asserted regardless. The I36 JSON is read and validated by <code>read_c19</code> only (no row; C40's family reads the rod).</p>
+<p><strong>Gates (asserted, in the unit test and the page's <code>[PASS]</code> lines).</strong>
+- <strong>(X2)</strong> every degree-2 cell of the regenerated <code>COMPARISON.md</code> contains its row's entry-62 token string (via <code>comparison_cells</code>' degree-2 twin), with its <code>:line</code>; the lattice table's 18 degree-2 rows, if rendered, likewise.
+- <strong>(D2)</strong> the log-internal identities, each at <strong>the tolerance <code>check_derived</code> already uses for the same quantity</strong> (imported, not new): <code>_p_acc_spec(S, (1, −1j), V_s, 50)</code> from <code>:12379</code> / <code>:12160</code> vs <code>:12410</code>'s printed P_acc (rel 1e-8); SAR10g(c*) / P_acc vs <code>:12410</code>'s <code>sar_per_p_acc</code> token (5e-10); P_box / P_acc vs <code>:12410</code>'s printed ratio (5e-9); the centroid mean / √P_acc vs <code>:12410</code>'s <code>b1_per_sqrt_p_acc</code> token at its printed digits; argmax(lattice SAR10g) == c*'s label; c*'s SAR string == its lattice line's string. <strong>Not</strong> <code>check_derived</code> itself (its SPEC comparisons are degree-1 tokens). <strong>Trap, read at this review: entry 62's S₁₂ and S₂₁ strings differ in the 11th significant digit</strong> (<code>:12379</code>: <code>4.2062703482e-03+9.9390915599e-02j</code> vs <code>4.2062703483e-03+9.9390915598e-02j</code>), so <code>check_derived</code>'s "(D) S12 string == S21 string" would be red at degree 2. Print both, never assert string equality; reciprocity is (R1), asserted in-window at 2.415e-13 (<code>:12379</code>). The degree-2 lattice mean is arithmetic on <code>:12388–12405</code>, as at degree 1 (the log prints none).
+- <strong>(J62)</strong> with both JSONs present on this host: <code>mismatches == []</code>; <code>n_fields</code> printed (expect 4 + 4 + 36 + 3 + 1 + 3 + 2 = 53; print the actual and go on if the brief's arithmetic is off by a field the JSON does not carry — the gate is zero value mismatches, not the count).
+- <strong>(R)</strong> <code>metrics.json</code> and <code>COMPARISON.md</code> regenerate byte for byte from tracked files (landed <code>test_r_regeneration</code>, <code>test_c49_k_ans11_default_byte_identical</code>, unedited); after the closing windows <code>git diff --stat</code> on both is empty and ANS-12's <code>COMPARISON.md</code> is unchanged.
+- <strong>(K)</strong> C36's <code>check_k</code> green on the new <code>COMPARISON.md</code> (degree-1 column unchanged, the six "not carried" tokens printed).
+- <strong>Every existing node green:</strong> <code>test_ans11_record_page.py</code>, <code>test_ans12_record_page.py</code>, <code>test_ans13_record_page.py</code>, <code>test_doc_reference_exit_codes.py</code>; C33's module (knob <code>1</code>) and P89′'s module as item 979 ran them; <code>-e ans:12</code>, <code>-e ans:13</code> ((R-cmp)), <code>-e mri:41</code>.
+- <strong><code>test_c19_absent</code> is retired</strong> — its premise ("entry 62 has not run") expired at <code>3185acfd</code> (known-issues 2026-11-14) — and <strong>replaced by <code>test_c37_custody</code></strong>: (J62) as above when present, and the log route asserted always. Disclose the retirement in the commit (a premise node, not a gate; the item-918 precedent).
+- <code>docrefs</code> <code>dead=0</code>.</p>
+<p><strong>Controls (asserted).</strong>
+- <strong>(N-J62)</strong> a tmp copy of the C6 JSON with one lattice <code>b_plus_ccw</code> value scaled by <code>1 + 1e-6</code> makes (J62) red on that label alone (the <code>.9e</code> print resolves 1e-9 relative, so the ceiling is ample).
+- <strong>(N-X2)</strong> a tmp copy of entry 62's log with one digit of <code>:12410</code>'s P_acc changed makes (D2) red (and (X2) on the P row).
+- <strong>(N-grid)</strong> a tmp log with <code>:12407</code> duplicated makes <code>parse_c19_grid</code> raise.
+- <strong>(N-node)</strong> a tmp log whose <code>(Z) node</code> reads <code>193.5996</code> makes <code>degree2_block</code> raise.
+- C36's / C43's / C49's controls unchanged.</p>
+<p><strong>Printed (records):</strong> the 17 degree-2 rows, the moves table, the order-rule sentence, (J62)'s <code>n_fields</code> and any <code>print_form_only</code> entries, g* beside c*.</p>
+<p><strong>Windows.</strong> Bare, foreground, Bash <code>timeout: 660000</code>; <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0 first. <code>FEM_EM_ANS_SKIP_PRIVATE=1</code> on every window.
+0. <strong>Pre-check:</strong> <code>xxl-ledger.md</code>'s 2026-11-14 <code>GEO-38-C19</code> row is filled (this review); <code>git status</code> clean; no other slot this interval has edited the page.
+1. Code.
+2. <strong>Page (writes the files):</strong> <code>scripts/testing/run_and_log.sh ANS-11-C37-page "./scripts/run_examples.sh -e ans:11 -n 1 -t 180"</code> — every <code>[PASS]</code>, (J62) <code>[PASS]</code>, the moves and order-rule lines printed. <code>git diff --stat</code> now shows exactly <code>metrics.json</code> and <code>COMPARISON.md</code> of <code>ans:11</code> changed (and nothing under <code>ans12_…</code>).
+3. <strong>W1:</strong> C49's W1 command (<code>20261110T104946Z_ANS-12-C49-W1.log:12</code>, <code>mpiexec -n 2</code>, <code>timeout -k 30 180</code>) with label <code>ANS-11-C37-W1</code>, raw log <code>ans11-c37-w1-raw.log</code>, paths <code>tests/environment/test_complex_mode.py tests/unit/test_ans11_record_page.py tests/unit/test_ans12_record_page.py tests/unit/test_ans13_record_page.py tests/unit/test_doc_reference_exit_codes.py</code>. Expect 0 failed per rank (count by token).
+4. <strong>C33 / P89′ regressions:</strong> item 979's two commands verbatim (<code>20261114T133421Z_GEO-38-C33c-W1.log:12</code>, <code>20261114T133435Z_MAT-21-P89-W1c.log:12</code>), labels <code>ANS-11-C37-c33</code> / <code>ANS-11-C37-p89</code>.
+5. <code>scripts/testing/run_and_log.sh ANS-11-C37-ans12-page "./scripts/run_examples.sh -e ans:12 -n 1 -t 180"</code>, then <code>git diff --stat</code> on ANS-12's <code>COMPARISON.md</code> empty; <code>scripts/testing/run_and_log.sh ANS-11-C37-ans13-page "./scripts/run_examples.sh -e ans:13 -n 1 -t 180"</code>; <code>scripts/testing/run_and_log.sh ANS-11-C37-mri41 "./scripts/run_examples.sh -e mri:41 -n 2 -t 120"</code>.
+6. <strong>Closing page re-run</strong> (same command, label <code>ANS-11-C37-page-r</code>): <code>git diff --stat</code> on <code>ans:11</code>'s two files is now empty against the files written in window 2 (R). This is the closing window of Done-when (1).
+7. <strong>Docrefs:</strong> item 871's form, label <code>ANS-11-C37-docrefs</code>, <code>dead=0</code>.</p>
+<p><strong>Tier.</strong> Standard, <code>-n 1</code> (W1 and the regressions at <code>-n 2</code>), complex (the C6 import), no solve. <strong>Class:</strong> chain step (no solve). <strong>Cost:</strong> ≈ 10.8 measured / 40 predicted min; the windows sum to ≈ 3 min (C36's 23 s W1, C49's 2 s pages, item 979's two windows ≈ 30 s).</p>
+<p><strong>Traps already paid for.</strong>
+- Item 871's / 931's / 959's lists: <code>re.search</code>, never <code>startswith</code>; either log suffix; derived values at ≤ 7 significant digits (the leak hook's floor is 8 — raw tokens are the tracked log's own and already passed it); <code>FEM_EM_ANS_SKIP_PRIVATE=1</code>; open no <code>aed_results/</code>, <code>COMPARISON_private.md</code> or <code>docs/private/</code> file; never <code>--no-verify</code>; on a hook refusal move the log unchanged to <code>logs/leak-held/</code> and report.
+- <strong>No edit to <code>parse_c6_log</code>, <code>derived</code>, <code>parse_spec</code>, <code>check_k</code> or <code>CASES["ans12"]</code>:</strong> C33, P89′, <code>mri:41</code> and the <code>ans:12</code> / <code>ans:13</code> pages read them.
+- <strong>No top-level import added</strong> (the page's import closure is C33's and <code>mri:41</code>'s); the grid regex is local.
+- <strong>The default render must not read a gitignored file</strong> — that is the defect item 959 found (<code>main</code> passed <code>read_c19()</code> to the render). (J62) reads the JSON; the render never does.
+- <strong>Never write under <code>/workspace/logs/geo38</code> or <code>/workspace/logs/geo36</code></strong> — entry 62's JSONs are the custody evidence. Stubs and tmp copies live on <code>tmp_path</code> (rank 0 writes, then a bcast).
+- <strong>Rule (i):</strong> no page or test edit after its last window; if the page changes after window 2, re-run 2–6.
+- A changed shared constant is an edit to every module that asserts it (the 03:00 11-14 trap): grep <code>CASES[</code>, <code>METRICS_JSON</code>, <code>COMPARISON_MD</code>, <code>render_comparison(</code> and <code>build_metrics(</code> across <code>tests/</code> and <code>examples/</code> before editing, and list the hits in the outcome.
+- Count pytest verdicts per rank, by token. Never delete a log, red or not.</p>
+<p><strong>Scope.</strong> <code>ANS-11</code>'s degree-2 record column from entry 62's tracked log, its moves and the order rule's printed verdict, with JSON custody. <strong>Not claimed:</strong> any adjudication or AED number (Done-when (2), the weekly's, with the operator's First Order column); the rod rows (entry 62's call 2; C40's family); any change to the SPEC or its node; what the order rule's verdict means for other clinical figures (the weekly's); the 3 T twin (entry 66).</p>
+<p><strong>Negative result.</strong>
+- (J62) value mismatch ⇒ the tracked log and the host JSON disagree for one window — a custody finding: stop, BLOCKED, known-issues; render nothing new.
+- (D2) red ⇒ the page's P_acc arithmetic does not reproduce the module's degree-2 print — a finding (the identity held at degree 1): park, BLOCKED.
+- Any landed node red (C33, P89′, <code>ans:12</code>, <code>ans:13</code>, <code>mri:41</code>, the ANS-12 file moving) ⇒ stop, BLOCKED; known-issues is the review's call.
+- <code>parse_c6_log</code> raising on entry 62 ⇒ the "exactly once" fact above is wrong; stop and report the line.
+- No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong>
+- §10 C37 → DONE; <strong><code>ANS-11</code> Done-when (1) met</strong> (an <code>ans:11</code> page that imports C6's module, <code>COMPARISON.md</code> with our degree-1 and degree-2 rows and the AED columns blank, closing window <code>./run_examples.sh</code>). The glyph stays 🟡 (Done-when (2) is the adjudication); the §7 state line records (1).
+- Known-issues 2026-11-14 retired (<code>test_c19_absent</code> replaced; the default render no longer reads the host JSON), which <strong>unblocks item 959's re-pose (item 984)</strong>.
+- The moves and the order-rule verdict are records for the 11-16 weekly (entry 62's decision rule names it).</p>
+<p><strong>Depends on:</strong> nothing open (entry 62 has run and its row is written). <strong>Never in the same slot as item 984</strong> (both edit the page).</p>
+<p><strong>Executor spawn prompt (verbatim, if delegated).</strong> "Execute §9 item 983 — <code>ANS-11</code> C37 — per <code>docs/planning/chunks/ANS-11.md</code> "§9 item 983". First confirm the 2026-11-14 <code>GEO-38-C19</code> row in <code>docs/testing/xxl-ledger.md</code> is filled; otherwise stop. Edit only the <code>ans:11</code> page script and <code>tests/unit/test_ans11_record_page.py</code>; <code>metrics.json</code> / <code>COMPARISON.md</code> of <code>ans:11</code> change only through the page window. Parse entry 62's tracked log for the degree-2 column; the host JSONs are custody (J62) only, and the default render never reads them. Do not edit <code>parse_c6_log</code>, <code>derived</code>, <code>parse_spec</code>, <code>check_k</code> or <code>CASES["ans12"]</code>; ANS-12's <code>COMPARISON.md</code> stays byte-identical. Retire <code>test_c19_absent</code> in favour of <code>test_c37_custody</code>, disclosed. <code>FEM_EM_ANS_SKIP_PRIVATE=1</code>; open nothing under <code>aed_results/</code> or <code>docs/private/</code>. No solve. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped; foreground, Bash <code>timeout: 660000</code>. Never delete a log. Never <code>--no-verify</code>. Do not spawn agents."</p>
+<p><strong>Outcome (12:00 CST slot, 2026-11-14): DONE, every gate green; <code>ANS-11</code> Done-when (1) met.</strong> The pre-check passed: the ledger row is filled, the tree was clean, and no other slot touched the page this interval. The page gains <code>C19_LOG</code>, <code>parse_c19_grid</code> (its own regex for <code>:12407</code>), <code>degree2_block</code>, <code>moves_and_rule</code>, <code>check_d2</code>, <code>x2_misses</code> and <code>custody_c19</code>. Two refactors are pure: <code>_derived_strings</code> (out of <code>build_metrics</code>) and <code>_column_cells</code> (out of <code>render_comparison</code>), and the degree-1 cells stay byte-identical. <code>parse_c6_log</code>, <code>derived</code>, <code>parse_spec</code>, <code>check_k</code> and <code>CASES["ans12"]</code> are unedited. <code>build_metrics(…, "ans11")</code> now sets <code>"degree2_c19"</code> to <code>degree2_block()</code>. <code>render_comparison(m, None)</code> fills the degree-2 cells from that block, adds a 7-column degree-2 lattice table (7 cells, so <code>comparison_cells</code> ignores it and (K) is unchanged) and a "Degree 1 → degree 2 (records)" section, and names the degree-2 source in Provenance. <code>main()</code> renders with <code>None</code>. It still runs <code>read_c19()</code>, but only for (J62). The <code>CASES[</code> / <code>METRICS_JSON</code> / <code>COMPARISON_MD</code> / <code>render_comparison(</code> / <code>build_metrics(</code> hits outside the page are all in <code>test_ans11_record_page.py</code> and the <code>ans:12</code> / <code>ans:13</code> pages, and every one is green unedited. <strong><code>test_c19_absent</code> is retired</strong> (its premise expired at <code>3185acfd</code>) and replaced by <code>test_c37_custody</code>. Other new nodes: <code>test_c37_lines</code>, <code>_d2</code>, <code>_x2</code>, <code>_moves_rule</code>, and the controls <code>_n_j62</code>, <code>_n_x2</code>, <code>_n_grid</code>, <code>_n_node</code>.</p>
+<p>The windows, in order:
+- Page <code>20261114T181052Z_ANS-11-C37-page.log</code>: 80 <code>[PASS]</code>, 0 <code>[FAIL]</code>, Status 0.
+- W1 <code>20261114T181121Z_ANS-11-C37-W1.log</code> (<code>-n 2</code>): 76 passed per rank, 0 failed / skipped, <code>[capture] rc=0</code>.
+- C33 <code>…181201Z_ANS-11-C37-c33.log</code>: 15 passed per rank. P89′ <code>…181206Z_ANS-11-C37-p89.log</code>: 9 passed. Both match item 979's counts.
+- <code>ans:12</code> <code>…181222Z_ANS-11-C37-ans12-page.log</code>: (R-cmp) 5051 B == 5051 B, and <code>git diff</code> on ANS-12's files is empty.
+- <code>ans:13</code> <code>…181228Z_ANS-11-C37-ans13-page.log</code>: Status 0. <code>mri:41</code> <code>…181231Z_ANS-11-C37-mri41.log</code>: Status 0.
+- <strong>Closing</strong> <code>20261114T181245Z_ANS-11-C37-page-r.log</code>: <code>git diff</code> on <code>ans:11</code>'s two files is empty against window 2's, so (R) holds.
+- Docrefs <code>…181259Z_ANS-11-C37-docrefs.log</code>: <code>dead=0 guide=0</code>, exit 2 on the stale report, as in item 871.</p>
+<p>The page windows ran the brief's literal command, which leaves <code>FEM_EM_ANS_SKIP_PRIVATE</code> unset. The page prints <code>=unset</code>, as C36 / C49 did. W1 set it to <code>1</code>. The page has no private side either way.</p>
+<p><strong>(J62): n_fields 53, mismatches 0, print_form_only none.</strong> <strong>(D2):</strong> the <code>_p_acc_spec</code> identity holds at rel 1.751e-10, SAR/P_acc at 6.9e-11, P_box/P_acc at 1.1e-10, and centroid mean / √P_acc at 1.0e-15 against a half-ulp of 5e-15. The argmax is c*, and the c* string equals its lattice line's string. The degree-2 S₁₂ and S₂₁ strings differ in the last digit; that is printed, not asserted. <strong>(X2)</strong> misses: none.</p>
+<p><strong>Moves (degree 2 / degree 1 − 1):</strong> |S₁₁| −1.129e-01, |S₂₂| −9.305e-02, |Y_in| P33 −1.121e-01, P41 −1.375e-01, lattice mean −1.272e-02, <strong>per √P_acc −4.624e-03</strong>, SAR10g(c*) −2.349e-02, <strong>per P_acc −7.412e-03</strong>, cw ball −5.164e-02, centroid mean −1.302e-02, <strong>per √P_acc −4.924e-03</strong>, P_box −2.859e-02, P_src +1.772e-02, P_acc −1.620e-02, <strong>gel fraction −1.259e-02</strong>, sense −3.4e-07. <strong>Order rule: no per-watt row exceeds 2 % → "the 2 % order rule does not fire"</strong> (a printed verdict). c* stays x−105mm dz−50mm. The box-wide g* is x+157.5mm y+0.0mm dz+0.0mm. The host JSON's grid spans x [−157.5, +157.5] mm, so <strong>g* sits on the grid's outermost x plane</strong> (custody print; no claim about a maximum outside the grid). <strong>Caveat, not in the brief:</strong> entry 52 ran at C = 193.5996 pF and entry 62 at 185.7629 pF, so every move carries the node change as well as the order change. <code>COMPARISON.md</code>'s not-claimed line says so. Whether that bears on the order rule's reading is the 11-16 weekly's call.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

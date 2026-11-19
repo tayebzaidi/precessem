@@ -1,0 +1,583 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>GEO-24 — Give birdcage_port_domain the shared_facet ghost layer, and re-read every module that reconstructs a sheet on it at -n 2 and -n 12 - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#geo-24-give-birdcage_port_domain-the-shared_facet-ghost-layer-and-re-read-every-module-that-reconstructs-a-sheet-on-it-at-n-2-and-n-12" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              GEO-24 — Give birdcage_port_domain the shared_facet ghost layer, and re-read every module that reconstructs a sheet on it at -n 2 and -n 12
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="geo-24-give-birdcage_port_domain-the-shared_facet-ghost-layer-and-re-read-every-module-that-reconstructs-a-sheet-on-it-at-n-2-and-n-12">GEO-24 — Give <code>birdcage_port_domain</code> the <code>shared_facet</code> ghost layer, and re-read every module that reconstructs a sheet on it at <code>-n 2</code> and <code>-n 12</code><a class="headerlink" href="#geo-24-give-birdcage_port_domain-the-shared_facet-ghost-layer-and-re-read-every-module-that-reconstructs-a-sheet-on-it-at-n-2-and-n-12" title="Permanent link">&para;</a></h1>
+<p><strong>Give <code>birdcage_port_domain</code> the <code>shared_facet</code> ghost layer, and re-read every module that reconstructs a sheet on it at <code>-n 2</code> and <code>-n 12</code></strong> — the diagnosed cause of the <code>GEO-20</code> step 2 rank-width defect (known-issues re-headed 2026-08-28; commissioned by the human operator, interactive session, 2026-08-28) | ✅ <em>(<strong>step 1a ✅ 2026-08-28, 21:00 slot</strong> — the <code>main</code>-side "before" table for the seven <code>tests/mesh/</code> consumers is measured at both widths in 14 windows / <strong>668 s</strong>, no <code>src/</code> change: <strong>every cell count identical across widths</strong> (116 085 / 98 666 / 128 111 / 114 655 / 116 085+116 475 / 98 666 / 307 296), <strong><code>-n 2</code> green in all seven</strong>, and <strong>two <code>-n 12</code> reds, both facet reconstruction</strong> — <code>test_birdcage_ring_gaps</code> on <code>port P8 closure 0.990103697427</code>, the width probe's digit exactly, and <code>test_birdcage_port_terminals</code> on its phantom↔air positive control, <strong>245 facets / 0.935322 against 255 / 0.979885</strong>, outside the <code>[0.95, 1.0]</code> band. That second red is the step's new information: the <code>GhostMode.none</code> gap is <strong>not</strong> port-sheet-specific — any interior material interface on this fixture inherits it, so <strong>step 2a's gate must also require 255 facets / 0.979885 at <code>-n 12</code></strong>. Pre-stated negative control holds: every terminal ratio and port-volume identity (no facet reconstruction in either) is identical at both widths in every module, including the 16-leg scale-up's three azimuth classes and its C16 sheet spread (1.331e-15 vs 1.210e-15, the only digit that moves anywhere, at the 1e-15 floor). Consumer list re-derived by construction — <strong>no difference</strong> from the review's seven. <strong>Cost finding: nothing unmeasured</strong> — <code>test_birdcage_port_scaleup</code> at <code>-n 12</code> took <strong>108 s</strong> inside <code>-k 30 570</code> (<code>GEO-19</code> step C's exit 124 was a bundled window, not this module's price), and <code>-n 12</code> costs the same wall clock as <code>-n 2</code> throughout (±2 s), the mesh being built on rank 0 either way. Step 1b (validation family) and step 2a (the plumb + this family re-read) are unblocked; full table in the known-issues entry)</em> <em><strong>step 1b ✅ 2026-08-29, 22:30 slot</strong> — the <code>main</code>-side "before" table for the five <code>tests/validation/</code> consumers is measured at both widths in 13 windows / <strong>660 s</strong>, complex, no <code>src/</code> change, and the family is <strong>clean</strong>: every cell count identical across widths (116 085 in four modules, 116 085 + 116 475 in <code>_leg_offset_sweep</code>), <strong>green at <code>-n 2</code> and at <code>-n 12</code> in all five</strong>, and every gated digit identical — <code>Z_{11,21,31,41}</code> reproducing their <code>PORT-9</code> records at 1.07e-10–2.57e-10, <code>sigma_max(S)</code> <strong>0.999992805</strong> and max column power sum <strong>0.793823974</strong> unchanged, C4 class spreads <strong>0.0553 / 0.0353 / 0.0214 %</strong> unchanged, <code>||S−S^T||/||S||</code> 8.141422487e-15 → 1.116856988e-13 (band 1e-3), the termination margin <strong>2256.9707×</strong> / spread <strong>0.0040%</strong> unchanged, and <code>_leg_offset_sweep</code>'s displaced rung still breaking (iii′) at 6.2219 / 7.1142 / 2.8474 %. So the <code>GhostMode.none</code> gap costs this family <strong>nothing</strong> at <code>-n 12</code> — it is confined to the modules that read a facet group directly (step 1a's two reds). Consumer list re-derived by construction, no difference from the review's five; the two <code>_larmor_gate*</code> modules are correctly outside the intersection. <strong>The pre-stated negative control is the step's finding and it did <em>not</em> hold:</strong> <code>test_port_lumped_two_torus.py</code> — already <code>shared_facet</code>-plumbed — is green at <code>-n 2</code> (gap ratio <strong>0.894141</strong>, the record exactly) and <strong>red at <code>-n 12</code></strong> (</em>*0.894274**, moved 1.33e-04 against a 1e-04 band) at an unchanged <strong>184 176</strong> cells, with the other four tests passing; the moving quantity is a <em>solved</em> line integral (<code>Im Z12</code> 1.110303775 → 1.110469250, 1.5e-4), not a facet reconstruction. <strong>Step 2b's gate must therefore separate reconstruction readings (must be exactly 1.000000000000) from solve-derived digits, which this fixture shows can drift at 1e-4 with rank width even when the ghost layer is present</strong>; whether the two-torus band should be width-qualified is a review's call. Nothing loosened, no record re-written; step 2b unblocked)* <em><strong>step 2a 🟡 2026-08-29, 00:00 slot — the plumb works and is NOT landed; blocked on a review's re-record ruling.</strong> The one-keyword <code>partitioner=create_cell_partitioner(GhostMode.shared_facet, 2)</code> at <code>io/mesh.py:3356</code> (the <code>two_torus_domain</code> kwarg and comment, nothing else in <code>src/</code>) was applied, the seven <code>tests/mesh/</code> consumers re-read at <code>-n 2</code> and <code>-n 12</code> in 14 windows, and the patch then <strong>reverted on <code>main</code> and parked on <code>attempt/GEO-24-step2a-20260829T052300Z</code> (<code>e1dede8</code>)</strong>. ≈ 870 s of compute over 16 windows + 1 control window. <strong>Two of the three gate clauses pass outright:</strong> every cell count is identical to step 1a at both widths and every kwarg-off control reproduces (<code>cells 116085 vs 116085, delta 0, relative 0.000e+00</code>); and <strong>both previously-red <code>-n 12</code> readings are repaired</strong> — <code>ring_gaps</code> port P8 back to <strong>176 air facets / closure 1.000000000000</strong> from 175 / <strong>0.990103697427</strong>, and <code>port_terminals</code>' phantom↔air control back to <strong>256 facets</strong> from 245 — all seven modules <code>passed</code> at both widths. <strong>The third clause is what stops the step:</strong> <code>port_terminals</code>' <code>-n 2</code> phantom↔air digit <strong>moves, 255 facets / 0.979885 → 256 / 0.984183</strong>, and item 4's pre-stated negative result is that a moving <code>-n 2</code> digit is a review's, so the slot reverted rather than landed. Every other <code>-n 2</code> digit in all seven modules is identical (C4 spread 6.050e-16, leg terminals 0.988615825–0.988615858, ring terminals 0.974454791/0.974454832, Pappus 1.000000000000, the 16-leg classes 0.989367514/0.989449735/0.988615772 and C16 1.331e-15). <strong>The moved digit is diagnosed, not left open:</strong> two serial windows read <strong>256 / 0.984183 at <code>-n 1</code> on the plumbed tree <em>and</em> at <code>-n 1</code> on <code>main</code></strong> — a single rank needs no ghost layer, so 256 is the truth and step 1a's 255 was itself one facet short of it at every parallel width. The record was <strong>defective, not partition-dependent</strong>; after the plumb the reading is 256 / 0.984183 at <code>-n 1</code>, <code>-n 2</code> and <code>-n 12</code> alike. Pre-stated untouched-fixture controls green with the plumb applied (<code>test_two_torus_port_sheet</code> + <code>test_cylindrical_domain</code>, <code>4 passed</code>, <code>GEO-16</code> control 79 070 cells). <strong>Owed by a review:</strong> rule on re-recording 255 → 256 / 0.984183 with its <code>-n 1</code> provenance (that is step 3's business, which item 4's scope excludes), after which the parked branch lands unchanged. Nothing loosened, no record re-written, no band moved)</em> <em><strong>RULED 2026-08-29 03:00 review: defect repair, not re-baseline.</strong> The <code>-n 1</code> reading on <code>main</code> with no plumb (<code>…050535Z_…-terminals-n1-main.log</code>, 256 / 0.984183) is the serial truth and needs no ghost layer, so step 1a's 255 / 0.979885 was one facet short at every parallel width from the same <code>GhostMode.none</code> gap — the record was defective, and no test carried it (<code>test_birdcage_port_terminals</code> gates a <code>[0.95, 1.0]</code> band). Landing the parked commit with the re-read is <strong>step 2a′</strong> (§9 item 1); step 2b (validation family, §9 item 2) closes the chunk and retires the known-issues entry; the two-torus <code>-n 12</code> finding from step 1b is split out as its own chunk, <code>PORT-12</code>, and is not this chunk's. A second lesson recorded for step 2b: step 1a treated <code>-n 2</code> as the reference width, and this fixture can be one facet short at <code>-n 2</code> too — reconstruction digits are checked against the digit, solved digits against their band.</em> <em><strong>step 2a ✅ 2026-08-29, 04:30 slot (step 2a′ — the landing)</strong> — <code>e1dede8</code> cherry-picked onto <code>31a4e0b</code> as <code>470f410</code>; <code>git diff HEAD~1 -- src/</code> is that one <code>io/mesh.py:3356</code> kwarg + comment hunk alone and the tree is clean after. Re-read on the <strong>landed</strong> tree in six windows / <strong>246 s</strong>: <code>test_birdcage_port_terminals</code> at <code>-n 1</code> / <code>-n 2</code> / <code>-n 12</code> (23 / 21 / 22 s) and <code>test_birdcage_ring_gaps</code> at <code>-n 2</code> / <code>-n 12</code> (75 s each), all Status 0, logs <code>20260829T0930…–0934…_GEO-24-step2aP-*</code>. <strong>Every pre-stated anchor met:</strong> phantom↔air <strong>256 facets / 0.984183 at all three widths</strong> on <strong>98 666</strong> cells (the serial truth now reproduced in parallel — the repair), <code>ring_gaps</code> port P8 at <code>-n 12</code> <strong>176 air facets / closure 1.000000000000</strong> (was 175 / 0.990103697427) on <strong>128 111</strong> cells with all 12 <code>volume/analytic</code> and all 8 sheets 1.000000000000, the ring-gapped rung <strong>110 786</strong> cells, Pappus 1.000000000000 gapped and uncut, and every other digit identical to the step-2a table (leg terminals 0.988615826–0.988615858, ring terminals 0.974454791 / 0.974454832, port boxes air 24 facets / closure 1.000000000000, kwarg-off control 98 666 / 0.966977). <strong>Negative control green and unmoved:</strong> <code>test_two_torus_port_sheet</code> + <code>test_cylindrical_domain</code> <code>4 passed</code> / 30 s with the <code>GEO-16</code> control at <strong>79 070</strong> cells — no cell count moved anywhere, so the landed commit is the measured one. <strong>Step 1a's <code>-n 2</code> <code>255 / 0.979885</code> is annotated <em>defective</em> (one facet short; <code>-n 1</code> truth 256 / 0.984183) in the known-issues table</strong>, per the 03:00 ruling; no band, tolerance or record in <code>tests/</code> moved. <code>attempt/GEO-24-step2a-20260829T052300Z</code> deleted. The chunk stays 🟡 on <strong>step 2b</strong> (the five <code>tests/validation/</code> consumers), which closes it and retires the known-issues entry.</em> <em><strong>step 2b ✅ 2026-08-29, 06:00 slot — the validation family re-reads clean on the plumbed tree at both widths; CHUNK CLOSED and the known-issues entry RETIRED.</strong> Eleven windows / <strong>485 s</strong> at <code>470f410</code>, complex, <code>FEM_EM_REQUIRE_COMPLEX=1</code>, <code>-s</code>, <code>-k 30 480</code>, one module per width per window, <strong>no <code>src/</code> change in the slot</strong>; env gate <code>11 passed</code> / 21 s, then all ten module windows <strong>Status 0</strong> (<code>20260829T1100…–1108…Z_GEO-24-step2b-*</code>): <code>_lumped_column</code> 33 / 30 s, <code>_four_port</code> 49 / 39 s, <code>_larmor_probe</code> 38 / 33 s, <code>_termination_probe</code> 38 / 33 s, <code>_leg_offset_sweep</code> 97 / 74 s at <code>-n 2</code> / <code>-n 12</code>. <strong>Both pre-stated gate classes met.</strong> <em>(i) Reconstruction readings identical to the digit:</em> all four <code>_lumped_column</code> sheets <strong>26 facets / 5.835298880e-05 m² / <code>w = A/h</code> 7.294123600e-03 m / out-of-plane 0.000e+00 m</strong> at both widths, every cell count identical across widths and equal to step 1b's records at ratio <strong>1.000000</strong> (</em><em>116 085</em>* in four modules, 116 085 + <strong>116 475</strong> in <code>_leg_offset_sweep</code>). <em>(ii) Solved digits inside each module's own in-file band at both widths:</em> <code>Z_{11,21,31,41}</code> at rel. deviation <strong>1.071e-10–2.568e-10</strong> of their <code>PORT-9</code> records, <code>sigma_max(S)</code> <strong>0.999992805</strong>, max column power sum <strong>0.793823974</strong>, C4 class spreads <strong>0.0553 / 0.0353 / 0.0214 %</strong> (band 0.5%) with separation 166.6766×, <code>||S−S^T||/||S||</code> 1.044e-14 / 1.897e-14 (band 1e-3), termination margin <strong>2256.9707×</strong> / spread <strong>0.0040%</strong>, displaced rung <strong>6.2219 / 7.1142 / 2.8474 %</strong> (amplifications 112.58× / 201.52× / 133.11×). The <strong>only</strong> <code>-n 12</code> movement anywhere is <code>_lumped_column</code>'s <code>Z_11</code> at <strong>4.1e-9</strong> relative and the two Frobenius residuals at the 1e-14 floor — reported, orders inside every band and far below <code>PORT-12</code>'s 1e-4. <strong>Negative control</strong> (this family has no kwarg-off control; the control is step 1b's own table): every <code>-n 2</code> digit reproduces step 1b's <code>main</code>-side reading, so the plumb changed nothing this family could see — expected, step 1b having shown the family took no damage from <code>GhostMode.none</code>. The two-torus control was deliberately <strong>not</strong> re-run (its <code>-n 12</code> red is <code>PORT-12</code>'s, unmoved by this patch). <strong>Disposition:</strong> <code>GEO-20</code> step 1's "1.000000000000 on all 12" <strong>loses its width-conditional caveat</strong> (measured true at 12 ranks on the landed tree), <code>GEO-20</code> step 2 becomes an unblocked re-run of the parked 32-port module, and step 1a's <code>-n 2</code> 255 / 0.979885 stands annotated <em>defective</em>. Nothing loosened, no band moved, no record in <code>tests/</code> touched.* </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,667 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>PORT-23 — history - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#port-23-history" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              PORT-23 — history
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-155-2026-10-01-lane-1-the-2026-09-30-weeklys-lane-1-target-queued-by-the-1030-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 155 — 2026-10-01 (lane 1, the 2026-09-30 weekly's lane-1 target; queued by the 10:30 review)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-01-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-01 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="§7 row moved verbatim 2026-10-01 (rotate_plan_archive.py chunks)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#audit-and-ruling-2026-10-02-1030-daily-review-auditor-closure-b8c5a686" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Audit and ruling — 2026-10-02 10:30 daily review (auditor, closure b8c5a686)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="port-23-history">PORT-23 — history<a class="headerlink" href="#port-23-history" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history moved out of PROJECT_PLAN §9 (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<h3 id="9-item-155-2026-10-01-lane-1-the-2026-09-30-weeklys-lane-1-target-queued-by-the-1030-review">§9 item 155 — 2026-10-01 (lane 1, the 2026-09-30 weekly's lane-1 target; queued by the 10:30 review)<a class="headerlink" href="#9-item-155-2026-10-01-lane-1-the-2026-09-30-weeklys-lane-1-target-queued-by-the-1030-review" title="Permanent link">&para;</a></h3>
+<p><code>PORT-23</code> step 2 — scikit-rf reproduces <code>ans:7</code>'s Route B (implementer; standard, <code>-n 2</code>, complex; ≈ 3 measured / ≈ 47 predicted min; depends on nothing). The row's former step 2 (Touchstone + Ansys-Circuit netlist) had no anchor and no slot-runnable reader; the 10:30 review amended it to the weekly's target (rule (j)) and leaves the export for the weekly to re-home.</p>
+<ul>
+<li><strong>Data.</strong> <code>/workspace/logs/ans7/B1.json</code> (62.0–64.4 MHz) and <code>B2.json</code> (64.5–67.0 MHz), <code>points[*].cu|pec.s</code>, both at <code>mpi_ranks</code> 4 — gitignored, written 2026-09-29 after <code>metrics.json</code> landed (<code>2203cf07</code>). Read with the script's <code>_unmat</code>. No re-solve.</li>
+<li><strong>Test: new <code>tests/validation/test_port23_skrf_route_b.py</code>.</strong> Load the <code>ans:7</code> script by <code>spec_from_file_location</code> under a fresh name (as <code>test_ans7_sparse_route_b.py:73</code>); take <code>z_from_s</code>, <code>route_b_z</code>, <code>add_c1</code>, <code>parallel_rows</code>, <code>C_F</code>, <code>S_VS_Z_ROUTE_RTOL</code>; import <code>DENSE_ROWS</code>, <code>BANDS</code> from <code>test_ans7_sparse_route_b</code>.</li>
+<li>(P0) raw Route B on the stored S reproduces <code>DENSE_ROWS</code> within <code>BANDS</code> (deviation printed) and the stored <code>Z_in</code> to 1e-12.</li>
+<li>(R1) <code>network_from_records(S[F×4×4], 50, f)</code> → <code>terminate(net, {1: Z_C, 2: Z_C, 3: Z_C})</code> with <code>Z_C = 1/(jωC_F)</code> per frequency → <code>input_impedance</code> gives <code>Z_bare</code>; it matches <code>route_b_z(z_from_s(S))[1]</code> at all 51 points, both columns, to ≤ <code>S_VS_Z_ROUTE_RTOL</code> (predicted ≈ 1e-13).</li>
+<li>(R2) <code>Z_in = add_c1(Z_bare_skrf)</code> on both sides; <code>parallel_rows</code> f₀, R_in, Q_loaded agree to 1e-9 relative, same <code>bracket_hz</code>.</li>
+<li>(R3) the skrf-side rows match <code>DENSE_ROWS</code> (cu 63 983 031.4958 Hz / 16 998.707 Ω / 918.441; pec 63 997 103.308 Hz / 28 425.152 Ω / 1535.95) within <code>BANDS</code>.</li>
+<li><strong>Negative controls (predicted, printed beside; rule (e)).</strong> (N1) labelling the 50 Ω S as <code>z0 = 75</code> scales Z by 1.5 — the k = 1 crossing moves near 64/√1.5 ≈ 52 MHz, so no up-crossing in 62–67 MHz. (N2) a <code>port_map</code> swapping P1↔P3 (C4 spread ≈ 6e-4): predicted row shift ≫ 1e-9. Either reading inside 1e-9 means the gate is blind: stop and report.</li>
+<li><strong>Window.</strong> W1 (≈ 20 s; step 1's window was 8 s): <code>scripts/testing/run_and_log.sh PORT-23-step2-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_port23_skrf_route_b.py tests/validation/test_port_circuit_skrf.py -s -v --tb=short'"</code></li>
+<li><strong>Traps.</strong> Never call <code>_stage_*</code>, <code>_assemble</code>, <code>_write_outputs</code> or <code>main</code> — they rewrite tracked files and <code>logs/ans7</code>. In skrf 2.1.0 <code>Circuit</code> is <code>skrf.circuit.Circuit</code> (<code>20260923T093252Z_PORT-23-api-probe.log</code>). <code>terminate</code> takes logical ports 0-based and returns F×1×1. Do not feed the sweep's <code>z_sweep</code> to the Z route — it is not the network Z (<code>ans:7:205–210</code>). No absolute <code>Z_in</code> / f₀ / Q claim against AED (<code>ANS-7</code>, §2.2). Harness bare, foreground, <code>timeout: 660000</code>.</li>
+<li><strong>Scope.</strong> Stored S, numpy and skrf only; no <code>src/</code>; C1 added identically on both sides. Not: Touchstone or netlist export.</li>
+<li><strong>Status it can move.</strong> <code>PORT-23</code> 🟡 → ✅ on the amended row.</li>
+<li><strong>Negative result.</strong> B JSONs absent, or (P0) red: BLOCKED — unblock by an <code>ans:7</code> B1/B2 re-run (heavy, the weekly's call). (R1) red: a convention defect (the <code>PORT-20</code> class) — known-issues entry, <code>attempt/*</code>, stop.</li>
+</ul>
+<p><strong>Outcome 2026-10-02 (09:00 CDT slot): DONE, <code>PORT-23</code> 🟡 → ✅.</strong> New <code>tests/validation/test_port23_skrf_route_b.py</code>; W1 <code>20261002T140150Z_PORT-23-step2-W1.log</code>, Status 0, 56 s, 20 passed per rank at <code>-n 2</code> (<code>:211</code>, <code>:276</code>), skrf 2.1.0; B1 has 25 points and B2 26, both <code>mpi_ranks</code> 4.
+- (P0) <code>:90–91</code>: the S route (<code>route_b_s</code>, the route that wrote the stored <code>Z_in</code>) reproduces the stored <code>Z_in</code> at 0.0 for both columns. The Z route reads 1.2e-12 (Cu) and 3.9e-13 (PEC), printed only: the brief's 1e-12 is read on the writing route. Rows vs <code>DENSE_ROWS</code>: Cu ≤ 8.9e-13, PEC ≤ 1.5e-11.
+- (R1) <code>:94</code>, <code>:99</code>: skrf <code>Z_bare</code> vs <code>route_b_z(z_from_s(S))[1]</code> is 5.260e-15 (Cu) and 7.899e-15 (PEC), ≤ <code>S_VS_Z_ROUTE_RTOL</code> 1e-9.
+- (R2) <code>:95</code>, <code>:100</code>: f₀ / R_in / Q differ by ≤ 4.3e-13 (Cu) and ≤ 3.6e-13 (PEC); both columns have the same bracket, [63.9, 64.0] MHz.
+- (R3) <code>:96</code>, <code>:101</code>: the skrf rows are within ≤ 9.0e-13 (Cu) and ≤ 1.5e-11 (PEC) of <code>DENSE_ROWS</code> (<code>BANDS</code> 1e-6).
+- Controls (predicted, printed; <code>:97–98</code>, <code>:102–103</code>):
+  - (N1) gives a <code>Z_bare</code> shift of 0.213 / 0.217 and a row shift of 0.99 / 5.37, so it is not blind. <strong>The prediction "no up-crossing in 62–67 MHz" missed:</strong> there is one up-crossing per column, at 63.773 MHz (Cu) and 63.787 MHz (PEC).
+  - (N2) (P1↔P3) gives a <code>Z_bare</code> shift of 4.27e-4 / 4.23e-4 and an R_in shift of 1.31e-3, so it is not blind as a gate.
+  - <strong>N2's f₀ row alone moves 3.9e-10 on Cu, inside 1e-9</strong> (1.7e-9 on PEC). The C4-symmetric legs leave the resonance nearly unmoved, so f₀ alone cannot see a port-order defect. R1 and the R_in / Q rows do see it.
+  - The slot read "row shift" as the maximum over the three rows, so the blind line did not fire. <strong>For the review:</strong> rule on that reading and on N1's missed prediction.</p>
+<h2 id="7-row-moved-verbatim-2026-10-01-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-01 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-01-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p><em>(history and §9 briefs: <code>docs/planning/chunks/PORT-23.md</code>)</em> <strong>The circuit layer through <code>scikit-rf</code>, gated against the raw (C2) reduction</strong> — the HFSS + Circuit split with a vetted engine: the field solve produces the 50 Ω N-port under MPI, the netlist is prepared in our code, <code>scikit-rf</code> terminates / cascades it on one process (operator directive 2026-09-20; serial on <code>OPS-60</code>) | 🟡 <strong>Step 1 ✅ 2026-09-23 (04:30 slot, §9 item 34; the chunk stays open for step 2).</strong> Additive <code>ports/circuit_skrf.py</code> (<code>network_from_records</code>, <code>terminate</code> via an <code>skrf.circuit.Circuit</code> netlist — <code>SeriesImpedance</code>→<code>Ground</code> per terminated port, <code>Circuit.Port</code> per kept port in ascending order, explicit <code>port_map</code>; no reflection coefficient computed in our code) and <code>tests/validation/test_port_circuit_skrf.py</code> (every record / band imported from the <code>PORT-14</code> / <code>PORT-15</code> modules; new: <code>IDENTITY_BAND</code> 1e-12, and <code>PORT-15</code>'s in-model tuned <code>S₁₁</code> stored as a cited record from <code>20260914T020419Z_PORT-15.log:3732</code>). <code>20260923T093456Z_PORT-23.log</code>, Status 0, <strong>8 s</strong>, <code>-n 2</code>, 6 passed per rank (<code>:93</code>, <code>:96</code>). <strong>(a)</strong> 64 MHz at <code>C_tuned</code> = 1.556993028375804e-11 F: max|Δ| skrf vs (C2) 3.511e-16 (1×1) / 1.415e-16 (2×2) ≤ 1e-12 (<code>:56–62</code>); <strong>(b)</strong> 10 MHz, P1 terminated, C / L / R ≤ 1.388e-16 (<code>:66–69</code>); <strong>(c)</strong> the skrf sweep's single zero equals <code>C_tuned</code> (|ratio−1| 0, |Im Z|/|Z| 1.585e-15 ≤ 1e-6); tuned <code>S₁₁</code> vs <code>PORT-15</code>'s in-model record 8.256e-05 ≤ <code>REDUCTION_BAND</code> 1e-3 (<code>:74–78</code>); <strong>(d)</strong> 50→75→50 Ω round trip 2.122e-15, power vs traveling 1.433e-15, skrf 75 Ω vs raw <code>z_to_s(s_to_z)</code> 9.421e-16 (<code>:82–85</code>; the third check added by the executor at the same band to cover the <code>superposition.py</code> convention clause). <strong>Negative control (asserted), 2×2-kept per the 09-23 ruling:</strong> a P2↔P3 swapped port map misses (C2) by 2.019e-01 = 201.9× the 1e-3 floor; class gap |S₁₂−S₁₃| 1.596e-01 above the 1e-2 stop (<code>:88–90</code>). API note for step 2: in 2.1.0 <code>Circuit</code> lives at <code>skrf.circuit.Circuit</code> (<code>skrf.Circuit</code> raises; <code>20260923T093252Z_PORT-23-api-probe.log</code>). Scope: identities on stored matrices; the printed <code>Z_in</code> is not an absolute claim (<code>PORT-21</code>). History: <strong>Why a library, and why the raw layer stays:</strong> the raw (C2) reduction in <code>ports/circuit.py</code> is forty lines pinned to a closed form and is what the <code>PORT-14</code>/<code>PORT-15</code> gates run through; it stays as the <em>control</em>. <code>scikit-rf</code> is the product: Touchstone in, connection-list netlist, termination / cascade / de-embed / renormalise native, the same object an HFSS Circuit user builds — so <code>ANS-7</code> compares like with like and matching networks, baluns and cable models come free. Conventions (power vs pseudo waves, port order, <code>z0</code> renormalisation — the <code>PORT-20</code> class of bug) are checked once, here, against the raw layer. <strong>Step 1 — the identity.</strong> Additive <code>ports/circuit_skrf.py</code>: <code>network_from_records(s, z0, f)</code> builds an <code>skrf.Network</code> from a stored 4×4 (the <code>PORT-15</code> module records at 64 and 10 MHz, imported); <code>terminate(network, {port: Z})</code> builds an <code>skrf.Circuit</code> of that network plus lumped impedances on the terminated ports and returns the kept-port S. <strong>Gates (asserted):</strong> (a) <code>terminate</code> vs <code>reduce_terminated_ports</code> at <code>C_tuned</code> on the stored 64 MHz 4×4 (the <code>PORT-15</code> step 3 sweep, imported), 1×1 and 2×2 kept, <code>max|Δ| ≤ 1e-12</code> — an identity, the band is machine precision; (b) the same at 10 MHz with the <code>PORT-15</code> step 2 terminations (the reduction floor); (c) the tuning zero found by sweeping <code>C</code> through <code>terminate</code> reproduces <code>C_tuned</code> to <code>TUNING_IM_Z_RTOL</code> (imported) — the tuned <code>S₁₁</code> then reproduces <code>PORT-15</code>'s in-model record at the imported <code>REDUCTION_BAND</code>; (d) <strong>convention control:</strong> renormalising the network to a different real <code>z0</code> (75 Ω) and back returns the input to 1e-12, and <code>s_def='power'</code> vs <code>'traveling'</code> agree for real <code>z0</code> to 1e-12 — asserts the library's wave convention is the one <code>superposition.py</code> documents. <strong>Negative control (asserted):</strong> a deliberately mis-ordered port map (ports 2 and 3 swapped in the netlist) breaks gate (a) by ≥ 1e-3 — port order is the silent failure a netlist invites, and the control shows the gate sees it. <strong>Printed, never gated:</strong> the kept-port <code>Z_in</code> from both engines, the <code>skrf</code> version. <strong>Done-when:</strong> (a)–(d) and the control green through the harness at <code>-n 2</code> (numpy + stored records; no field solve), elapsed recorded ⇒ <code>PORT-23</code> ✅ and the plan's circuit-layer sentence in §2.1 names <code>scikit-rf</code> as the engine with the raw reduction as its control. <strong>Step 2 (amended 2026-10-01 10:30 review, rule (j), to the 2026-09-30 weekly's lane-1 target; §9 item 155):</strong> on <code>ans:7</code>'s 51 stored grid 4×4 S (<code>logs/ans7/B1.json</code> / <code>B2.json</code>, Cu and PEC), <code>terminate</code> (P2–P4 in <code>C_F</code>) reproduces Route B's <code>Z_bare</code> (<code>route_b_z</code> on <code>z_from_s</code>) to <code>S_VS_Z_ROUTE_RTOL</code> at every point; <code>parallel_rows</code> on the skrf-side <code>Z_in</code> gives f₀, R_in, Q_loaded within 1e-9 of the raw route and within <code>test_ans7_sparse_route_b.BANDS</code> of <code>metrics.json</code>'s rows; harness, complex, <code>-n 2</code> ⇒ <code>PORT-23</code> ✅. The former step 2 (Touchstone + a text netlist for Ansys Circuit and <code>skrf</code>, on the <code>TH-17</code> / <code>PORT-22</code> tuned fixture) leaves this row for the weekly to re-home. <strong>Not in scope:</strong> nonlinear or time-domain elements (that would be <code>ngspice</code>, and nothing in the plan needs it). </p>
+<h3 id="audit-and-ruling-2026-10-02-1030-daily-review-auditor-closure-b8c5a686">Audit and ruling — 2026-10-02 10:30 daily review (<code>auditor</code>, closure <code>b8c5a686</code>)<a class="headerlink" href="#audit-and-ruling-2026-10-02-1030-daily-review-auditor-closure-b8c5a686" title="Permanent link">&para;</a></h3>
+<p><strong>PASS.</strong>
+- <strong>Digits:</strong> every claimed digit traces. The review re-read W1:94 ((R1) Cu 5.260e-15 ≤ 1e-9, 51 points).
+- <strong>Closure:</strong> it rests on (R1)–(R3), asserted at <code>tests/validation/test_port23_skrf_route_b.py:174–198,221</code>, all green.</p>
+<p><strong>Ruling on the two flagged controls.</strong> Both N1 and N2 are printed predictions under rule (e) (<code>:200–220</code>), not asserted separations, so neither blocks the closure.
+- <strong>N1:</strong> the "no up-crossing in 62–67 MHz" detail was wrong. There is one crossing per column, at 63.773 and 63.787 MHz (W1:97, :102). The control still resolves: Z_bare moves 0.21 against a 1e-9 floor.
+- <strong>N2:</strong> read as the maximum over rows, N2 resolves (R_in 1.31e-3). The f₀ row alone is C4-blind to a P1 ↔ P3 swap on Cu: 3.926e-10, inside 1e-9 (W1:98). That is symmetry, not a defect.
+- <strong>Lesson for briefs:</strong> a planted port swap names the rows it is blind to by symmetry. Its "stop and report" applies to the maximum over the rows the plant can move.</p>
+<p>Cosmetic: several "≤" figures were rounded down (8.901e-13, 1.521e-11).</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

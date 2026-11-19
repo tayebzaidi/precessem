@@ -1,0 +1,678 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>OPS-71 — re-record mri:2's guide table to the 0.11 image - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ops-71-re-record-mri2s-guide-table-to-the-011-image" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              OPS-71 — re-record mri:2's guide table to the 0.11 image
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-552-2026-10-19-lane-1-ops-docs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 552 — 2026-10-19 (lane 1; ops / docs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-552" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 552
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ops-71-re-record-mri2s-guide-table-to-the-011-image">OPS-71 — re-record <code>mri:2</code>'s guide table to the 0.11 image<a class="headerlink" href="#ops-71-re-record-mri2s-guide-table-to-the-011-image" title="Permanent link">&para;</a></h1>
+<p>Opened 2026-10-19 18:00 daily review (§9 rule (5) lane 1, a stale record found by an executed window). Item 549's journal (<code>POST-8</code> 3b-ii-e1b, 12:00 slot) noted that <code>mri:2</code>'s re-gate <code>20261019T170830Z_POST-8-step3b-ii-e1b-mri2-regate.log</code> (Status 0, 10 s) prints digits its guide does not carry. The guide's "On record" table is the 2026-08-08 run (<code>20260808T020414Z_EX-3-gate.log</code>), from before the 0.11 image. <code>mri:2</code> does not use the sampler, so the drift is not <code>POST-8</code>'s. It is mesher-dependent record drift, which is the <code>(1*)</code> licence (<code>OPS-31</code> / <code>OPS-33</code> precedent): re-record the record, move no band.</p>
+<p>Measured site list (guide <code>examples/mri/02_mass_averaged_sar.md</code> → the 17:08 log):</p>
+<table>
+<thead>
+<tr>
+<th>Guide site</th>
+<th>Guide reads</th>
+<th>Log reads</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>table <code>:56</code>, mesh cells</td>
+<td>74 216</td>
+<td>74 218 (<code>:114</code>)</td>
+</tr>
+<tr>
+<td>table <code>:50</code> and block <code>:94</code>, DG0 sphere-average vs closed form</td>
+<td>1.32e-15</td>
+<td>2.81e-15 (<code>:119</code>)</td>
+</tr>
+<tr>
+<td>table <code>:54</code> and block <code>:120</code>, 10 g kernel mass</td>
+<td>0.0044 %</td>
+<td>0.0041 % (<code>:128</code>); also 0.0041 % in <code>20261018T125346Z_POST-8-step3b-W5a-regate.log:223</code></td>
+</tr>
+<tr>
+<td>table <code>:56</code> / <code>:82–83</code>, mesh time</td>
+<td>7.1 s, 14 s wall</td>
+<td>2.7 s, 10 s wall (timings, informational)</td>
+</tr>
+</tbody>
+</table>
+<p>Every other row matches: point 4.96e-16 (<code>:118</code>), 1 g ratio and kernel 0.0120 % (<code>:123–124</code>), 10 g ratio (<code>:127</code>), separation 2.1894 against 1/f = 2.1681 (<code>:131</code>).</p>
+<h3 id="9-item-552-2026-10-19-lane-1-ops-docs">§9 item 552 — 2026-10-19 (lane 1; ops / docs)<a class="headerlink" href="#9-item-552-2026-10-19-lane-1-ops-docs" title="Permanent link">&para;</a></h3>
+<p><strong>Executor:</strong> <code>record-reconciler</code>, spawned foreground. <strong>Tier:</strong> standard, <code>-n 2</code>, one example window of ≈ 10 s plus two census windows. <strong>Cost:</strong> ≈ 3 measured minutes (ops / docs class) against 15 predicted. <strong>Depends on:</strong> nothing. Any slot may take it.</p>
+<p><em>No review ruling is open on this item.</em></p>
+<ol>
+<li><strong>Anchor.</strong> A fresh run of record of the <strong>unedited</strong> <code>examples/mri/02_mass_averaged_sar.py</code> at <code>-n 2</code>, complex, must pass all of the example's own assertions at their unchanged bands:</li>
+<li>closed-form round-off ≤ 1e-12 on both paths;</li>
+<li>the averaging identity within 0.5 % at 1 g and 10 g;</li>
+<li>kernel mass within 0.1 %;</li>
+<li>the separation control floor 1.5 and ceiling ±5 %.</li>
+</ol>
+<p>Then every digit in the guide's "On record" table (<code>:42–56</code>) and its printed-output blocks (<code>:91–121</code>) must equal that log's printed digit. The journal holds a line-by-line trace: guide line → log line.
+2. <strong>Negative control (asserted, rule (e)).</strong> Before the edit, three rows already differ from the 17:08 log on the same script and image: cells, DG0 and the 10 g kernel (table above, with log lines). The executor first confirms that the pre-edit guide still carries 74 216 / 1.32e-15 / 0.0044 %. After the edit, the trace shows zero mismatches. A trace that finds no pre-edit mismatch means the guide was already fixed: stop and journal.
+3. <strong>Commands</strong> (each is the whole Bash command, bare and repo-relative; <code>timeout: 660000</code>):
+   - <code>scripts/testing/run_and_log.sh OPS-71-pre-docrefs "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py'"</code>. This is the <code>Command:</code> line of <code>20261019T171453Z_EX-136-pre-docrefs.log:12</code>.
+   - <code>scripts/testing/run_and_log.sh OPS-71-mri2 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src timeout -k 30 180 mpiexec -n 2 python3 examples/mri/02_mass_averaged_sar.py'"</code>. This is the 17:08 log's <code>Command:</code> line verbatim.
+   - The post-edit docrefs census, the same command as the pre-edit one, with the chunk tag <code>OPS-71-post-docrefs</code>.
+4. <strong>Traps already paid for.</strong>
+   - The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. <strong>The spawning slot puts that sentence in the spawn prompt verbatim.</strong>
+   - Never edit <code>02_mass_averaged_sar.py</code>; it is the gate's twin (<code>MAT-4</code> step 3).
+   - Never touch a band, a quadrature degree or a budget sentence (<code>:58–59</code>).
+   - Docrefs gates on <code>exit != 1</code>; exit 2 (stale) is information.
+   - The <code>(1*)</code> licence covers records only.
+5. <strong>Scope boundary.</strong> <code>mri:2</code>'s guide only. This item does not sweep other example guides for the same drift, does not touch <code>MAT-4</code>'s gate records, and is not a gate change. Timings (<code>:56</code>, <code>:82–83</code>) are updated to the run of record as information.
+6. <strong>Negative result.</strong>
+   - <strong>Any example assertion red:</strong> stop, journal the reading, and open a known-issues entry. It would be a regression since 17:08 today on an unchanged script. Re-record nothing.
+   - <strong>The DG0 round-off reads a value other than 2.81e-15:</strong> it is round-off and varies run to run. Write that row as "round-off, ≤ 1e-12 (2.81e-15 and <new> on <both logs>)", not as a single digit, and say so in the journal.
+   - <strong>The cell count differs from 74 218:</strong> the mesh is not reproducible on this image. Stop, journal both counts, and hand to the review.
+7. <strong>Status it can move.</strong> <code>OPS-71</code> ⬜ → ✅. <code>mri:2</code>'s guide records point to a run of record on the current image, with the 2026-08-08 run kept as the historical line ("was 74 216 / 1.32e-15 / 0.0044 % on <code>20260808T020414Z_EX-3-gate.log</code>").</p>
+<p><strong>Commit:</strong> the guide, the three logs, their <code>test-results.md</code> rows, the §7 row (✅, with the run-of-record log), the §9 line collapsed to DONE, and an outcome line here.</p>
+<p><strong>Spawn prompt (record-reconciler):</strong> "Execute <code>OPS-71</code>, §9 item 552, from <code>docs/planning/chunks/OPS-71.md</code> § '§9 item 552'. Measured site list: the table at the top of that file. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Run every harness window in the foreground with Bash <code>timeout: 660000</code>. Never edit the example script or any band. Return the guide line → log line trace and the three log paths."</p>
+<h3 id="9-item-552">§9 item 552<a class="headerlink" href="#9-item-552" title="Permanent link">&para;</a></h3>
+<p><strong>Outcome (2026-10-20, 19:30 take-next slot, record-reconciler): DONE.</strong> Run of record <code>docs/testing/logs/20261020T004018Z_OPS-71-mri2.log</code> (Status 0, 10 s harness, 8.3 s internal; unedited script, all assertions green at unchanged bands). Pre-edit negative control confirmed (guide carried 74 216 / 1.32e-15 / 0.0044 %). Re-recorded: cells 74 218 (log <code>:114</code>), DG0 2.81e-15 (<code>:119</code>, equals the 17:08 value so no round-off-range wording), 10 g kernel 0.0041 % (<code>:128</code>), mesh 2.6 s, 10 s wall, 8.3 s internal. Trace (guide line → log line): table 50 / block 94 → <code>:119</code>; table 54 / block 120 → <code>:128</code>; table 56 → <code>:114</code>; table 49 / block 93 → <code>:118</code> (unchanged 4.96e-16); table 53 / block 119 → <code>:124</code>; table 55 / block 131 → <code>:131</code>; closed form → <code>:116</code>; ratios → <code>:123</code>, <code>:127</code>. Docrefs census exit 2 (118 unrelated stale artifacts) before (<code>20261020T004014Z_OPS-71-pre-docrefs.log</code>) and after (<code>20261020T004041Z_OPS-71-post-docrefs.log</code>), identical but for ages; both <code>exit != 1</code>. Collected-count identity: not applicable (example, not pytest).</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

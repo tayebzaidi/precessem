@@ -1,0 +1,741 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-106 — mri:14, 10 g SAR and B1+ through the Study on the four-port birdcage - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-106-mri14-10-g-sar-and-b1-through-the-study-on-the-four-port-birdcage" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-106 — mri:14, 10 g SAR and B1+ through the Study on the four-port birdcage
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-340-2026-10-08-example-54-ramp-from-wf-16-steps-45" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 340 — 2026-10-08 (example; §5.4 ramp from WF-16 steps 4–5)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-106-mri14-10-g-sar-and-b1-through-the-study-on-the-four-port-birdcage">EX-106 — mri:14, 10 g SAR and B1+ through the Study on the four-port birdcage<a class="headerlink" href="#ex-106-mri14-10-g-sar-and-b1-through-the-study-on-the-four-port-birdcage" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<h3 id="9-item-340-2026-10-08-example-54-ramp-from-wf-16-steps-45">§9 item 340 — 2026-10-08 (example; §5.4 ramp from WF-16 steps 4–5)<a class="headerlink" href="#9-item-340-2026-10-08-example-54-ramp-from-wf-16-steps-45" title="Permanent link">&para;</a></h3>
+<p><strong>Outcome (2026-10-09, 00:00 CDT slot): ✅ complete.</strong> Flagged run <code>20261009T050323Z_EX-106.log</code> (74 s, 69.3 s script, 1.88 GiB summed RSS) and control <code>20261009T050445Z_EX-106-control.log</code> (69 s) both green and digit-identical; every printed record equals the item 321 / 322 W1 lines (42 <code>REC</code> digits, 0 differing); (i) power residual 1.066e-14 vs the gate's 1.210e-14 is round-off, held at the band. Census figures 101 → 102 (<code>missing=0 broken=0</code>), docrefs 122 → 123 guides, <code>dead=0 guide=0 stale=56</code> before and after. PNG 414 214 B. The dry run emitted no <code>-T</code> / <code>-e FEM_EM_SETUP_FIGURES=1</code>; the brief's flagged form was used. Rule (i): script 05:03:14Z &lt; window 3 at 05:03:23Z; guide 05:06:32Z &lt; window 5 at 05:06:38Z.</p>
+<p><em>Drafted by a general-purpose agent for the 2026-10-08 18:00 daily review; the review reviews it.</em> Licence: daily-review.md step 5, the §5.4 example ramp. <code>WF-16</code> steps 4 and 5 were gated on 2026-10-08 (§9 items 321 <code>e763fa93</code> and 322 <code>24728153</code>, both green on the first run) as records beyond the Done-when with no glyph change, and no example shows them. <strong>No band, tolerance, record, Done-when or target is set or moved.</strong></p>
+<p><code>EX-106</code> (<code>mri:14</code>) adds <code>examples/mri/14_study_sar_and_b1.py</code> and the same-stem guide <code>14_study_sar_and_b1.md</code>: <strong>one <code>Study</code>, one field-keeping solve, two results.</strong>
+- The script builds <code>WF-16</code>'s <code>Study(FourPortBirdcageGeometry.f_small(), phantom, LumpedPortDrive(), frequency_hz=FREQUENCY_64_HZ, degree=1)</code> (exact rectangles, κ off), as <code>mri:8</code> does.
+- It asks the Study for <code>|B₁⁺|</code> (<code>Study.b1_plus()</code> / <code>b1_plus_at</code>) and for the 10 g mass-averaged SAR (<code>Study.sar(mass_g=10.0)</code>) on the four single drives.
+- It re-asserts both gated C4 identities at the imported <code>C4_COVARIANCE_BAND</code>, and shows that the second result reuses the first one's solve.
+- The angle is the Phase 9 (9a) user's question: "how do I get B₁⁺ and 10 g SAR out of my Study?" <code>mri:8</code> answers it for S only.</p>
+<ul>
+<li><strong>Executor:</strong> <code>example-runner</code>. It does not spawn agents.</li>
+<li><strong>Class:</strong> example. <strong>Tier:</strong> standard by prediction, heavy by ceiling (as <code>mri:8</code>). <code>-n 2</code>, complex, degree 1. Runner <code>-t 300</code>; container <code>timeout -k 30 300</code>.</li>
+<li><strong>Cost:</strong> ≈ 13 measured (example class median) / ≈ 45 predicted min (15 fixed + ≈ 20 script and guide + ≈ 10 windows). The price basis is under (3).</li>
+<li><strong>Depends on:</strong> nothing. Items 321 and 322 are on <code>main</code>. <code>mri:8</code> (<code>EX-92</code>) is ✅, and this item does not edit it.</li>
+<li><strong>Shared files.</strong> The item adds only the three example paths (script, guide, PNG). It edits nothing in <code>src/</code> or <code>tests/</code>, and imports from them. There is <strong>no rule (a) lift</strong>: the gate modules keep their fixtures private (<code>case</code>), so the script composes the same calls through the public <code>Study</code> methods.</li>
+<li><strong>Gap.</strong> <code>grep -rnlE '\.sar\(|b1_plus_at|\.b1_plus\(' examples --include=*.py</code> returns nothing. The existing SAR and B₁⁺ examples (<code>mri:3</code> <code>MAT-4</code>'s 10 g on the birdcage; <code>ports:6</code> / <code>ports:7</code> / <code>ports:16</code> <code>WF-6</code>'s B₁⁺ maps) build by hand on the older sheet fixtures, not through the <code>Study</code>. <code>mri:7</code> – <code>mri:13</code> compute S, mean SAR, temperature or an estimate, and none of them computes 10 g SAR or B₁⁺.</li>
+</ul>
+<p><strong>Degree: 1 at <code>-n 2</code>. Why.</strong>
+- It is the gate's cheapest leg. The degree-1 SAR window (field-keeping solve 36.41 s, 9 operator calls 21.00 s) took 114 s at <code>-n 2</code> with 1.92 GiB summed RSS (<code>20261008T184215Z_WF-16-s4-W1-deg1.log:1881–1882, :3821</code>). The B₁⁺ window took 43 s (<code>20261008T185141Z_WF-16-s5-W1-deg1.log:1877–1878, :1903</code>).
+- Degree 2 is held at <code>-n 8</code> (<code>DEGREE2_RECORD_WIDTH</code>). It needs ≈ 18 GiB summed (<code>…184556Z_WF-16-s4-W2-deg2.log:1966</code>, <code>…185400Z_WF-16-s5-W2-deg2.log:1956</code>) and carries the degree-2, quadrature-16 JIT compile.
+- <code>-n 2</code> is also the width at which a missing reduction shows, and the width that item 192's <code>P1</code> record holds at (<code>OPS-41</code>). The script asserts it.
+- <strong>The price of that choice is a thin margin.</strong> Degree 1's worst 10 g pair (3→0) reads 4.5024 %, which is <strong>0.90× the band</strong> (<code>…184215Z_WF-16-s4-W1-deg1.log:1897</code>). Degree 2 reads 0.5961 % worst (<code>…184556Z_WF-16-s4-W2-deg2.log:2002</code>). The guide says so, and says why: a_10g / h = 0.891 on the 0.015 m phantom, 537 phantom cells, and a mesh that is not C4-congruent (<code>WF-16.md</code> item 321 traps). See (6) for what a reading above 5 % means.</p>
+<p><strong>Imports (never restated).</strong>
+- From <code>fem_em_solver</code>: <code>Study</code>, <code>FourPortBirdcageGeometry</code>, <code>LumpedPortDrive</code>. From <code>fem_em_solver.materials</code>: <code>GelledSalinePhantomMaterial</code>. From <code>fem_em_solver.post.sar</code>: <code>averaging_ball_radius</code>, <code>mean_sar</code>. From <code>fem_em_solver.study</code>: <code>SAR_QUADRATURE_DEGREE</code> (printed). From <code>fem_em_solver.io.paraview_utils</code>: <code>write_xdmf_with_tags</code>, <code>adopt_host_ownership</code>. From <code>fem_em_solver.post.setup_figure</code>: <code>write_setup_figure</code>. From <code>fem_em_solver.utils.instrumentation</code>: <code>report_peak_rss</code>.
+- From <code>tests.package.test_wf16_study_four_port</code>: <code>_record</code>, <code>_rel</code>.
+- From <code>tests.validation.test_ans4_exact_strip_records</code>: <code>ANS4_EXACT_STRIP_RECORD_RANK_WIDTH</code>.
+- From <code>tests.validation.test_port_birdcage_four_port</code>: <code>LEG_D0_REPRODUCTION_BAND</code>.
+- From <code>tests.validation.test_birdcage_b1_plus_map</code>: <code>C4_COVARIANCE_BAND</code> (<code>:120</code>), <code>PHANTOM_CELL_TAG</code>, <code>_sample_points</code> (<code>:246</code>), <code>_rotate_z</code> (<code>:283</code>), <code>_relative_l2</code> (<code>:600</code>).
+- From <code>tests.validation.test_birdcage_sar_mass_averaged</code>: <code>CENTRE_RADIUS_M</code>, <code>WHOLE_PHANTOM_BALL_RADIUS_M</code>, <code>EXACT_IDENTITY_RTOL</code>, <code>CONTROL_PREDICTED</code>, <code>CONTROL_CEILING</code> (<code>:149–170</code>).
+- From <code>tests.validation.test_birdcage_b1_quadrature</code>: <code>QUADRATURE_STEP_DEG</code>, <code>_port_index</code>.
+- From <code>tests.validation.test_mass_averaged_sar_standard_masses</code>: <code>TEN_GRAM_KG</code>.
+- From <code>tests.validation.test_lossy_sphere_fullwave</code>: <code>FREQUENCY_64_HZ</code>, <code>SALINE_SIGMA</code>, <code>SALINE_EPSILON_R</code>.
+- From <code>tests.mesh.test_birdcage_implant_rod</code>: <code>_cell_values_with_ghosts</code> (<code>:171</code>), for the figure-only tags and the ball mask only.
+- <strong>No new number.</strong> <code>mass_g=10.0</code> is the API argument, the same literal as the gate (<code>test_wf16_study_sar.py:166</code>). The script states no σ, εᵣ, frequency, radius, band or record of its own. The gate modules export no SAR or B₁⁺ record constant, so the record digits are compared by the executor against the gate logs (below) and not asserted in-script; the review rules on that under Q2.</p>
+<p><strong>The API sequence (public methods only; the private <code>_solve_port_fields</code> is never called).</strong>
+1. <code>study = Study(..., degree=1)</code>, then <code>maps = study.b1_plus(comm=comm)</code>. This triggers the one field-keeping solve and caches it on <code>study.fields_result</code>. Keep <code>fr = study.fields_result</code> and time the call.
+2. Read the sheets off <code>fr.sheets</code>, port id <code>f"P{s['tag'] - study.geometry.sheet_iface}"</code>. Get the azimuths, <code>Δ = (az["P2"] − az["P1"]) mod 360</code>, and the indices <code>k = _port_index(az[p], az["P1"], QUADRATURE_STEP_DEG)</code> (it asserts the 90° grid). Then <code>by_k</code> and the centres <code>c_k = CENTRE_RADIUS_M·(cos az, sin az, 0)</code> for drive <code>by_k[k]</code>, exactly as <code>test_wf16_study_sar.py:150–162</code>.
+3. <code>points = _sample_points({"mesh": fr.mesh, "cell_tags": fr.cell_tags})</code>, then <code>study.b1_plus_at(...)</code> on the five images of <code>test_wf16_study_b1.py:114–125</code> (P1@0, P2@+Δ, P4@−Δ, P3@2Δ, P2@−Δ control) and at the origin per drive.
+4. <code>study.sar(mass_g=10.0, centres=[c_k], drives=[by_k[k]], comm=comm)</code> for k = 0…3 (the diagonal), the same at <code>c_{k+2}</code> (the control), and <code>study.sar(radius_m=WHOLE_PHANTOM_BALL_RADIUS_M, centres=[(0, 0, 0)], drives=["P1"])</code>: 9 operator calls, as the gate (<code>:164–182</code>).
+5. <code>mean_sar(fr.fields["P1"].e_complex, sigma=…sigma_field, rho=study.density_kg_m3, cell_tags=fr.cell_tags, subdomain_ids=study.geometry.phantom_tag, comm=comm)</code> for (i), as <code>:206–213</code>.</p>
+<p><strong>(1) Anchor (asserted in-script; every band imported).</strong> Each line is printed in the gate's format beside its gate-log record, and the executor compares the printed rows with the cited lines.
+- <strong>(W)</strong> <code>comm.size == ANS4_EXACT_STRIP_RECORD_RANK_WIDTH</code>, before anything else.
+- <strong>(R) same fixture:</strong> <code>_rel(fr.s_matrix, _record(1)) ≤ LEG_D0_REPRODUCTION_BAND</code>. Record 9.557e-11 (<code>…184215Z_WF-16-s4-W1-deg1.log:1884</code>).
+- <strong>(One) one solve feeds both results:</strong> after step 4, <code>study.fields_result is fr</code>, and <code>study.result is None</code> (<code>solve()</code> was never called; the gate asserts the same at <code>test_wf16_study_sar.py:147</code>). This is the example's own check. A second solve would show as a changed object and a doubled wall time.
+- <strong>(ii) the 10 g C4 quadrant identity, the SAR gate:</strong> the four cyclic pairs |SAR(c_{k+1}; k+1) − SAR(c_k; k)| / SAR(c_k; k) ≤ <code>C4_COVARIANCE_BAND</code>. Records 0.8702 / 3.5284 / 2.0337 / 4.5024 % (<code>…184215Z…:1897</code>). The diagonal SAR_10g and masses are printed at <code>.9e</code> beside <code>:1893–1896</code>, and the max over the four evaluated centres (2.073991516e-05 W/kg, P4, <code>:1898</code>) carries the gate's own label: "at 1 V drive, NOT a spatial search, NOT a C95.3 compliance figure".
+- <strong>(i) whole-phantom coverage:</strong> the ball's power against <code>mean_sar</code>'s, and its mass against ρ·V, each ≤ <code>EXACT_IDENTITY_RTOL</code>. Records 1.210e-14 / 3.997e-15 (<code>:1888</code>, round-off: asserted at the band only). Power 1.585977541981e-06 W and mass 2.195294683148e-01 kg are printed beside <code>:1888</code>.
+- <strong>(iv) containment</strong> on <code>study.geometry</code>'s fields, as <code>test_wf16_study_sar.py:118–132</code>: <code>CENTRE_RADIUS_M + a_10g &lt; phantom_radius</code>, and circumradius &lt; <code>WHOLE_PHANTOM_BALL_RADIUS_M</code> &lt; nearest conductor. Record line <code>…184215Z…:66</code>. Here a_10g = <code>averaging_ball_radius(mass_kg=TEN_GRAM_KG, rho=study.density_kg_m3)</code>, printed 13.3650 mm (<code>:1881</code>).
+- <strong>(B1) the |B₁⁺| C4 covariance identity, the B₁⁺ gate:</strong> <code>_relative_l2</code> of P2@+Δ, P4@−Δ and P3@2Δ against P1 on the common valid mask, each ≤ <code>C4_COVARIANCE_BAND</code>. Records 1.8695 / 1.9494 / 1.6405 % (<code>…185141Z_WF-16-s5-W1-deg1.log:1884</code>). The drive rotation is printed (90.000000°, <code>:1877</code>).
+- <strong>(B3) valid-point floor:</strong> every image is valid on all <code>points.shape[0]</code> points, and that count is &gt; 0. Record 51 of 51 on each image (<code>:1880</code>).
+- <strong>(T) tag:</strong> <code>PHANTOM_CELL_TAG == study.geometry.phantom_tag</code>, the precondition of <code>_sample_points</code>.
+- <strong>Printed beside its record, not asserted:</strong> |B₁⁺| at the phantom centre per 1 V drive, 1.667281487e-08 / 1.700738851e-08 / 1.665270745e-08 / 1.674331925e-08 T (<code>:1885</code>), labelled "a record, not absolute, not homogeneity". Also printed: cells (117 206, version-tagged), phantom cells (537, <code>…184215Z…:1881</code>, the global count from an allreduce of owned tag-3 cells), a_10g / h (0.8910), times and summed RSS.
+- <strong>Digit equality is part of the Done-when.</strong> The printed rows (R), (ii) pairs and diagonal, (B1), (B3), the centre values and the controls must equal the cited gate lines at the gate's printed digits. The degree, width, mesh and calls are the gate's, at the same <code>-n 2</code>. A last-digit difference in a <code>.9e</code> / <code>.12e</code> field is reported, not a failure. A difference in a <code>.4f %</code> pair is an example/test divergence finding (see (6)).</p>
+<p><strong>(2) Negative controls (rule (e)).</strong> Both cost no solve, and both are the gate's own controls re-asserted through the example's calls.
+- <strong>(c1) the mis-paired far-side ball:</strong> SAR(c_{k+2}; k) against SAR(c_k; k). <strong>The sign is asserted</strong>, &gt; <code>C4_COVARIANCE_BAND</code> at every k. The size is printed beside its record, 88.1162 / 87.9366 / 88.6600 / 88.9315 % (<code>…184215Z…:1906</code>). It is predicted ≈ <code>CONTROL_PREDICTED</code> (90 %), and <code>CONTROL_CEILING</code> (100 %) bounds it (a non-negative SAR cannot fall more than 100 %), so the measured ≈ 88 % is 0.88 of the ceiling and <strong>no factor is asserted.</strong> Separation from the band is ≈ 17.6×.
+- <strong>(cB) the mis-rotation:</strong> P2 read at the counter-rotated points (−Δ) against P1. <strong>The sign is asserted</strong>, &gt; <code>C4_COVARIANCE_BAND</code>. Its record is 35.0040 % (<code>…185141Z…:1892</code>). Item 322's 80–100 % prediction <strong>missed</strong> and was reported (<code>WF-16.md</code> item 322 outcome; this control is a 180° mis-rotation of P2's map, not step 2's pairing). The example prints 35.0040 % as the record and <strong>must not reprint the 80–100 % prediction</strong>. ‖a − b‖/‖b‖ of two non-negative maps has no tight ceiling below 2, so no factor is asserted.</p>
+<p><strong>(3) Windows</strong> (each the whole Bash command, Bash <code>timeout: 660000</code>, foreground, one bare repo-relative harness call, nothing chained or piped).
+0. <strong>Orphan check</strong> from a bare shell: <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0. The cache sweep (rubric (4), label <code>EX-106-cache-sweep</code>) runs only after a killed window, and only when that check reads 0.
+1. <strong>Pre-censuses, before any file is written</strong> (the commands of <code>20261008T172115Z_EX-89-item332-pre-figures.log:12</code> and <code>20261008T172117Z_EX-89-item332-pre-docrefs.log:12</code>, relabelled):
+   - <code>scripts/testing/run_and_log.sh EX-106-pre-figures "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_setup_figures.py'"</code>
+   - <code>scripts/testing/run_and_log.sh EX-106-pre-docrefs "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py'"</code>
+   - Last readings: <code>examples=98 ok=98 missing=0 broken=0</code> (<code>20261008T173602Z_EX-89-item332-post-figures.log:134</code>); docrefs 119 guides, <code>dead=2 guide=0 stale=56 exit=1</code> (<code>20261008T173603Z_EX-89-item332-post-docrefs.log:35, :98</code>). <strong>Both dead references are unrelated to this item:</strong> <code>ans9_aed_results.json</code> and <code>ans9_corrected_rows.json</code>, cited from <code>examples/ansys_benchmarks/ans9_coil_driven_gel_heating_10MHz/SPEC.md:36, :38</code> (<code>:37–38</code>). Take N and the dead list fresh from window 1, since other examples may have landed.
+2. <strong>Dry run:</strong> <code>scripts/testing/run_and_log.sh EX-106-dryrun "./scripts/run_examples.sh -e mri:14 -n 2 -t 300 --dry-run"</code>. It must print <code>(complex build)</code>.
+3. <strong>Flagged run of record</strong>, predicted [70, 180] s. The basis:
+   - the field-keeping solve is 36.41 s (mesh 27.25, sweep 8.65) and the 9 operator calls 21.00 s (<code>…184215Z…:1881</code>);
+   - the 4 CG1 projections take 2.69 s and the evaluations 0.89 s (<code>…185141Z…:1877</code>);
+   - <code>mean_sar</code> ≈ 1 s; the XDMF interpolations and write ≈ 10 s; the setup figure ≈ 15 s; startup ≈ 10 s. That sums to ≈ 95 s.
+   - <code>mri:8</code>'s flagged run took 51 s for a 36.8 s Study (<code>20261007T094132Z_EX-92.log</code>). Summed RSS is predicted ≤ 2.5 GiB (gate 1.92 GiB).
+   - The command, which is <code>mri:8</code>'s run of record with the path changed (<code>-T</code> added, <code>PYTHONPATH=/workspace/src</code> as emitted). If the dry run emits a string that differs in any other way, use the emitted one and note it:
+     <code>scripts/testing/run_and_log.sh EX-106 'docker compose exec -T -e FEM_EM_SETUP_FIGURES=1 fem-em-solver bash -lc "cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src timeout -k 30 300 mpiexec -n 2 python3 examples/mri/14_study_sar_and_b1.py"'</code>
+4. <strong>Control:</strong> <code>git add</code> the PNG, then run the same line without <code>-e FEM_EM_SETUP_FIGURES=1</code>, labelled <code>EX-106-control</code>. Every assertion must be green again, and the readings must match the flagged run <strong>at the band, never bitwise</strong>: (ii), (B1) and the controls on the same side of <code>C4_COVARIANCE_BAND</code>; (R), (i) and (One) at their bands. A digit difference between the two runs is reported.
+5. <strong>Post-censuses</strong> <code>EX-106-post-figures</code> / <code>EX-106-post-docrefs</code> (window 1's commands under those labels), after the guide is final. <strong>Write the prediction first:</strong>
+   - figures: <code>examples</code> N → N + 1, <code>ok</code> +1, <code>missing</code> unchanged, <code>broken=0</code>;
+   - docrefs: guides scanned +1, <code>guide=0</code>, and <strong>no new dead reference</strong>: the dead list is identical to window 1's (today the two <code>ans9</code> SPEC entries). <code>exit=1</code> is acceptable only for that pre-existing reason; it is not this item's to fix.
+6. <strong>Final check:</strong> <code>git status --porcelain examples/</code> lists only the three new paths (script, guide, PNG). No other tracked path is modified.</p>
+<p><strong>Output.</strong>
+- <strong>Combined XDMF</strong> <code>examples/mri/paraview_output/mri_14_study_sar_and_b1_combined.xdmf</code>, through <code>write_xdmf_with_tags(…, fr.mesh, fr.cell_tags, fields, comm=comm)</code> + <code>adopt_host_ownership</code> (<code>mri:8</code>'s call). Every field is real and named:
+  - <code>B1plus_abs_P1</code> … <code>_P4</code>: P1 Lagrange scalars, built as array arithmetic on each CG1 vector from <code>study.b1_plus()</code>, <code>np.abs(v[:, 0] + 1j*v[:, 1]) / 2</code> with <code>v = fn.x.array.reshape(-1, 3)</code> (the same blocked P1 node layout). They are the nodal values of the formula <code>b1_plus_at</code> applies; they are visual and not asserted;
+  - <code>E_abs_P1</code>: |E| for the P1 drive, interpolated into P1 Lagrange, as <code>mri:8</code> (<code>08_study_four_port_birdcage.py:213–219</code>);
+  - <code>power_density_P1</code>: ½σ|E|² in DG0 (W/m³ per 1 V). It is <strong>not</strong> divided by ρ, which is 0 outside the phantom;
+  - <code>sigma</code> (DG0);
+  - <code>ball10g_mask</code> (DG0): k + 1 in the 10 g ball at c_k and 0 elsewhere, from numpy cell midpoints over owned + ghost cells with squared distances. Print each ball's owned-cell count (allreduced). A ball's mesh cells are not its quadrature mass: the operator integrates the ball exactly at quadrature degree 16, and the mask is only a picture.
+- <strong>Setup figure</strong> <code>examples/mri/figures/mri_14_study_sar_and_b1_setup.png</code>, on <code>fr.mesh</code>, called right after step 2 (the centres exist by then):
+  - use a <strong>figure-only</strong> meshtags that is never passed to a solve: the values from <code>_cell_values_with_ghosts(fr.mesh, fr.cell_tags)</code>, with the four balls' cells set to four new tag values. Assert first that those values are absent from the global tag set (allgather);
+  - <code>region_names</code> as <code>mri:8</code> (<code>:129–136</code>), plus "10 g ball at P1 … P4 centre";
+  - <code>hide_tags</code> = the air tags, <code>translucent_tags=(phantom_tag,)</code>, <code>slice_normal=(0, 0, 1)</code> through the origin (it cuts all four balls), title ≤ 130 characters;
+  - if the PNG is over 600 KiB, re-render once with <code>show_edges_on_slice=False</code>.
+- <strong>Guide</strong> <code>examples/mri/14_study_sar_and_b1.md</code>, with the three required headings (<code>## 1. What this demonstrates</code>, <code>## 2. How to run it</code>, <code>## 3. How to analyze it, step by step</code>), <code>## Setup figure</code> and <code>## Related</code>, in <code>mri:8</code>'s pattern. It contains:
+  - a readings table: the anchor, the reference (the gate log line), the reading and the band;
+  - the API in four lines (<code>b1_plus</code>, <code>b1_plus_at</code>, <code>sar</code>, <code>fields_result</code>), and why <code>b1_plus()</code> returns a CG1 vector rather than |B₁⁺| (<code>\|·\|</code> is not linear; <code>WF-16.md</code> item 322 disclosure);
+  - the 10 g default and the <code>radius_m</code> alternative, which is refused together with an explicit <code>mass_g</code>;
+  - <strong>the margin paragraph:</strong> degree 1's worst pair at 0.90× the band, why (a_10g / h = 0.891, 537 phantom cells, a non-C4-congruent mesh), degree 2's 0.5961 % on the same mesh at <code>-n 8</code>, and that both are symmetry identities, not accuracy;
+  - a ParaView recipe: Threshold <code>CellTags</code> = 3 and colour by <code>B1plus_abs_P1</code>; Slice z = 0 on <code>power_density_P1</code>; Threshold <code>ball10g_mask</code> ≥ 1 to see the four balls; compare <code>B1plus_abs_P2</code> with <code>B1plus_abs_P1</code> rotated by 90° (Transform filter);
+  - <code>## Related</code>: <code>mri:8</code> first, then <code>mri:3</code> (the hand-built <code>MAT-4</code> 10 g on the birdcage), <code>ports:6</code> (the hand-built <code>WF-6</code> B₁⁺ map), <code>mri:7</code>, <code>tests/package/test_wf16_study_sar.py</code> and <code>tests/package/test_wf16_study_b1.py</code> (full filenames, rule (b)), <code>docs/guide/api/Study.md</code> and <code>docs/guide/first_study.md</code>.
+- The XDMF / H5 are gitignored; only the new PNG is tracked.</p>
+<p><strong>Complex build.</strong> The script checks <code>default_scalar_type</code> and raises in a real build (the <code>imp:3</code> guard, <code>03_rod_in_birdcage_tip_sar.py:197</code>; <code>mri:8</code> has none). The <code>mri:</code> group sources <code>source /usr/local/bin/dolfinx-complex-mode</code> automatically and registers <code>mri:14</code> from the <code>14_</code> prefix, with no registry edit.</p>
+<p><strong>(4) Traps already paid for.</strong>
+- <strong>Rank width.</strong> The gate asserts degree 1 at <code>-n 2</code> only, and the <code>P1</code> record holds there only (<code>OPS-41</code>). Assert (W) first and never run at another width.
+- <strong>κ / ragged refusal.</strong> <code>FourPortBirdcageGeometry</code> refuses κ and ragged sheets. Pass no <code>strip_fraction</code> or κ keyword (operator ruling 2026-10-02).
+- <strong>No <code>phantom_resolution</code>.</strong> Do not add one to widen the (ii) margin: it changes the fixture away from item 192 and is the review's call (<code>WF-16.md</code> item 321 traps).
+- <strong>The DG0 curl is not the gated estimator,</strong> and <code>post.faraday.b1_plus</code> is a DG0 operator. Use only <code>Study.b1_plus</code> / <code>b1_plus_at</code> (CG1, then |·| after evaluation).
+- <strong>Point evaluation goes through <code>b1_plus_at</code></strong> (<code>evaluate_vector_field_parallel</code> inside). Never <code>f.eval(points, np.arange(n))</code>. <code>points</code> must be identical on every rank, which <code>_sample_points</code> and <code>_rotate_z</code> guarantee.
+- <strong>Collectives.</strong> <code>sar</code>, <code>b1_plus</code>, <code>b1_plus_at</code>, <code>mean_sar</code>, every allreduce and <code>report_peak_rss</code> stay <strong>outside</strong> any <code>rank == 0</code> branch (<code>WF-7</code> step 0e, item 227: a rank-0-only collective deadlocked a window). Print on rank 0 only.
+- <strong>Rank-local tags.</strong> <code>cell_tags.values</code> is rank-local: build the air-tag list and the figure's free-tag check from an allgather (<code>mri:8</code> <code>:127–128</code>), and the phantom-cell count from an allreduce.
+- <strong>Complex operands.</strong> Use no UFL comparison and no <code>sqrt</code> comparison on complex operands (<code>OPS-22</code>, <code>WF-6</code> 4c). The ball mask is numpy on midpoints with squared distances; take <code>np.real</code> / <code>np.abs</code> in numpy. Interpolate <code>E_abs</code> exactly as <code>mri:8</code> does.
+- <strong>Quadrature.</strong> <code>Study.sar</code> pins <code>SAR_QUADRATURE_DEGREE</code> (16); never pass another <code>quadrature_degree</code>, because an unpinned <code>SpatialCoordinate</code> integral can compile for &gt; 9 min (POST-5). The degree-1, quadrature-16 form is already cached by item 321's W1. A killed compile leaves an orphan <code>.c</code>: check orphans, then sweep.
+- <strong>Name every Function</strong> (<code>EX-79</code>'s HDF5 collision cost a window).
+- Insert <code>_REPO_ROOT</code> into <code>sys.path</code> (<code>mri:8</code> <code>:56–58</code>). Never import another example's module.
+- <code>./run_examples.sh</code> runs host-side: emit with <code>--dry-run</code>, then pass the string to the harness as its own call.
+- <strong>Harness shape.</strong> Every harness call is the whole Bash command: bare, repo-relative, no <code>cd … &amp;&amp;</code> prefix, no <code>; date</code> / <code>| tail</code> suffix, no redirect (<code>bash_guard</code> rule 3; <code>EX-89</code> item 332 lost a post-figures log to a chained call, <code>20261008T173553Z</code>). A docker-socket denial means stop and report.
+- <strong>Timeouts.</strong> Bash <code>timeout: 660000</code> on every window; container <code>timeout -k 30 300</code>. Status 124 is a finding, never a retry, and the timeout is never lengthened.
+- <strong>Rule (i).</strong> The script is frozen once window 3 starts, and the guide before window 5. Make no edit after the last window.
+- PNG ≤ 600 KiB (<code>ans:8</code>'s first was 631 KiB).
+- Write <code>≈</code>, never <code>~</code>, in the guide.</p>
+<p><strong>(5) Scope.</strong> Two symmetry identities of <code>WF-16</code>'s API at one frequency on one fixture at fixed h, degree 1, per 1 V single-port drives.
+- <strong>Not claimed:</strong> an absolute SAR, a C95.3 / IEC compliance figure or limit, a spatial-peak search, 1 g SAR, B₁⁺ homogeneity or CV, an absolute or closed-form B₁⁺, a quadrature drive, tuning or resonance, degree 2, h-convergence, copper, human scale, or anything <code>WF-16</code> does not claim.
+- The printed SAR maximum is "max over 4 evaluated centres at 1 V drive", verbatim from the gate.</p>
+<p><strong>(6) Negative result.</strong> There is no <code>PREDICTED RED:</code> line. Any red stops the slot: report the measurement, journal it in <code>docs/testing/attempts.md</code>, park on <code>attempt/EX-106-&lt;UTC&gt;</code>, and leave <code>EX-106</code> ⬜. Never widen a band.
+- <strong>(ii) above 5 %</strong> (the thin-margin case). At a fixed mesh, width and degree the pair is deterministic up to round-off (≈ 1e-12 relative). Moving 4.5024 % past 5 % needs the 10 g averages to shift by ≈ 0.5 % relative, which noise cannot do. <strong>It means the fixture or the pairing moved.</strong>
+  - First compare the printed cells, phantom cells (537), (R) and the diagonal with <code>…184215Z…:1881–1897</code>.
+  - Then run the gate once, as a diagnostic: <code>scripts/testing/run_and_log.sh EX-106-wf16s4-regate "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_WF16_DEGREE=1 timeout -k 30 400 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/package/test_wf16_study_sar.py -s -v --tb=short'"</code> (item 321's W1 without the sweep module; ≈ 110 s).
+  - <strong>If the gate is red too,</strong> the fixture moved under a recorded ✅ step (image or mesher). Write a known-issues entry ("<code>WF-16</code> step 4 10 g C4 pair above the band on <code>main</code>"). The review rules on it, for example re-recording under (1*), or a degree-2 <code>mri:14</code>.
+  - <strong>If the gate is green,</strong> this is an example/test divergence (centre ↔ drive pairing, sheet ids, ρ). Print the <code>by_k</code> and the centres beside the gate's, and write a known-issues entry.
+  - Either way: never switch to degree 2 in-slot, never add <code>phantom_resolution</code>, and never re-mesh.
+- <strong>(B1) or (B3) red with (R) green:</strong> treat it as (ii), with item 322's W1 command as the diagnostic gate run (<code>…185141Z_WF-16-s5-W1-deg1.log:12</code>, labelled <code>EX-106-wf16s5-regate</code>).
+- <strong>(R) red:</strong> the Study's solve moved. Stop and report; it is a <code>WF-16</code> finding.
+- <strong>(One) red:</strong> the Study re-solved. Report the two objects and the times. It is an API finding against <code>WF-16</code> steps 4–5's cache, and the example does not work around it.
+- <strong>(i) red:</strong> a plumbing defect in ρ or the tags inside the example's <code>mean_sar</code> call. Fix it once in-slot (that is the example's own line) and re-run window 3; otherwise park.
+- <strong>(c1) or (cB) at or below the band:</strong> the comparator is blind. Stop.
+- <strong>Over 300 s, Status 124, or the slot at minute 50 before window 4:</strong> park with the last line printed; the review re-tiers.
+- <strong>A printed digit off its gate line</strong> (outside a <code>.9e</code> / <code>.12e</code> last digit): report it as above. It has no status effect unless an assertion is red.</p>
+<p><strong>(7) Status it can move.</strong>
+- The <code>EX-106</code> §7 row moves ⬜ → ✅ (Done-when met, elapsed recorded), with census <code>examples</code> +1 and <code>broken=0</code>.
+- §10's Phase 9 (9a) ramp gains "10 g SAR and B₁⁺ through the Study: example present".
+- <code>WF-16</code>'s row does not move (steps 4–5 are records beyond its Done-when, no glyph), and neither does <code>MAT-4</code> or <code>WF-6</code>.
+- A red under (6) can add a known-issues entry against <code>WF-16</code> step 4 or 5 instead.</p>
+<p><strong>Executor prompt (verbatim, for the <code>example-runner</code> spawn):</strong></p>
+<blockquote>
+<p>Execute <code>EX-106</code> (§9 item 340) exactly as briefed in <code>docs/planning/chunks/EX-106.md#§9-item-340</code>; you are the executor — do not spawn agents, never background a harness window. Pass <code>timeout: 660000</code> on every Bash call that runs a harness window, and never delete a log. Call <code>scripts/testing/run_and_log.sh</code> bare and repo-relative, with no <code>cd</code> and nothing chained. The harness call is the whole Bash command — bare, repo-relative, nothing chained or piped; do not end the turn while a window runs. Degree 1 at <code>-n 2</code> only; the <code>mri:</code> group sources the complex build. Add only <code>examples/mri/14_study_sar_and_b1.py</code>, its same-stem guide and its PNG; edit nothing under <code>src/</code> or <code>tests/</code> (import only), and call no private <code>Study</code> method. Import every band, restate none, and never loosen one: a 10 g C4 pair above 5 % is a finding — follow brief (6), never switch degree or mesh. Make no edit to the script after window 3 or to the guide after window 5. Return the windows' log names, every asserted and printed value beside its cited gate-log line, the census before / after (dead list included), the elapsed times and the PNG size.</p>
+</blockquote>
+<p><strong>Review rulings (2026-10-08 18:00 review) on item 340 — these outrank the brief above.</strong> (1) Degree 1 at <code>-n 2</code> as drafted; the guide states the 0.90× margin; no degree-2 rows. (2) Use an example-local <code>REC</code> dict with log:line comments, asserted at print precision (½ ulp of the printed digit), as <code>EX-89</code> item 238 ruling Q1 did. (3) (iii) and (B2) stay in the gates — confirmed. (4) Keep the ball mask, labelled in the guide and XDMF as a picture, not the operator's quadrature ball. (5) <code>EX-106</code> / <code>mri:14</code> is correct; <code>mri:15</code> is <code>EX-107</code>, <code>mri:16</code> is <code>EX-108</code>. (6) The stale DRAFT comment at <code>WF-16.md:519</code> was removed by this review.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

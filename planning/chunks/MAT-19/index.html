@@ -1,0 +1,1268 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>MAT-19 — The virtual temperature probe - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#mat-19-the-virtual-temperature-probe" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              MAT-19 — The virtual temperature probe
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-243-2026-10-05-chain-p7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 243 — 2026-10-05 (chain P7)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-253-2026-10-05-chain-p8-daily-provisional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 253 — 2026-10-05 (chain P8, daily provisional)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-258-2026-10-05-chain-p8-daily-provisional-re-pose-of-item-253-attempt-2-of-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 258 — 2026-10-05 (chain P8, daily provisional; re-pose of item 253, attempt 2 of 4)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-265-2026-10-06-chain-p10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 265 — 2026-10-06 (chain P10)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-05-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-05 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="§7 row moved verbatim 2026-10-05 (rotate_plan_archive.py chunks)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#9-item-314-2026-10-08-chain-p10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 314 — 2026-10-08 (chain P10′)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="mat-19-the-virtual-temperature-probe">MAT-19 — The virtual temperature probe<a class="headerlink" href="#mat-19-the-virtual-temperature-probe" title="Permanent link">&para;</a></h1>
+<p><strong>The virtual temperature probe: a point time series with a stated probe volume — Phase 8, gel</strong> (opened 2026-10-03 by the weekly; §10 chain P7, <code>PROJECT_PLAN.md:4587–4592</code>; lane 3). §7 row <code>PROJECT_PLAN.md:2512</code>. <strong>Done-when (§4, the row):</strong> an additive probe post-processor in <code>thermal/</code> (ball-averaged temperature against time, owner rule as <code>POST-8</code>); on <code>MAT-12</code>'s SAR-heated sphere the series at three radii is within 1 % of the closed form at every recorded time, and the series is width-invariant to 1e-9 at <code>-n 1 / 2 / 4</code>; a displaced-probe control misses; elapsed recorded ⇒ ✅. Not claimed: a real probe's thermal mass or lead artefact.</p>
+<h3 id="9-item-243-2026-10-05-chain-p7">§9 item 243 — 2026-10-05 (chain P7)<a class="headerlink" href="#9-item-243-2026-10-05-chain-p7" title="Permanent link">&para;</a></h3>
+<p><strong>Outcome (2026-10-05 09:30 UTC slot): ✅ GREEN, <code>MAT-19</code> ✅ (the row was amended under rule (j) by the 03:00 review).</strong> W0 (<code>20261005T095530Z_MAT-19-step1-W0.log</code>, 87 s, 14 passed): (U1) 0.0, (U3) 2.0e-14 / volume 0.0, (U3c) ghost miss 8.3e-2 volume, (U4) bitwise; <code>MAT-12</code> re-gated at its record ((P_t) 1.6845e-03). W1 <code>-n 2</code> (<code>…095808Z_…W1.log</code>, 104 s): (N1) 1.168e-14·θ_ss(0), a → 0 1.1e-16; (A0) 19 496 cells, V_h/V − 1 ≤ 6.3e-4; <strong>(T) max 1.7315e-03</strong> (n = 22, c₀); (G) ≤ 1.12e-5, so (T) is FEM error; q_h series +3.47 … +3.73 % at t* (printed); imag ratio 0; <strong>(C1) miss max 5.4207e-02</strong> (predicted 5.466e-2). W2 <code>-n 4</code> (<code>…100001Z_…W2.log</code>, 99 s) and W3 <code>-n 1</code> (<code>…100145Z_…W3.log</code>, 117 s): <strong>(W) <code>series_cf</code> 6.661e-16</strong>, cells equal; <code>series_h</code> 3.1e-11 / 7.9e-11 (printed). (C2) as printed is FEM-ball / point − 1 (−0.629 %, −0.815 %, −1.353 % at t*), the sign-inverted form of the brief's point / exact-ball offsets (+0.732 / +0.872 / +1.275 %), shifted by the FEM error; it is a record only.</p>
+<p><code>MAT-19</code> step 1: the ball-averaged probe on <code>MAT-12</code>'s sphere (implementer; standard by prediction, <strong>heavy by ceiling</strong> (<code>timeout -k 30 590</code>), <code>-n 2</code> / <code>-n 4</code> / <code>-n 1</code>, complex; ≈ 16 measured / ≈ 40 predicted min; depends on nothing). This is the family's first step: attempt 1 of 4.</p>
+<p><strong>The owner-rule trap, and how this item routes around it (read first).</strong>
+- <code>MAT-12</code>'s thermal solve is <strong>on a submesh</strong>: <code>_sphere_submesh</code> (<code>test_mat10_sar_to_heat_sphere.py:74–89</code>, <code>dmesh.create_submesh</code>), called at <code>test_mat12_transient_sar_heating_sphere.py:159</code>.
+- <code>evaluate_vector_field_parallel(owner="lowest_original_cell")</code> raises <code>RuntimeError: Mixed topology unsupported.</code> on any <code>create_submesh</code> mesh (<code>docs/testing/known-issues.md:1372–1379</code>, OPEN). That entry's Watch clause says <code>MAT-12</code>'s sphere is "full-mesh" and unaffected. <strong>That clause is wrong</strong>: the thermal field lives on the tag-1 submesh.
+- <strong>Route.</strong> A ball average is an integral, not a point sample, so it needs no point owner. Each rank sums its <strong>owned cells only</strong> (<code>index_map(3).size_local</code>, never ghosts). It then <code>comm.allreduce(SUM)</code>s the pair (∫θ, ∫1) over the probe ball and divides. Every cell is counted exactly once at every width, by construction of the cell index map. That is the ownership discipline the <code>POST-8</code> rule exists to enforce, applied to cells instead of points.
+- <strong>Never call</strong> <code>evaluate_vector_field_parallel(..., owner=...)</code> or <code>f.eval</code> on the submesh, and never read <code>original_cell_index</code> there.
+- <strong>Wording flag for the review (rule (j)).</strong> The row's parenthetical reads "owner rule as <code>POST-8</code>". This item does not call <code>POST-8</code>'s point-owner rule. It meets the rule's intent, width invariance to 1e-9 at <code>-n 1 / 2 / 4</code>, with the row's own gate (W). Before writing "→ ✅", the review should amend the parenthetical in its own commit to: <em>"(ball-averaged temperature against time: an integral over owned cells, no point owner — width-invariant as <code>POST-8</code>)"</em>. §10 P7's "through <code>evaluate_vector_field_parallel</code>'s owner rule" is the weekly's text and the weekly re-reads it. If the row is not amended, the executor closes on the row as written: it holds 🟡 and flags the clause.</p>
+<p><strong>The fixture (imported, never restated).</strong>
+- <strong>The EM side</strong> is <code>MAT-10</code>'s and <code>MAT-12</code>'s: <code>_solve_lossy_sphere(SIGMA_HIGH, R / 10.0, R / 5.0, return_fields=True)</code> (<code>test_mat12_transient_sar_heating_sphere.py:141</code>). Here R = 0.01 m, h_in = R/10 = 1 mm, ρ 1000, σ 0.57 S/m, 64 MHz.
+- <strong>The thermal side</strong> is the tag-1 submesh with every exterior facet Robin (<code>_robin_tags</code>, <code>test_mat10_sar_to_heat_sphere.py:92–98</code>). Its parameters are <code>K</code> 0.6, <code>H</code> 100 (Bi 5/3), <code>RHO_C</code> 4.18e6, T∞ = T(0) = 0 and <code>G</code> (<code>:52–55</code>; MAT-12 <code>:67–72</code>).
+- <strong>q_cf</strong> = <code>G·RHO_KG_M3·SAR_cf</code> = 2002.088514 W/m³, as at MAT-12 <code>:146–150</code> (log <code>20260930T110230Z_MAT-12-W1.log:157</code>).
+- <strong>The submesh</strong> is <strong>19 496 cells</strong> with volume 4.173655e-06 m³ (<code>…MAT-12-W1.log:159–160</code>; reproduced in <code>20261003T171523Z_MAT-17-step2-W3-regate.log:159</code>). Mean cell volume is 2.14e-10 m³, an ≈ 1.2 mm equilateral edge, consistent with h_in = 1 mm.
+- <strong>Recorded times.</strong> The run is <code>MAT-12</code>'s own <code>_cn(sub, ft, q, snapshot_steps=range(N_MAIN + 1))</code> (<code>test_mat12_transient_sar_heating_sphere.py:115–125</code>; the <code>snapshot_steps</code> pass-through is additive, <code>EX-67</code>). It is CN with a Rannacher start, N = 40 to t* = 0.2 t_R = 139.3333 s, so Δt = 3.4833 s.
+  - The recorded times are <strong>t_n = n·Δt, n = 1 … 40</strong> (snapshot n is full step n; the two BE half-steps produce snapshot 1, <code>thermal/transient.py:323–330</code>).
+  - n = 0 is θ ≡ 0. It is asserted to read exactly 0 and is excluded from relative checks.
+- <strong>The run</strong> reproduces <code>MAT-12</code>'s (P_t) interior relative L2 1.6845e-03 at t* (<code>…MAT-12-W1.log:161</code>; <code>…MAT-17-step2-W3-regate.log:161</code>). Print it beside.</p>
+<p><strong>The probes (pinned).</strong>
+- Probe radius <strong>a = 2 mm = 2 h_in = 0.2 R</strong>, ≈ 156 mean cell volumes per ball. The volume is a fixture parameter, not a real probe size.
+- The three centres:
+  - c₀ = (0, 0, 0);
+  - c₁ = 3.5 mm · (1, 0, 0);
+  - c₂ = 6.5 mm · (1, 1, 1)/√3 (off-axis, generic).
+- <strong>(M), asserted exactly:</strong> |cⱼ| + a ≤ 0.9 R for every probe. The ball must lie inside <code>_interior_indicator</code>'s r &lt; 0.9 R (<code>test_mat10_sar_to_heat_sphere.py:140</code>), which is where <code>MAT-12</code>'s (P_t) 1.68e-3 was measured, and away from the faceted surface (mesh volume −0.36 % from 4πR³/3).</p>
+<p><strong>Code.</strong>
+- <strong>(1) New <code>src/fem_em_solver/thermal/probe.py</code></strong> (additive), plus exports in <code>thermal/__init__.py</code>.
+  - <code>ProbeBall(centre: tuple[float, float, float], radius: float)</code>. The centre is plain floats.
+  - <code>ball_average(temperature, probe, *, levels=3) -&gt; (value, volume)</code>.
+  - <code>probe_series(snapshots: Mapping[int, fem.Function], dt: float, probes, *, levels=3) -&gt; ProbeSeries</code>, with fields <code>times</code>, <code>values</code> (n_t × n_probes), <code>volumes</code>, <code>nominal_volumes</code> = 4πa³/3 and <code>max_imag_ratio</code>.
+  - <strong>Restrictions, which raise:</strong> scalar Lagrange degree 1 on an affine tetrahedral mesh (<code>geometry.cmap.degree == 1</code>). The ball must be given in mesh coordinates.
+  - <strong>Algorithm (pure numpy, no UFL form, no JIT, no comparison on a UFL operand).</strong>
+    - Per owned cell K (<code>0 … size_local − 1</code>): the dof coordinates come from <code>V.tabulate_dof_coordinates()[V.dofmap.list[K]]</code>. For P1 these are the vertices, ordered like the dofs by construction, so never mix them with <code>geometry.dofmap</code>. Take the centroid and the bounding radius ρ_K = max vertex distance. Skip the cell if |centroid − c| − ρ_K &gt; a.
+    - Each remaining cell is sampled on a fixed barycentric lattice: the centroids of the 8^L equal-volume sub-tetrahedra of L-fold red (Bey) refinement of the reference tetrahedron. L = 3 gives 512 points of weight |K|/512, precomputed once.
+    - At each lattice point, θ = λ·θ_K (exact for P1). The indicator is the squared distance compared with a² in numpy float64.
+    - <strong>Geometry is precomputed once per probe.</strong> Each snapshot is then one weighted sum. Return the real part and record max |Im θ|/max |Re θ| over the dofs used (the complex build).
+  - <strong>Reduction:</strong> one <code>comm.allreduce(np.array([num, vol]), op=MPI.SUM)</code> <strong>on every rank</strong>, including ranks with zero candidate cells. A collective entered by a subset of ranks deadlocks (item 227, <code>eda85f26</code>).
+  - An internal <code>_ball_average_on_cells(..., cells)</code> takes the cell list. The public path passes owned cells only. The test uses the internal path for the planted ghost control.
+  - The docstring cites this item and states the restriction and the known-issues route.
+- <strong>(2) New <code>tests/solver/test_thermal_probe.py</code></strong>, smoke tier: <code>dolfinx.mesh.create_box</code> on [−1, 1]³, 8³ × 6 tets, P1 real-valued fields. In the complex build they are complex-typed with Im 0.
+  - <strong>(U1)</strong> θ ≡ 3.7 inside a ball of radius 0.5 at (0.1, 0.2, 0.05) reads 3.7 to ≤ <code>B_BAND</code> 1e-10 relative (<code>test_mat10_sar_to_heat_sphere.py:61</code>, imported). V_h/(4πa³/3) − 1 is printed, predicted |·| ≤ 5e-3.
+  - <strong>(U2)</strong> The affine θ = 2 + x − 0.5y + 0.25z reads θ(c). This is <strong>printed, not asserted</strong>: the predicted relative deviation is ≤ 1e-3, from the lattice centroid shift ≈ 3h_s²/(2√π a) with h_s = h/8.
+  - <strong>(U3)</strong> A ball of radius 10 ⊇ the box, on θ = interpolant of 2 + x² + y. The probe equals <code>_allsum(θ dx)/_allsum(1 dx)</code> (MAT-10's <code>_allsum</code>, <code>:70–71</code>) to ≤ <code>B_BAND</code>, and the volume equals 8 to ≤ <code>B_BAND</code>. This is the rank-safety identity. It is visible only at <code>-n 2</code>, the width where a missing reduction or a double-counted ghost shows.
+  - <strong>(U3c) Planted ghost control, at <code>comm.size &gt; 1</code> only:</strong> <code>_ball_average_on_cells</code> over owned + ghost cells must miss (U3)'s identity by more than <code>B_BAND</code>. That miss is asserted. The predicted separation is O(1e-2), printed. Rule (e): no prior measurement, so the factor is predicted.
+  - <strong>(U4)</strong> At <code>-n 2</code>, the c₀ reading is bitwise identical on every rank (allgather, <code>==</code>).
+- <strong>(3) New <code>tests/validation/test_mat19_virtual_temperature_probe.py</code></strong> (<code>complex_only</code>), with one module-scoped fixture. It imports and never restates:
+  - <code>E0</code>, <code>EPSILON_R_SPHERE</code>, <code>OMEGA</code>, <code>RHO_KG_M3</code>, <code>SIGMA_HIGH</code>, <code>_solve_lossy_sphere</code> (<code>test_lossy_sphere_sar.py</code>);
+  - <code>R</code>, <code>K</code>, <code>H</code>, <code>G</code>, <code>ROBIN_TAG</code>, <code>P_BAND</code>, <code>A_BAND</code>, <code>B_BAND</code>, <code>_allsum</code>, <code>_say</code>, <code>_sphere_submesh</code>, <code>_robin_tags</code>, <code>_cell_average_dg0</code>, <code>_to_sub</code> (<code>test_mat10_sar_to_heat_sphere.py</code>);
+  - <code>RHO_C</code>, <code>T_R</code>, <code>T_STAR</code>, <code>N_MAIN</code>, <code>_cn</code> (<code>test_mat12_transient_sar_heating_sphere.py:67–72,115</code>);
+  - <code>robin_sphere_eigenvalues</code>, <code>robin_sphere_transient_coefficients</code>, <code>robin_sphere_transient_temperature</code> (<code>utils/analytical.py:1192,1220,1232</code>).</p>
+<p>Two runs on the same submesh, <strong>q_cf</strong> (uniform) and <strong>q_h</strong> (<code>MAT-12</code>'s DG0 FEM SAR, <code>:164–166</code>), each with <code>snapshot_steps=range(41)</code>. The probe series is taken on both.
+  - <strong>Width artefact.</strong> At <code>-n 2</code>, rank 0 writes <code>/workspace/logs/mat19/step1-n2.npz</code> (<code>/logs/</code> is gitignored, <code>.gitignore:82</code>; <code>os.makedirs(..., exist_ok=True)</code>) with <code>series_cf</code>, <code>series_h</code>, <code>volumes</code> and <code>cells</code>, then <code>Barrier</code>. At <code>-n 4</code> and <code>-n 1</code> the module loads it. If it is missing, <code>pytest.fail</code>; never recompute (<code>POST-8</code> step 3a's guard, <code>docs/planning/chunks/POST-8.md:171–173</code>).</p>
+<p><strong>The comparand: the closed form averaged over the same ball (pinned).</strong>
+- θ(r, t) is <code>robin_sphere_transient_temperature</code> with θᵢ = 0, T∞ = 0: θ = θ_ss(r) − Σₙ Bₙ e^{−λₙ² αt/R²} Xₙ(r), with Xₙ = sin(κₙr)/(κₙr), κₙ = λₙ/R, and Bₙ from <code>robin_sphere_transient_coefficients</code> (<code>analytical.py:1220–1229</code>, 400 terms as the default).
+- Its exact mean over the ball B(c, a), d = |c|, is:</p>
+<p>θ̄(d, a, t) = qR/(3h) + q(R² − d² − 3a²/5)/(6k) − Σₙ Bₙ e^{−λₙ²αt/R²} Xₙ(d) · 3[sin(κₙa) − κₙa cos(κₙa)]/(κₙa)³.</p>
+<ul>
+<li>The steady part: θ_ss is quadratic, and the ball mean of |x|² is d² + 3a²/5.</li>
+<li>The modes: Xₙ solves ∇²u + κₙ²u = 0 in all of ℝ³, so the Helmholtz mean-value theorem holds. Its spherical mean at radius s is u(c)·sin(κs)/(κs). Integrating with weight 3s²/a³ gives the factor 3j₁(κa)/(κa).</li>
+<li>A small-argument guard: use 1 − x²/10 for x &lt; 1e-4.</li>
+<li><strong>(N1), asserted numpy anchor.</strong> θ̄ above against a direct radial Gauss–Legendre quadrature of <code>robin_sphere_transient_temperature</code>. The quadrature uses the shell-cap weight: the area of the sphere of radius r inside B(c, a) is πr(a² − (r − d)²)/d on |d − a| ≤ r ≤ d + a, plus 4πr² on r &lt; a − d, normalised by 4πa³/3. Use ≥ 200 nodes per sub-interval. The check runs at all 3 probes × 40 times, together with the a → 0 limit against the point value. The band is ≤ 1e-10·θ_ss(0), the series-route agreement band of <code>MAT-17</code> step 1 (P3), imported from <code>test_mat17_duty_cycle_closed_form.py:206–207</code>, where θ_ss(0) = 0.1223499 K. Predicted ≤ 1e-13.</li>
+<li><strong>Predicted comparands</strong> (pure-Python evaluation of the formula above while drafting; it reproduces the logged θ(0, t*) 0.059564 and θ(R, t*) 0.035599 of <code>…MAT-12-W1.log:158</code>):</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>probe</th>
+<th>θ̄(t₁) [K]</th>
+<th>θ̄(t₁₀) [K]</th>
+<th>θ̄(t*) [K]</th>
+<th>point θ(cⱼ, t*) [K]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>c₀, d = 0</td>
+<td>1.668407e-03</td>
+<td>1.666485e-02</td>
+<td>5.913173e-02</td>
+<td>5.956431e-02</td>
+</tr>
+<tr>
+<td>c₁, d = 3.5 mm</td>
+<td>1.668407e-03</td>
+<td>1.658213e-02</td>
+<td>5.678637e-02</td>
+<td>5.728180e-02</td>
+</tr>
+<tr>
+<td>c₂, d = 6.5 mm</td>
+<td>1.668186e-03</td>
+<td>1.595905e-02</td>
+<td>5.025018e-02</td>
+<td>5.089074e-02</td>
+</tr>
+</tbody>
+</table>
+<p>The probe reads these to the printed digits (n = 1 is q_cf t₁/ρc = 1.6684e-3 at the interior probes).</p>
+<p><strong>Anchors (asserted).</strong>
+- <strong>(A0)</strong> The submesh has 19 496 cells at every width, compared exactly (<code>…MAT-12-W1.log:159</code>). Probe volume ratios V_h/(4πa³/3) − 1 are printed, predicted |·| ≤ 2e-3. Snapshot 0 reads exactly 0.0 at every probe.
+- <strong>(T), the row's gate.</strong> For every probe j and every n = 1 … 40, on the <strong>q_cf</strong> series: |P_h,j(t_n) − θ̄_cf(dⱼ, a, t_n)|/θ̄_cf(dⱼ, a, t_n) ≤ <strong>1 %</strong>. This is the row's band, carried by the imported constant <code>P_BAND</code> = 1.0e-2 (<code>test_mat10_sar_to_heat_sphere.py:59</code>, "<code>MAT-9</code> (i)").
+  - <strong>Predicted:</strong> max over (j, n) ≤ 3e-3, ≥ 3× headroom. <code>MAT-12</code>'s (P<strong>) interior L2 on the </strong>me run is 1.6845e-3 at t* (<code>:161</code>), and for n ≤ 3 the interior probes sit in the uniform-growth core, which P1 + BE/CN reproduce to round-off.
+  - <strong>Why q_c</strong>and not q<strong>.** On klzzw</strong>:0230's sphere only the uniform closed-form-SAR leg, (P<strong>), carries a 1 % band. The FEM-SAR leg (A_t) carries <code>A_BAND</code> 11 % and measured 3.4</strong>8e-2, almost all of it <code>MAT-4</code>'s +3.54 % SAR offset (<code>:162–163</code>). So the q<strong> series again</strong> the closed form is <strong>printed*</strong>beside <code>A_BAND</code> (predicted ≈ +3.4–3.6 % at t*) and not asserted.
+- <strong>(G), pri</strong>ed.** The probe's geometric error alone: the same lattice, with θ_cf evaluated in numpy at the lattice points (no FEM), against θ̄ at t*, per probe. The predicted |·| is ≤ 1e-3; the dominant term is centroid shift ≈ 0.01 mm × the outer probe's sensitivity of 5.5 %/mm. The split of (T) into geometry (G) and FEM (T − G) is printed per probe at t*.
+- <strong>(W), the row's gate, at <code>-n 4</code> and <code>-n 1</code> against the <code>-n 2</code> npz.</strong>
+  - <code>cells</code> must be equal.
+  - Every entry of <code>series_cf</code>, n = 1 … 40 × 3 probes, must be within <strong>1e-9 relative</strong> of its <code>-n 2</code> value. This is the row's band, as <code>WIDTH_BAND = 1.0e-9  # MAT-19 row, PROJECT_PLAN.md:2512</code>, a band this item does not set.
+  - Predicted ≤ 1e-12: the thermal solve is real-valued, and the probe is a sum whose order alone moves with the width.
+  - <strong>Printed:</strong> the same comparison on <code>series_h</code>. It carries the complex EM solve's width round-off. Predicted ≤ 3e-10: the worst cross-width figure this project has measured is <code>POST-8</code>'s 2.98e-10 (<code>docs/planning/chunks/POST-8.md:13</code>), and <code>MAT-15</code>'s P₁ spread across six runs is ≤ 5.3e-12.
+  - <strong>Printed:</strong> <code>max_imag_ratio</code>, predicted 0 for q_cf.</p>
+<p><strong>Negative controls (rule (e)).</strong>
+- <strong>(C1) The displaced probe: the row's control, its miss asserted, its factor predicted.</strong> The FEM probe is moved 1 mm radially inward, c₂′ = (5.5/6.5)·c₂ with the same a, and its q_cf series is compared with the <strong>nominal</strong> θ̄_cf(6.5 mm, a, t_n). <strong>Asserted: max over n of the relative miss &gt; <code>P_BAND</code></strong> (it misses (T)).
+  - <strong>Predicted, printed beside</strong> (closed form only; no prior measurement on this fixture):</p>
+<pre><code>| n | 1 | 5 | 6 | 10 | 20 | 40 |
+| --- | --- | --- | --- | --- | --- | --- |
+| miss | 1.28e-4 | 8.15e-3 | 1.089e-2 | 2.116e-2 | 3.887e-2 | **5.466e-2** |
+
+The miss grows monotonically with n. It first exceeds 1 % at n = 6, so the assertion is on the maximum over n, which is n = 40, never on "every n". An early-time series is uniform in r, so no displacement can show there.
+</code></pre>
+<ul>
+<li><strong>Ceiling:</strong> the steady limit, t → ∞, is 6.843e-2. That is the most a 1 mm radial displacement at 6.5 mm can show on this fixture, 6.8× the band. At t* the predicted miss is 5.5× the band, less the FEM error of ≤ 3e-3.</li>
+<li><strong>Printed:</strong> the displaced probe against its <strong>own</strong> closed form θ̄(5.5 mm), predicted within (T)'s 1 %. It is a fourth radius for free and is not asserted.</li>
+<li><strong>(C2) The volume-omitted comparand: predicted, printed only.</strong> The q_cf ball series is compared with the <strong>point</strong> closed form θ(dⱼ, t_n). At t* the predicted offsets are +0.732 % (c₀), +0.872 % (c₁) and +1.275 % (c₂). At c₂ the point comparand exceeds 1 % from n ≈ 20 (1.14 %). This is what stating the probe volume buys at this a/R. It is printed as a record because the separation from the band (1.27×) is too thin to assert.</li>
+<li><strong>(U3c)</strong> is in W0 (see above): the ghost-included sum misses <code>B_BAND</code>. The miss is asserted; the factor is predicted.</li>
+</ul>
+<p><strong>Windows</strong> (complex; foreground; Bash <code>timeout: 660000</code>; each command bare, whole and repo-relative; <code>-s</code>; no <code>-k</code> inside the quoted command; no pipes or redirects).
+- <strong>First, two checks.</strong> <code>pgrep -c python3</code> in the container reads 0. Then run the rubric's orphan sweep as one bare call:</p>
+<p><code>scripts/testing/run_and_log.sh MAT-19-step1-cache-sweep "docker compose exec -T fem-em-solver bash -lc 'cd /root/.cache/fenics &amp;&amp; for c in libffcx_*.c; do s=\${c%.c}; ls \$s.*.so &gt;/dev/null 2&gt;&amp;1 || { echo orphan \$s; rm -f \$s.c \$s.c.cached \$s.o; }; done; echo sweep done'"</code>
+- <strong>Pricing basis.</strong> <code>MAT-12</code>'s own window took 77 s at <code>-n 2</code>, test body 30.5 s, EM 15.4 s (<code>20260930T110230Z_MAT-12-W1.log:171</code>, footer). Its 2026-10-03 re-gate read EM 14.4 s / body 21.1 s inside a 105 s window together with <code>MAT-14</code> (<code>20261003T171523Z_MAT-17-step2-W3-regate.log:171,396</code>).
+  - Today's box is slow: <code>MAT-5</code> step 3 measured its EM at ≈ 2× its own basis (<code>20261005T050759Z_MAT-5-step3-W1-alpha0.log</code>; journal in <code>docs/planning/chunks/MAT-5.md:96</code>). Hence the 590 ceiling on a standard prediction. <strong>A window killed at 590 is not a result:</strong> stop BLOCKED as a slow box, never lengthen.
+- <strong>W0, the probe and the rule (c) re-gate</strong> (<code>-n 2</code>; predicted ≈ 100 s, up to 200 s on a slow box).
+  - The <code>thermal/__init__.py</code> edit is imported by <code>MAT-12</code>'s module, so that module re-runs green in the same window. Its (P_t) / (A_t) / (S1) / (S2) / (E) / (∞) / controls must reproduce <code>…MAT-12-W1.log:161–170</code> at their bands.
+  - A red W0 stops the item before W1: revert the <code>src/</code> edit and park.</p>
+<p><code>scripts/testing/run_and_log.sh MAT-19-step1-W0 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 590 mpiexec -n 2 python3 -m pytest tests/environment tests/solver/test_thermal_probe.py tests/validation/test_mat12_transient_sar_heating_sphere.py -s -v --tb=short'"</code>
+- <strong>W1, <code>-n 2</code>, which writes the npz</strong> (predicted ≈ 85 s: environment ≈ 45 s, EM ≈ 15 s, two CN runs ≈ 1–4 s each, numpy comparands and (G) ≈ 5 s):</p>
+<p><code>scripts/testing/run_and_log.sh MAT-19-step1-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 590 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_mat19_virtual_temperature_probe.py -s -v --tb=short'"</code>
+- <strong>W2, <code>-n 4</code></strong> (predicted ≈ 80 s): the same command with <code>-n 4</code>, label <code>MAT-19-step1-W2</code>.
+- <strong>W3, <code>-n 1</code></strong> (unmeasured; predicted ≈ 110 s, with the EM ≤ 2× its <code>-n 2</code> time): the same command with <code>-n 1</code>, label <code>MAT-19-step1-W3</code>.
+- <strong>Order:</strong> W0 → W1 → W2 → W3. W2 and W3 need W1's npz from the <strong>same</strong> module bytes.</p>
+<p><strong>Traps.</strong>
+- <strong>The owner rule on a submesh raises</strong> (known-issues <code>:1372</code>). Use no point evaluation at all, with or without an owner. The probe is an owned-cell integral.
+- <strong><code>cell_tags.values</code> and <code>assemble_scalar</code> are rank-local.</strong> The probe's partial sums are rank-local until the one allreduce. Every rank enters that allreduce (item 227 deadlocked on a rank-0-only collective). (U3) / (U3c) at <code>-n 2</code> are the check.
+- <strong>Ghosts.</strong> <code>V.dofmap.list</code> has rows for owned + ghost cells. Iterate <code>range(size_local)</code> only. The ghost <strong>dof values</strong>, however, are needed, and the snapshots copy <code>T_new.x.array</code> after <code>scatter_forward</code> (<code>transient.py:265–269,302</code>).
+- <strong>Complex build.</strong> θ arrays are complex-typed. Take <code>np.real</code> after the weighted sum and print the imaginary ratio. Put no ordering comparison on any UFL operand: the indicator is numpy-side on float64 squared distances, never <code>ufl.conditional</code> / <code>lt</code> / <code>sqrt</code> (<code>OPS-22</code>; <code>WF-6</code> step 4c). <code>_allsum</code> returns complex: take <code>np.real</code>.
+- <strong>Dof coordinates, not the geometry dofmap,</strong> for the P1 vertices of a cell. The ordering matches by construction only that way.
+- <strong>The ball centre is plain floats</strong>, not a numpy scalar of a complex dtype (<code>POST-8</code> 3a's trap, <code>sar.py:257</code>).
+- <strong>Snapshot indices are full steps.</strong> With <code>startup_half_steps=2</code>, snapshot 1 is after both BE half-steps, at t = Δt. Times come from n·Δt, never from counting balance entries (41 balance residuals for 40 steps, <code>…MAT-12-W1.log:161</code>).
+- <strong>No cross-run comparison is bitwise</strong> (<code>OPS-43</code>). (W) is relative 1e-9; only (U4) is bitwise, and it is in-run.
+- <strong>Orphan <code>.c</code></strong> sweep before W0. After any kill, run <code>pgrep -c python3</code> first.
+- <strong>Rule (i):</strong> no edit to <code>probe.py</code> or either test module after its last window. An edit after W1 re-runs W1, W2 and W3, because the npz must come from the committed bytes. Check file times against the log starts before committing.
+- <strong>The durable-capture idiom is not needed:</strong> every window is ≪ 10 min. Never pipe pytest; the footer must be pytest's status.</p>
+<p><strong>Scope.</strong> This step covers one fixture (<code>MAT-12</code>'s 1 cm sphere, one mesh at R/10, P1, CN N = 40), three probes of one stated volume (a = 2 mm), the q_cf series gated and the q_h series printed, and recorded times only (no interpolation between steps). <strong>Not covered:</strong>
+- a real probe's thermal mass, self-heating or lead artefact (the row);
+- a fibre-optic probe's actual sensing volume;
+- an h-convergence statement on the probe;
+- the phantom or coil fixtures (<code>MAT-15</code>, <code>ANS-9</code>);
+- tissue or perfusion;
+- any compliance or ASTM F2182 reading;
+- the submesh owner-rule fix itself. The known-issues entry stays OPEN; it resolves only with a <code>post/evaluation.py</code> fix.</p>
+<p><strong>Status it can move.</strong>
+- <strong><code>MAT-19</code> ⬜ → ✅</strong> per the row: (T) green at three radii and 40 times, (W) green at <code>-n 1 / 2 / 4</code>, (C1) misses, elapsed recorded in the row. This is conditional on the review's rule (j) amendment of the "owner rule as <code>POST-8</code>" parenthetical (see the flag above). Without it the executor holds <strong>🟡</strong> and flags the clause.
+- §10 <strong>P7</strong> can then be read closed by the weekly.
+- In the closing commit, the executor corrects the known-issues Watch clause at <code>:1378</code>: <code>MAT-12</code>'s thermal is on a submesh too, and <code>MAT-19</code> routes around the rule by integration. The entry stays OPEN.</p>
+<p><strong>Negative result.</strong> In every case: report the measurement, park on <code>attempt/MAT-19-step1-*</code>, mark the item BLOCKED in the same commit (rule (d)) and journal it in attempts.md. Never widen 1 % or 1e-9, and never change a, L or the radii after reading.
+- <strong>(N1) red:</strong> the mean-value comparand or the shell-cap quadrature is wrong. This is a numpy bug: stop before any FEM reading is interpreted.
+- <strong>(U1) / (U3) / (U4) red:</strong> a probe or reduction bug. Stop at W0.
+- <strong>(A0) red:</strong> the mesh has drifted from <code>MAT-12</code>'s record. Stop; a <code>record-reconciler</code> ruling is needed, never a new count.
+- <strong>(T) red with (G) ≤ 3e-3:</strong> the FEM probe misses the closed form at a radius or time where <code>MAT-12</code>'s interior L2 says it should not. Print the full 3 × 40 table and the (G) / (T − G) split. The review rules.
+- <strong>(T) red with (G) &gt; 3e-3:</strong> the lattice does not resolve the ball. Report it. The review re-poses L or a; the executor does not raise L in-slot.
+- <strong>(W) red on <code>series_cf</code>:</strong> the probe or the thermal solve depends on the width. Print the entries and the cell counts, and stop.
+- <strong>(C1) does not miss:</strong> the FEM series is insensitive to position, which contradicts (T). Stop.
+- <strong>A slow-box kill at 590:</strong> BLOCKED. W0 and W1 records stand, and the unblock is a re-run on a box whose <code>MAT-12</code> EM reads ≤ 20 s.</p>
+<p>No <code>PREDICTED RED:</code> line. A red anywhere stops the slot.</p>
+<h3 id="9-item-253-2026-10-05-chain-p8-daily-provisional">§9 item 253 — 2026-10-05 (chain P8, daily provisional)<a class="headerlink" href="#9-item-253-2026-10-05-chain-p8-daily-provisional" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-05 10:30 daily review; the review reviews it.</em> Licence: §9 rule (6), a provisional next step on chain P after P7 (<code>MAT-19</code> ✅, item 243). The weekly ratifies or reverts it. No band, tolerance, Done-when or validation target is invented: every asserted anchor is an identity at an imported band.</p>
+<p><code>MAT-19</code> step 2: step 1's probe, unchanged, read on <code>MAT-15</code> P1's coil-driven gel phantom at <code>ANS-9</code>'s SPEC probe centres (implementer; heavy by ceiling (<code>timeout -k 30 590</code>), <code>-n 2</code> / <code>-n 4</code> / <code>-n 1</code>, complex; ≈ 12 measured / ≈ 40 predicted min; depends on nothing). Family <code>MAT-19</code> step 2: attempt 1 of 4.</p>
+<p><strong>Why this step (read first).</strong>
+- <code>ANS-9</code>'s SPEC (<code>examples/ansys_benchmarks/ans9_coil_driven_gel_heating_10MHz/SPEC.md</code>, row 4) asks for the <strong>point</strong> rise at t = 1254 s at five probes, metres: A (0, 0, 0), B (0.020, 0, 0), C (0, 0.020, 0), D (−0.020, 0, 0), E (0, 0, 0.030). Its readout puts A–D at 10 % and E as a record. <code>ans:9</code> produces row 4 by point evaluation through the legacy <code>owner=None</code> path. θ is continuous P1, so that is sound (<code>09_coil_driven_gel_heating_10MHz.py:286–291</code>). Our side reads, at <code>20261004T142653Z_ANS-9-step1a-W1.log:1943</code>: A 0.905798, B 3.564854, C 0.685305, D 0.697444, E 0.958639 K.
+- A real gel-phantom measurement is a fibre-optic probe with a sensing volume, placed to a tolerance. The 09-30 weekly's sampling ruling says "public comparison rows quote cell or mass averages" (<code>POST-8.md:24</code>). Row 4 is the one SPEC row that quotes neither.
+- This step therefore measures two things on our own side, before the operator's AED run: <strong>the probe-volume sensitivity of row 4</strong> (a stated ball against the point) and <strong>its placement sensitivity</strong> (a 0.1 mm displacement at B). It also asserts the identities that make a ball-averaged row 4 trustworthy on this fixture: whole-phantom = volume mean, width invariance with the EM in the loop, and the σ_y mirror image of the one-port drive.
+- Which probes: <strong>the SPEC's centres, as named</strong>, plus C′ = (0, −0.020, 0), the σ_y image of C. MAT-19 step 1's three-radii analogue is not used, because the SPEC names its points.
+- <strong>What is new against step 1.</strong> Step 1's (W) was already on a <code>create_submesh</code> mesh (<code>MAT-12</code>'s tag-1 sphere; known-issues <code>:1378</code> as corrected). It asserted (W) on the closed-form-source series and only <strong>printed</strong> the EM-sourced <code>series_h</code> (3.1e-11 / 7.9e-11). Here the asserted series carries a complex MUMPS solve on 199 920 cells at every width. (A) is step 1's (U3) identity, until now asserted only on a <code>create_box</code> mesh, on a coil-driven submesh partition.</p>
+<p><strong>The fixture (imported, never restated).</strong>
+- The fixture is <code>MAT-15</code> step 1's: <code>_run_heated(return_fields=True)</code> (<code>tests/validation/test_mat15_coil_driven_heating_phantom.py:180–351</code>). That is <code>ANS-2</code>'s 10 MHz loaded F-small birdcage at <code>phantom_resolution</code> 0.0025, 199 920 / 58 866 cells, N1curl degree 1, ragged f = 0.5 sheets with κ none, the four single-leg drives, G = 1 W / P₁, P1 thermal on the tag-3 submesh with Robin on every face, and gel k 0.6, ρc 4.18e6, h 10, T∞ = T(0) = 20.
+  - This is an <strong>existing</strong> fixture. The 2026-10-02 exact-rectangle ruling binds new fixtures, and ragged-sheet records stay valid as records. This step builds nothing new and its readings are records on the fixture <code>ANS-9</code>'s SPEC names.
+- <strong>Drive k = 0 only</strong> (<code>out["by_k"][0] == "P1"</code>, asserted). Take <code>sub</code>, <code>ft</code>, <code>q_h = out["q_h"][0]</code>, <code>v_sub</code> and <code>T_star[0]</code>.
+- <strong>The series.</strong> Re-run CN with every full step kept: <code>_transient(sub, ft, q_h, dt=T_STAR / N_MAIN, n_steps=N_MAIN, theta=0.5, startup_half_steps=2, snapshot_steps=range(N_MAIN + 1))</code>. This is <code>ans:9</code>'s <code>snap_run</code> (<code>09_…py:222–224</code>), with <code>_transient</code> imported from the <code>MAT-15</code> module. Δt = 31.35 s, and t_n = n·Δt for n = 1 … 40. The SPEC times 313.5 / 627 / 940.5 / 1254 s are n = 10 / 20 / 30 / 40.
+  - Also run one <code>_be_one(sub, ft, q_h)</code> (Δt₁ = 2.5e-6 t_R) for (S).
+- <strong>Imports.</strong>
+  - From the <code>MAT-15</code> module: <code>_run_heated</code>, <code>_transient</code>, <code>_be_one</code>, <code>A</code>, <code>N_MAIN</code>, <code>T_STAR</code>, <code>T_INF</code>, <code>DT_1</code>, <code>RHO_C</code>, <code>E_BAND</code>, <code>B_BAND</code>, <code>V_BAND</code>, <code>V_SUB_RECORD_M3</code>, <code>F_CONTROL_FLOOR</code>, <code>C4_COVARIANCE_BAND</code>.
+  - <code>PHANTOM_HEIGHT</code> from <code>tests.mesh.test_birdcage_port_tags</code>.
+  - <code>WIDTH_BAND</code> from <code>test_mat19_virtual_temperature_probe.py:85</code>.
+  - <code>ProbeBall</code>, <code>probe_series</code> and <code>ball_average</code> from <code>fem_em_solver.thermal</code>, plus the internal <code>_ball_average_on_cells</code>, <code>_lattice</code> and <code>_owned_cells</code> from <code>thermal.probe</code>.
+  - The SPEC centres come from <code>ans:9</code>'s <code>SPEC_THERMAL["probes"]</code> (<code>09_…py:91–97</code>), loaded by <code>importlib</code> as <code>ans:9</code> loads <code>ans:2</code> (<code>_load_example</code>, <code>:102–107</code>; the stem starts with a digit). Never restate them.
+- <strong>No edit</strong> to <code>src/</code>, to the <code>MAT-15</code> module, to the <code>ans:9</code> script, or to its <code>metrics.json</code> / <code>COMPARISON.md</code>. Each owes a gate's window under rule (a). Do not add a drive selector to <code>_run_heated</code>: the three unused drives cost ≈ 60 s per window, which is cheaper than two re-gates.</p>
+<p><strong>The probes (pinned).</strong>
+- Radius <strong>a = 5 mm = 2 h_p</strong>, as step 1's 2 h_in. The mean cell volume is V_sub/58 866 = 3.84e-9 m³, a ≈ 3.2 mm regular-tet edge, so the ball holds ≈ 136 mean cell volumes against step 1's 156. a is a fixture parameter, not a fibre-optic sensing volume.
+- <strong>Centres:</strong> A, B, C, D and E from the SPEC, plus C′ = (0, −0.020, 0).
+- <strong>(M), asserted exactly:</strong> √(x² + y²) + a ≤ <code>A</code> and |z| + a ≤ <code>PHANTOM_HEIGHT</code>/2 for every centre. The closest are B / C / C′ / D, at 25 mm against a 30 mm radius, and E, at 35 mm against a 40 mm half-height. Lateral faceting sags inward by ≤ h²/(8a) ≈ 2.6e-5 m. V_h/(4πa³/3) − 1 is printed, predicted |·| ≤ 5e-3.
+- <strong>Ω, the whole-phantom ball:</strong> centre (0, 0, 0), radius 0.1 m. Its distance to the farthest phantom vertex is √(0.03² + 0.04²) = 0.05 m.
+- <strong>B⁺, the displaced control:</strong> (0.0201, 0, 0), B moved 0.1 mm radially toward the driven leg.</p>
+<p><strong>Code.</strong> One new module, <code>tests/validation/test_mat19_probe_coil_phantom.py</code> (<code>complex_only</code>), with one module-scoped fixture and no <code>src/</code> change.
+- θ Functions: θ_n.x.array = snapshot_n.x.array − <code>T_INF</code>, then <code>scatter_forward</code>. <strong>Probe θ, never T.</strong> A ball mean of T = 20 + θ dilutes every relative comparison by θ/20; (W) would then be 20/θ ≈ 60× too lenient at n = 1.
+- <code>probe_series</code> over {A, B, C, C′, D, E, Ω, B⁺} on θ_0 … θ_40, at the default <code>levels=3</code>.
+- <strong>(S) helper, test-only numpy.</strong> For each probe and each owned cell K, the lattice-inside volume v_K(B) is computed with the same <code>_lattice(3)</code> mask as <code>probe._geometry</code>. The q_h ball mean is then Σ_K q_K·v_K(B)/Σ_K v_K(B), one <code>allreduce</code> on every rank, so numerator and denominator share one quadrature. q_K = q_h.x.array[Wq.dofmap.list[K, 0]].
+- <strong>Width artefact.</strong> At <code>-n 2</code>, rank 0 writes <code>/workspace/logs/mat19/step2-n2.npz</code>: the series for the eight probes, the volumes, the cell count, and the sha256 of this module's bytes and of <code>thermal/probe.py</code>. Then <code>Barrier</code>.
+  - At <code>-n 4</code> / <code>-n 1</code> the module loads it. It runs <code>pytest.fail</code> if the file is missing <strong>or either hash differs</strong>. Never recompute.
+  - The hash is new against step 1: it makes rule (i)'s "npz from the committed bytes" mechanical.
+- Wrap the phases in <code>time.perf_counter()</code> and print each with <code>flush=True</code>: <code>_run_heated</code>, the snapshot re-run, probe geometry, the series sums and the (S) helper.</p>
+<p><strong>Anchors (asserted; every band imported).</strong>
+- <strong>(A0) Fixture identity.</strong>
+  - <code>by_k[0] == "P1"</code>.
+  - Submesh cells == 58 866 at every width (<code>20261001T123309Z_MAT-15-step1-W1.log:1926</code>).
+  - |V_sub/<code>V_SUB_RECORD_M3</code> − 1| ≤ <code>V_BAND</code>.
+  - (M) as above.
+  - θ_0 reads exactly 0.0 at every probe.
+- <strong>(R0) The re-run is the gated run.</strong> ‖θ⁴⁰_rerun − θ*_gated‖/‖θ*_gated‖ ≤ <code>E_BAND</code>, in <code>ans:9</code>'s (R0) form (<code>09_…py:246–252</code>). Predicted ≤ 1e-14.
+- <strong>(A) The whole-phantom probe is the volume mean.</strong> This is step 1's (U3) on the coil-driven submesh.
+  - For n = 0 … 40 and for the BE θ¹: |P<strong>(θ) − ∫θ dx/V_sub| ≤ k</strong>zwxh:0528·|∫θ dx/V<strong>ubk</strong>zwxh:0555 (n ≥ 1), and |V<strong>,h/V_sub − 1| ≤ <code>B_BAND</code>.
+</strong>- <strong>Why it is exact, n</strong> banded by luck:<strong> the 8^L equal-volume red children's centroids average to the pare</strong> centroid at every L, so each vertex weight is |K|/4. Σ<strong> |Kk</strong>zwxh:0561·mean(θ<strong>) is ∫θ for P1, and FFCx</strong> degree-1 rule for <code>θ·dx</code> is exact for P1 too. Predicted ≤ 1e-14.
+  - Printed beside: the four SPEC-time values against row 2's 0.318096 / 0.614315 / 0.892104 / 1.153314 K (<code>…142653Z_ANS-9-step1a-W1.log:1936</code>), predicted equal to the printed digits.
+- <strong>(U4)</strong> At <code>-n 2</code>, every probe reading at n = 40 is bitwise identical on every rank (allgather, <code>==</code>). This is in-run.
+- <strong>(W) Width invariance, with the EM in the loop</strong> (<code>-n 4</code> and <code>-n 1</code> against the <code>-n 2</code> npz).
+  - Cells are equal.
+  - Every entry of the series, 8 probes × n = 1 … 40, is within <code>WIDTH_BAND</code> 1e-9 relative of its <code>-n 2</code> value.
+  - <strong>Predicted ≤ 1e-10.</strong> Backing, measured on this EM fixture (same 199 920-cell mesh, same <code>_solve_driven</code>): the P1 phantom power moves 4.9e-12 / 8.9e-13 / 1.1e-11 across <code>-n 2 / 4 / 1</code>, and raw point SARs move ≤ 2.98e-10 pairwise, on the smallest-magnitude entries (<code>docs/planning/chunks/POST-8.md:12–13</code>). G = 1/P₁ cancels the global scale, and θ at a probe is a smoothed integral of q, so it should sit at the integral class (≈ 1e-11), not the pointwise one.
+  - <code>max_imag_ratio</code> is printed, predicted 0.
+- <strong>(Σ) The σ_y mirror image of the one-port drive at t*.</strong>
+  - |θ̄_C(t₄₀) − θ̄_C′(t₄₀)|/θ̄_C(t₄₀) ≤ <code>C4_COVARIANCE_BAND</code> (5 %), the band <code>MAT-15</code> step 1 imported for 10 g θ ball means and step 3 applied to σ_y pairs.
+  - Precondition: P1 sits at 360.0° (<code>…123309Z…W1.log:1924</code>, printed by <code>_run_heated</code>), and its ragged sheet is σ_y-symmetric to O(h) only.
+  - <strong>Predicted ≤ 0.5 %.</strong> Step 1's C4 θ 10 g pairs read 0.020–0.049 % (<code>:1924–1954</code>). Step 3's σ<strong> θ pair at φ₁ ± 90° read</strong>.36 % on only 537 phantom cells; this fixture has 58 866.
+  - <strong>Asserted at n = 40 only.</strong> Early-time θ is local q, and the q_h pair at ±90° can be large: step 3 read 22.7 % at the q minimum. The full C / C′ series and the q_h C / C′ pair are printed.</p>
+<p><strong>Printed, not asserted (with the reason).</strong>
+- <strong>(P4) Probe volume against point, row 4.</strong> θ̄_j(t₄₀) / θ_point,j − 1 for A–E, against the logged row-4 values above. (R0) makes the logged θ⁴⁰ the same field to 1e-14.
+  - Predicted: B in [−8 %, 0] (B sits on the steep flank of the leg hot spot; the secant from B to the row-5 maximum, 4.457206 K at r = 27.5 mm, is 0.119 K/mm). A, C, D and E within ±3 %.
+  - This is the number the weekly needs to judge whether row 4's 10 % is robust to a probe volume.
+- <strong>(P5) Placement sensitivity at B.</strong> |θ̄_B⁺ − θ̄_B|/θ̄_B at n = 40 is predicted ≈ 3.3e-3 (0.1 mm × 0.119 K/mm / 3.565 K), range [1e-3, 1e-2]. Equivalently ≈ 3 %/mm against the 10 % readout.
+- <strong>(S) Local calorimetric slope per probe.</strong> ρc·θ̄_j(θ¹)/(Δt₁·q̄_j) − 1, where q̄_j is the lattice q_h ball mean.
+  - <strong>Why print only.</strong> <code>MAT-15</code>'s <code>S2_BAND</code> 1e-4 is a bound on the <strong>volume-mean</strong> slope. There, testing with v = 1 removes the consistent-mass projection exactly, and the only deficit is the Robin leak (measured 5.754e-6 on P1: row 3, 1.058563285e-3 against 1.058569376e-3 K/s, <code>…142653Z…W1.log:1938</code>).
+  - The physical premise holds locally: the Fourier number αΔt₁/a² = 1.435e-7 × 0.015675 / 2.5e-5 = 9.0e-5, so conduction is negligible at the probe.
+  - The discrete premise fails locally. θ¹/Δt₁ → P_h q/ρc, the L2 projection of the DG0 source onto P1, and its ball mean differs from q_h's by a projection layer at the ball surface on a ball ≈ 3 cells across. That deficit does not vanish as Δt₁ → 0, and no imported band covers it.
+  - Magnitude unpredicted; order estimate 1e-3–3e-2. The Ω row reads <code>MAT-15</code>'s (S2) 5.754e-6 by (A).
+- The C / C′ q_h pair, the series table at n = 10 / 20 / 30 / 40 for every probe, the ball volumes, the phase clocks and the pairwise width spread at <code>-n 1</code> vs <code>-n 4</code>.</p>
+<p><strong>Negative controls (rule (e)).</strong>
+- <strong>(U3c) Ghost-included sum, asserted, factor predicted.</strong> At <code>comm.size &gt; 1</code> only: <code>_ball_average_on_cells</code> on Ω over owned + ghost cells (<code>range(size_local + num_ghosts)</code>) must miss (A)'s volume identity by more than <code>B_BAND</code>.
+  - <strong>Ceiling first:</strong> at <code>-n 2</code> a cell is ghost on at most one other rank, so the ghost-included volume is ≤ 2 V_sub and the miss is ≤ 1. The floor is &gt; 0 whenever the partition has ghosts.
+  - Predicted ≈ 3e-2, range [1e-2, 1e-1], at <code>-n 2</code>. That is step 1's 8.3e-2 on a 3 072-cell box, scaled by the interface fraction (3 072/58 866)^{1/3} = 0.374. Predicted [2e-2, 2e-1] at <code>-n 4</code>.
+- <strong>(C1″) Displaced probe against (W)'s band, asserted, factor predicted.</strong> |θ̄_B⁺(t₄₀) − θ̄_B(t₄₀)|/θ̄_B(t₄₀) &gt; <code>WIDTH_BAND</code>, at every width.
+  - Predicted ≈ 3.3e-3, so (W)'s 1e-9 resolves a 0.1 mm probe-geometry change by ≈ 3e6×. This is the control that (W) would see a rank-dependent probe geometry.
+  - No prior measurement exists on this fixture.
+- <strong>(f″) Off-mirror pair, asserted, factor predicted.</strong> |θ̄_C(t₄₀) − θ̄_B(t₄₀)|/θ̄_B(t₄₀) &gt; <code>F_CONTROL_FLOOR</code> (= <code>C4_COVARIANCE_BAND</code>), in <code>MAT-15</code> step 3's (f′) form (θ̄(φ₁ + 90°) against θ̄(φ₁)).
+  - Predicted ≈ 0.81 (1 − 0.685305/3.564854 from row 4's points), range [0.6, 0.9].
+  - <strong>Ceiling:</strong> &lt; 1 while θ̄_C ≤ θ̄_B, so the 5 % floor sits ≈ 16× under the prediction.
+  - C against D is <strong>not</strong> a control: their points differ by only 1.8 % (0.685305 / 0.697444).</p>
+<p><strong>Windows</strong> (complex; foreground; Bash <code>timeout: 660000</code>; each command bare, whole and repo-relative; <code>-s</code>; no <code>-k</code> inside the quoted command; no pipes or redirects; every window ≪ 10 min, so the durable-capture idiom is not needed).
+- <strong>First:</strong> <code>docker compose exec -T fem-em-solver pgrep -c python3</code> reads 0. Then the any-orphan sweep as one bare call:</p>
+<p><code>scripts/testing/run_and_log.sh MAT-19-step2-cache-sweep "docker compose exec -T fem-em-solver bash -lc 'cd /root/.cache/fenics &amp;&amp; for c in libffcx_*.c; do s=\${c%.c}; ls \$s.*.so &gt;/dev/null 2&gt;&amp;1 || { echo orphan \$s; rm -f \$s.c \$s.c.cached \$s.o; }; done; echo sweep done'"</code>
+- <strong>Pricing basis (measured).</strong> Per the 03:00 pathologist lesson, divide by the number of solves in the cited interval.
+  - <code>MAT-15</code> step 1 W1 took <strong>218 s</strong> at <code>-n 2</code> (<code>20261001T123309Z_MAT-15-step1-W1.log:2132</code>). Its fixture total was 171.4 s, split as mesh + rung 61.3 s, EM 81.3 s for <strong>four</strong> <code>_solve_driven</code> (≈ 20 s each), and thermal 28.8 s for nine runs (<code>:1924,1954</code>). Re-gates read 208 s and 220 s (<code>20261002T112729Z_EX-79-mat15-regate.log:2132</code>, <code>20261004T141433Z_ANS-9-step1a-mat15-regate.log:2132</code>).
+  - The snapshot re-run and the BE step cost ≈ 3 s: <code>ans:9</code>'s three thermal re-runs took 4.2 s (<code>…142653Z…W1.log:1956</code>).
+  - The probe geometry is dominated by Ω, which materialises (m × 512 × 3) float64 over all owned cells: ≈ 0.36 GB per rank at <code>-n 2</code> and ≈ 0.72 GB at <code>-n 1</code>, a few seconds.
+  - There is no <code>MAT-15</code> window at <code>-n 4</code> or <code>-n 1</code>. <code>POST-8</code> step 2 ran the same 199 920-cell EM (four drives) at 195 / 191 / 228 s for <code>-n 2 / 4 / 1</code> (<code>20261002T200331Z_POST-8-step2-W1.log:2137</code>, <code>…200654Z…W2.log:2341</code>, <code>…201013Z…W3.log:2034</code>). The width ratios are 0.98 and 1.17.
+  - Measured-basis total: 218 + 218 × 0.98 + 218 × 1.17 ≈ 687 s ≈ 11.5 min.
+- <strong>W1, <code>-n 2</code>, writes the npz</strong> (predicted 225–245 s; ≤ 345 s on item 214's ×1.4 slow box):</p>
+<p><code>scripts/testing/run_and_log.sh MAT-19-step2-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 590 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_mat19_probe_coil_phantom.py -s -v --tb=short'"</code>
+- <strong>W2, <code>-n 4</code></strong> (predicted 220–245 s): the same command with <code>-n 4</code>, label <code>MAT-19-step2-W2</code>.
+- <strong>W3, <code>-n 1</code></strong> (predicted 270–320 s; ≤ 450 s slow): the same command with <code>-n 1</code>, label <code>MAT-19-step2-W3</code>. The thermal side is ≈ 2× its <code>-n 2</code> 28.8 s.
+- <strong>Order:</strong> W1 → W2 → W3. A red W1 stops the item. Total predicted window time ≈ 13 min; the slot fits in ≈ 40 min including the module.</p>
+<p><strong>Traps.</strong>
+- <strong>No point evaluation on the submesh with an owner</strong> (known-issues <code>:1372</code>, OPEN). The probe is an owned-cell integral. Row 4's point values are read from the <code>ans:9</code> log, never re-evaluated here.
+- <strong>θ, not T</strong> (see Code). (W) on T is 60× too lenient.
+- <strong>Every rank enters every allreduce,</strong> including the (S) helper on ranks with no candidate cells (item 227 deadlocked on a rank-0-only collective). (U3c) at <code>-n 2</code> is the check on the probe path.
+- <strong>Ghosts.</strong> Iterate <code>range(size_local)</code> for owned cells. Ghost <strong>dof values</strong> are needed: snapshots copy <code>x.array</code> after <code>scatter_forward</code>.
+- <strong>Complex build.</strong> <code>np.real</code> before every <code>float</code>. Make no ordering comparison on a UFL operand: the probe's indicator is numpy-side, and this module compiles no new indicator form. <code>_run_heated</code>'s own ball forms are unchanged.
+- <strong>Snapshot indices are full steps.</strong> Snapshot 1 is after both Rannacher half-steps, at t = Δt; times are n·Δt.
+- <strong>No cross-run comparison is bitwise</strong> (<code>OPS-43</code>; complex MUMPS is not bit-reproducible across processes). (W) is relative 1e-9; only (U4) is bitwise, and it is in-run.
+- <strong>Stale npz.</strong> <code>logs/</code> persists between sessions. The hash check in the npz is the guard. Never delete-and-recompute at <code>-n 4</code> / <code>-n 1</code>.
+- <strong>Orphan <code>.c</code>:</strong> any stem without its <code>.so</code>, not only 0-byte (item 160's 44 KB partial). Sweep only when <code>pgrep -c python3</code> reads 0.
+- <strong>Rule (i):</strong> no edit to the module after W1. An edit re-runs W1–W3, and the hash enforces it.
+- <strong>The SPEC and <code>ans:9</code> are not this item's to edit.</strong> Changing row 4 to a ball average is the weekly's decision and the operator's export.</p>
+<p><strong>Scope.</strong> Covered: <code>MAT-15</code> P1's fixture (ragged sheets, degree-1 EM, P1 thermal, one mesh), drive P1 only, the SPEC's five centres plus C′, one stated volume (a = 5 mm), recorded times only. <strong>Not covered:</strong>
+- <code>ANS-9</code>'s row 4 as specified (a point), or any adjudication, AED reading or AED number;
+- a real probe's sensing volume, thermal mass or lead artefact;
+- exact rectangles or degree 2: this is a record on the SPEC's fixture, not a new one;
+- an h-statement on the probe readings;
+- the copper / tuned fixture (<code>MAT-15</code> step 3);
+- tissue, perfusion, ASTM F2182;
+- the submesh owner-rule fix (known-issues stays OPEN);
+- any edit to <code>ans:9</code>'s metrics or COMPARISON.</p>
+<p><strong>Status it can move.</strong>
+- <code>MAT-19</code> is ✅ on step 1 and stays ✅ whatever this step reads, unless (A) is red (see below).
+- <strong>On green:</strong> the §7 row gains a <strong>step 2 record</strong> sentence: the probe on the coil-driven phantom at the SPEC centres; (A), (W) with the EM in the loop and (Σ) asserted; and the (P4) / (P5) sensitivities printed. <strong>Rule (j):</strong> the reviewing daily adds the Done-when clause "step 2 (§10 P8): identities green ⇒ a record, no glyph", in the pattern of <code>MAT-15</code> step 3.
+- §10 <strong>P8</strong> is marked DONE.
+- <strong>(8c):</strong> the weekly gets the measured probe-volume and placement sensitivity of row 4 at the 10 % AGREE level. It can then decide, <strong>before the operator's AED run</strong>, whether <code>ANS-9</code>'s SPEC should also ask for a ball-averaged row 4 under the <code>POST-8</code> ruling ("public comparison rows quote cell or mass averages"). That decision and any SPEC edit are the weekly's. If the AED run has already been made, the weekly judges from the private side whether a re-export is worth asking for. This brief does not read that side.</p>
+<p><strong>Negative result.</strong> In every case: report the measurement, park on <code>attempt/MAT-19-step2-*</code>, mark the item BLOCKED in the same commit (rule (d)) and journal it in attempts.md. Never widen a band, and never change a, L or the centres after reading.
+- <strong>(A0) or (R0) red:</strong> the fixture moved under <code>MAT-15</code>'s record. Stop; a <code>record-reconciler</code> ruling is needed.
+- <strong>(A) or (U4) red:</strong> the probe's ownership contract fails on a coil-driven submesh partition. Open a known-issues entry. The review re-reads <code>MAT-19</code>'s ✅, because the row's Done-when is width invariance as <code>POST-8</code>.
+- <strong>(W) red with (A0) / (R0) / (A) green:</strong> the complex solve's width round-off reaches 1e-9 in a probe reading, contradicting <code>POST-8</code>'s ≤ 2.98e-10 on this EM. Print the 8 × 40 spread, P₁ and G per width, and stop. The review rules whether a probe readout on an EM-driven series carries a width caveat. The band is not moved.
+- <strong>(Σ) red:</strong> print the q_h C / C′ pair and the series. If the q_h C / C′ ball pair is also beyond 5 %, the ragged P1 sheet breaks σ_y. Record it in known-issues as a ragged-sheet consequence. Stop.
+- <strong>A control does not miss</strong> ((U3c), (C1″) or (f″)): stop. That contradicts (A), (W) or (Σ) respectively.
+- <strong>A slow-box kill at 590:</strong> BLOCKED. W1's record stands, and the unblock is a re-run on a box whose <code>MAT-15</code> EM reads ≤ 30 s per solve (the 03:00 re-price).</p>
+<p>No <code>PREDICTED RED:</code> line. A red anywhere stops the slot.</p>
+<h3 id="9-item-258-2026-10-05-chain-p8-daily-provisional-re-pose-of-item-253-attempt-2-of-4">§9 item 258 — 2026-10-05 (chain P8, daily provisional; re-pose of item 253, attempt 2 of 4)<a class="headerlink" href="#9-item-258-2026-10-05-chain-p8-daily-provisional-re-pose-of-item-253-attempt-2-of-4" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-05 18:00 daily review; the review reviews it.</em> Licence: §9 rule (6), the re-pose of a blocked step inside the four-attempt family cap. The weekly ratifies or reverts it. <strong>Unchanged:</strong> the step's target (a whole-phantom probe = ⟨θ⟩ at <code>B_BAND</code>; width invariance at <code>WIDTH_BAND</code> 1e-9 with the EM in the loop; the σ_y mirror pair within <code>C4_COVARIANCE_BAND</code> at t*), every band, the centres, a, L and the family count. <strong>Changed:</strong> only <em>where</em> the planted control (U3c) and the "partition" reading of (A) / (U4) are asserted, with the rule pre-registered below, plus one optional speed-up of a printed helper.</p>
+<p><code>MAT-19</code> step 2, re-pose of item 253: step 1's probe, unchanged, on <code>MAT-15</code> P1's coil-driven gel phantom at <code>ANS-9</code>'s SPEC centres (implementer; heavy by ceiling (<code>timeout -k 30 590</code>), <code>-n 2</code> / <code>-n 4</code> / <code>-n 1</code>, plus <code>-n 8</code> only by the decision table below, complex; ≈ 9 measured / ≈ 45 predicted min; depends on nothing). Family <code>MAT-19</code> step 2: attempt 2 of 4.</p>
+<p><strong>What attempt 1 measured (read first).</strong> Journal: <code>docs/testing/attempts.md</code> 2026-10-05T18:34Z. Code and logs are parked on <code>attempt/MAT-19-step2-20261005T1834Z</code> (<code>e4ffe9a4</code>).
+- W1 <code>-n 2</code> (<code>20261005T183423Z_MAT-19-step2-W1.log</code>, 326 s, Status 1) was red <strong>only</strong> on (U3c). The ghost-included Ω volume missed by 9.770e-15 and the value by 1.577e-14, against "&gt; <code>B_BAND</code> 1e-10" (<code>:1977</code>).
+- Every other W1 reading was green (<code>:1956–1980</code>):
+  - (A0) 58 866 cells, V_sub rel 3.447e-13;
+  - (R0) 2.525e-15;
+  - (A) 2.386e-14, BE 7.351e-15, volume 9.770e-15, and row 2 reproduced to the printed digits;
+  - (U4) bitwise;
+  - (Σ) 5.919e-4;
+  - (C1″) 4.398e-3;
+  - (f″) 0.8018.
+- Phase clocks (<code>:1980</code>): <code>_run_heated</code> 168.2 s (EM 144.9 s for four solves, <code>:1955</code>), snapshot re-run + BE 3.1 s, probe geometry + sums 17.0 s, (S) helper 59.2 s, fixture total 258.7 s.
+- <strong>The cause was measured</strong> by the diagnostic <code>mat19_step2_ghost_probe.py</code> at <code>-n 2</code> (<code>20261005T184012Z_MAT-19-step2-ghost-diag.log:1871–1873</code>, 82 s):
+  - parent owned 101 934 / 97 986 cells, ghosts 869 / 883;
+  - <strong>tag-3 submesh owned 58 866 / 0, ghosts 0 / 0.</strong>
+- So at <code>-n 2</code> the phantom is not partitioned:
+  - (U3c) iterates <code>range(size_local + num_ghosts)</code> on the <strong>submesh</strong> index map, so it has nothing to double-count;
+  - (A) and (U4) are true there, but they do not exercise a submesh partition.</p>
+<p><strong>The correct "something to double-count" condition (checked against the parked module, lines 193–198).</strong> (U3c) calls <code>_ball_average_on_cells(θ⁴⁰, Ω, arange(size_local + num_ghosts))</code> on the tag-3 submesh <code>sub.topology.index_map(3)</code>. It then allreduces. Every ghost cell on a rank is owned by another rank, and Ω contains every phantom cell. The planted volume miss is therefore exactly Σ_ranks (volume of that rank's submesh ghost cells) / V_sub, up to round-off: for Ω every lattice point of every cell is inside, so each cell weighs its exact |K|. It follows that:
+- <strong>(U3c) applies iff G_w := Σ_ranks <code>num_ghosts</code>(submesh) &gt; 0.</strong> Ownership by ≥ 2 ranks is neither necessary nor sufficient for this. A rank can hold ghosts of phantom cells while owning none. Whether the parent's ghost phantom cells reach the submesh at all depends on whether <code>cell_tags.indices</code> covers parent ghost cells; <code>_tag_submesh</code> keeps tagged cells over <code>size_local + num_ghosts</code>, <code>test_mat15_coil_driven_heating_phantom.py:106–121</code>.
+- <strong>The partition reading of (A) / (U4) applies iff O_w := #{ranks with submesh <code>size_local</code> &gt; 0} ≥ 2.</strong></p>
+<p>These two conditions are what this item pre-registers. The review may tighten them to the conjunction "O_w ≥ 2 and G_w &gt; 0" for (U3c) if it prefers; see the open question in the return.</p>
+<p><strong>Pre-registered applicability rule (the slot does not decide).</strong>
+- <strong>D4 comes first.</strong> Run the parked diagnostic at <code>-n 4</code> (window D4 below). It prints the per-rank submesh owned / ghost counts, from which O_4 and G_4 are read.
+- <strong>D8 runs only if G_4 = 0 or O_4 &lt; 2.</strong> It is the same diagnostic at <code>-n 8</code>.
+- <strong>Decision table.</strong> It is fixed now and is applied to the D logs as printed:</p>
+<table>
+<thead>
+<tr>
+<th>D4 reads</th>
+<th>D8</th>
+<th>(U3c) asserted at</th>
+<th>partition reading of (A) / (U4) at</th>
+<th>W4 (<code>-n 8</code>) window</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G_4 &gt; 0 and O_4 ≥ 2</td>
+<td>not run</td>
+<td><code>-n 4</code> (W2)</td>
+<td><code>-n 4</code> (W2)</td>
+<td>not run</td>
+</tr>
+<tr>
+<td>G_4 &gt; 0, O_4 &lt; 2</td>
+<td>run</td>
+<td><code>-n 4</code> (W2)</td>
+<td><code>-n 8</code> if O_8 ≥ 2, else not exercised</td>
+<td>run iff O_8 ≥ 2</td>
+</tr>
+<tr>
+<td>G_4 = 0, O_4 ≥ 2</td>
+<td>run</td>
+<td><code>-n 8</code> if G_8 &gt; 0, else <strong>inapplicable</strong></td>
+<td><code>-n 4</code> (W2)</td>
+<td>run iff G_8 &gt; 0</td>
+</tr>
+<tr>
+<td>G_4 = 0, O_4 &lt; 2</td>
+<td>run</td>
+<td><code>-n 8</code> if G_8 &gt; 0, else <strong>inapplicable</strong></td>
+<td><code>-n 8</code> if O_8 ≥ 2, else not exercised</td>
+<td>run iff G_8 &gt; 0 or O_8 ≥ 2</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>"Inapplicable" / "not exercised" is a record, not a red.</strong> In that case the item closes on the remaining anchors. The chunk-file outcome and the journal state, in these words: "(U3c) inapplicable on this fixture: the tag-3 submesh carries no ghost cells at <code>-n 2 / 4 / 8</code> (G_w = 0, <code>&lt;D logs&gt;</code>)". For the partition: "(A) / (U4) asserted on a submesh owned by one rank at every measured width; the submesh partition is not exercised on this fixture". No band moves, and no other width is tried in-slot.</li>
+<li><strong>Predicted (no prior measurement at <code>-n 4</code>; rule (e), predicted, printed):</strong></li>
+<li><strong>O_4 ≥ 2 by counting.</strong> At <code>-n 2</code> the parent split was 101 934 / 97 986, a 2 % imbalance. At <code>-n 4</code> each rank owns ≈ 49 980 × [0.97, 1.03] &lt; 58 866 cells, so the phantom cannot fit on one rank unless the partitioner's imbalance exceeds ≈ 17 %.</li>
+<li><strong>G_4 is genuinely unmeasured.</strong> The <code>-n 2</code> reading of 0 / 0 is consistent with either answer to the <code>cell_tags</code>-covers-ghosts question, because the rank-0/1 cut did not touch the phantom. The predicted G_4 is in [500, 6000] if ghosts propagate and 0 if they do not.</li>
+<li>The expected row is therefore row 1 or row 3.</li>
+</ul>
+<p><strong>Carried verbatim from item 253's brief</strong> (above; read it there, it is not restated):
+- "Why this step";
+- "The fixture (imported, never restated)", including the Imports list and the no-edit clause on <code>src/</code>, the <code>MAT-15</code> module, <code>ans:9</code>, its metrics and its COMPARISON;
+- "The probes (pinned)", including (M), Ω and B⁺;
+- "Code", except the edits E1–E6 below;
+- the anchors (A0), (R0), (A) and (Σ) as stated;
+- (W) as stated, asserted at <code>-n 4</code> and <code>-n 1</code> against the <code>-n 2</code> npz at <code>WIDTH_BAND</code>;
+- "Printed, not asserted", meaning (P4), (P5), (S) and the tables;
+- the negative controls (C1″) and (f″) as stated. Both misses are asserted. Their factors are now <strong>predicted equal to attempt 1's measured 4.398e-3 and 0.8018</strong> (W1 <code>:1972</code>, <code>:1975</code>), printed beside;
+- every trap in item 253's list;
+- the scope list;
+- every negative-result disposition in item 253's list. The (U3c) line, "A control does not miss", is amended below.</p>
+<p><strong>Landing the parked code (by path; never a record file by path).</strong>
+1. <code>git checkout attempt/MAT-19-step2-20261005T1834Z -- tests/validation/test_mat19_probe_coil_phantom.py mat19_step2_ghost_probe.py docs/testing/logs/20261005T183255Z_MAT-19-step2-cache-sweep.log docs/testing/logs/20261005T183423Z_MAT-19-step2-W1.log docs/testing/logs/20261005T184012Z_MAT-19-step2-ghost-diag.log</code>
+2. <code>git mv mat19_step2_ghost_probe.py scripts/probes/mat19_step2_ghost_probe.py</code>. Keep its bytes identical: no edit, so its <code>-n 2</code> log stays a record of the same bytes. The repo root holds no tracked <code>.py</code>, and <code>scripts/probes/</code> is where the project's probes live. The <code>-n 2</code> log's command names the old root path; the journal says it was moved unedited.
+3. Append the attempt's three test-results rows <strong>by hand</strong> to <code>docs/testing/test-results.md</code> (copy them from <code>git show e4ffe9a4 -- docs/testing/test-results.md</code>). <code>git diff --stat</code> must show only insertions on that file.
+4. The stale <code>/workspace/logs/mat19/step2-n2.npz</code> from attempt 1 carries the old module hash. W2 / W3 / W4 refuse it by construction. Never delete it by hand; W1 overwrites it.</p>
+<p><strong>Code: edits to the parked module, all made before W1 (rule (i)).</strong> Every constant, centre, band and import stays as parked.
+- <strong>E1, docstring.</strong> Cite item 258 and the applicability rule: (U3c) is asserted iff G_w &gt; 0, and the partition reading is iff O_w ≥ 2.
+- <strong>E2, the partition table in the fixture.</strong> Every rank enters <code>comm.allgather((imap.size_local, imap.num_ghosts))</code> on <code>sub.topology.index_map(3)</code>, at every width including <code>-n 1</code>. Compute O_w and G_w from it. Print one line, <code>MAT19-2 (part) -n w: sub owned [...] ghosts [...] O_w G_w; partition exercised: &lt;O_w ≥ 2&gt;</code>.
+- <strong>E3, (U3c).</strong> At <code>comm.size &gt; 1</code> the ghost-included Ω reading is computed and printed <strong>always</strong>, as parked. <strong>Asserted (volume miss &gt; <code>B_BAND</code>) iff G_w &gt; 0.</strong> When G_w = 0 it prints <code>MAT19-2 (U3c) inapplicable at -n w: G_w = 0</code> and asserts nothing. This makes the module's assertion mechanical at every width. The item-level table above says which width must carry it.
+- <strong>E4, (U4).</strong> Assert the in-run bitwise allgather at <strong>every</strong> <code>comm.size &gt; 1</code>; it was only at <code>== 2</code>. It costs nothing.
+  - Predicted True at <code>-n 4</code> / <code>-n 8</code>: it was measured True at <code>-n 2</code> on this fixture (<code>:1978</code>). Each reading is a quotient of identical allreduced sums, and float addition is commutative, so the power-of-two pairwise exchanges give the same bits on every rank.
+- <strong>E5, (W) widths.</strong> Assert (W) (cells equal; series ≤ <code>WIDTH_BAND</code>) at <code>comm.size ∈ {4, 1}</code> only, as the row's <code>-n 1 / 2 / 4</code> reads. At <code>-n 8</code>, (W) against the <code>-n 2</code> npz is <strong>printed</strong> with the hash guard intact, and no <code>-n 8</code> npz is written. The <code>-n 4</code> npz write and the <code>-n 1</code> vs <code>-n 4</code> print stay as parked.
+- <strong>E6, the optional speed-up of the (S) helper (printed-only quantity), applied before W1.</strong> In <code>_lattice_q_mean</code>, pre-filter <code>owned</code> by bounding radius exactly as <code>thermal/probe.py</code>'s <code>_geometry</code> does (<code>probe.py:115–119</code>): take <code>X = xdof[V.dofmap.list[owned]]</code>, <code>cen = X.mean(1)</code>, <code>rho = sqrt(max ‖X − cen‖²)</code>, and keep <code>‖cen − c‖ − rho ≤ a</code>. Then run the parked chunk loop over the kept cells.
+  - <strong>Why it cannot change a reading beyond round-off:</strong> every lattice point is a convex combination of the cell's vertices, so ‖P − c‖ ≥ ‖cen − c‖ − ρ_K &gt; a for a dropped cell. Its v_K is exactly 0, and dropping it changes only the pairwise-summation grouping of <code>np.sum</code>.
+  - For Ω (r = 0.1 m against a farthest vertex at 0.05 m), every cell is kept and the path is byte-identical.
+  - <strong>Predicted:</strong> the (S) phase drops from 59.2 s to ≈ 8 s (Ω's ≈ 1/8 share), and every (S) value equals attempt 1's (<code>:1976</code>) to the printed 5 digits.
+  - If the slot does not apply E6, nothing else changes; the pricing below then adds ≈ 50 s per window.</p>
+<p><strong>Anchors and controls, re-posed parts (everything else carries verbatim, see above).</strong>
+- <strong>(U3c), the planted ghost control, asserted where the table says, factor predicted.</strong> At the width the table names: the ghost-included Ω volume misses (A)'s identity by &gt; <code>B_BAND</code>. The miss is asserted; the factor is predicted.
+  - <strong>Floor:</strong> one ghost cell is ≈ 3.84e-9 / 2.26e-4 ≈ 1.7e-5 of V_sub, so any G_w ≥ 1 clears 1e-10 by ≥ 1e4× unless a ghost is a sliver below 1e-5 of the mean cell volume.
+  - <strong>Ceiling:</strong> ≤ w − 1, since each cell is ghost on at most w − 1 other ranks.
+  - <strong>Predicted factor:</strong> item 253's range [2e-2, 2e-1] at <code>-n 4</code> is kept and printed. The sharp prediction, printed beside, is G_w / 58 866 within ×[0.5, 2], with G_w from the D log at that width. The phantom mesh is uniform at h_p = 2.5 mm, so ghost cells are ≈ mean-sized.
+  - The value miss is printed.
+- <strong>The partition reading of (A) / (U4).</strong> (A) stays asserted at every width as in item 253. (U4) is asserted at every width &gt; 1 (E4). The reading "(A) and (U4) hold on a <strong>coil-driven submesh partition</strong>" is licensed only from the window at the width the table names, whose own (part) line shows O_w ≥ 2.
+- <strong>Cross-check, D against the in-run partition (printed; a mismatch stops the item).</strong> At the width that carries (U3c) or the partition reading, the window's (part) line must match its D log's per-rank owned / ghost counts. The mesh and partitioner path is the same <code>build_four_port_sweep(PHANTOM_RESOLUTION_1G_RUNG)</code>.</p>
+<p><strong>Windows</strong> (complex; foreground; Bash <code>timeout: 660000</code>; each command bare, whole and repo-relative; <code>-s</code>; no <code>-k</code> inside the quoted command; no pipes or redirects; every window ≤ 590 s container-side, so the §5.1 durable-capture idiom is not needed).
+- <strong>First:</strong> <code>docker compose exec -T fem-em-solver pgrep -c python3</code> reads 0. Then the any-orphan sweep as one bare call:</p>
+<p><code>scripts/testing/run_and_log.sh MAT-19-step2-a2-cache-sweep "docker compose exec -T fem-em-solver bash -lc 'cd /root/.cache/fenics &amp;&amp; for c in libffcx_*.c; do s=\${c%.c}; ls \$s.*.so &gt;/dev/null 2&gt;&amp;1 || { echo orphan \$s; rm -f \$s.c \$s.c.cached \$s.o; }; done; echo sweep done'"</code>
+- <strong>Pricing basis (measured: attempt 1's W1 at <code>-n 2</code>, 326 s).</strong> The fixture took 258.7 s, so environment tests, collection and teardown are ≈ 67 s. The width ratios are <code>POST-8</code> step 2's 0.98 (<code>-n 4</code>) and 1.17 (<code>-n 1</code>) on the same EM (item 253's basis). This box's EM read 144.9 s for four solves (<code>:1955</code>), above item 253's ≤ 30 s / solve unblock bar, and W1 still finished at 326 s, so the 590 ceiling holds ≈ 1.8× headroom. There is no <code>-n 8</code> window on this fixture.
+- <strong>D4, ownership at <code>-n 4</code></strong> (predicted 70–120 s; the <code>-n 2</code> diagnostic took 82 s, mesh build dominated):</p>
+<p><code>scripts/testing/run_and_log.sh MAT-19-step2-a2-D4 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 590 mpiexec -n 4 python3 scripts/probes/mat19_step2_ghost_probe.py'"</code>
+- <strong>D8, ownership at <code>-n 8</code>.</strong> Run only per the table (predicted 70–150 s): the same command with <code>-n 8</code>, label <code>MAT-19-step2-a2-D8</code>.
+- <strong>Then</strong> make the E1–E6 edits. No edit after W1.
+- <strong>W1, <code>-n 2</code>, writes the npz.</strong> This is the rule (i) re-run on the landed bytes (predicted 240–330 s; ≈ 275 s with E6, ≈ 326 s without):</p>
+<p><code>scripts/testing/run_and_log.sh MAT-19-step2-a2-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 590 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_mat19_probe_coil_phantom.py -s -v --tb=short'"</code></p>
+<ul>
+<li>Expected (part) line: O_2 = 1, G_2 = 0, so (U3c) prints inapplicable at <code>-n 2</code> and is not asserted.</li>
+<li>If the in-run line at <code>-n 2</code> instead shows G_2 &gt; 0, the module asserts (U3c) there too. That is harmless, and it is recorded.</li>
+<li><strong>W2, <code>-n 4</code></strong> (predicted 230–330 s): the same command with <code>-n 4</code>, label <code>MAT-19-step2-a2-W2</code>. It asserts (W), and (U3c) / (U4) per E3 / E4.</li>
+<li><strong>W3, <code>-n 1</code></strong> (predicted 260–360 s; the thermal side at <code>-n 2</code> was already serial on rank 0, so only the EM ratio applies): the same command with <code>-n 1</code>, label <code>MAT-19-step2-a2-W3</code>. It asserts (W).</li>
+<li><strong>W4, <code>-n 8</code>.</strong> Run only per the table (unmeasured on this fixture; predicted 230–400 s): the same command with <code>-n 8</code>, label <code>MAT-19-step2-a2-W4</code>. (W) is printed there (E5); (U3c), (U4) and (A) are asserted per E3 / E4.</li>
+<li><strong>Order:</strong> pgrep → sweep → land → D4 → [D8] → E1–E6 → W1 → W2 → W3 → [W4].</li>
+<li>A red W1 stops the item. W2 / W3 / W4 need W1's npz from the same bytes, and the hash enforces it.</li>
+<li><strong>Total window time:</strong> ≈ 16.5 min on table row 1 (81 + 82 + 275 + 260 + 290 s), ≈ 23 min with D8 + W4. The slot fits its hour with the edits.</li>
+</ul>
+<p><strong>Traps (added to item 253's list).</strong>
+- <strong>Rule (i) and the npz hash.</strong> E1–E6 all land before W1. Any edit afterwards re-runs W1 and everything after it. Check file mtimes against the W1 log start before committing.
+- <strong>Every rank enters E2's allgather</strong> and every allreduce of the (S) helper, including ranks that own no phantom cells. At <code>-n 2</code> rank 1 owns none (item 227's rank-subset deadlock).
+- <strong>The diagnostic is not a gate.</strong> It is moved unedited, never edited, and runs through the harness like any window. Its <code>GHOSTPROBE</code> lines are the D reading.
+- <strong>Never pick the width after seeing W-window readings.</strong> The table is applied to the D logs only.
+- <strong>The bash guard</strong> denies any <code>docker</code> / <code>run_and_log.sh</code> call that is not bare and whole. The spawn prompt carries the every-item harness sentence verbatim.
+- <strong>Landing.</strong> Record files are never checked out by path (the <code>8d4cf58</code> trap). Only the module, the diagnostic and the three logs are.</p>
+<p><strong>Scope (added to item 253's list).</strong> Not covered:
+- a submesh partition at widths other than those the table runs;
+- any statement about DolfinX's ghost propagation through <code>create_submesh</code> beyond the counts printed;
+- (W) at <code>-n 8</code> as a gate (printed only).</p>
+<p><strong>Status it can move</strong> (restated, because the record wording now depends on the table row).
+- <code>MAT-19</code> is ✅ on step 1 and stays ✅ whatever this step reads, unless (A) or (U4) is red (item 253's disposition: a known-issues entry, and the review re-reads the ✅).
+- <strong>On green:</strong> the §7 row gains a <strong>step 2 record</strong> sentence. It reads: the probe on the coil-driven phantom at the SPEC centres; (A) and (U4) asserted, "on a submesh partition at <code>-n w</code>" only if the table's partition width ran with O_w ≥ 2, else "on a phantom owned by one rank (partition not exercised)"; (W) with the EM in the loop at <code>-n 4 / -n 1</code>; (Σ) asserted; (U3c) "missed by x at <code>-n w</code>" or "inapplicable on this fixture (G_w = 0 at <code>-n 2 / 4 / 8</code>)"; the (P4) / (P5) sensitivities printed. Elapsed times and logs are cited.
+- <strong>Rule (j):</strong> if the row still lacks it, the reviewing daily adds the Done-when clause "step 2 (§10 P8): identities green ⇒ a record, no glyph", as item 253's brief asked; it is not in the row as of this draft.
+- §10 <strong>P8</strong> is marked DONE. (8c) is as item 253's brief states.</p>
+<p><strong>Negative result (amended; item 253's list otherwise carries).</strong> In every case: report the measurement, park on <code>attempt/MAT-19-step2-*</code>, mark the item BLOCKED in the same commit (rule (d)), and journal it in attempts.md as attempt 2 of 4. Never widen a band, and never change a, L, the centres or the table after reading.
+- <strong>(U3c) asserted (G_w &gt; 0) and does not miss:</strong> ghost cells were present and not double-counted. That contradicts the probe's cell loop. Stop, print the (part) line and both volumes, and open a known-issues entry. The review re-reads step 1's (U3c).
+- <strong>(U3c) inapplicable per the table:</strong> a record, not a red. Continue on the remaining anchors.
+- <strong>D / in-run mismatch</strong> at the width that carries (U3c) or the partition reading: the partition is not reproducible across runs. Stop BLOCKED with both counts. The review rules; the slot does not reassign the width.
+- <strong>D4 or D8 fails to run</strong> (import error or kill): stop. W windows do not start without the D reading that sets the table.
+- <strong>(U4) red at <code>-n 4</code> / <code>-n 8</code>:</strong> item 253's "(A) or (U4) red" disposition.
+- <strong>A slow-box kill at 590:</strong> BLOCKED. Every window that finished stands as a record. The unblock is a re-run, never a longer timeout.</p>
+<p>No <code>PREDICTED RED:</code> line. A red anywhere stops the slot.</p>
+<p><strong>Outcome (2026-10-06 01:11Z, 19:30 CDT slot, third item): ✅ GREEN, attempt 2 of 4.</strong>
+- <strong>Landed</strong> the parked module, the diagnostic (moved unedited to <code>scripts/probes/</code>) and attempt 1's three logs by path from <code>e4ffe9a4</code>. Attempt 1's three test-results rows were appended by hand. Sweep <code>20261006T005419Z_MAT-19-step2-a2-cache-sweep.log</code>.
+- <strong>D4</strong> (<code>20261006T005546Z_MAT-19-step2-a2-D4.log:1871–1875</code>, 68 s): sub owned 23 401 / 35 465 / 0 / 0, ghosts 701 / 677 / 0 / 0, so O_4 = 2 and G_4 = 1 378. That is <strong>table row 1</strong>: (U3c) and the partition reading go on <code>-n 4</code>, with no D8 and no W4. The row-1/row-3 prediction held, and ghosts do propagate through <code>_tag_submesh</code> at <code>-n 4</code>.
+- <strong>E1–E6 applied before W1.</strong> No edit came after W1, and the npz hash held across W2 / W3.
+- <strong>W1 <code>-n 2</code></strong> (<code>20261006T005727Z_MAT-19-step2-a2-W1.log</code>, 275 s, 13 passed):
+  - (part) [58 866, 0] / [0, 0], O 1, G 0, so (U3c) printed "inapplicable at -n 2: G_w = 0";
+  - (A0) 58 866 cells, V_sub rel 3.447e-13; (R0) 2.531e-15;
+  - (A) 2.190e-14, BE 2.654e-15, volume 9.770e-15, with row 2 reproduced to the printed digits;
+  - (U4) True;
+  - phase clocks: <code>_run_heated</code> 175.0 s; (S) helper 6.8 s with E6, against 59.2 s before. The (S) values equal attempt 1's (<code>:1976</code>) to all printed digits.
+- <strong>W2 <code>-n 4</code></strong> (<code>20261006T010208Z_MAT-19-step2-a2-W2.log</code>, 248 s, 13 passed):
+  - (part) matches D4 exactly;
+  - (A) 6.825e-15, volume 1.332e-15; (U4) True;
+  - <strong>(U3c) volume miss 2.6047e-2</strong> (asserted &gt; 1e-10), value miss 3.080e-3. That is inside the predicted [2e-2, 2e-1]. The sharp prediction G_4/58 866 = 2.341e-2 is within ×1.11;
+  - <strong>(W) 3.714e-11</strong> (band 1e-9, predicted ≤ 1e-10), volumes 4.4e-16.
+- <strong>W3 <code>-n 1</code></strong> (<code>20261006T010623Z_MAT-19-step2-a2-W3.log</code>, 290 s, 13 passed): (A) 1.780e-14; <strong>(W) 5.735e-11</strong>; the pairwise <code>-n 1</code> vs <code>-n 4</code> print is 7.287e-11.
+- <strong>Width-independent readings (all three windows):</strong>
+  - (Σ) 5.919e-4;
+  - (C1″) 4.398e-3 and (f″) 0.8018, equal to attempt 1;
+  - (P4) A +7.18e-3, B −1.238e-2, C +1.807e-2, D −4.35e-3, E +2.84e-3. B is inside its predicted [−8 %, 0], and A / C / D / E are inside ±3 %;
+  - (P5) 4.398e-3, inside [1e-3, 1e-2];
+  - the q_h C / C′ ball pair, printed: 9.55e-3.
+- <strong>Record wording:</strong> (A) and (U4) hold on a submesh partition at <code>-n 4</code>; (U3c) misses by 2.6e-2 at <code>-n 4</code>. No band moved.</p>
+<p><strong>Spawn prompt (for the slot).</strong> "Execute §9 item 258, <code>MAT-19</code> step 2, re-pose of item 253 (attempt 2 of 4), per <code>docs/planning/chunks/MAT-19.md</code> <code>### §9 item 258</code> and the parts of <code>### §9 item 253</code> it carries verbatim. The harness call is the <strong>whole</strong> Bash command: bare, repo-relative, nothing chained or piped. Every window runs foreground with Bash <code>timeout: 660000</code>. Land the module, the diagnostic and the three logs by path from <code>attempt/MAT-19-step2-20261005T1834Z</code>; append record rows by hand. Apply the decision table to the D logs only. Never widen a band. A red outside the table's 'inapplicable' rows stops the item."</p>
+<h3 id="9-item-265-2026-10-06-chain-p10">§9 item 265 — 2026-10-06 (chain P10)<a class="headerlink" href="#9-item-265-2026-10-06-chain-p10" title="Permanent link">&para;</a></h3>
+<p><strong>Outcome (2026-10-06 09:00 CDT slot, attempt 1 of 4): BLOCKED — (Σ) red at W1; parked on <code>attempt/MAT-19-step3-20261006T1405Z</code> (<code>a5b3c631</code>).</strong> W1 <code>20261006T140518Z_MAT-19-step3-W1.log</code> (168 s, <code>-n 8</code>, summed ru_maxrss 12.96 GiB; clocks mesh+tie 48.6 s, EM drive 41.5 s, transient 0.8 s, probe 0.1 s). <strong>Red: (Σ) |C − C′|/C at t* = 5.7365e-2 against <code>C4_COVARIANCE_BAND</code> 5e-2.</strong> Per the brief's named disposition, printed: q_h ball pair C 340.33 / C′ 264.85 W/m³ (22.18 %, cf. item 236's 22.7 % 10 g q_h pair), ball volumes C 5.0774e-7 / C′ 5.1643e-7 m³ (V_h/nominal − 1: C −3.03e-2, C′ −1.37e-2). Green before it: (A0) 80 798 cells, tag-3 537 (record :1926), (Φ) |sin φ₁| = 0, (M) true, snapshot 0 = 0.0; (Src) (W) 1.116e-12 (<code>NODE_S_RTOL</code> 1e-9), (P) 7.393e-13 (1e-6); (A) max 4.549e-16, BE 0, V_Ω/V_sub − 1 = 4.441e-16 (<code>B_BAND</code> 1e-10), <strong>on a submesh partition at <code>-n 8</code></strong> (owned 100/29/45/57/130/30/79/67, ghosts 40/19/25/25/51/19/28/22, O_w 8, G_w 229); (U4) bitwise; (U3c) asserted (G_w &gt; 0) and missed by 0.5474 (predicted G_w/537 = 0.4264, within ×[0.5, 2]). Computed but not reached as asserts (the (Σ) assert stopped the test): (C1″) 1.9498e-3 (predicted [1e-4, 1e-2]), (f″) 0.5474 (predicted [0.1, 1.0]). Printed: ⟨θ⟩(t*) 0.687806 K per accepted watt vs item 236's 0.687806 (rel 1.6e-8, 6-digit record); (P4′) ball/point − 1 at A +2.35 %, B +0.02 %, C +0.10 %, D −1.20 %, E −2.04 % (A and E above the predicted ≤ 2 %); ratio (i) (mixed normalisation) A 0.6926, B 0.3195, C 0.7296, D 1.5990, E 0.6799, C′ 0.6874, Ω 0.5964; ratio (ii) (per deposited watt at both) A 1.1989, B 0.5530, C 1.2631, D 2.7680, E 1.1769, C′ 1.1899, Ω 1.0324. W2 / W3 not run, so (W) is not measured. Other logs: <code>20261006T140242Z_MAT-19-step3-cache-sweep.log</code> (no orphans), <code>20261006T140407Z_MAT-19-step3-import.log</code> (knob-unset collection smoke, killed at its own 60 s ceiling during <code>tests/environment</code>; the module collected, <code>pgrep</code> 0 afterwards). <strong>For the review:</strong> the brief's (Σ) disposition applies: on ≈ 15 mm cells the 5 mm probe pair inherits the unsymmetric phantom mesh (q_h pair 22 %). Re-pose on a phantom-refined exact hole mesh (a new fixture with its own C_mode), not in-slot. No band moved.</p>
+<p><em>Drafted by a general-purpose agent for the 2026-10-06 03:00 daily review; the review reviews it.</em> Licence: §10 chain P10 (grep "P10. <code>MAT-19</code> step 3" in PROJECT_PLAN.md), quoted, not changed: "the probe series on the tuned copper fixture at 64 MHz (P5's source, degree 2, exact rectangles) at <code>ANS-9</code>'s six centres, 40 steps. Asserted: P8's identities (whole-phantom probe = ⟨θ⟩ at <code>B_BAND</code>, width invariance at 1e-9 with the EM in the loop, the σ_y mirror pair at <code>C4_COVARIANCE_BAND</code>); printed, ball/point at A–E and the 64 MHz / 10 MHz ratio of the probe rises per accepted watt. The first probe-level thermal figure on a tuned coil; a record. Target: identities. Serial on nothing." The 2026-10-02 sheets-and-κ ruling binds (exact rectangles, κ off). §10 ruling P8 (item 258's ghost / width rule) binds. <strong>No band, tolerance, Done-when or validation target is set or moved.</strong> Every band is imported by name.</p>
+<p><code>MAT-19</code> step 3: step 2's probe series (item 258), unchanged, on <code>MAT-15</code> step 3's tuned copper source (item 236).
+- <strong>Executor:</strong> implementer. One new test module, <code>tests/validation/test_mat19_probe_tuned_copper.py</code>. There is no <code>src/</code> change. Do not edit <code>thermal/probe.py</code>, item 236's module (<code>test_mat15_tuned_copper_heating.py</code>), item 258's module (<code>test_mat19_probe_coil_phantom.py</code>), step 1's <code>MAT-15</code> module, the <code>ans:7</code> / <code>ans:9</code> scripts, or any <code>ans7_exact</code> test. An edit to any of them owes those gates' windows under rule (a).
+- <strong>Tier:</strong> heavy, <code>-n 8</code> / <code>-n 4</code> / <code>-n 2</code>, complex build.
+- <strong>Cost:</strong> ≈ 17 measured / ≈ 50 predicted min. That is 15 fixed + ≈ 12 code + sweep 0.5 + W1 ≈ 3.3 + W2 ≈ 5 + W3 ≈ 8 + ≈ 6 spare.
+- <strong>Depends on nothing on <code>main</code>.</strong> It needs T21's two gitignored JSONs, <code>logs/ans7_exact/tune_p2.json</code> and <code>tune_inmodel_p2.json</code>, which item 236's <code>_read_t21</code> reads. If either is absent, stop and take the next item. Never re-create them.</p>
+<p><strong>The fixture (imported, never restated).</strong>
+- <strong>The source</strong> is item 236's, exactly. Use the <code>_exact_geo</code> ×1 hole mesh (80 798 cells), Leontovich copper, and C_mode,Cu read from <code>tune_p2.json</code>. Apply Z_C on P2–P4 and C₁ across P1. Drive one P1 at 64.0 MHz through <code>_route_a_solve(..., degree=2)</code>, with G = 1 W / P_acc.
+- <strong>Reuse before you copy.</strong> Read <code>test_mat15_tuned_copper_heating.py:142–310</code> (<code>_run</code>) first.
+  - If <code>_run()</code> returns the submesh, Robin tags, q_h, G, P_acc and η, call it.
+  - If it does not, rebuild the same steps in the same order from the <strong>imported</strong> helpers: <code>_read_t21</code>, <code>_fixture_tie</code>, <code>_exact_geo</code>, <code>_route_a_solve</code>, the <code>TH-14</code> (b) power block with the Z_C-replaced specs, <code>_tag_submesh</code>, <code>_robin_tags</code>, <code>_cell_average_dg0_tag</code> and <code>_to_sub</code>. Disclose the mapping.
+  - Never edit item 236's module to make it return more.
+- <strong>The series</strong> is item 258's: <code>_transient(sub, ft, q_h, dt=T_STAR / N_MAIN, n_steps=N_MAIN, theta=0.5, startup_half_steps=2, snapshot_steps=range(N_MAIN + 1))</code>, <code>_be_one</code>, then <code>probe_series</code> over θ = T − <code>T_INF</code>.
+- <strong>The probes</strong> are item 258's <code>_probe_set()</code>, imported: <code>ANS-9</code>'s SPEC centres A–E plus C′ (σ_y image of C), so six centres, plus Ω (r = 0.1 m) and the control ball B⁺. Keep a = <code>A_PROBE</code> 5 mm.
+- <strong>Imports:</strong> <code>B_BAND</code>, <code>C4_COVARIANCE_BAND</code>, <code>E_BAND</code>, <code>F_CONTROL_FLOOR</code>, <code>DT_1</code>, <code>N_MAIN</code>, <code>T_STAR</code>, <code>T_INF</code>, <code>RHO_C</code>, <code>_transient</code>, <code>_be_one</code>, <code>_allsum</code> and <code>_say</code>, from <code>test_mat15_coil_driven_heating_phantom</code> exactly as item 258's module imports them (<code>test_mat19_probe_coil_phantom.py:56–74</code>). Also import <code>WIDTH_BAND</code> from <code>test_mat19_virtual_temperature_probe</code>, and <code>_probe_set</code>, <code>A_PROBE</code>, <code>OMEGA_RADIUS</code> and <code>_lattice_q_mean</code> from item 258's module. Restate none of them.
+- <strong>(Φ) is reused.</strong> Item 236 measured φ₁ = 0.000000000000° on this mesh (<code>20261005T040135Z_MAT-15-step3-W1.log</code>), so C′ = (x, −y, z) is the drive's σ_y image here as on step 2's fixture. Re-assert item 236's (Φ) in-run.
+- <strong>Opt-in knob</strong> <code>FEM_EM_MAT19_STEP3=1</code>, in item 236's pattern. When it is unset, every test skips. Any other value raises <code>ValueError</code>.
+- <strong>npz:</strong> <code>/workspace/logs/mat19/step3-n8.npz</code>. Guard it with the SHA-256 of the new module, <code>thermal/probe.py</code> and item 236's module.</p>
+<p><strong>Anchors (asserted; bands imported).</strong>
+- <strong>(A0)</strong> <code>_assert_tie</code> (80 798 cells), (Φ) |sin φ₁| ≤ item 236's <code>PHI_BAND</code>, and the tag-3 cell count == 537. That count is item 236's printed record (<code>…040135Z_MAT-15-step3-W1.log</code>; cite the line). Snapshot 0 reads exactly 0.0, and every probe ball lies inside the phantom ((M), item 258's test).
+- <strong>(Src)</strong> item 236's (W), |S11 − S11_ref|/|S11_ref| ≤ <code>NODE_S_RTOL</code>, and (P) ≤ <code>DISCRETE_IDENTITY_RTOL</code>, re-asserted on this run's field. This ties the source to item 236's gated run.
+- <strong>(A)</strong> whole-phantom probe P_Ω = ∫θ/V_sub at n = 1 … 40 and for the BE θ¹, plus V_Ω/V_sub − 1, all ≤ <code>B_BAND</code>.
+- <strong>(U4)</strong> the rank rows agree bitwise at n = 40, at every width &gt; 1.
+- <strong>(W) width invariance with the EM in the loop.</strong> The <code>-n 4</code> and <code>-n 2</code> series against the <code>-n 8</code> npz: cells equal, and max rel ≤ <code>WIDTH_BAND</code>. The hash guard stays as item 258's.
+- <strong>(Σ)</strong> |θ̄_C − θ̄_C′|/θ̄_C at t* ≤ <code>C4_COVARIANCE_BAND</code>.</p>
+<p><strong>§10 ruling P8 (item 258's rule), applied mechanically.</strong> Every rank enters <code>comm.allgather((size_local, num_ghosts))</code> on the tag-3 submesh's <code>index_map(3)</code>, at every width. Print item 258's (part) line with O_w and G_w.
+- (U3c) is asserted iff G_w &gt; 0 (as item 258's E3).
+- The reading "(A) / (U4) on a submesh partition" is licensed iff O_w ≥ 2.
+- The widths are fixed now, before any reading: 8 / 4 / 2. No width is added or chosen after a reading. "Inapplicable" and "not exercised" are records, not reds, in item 258's words.
+- <strong>Predicted, not measured:</strong> the phantom is 537 of 80 798 cells (0.66 %). It may sit on one rank at every width, giving O_w = 1 and G_w = 0. In that case, record the outcome in item 258's wording.</p>
+<p><strong>Negative controls (rule (e)).</strong>
+- <strong>(U3c) ghost-included Ω</strong> misses (A)'s volume identity by &gt; <code>B_BAND</code>. <em>Asserted iff G_w &gt; 0.</em> The factor is <em>predicted</em>: ≈ G_w/537 within ×[0.5, 2]. A single ghost cell is ≈ 1/537 ≈ 1.9e-3 of V_sub, ≥ 1e7× the band. Backing on another fixture: item 258's W2 measured 2.605e-2 against a sharp prediction of 2.341e-2 (<code>20261006T010208Z_MAT-19-step2-a2-W2.log</code>).
+- <strong>(C1″) B⁺ vs B &gt; <code>WIDTH_BAND</code></strong>, <em>predicted</em>. This fixture has no prior measurement. Step 2 read 4.398e-3 on 2.5 mm cells. Here the cells are ≈ 15 mm (V_sub/537 ≈ 4.1e-7 m³), so the 0.1 mm shift moves the lattice set less. The prediction is [1e-4, 1e-2], with a ceiling far above the band. Assert only the miss.
+- <strong>(f″) C vs B &gt; <code>F_CONTROL_FLOOR</code></strong>, <em>predicted</em>. The 64 MHz tuned field is not the 10 MHz one. Item 236's off-mirror (f′) read 35.78 % on this fixture with 10 g balls. The prediction is [0.1, 1.0]. Assert only the miss.
+- <strong>The width controls are not re-bought.</strong> Item 258's (U3c) / (C1″) record stands.</p>
+<p><strong>Printed (not asserted).</strong>
+- <strong>(P4′) ball/point − 1 at t* at A–E.</strong> "Point" means the P1 θ at the centre. Compute it from the owned cell that contains the centre (barycentric λ ≥ −1e-12) with <code>allreduce((Σ value, count))</code>, and average over the containing cells. No <code>eval</code> and no <code>evaluate_vector_field_parallel</code> on the submesh: the owner rule raises there (known-issues 2026-10-04). On 15 mm cells a 5 mm ball is smaller than a cell, so the predicted magnitudes are ≤ 2 %. Also print each ball's V_h/(4πa³/3) − 1 (level-3 lattice, sub-tet edge ≈ 1.9 mm, predicted ≤ 3e-2).
+- <strong>The 64 / 10 MHz ratio</strong> of the probe rises at t* at A–E, C′ and Ω, printed twice:
+  - <strong>(i)</strong> this run's rise per accepted watt ÷ step 2's rise at 10 MHz. Step 2 was normalised per <em>deposited</em> watt, G = 1 W / P₁, from the <code>MAT19-2   n=40</code> row of <code>20261006T005727Z_MAT-19-step2-a2-W1.log</code> (cite the line). Hard-code those values as printed records with their log line, never as comparands;
+  - <strong>(ii)</strong> the same with the 64 MHz rise divided by η (per deposited watt at both frequencies, a shape-only ratio).
+  - Label the mixed normalisation of (i) in the print. No 10 MHz per-accepted-watt figure exists.
+- Also printed: the series table at n = 1, 10, 20, 30, 40; ⟨θ⟩(t*) beside item 236's 0.687806 K per accepted watt (<code>R0</code>-style, ≤ <code>E_BAND</code> expected, printed); (S) via <code>_lattice_q_mean</code>; the q_h C / C′ pair; per-phase clocks; summed <code>ru_maxrss</code>.</p>
+<p><strong>Windows.</strong> Foreground. The harness call is the <strong>whole</strong> Bash command, bare and repo-relative. Bash <code>timeout: 660000</code>; <code>-s</code>; <code>tests/environment</code> first; no pipe or redirect. Each window is ≤ 590 s, so the durable-capture idiom is not needed.
+- <strong>Price.</strong> Item 236's W1 measured 156 s at <code>-n 8</code> (fixture 90.2 s, EM drive 41.8–50.3 s, mesh 24.4 s). The probe adds the 40-step transient on 537 cells plus the probe sums, ≈ 5–20 s (item 258's series on 58 866 cells took 17 s). The <code>-n 4</code> / <code>-n 2</code> degree-2 EM on this mesh is <strong>unmeasured</strong>. It is predicted at ×1.6–2 and ×3–4 of the <code>-n 8</code> drive. Memory is predicted at ≈ 10–14 GiB (<code>ANS-4</code> item 225: 36.3 GiB on 259 524 cells at degree 2, scaled by cells).
+- <strong>First:</strong> <code>docker compose exec -T fem-em-solver pgrep -c python3</code> must read 0. Then run the sweep:
+  <code>scripts/testing/run_and_log.sh MAT-19-step3-cache-sweep "docker compose exec -T fem-em-solver bash -lc 'cd /root/.cache/fenics &amp;&amp; for c in libffcx_*.c; do s=\${c%.c}; ls \$s.*.so &gt;/dev/null 2&gt;&amp;1 || { echo orphan \$s; rm -f \$s.c \$s.c.cached \$s.o; }; done; echo sweep done'"</code>
+- <strong>W1, <code>-n 8</code>, writes the npz</strong> (predicted 170–230 s):
+  <code>scripts/testing/run_and_log.sh MAT-19-step3-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_ANS_SKIP_PRIVATE=1 FEM_EM_MAT19_STEP3=1 timeout -k 30 590 mpiexec -n 8 python3 -m pytest tests/environment tests/validation/test_mat19_probe_tuned_copper.py -v -s --tb=short'"</code>
+- <strong>W2, <code>-n 4</code></strong> (predicted 220–330 s): the same command with <code>-n 4</code>, label <code>MAT-19-step3-W2</code>.
+- <strong>Box-speed gate, pre-registered.</strong> If W2's EM drive clock exceeds 120 s, do not start W3. In that case (W) is asserted at <code>-n 4</code> only, and the record says "<code>-n 2</code> not run: W2 drive &gt; 120 s". This is a time gate, not a reading.
+- <strong>W3, <code>-n 2</code></strong> (predicted 330–480 s): the same command with <code>-n 2</code>, label <code>MAT-19-step3-W3</code>.
+- <strong>Order:</strong> pgrep → sweep → W1 → W2 → [gate] → W3. A red W1 stops the item. No edit after W1 (rule (i)); the npz hash enforces it.
+- <strong>The fallback is parking, never lengthening.</strong> A kill at 590 is a finding. Never raise the timeout, add ranks or split a solve differently in-slot.</p>
+<p><strong>Traps already paid for.</strong>
+- <strong>Every rank enters every collective.</strong> That covers the (part) allgather, each <code>_allsum</code> / <code>allreduce</code>, the point-value allreduce and the <code>Barrier</code> after the npz write, <strong>including ranks that own no phantom cells</strong>. A comm call under a <code>if comm.rank == 0</code> branch, or under <code>if owned.size</code>, deadlocks (item 227's rank-subset deadlock; at <code>-n 8</code> most ranks own no tag-3 cell). Only the <code>np.savez</code> itself sits under rank 0.
+- <strong>Rank-local values:</strong> <code>cell_tags.values</code>, <code>assemble_scalar</code>, <code>size_local</code> and owned-slice max/min are rank-local. Reduce before asserting. <code>np.max</code> on an empty owned slice raises, so use <code>initial=</code>.
+- <strong>Orphan <code>.c</code></strong> (item 160's 44 KB partial): sweep only when <code>pgrep -c python3</code> reads 0, and delete orphan stems only.
+- <strong>Complex build:</strong> <code>ufl.real</code> inside <code>ufl.lt</code>, and no <code>sqrt</code> in a comparison (<code>WF-6</code> 4c). Apply <code>np.real</code> before every <code>float</code>.
+- <strong>No point evaluation on the submesh</strong> (known-issues 2026-10-04).
+- <strong>The (P) sheet terms use the Z_C-replaced specs</strong> (item 236's trap).
+- <strong>Inherited from items 195 / 196 / 217 / 236:</strong> κ is <code>None</code>; <code>z_from_s</code> is never applied; there is no <code>ans:7</code> <code>_stage_*</code> call; nothing is written under <code>logs/ans7_exact/</code>.
+- <strong>Never pick a width after a reading.</strong> The stale <code>step2-n2.npz</code> is not this item's and is never read.
+- <strong>Bash guard:</strong> harness calls are bare and whole; no <code>-k</code> selection inside the quoted command; status 124 is a finding, not a retry.
+- <strong>Write ≈, never <code>~</code>.</strong> No AED file is opened or quoted.</p>
+<p><strong>Scope.</strong> Covered: one fixture (item 236's tuned copper F-small, 80 798 cells, 537 phantom cells, degree 2 EM, P1 thermal), one drive at 64.0 MHz at C_mode,Cu, the a = 5 mm probe at A–E, C′ and Ω, and widths 8 / 4 / 2.</p>
+<p>Not claimed:
+- any <code>ANS-9</code> agreement, adjudication or comparison (<code>ANS-9</code> is the 10 MHz ragged-sheet SPEC, and no AED value enters);
+- that the coil is tuned to 64.000 MHz (T21 / T21′ are open);
+- a real probe's sensing volume, thermal mass or lead artefact;
+- probe-level accuracy on a 537-cell phantom (no h-statement);
+- tissue, perfusion or compliance.</p>
+<p><strong>Negative result.</strong> In every case: report the measurement, park on <code>attempt/MAT-19-step3-*</code>, mark item 265 BLOCKED in the same commit (rule (d)), and journal it in attempts.md as attempt 1 of 4. Never widen a band, and never change a, the centres, the widths or the gate after a reading.
+- <strong>(A0) / (Src) red:</strong> the source is not item 236's run. Stop.
+- <strong>(A) or (U4) red:</strong> item 253's disposition. Open a known-issues entry; the review re-reads <code>MAT-19</code>'s ✅.
+- <strong>(W) red</strong> with (A) green: the EM-in-the-loop series differs across widths above 1e-9 on degree 2. That is a finding for known-issues' solve-floor table, with the per-probe maxima printed.
+- <strong>(Σ) red:</strong> on 15 mm cells, the probe pair inherits the unsymmetric phantom mesh. Item 236's 10 g q_h pair at φ₁ ± 90° read 22.7 %. Print the q_h C / C′ pair and both ball volumes. The review may re-pose on a phantom-refined exact hole mesh, a new fixture with its own C_mode. Not in-slot.
+- <strong>(U3c) asserted (G_w &gt; 0) and not missing:</strong> item 258's disposition.
+- <strong>A control not missing:</strong> stop.
+- <strong>Kill at 590:</strong> BLOCKED. Every finished window stands as a record.</p>
+<p>No <code>PREDICTED RED:</code> line. A red anywhere stops the slot.</p>
+<p><strong>Status it can move.</strong> No glyph: <code>MAT-19</code> stays ✅. On green, the §7 row gains a <strong>step 3 record</strong> sentence: the probe on the tuned copper fixture at 64 MHz, degree 2, exact rectangles; (A) / (U4), with "on a submesh partition at <code>-n w</code>" only if O_w ≥ 2; (W) at the widths run; (Σ); (U3c) "missed by x" or "inapplicable (G_w = 0 at <code>-n 8 / 4 / 2</code>)"; ball/point at A–E and both 64 / 10 MHz ratios printed; elapsed times and logs. Rule (j): if the row lacks a step-3 Done-when clause, the reviewing daily adds "step 3 (§10 P10): identities green ⇒ a record, no glyph". §10 P10 is marked DONE.</p>
+<p><strong>Spawn prompt (for the slot).</strong> "Execute §9 item 265, <code>MAT-19</code> step 3, per <code>docs/planning/chunks/MAT-19.md</code> <code>### §9 item 265</code>. The harness call is the <strong>whole</strong> Bash command: bare, repo-relative, nothing chained or piped. Every window runs foreground with Bash <code>timeout: 660000</code>. Every rank enters every collective. Widths 8 / 4 / 2 are fixed; apply the W2 time gate only. Never widen a band. A red stops the item."</p>
+<p><strong>Review disposition of item 265 (2026-10-06 10:30 daily review): not re-queued; P10 goes to the 10-07 weekly.</strong> This review has read the W1 log (<code>20261006T140518Z_MAT-19-step3-W1.log</code>) and lands it on <code>main</code> (by path, with its rows by hand) as a record.
+- <strong>The red is the brief's named (Σ) case, not a defect.</strong> Every identity before it is green: (A) 4.549e-16, (U4) bitwise on a real submesh partition at <code>-n 8</code> (O_w 8, G_w 229), and (U3c) firing and missing by 0.547.
+- <strong>What goes red is the mesh's symmetry, not the probe's.</strong> The σ_y pair of 5 mm balls sits in ≈ 15 mm cells on a 537-cell phantom that the mesher did not build mirror-symmetric. The source term itself differs 22.18 % between the two balls (q_h C / C′), against item 236's 22.7 % on its 10 g pair. On step 2's 58 866-cell phantom, the same probe read (Σ) 5.919e-4.
+- <strong>The brief's re-pose needs a phantom-refined <em>tuned copper</em> fixture with its own <code>C_mode</code>.</strong> No such fixture exists. <code>FEM_EM_ANS7_EXACT_RESOLUTION</code> is a global resolution knob, not a phantom-only one, and every rung needs its own T-chain tuning window. That is a new fixture, which rule (6) does not let a daily open on a chain the weekly has not posed.
+- <strong>The alternative is a target question.</strong> P10 could hold (Σ) on this 537-cell phantom as a printed reading instead of an assertion. That moves a target, so it is the weekly's.
+- <strong>For the weekly:</strong> choose (a) a phantom-refined tuned fixture as a new P-step, serial on a T-step that tunes it, or (b) re-pose P10's mirror identity as printed on the record mesh, keeping (A), (U4) and (W) as its asserted identities.
+- <strong>Family:</strong> <code>MAT-19</code> step 3 stands at attempt 1 of 4. The module stays on <code>attempt/MAT-19-step3-20261006T1405Z</code> (<code>a5b3c631</code>).</p>
+<h2 id="7-row-moved-verbatim-2026-10-05-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-05 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-05-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p><strong>The virtual temperature probe: a point time series with a stated probe volume — Phase 8, gel</strong> (opened 2026-10-03 by the weekly; §10 chain P7; lane 3) | ✅ Done 2026-10-05 (§9 item 243, 09:30 UTC slot): <code>thermal/probe.py</code> (owned-cell lattice ball average, one allreduce); (T) max 1.7315e-03 over 3 probes × 40 times (band 1 %); (W) <code>series_cf</code> 6.661e-16 at <code>-n 4</code> and <code>-n 1</code> vs <code>-n 2</code> (band 1e-9), cells equal; (C1) displaced probe misses at 5.4207e-02; (N1) 1.168e-14·θ_ss(0); (A0) 19 496 cells; elapsed W0 87 s / W1 104 s / W2 99 s / W3 117 s, standard tier (<code>20261005T095530Z_MAT-19-step1-W0.log</code>, <code>…095808Z_…W1.log</code>, <code>…100001Z_…W2.log</code>, <code>…100145Z_…W3.log</code>). <strong>Step 2 record (2026-10-06, §9 item 258, attempt 2 of 4, §10 P8; attempt 1, item 253, was blocked because its (U3c) could not fire at <code>-n 2</code>):</strong> the a = 5 mm probe on <code>MAT-15</code> P1's coil-driven gel phantom at <code>ANS-9</code>'s SPEC centres A–E plus C′. (A) whole-phantom probe = ∫θ/V_sub to ≤ 2.19e-14 (band <code>B_BAND</code> 1e-10), and (U4) is bitwise. Both hold <strong>on a submesh partition at <code>-n 4</code></strong> (owned 23 401 / 35 465 / 0 / 0, ghosts 701 / 677 / 0 / 0). (W) with the EM in the loop is 3.714e-11 at <code>-n 4</code> and 5.735e-11 at <code>-n 1</code> (band 1e-9). (Σ) C / C′ at t* is 5.919e-4 (band 5 %). (U3c) misses by 2.605e-2 at <code>-n 4</code>; it is inapplicable at <code>-n 2</code>, where G = 0. (C1″) reads 4.398e-3 and (f″) 0.8018. Printed only: (P4) ball/point − 1 at t* is A +0.72 %, B −1.24 %, C +1.81 %, D −0.43 %, E +0.28 %, and (P5) the 0.1 mm displacement of B moves it 0.44 %. Elapsed: D4 68 s, W1 275 s, W2 248 s, W3 290 s, heavy by ceiling (<code>20261006T005546Z_MAT-19-step2-a2-D4.log</code>, <code>…005727Z_…a2-W1.log</code>, <code>…010208Z_…a2-W2.log</code>, <code>…010623Z_…a2-W3.log</code>). The fixture has ragged sheets at degree 1, so this is a record, no glyph. <strong>Done-when (§4):</strong> an additive probe post-processor in <code>thermal/</code> (ball-averaged temperature against time: an integral over owned cells with no point owner, width-invariant as <code>POST-8</code>. <em>Amended 2026-10-05 03:00 review, rule (j), item 243, because <code>MAT-12</code>'s thermal field lives on a <code>create_submesh</code> mesh, where the point-owner rule raises; the weekly ratifies</em>); on <code>MAT-12</code>'s SAR-heated sphere the series at three radii is within 1 % of the closed form at every recorded time, and the series is width-invariant to 1e-9 at <code>-n 1 / 2 / 4</code>; a displaced-probe control misses; elapsed recorded ⇒ ✅. Step 2 (§10 P8, provisional): its identities green ⇒ a record in this row, no glyph (added 2026-10-05 18:00 review, rule (j), item 258). Not claimed: a real probe's thermal mass or lead artefact. </p>
+<h3 id="9-item-314-2026-10-08-chain-p10">§9 item 314 — 2026-10-08 (chain P10′)<a class="headerlink" href="#9-item-314-2026-10-08-chain-p10" title="Permanent link">&para;</a></h3>
+<p><strong>Outcome (2026-10-08 07:30 CDT slot, take-next): green — a record, no glyph.</strong> Module <code>tests/validation/test_mat19_probe_refined_copper.py</code> (local <code>_geo_p</code> / <code>_z4_cu</code> copies, ruling (1); the local 4×4 ran the Cu column only — no PEC column, as item 310 on the h rung — because no anchor reads C_mode,PEC). W0: <code>_build_ladder</code> and the local default build both 80 798 cells (asserted); refined 93 956 cells, 8 349 tag-3 (predictions met; under the 130 000 stop). W1: Cu 4×4 sweep 65.7 s, recip 2.0e-15; C_mode,Cu 63.586252 pF; C_in 63.587076 pF (−4.74e-5 vs ×1, predicted ≈ 1e-3); |g| 3.5e-17 S in 2 iterations. W2 (<code>-n 8</code>): drives 49–60 s; (Φ) 0; (AB′) 1.257e-5; in-model zero f₀/64 MHz − 1 = −2.534e-6 = 0.20 × the AB′ resolution (printed); (P) 4.891e-13; η 0.5887; ⟨θ⟩(t*) 0.680969 K per accepted W; (A) ≤ 3.95e-15; (U4) bitwise on a two-owner partition; (Σ) 1.2148e-3 (predicted [2e-3, 3e-2]: below range); (U3c) misses at factor 1.14; (C1″) 4.06e-3; (f″) 0.653. W3 (<code>-n 4</code>): (W) 1.956e-11, drive 87.4 s &lt; 240 s, so W4 (<code>-n 2</code>) ran: (W) 1.694e-11. Printed predictions missed: q_h C/C′ ball pair 10.4 % (predicted ≤ 5 %) — the temperature pair agrees to 0.12 % because diffusion smooths it; ball/point at C +2.75 % (predicted ≤ 2 %). Logs: <code>20261008T124112Z_MAT-19-step3p-cache-sweep.log</code>, <code>20261008T124243Z_…-W0.log</code> (173 s), <code>…124546Z_…-W1.log</code> (166 s), <code>…124839Z_…-W2.log</code> (273 s), <code>…125322Z_…-W3.log</code> (194 s), <code>…125645Z_…-W4.log</code> (210 s). Attempt 1's module lands by path (its three logs and rows were already on main). Branch <code>attempt/MAT-19-step3-20261006T1405Z</code> deleted.</p>
+<p><em>Drafted by a general-purpose agent for the 2026-10-08 03:00 daily review; the review reviews it.</em> Licence: §10 P10′ (weekly 2026-10-07, PROJECT_PLAN.md:4648–4656) and its ruling (<code>:4499–4504</code>), quoted, not changed: "<code>MAT-19</code> step 3 re-pose — the probe series on a phantom-refined tuned copper fixture. <code>ANS-7</code>'s exact hole fixture with the phantom at 0.005 m, degree 2, retuned on C_in (three nodes, the in-model zero within its grid's resolution, printed); then P8's identities at <code>ANS-9</code>'s six centres over 40 steps: whole-phantom probe = ⟨θ⟩ at <code>B_BAND</code>, width invariance at 1e-9, the σ_y mirror pair at <code>C4_COVARIANCE_BAND</code>; printed, ball/point at A–E and the 64 MHz / 10 MHz probe-rise ratio per accepted watt. Target: identities. Heavy (predicted 300–450 s at <code>-n 8</code> from I14's 1 g-rung sweep). Serial on nothing." No band, tolerance, Done-when or target moves. <strong>Attempt 2 of 4</strong> on <code>MAT-19</code> step 3 (item 265 was attempt 1, parked <code>attempt/MAT-19-step3-20261006T1405Z</code>, <code>a5b3c631</code>).</p>
+<ul>
+<li><strong>Executor:</strong> implementer. <strong>Tier:</strong> heavy, <code>-n 8</code> (record width) / <code>-n 4</code> (width), complex. <strong>Time:</strong> ≈ 30 measured / ≈ 55 predicted min (sweep 1.5 + W0 1.5 + W1 ≈ 6 + W2 ≈ 8 + W3 ≈ 6 + code ≈ 15 + spare). Tight for one hour: if W2 has not started by minute 35, park after W1 (its JSON is the save point) and journal.</li>
+<li><strong>Depends on nothing.</strong> Reads no T21 JSON: this fixture is new and carries its own C_in.</li>
+</ul>
+<p><strong>One window cannot hold it — split, never a longer timeout.</strong> On the ×1 mesh the 4×4 at 64 MHz (Cu + PEC column, degree 2) cost 215 s (<code>20261004T140347Z_ANS-7-item217-W1-cmode.log</code>) and three C drives cost 261 s with a 171.4 s fixture (<code>…140738Z…-W2-inmodel.log:2052</code>); item 265's single drive + 40-step probe cost 168 s (<code>20261006T140518Z_MAT-19-step3-W1.log</code>, drive 41.5 s). The refined phantom adds ≈ 8 000 tag-3 cells (<code>GEO-27</code>'s 0.005 rung: 8 497 on the solid mesh, <code>20260908T033218Z_GEO-27.log.gz:3573</code>) to 80 798, so cells ≈ 90 000–115 000 and degree-2 cost ×1.2–1.8 (I14's 201 072-cell 1 g rung: sweep 246 s, 44 GiB at <code>-n 8</code>, <code>IMP-3.md:912–916</code>). Retune + 40 steps in one window ≈ 570–860 s &gt; 590 s. So:
+- <strong>W0 (<code>-n 8</code>, build only, ≈ 90 s):</strong> mesh, print cells and tag-3 cells. <strong>Cost gate, pre-registered:</strong> cells &gt; 130 000 ⇒ stop before W1 (W2 projects past 590 s); record and park.
+- <strong>W1 (<code>-n 8</code>, ≈ 260–390 s):</strong> the 4×4 at 64 MHz (Cu, PEC column) and C_in by <code>_c_in(z4, 64e6, c_mode)</code> (<code>test_ans7_exact_strip.py:1199</code>, secant to |g| ≤ 1e-15 S); writes <code>logs/mat19/step3p-cin.json</code> (C_in, C_mode, z4, cells, tag-3 cells; open mode <code>"x"</code>).
+- <strong>W2 (<code>-n 8</code>, ≈ 330–490 s):</strong> reads the JSON; three Route A drives at C_in at 63.9 / 64.0 / 64.1 MHz (T21′'s construction, item 262), in-model zero and its grid resolution printed; at the 64.0 MHz node, the TH-14 (b) power block, G = 1 W / P_acc, P1 thermal 40 steps to t*, the probe series at A–E, C′ and Ω; writes <code>logs/mat19/step3p-n8.npz</code>.
+- <strong>W3 (<code>-n 4</code>, ≈ 250–400 s):</strong> one 64.0 MHz drive at the stored C_in + thermal + probe; (W) against the npz. <strong>Time gate (item 265's):</strong> if W3's drive clock &gt; 240 s, <code>-n 2</code> is not run and the record says so; otherwise W4 at <code>-n 2</code> is the same command. A time gate, not a reading.</p>
+<p><strong>Code.</strong> New module <code>tests/validation/test_mat19_probe_refined_copper.py</code>, <code>@complex_only</code>, opt-in knob <code>FEM_EM_MAT19_STEP3P</code> ∈ {unset ⇒ skip, <code>build</code>, <code>cin</code>, <code>series</code>; anything else raises}. Template: the parked module <code>test_mat19_probe_tuned_copper.py</code> (<code>a5b3c631</code>, <code>run</code> at <code>:153</code>, <code>_point_values</code> at <code>:126</code>); take it <strong>and its three logs by path</strong> as the attempt-1 record (new files), append their <code>test-results.md</code> rows by hand, never path-checkout <code>test-results.md</code>. The mesh: a local <code>_exact_geo_p</code> = <code>_exact_geo</code>'s body (<code>test_ans7_exact_strip.py:409–421</code>) with <code>phantom_resolution=0.005</code> passed to <code>th14._sheets_build(True, as_hole=True, …)</code> (<code>tests/mesh/test_birdcage_port_sheets.py:80</code> accepts it). The 4×4: <code>th14._build_ladder</code> (<code>test_th14_birdcage_copper.py:263</code>) has <strong>no</strong> phantom knob — <strong>review question 1</strong>; the default plan is an additive <code>phantom_resolution=None</code> kwarg forwarded to <code>_sheets_build</code>, unset-identical by construction (item 214's <code>resolution</code> precedent), with rule (a)'s owed windows named by the review. Do not edit <code>test_ans7_exact_strip.py</code>, <code>test_mat15_tuned_copper_heating.py</code> (<code>ans:9</code> / <code>ans:7</code> import them) or the parked module.</p>
+<p><strong>Anchors</strong> (asserted; bands imported by name — P8's, unmoved):
+- <strong>(A0)</strong> cells and tag-3 cells printed; tag-3 &gt; 3 000 asserted as the precondition that the phantom <em>is</em> refined (item 265 had 537). <strong>(Φ)</strong> |sin φ₁| ≤ 1e-9 (item 236).
+- <strong>(Src)</strong> (AB′) circuit = field at the 64.0 MHz C_in node ≤ <code>REDUCTION_BAND</code> (<code>test_ans7_exact_strip.py:81</code>; T21′ read 1.258e-5 on ×1); (P) the accepted-power identity ≤ <code>DISCRETE_IDENTITY_RTOL</code> (<code>test_birdcage_power_identity.py:227</code>).
+- <strong>(A)</strong> whole-phantom probe = ∫θ/V_sub at every step ≤ <code>B_BAND</code> (<code>test_mat10_sar_to_heat_sphere.py:61</code>); (U4) bitwise.
+- <strong>(W)</strong> series at <code>-n 4</code> (and <code>-n 2</code> if the gate passes) against the <code>-n 8</code> npz ≤ <code>WIDTH_BAND</code> (<code>test_mat19_virtual_temperature_probe.py:85</code>), npz hash checked as item 265.
+- <strong>(Σ)</strong> |C − C′|/C at t* ≤ <code>C4_COVARIANCE_BAND</code> (<code>test_birdcage_b1_plus_map.py:120</code>).</p>
+<p><strong>Negative controls (rule (e)).</strong> (U3c) ghost-included Ω misses (A) by &gt; <code>B_BAND</code>, <em>asserted iff G_w &gt; 0</em>, factor <em>predicted</em> G_w/N_sub within ×[0.5, 2] (item 265: 0.547 vs 0.426; item 258: 2.605e-2 vs 2.341e-2). (C1″) B⁺ vs B &gt; <code>WIDTH_BAND</code>, <em>predicted</em> [1e-3, 1e-2] (item 258 4.398e-3 on 2.5 mm cells; item 265 1.95e-3 on 15 mm). (f″) C vs B &gt; <code>F_CONTROL_FLOOR</code>, <em>predicted</em> [0.3, 0.8] (item 265 0.547). Each asserted only as a miss.</p>
+<p><strong>Predictions (printed).</strong> Tag-3 ≈ 6 000–10 000. In-model zero: f₀,A/64 MHz − 1 within the new grid's resolution (max AB′ node residual), order 1e-5 — printed, not asserted (the weekly's word). C_in within ≈ 1e-3 of the ×1 C_in 63.590091 pF. (Σ) predicted 2e-3 … 3e-2 (step 2's 5.919e-4 on 2.5 mm cells, item 265's 5.74e-2 on 15 mm); q_h C/C′ pair ≤ 5 %. η and ⟨θ⟩(t*) per accepted watt beside item 236's 0.5777 / 0.687806 K (different mesh, reference only). (P4′) ball/point − 1 at A–E ≤ 2 %. The 64 / 10 MHz probe-rise ratio per accepted watt at A–E against <code>STEP2_N40_PER_DEP_W</code> (parked module <code>:108</code>), printed with its normalisation stated (item 265 printed two: mixed and per deposited watt).</p>
+<p><strong>Commands</strong> (bare, whole, foreground; Bash <code>timeout: 660000</code>; <code>-s</code>; <code>tests/environment</code> first, which runs <code>test_complex_mode.py</code>). First <code>docker compose exec -T fem-em-solver pgrep -c python3</code> must read 0; then <code>scripts/testing/run_and_log.sh MAT-19-step3p-cache-sweep "docker compose exec -T fem-em-solver bash -lc 'cd /root/.cache/fenics &amp;&amp; for c in libffcx_*.c; do s=\${c%.c}; ls \$s.*.so &gt;/dev/null 2&gt;&amp;1 || { echo orphan \$s; rm -f \$s.c \$s.c.cached \$s.o; }; done; echo sweep done'"</code>. Then, for STAGE/label/ranks = build/W0/8, cin/W1/8, series/W2/8, series/W3/4 (series/W4/2 if gated in):</p>
+<p><code>scripts/testing/run_and_log.sh MAT-19-step3p-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_ANS_SKIP_PRIVATE=1 FEM_EM_MAT19_STEP3P=cin timeout -k 30 590 mpiexec -n 8 python3 -m pytest tests/environment tests/validation/test_mat19_probe_refined_copper.py -v -s --tb=short'"</code></p>
+<p>Every window ≤ 590 s, so §5.1's durable-capture idiom is not needed. No edit after W1 (rule (i)); the npz hash enforces it for W3/W4.</p>
+<p><strong>Traps already paid for.</strong> Item 265's list stands: every rank enters every collective, including ranks with no phantom cell (item 227's deadlock); only <code>np.savez</code> under rank 0. No point evaluation on the submesh (known-issues 2026-10-04): points by owned-cell barycentrics + allreduce. Never write under <code>logs/ans7_exact/</code> (T21′'s JSONs are another fixture's). Orphan <code>.c</code> of any size (item 160). The sheet terms of (P) use the Z_C-replaced specs (item 236). κ <code>None</code>, exact rectangles (ruling 2026-10-02). <code>ufl.real</code> inside <code>ufl.lt</code>, no <code>sqrt</code> in a comparison. A killed window is a record, never a retry with a longer timeout; check <code>pgrep -c python3</code> after any kill.</p>
+<p><strong>Scope.</strong> Covered: one phantom-refined exact hole mesh, degree-2 EM, copper by Leontovich, C_in at 64 MHz on that mesh, one drive, P1 thermal, the a = 5 mm probe at A–E, C′, Ω. <strong>Not claimed:</strong> a tuning claim (the in-model zero is printed), an h-statement (one phantom rung), absolute SAR or temperature, a real probe's thermal mass, <code>ANS-9</code>, tissue, compliance.</p>
+<p><strong>Negative result.</strong> Report, park on <code>attempt/MAT-19-step3p-*</code>, BLOCKED (rule (d)), attempt 2 of 4. W0 gate tripped: the cell count is the finding; the review re-prices (<code>xl</code> or a coarser phantom). (Src) red: the retune is not T21′'s construction on this mesh — stop before thermal. (A)/(U4) red: item 253's disposition. (W) red: known-issues' solve-floor table. <strong>(Σ) red again on ≈ 5 mm cells:</strong> print the q_h pair and ball volumes; the review decides between probe radius and cell size — no band moves. Kill at 590: every finished window stands. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> None: <code>MAT-19</code> stays ✅ (Done-when, PROJECT_PLAN.md:2537, is step 1's). On green the §7 row gains a "step 3 record" sentence and §10 P10′ closes. <strong>Rule (j):</strong> the reviewing daily adds "step 3 (§10 P10′): identities green ⇒ a record, no glyph" (step 2's clause is the precedent). Item 265's parked branch is deleted on the landing.</p>
+<p><strong>Review rulings (2026-10-08 03:00 daily review, item 314).</strong> (1) <strong>A local copy of the 4×4 build</strong> in the new module, with the <code>phantom_resolution</code> argument; <code>test_th14_birdcage_copper.py</code> is not edited, so no rule (a) window is owed. W0 asserts the local build at the default resolution yields <code>_build_ladder</code>'s cell count (build only, no solve). (2) The W0 cap of 130 000 cells and the W3 240 s gate are <strong>resource stops</strong>, not bands: accepted as stops that park the item with the measurement, never as pass/fail of physics. (3) Accepted: T21′'s circuit = field at <code>REDUCTION_BAND</code> and (P) are asserted as T21′'s construction already asserts them; the in-model zero stays printed. (4) No <code>PREDICTED RED</code> line: (Σ) red parks the item as attempt 2 of 4 with the measurement, and the probe-radius-vs-cell-size call goes to the weekly. (5) The minute-35 park after W1 is accepted; W1's JSON is the save point and the next slot resumes from it. (7) No Done-when amendment: no glyph moves, so rule (j) does not apply; the outcome is recorded here and on the row's state line.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

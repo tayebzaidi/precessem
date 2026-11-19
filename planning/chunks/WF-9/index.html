@@ -1,0 +1,1134 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>WF-9 — history - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#wf-9-history" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              WF-9 — history
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-183-2026-10-02-chain-i-i7-daily-provisional-rule-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 183 — 2026-10-02 (chain I, I7 — daily provisional, rule (6))
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-219-2026-10-04-chain-i8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 219 — 2026-10-04 (chain I8)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="§9 item 219 — 2026-10-04 (chain I8)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#part-a-keep-the-rods-cells-geo-36-step-3-no-solve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part A — keep the rod's cells (GEO-36 step 3; no solve)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-224-2026-10-04-chain-i8-part-b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 224 — 2026-10-04 (chain I8, Part B)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="§9 item 224 — 2026-10-04 (chain I8, Part B)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#part-b-the-solve-wf-9-step-1-serial-on-part-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part B — the solve (WF-9 step 1; serial on Part A)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-text-moved-verbatim-2026-10-04-1800-daily-review-row-over-2-kb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row text moved verbatim — 2026-10-04 (18:00 daily review, row over 2 KB)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-276-2026-10-06-chain-i16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 276 — 2026-10-06 (chain I16)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-07-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-07 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="§7 row moved verbatim 2026-10-07 (rotate_plan_archive.py chunks)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#9-item-317-2026-10-08-chain-i18b-the-insulated-leads-transfer-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 317 — 2026-10-08 (chain I18b — the insulated lead's transfer function)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="wf-9-history">WF-9 — history<a class="headerlink" href="#wf-9-history" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<h3 id="9-item-183-2026-10-02-chain-i-i7-daily-provisional-rule-6">§9 item 183 — 2026-10-02 (chain I, I7 — daily provisional, rule (6))<a class="headerlink" href="#9-item-183-2026-10-02-chain-i-i7-daily-provisional-rule-6" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a read-only <code>Plan</code> agent and reviewed by the 2026-10-02 18:00 daily review.</em></p>
+<p><strong>Licence.</strong> I6 (<code>IMP-3</code>) landed ✅, and subgoal (7d) is <code>WF-9</code> "after (7b)". The target is the §7 row's own: heating from ∫TF·E_tan gated against the direct lead-in-phantom solve. This brief writes no band, Done-when or target. <strong>(7d) has no validation target of its own in §10, so the review took the row's; the weekly ratifies that reading or reverts the step.</strong></p>
+<ul>
+<li><strong>Executor:</strong> implementer. <strong>Tier:</strong> heavy, complex; W1 at <code>-n 2</code>, W2 at <code>-n 4</code>.</li>
+<li><strong>Cost:</strong> ≈ 14 measured / ≈ 50 predicted min.</li>
+<li><strong>Depends on:</strong> nothing.</li>
+</ul>
+<p><strong>Why this fixture.</strong> The <code>IMP-2</code> / <code>GEO-36</code> rods are PEC holes: the without-lead field does not exist on the same unknowns. A with/without comparison across two meshes carries interpolation error, and no imported band covers it.</p>
+<p>A lead of finite conductivity on <strong>one</strong> mesh avoids that. The only difference between the two systems is ΔA = jωμ₀Δσ·M_lead, supported on the lead cells (the lead is ≥ 7 mm from every wall). So q_with − q_without is the response, with the lead present, to an impressed current J_eq = Δσ·E_inc on the lead. That is the row's "local impressed source", split into steps along the path.</p>
+<p>A is complex-symmetric (real basis, scalar ε_c; <code>TH-1</code> asserts A = Aᵀ at 1e-10). So ℓᵀA⁻¹b_j = b_jᵀA⁻¹ℓ: 24 stepped-source solves equal one tip-source adjoint solve read along the lead (Jin §6.3 eq (6.67), §6.4 eqs (6.78)–(6.85)). The Hermitian route (6.86)–(6.88) does not apply to lossy problems; it is control C1.</p>
+<p><strong>Exact versus not:</strong>
+- <strong>Exact (LU round-off):</strong> superposition, reciprocity and the volume fold.
+- <strong>Not exact:</strong> the ISO path fold Σ_k TF_k·Ē_k with unit-ẑ sources and segment means. It misses by the transverse term ∫w_⊥·E_inc,⊥, which does not shrink with N, and by the within-segment covariance. The along-axis part should fall roughly as N⁻²; the cross-section part leaves a thin-wire floor.
+- <strong>Bands:</strong> the exact parts use <code>DISCRETE_IDENTITY_RTOL</code> 1e-6, imported. The path fold has no imported band; this step records it, and its band is the weekly's.</p>
+<p><strong>Fixture.</strong> Tests only: new <code>tests/validation/test_wf9_transfer_function_identity.py</code>, with <code>test_wf9_census</code> (no solve) and <code>test_wf9_identities</code>.
+- <strong>Mesh.</strong> <code>dolfinx.mesh.create_box</code> on [−8, 8]² × [−20, 20] mm, (16, 16, 40) hexes split into tetrahedra: 61 440 cells. N1curl degree 1, predicted 76 360 dofs.
+- <strong>Host.</strong> <code>IMP-1</code>'s: <code>SIGMA_HIGH</code> 0.57 and <code>FREQUENCY_HZ</code> 64e6 (<code>test_lossy_sphere_sar.py:74,77</code>), <code>EPSILON_R_HOST</code> 78 (<code>test_imp1_pec_sphere_lossy_host.py:65</code>).
+- <strong>Lead.</strong>
+  - Cells with midpoint |x|, |y| &lt; 1 mm and |z| &lt; 12 mm (<code>dolfinx.mesh.compute_midpoints</code>), cell tag 2.
+  - σ = <code>SIGMA_WIRE_S_PER_M</code> 800 (<code>test_port_gap_voltage_impedance.py:235</code>), εᵣ 78. Since Δεᵣ = 0, J_eq = Δσ·E.
+  - "Without the lead" is the same mesh with no <code>material_map</code>.
+- <strong>Layers.</strong> j = 0…23, one per mm of z. N ∈ {3, 6, 12} is formed by summing layers.
+- <strong>Tip functional.</strong> q(e) = (1/V_b)∫χ_b e_z dx, where χ_b is a DG0 mask of host cells whose midpoint lies within 3 mm of (0, 0, 12 mm).
+- <strong>Drives.</strong>
+  - <strong>D1:</strong> the imposed trace E₀ẑ on all walls (<code>IMP-2</code>'s axial drive).
+  - <strong>D2:</strong> an impressed ẑ current block (cells with midpoint 4 &lt; x &lt; 6, |y| &lt; 1, 2 &lt; z &lt; 10 mm), with load −jωμ₀∫J·v̄, unprojected.
+- <strong>Solves.</strong> One factorisation each; everything else is a held back-substitution. Free each solver after use.
+  - S_oD and S_wD: Dirichlet, lead out / in, for D1.
+  - S_o0: zero trace, lead out, for D2's E_inc.
+  - S_w0: zero trace, lead in. A full solve on the adjoint load ℓ = ẑχ_b/V_b gives w. Then held solves for D2 with the lead, the 24 unit sources Δσẑχ_j (TF_j^step), and the 24 + 24 partition sources Δσ·E_inc·χ_j (D1, D2).</p>
+<p><strong>Anchors (asserted; bands imported):</strong>
+- <strong>(A0) Census.</strong>
+  - 61 440 cells, 576 lead cells and 192 block cells, exact.
+  - Σ_j χ_j = χ_lead cell by cell.
+  - Lead volume 9.6e-8 m³ at <code>EXACT_IDENTITY_RTOL</code> 1e-10 (<code>tests/mesh/test_birdcage_symmetry_quadrant.py:47</code>).
+  - χ_b, χ_lead and χ_src pairwise disjoint; ball count &gt; 0 (predicted [400, 700]).
+- <strong>(A1) Symmetry.</strong> ‖A − Aᵀ‖_F ≤ 1e-10‖A‖_F on the with-lead form (<code>test_time_harmonic_mms.py:255</code>). This is (T2)'s premise.
+- <strong>(T1) Superposition, D1 and D2.</strong> |Σ<strong> q(A⁻¹b[Δσ·E_inc·</strong>j]) − (q<strong>ith − q_without)| ≤ <code>DISCRETE_IDENTITY_RTOL</code> 1e-6 (klzzw</strong>:0045) × |q<strong>ith − q_without|.
+</strong><strong>(T2) Reciprocity.</strong> max_j |TF_j^step − TF_j^adj| ≤ 1e-6·max_j |TF_j^adj|, with TF_j^adj = −jωμ₀Δσ∫χ_j w_z dx.
+- <strong>(T3) The row's identity, exact form, D1 and D2.</strong> −jωμ₀Δσ∫χ_lead w·E_inc dx = q_with − q_without within 1e-6 relative.
+- <strong>(H) Held vs fresh.</strong> TF_23 from a fresh <code>solve(current_density=…, project_source=False)</code> equals the held value within 1e-6.
+- W2 re-asserts every anchor at <code>-n 4</code>. The W1/W2 agreement of TF_j is printed (predicted ≤ 1e-10).</p>
+<p><strong>Record (printed only; the path-fold band is the weekly's):</strong>
+- Q_N = Σ_k TF_k·Ē_k for N = 3, 6, 12 and 24, beside Q_exact, with the error split into the transverse term and the within-segment covariance.
+  - D1: predicted ≤ 5 % at every N, flat within a factor of 3.
+  - D2: predicted to fall from N = 3 to 12; N = 24 in [1e-4, 1e-1].
+- |Q_N|² against |Q_exact|², the ISO form.
+- q_with/q_without per drive (D1 predicted [1.2, 10]).
+- The |TF_j| and arg TF_j profile; dofs, times and summed RSS.</p>
+<p><strong>Negative controls (rule (e)):</strong>
+- <strong>(C1) Hermitian read-back:</strong> TF_j computed with conj(w_z), which is what <code>ufl.inner</code> would give.
+  - <em>Asserted:</em> wired, deviation &gt; 1e-6.
+  - <em>Predicted:</em> [50 %, 200 %], with a ceiling of 200 % since |a − ā| ≤ 2|a|.
+- <strong>(C2) Total-field fold:</strong> −jωμ₀Δσ∫χ_lead w·E_with.
+  - <em>Asserted:</em> wired, &gt; 1e-6.
+  - <em>Predicted:</em> a miss of [80 %, 105 %], because E inside the lead is ≈ 4 % of E_inc.</p>
+<p><strong>Windows.</strong> Bash <code>timeout: 660000</code>, foreground, each harness call bare and whole.</p>
+<p>Price basis: <code>IMP-1</code> a/6 (93 146 degree-2 dofs) took 13.4 s for solve + post at 2.01 GiB, <code>-n 2</code> (<code>20261001T033100Z_IMP-1-land-W1.log:371–372</code>). A held drive is ≤ 3.57 s at 369 387 cells (<code>WF-12</code> step 2). This step does five factorisations and ≈ 74 back-substitutions.</p>
+<ul>
+<li><strong>W1,</strong> predicted [90, 300] s:</li>
+</ul>
+<p><code>scripts/testing/run_and_log.sh WF-9-step0-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 420 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_wf9_transfer_function_identity.py::test_wf9_census tests/validation/test_wf9_transfer_function_identity.py::test_wf9_identities -v -s --tb=short'"</code>
+- <strong>W2,</strong> predicted [70, 280] s: the same command with label <code>WF-9-step0-W2</code> and <code>-n 4</code>.</p>
+<p><strong>Traps:</strong>
+- <strong><code>boundary_condition</code> defaults to NATURAL.</strong> Set <code>"pec_zero_tangential_a"</code> on every problem, or the trace is ignored.
+- <strong><code>solve(current_density=…)</code> projects by default.</strong> Projection removes ∇ψ and breaks (T1) and (H), so pass <code>project_source=False</code>. The held loads carry −jωμ₀ explicitly (<code>time_harmonic.py:508</code>).
+- <strong>The held path re-applies its own BC values.</strong> Zero-trace sources run on S_w0, never on S_wD (<code>PORT-19</code>).
+- <strong><code>ufl.inner</code> conjugates its second argument.</strong> Read q, TF and the fold through components or <code>ufl.dot</code>.
+- <strong><code>_assemble_real</code> drops the imaginary part.</strong> Assemble and reduce complex values.
+- <strong>No UFL comparisons or conditionals.</strong> Build the masks as DG0 from numpy midpoints (<code>OPS-22</code>).
+- <strong>Owned vs ghost cells.</strong> Midpoints and masks cover owned + ghost cells, but counts sum owned cells only. Keep collectives outside <code>rank == 0</code>.
+- <strong>Harness discipline:</strong> always <code>-s</code>; node IDs only, no <code>-k</code>; no pipes. On Status 124, run <code>pgrep -c python3</code>, then the cache sweep; never lengthen the timeout. No module edit after W1 (rule (i)).</p>
+<p><strong>Scope.</strong> Degree 1, one square lead, two drives, a linear tip functional. <strong>Not covered:</strong>
+- a PEC or insulated lead;
+- F-small or a coil drive;
+- the path fold's band;
+- ISO 10974's measured TF or its calibration;
+- published heating data;
+- a <code>src/</code> post-processor;
+- h-convergence;
+- thermal.</p>
+<p><strong>Status it can move.</strong> §7 <code>WF-9</code> ⬜ → 🟡 when W1 and W2 are green. There is no ✅ move: the row has no Done-when, so rule (j) is not engaged. The weekly writes the Done-when and step 1.</p>
+<p><strong>Negative result:</strong>
+- <strong>(A0) or (A1) misses:</strong> stop and mark BLOCKED.
+- <strong>(T1), (T2), (T3) or (H) red:</strong> park on <code>attempt/WF-9-step0-&lt;ts&gt;</code>, write a known-issues entry and mark BLOCKED (rule (d)). Never widen a band.
+- <strong>(T2) red with (T1) and (T3) green:</strong> the read-back and the source functional disagree. Print both vectors.
+- <strong>A control not wired:</strong> a test bug. Fix it in-slot and re-run W1.
+- <strong>A record outside its prediction:</strong> report it; it moves no status.
+- There is no PREDICTED RED line.</p>
+<p><strong>Outcome — DONE 2026-10-03 (19:30 CDT slot, implementer).</strong> Every anchor is green at both widths:
+- W1 (<code>-n 2</code>): <code>20261003T003327Z_WF-9-step0-W1.log</code>, 129 s.
+- W2 (<code>-n 4</code>): <code>20261003T003546Z_WF-9-step0-W2.log</code>, 104 s.</p>
+<p>Measured values, W1 / W2:
+- <strong>(A0)</strong> 61 440 cells, 576 lead cells, 192 block cells and 624 ball cells. The lead volume is 9.6e-8 m³. Partition and disjointness hold.
+- <strong>(A1)</strong> 1.102e-16.
+- <strong>(T1)</strong> D1 1.7e-13 / 4.3e-13; D2 4.8e-14 / 2.1e-12.
+- <strong>(T2)</strong> 1.48e-12 / 1.43e-12.
+- <strong>(T3)</strong> D1 1.4e-12 / 1.7e-12; D2 1.1e-12 / 3.4e-12.
+- <strong>(H)</strong> 1.2e-14 / 6.0e-13.
+- <strong>W1/W2 TF agreement:</strong> 1.25e-12.</p>
+<p>Controls:
+- <strong>C1</strong> is wired at 199.87 %. That is just under its 200 % ceiling, because TF_adj is nearly real (phase −2° to −5° along most of the lead).
+- <strong>C2</strong> is wired at 94.6 % (D1) and 97.3 % (D2).</p>
+<p>Record:
+- <strong>D1 path fold:</strong> 2.4e-6 at every N. It is flat, because E_inc is near-uniform and axial.
+- <strong>D2 path fold:</strong> the error is 0.49 / 0.21 / 0.035 / 9.7e-3 at N = 3 / 6 / 12 / 24. At N = 24 the transverse term (8.1e-3) dominates, which is the thin-wire floor. |Q_N|²/|Q|² is 0.26 → 0.98.
+- <strong>|q_with/q_without|:</strong> D1 2.03 and D2 0.21.
+- <strong>TF_j:</strong> |TF_j| peaks at j = 19. The last two layers, j = 22 and 23, flip phase (≈ −170°) next to the tip ball. This is a record only.
+- <strong>Size and cost:</strong> 76 360 dofs. Summed RSS is 1.74 GiB at <code>-n 2</code> and 2.47 GiB at <code>-n 4</code>.</p>
+<p>A1's 1e-10 is restated as <code>SYMMETRY_RTOL</code>, citing <code>test_time_harmonic_mms.py:255</code>, which holds only a literal. Every record is inside its prediction. Row ⬜ → 🟡. The Done-when and the path-fold band are the weekly's to write.</p>
+<h3 id="9-item-219-2026-10-04-chain-i8">§9 item 219 — 2026-10-04 (chain I8)<a class="headerlink" href="#9-item-219-2026-10-04-chain-i8" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-04 03:00 daily review; the review reviews it.</em></p>
+<p><strong>The target is the 2026-10-03 weekly's <code>WF-9</code> ruling (PROJECT_PLAN §10, "<code>WF-9</code> — Done-when written"), verbatim.</strong> Step 1 puts the lead in the coil-driven F-small phantom at 64 MHz, on one mesh with the lead's cells kept and switched by material (σ = 800 S/m against gel), so the adjoint fold is an exact discrete identity. Asserted, for each of the four port drives:
+- the adjoint TF folded with the lead-free field equals the direct with-lead tip response, at <code>DISCRETE_IDENTITY_RTOL</code>;
+- the 1-D path fold ∫TF(z)·E_tan(z) dz reproduces it within <strong>5 %</strong>;
+- the lead-free Born fold misses.</p>
+<p>The result is ⇒ ✅ as a fixture. Not claimed: a measured TF, heating, or a real lead. Chain I8 adds that this needs an additive keep-the-rod-cells option on <code>GEO-36</code>'s generator, with the CAD identities re-asserted. This brief supplies execution detail and changes no target, band or Done-when.</p>
+<p><strong>Split: one slot cannot hold this.</strong> On paper it is ≈ 40 min of code (a <code>src/</code> mesher branch, a CAD module and a solve module) plus ≈ 17 min of windows: about 170 + 170 + 100 s for the mesher half and about 200 + 180 s for the solve half. That is ≈ 60–90 min predicted against a 1 h box. The measured halves are smaller: <code>GEO-36</code> step 2 took 8 min and <code>WF-9</code> step 0 took 14. Even so, a mesher FAIL would strand the solve half mid-slot.
+- <strong>Part A</strong> (<code>GEO-36</code> step 3, the generator option and its CAD identities) is this item.
+- <strong>Part B</strong> (the solve) is a second §9 item, serial on Part A.
+- If Part A commits before minute 30, take-next lets the same slot run Part B.</p>
+<h4 id="part-a-keep-the-rods-cells-geo-36-step-3-no-solve">Part A — keep the rod's cells (<code>GEO-36</code> step 3; no solve)<a class="headerlink" href="#part-a-keep-the-rods-cells-geo-36-step-3-no-solve" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Executor:</strong> implementer. <strong>Tier:</strong> heavy (each window ≈ 170 s), real build, <code>-n 1</code> then <code>-n 2</code>. <strong>Cost:</strong> ≈ 11 measured (chain no-solve median) / ≈ 40 predicted min. <strong>Depends on:</strong> nothing.</li>
+<li><strong>Mesher change (additive; rule (c), disclosed).</strong> Accept an optional key <code>"keep_cells": bool</code> in the <code>implant_rod</code> mapping. Validate it in <code>_normalise_implant_rod</code> (<code>src/fem_em_solver/io/mesh.py:4538</code>): a non-bool raises before any gmsh call. Absent or <code>False</code> takes today's hole branch untouched.</li>
+<li>When it is <code>True</code>:<ul>
+<li>Cut the rod from the phantom with <code>removeTool=False</code>, as now. Cut it from the air box also with <strong><code>removeTool=False</code></strong> (<code>:5041–5043</code> drops it today).</li>
+<li>Pass the rod solid into the fragment as its own group <code>"implant"</code>, physical cell tag <strong><code>BIRDCAGE_IMPLANT_CELL_TAG</code></strong>. This is a new module constant beside <code>:272</code>. Choose a value free of the birdcage's cell groups (1/2/3, 100+i, 200+i) and facet groups (1, 401, 402, 501, 502), and confirm it is free in the code; 403 is suggested.</li>
+<li>The wall is the boundary of the <code>"implant"</code> pieces, all of which are <strong>two-use</strong> faces. The single-use filter at <code>:5326–5341</code> must not be applied in this branch, or it finds nothing and raises.</li>
+<li>Emit it as dim-2 group 402, which is now an <strong>interior</strong> facet group. Sizing fields are unchanged; inside the rod the Distance field already gives r/3.</li>
+</ul>
+</li>
+<li><code>implant_rod_cad</code> gains <code>"keep_cells": True</code>, <code>"cell_tag"</code>, and the OCC mass of the kept solid.</li>
+<li>The <code>as_hole</code> / <code>symmetry_quadrant</code> refusals stand.</li>
+<li><strong>Tests:</strong> extend <code>tests/mesh/test_birdcage_implant_rod.py</code>.</li>
+<li>Add a third build, <code>_build_rod(implant_rod=dict(ROD, keep_cells=True))</code>, <strong>after</strong> flag-off and the hole build in the <code>builds</code> fixture (<code>GEO-23</code>: a failed gmsh build contaminates its process).</li>
+<li>Add a helper <code>_build_kept_rod()</code> for Part B.</li>
+<li>Register the cell count as <code>KEPT_ROD_CELL_RECORD</code> after W2. It is a first record, printed, with a guard of 320 000 checked before returning.</li>
+<li><strong>Anchors (asserted; bands imported from the module's own imports).</strong></li>
+<li>(K1) <code>cad_mass_by_group["phantom"]</code> = πR²H − V_rod at <code>CAD_ANALYTIC_BAND</code>, as A1 does.</li>
+<li>(K2) <code>cad_mass_by_group["implant"]</code> = πr²ℓ + 4πr³/3 (<code>_rod_volume()</code>) at <code>CAD_ANALYTIC_BAND</code>.</li>
+<li>(K3) Σ CAD(kept) = Σ CAD(flag off) at <code>EXACT</code>. Nothing is removed, which is the kept/hole difference.</li>
+<li>(K4) The OCC wall area = <code>_rod_area()</code> at <code>CAD_ANALYTIC_BAND</code>. The meshed tag-402 area ÷ <code>_rod_area()</code> lies in <code>TERMINAL_AREA_BAND</code>, with the area taken by a <strong>dS</strong> integral (see Traps). Predicted 0.99625, the hole build's.</li>
+<li>(K5) The census:<ul>
+<li>the cell-tag set equals flag-off's ∪ {<code>BIRDCAGE_IMPLANT_CELL_TAG</code>};</li>
+<li>the owned census sums to <code>size_global</code>;</li>
+<li>tag 402 has &gt; 0 facets, <strong>0 exterior</strong>, and every interior one is bounded by exactly one tag-3 cell and one implant cell;</li>
+<li>the implant tag is absent with the flag off and in the hole build.</li>
+</ul>
+</li>
+<li>(K6) The OCC wall centroid at (0.015, 0, 0) to <code>EXACT</code>·ℓ, as A6 does.</li>
+<li>(K7) A non-bool <code>keep_cells</code> raises without meshing (added to <code>test_a7_…</code>'s parametrisation).</li>
+<li>A1–A7 on the hole build re-run unchanged. That is the hole path's rule (c) re-gate, so 167 371 must print again.</li>
+<li><strong>Printed:</strong> the meshed implant volume ÷ V_rod (predicted [0.990, 0.999], an inscribed-faceting deficit), kept cells (predicted [180 k, 230 k]: 167 371 plus [15 k, 60 k] rod cells at h ≈ r/3), mesh time, and the meshed wall centroid.</li>
+<li><strong>Negative controls (rule (e)).</strong></li>
+<li>(C1k) <strong>Asserted.</strong> The hole build misses (K3) by V_rod/ΣCAD. <code>GEO-36</code> W2 measured the same comparison on the same fixture: 8.54e-6, its (C2) print (<code>20261002T110559Z_GEO-36-step2-W2.log</code>). It is asserted as a miss &gt; <code>EXACT</code>.</li>
+<li>(C2k) <strong>Predicted, printed.</strong> The implant tag is dropped from the census and the owned census misses by the implant cell count, against a ceiling of 100 % of that count.</li>
+<li><strong>Windows</strong> (bare, whole, foreground, Bash <code>timeout: 660000</code>; basis <code>GEO-36</code> W1 124 s / W2 121 s for two builds, plus a ≈ 45–50 s third build):</li>
+<li>W1 (≈ 175 s): <code>scripts/testing/run_and_log.sh GEO-36-step3-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 300 mpiexec -n 1 python3 -m pytest tests/environment tests/mesh/test_birdcage_implant_rod.py -s -v --tb=short'"</code></li>
+<li>W2, the same at <code>-n 2</code>, labelled <code>GEO-36-step3-W2</code>. This is the window of record.</li>
+<li>W3, the default-path re-gate (≈ 100 s). It excludes the 🔴 OPEN pre-existing red <code>test_birdcage_volumes_partition_the_box</code> (known-issues 2026-08-27, <code>OPS-26</code> / <code>GEO-23</code>; <code>GEO-36</code> W3 attributed it):
+    <code>scripts/testing/run_and_log.sh GEO-36-step3-W3-regate "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment tests/mesh/test_birdcage_conductor_hole.py tests/mesh/test_birdcage_port_tags.py::test_birdcage_port_layout_diagnostics_match_the_closed_forms tests/mesh/test_birdcage_port_tags.py::test_birdcage_port_layout_rejects_too_small_or_overlapping_port_regions tests/mesh/test_birdcage_port_tags.py::test_ungraded_build_still_hits_the_documented_floor -s -v --tb=short'"</code>
+    The 116 085 record must print unchanged.</li>
+<li><strong>Traps.</strong></li>
+<li><strong><code>_exterior_facet_area</code> and <code>_facet_check</code>'s moments integrate <code>ds</code>, so they read 0 on an interior group.</strong> Measure 402's area and centroid with <code>dS(402)</code> on a <code>("+")</code> restriction; each interior facet is counted once.</li>
+<li>Count interior facets per owned facet, and look up both cells' tags including ghosts (<code>shared_facet</code> ghosting holds the neighbours).</li>
+<li>A FAIL is recorded verbatim with its surface pairs, never retried; the <code>GEO-9</code> overlapping-facet failure is the one to expect if the rod enters the fragment twice.</li>
+<li>Use <code>-s</code>, node IDs only, no pipes. Make no edit after W2 (rule (i)).</li>
+<li><strong>Scope.</strong> No solve or material; F-small only; no <code>as_hole</code>.</li>
+<li><strong>Status it can move.</strong> The <code>GEO-36</code> row gains a step-3 annotation and keeps its glyph (✅). <code>KEPT_ROD_CELL_RECORD</code> is registered, and Part B becomes queueable.</li>
+<li><strong>Negative result.</strong></li>
+<li>A gmsh FAIL: write a known-issues entry, park on <code>attempt/GEO-36-step3-&lt;ts&gt;</code>, and mark the item BLOCKED (rule (d)). Part B stays blocked.</li>
+<li>(K4) out of band: report it; never widen.</li>
+<li>W3 moves the default path: revert <code>src/</code> and stop.</li>
+<li>There is no <code>PREDICTED RED</code> line.</li>
+</ul>
+<p><strong>Outcome — DONE 2026-10-04 (15:00 CDT slot, implementer).</strong> K1–K7 green at <code>-n 1</code> (<code>20261004T200412Z_GEO-36-step3-W1.log</code>, 188 s) and <code>-n 2</code> (<code>20261004T200730Z_GEO-36-step3-W2.log</code>, 181 s, of record); W3 re-gate green (<code>20261004T201038Z_GEO-36-step3-W3-regate.log</code>, 114 s, 116 085 unchanged). <code>KEPT_ROD_CELL_RECORD = 182 371</code> (167 371 + 15 000 implant cells) and <code>_build_kept_rod()</code> exist; Part B is queueable. One disclosed deviation: 402 in the kept build is rebuilt dolfinx-side from the (3, 403) cell tags, not emitted as an interior gmsh group (known-issues 9 rule, <code>_interface_facet_tags</code>). Meshed implant volume / V_rod 0.986667 is below the printed [0.990, 0.999] prediction (record only). Detail: <code>docs/planning/chunks/GEO-36.md</code> § Step 3.</p>
+<h3 id="9-item-224-2026-10-04-chain-i8-part-b">§9 item 224 — 2026-10-04 (chain I8, Part B)<a class="headerlink" href="#9-item-224-2026-10-04-chain-i8-part-b" title="Permanent link">&para;</a></h3>
+<p><em>Renumbered by the 2026-10-04 03:00 review: the drafter called this item 220, which <code>WF-13</code> holds. Part A is §9 item 219.</em></p>
+<p><strong>Outcome — DONE 2026-10-04 (15:00 CDT slot, implementer, second item).</strong> <code>tests/validation/test_wf9_lead_in_coil_phantom.py</code>; W1 <code>-n 2</code> 14 passed, 190 s (<code>20261004T201655Z_WF-9-step1-W1.log</code>); W2 <code>-n 4</code> 14 passed, 165 s (<code>20261004T202017Z_WF-9-step1-W2.log</code>). (A0) 182 371 cells = record; 15 000 implant, 7 605 ball cells, all 32 slabs populated. (M0) σ 800 / 0.5, εᵣ 78 / 78 exact. (A1) 9.757e-17. (i′) with 1.5e-15, without 1.8e-15 (W1) / 1.4e-15 (W2). (H) 0.0 (W1) / 2.7e-14 (W2). (T3) per drive P1–P4: W1 2.9e-13 / 3.7e-12 / 6.7e-13 / 1.0e-12; W2 1.6e-13 / 2.9e-13 / 4.3e-13 / 4.9e-14. (PF) N = 32: 1.44e-4 / 1.47e-3 / 1.51e-4 / 1.02e-3 (band 0.05). (BF) 1 399 / 1 435 / 1 389 / 1 344 % (must exceed 5 %; predicted [100 %, 3000 %]). C1 ≈ 199.5 %, C2 ≈ 93.5 % on every drive (both IN). |q_with/q_without| 2.33 / 2.37 / 2.39 / 2.29 (all IN). W1/W2 TF agreement 2.86e-12. <strong>Records outside prediction (no status effect):</strong> (PF) on P2 / P4 is 1.47e-3 / 1.02e-3, <em>below</em> the predicted [3e-3, 4e-2] — the transverse term is 1.5e-3 / 1.1e-3 of Δq, smaller than the on-axis η_z argument implied; summed RSS 3.58 GiB at <code>-n 4</code> (the ≤ 3.5 GiB prediction was for <code>-n 2</code>, where it read 2.91). The path-fold error is not monotone in N on P2 / P4 (N = 8 ≈ 1.7e-4 on P4) because the transverse floor and the within-slab covariance partly cancel.</p>
+<h4 id="part-b-the-solve-wf-9-step-1-serial-on-part-a">Part B — the solve (<code>WF-9</code> step 1; serial on Part A)<a class="headerlink" href="#part-b-the-solve-wf-9-step-1-serial-on-part-a" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Executor:</strong> implementer. <strong>Tier:</strong> heavy, complex, W1 at <code>-n 2</code> and W2 at <code>-n 4</code> (step 0's widths). <strong>Cost:</strong> ≈ 18 measured (chain-solve median) / ≈ 50 predicted min. <strong>Depends on Part A:</strong> <code>KEPT_ROD_CELL_RECORD</code> and <code>_build_kept_rod</code> exist, and <code>GEO-36-step3-W2</code> is green in <code>test-results.md</code>.</li>
+<li><strong>Fixture.</strong> Create a new <code>tests/validation/test_wf9_lead_in_coil_phantom.py</code>. Its module-scoped fixture <code>_case()</code> builds once, and two nodes read it: <code>test_wf9_step1_census</code> and <code>test_wf9_step1_identities</code>.</li>
+<li><strong>Build.</strong> <code>built = _build_kept_rod()</code>. Check the cell guard before any solve. Then call <code>case = build_four_port_sweep(frequency_hz=STEP2D_FREQUENCY_HZ, built=built, build_only=True)</code>, which is <code>IMP-3</code>'s entry (<code>test_imp3_rod_birdcage.py:299–300</code>).</li>
+<li><strong>Two problems on one mesh.</strong> <code>gel = case["problem"].material_map[PHANTOM_CELL_TAG]</code>. Then:<ul>
+<li><code>p_with = replace(problem, material_map={**map, IMPLANT: HomogeneousMaterial(sigma=SIGMA_WIRE_S_PER_M, epsilon_r=gel.epsilon_r, mu_r=gel.mu_r)})</code>;</li>
+<li><code>p_without = replace(…, {**map, IMPLANT: gel})</code>.</li>
+<li>Δσ = <code>SIGMA_WIRE_S_PER_M − gel.sigma</code>, computed and never typed. With Δε = Δμ = 0, J_eq = Δσ·E.</li>
+</ul>
+</li>
+<li><strong>The tip functional</strong> is q(e) = (1/V_b)∫χ_b e_z dx. χ_b is a DG0 mask of <strong>tag-3</strong> cells whose numpy midpoint lies within <code>BALL_RADIUS</code> of <code>TIPS["top"]</code> (both imported; (0.015, 0, 0.016) is the top cap tip).</li>
+<li><strong>Layers.</strong> χ_k marks implant cells by midpoint z in 32 equal 1 mm slabs over [−16, 16] mm. That is step 0's 1 mm pitch; its 0.97 % was measured at that pitch. N ∈ {4, 8, 16} are formed by summing slabs and are recorded.</li>
+<li><strong>Solves.</strong> Follow <code>_solve_driven</code>'s pattern (<code>test_birdcage_b1_plus_map.py:142</code>): a <code>TimeHarmonicSolver</code> per arm, with <strong>every</strong> sheet's <code>lumped_port_bilinear_term</code> in <code>extra_bilinear_terms</code>.</li>
+<li><strong>With arm:</strong><ul>
+<li><code>solve(extra_linear_terms=[ℓ])</code> gives w, where ℓ = ẑχ_b/V_b and is read with <code>ufl.dot</code>;</li>
+<li>four held solves, each carrying one driven sheet's <code>lumped_port_linear_term</code>, give E_with,d for d = P1…P4.</li>
+</ul>
+</li>
+<li><strong>Without arm:</strong> four drive solves (one factor plus three held) give E_without,d, and one held solve on ℓ gives w₀ for the Born fold.</li>
+<li><strong>(H) fresh:</strong> <code>_solve_driven(dict(case, problem=p_with), "P1")</code> on its own solver.</li>
+<li>Free each solver after use (step 0's <code>_free</code>).</li>
+<li>Total: three factorisations and about 10 back-substitutions.</li>
+<li><strong>Anchors (asserted; bands imported).</strong></li>
+<li><strong>(A0) Census.</strong><ul>
+<li>The cells equal <code>KEPT_ROD_CELL_RECORD</code> within <code>CELL_COUNT_BAND</code>.</li>
+<li>The implant, ball and slab counts are each &gt; 0; Σ_k χ_k = χ_lead cell by cell; χ_b and χ_lead are disjoint.</li>
+<li><strong>(M0)</strong> DG0 σ and εᵣ read back on the implant cells are rank-reduced min = max = 800 / gel εᵣ (with) and gel σ / εᵣ (without).</li>
+</ul>
+</li>
+<li><strong>(A1)</strong> ‖A − Aᵀ‖_F ≤ <code>SYMMETRY_RTOL</code>·‖A‖_F on the with-arm volume form plus all four sheet terms (step 0's <code>:235–245</code> pattern). Predicted ≈ 1e-16.</li>
+<li><strong>(i′) Loaded reciprocity, both arms.</strong> Y_ij = I_i(drive j)/V_src (<code>sheet_terminal_current</code>, reduced) gives ‖Y − Yᵀ‖/‖Y‖ ≤ <code>RECIPROCITY_BAND</code> (<code>test_port_lumped_sheet_sweep.py:86</code>). Predicted ≤ 2e-15.</li>
+<li><strong>(T3) The Done-when identity, per drive d.</strong> |−jωμ₀Δσ∫χ_lead w·E_without,d dx − (q_with,d − q_without,d)| ≤ <code>DISCRETE_IDENTITY_RTOL</code> (<code>test_birdcage_power_identity.py:227</code>) × |q_with,d − q_without,d|. Predicted ≤ 5e-12 (step 0: ≤ 3.4e-12). The value q_without + fold against q_with is printed.</li>
+<li><strong>(H)</strong> Fresh q_with,P1 equals held within <code>DISCRETE_IDENTITY_RTOL</code>, predicted ≤ 1e-12. This guards the <code>PORT-19</code> premise: the four drives share one operator only for matched terminations.</li>
+<li><strong>(PF) Path fold, per drive, N = 32.</strong><ul>
+<li>Q₃₂ = Σ_k TF_k·Ē_k, with TF_k = −jωμ₀Δσ∫χ_k w_z dx and Ē_k = ∫χ_k E_without,z dx / V_k.</li>
+<li>Asserted: |Q₃₂ − Δq_d|/|Δq_d| ≤ 0.05. This is the weekly's band, a module constant <code>PATH_FOLD_BAND</code> citing PROJECT_PLAN §10's <code>WF-9</code> ruling.</li>
+<li>Predicted: P1 / P3 in [1e-4, 2e-2], since their on-axis background is axial (<code>IMP-3</code> W2: η_z 0.990 / 0.902). P2 / P4 in [3e-3, 4e-2], since it is mostly transverse (η_z 0.405 / 0.443).</li>
+<li>The error split is printed, as step 0 did: the transverse term ∫w_⊥·E_⊥, and the within-slab covariance.</li>
+</ul>
+</li>
+<li><strong>(BF) Born, per drive.</strong> B_d = −jωμ₀Δσ∫χ_lead w₀·E_without,d.<ul>
+<li>Asserted: |B_d − Δq_d|/|Δq_d| &gt; <code>PATH_FOLD_BAND</code>. This is the Done-when's "misses", and the band separates it from (PF).</li>
+<li>Predicted: a miss in [100 %, 3000 %], which has no ceiling. The quasi-static internal axial factor is 1/(1 + L_z(ε_c,rod/ε_c,gel − 1)) ≈ 0.07 at aspect 16 and contrast ≈ 1.4e3, so Born overstates the in-lead field ≈ 14×.</li>
+</ul>
+</li>
+<li><strong>Negative controls (rule (e)), carried from step 0; both are asserted only as wired (&gt; <code>DISCRETE_IDENTITY_RTOL</code>), and their factors are predicted.</strong></li>
+<li>(C1) Hermitian read-back with conj(w). Predicted [10 %, 200 %], with a ceiling of 200 %. Step 0 measured 199.87 % on another fixture.</li>
+<li>(C2) Total-field fold with E_with. Predicted [80 %, 105 %]. Step 0 measured 94.6 / 97.3 %.</li>
+<li>(BF) is the third control, and it is asserted by the Done-when.</li>
+<li><strong>Printed:</strong> |q_with/q_without| per drive (predicted P1 [1.5, 6], P3 [1.3, 5], P2 / P4 [0.8, 3], scaled from <code>IMP-3</code>'s PEC 1 g Q); |TF_k| and arg TF_k along z; Q_N for N = 4…32; the W1/W2 TF agreement (predicted ≤ 1e-10); dofs, phase times and summed RSS (predicted ≤ 3.5 GiB at <code>-n 2</code>, against <code>IMP-3</code> W1's 2.61 GiB).</li>
+<li><strong>Windows</strong> (bare, whole, foreground, Bash <code>timeout: 660000</code>). Basis:</li>
+<li><code>IMP-3</code> W1: 241 s at <code>-n 2</code> for two builds, two sweeps and a fresh control solve;</li>
+<li>the hole build's mesh took 42 s;</li>
+<li>step 0's five factorisations plus 74 held solves took 129 s.</li>
+</ul>
+<p>The commands:
+  - W1, predicted [120, 300] s: <code>scripts/testing/run_and_log.sh WF-9-step1-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 420 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_wf9_lead_in_coil_phantom.py::test_wf9_step1_census tests/validation/test_wf9_lead_in_coil_phantom.py::test_wf9_step1_identities -v -s --tb=short'"</code>
+  - W2, predicted [100, 280] s: the same command with label <code>WF-9-step1-W2</code> and <code>-n 4</code>.
+- <strong>Traps already paid for.</strong>
+  - <strong>Unmapped kept cells silently become vacuum.</strong> <code>build_four_port_sweep</code>'s default material is σ = 0, εᵣ = 1 (<code>test_port_birdcage_four_port.py:254</code>). (T3) would still hold on a vacuum rod, so (M0) is the guard.
+  - <strong>Every sheet's bilinear term goes into both factors.</strong> A held solve with the wrong termination solves a different problem silently (<code>PORT-19</code>, <code>WF-12</code>), which is why (H) exists.
+  - <strong><code>ufl.inner</code> conjugates its second argument.</strong> Read q, TF and the folds with <code>ufl.dot</code> or components.
+  - <strong><code>_assemble_real</code> drops imaginary parts.</strong> Reduce complex values.
+  - <strong>Masks are DG0 from numpy midpoints, never UFL conditionals or <code>sqrt</code> comparisons</strong> (<code>OPS-22</code>, <code>WF-6</code> 4c). Masks cover owned + ghost cells; counts sum owned cells only.
+  - <strong>Tag lookups must include ghost cells.</strong> The facet tags for the sheets come from the build tuple and the sweep, as <code>IMP-3</code>'s do.
+  - Keep collectives outside <code>rank == 0</code> branches.
+  - <strong>Harness discipline:</strong> <code>-s</code>; node IDs only, no <code>-k</code>; no pipes. On Status 124, run <code>pgrep -c python3</code>, then the any-orphan-<code>.c</code> cache sweep, and never lengthen the timeout. Make no module edit after W1 (rule (i)).
+- <strong>Scope.</strong> Degree 1, 64 MHz, the untuned solid-coil F-small 4×4 with 50 Ω sheets, one σ = 800 S/m capped rod on leg 1's azimuth, and a linear tip functional at one tip. <strong>Not covered:</strong>
+  - a measured or ISO 10974-calibrated TF;
+  - heating or SAR;
+  - a PEC or insulated lead;
+  - a real lead;
+  - h-convergence;
+  - quadrature drives;
+  - F-human;
+  - Palace (<code>IMP-3</code> step 3 is the twin).
+- <strong>Status it can move.</strong> §7 <code>WF-9</code> 🟡 → ✅ "as a fixture" when W1 and W2 are green, on the Done-when the queueing review copies into the row (rule (j)).
+- <strong>Negative result.</strong>
+  - <strong>(A0), (M0) or (A1) red:</strong> the fixture is wrong. Stop and mark the item BLOCKED.
+  - <strong>(T3), (H) or (i′) red:</strong> park on <code>attempt/WF-9-step1-&lt;ts&gt;</code>, write a known-issues entry, and mark the item BLOCKED (rule (d)).
+  - <strong>(PF) red on P2 / P4 only, with (T3) green on all four drives:</strong> the thin-wire transverse term on a transverse on-axis background. It is a finding about the 1-D fold, not the code. Report the error split, park, and mark the item BLOCKED. The weekly rules, and the band is never widened.
+  - <strong>(BF) not missing:</strong> the lead is not a strong scatterer at this contrast. Report it, because it reverses the Born premise, and stop.
+  - <strong>A record outside its prediction:</strong> report it; it has no status effect.
+  - There is no <code>PREDICTED RED</code> line.</p>
+<h3 id="7-row-text-moved-verbatim-2026-10-04-1800-daily-review-row-over-2-kb">§7 row text moved verbatim — 2026-10-04 (18:00 daily review, row over 2 KB)<a class="headerlink" href="#7-row-text-moved-verbatim-2026-10-04-1800-daily-review-row-over-2-kb" title="Permanent link">&para;</a></h3>
+<p>Step 0 ✅ 2026-10-03: the exact identities (superposition, reciprocity, adjoint fold, held = fresh) all hold to ≤ 3.4e-12 at <code>-n 2</code> and <code>-n 4</code>. The path fold is recorded: D2's error is 9.7e-3 at N = 24, the thin-wire transverse floor (<code>20261003T003327Z_WF-9-step0-W1.log</code>, <code>…003546Z_WF-9-step0-W2.log</code>). <em>Step 0 (I7, daily 2026-10-02 — provisional, rule (6); §9 item 183): the row's identity in exact discrete form — a σ = 800 S/m lead on one structured mesh in <code>IMP-1</code>'s host, stepped-source TF = adjoint TF (reciprocity, Jin §6.4) and the adjoint fold of the lead-free E = the direct with-lead tip field, two drives, at <code>DISCRETE_IDENTITY_RTOL</code>; the path fold against N recorded, no band. W1 + W2 green ⇒ 🟡 only.</em></p>
+<h3 id="9-item-276-2026-10-06-chain-i16">§9 item 276 — 2026-10-06 (chain I16)<a class="headerlink" href="#9-item-276-2026-10-06-chain-i16" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-06 03:00 daily review; the review reviews it.</em> Licence: PROJECT_PLAN §10 chain I16 (grep "I16. <code>WF-9</code> step 2"), whose target is the identities. <strong>No band, tolerance, Done-when or validation target is set or moved.</strong> Every band below is imported by name from the file:line cited.</p>
+<p><strong><code>WF-9</code> step 2: step 1's fixture at degree 2.</strong> This is the same kept-rod F-small mesh (182 371 cells, <code>KEPT_ROD_CELL_RECORD</code>), the same 64 MHz, four 50 Ω sheets, σ = 800 S/m rod, tip functional and 32 slabs (§9 item 224, <code>tests/validation/test_wf9_lead_in_coil_phantom.py</code>). The only change is that every solve is in degree-2 Nédélec space. The step re-asserts step 1's identities and prints how much the TF moves between orders on each drive.</p>
+<ul>
+<li><strong>Executor:</strong> implementer. <strong>Tier:</strong> W0 standard; W1 and W2 <strong>heavy</strong>. <strong>Ranks:</strong> <code>-n 2</code> for W0, <code>-n 8</code> for W1, <code>-n 12</code> for W2. <strong>Cost:</strong> ≈ 19 measured (chain-solve median) / <strong>≈ 50 predicted</strong> min. That is 15 fixed + ≈ 10 code + W0 3.2 + sweep 0.5 + W1 ≈ 8 + W2 ≈ 7 + ≈ 6 spare. <strong>Park if W1 is not green by minute 40</strong> (rule (d)).</li>
+<li><strong>Depends on:</strong> nothing open.</li>
+<li><strong>Why not <code>-n 2</code> at degree 2.</strong> Degree-1 dofs are 216 731 (<code>20261004T201655Z_WF-9-step1-W1.log:1895</code>). Degree-2 first-kind Nédélec carries 2 dofs per edge + 2 per face, so ≈ 5.3× that, ≈ 1.15 M. The closest measured degree-2 solve on the same birdcage family is <code>ANS-4</code> item 225 W3 (<code>20261004T183338Z_ANS-4-item225-W3-p2-cf0p5-128-koff.log</code>):</li>
+<li>259 524 cells, ≈ 1.6 M dofs by the same ratio;</li>
+<li>one factorisation + three held solves in 138.0 s at <code>-n 8</code> (<code>:2083</code>);</li>
+<li>36.28 GiB summed RSS (<code>:2102</code>);</li>
+<li>a 261 s window (<code>:2712</code>).</li>
+</ul>
+<p>Scale by cells (0.703) and take factor work ∝ n² and memory ∝ n^(4/3). This step needs three factorisations: the without arm, the with arm, and the fresh (H) solve. At <code>-n 8</code> that is ≈ 50–70 s each, ≈ 22–30 GiB summed, and one solver alive at a time (<code>_free</code>). At <code>-n 2</code> the three factorisations would cost ≈ 3–4× more and risk the 590 s ceiling. Rank-safety of the module's reductions is already proved at <code>-n 2</code> / <code>-n 4</code> (step 1), and W0 re-proves it at <code>-n 2</code>.</p>
+<p><strong>Code (additive; names are proposals).</strong> All changes go in <code>tests/validation/test_wf9_lead_in_coil_phantom.py</code> only. No <code>src/</code> change.
+- (1) Add <code>DEGREE_ENV = "FEM_EM_WF9_DEGREE"</code> with values in {1, 2}. Unset means 1, so step 1's nodes behave byte for byte as before. Add a <code>_degree()</code> reader on the pattern of <code>test_ans4_exact_strip_records.py:113, 336</code>, which raises on any other value.
+- (2) Thread the degree through the module:
+  - <code>build_four_port_sweep(..., degree=_degree())</code> at <code>:124</code>; the signature is at <code>test_port_birdcage_four_port.py:219–230</code>. <code>sweep["degree"]</code> then carries it, so the fresh (H) solve <code>_solve_driven(...)</code> at <code>:391</code> takes it without an argument (<code>test_birdcage_b1_plus_map.py</code>, the <code>degree=None</code> branch).
+  - <code>TimeHarmonicSolver(problem, degree=...)</code> at <code>:288</code> (<code>_arm</code>) and <code>:327</code> (<code>_symmetry</code>).
+- (3) <strong>TF exchange.</strong>
+  - At degree 1, keep the file name <code>wf9_step1_tf_n{size}.npy</code> and the partner loop <code>(2, 4)</code> (<code>:443–447</code>).
+  - At degree 2, write <code>wf9_step2_tf_p2_n{size}.npy</code> with partners <code>(8, 12)</code>. Print the cross-width TF agreement, predicted ≤ 1e-10.
+- (4) <strong>Order move</strong> (printed only). Add <code>STEP1_Q_RECORD</code>, holding q_without / q_with per drive at <code>.10e</code>, copied from <code>20261004T201655Z_WF-9-step1-W1.log:1900, 1913, 1926, 1939</code> with that citation. Print per drive:
+  - |Δq₂/Δq₁ − 1|;
+  - arg(Δq₂/Δq₁) in degrees;
+  - |q_with,2/q_with,1 − 1|.</p>
+<p>If <code>wf9_step1_tf_n2.npy</code> exists (W0 writes it fresh this slot), also print max_k |TF₂,k − TF₁,k| / max |TF₁|. Otherwise print "absent", which is not an error.
+- (5) <strong>New node <code>test_wf9_step2_degree2</code>.</strong> It is <code>@complex_only</code> and skips unless <code>_degree() == 2</code>. It calls the same identities body as <code>test_wf9_step1_identities</code>, factored into a shared helper with the degree passed in, so no logic is duplicated. It adds (Deg) and (4).</p>
+<p><strong>Anchors (asserted; bands imported, none restated).</strong>
+- <strong>(Deg)</strong> The solver's space reads back as degree 2 on every factor, and global dofs &gt; 4 × 216 731. Predicted ≈ 1.1–1.2 M. This guards against the silent degree-1 path (trap 1).
+- <strong>(A0) / (M0)</strong> Step 1's census, unchanged: the cells equal <code>KEPT_ROD_CELL_RECORD</code> within <code>CELL_COUNT_BAND</code> (<code>test_birdcage_port_sheet_prerequisite.py</code>), and DG0 σ / εᵣ on the implant read exactly 800 / gel.
+- <strong>(A1)</strong> ‖A − Aᵀ‖_F ≤ <code>SYMMETRY_RTOL</code> (1e-10, <code>test_wf9_transfer_function_identity.py:59</code>) · ‖A‖_F on the degree-2 with-arm form plus the four sheet terms. Predicted ≈ 1e-16.
+- <strong>(i′)</strong> ‖Y − Yᵀ‖/‖Y‖ ≤ <code>RECIPROCITY_BAND</code> (1e-3, <code>test_port_lumped_sheet_sweep.py:86</code>), both arms. Predicted ≤ 1e-14.
+- <strong>(T3) The adjoint fold identity, per drive.</strong> |−jωμ₀Δσ∫χ<strong>ead</strong>·E<strong>itho</strong>,d − Δq<strong>| ≤ </strong>lzzwxh:0283 (1e-6, <code>test_birdcage_power_identity.py:227</code>) · |Δq_d|. Predicted ≤ 5e-11: step 1 measured ≤ 3.7e-12, and degree 2 has a worse condition number.
+- <strong>(H)</strong> The fresh q_with,P1 equals the held value within <code>DISCRETE_IDENTITY_RTOL</code>. Predicted ≤ 1e-11.
+- <strong>(PF)</strong> |Q₃₂ − Δq_d|/|Δq_d| ≤ <code>PATH_FOLD_BAND</code> (0.05, <code>test_wf9_lead_in_coil_phantom.py:75</code>) on every drive. Predicted ≈ 1e-4–3e-3 (step 1: 1.44e-4 … 1.47e-3). The fold's error is set by geometry, through the transverse term and the within-slab covariance, not by order.
+- <strong>(BF)</strong> The Born fold misses: |B_d − Δq_d|/|Δq_d| &gt; <code>PATH_FOLD_BAND</code> on every drive. Predicted [100 %, 3000 %] (step 1: 1 344–1 435 %).</p>
+<p><strong>Negative controls (rule (e)).</strong>
+- (BF) is the Done-when's own control. It is <strong>asserted</strong>, its factor is <strong>predicted</strong>, and it has no ceiling.
+- (C1), the Hermitian read-back with conj(w), and (C2), the total-field fold with E_with, are <strong>asserted only as wired</strong> (&gt; <code>DISCRETE_IDENTITY_RTOL</code>). Their factors are <strong>predicted</strong>: C1 in [10 %, 200 %] (ceiling 200 %; step 1 read 199.5 %) and C2 in [80 %, 105 %] (step 1 read 93.5 %).
+- (Deg) is <strong>asserted</strong>. It is a planted-path guard: at degree 1 its dof count would read 216 731, below the 4× bar.</p>
+<p><strong>Printed (records, not asserted).</strong>
+- The order move (4), per drive. Predicted |Δq₂/Δq₁ − 1| in [0.5 %, 30 %]. The 1 mm rod is resolved by a few degree-1 cells across, so the tip ball's response is where the order should show most.
+- |q_with/q_without| per drive.
+- The TF profile (|TF_k|, arg TF_k).
+- Q_N for N = 4…32 with the error split.
+- The W1/W2 TF agreement.
+- Dofs, phase times and summed RSS. Predicted 20–32 GiB at <code>-n 8</code>.</p>
+<p><strong>Windows</strong> (bare, whole, foreground, Bash <code>timeout: 660000</code>, <code>-s</code>, node IDs only, no pipe; each window is &lt; 10 min, so no durable capture is needed).
+- <strong>W0, step 1 re-gate at degree 1</strong> (rule (c): the module is edited). Standard. Predicted ≈ 190 s (step 1's W1 was 190 s). It must reproduce step 1's printed q values at <code>.10e</code> within <code>L0_BAND</code>, and it writes <code>wf9_step1_tf_n2.npy</code>:
+  <code>scripts/testing/run_and_log.sh WF-9-step2-W0-deg1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 420 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_wf9_lead_in_coil_phantom.py::test_wf9_step1_census tests/validation/test_wf9_lead_in_coil_phantom.py::test_wf9_step1_identities -v -s --tb=short'"</code>
+- <strong>Orphan sweep before W1.</strong> The degree-2 forms compile cold. <code>docker compose exec -T fem-em-solver pgrep -c python3</code> must read 0, then run the rubric's one-line any-orphan-<code>.c</code> sweep under tag <code>WF-9-step2-cache-sweep</code>.
+- <strong>W1, degree 2, <code>-n 8</code>.</strong> Heavy. Predicted 320–480 s:
+  - environment ≈ 40 s;
+  - mesh ≈ 50 s;
+  - cold degree-2 JIT ≈ 30–90 s;
+  - A1 assembly ≈ 25 s;
+  - three factorisations ≈ 150–210 s;
+  - nine held solves ≈ 20 s.</p>
+<p><code>scripts/testing/run_and_log.sh WF-9-step2-W1-p2-n8 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_WF9_DEGREE=2 timeout -k 30 590 mpiexec -n 8 python3 -m pytest tests/environment tests/validation/test_wf9_lead_in_coil_phantom.py::test_wf9_step1_census tests/validation/test_wf9_lead_in_coil_phantom.py::test_wf9_step2_degree2 -v -s --tb=short'"</code>
+- <strong>Gate.</strong> If W1 is &gt; 540 s or Status 124, record the phase times and stop BLOCKED; do not run W2. <strong>Never lengthen the 590 s timeout or raise <code>-n</code> above 12.</strong>
+- <strong>W2, degree 2, <code>-n 12</code>.</strong> Heavy. Predicted 280–450 s. It runs the same command with label <code>WF-9-step2-W2-p2-n12</code> and <code>-n 12</code>, and reads the W1/W2 TF agreement.</p>
+<p><strong>Traps already paid for.</strong>
+1. <strong>Silent degree 1.</strong> <code>TimeHarmonicSolver(problem)</code> and <code>build_four_port_sweep()</code> both default to degree 1 (<code>WF-15</code> step 1; <code>PORT-21</code> step 3). There are three sites to change (<code>:124</code>, <code>:288</code>, <code>:327</code>), and <code>:391</code> follows <code>sweep["degree"]</code>. (Deg) is the guard.
+2. <strong>Stale exchange files.</strong> <code>/workspace/logs/wf9_step1_tf_n{2,4}.npy</code> exist from 2026-10-04. A degree-2 run reading them would print a meaningless "agreement", so the degree-2 file name and partner widths are distinct, per (3).
+3. <strong>No module edit after W0</strong> (rule (i)). W0, W1 and W2 run on one module state.
+4. <strong>Unmapped kept cells become vacuum</strong> (<code>test_port_birdcage_four_port.py:254</code>). (M0) stays first.
+5. <strong>Use <code>ufl.dot</code> or components, never <code>ufl.inner</code></strong>, for q / TF / folds. Reduce complex assembles.
+6. <strong>Masks are DG0 from numpy midpoints, owned + ghost.</strong> Counts are over owned cells only.
+7. <strong>Orphan <code>.c</code>.</strong> Sweep only with <code>pgrep -c python3</code> = 0. After any kill, run <code>pgrep -c python3</code> first and check for orphaned ranks before anything else.
+8. <strong>Status 124 is a finding, not a retry.</strong>
+9. Write ≈, never <code>~</code>. No AED file is touched.</p>
+<p><strong>Scope.</strong>
+- <strong>Covered:</strong> degree 2 on step 1's single fixture: one mesh, 64 MHz, untuned solid-coil F-small, 50 Ω sheets, one σ = 800 S/m capped rod, a linear tip functional at one tip, at <code>-n 8</code> / <code>-n 12</code>.
+- <strong>Not claimed:</strong>
+  - h-convergence or an order-converged TF (two orders on one mesh is not a convergence rate);
+  - a measured or ISO 10974-calibrated TF;
+  - heating or SAR;
+  - a PEC, insulated or real lead;
+  - quadrature drives;
+  - F-human;
+  - Palace.</p>
+<p><strong>Status it can move.</strong> No glyph: <code>WF-9</code> stays ✅ "as a fixture". Its Done-when is step 1's (I8) and it does not name degree 2. On green, the §7 row gains a <strong>step-2 record</strong> sentence giving:
+- (T3) / (H) / (PF) / (BF) maxima at degree 2;
+- the order move per drive;
+- dofs and elapsed.</p>
+<p>§10 I16 is then marked DONE.</p>
+<p><strong>Negative result.</strong> In every case, report the measurement, park on <code>attempt/WF-9-step2-*</code>, mark item 276 BLOCKED in the same commit (rule (d)), and journal it.
+- <strong>W0 red:</strong> the edit broke step 1. Revert and stop.
+- <strong>(Deg), (A0), (M0) or (A1) red:</strong> the fixture or the threading is wrong. Stop.
+- <strong>(T3), (H) or (i′) red at degree 2 with W0 green:</strong> a degree-2 discrete-identity failure (sheet terms or held termination at p = 2). Write a known-issues entry and stop.
+- <strong>(PF) red with (T3) green:</strong> a finding about the 1-D fold at degree 2. Report the error split; the weekly rules, and the band is never widened.
+- <strong>(BF) not missing:</strong> report it and stop.
+- <strong>Gate or 590 s kill:</strong> BLOCKED without a result; the review re-poses (e.g. <code>-n 12</code> only, or a split census / identities window).
+- <strong>A record outside its prediction</strong> has no status effect.</p>
+<p>No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Outcome (2026-10-06 21:00 CDT slot, 2026-10-07 UTC): ✅ GREEN.</strong> W0 (degree-1 re-gate, <code>-n 2</code>, <code>20261007T020147Z_WF-9-step2-W0-deg1.log</code>, Status 0, 196 s) reproduced all eight step-1 q values at <code>.10e</code>, 216 731 dofs. Cache sweep <code>20261007T020512Z_WF-9-step2-cache-sweep.log</code> (no orphans). W1 (<code>-n 8</code>, <code>20261007T020646Z_WF-9-step2-W1-p2-n8.log</code>, Status 0, 512 s, under the 540 s gate) and W2 (<code>-n 12</code>, <code>20261007T021530Z_WF-9-step2-W2-p2-n12.log</code>, Status 0, 425 s), 14 passed each:
+- (Deg) four factors at degree 2, 1 166 260 dofs (5.381 × degree 1; bar 866 924); (A0) 182 371 cells, rel 0; (M0) exact.
+- (A1) 2.7e-16; (i′) ≤ 2.19e-14 both arms; (H) ≤ 6.85e-12; (T3) max 1.922e-11 (P2, W1).
+- (PF) P1 1.473e-4, P2 1.550e-3, P3 1.419e-4, P4 9.078e-4 (band 0.05). (BF) 1 319.6–1 464.5 % (misses, as asserted). C1 199.56 %, C2 94.03–94.04 % (wired).
+- Printed: order move |Δq₂/Δq₁ − 1| P1 13.15 %, P2 28.86 %, P3 2.63 %, P4 29.10 % (all inside [0.5 %, 30 %]); arg −0.63° / +0.56° / −1.46° / +0.44°; |q_with,2/q_with,1 − 1| 10.8 / 27.3 / 3.8 / 27.3 %; TF profile move max_k |TF₂ − TF₁| / max |TF₁| = 9.06e-2; |q_with/q_without| 2.22–2.31; W1/W2 TF agreement 2.118e-11; summed RSS 30.95 GiB (<code>-n 8</code>), 36.76 GiB (<code>-n 12</code>). The module's older step-1 per-drive PF prediction text prints "OUT" for P2 / P4 at both orders (record only). W2's RSS line reuses the "-n 8" prediction label (cosmetic; module frozen after W0 by rule (i)).</p>
+<h2 id="7-row-moved-verbatim-2026-10-07-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-07 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-07-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p><strong>Implant transfer-function excitation (ISO 10974 Tier 3)</strong> — a local impressed source stepped along a lead path + the tangential-<code>E</code> path-integral post-processor; heating from <code>∫ TF(z)·E_tan(z) dz</code> gated against the direct lead-in-phantom solve — <strong>feature ladder C1</strong> (operator directive 2026-09-04; Phase 7; <code>WF-7</code> is to be scoped with this in mind) | ✅ <strong>as a fixture, 2026-10-04 (step 1, §9 item 224, chain I8; audit PASS, 18:00 daily review):</strong> the σ = 800 S/m capped rod kept in the coil-driven F-small phantom at 64 MHz (<code>GEO-36</code> step 3 mesh, 182 371 cells), switched by material only. On all four port drives the adjoint fold equals the direct with-lead tip response to ≤ 3.7e-12 (<code>DISCRETE_IDENTITY_RTOL</code> 1e-6), the N = 32 path fold to ≤ 1.47e-3 (band 5 %), and the Born fold misses by 1 344–1 435 %; A = Aᵀ 9.8e-17, loaded reciprocity ≤ 1.8e-15 both arms, held = fresh ≤ 2.7e-14, C1 / C2 wired (199.5 % / 93.5 %); W1/W2 TF agreement 2.9e-12 (<code>20261004T201655Z_WF-9-step1-W1.log</code> <code>-n 2</code> 190 s, <code>…202017Z_WF-9-step1-W2.log</code> <code>-n 4</code> 165 s). Not claimed: a measured TF, heating, a real lead, h-convergence. <strong>Step-2 record (degree 2, same mesh, §9 item 276, chain I16, 2026-10-06 21:00 slot):</strong> 1 166 260 dofs (5.38 × degree 1); (T3) ≤ 1.92e-11, (H) ≤ 6.8e-12, (PF) ≤ 1.55e-3, (BF) 1 320–1 465 %, A1 2.7e-16, (i′) ≤ 2.2e-14; order move |Δq₂/Δq₁ − 1| = 13.2 / 28.9 / 2.6 / 29.1 % (P1–P4), TF profile move 9.1e-2; W1/W2 TF agreement 2.1e-11 (<code>20261007T020646Z_WF-9-step2-W1-p2-n8.log</code> 512 s, <code>…021530Z_WF-9-step2-W2-p2-n12.log</code> 425 s; W0 degree-1 re-gate <code>…020147Z_WF-9-step2-W0-deg1.log</code> 196 s). Two orders on one mesh — not a convergence claim. Step 0 ✅ 2026-10-03 (history in the chunk file). <strong>Done-when (written by the 2026-10-03 weekly, §10 rulings; copied by the 10-04 03:00 daily):</strong> <em>step 1 (I8)</em> — the lead in the coil-driven F-small phantom at 64 MHz, on one mesh with the lead's cells kept and switched by material (σ = 800 S/m against gel), so the adjoint fold is an exact discrete identity; asserted: for each of the four port drives the adjoint TF folded with the lead-free field equals the direct with-lead tip response at <code>DISCRETE_IDENTITY_RTOL</code>, the 1-D path fold ∫TF(z)·E_tan(z) dz reproduces it within <strong>5 %</strong> on every drive, and the lead-free Born fold misses ⇒ ✅ as a fixture. Not claimed: a measured transfer function, heating, a real lead. <em>History: <code>docs/planning/chunks/WF-9.md</code>.</em> </p>
+<h3 id="9-item-317-2026-10-08-chain-i18b-the-insulated-leads-transfer-function">§9 item 317 — 2026-10-08 (chain I18b — the insulated lead's transfer function)<a class="headerlink" href="#9-item-317-2026-10-08-chain-i18b-the-insulated-leads-transfer-function" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-08 03:00 daily review; the review reviews it.</em> Licence: §10 I18b (<code>PROJECT_PLAN.md:4699–4704</code>), weekly-enumerated, serial on I18a. <strong>Depends on item 316; if 316 did not land, skip.</strong> Check: <code>grep -n 'BIRDCAGE_IMPLANT_COAT_CELL_TAG' src/fem_em_solver/io/mesh.py</code> is non-empty and 316's W2 is green in <code>test-results.md</code>. No band, tolerance, record or Done-when moves.</p>
+<ul>
+<li><strong>Executor:</strong> implementer. <strong>Tier:</strong> heavy (the weekly's 190 s class), complex, degree 1, <code>-n 2</code> (step 1's width, where a missing reduction shows), then <code>-n 4</code>. <strong>Cost:</strong> ≈ 14 measured (<code>WF-9</code> step 0) / ≈ 55 predicted min. <strong>Depends on:</strong> item 316.</li>
+<li><strong>Fixture.</strong> Item 316's coated build: the rod is tag 403, the sleeve tag 404, the gel tag 3. The F-small four-port sweep runs at <code>STEP2D_FREQUENCY_HZ</code> 64 MHz through <code>build_four_port_sweep(..., build_only=True, degree=1)</code>, as <code>_build_case</code> does (<code>tests/validation/test_wf9_lead_in_coil_phantom.py:151–219</code>). There are three material states on <strong>one</strong> mesh, every tag set explicitly in each <code>material_map</code>. A tag missing from the map must raise, never default.</li>
+<li><strong>without:</strong> 403 and 404 are gel. This is the lead-free field, the ISO 10974 background.</li>
+<li><strong>bare:</strong> 403 is σ = <code>SIGMA_WIRE_S_PER_M</code> 800 with the gel's εᵣ (step 1's <code>lead_mat</code>, <code>:168–170</code>); 404 is gel.</li>
+<li><strong>coated:</strong> 403 is as in bare; 404 is εᵣ 3, σ 0, μᵣ 1 (<code>IMP-5.md:29</code>).</li>
+<li><strong>The anchor: the adjoint fold with a complex, per-cell contrast.</strong> In step 1 the contrast is <code>LOAD·Δσ</code> on χ_lead (<code>:450,459</code>; <code>LOAD</code> = −jωμ₀ at <code>:78</code>). With the sleeve, the lead is rod ∪ coat, and the operator difference A_coated − A_without has a σ term on 403 and an εᵣ <strong>and</strong> σ term on 404. So the fold weight becomes the DG0 field c = <code>LOAD</code>·Δσ + ω²μ₀ε₀·Δεᵣ, where Δσ and Δεᵣ are read cell by cell as the difference of two <code>build_material_fields</code> calls (<code>:229–250</code>, <code>core/time_harmonic.py</code>).</li>
+<li><strong>Derive the sign from the module's own operator, never by hand.</strong> This is the identity check (T3c) below. With εᵣ ≡ gel on 403 the ε term vanishes there, and c reduces to step 1's <code>LOAD·Δσ</code> cell for cell. This is asserted, in (R1).</li>
+<li>The bare arm keeps step 1's real Δσ on 403 only.</li>
+<li><strong>New module <code>tests/validation/test_wf9_insulated_lead.py</code></strong> (step 1's module is <strong>not</strong> edited, so there is no W0 re-gate). It imports by name: <code>_arm</code>, <code>_symmetry</code>, <code>_scalar</code>, <code>_material_minmax</code>, <code>PATH_FOLD_BAND</code> (<code>:75</code>), <code>N_SLABS</code>, <code>SLAB_Z0</code>, <code>SLAB_DZ</code>, <code>FOLD_NS</code>, <code>LOAD</code>, <code>OMEGA</code> and <code>PORT_IDS</code> from <code>test_wf9_lead_in_coil_phantom</code>; <code>DISCRETE_IDENTITY_RTOL</code> from <code>test_birdcage_power_identity.py:227</code>; and the coated builder from item 316's module. Its own case dict carries every key that <code>_arm</code> (<code>:300</code>) and <code>_symmetry</code> (<code>:360</code>) read. If <code>_arm</code> cannot take a DG0 contrast, write a local fold and keep <code>_arm</code> for the solves. The ball, q and the slabs follow <code>:181–185</code> and <code>:409–414</code>; the slabs now cover rod ∪ coat cells.</li>
+<li><strong>Anchors (asserted, per drive P1–P4, for the coated arm and again for the bare arm).</strong></li>
+<li>(A0) The cell count equals item 316's printed record at <code>CELL_COUNT_BAND</code>. 404 has &gt; 0 cells, and the ball is disjoint from 403 ∪ 404.</li>
+<li>(M0) The read-back is exact on every state: σ / εᵣ minmax on 403 and on 404.</li>
+<li>(R1) c on 403 equals <code>LOAD·Δσ</code> exactly.</li>
+<li>(A1) A = Aᵀ for each state at <code>DISCRETE_IDENTITY_RTOL</code>.</li>
+<li>(T3c) |Σ c·w·E_without − Δq| ≤ <code>DISCRETE_IDENTITY_RTOL</code>·|Δq|. This is step 1's Done-when identity on the coated lead; predicted ≤ 1e-11.</li>
+<li>(H) Held equals fresh on the coated P1.</li>
+<li>(PF) The N = 32 path fold is within <code>PATH_FOLD_BAND</code>.</li>
+<li>(BF) The Born fold misses by more than <code>PATH_FOLD_BAND</code>.</li>
+<li><strong>Printed, never gated (rule (e)).</strong></li>
+<li>|TF_coated(z)| ÷ |TF_bare(z)| per slab, and the shaft-to-tip TF ratio for each arm. The prediction (not asserted) is that the sleeve suppresses the shaft TF and concentrates it at the bare tips.</li>
+<li>|q_with/q_without| for coated and bare, beside step 1's 2.29–2.39 (PRED_RATIO, <code>:130</code>). This is read as the weekly's "tip ratio" (see Q2).</li>
+<li>The bare arm's Δq beside step 1's <code>STEP1_Q_RECORD</code> (<code>:100</code>). The mesh differs, so this is printed only.</li>
+<li>(PF) on the coated lead, and the fraction of the fold carried by 404.</li>
+<li>Per-phase times and summed RSS.</li>
+<li><strong>Negative controls (rule (e)).</strong></li>
+<li>(C3c, <strong>asserted</strong> only as wired, &gt; <code>DISCRETE_IDENTITY_RTOL</code>) The rod-only contrast (drop 404's term) misses T3c. The factor is <strong>predicted</strong> and printed. It has no prior measurement, and its ceiling is unknown because the coat's share of Δq is the quantity being read.</li>
+<li>(C1) Hermitian conj(w) and (C2) total-field E_with, carried from step 1 (<code>:461–462</code>): wired, factors predicted in [10 %, 200 %] and [80 %, 105 %].</li>
+<li><strong>Windows</strong> (bare, whole, foreground; Bash <code>timeout: 660000</code>; <code>-s</code>; no <code>-k</code>; no pipes; complex).</li>
+<li>Price basis: step 1 ran two arms plus a fresh solve in W1 190 s at <code>-n 2</code> (<code>20261004T201655Z_WF-9-step1-W1.log</code>) and W2 165 s at <code>-n 4</code>. Item 316 adds a third arm and a predicted 2–18 % in cells. Predicted W1 ≈ 260 s, range 200–380; W2 ≈ 220 s.</li>
+<li>Run <code>tests/environment/test_complex_mode.py</code> first, as part of <code>tests/environment</code>.</li>
+<li><strong>W1:</strong>
+    <code>scripts/testing/run_and_log.sh WF-9-step3-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 480 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_wf9_insulated_lead.py -v -s --tb=short'"</code></li>
+<li><strong>W2:</strong> the same with label <code>WF-9-step3-W2</code> and <code>-n 4</code>; it reads the W1 / W2 TF agreement.</li>
+<li><strong>Gate:</strong> if W1 runs &gt; 450 s or ends with Status 124, record the phase times and stop BLOCKED. Never lengthen the timeout.</li>
+<li><strong>Traps already paid for.</strong></li>
+<li>Read-backs use components or <code>ufl.dot</code>, never <code>ufl.inner</code> (step 1's C1 is exactly that conjugation bug).</li>
+<li>No <code>ufl.max_value</code> and no ordering on complex operands (<code>OPS-22</code>).</li>
+<li><code>assemble_scalar</code> is rank-local, so reduce through <code>_scalar</code>.</li>
+<li>If a window is killed, run <code>pgrep -c python3</code> first, then the rubric's cache sweep only if it reads 0.</li>
+<li>Only one factorised solver is alive at a time (<code>_free</code>, step 2).</li>
+<li>Rule (i): no edit after W1 starts.</li>
+<li><strong>Scope.</strong> Not in this item:</li>
+<li>a measured or ISO-calibrated TF, heating, SAR, or 1 g SAR;</li>
+<li>a real lead (the coat is order-of-magnitude silicone, <code>IMP-5.md:29</code>);</li>
+<li>degree 2 or h-convergence;</li>
+<li>the <code>IMP-5</code> series.</li>
+</ul>
+<p>The coat-versus-bare difference is a record on one mesh, not a claim. <code>IMP-5</code> and <code>GEO-36</code> do not move.
+- <strong>Negative result.</strong> A red on (T3c), (A1) or (H) means the contrast has the wrong sign or misses a term. Print c's per-tag means and C3c, park on <code>attempt/WF-9-step3-&lt;ts&gt;</code>, and mark BLOCKED. A (PF) red on the coated lead is a finding: the 1-D fold does not survive a dielectric sleeve at N = 32. Report every drive and keep it as a record; never widen <code>PATH_FOLD_BAND</code>. A (BF) green-as-miss failure (the Born fold lands inside the band) is reported verbatim. No <code>PREDICTED RED</code> line.
+- <strong>Status it can move.</strong> The §7 <code>WF-9</code> row stays ✅ as a fixture. Its Done-when (<code>PROJECT_PLAN.md:2903</code>) covers the bare σ = 800 lead and is not extended by this item. The row gains a step-3 record: the identities on the insulated lead, plus the coated / bare TF profile and tip ratios. This unblocks I19 (<code>imp:7</code> coated-lead rows).</p>
+<p><strong>Review rulings (2026-10-08 03:00 daily review, item 317).</strong> (2) The tip readout is <code>WF-9</code>'s ball-averaged E_z ratio |q_with / q_without| for the coated and bare arms, printed; no 1 g SAR is computed — the weekly's "tip 1 g ratio" is read in <code>WF-9</code>'s own quantity and the reading is named for the 10-10 weekly. (3) <strong>Accepted:</strong> the without-lead arm is all gel (the lead-free background, as in step 1), and the whole coated lead is the perturbation with the per-cell complex contrast; step 1's module is not edited. (6) The cost and the 450 s W1 stop are accepted; a kill at 590 s parks the item. Skip if item 316 did not land.</p>
+<p><strong>Outcome (2026-10-08 09:00 slot, take-next): ✅ green first run, both windows.</strong> New <code>tests/validation/test_wf9_insulated_lead.py</code>; c = k₀²(ε_c,state − ε_c,without) read from <code>bilinear_form</code>'s own ε_c = εᵣ − jσ/(ωε₀) (mean c on 404 = −134.94 + 252.66j m⁻², on 403 −4.040063e5j = LOAD·Δσ). (A0) 190 747 = record; (M0) exact; (R1) 1.44e-16 (rtol 1e-13, the ulp floor of k₀²/(ωε₀) vs ωμ₀), c ≡ 0 off the lead; (A1) ≤ 9.86e-17; (H) 0; (T3c) coated 1.3e-13 … 1.9e-12, bare 1.8e-14 … 6.4e-13; (PF) coated 1.22e-3 / 2.54e-3 / 2.87e-3 / 1.88e-3 (P1–P4), bare 3.09e-4 / 1.54e-3 / 8.68e-4 / 1.72e-3; (BF) coated 2 713 / 2 870 / 2 729 / 2 578 %, bare 1 575 / 1 667 / 1 578 / 1 493 %; (C3c) 1.216 / 1.438 / 1.369 / 0.864 % (= the coat's share of the fold). Printed: C1 coated 200.5–200.8 % (just OUT of [10 %, 200 %]), C2 coated 363–371 % (OUT of [80 %, 105 %] — the coated lead's total field differs far more from the lead-free field than the bare one's), bare 199.5 % / 93.6–93.7 % (IN); |q_with/q_without| coated 1.901 / 1.865 / 1.955 / 1.887, bare 2.516 / 2.456 / 2.611 / 2.494; bare Δq / step-1 record 1.11–1.15 (other mesh); |TF_coated/TF_bare| per slab 3.76 (z = −15.5 mm) → 1.0 (−8.5) → 0.36 (+12.5) → 0.92 (+15.5); shaft (|z| &lt; 12 mm) / end-slab |TF| 3.04 coated vs 8.67 bare — the sleeve flattens the profile toward the bare tips, as predicted; W1/W2 TF agreement 4.16e-11. Times (<code>-n 2</code>): three factorisations 12.3–12.7 s each, fresh 12.7 s, A1×3 6.3 s, body 104 s, summed RSS 3.19 GiB. <code>20261008T142909Z_WF-9-step3-W1.log</code> (233 s), <code>20261008T143309Z_WF-9-step3-W2.log</code> (205 s, <code>-n 4</code>, RSS 3.89 GiB). A record on one mesh, degree 1; unblocks I19.</p>
+<p><strong>Review rulings (2026-10-08 10:30 daily review, item 317 audit PASS).</strong> (R1-tol) The module asserts (R1) at <code>R1_RTOL</code> = 1e-13 (<code>tests/validation/test_wf9_insulated_lead.py:98–100, :472</code>) where the brief said "exactly"; measured 1.441e-16 (<code>20261008T142909Z_WF-9-step3-W1.log:1960–1961</code>). <strong>Accepted as the floating-point rendering of "exactly"</strong>, not a loosened band: no prior bound existed, the constant predates W1 (mtime), the run was green first time, and (R1) is a sign-and-term check whose failure modes miss by order one, not the §4 anchor (that is (T3c) at <code>DISCRETE_IDENTITY_RTOL</code>). It sets no precedent; the weekly may tighten it toward the few-ulp level the code comment names. (C1 / C2) The coated arm's C1 / C2 controls fell outside step 1's predictions (W1 <code>:2024–2060</code>): rule (e) records, named for the 10-10 weekly.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

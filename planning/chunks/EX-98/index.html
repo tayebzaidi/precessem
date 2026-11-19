@@ -1,0 +1,788 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-98 — The container wall on the coil-driven gel phantom: MAT-18 step 3's series-resistance wall under four birdcage drives (history) - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-98-the-container-wall-on-the-coil-driven-gel-phantom-mat-18-step-3s-series-resistance-wall-under-four-birdcage-drives-history" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-98 — The container wall on the coil-driven gel phantom: MAT-18 step 3's series-resistance wall under four birdcage drives (history)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-299-2026-10-07-54-example-example-runner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 299 — 2026-10-07 (§5.4 example; example-runner)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-98-the-container-wall-on-the-coil-driven-gel-phantom-mat-18-step-3s-series-resistance-wall-under-four-birdcage-drives-history">EX-98 — The container wall on the coil-driven gel phantom: <code>MAT-18</code> step 3's series-resistance wall under four birdcage drives (history)<a class="headerlink" href="#ex-98-the-container-wall-on-the-coil-driven-gel-phantom-mat-18-step-3s-series-resistance-wall-under-four-birdcage-drives-history" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<p><code>EX-98</code> (<code>mat:14</code>) was opened 2026-10-07 by the 10:30 daily review under daily-review.md step 5 (§5.4 ramp). <code>MAT-18</code> step 3 (§9 item 270, §10 P11, <code>20261006T200649Z_MAT-18-step3-W1.log</code>, 266 s) recorded the container wall as a series resistance (h_eff 6.5517 W/m²/K) on <code>MAT-15</code> P1's coil-driven F-small phantom: (E′) ≤ 2.3e-14, (L0) ≤ 6.7e-16, C4 ≤ 0.049 %, ⟨θ⟩(t*) +4.63 % on all four drives (PROJECT_PLAN.md:2534). No example covers that pairing:
+- <code>mat:12</code> (<code>EX-86</code>) has a conforming wall, but on the ball under an imposed field;
+- <code>mat:9</code> (<code>EX-79</code>) has the coil-driven phantom, but no wall.</p>
+<p>The angle is the wall on the coil-driven phantom: its geometry plus its drive.</p>
+<p><strong>Proposed §7 row</strong> (the review copies it into §7, rule (j); this file is the history):</p>
+<p>| <code>EX-98</code> | <strong>The container wall on the coil-driven gel phantom: <code>MAT-18</code> step 3's series-resistance wall under four birdcage drives</strong> <em>(history and §9 briefs: <code>docs/planning/chunks/EX-98.md</code>)</em> (<code>mat:14</code>; <code>example-runner</code>; opened 2026-10-07 by the 10:30 daily review, §5.4 ramp — <code>MAT-18</code> step 3 recorded the wall on <code>MAT-15</code> P1's fixture and no example shows it; angle: the wall on the coil-driven phantom) <strong>Done-when:</strong> <code>examples/materials/14_coil_driven_phantom_in_container_wall.py</code> + same-stem guide (as <code>EX-79</code>); a rule (a) lift of the step-3 fixture body into <code>_run_walled(*, return_fields=False)</code>, with the module re-gated green in-slot and disclosed; <code>-n 2</code>, complex; every band imported, none restated; asserted in-script: (R) ≤ <code>R_BAND</code>, (E′) / (E) ≤ <code>E_BAND</code>, (L0) ≤ <code>B_BAND</code> (helper equivalence), C4 θ pairs ≤ <code>C4_COVARIANCE_BAND</code>, controls (d) &gt; <code>D_CONTROL_FLOOR</code> and (W-ctl) &gt; <code>W_CONTROL_FLOOR</code>; the wall effect printed beside the step-3 record; combined XDMF (θ with and without the wall, their difference) written; census +1, <code>broken=0</code>, docrefs <code>exit != 1</code>; elapsed recorded ⇒ ✅. Not claimed: a conforming wall, wall heat storage, contact resistance, a real container, absolute temperature. | ⬜ Opened 2026-10-07; nothing run. | heavy (<code>-n 2</code>, ≈ 200–300 s per window) |</p>
+<h3 id="9-item-299-2026-10-07-54-example-example-runner">§9 item 299 — 2026-10-07 (§5.4 example; example-runner)<a class="headerlink" href="#9-item-299-2026-10-07-54-example-example-runner" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-07 10:30 daily review; the review reviews it.</em></p>
+<p><code>EX-98</code> (<code>mat:14</code>) adds <code>examples/materials/14_coil_driven_phantom_in_container_wall.py</code> and a same-stem guide <code>14_coil_driven_phantom_in_container_wall.md</code>. The guide carries the three required headings plus <code>## Setup figure</code> and <code>## Related</code>; the setup PNG is ≤ 600 KiB.</p>
+<p>What the script does:
+- It calls the step-3 fixture body once, lifted to a module-level <code>_run_walled(return_fields=True)</code>.
+- It asserts that run's identities and controls at the bands the gate module imports.
+- It prints the wall effect beside the step-3 record.
+- It writes θ with and without the wall, and their difference, to one XDMF.</p>
+<p>The next free number: <code>examples/materials/</code> holds <code>01</code>–<code>13</code>, so <code>mat:14</code> is free. The runner selects by the zero-padded prefix <code>14_</code>, so no registry edit is needed (<code>scripts/run_examples.sh:65,243</code>).</p>
+<ul>
+<li><strong>Executor:</strong> <code>example-runner</code>. The executor does not spawn agents.</li>
+<li><strong>Tier:</strong> <strong>heavy</strong>, <code>-n 2</code>, complex, as the step-3 test ran (<code>MAT-18.md:458</code>). Runner <code>-t 590</code>; container <code>timeout -k 30 590</code>.</li>
+<li><strong>Cost:</strong> ≈ 7 measured (example class median) / ≈ 55 predicted min.</li>
+<li>The 7 is the median of the five example items in the 10:30 review's §1 table: 7, 6, 7, 15, 7 (<code>docs/planning/reviews/2026-10-07-daily-1030.md:12–16</code>).</li>
+<li>The 55 is 15 fixed + ≈ 25 for the lift, script and guide + ≈ 15 for windows.</li>
+<li>Three ≈ 200–270 s windows (re-gate, flagged, control) plus an ≈ 84 s cache sweep come to ≈ 13 min of windows alone. <strong>≈ 15–20 measured min is the honest expectation</strong>, as <code>EX-96</code>'s heavy item took 15 (<code>…daily-1030.md:15</code>).</li>
+<li><strong>Depends on:</strong> nothing. <code>MAT-18</code> step 3's module <code>tests/validation/test_mat18_wall_coil_driven.py</code> and <code>MAT-15</code>'s <code>_run_heated</code> are on <code>main</code>. <strong>Never beside another heavy window.</strong></li>
+<li><strong>Spawn prompt</strong> (the slot puts these sentences in verbatim): "Use the example-runner agent to execute <code>EX-98</code>, §9 item 299 (docs/planning/chunks/EX-98.md, heading <code>§9 item 299</code>). Do not spawn agents. Run every harness window in the foreground (Bash <code>timeout: 660000</code>) and never background one; do not end the turn while a window runs. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Make no edit to the script or guide after its last window."</li>
+</ul>
+<p><strong>The wall on this fixture is a coefficient, not geometry. Read this first.</strong>
+- <code>MAT-15</code> P1's thermal domain is the tag-3 submesh of the EM mesh, and it has no wall cells. Step 3 therefore enters the wall as its series thermal resistance in the Robin coefficient: h_eff = 1 / (1/h + t_w/k₂), planar, with one scalar on the lateral faces and the caps.
+- That is the steady limit of <code>MAT-18</code>'s conforming shell, with no wall heat capacity (<code>test_mat18_wall_coil_driven.py:7–11</code>, <code>:82–84</code>; <code>MAT-18.md:427–429</code>).
+- The values are t_w = <code>B_ − A_</code> = 0.01 m, k₂ = <code>K2</code> = 0.19 and h = <code>H_GEL</code> = 10. The result is h_eff 6.551724138 W/m²/K, used; the lateral cylindrical value 8.304028064 is printed, never used (<code>20261006T200649Z_MAT-18-step3-W1.log:81</code>).
+- The guide says this in its first paragraph. The setup figure cannot show a wall, and its region name says so; see Output.</p>
+<p><strong>Why a rule (a) lift.</strong>
+- The step-3 fixture <code>walled()</code> is a module-scoped pytest fixture (<code>test_mat18_wall_coil_driven.py:129–257</code>), so it cannot be called from a script.
+- <code>EX-79</code> met the same shape on <code>MAT-15</code>. It lifted the fixture body to a module-level <code>_run_heated(*, return_fields=False)</code> and made the fixture <code>return _run_heated()</code>. The 10:30 review of 2026-10-02 accepted that as within rule (a) (<code>EX-79.md:17–22</code>; <code>test_mat15_coil_driven_heating_phantom.py:180, 347–356</code>).
+- The alternative is to re-compose the per-drive loop and ball forms in the script, which copies gate code. It is declined: the example asserts, it does not re-implement (the <code>ANS-1</code> rule, <code>12_gel_ball_in_container_wall.py:11–14</code>).</p>
+<p>The lift (disclosed in the journal and outcome):
+- Move <code>walled()</code>'s body into <code>_run_walled(*, return_fields=False)</code>; the fixture becomes <code>return _run_walled()</code>.
+- With <code>False</code>, every print and every <code>out</code> key stays byte-identical. That includes the (R)-red early return before any solve (<code>:136–137</code>).
+- With <code>True</code>, it adds two keys:
+  - <code>base</code>: the <code>_run_heated(return_fields=True)</code> dict the body already holds (<code>msh</code>, <code>cell_tags</code>, <code>sub</code>, <code>ft</code>, <code>by_k</code>, <code>centres</code>, <code>q_h</code>, <code>T_star</code>, <code>G</code>, <code>P</code>, <code>v_sub</code>);
+  - <code>wall_runs</code>: {k: the h_eff <code>TransientResult</code> of drive k} (the loop's <code>res</code>, <code>:193</code>).
+- No other edit. Nothing else imports this module: <code>grep</code> finds only the module itself, so no other caller moves.
+- Rule (a) owes the <strong>re-gate window</strong> (step 3 below), run after the edit and green before the example runs. Rule (i): no edit to the module after it.</p>
+<p><strong>Imports (never restated).</strong>
+- <code>from tests.validation import test_mat18_wall_coil_driven as m18s3</code>. From it: <code>_run_walled</code> (new), <code>_e_prime_h</code> (<code>:108–115</code>), <code>R_BAND</code> (<code>:78</code>), <code>W_CONTROL_FLOOR</code> (<code>:79</code>) and <code>T_WALL</code> (<code>:77</code>).
+- Also from <code>m18s3</code>, the names it re-exports: <code>E_BAND</code>, <code>B_BAND</code>, <code>C4_COVARIANCE_BAND</code>, <code>D_CONTROL_FLOOR</code>, <code>H_GEL</code>, <code>T_INF</code>, <code>T_STAR</code>, <code>ROBIN_TAG</code> and <code>K2</code> (<code>:48–75</code>).
+- <strong>Structural checks, asserted and printed</strong> (the <code>EX-79</code> pattern, <code>09_coil_driven_heating_phantom.py:83–98</code>):
+  - <code>m18s3.E_BAND is m12.E_BAND</code> (<code>test_mat12_transient_sar_heating_sphere.py:76</code>);
+  - <code>m18s3.B_BAND is m10.B_BAND</code> (<code>test_mat10_sar_to_heat_sphere.py:61</code>);
+  - <code>m18s3.C4_COVARIANCE_BAND is b1map.C4_COVARIANCE_BAND</code> (<code>test_birdcage_b1_plus_map.py:120</code>);
+  - <code>m18s3.D_CONTROL_FLOOR is m15.D_CONTROL_FLOOR</code> (<code>test_mat15_coil_driven_heating_phantom.py:102</code>);
+  - <code>m18s3._run_heated is m15._run_heated</code>;
+  - <code>m18s3.K2 is m18.K2</code> (<code>test_mat18_two_layer_sphere_closed_form.py:39</code>).</p>
+<p>If a name does not exist under that spelling, import the module's own name for the same object and say so in the journal. Never restate a value.
+- Figure tags, as <code>mat:9</code> imports them (<code>09_…py:45–46, 64</code>): <code>PHANTOM_CELL_TAG</code> (<code>m15</code>), <code>CONDUCTOR_CELL_TAG</code>, <code>PORT_LOWER</code>, <code>PORT_UPPER</code> and <code>LEG_COUNT</code>.
+- From <code>src</code>: <code>write_xdmf_with_tags</code>, <code>adopt_host_ownership</code> and <code>write_setup_figure</code>.
+- Import no <code>test_*</code> names. <code>@complex_only</code> does not apply on import (<code>EX-79.md:44</code>).
+- <strong>No new number.</strong> h, t_w, k₂, h_eff, G and t* come from the imports or from <code>r</code>. The step-3 record values appear only inside print strings, as <code>mat:9</code> prints its W1 values (<code>09_…py:133–145</code>) and <code>mat:12</code> keeps a printed-only <code>RECORD</code> (<code>12_…py:24–25</code>).</p>
+<p><strong>Order of calls in the script.</strong>
+1. Complex guard, copied from <code>09_…py:76–81</code>.
+2. Structural checks.
+3. <code>r = _run_walled(return_fields=True)</code>. This is the only EM solve: four drives inside <code>_run_heated</code>.
+4. The setup figure (the mesh is built inside the call, as in <code>EX-79</code>, <code>EX-79.md:87</code>).
+5. Asserts.
+6. Control (h-swap).
+7. XDMF.
+8. Prints on rank 0.</p>
+<p><strong>(1) Anchors (asserted in-script at the imported bands; each printed beside its step-3 record).</strong>
+- <strong>(R) the resistance algebra:</strong> <code>r["R"] ≤ R_BAND</code> (1e-12). Record 4.985e-16 (<code>W1:80</code>). If (R) is red, <code>r</code> carries no other keys (the early return), so the script asserts (R) first and stops.
+- <strong>(E′) energy identity with the wall, per drive:</strong> <code>r["Ep"][k] ≤ E_BAND</code>. Records 6.661e-15 / 2.267e-14 / 1.133e-14 / 9.337e-15 (<code>W1:1959, 1963, 1967, 1971</code>).
+- <strong>(E) every wall run:</strong> <code>max(r["E"].values()) ≤ E_BAND</code>. Record worst 4.554e-14 (<code>W1:1980</code>).
+- <strong>(L0), presented as helper equivalence, not a limit.</strong> Assert <code>r["L0"][k] ≤ B_BAND</code>. Records 0 / 6.661e-16 / 2.220e-16 / 2.220e-16 (<code>W1:1960, 1964, 1968, 1972</code>).
+  - Name it in prints and guide as "(L0) helper equivalence". <code>_h_eff(H_GEL, 0, K2)</code> returns exactly <code>H_GEL</code> (<code>W1:81</code>, "t_w = 0 limit h = 10.0"), so (L0) shows that the wall path with t_w = 0 is P1's code path to round-off. It is not an independent wall → 0 limit, and not physics.
+  - This follows the 2026-10-06 18:00 review's reading (<code>docs/planning/reviews/2026-10-06-daily-1800.md:49</code>; the implementer's own caveat, <code>MAT-18.md:481</code>), which is pending the weekly's ratification (<code>plan-archive.md:37694</code>).
+  - The guide never calls it "the wall → 0 limit".
+  - If the 10-07 weekly words it differently before the slot runs, the guide's (L0) sentence takes the weekly's wording. The assertion and its band are unchanged either way.
+- <strong>(C4) with the wall:</strong> <code>r["pairs"][k] ≤ C4_COVARIANCE_BAND</code> for the four cyclic θ 10 g pairs. Records 0.0402 / 0.0210 / 0.0292 / 0.0484 % (<code>W1:1975–1978</code>).
+- <strong>The wall effect, the +4.63 % move. Asserted only at the band a prior log backs.</strong> On every drive, <code>r["W"][k] &gt; W_CONTROL_FLOOR</code>: the step-3 gate's own (W-ctl) assertion, backed by <code>W1:1960–1972</code> and <code>test_mat18_wall_coil_driven.py:298–302</code>. That band is listed as a control in (2) below.
+  - The move's <strong>value</strong> is printed, not asserted: per drive <code>r["ratio"][k]</code> at <code>.6f</code> and <code>100·(ratio − 1)</code> at <code>.4f</code> %, beside the record ratios 1.046316 / 1.046314 / 1.046316 / 1.046314 (+4.6316 / +4.6314 / +4.6316 / +4.6314 %, <code>W1:1960, 1964, 1968, 1972</code>).
+  - Also printed: the <code>.6f</code> string-equality verdict, expected True.
+  - <strong>Why printed, not asserted:</strong>
+    - The gate module registers no record constant for ⟨θ⟩ or the ratio, so asserting against the value would restate a logged number.
+    - Rule (a) licenses additive return keys and keywords, not new record constants.
+    - No log has run step 3 twice. The <code>.4e</code> precedent (<code>EX-97</code> ruling (3)) prints string equality unless the edge distance is known.
+    - Here the edge distance is computable. The ratios recomputed from the 9-digit means (<code>W1:1960–1972</code>) are 1.0463160243 / 1.0463136690 / 1.0463164342 / 1.0463138453. The nearest <code>.6f</code> rounding edge is ≈ 6.6e-8 away, on k = 2.
+    - The predicted two-run drift is ≲ 1e-12: P₁ reproduced its record at rel 2.598e-14 (<code>W1:1928</code>), and θ is normalised by G = 1 W / P₁.
+    - So the reviewer may promote this check to asserted at ½ ulp of <code>.6f</code>, which the print-precision rule (<code>PROJECT_PLAN.md:3835</code>) allows. The draft does not; see open questions.
+- <strong>Printed (records, never asserted):</strong>
+  - <code>r["h_eff"]</code> and <code>r["h_lat"]</code> (<code>W1:81</code>);
+  - per drive <code>r["mean_w"][k]</code> and <code>r["mean_p1"][k]</code> at <code>!r</code> (<code>W1:1960–1972</code>, e.g. 1.206730553 / 1.153313650 K on k = 0);
+  - the peak 10 g θ̄ with the wall and its ratio 1.029608 on k = 0 (<code>W1:1979</code>);
+  - the q_h pairs (<code>W1:1975–1978</code>);
+  - max|Im θ| (0, <code>W1:1980</code>);
+  - global sub-cells (58 866, <code>W1:1929</code>), as <code>size_global</code>.</p>
+<p><strong>(2) Negative controls (rule (e)).</strong>
+- <strong>(d) asserted: a doubled source misses (E′) with the wall.</strong> Assert <code>r["ctl_d"] &gt; D_CONTROL_FLOOR</code> (1e-3).
+  - Backing, the same comparison on the same fixture: 1.000000 (<code>W1:1974</code>).
+  - <strong>Ceiling:</strong> linearity fixes the miss at exactly 1 (2·G·P vs G·P). That is 1e3× <code>D_CONTROL_FLOOR</code> and 1e9× <code>E_BAND</code>, so the assertion asks only for &gt; 1e-3.
+- <strong>(W-ctl) asserted: the wall is felt.</strong> Assert <code>r["W"][k] &gt; W_CONTROL_FLOOR</code> (1e-6) per drive.
+  - Backing: 4.631e-2 on all four drives (<code>W1:1960–1972</code>).
+  - <strong>Ceiling:</strong> the wall can at most recover the surface loss up to the adiabatic ⟨θ⟩(t*) ≈ 1.326 K/W, against P1's 1.153. That is ≈ 15 % (<code>MAT-18.md:447–449</code>), so ≤ ≈ 1.5e5× the floor; the measured value is ≈ 4.6e4×.
+- <strong>(h-swap) predicted, printed, never asserted: the energy identity sees which h was used.</strong>
+  - Evaluate <code>_e_prime_h(sub, ds, r["wall_runs"][0], G·P[0], H_GEL)[0]</code>: the k = 0 wall run, with the bare gel h in the surface term. Build <code>ds</code> as the fixture does (<code>:151</code>).
+  - <strong>Prediction:</strong> the residual is conv·(H_GEL/h_eff − 1)/dep = 1.652412377346e-01 × 0.5263158 ≈ <strong>8.697e-2</strong>, from <code>W1:1959</code>'s surface term and deposit 1 W.
+  - <strong>Ceiling:</strong> conv/dep &lt; 1, so the residual is ≤ H_GEL/h_eff − 1 = t_w·H_GEL/k₂ ≈ 0.526. That is ≈ 8.7e7× <code>E_BAND</code> at the prediction.
+  - No prior measurement of this comparison exists, so it is labelled predicted and printed beside 8.697e-02. It is never asserted. A miss of the prediction is reported in the outcome, not a stop.
+  - What it demonstrates: a model that ignored the wall would be caught by the balance, not only by ⟨θ⟩.
+- No other control. Writing the XDMF is output, not a separation.</p>
+<p><strong>(3) Windows.</strong> Each Bash call that runs a window is foreground with <code>timeout: 660000</code> and makes one bare, whole, repo-relative harness call. Nothing is chained or piped, and nothing runs beside another heavy window.
+0. <strong>Orphan check</strong>, from a bare shell: <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0. Then run the rubric's cache sweep (daily-review.md:426) as one bare call labelled <code>EX-98-cache-sweep</code>. Step 3's sweep took 84 s (<code>20261006T200520Z_MAT-18-step3-cache-sweep.log:39</code>).
+1. <strong>Pre-censuses, before any file is written:</strong>
+   - <code>scripts/testing/run_and_log.sh EX-98-pre-figures "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_setup_figures.py'"</code>
+   - <code>scripts/testing/run_and_log.sh EX-98-pre-docrefs "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py'"</code></p>
+<p>Take N fresh from these. At drafting it was <code>examples=93 ok=93 missing=0 broken=0</code> (<code>20261007T112133Z_EX-97-post-figures.log:129</code>), docrefs runnable 93, <code>dead=0 guide=0 stale=46 exit=2</code> (<code>20261007T112140Z_EX-97-post-docrefs.log:84,86</code>).
+2. <strong>The lift</strong>, then nothing else in the gate module.
+3. <strong>Re-gate (rule (a))</strong>, after the lift and before any example window. Predicted ≈ 266 s and 31 passed per rank. The (R), h_eff and per-drive digits should equal <code>W1:80–81, 1958–1981</code> up to noise ≲ 1e-11 (the <code>EX-79</code> re-gate precedent, <code>EX-79.md:62</code>).</p>
+<p><code>scripts/testing/run_and_log.sh EX-98-mat18s3-regate "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 590 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_mat18_wall_coil_driven.py -v -s --tb=short'"</code></p>
+<p>This is <code>MAT-18.md:458</code>'s W1 line with the label changed. <code>-s</code> is mandatory (rule (g)).
+4. <strong>Dry run, after the script exists:</strong> <code>scripts/testing/run_and_log.sh EX-98-dryrun "./scripts/run_examples.sh -e mat:14 -n 2 -t 590 --dry-run"</code>. It must print <code>(complex build)</code>.
+5. <strong>Flagged run of record,</strong> predicted [180, 300] s.
+   - Basis: <code>mat:9</code>'s flagged run on the same fixture was 162 s (<code>EX-79.md:73</code>), and step 3's wall part adds 31.4 s (<code>W1:1981</code>). The h-swap control (&lt; 1 s) and twelve more P1 XDMF fields (≈ 5 s) are small.
+   - Command: <code>scripts/testing/run_and_log.sh EX-98 'docker compose exec -T -e FEM_EM_SETUP_FIGURES=1 fem-em-solver bash -lc "cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 590 mpiexec -n 2 python3 examples/materials/14_coil_driven_phantom_in_container_wall.py"'</code>
+   - <code>EX-93</code> / <code>EX-97</code> found that the runner's dry-run string omits <code>-T</code> and <code>/workspace</code> on <code>PYTHONPATH</code> (<code>EX-97.md:112</code>). Use this brief's line and note any other difference.
+6. <strong>Control run.</strong> <code>git add</code> the PNG, then rerun the same line without <code>-e FEM_EM_SETUP_FIGURES=1</code>, labelled <code>EX-98-control</code>. Predicted [175, 290] s (<code>mat:9</code>'s control was 157 s, <code>EX-79.md:82</code>). <strong>Compare at the band, never bitwise</strong> (2026-10-06 18:00 review §3, the <code>EX-91</code> ruling; <code>-n 2</code> MUMPS drift ≈ 1e-10):
+   - Every assertion is green in both runs.
+   - Integers are equal: global sub-cells and drive order.
+   - (R), (E′), (E), (L0) and C4 each sit inside their imported band in both runs.
+   - Per drive, <code>mean_w</code> and <code>ratio</code> agree within <code>B_BAND</code> relative (predicted ≲ 1e-12, from P₁'s rel 2.598e-14 to its record, <code>W1:1928</code>). A gap above <code>B_BAND</code> with every assertion green is reported in the outcome as a finding, not a stop; no gate governs two-window drift.
+   - Measured seconds may differ.
+7. <strong>Post-censuses:</strong> <code>EX-98-post-figures</code> / <code>EX-98-post-docrefs</code>, the step 1 commands with those labels. Write the prediction first:
+   - figures: <code>examples</code> N → N + 1, <code>ok</code> +1, <code>broken=0</code>;
+   - docrefs: runnable +1, <code>dead=0</code>, <code>guide=0</code>, <code>exit != 1</code>.</p>
+<p><strong>Output.</strong>
+- <strong>Setup figure</strong> <code>examples/materials/figures/materials_14_coil_driven_phantom_in_container_wall_setup.png</code>. Use <code>mat:9</code>'s recipe (<code>09_…py:107–123</code>) on <code>r["base"]["msh"]</code> / <code>["cell_tags"]</code>: conductor and port sheets shown, the air tag hidden, the phantom translucent, a z-slice.
+  - The phantom's region name is formatted from <code>r["h_eff"]</code>, e.g. <code>f"phantom (gel; wall as series resistance, Robin h_eff {h_eff:.4g} W/m^2/K -- no wall cells)"</code>. No literal.
+  - Title (≤ 130 characters): <code>mat:14 -- container wall on the coil-driven gel phantom: series resistance h_eff, four drives (MAT-18 step 3)</code>.
+- <strong>Combined XDMF</strong> <code>examples/materials/paraview_output/materials_14_coil_driven_phantom_in_container_wall_combined.xdmf</code>. Write it on <code>r["base"]["sub"]</code> with <code>facet_tags=r["base"]["ft"]</code>, so the Robin surface where h_eff acts is its own block, then <code>adopt_host_ownership</code>. It holds:
+  - P1 <code>theta_wall_k0..k3</code>: <code>wall_runs[k].temperature − T_INF</code> at t*;
+  - P1 <code>theta_bare_k0..k3</code>: <code>base["T_star"][k] − T_INF</code>, which is <code>mat:9</code>'s field;
+  - P1 <code>dtheta_k0..k3</code>: wall minus bare, built in the wall temperature's own function space;
+  - DG0 <code>q_h_k0..k3</code>.</p>
+<p><strong>Name every Function</strong> (<code>EX-79</code>'s Status 124: unnamed Functions collided in HDF5, <code>EX-79.md:66–70</code>).
+- <strong>Guide.</strong>
+  - It opens with the wall model in words: a series resistance on the Robin surface, planar h_eff, no wall heat capacity, no wall cells.
+  - It contrasts <code>mat:12</code> (conforming shell, ball, imposed field) with <code>mat:9</code> (same coil and phantom, no wall).
+  - It reads (L0) as helper equivalence (above), and states the scope.
+  - Run line: <code>./scripts/run_examples.sh -e mat:14 -n 2 -t 590</code>.
+  - ParaView recipe: colour by <code>real_dtheta_k0</code> to see where the wall's extra heat sits; compare <code>real_theta_wall_k0</code> and <code>real_theta_bare_k0</code> along a Plot Over Line through the k = 0 hot spot; and apply a 90° Transform about z (<code>theta_wall_k1</code> onto <code>theta_wall_k0</code>; the C4 pairs in numbers).
+  - It describes in words why the hot-spot ratio (printed, ≈ 1.03) sits below the mean ratio (≈ 1.046): the wall acts at the surface. It quotes no number beyond the logged records, each cited.
+  - The complex build writes <code>real_</code> / <code>imag_</code> splits, and the imaginary parts are zero.
+  - <code>## Related</code> lists <code>mat:9</code> (<code>examples/materials/09_coil_driven_heating_phantom.md</code>), <code>mat:12</code> (<code>examples/materials/12_gel_ball_in_container_wall.md</code>), <code>tests/validation/test_mat18_wall_coil_driven.py</code> and <code>tests/validation/test_mat15_coil_driven_heating_phantom.py</code>. Every artifact is named by its full filename (rule (b)).</p>
+<p><strong>(4) Traps already paid for.</strong>
+- <strong>Bare harness calls.</strong> Make each one repo-relative, whole, foreground, with nothing chained (<code>&amp;&amp;</code>, <code>;</code>), piped or redirected, and no <code>-k</code> selection inside the quoted command. Pass <code>timeout: 660000</code> on every window. Never background a window, never nest an executor and never delete a log.
+- <strong><code>-s</code></strong> on the re-gate (rule (g)). Use <code>FEM_EM_REQUIRE_COMPLEX=1</code> and <code>source /usr/local/bin/dolfinx-complex-mode</code> on every EM window.
+- <strong>Orphans.</strong> Run <code>pgrep -c python3</code> (via <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver …</code> from a bare shell) before the cache sweep. Sweep only at 0, with the targeted stem delete only; a partial 44 KB orphan <code>.c</code> is a live lock (<code>MAT-15</code> item 160). A stall in <code>MPI_Bcast</code> means sweep, never retry.
+- <strong>The step-3 sweep's <code>$</code> trap:</strong> the first attempt failed host-side on unescaped <code>$</code> (<code>20261006T200510Z_MAT-18-step3-cache-sweep.log</code>, <code>MAT-18.md:481</code>). Copy the rubric's line with its <code>\$</code> escapes.
+- <strong>Rule (i).</strong> Make no edit to the gate module after the re-gate window, and none to the script or guide after the last window.
+- <strong>A pytest fixture cannot be called.</strong> That is why the lift exists. With <code>return_fields=False</code> it must stay byte-identical; check by reading the re-gate's prints against <code>W1</code>.
+- <strong>Rank-local counts.</strong> <code>cell_tags.values</code> and <code>assemble_scalar</code> are rank-local: use <code>size_global</code> or the module's <code>_allsum</code>. Every collective runs on every rank; rank-0 print blocks hold no collective (item 227).
+- <strong>Complex operands.</strong> Use no UFL ordering or <code>sqrt</code> comparison (<code>OPS-22</code>, <code>WF-6</code> 4c). Take <code>np.real</code> before every <code>float</code>.
+- <strong>No point evaluation on a <code>create_submesh</code> mesh</strong> (known-issues 2026-10-04, <code>ANS-9</code>; <code>MAT-18.md:465</code>). Every θ reading is an assembled integral; profiles are drawn in ParaView only.
+- <strong>No AED number</strong> enters the script or guide. Write <code>≈</code>, never <code>~</code>.</p>
+<p><strong>(5) Scope.</strong>
+- <strong>Covered:</strong> <code>MAT-18</code> step 3's series-resistance wall on <code>MAT-15</code> P1's untuned 10 MHz, σ = 800 S/m F-small fixture, at degree 1, <code>-n 2</code>, with gel constants and G = 1 W / P₁.
+- <strong>Not claimed:</strong>
+  - a conforming wall on the coil-driven phantom;
+  - the wall's heat storage;
+  - contact resistance;
+  - a real container's properties or geometry, or the lateral cylindrical h, which is printed only;
+  - the wall → 0 limit as physics ((L0) is helper equivalence);
+  - absolute temperature (1 W normalisation);
+  - a tuned or copper coil, or 64 MHz;
+  - perfusion, tissue, probe B or <code>ANS-9</code>;
+  - convergence.
+- No new physics, and no <code>src/</code> change. The <code>MAT-18</code> row and §10 P11 are unchanged by this item.</p>
+<p><strong>(6) Negative result.</strong> In every case below: report the measurement and stop, journal it in <code>docs/testing/attempts.md</code>, park on <code>attempt/EX-98</code>, mark item 299 BLOCKED in the same commit (rule (d)), and leave <code>EX-98</code> ⬜. Never widen a band.
+- <strong>Re-gate red, or its digits off <code>W1</code> beyond ≈ 1e-11:</strong> the lift changed behaviour. Revert it and report; the step-3 record stands on <code>W1</code>.
+- <strong>An example assertion red with the re-gate green:</strong> a divergence finding. Write a known-issues entry; no band moves.
+- <strong>(W-ctl) does not miss:</strong> h_eff never reached the solver. Stop.
+- <strong>Census not +1, or <code>broken</code> &gt; 0:</strong> fix it once; otherwise park.
+- <strong>A docker-socket denial:</strong> stop and report.</p>
+<p>A run killed at 590 s is not a result: check orphans and stop. The fallback is a re-queue, never a longer timeout. The (h-swap) prediction or the <code>.6f</code> verdict missing is printed and reported, not a stop.</p>
+<p>No <code>PREDICTED RED:</code> line.</p>
+<p><strong>(7) Status it can move.</strong> The <code>EX-98</code> §7 row moves ⬜ → ✅ (Done-when met, elapsed recorded). Census <code>examples</code> +1 with <code>broken=0</code>; docrefs runnable +1. The review adds the row (proposed above) in the same commit as this item (rule (j)). Phase 8 (8a) gains its first runnable example of the wall on a coil-driven phantom. <code>MAT-18</code> stays ✅ with its row unchanged, and <code>MAT-15</code> stays as it is.</p>
+<p><strong>Review rulings (2026-10-07 10:30 daily review, item 299).</strong> (1) <strong>Rule (a) lift</strong> into <code>_run_walled(*, return_fields=False)</code>, with the step-3 module re-gated green in the same slot and disclosed: accepted (<code>EX-79</code> precedent). (2) <strong>The +4.63 % ⟨θ⟩(t*) move stays printed</strong>, with its string-equality verdict beside <code>W1</code>, and is not asserted. No second run of step 3 exists, so rule (e) gives no backing for an asserted band. The asserted control is (W-ctl) &gt; <code>W_CONTROL_FLOOR</code>, which <code>W1</code> backs. (3) <strong>The (h-swap) control is printed only</strong> (predicted 8.7e-2, unbacked). (4) <strong>(L0) is presented as "helper equivalence", not as a limit.</strong> If tonight's weekly words it differently before the slot runs, the guide takes the weekly's wording, and no assertion or band changes. (5) <strong>Flag-vs-control</strong> compares per-drive ⟨θ⟩ and the ratio, printed with a verdict against <code>B_BAND</code>. A gap above <code>B_BAND</code> with every assertion green is reported, not a stop (the <code>-n 2</code> drift is ≈ 1e-10). (6) <strong>The orphan check from a bare shell</strong> is <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code>. (7) The floor counts it at the example median (7). Heavy examples with a re-gate have taken ≈ 15 (<code>EX-96</code>), which the slot should expect.</p>
+<p><strong>Outcome (2026-10-07, 12:00 CDT slot): ✅ DONE.</strong> Rule (a) lift disclosed: <code>walled()</code> body moved into <code>_run_walled(*, return_fields=False)</code> in <code>tests/validation/test_mat18_wall_coil_driven.py</code> (fixture is <code>return _run_walled()</code>; <code>True</code> adds <code>base</code> and <code>wall_runs</code>). Re-gate green before the example: 31 passed in 265.55 s, digits equal <code>W1</code> (<code>20261007T172528Z_EX-98-mat18s3-regate.log</code>). Flagged run Status 0, 202 s; control Status 0, 205 s; every assertion green in both. (R) 4.985e-16; (E′) 7.327e-15 / 3.334e-16 / 1.777e-15 / 1.145e-14; (E) 4.656e-14; (L0) helper equivalence ≤ 5.551e-16; C4 0.0402 / 0.0210 / 0.0292 / 0.0484 % (equal to <code>W1</code>); (d) 1.000000; (W-ctl) 4.6316e-2 / 4.6314e-2 / 4.6316e-2 / 4.6314e-2; <code>.6f</code> verdict True; (h-swap) printed 8.6969e-2 against the predicted 8.697e-2. Flag-vs-control ⟨θ⟩ gap ≈ 4e-14 relative, well inside <code>B_BAND</code>. Census: figures 94 → 95, <code>broken=0</code>; docrefs runnable 94 → 95, <code>dead=0 guide=0</code>, exit 2 (stale only); predicted +1 / +1, matched. The dry-run string omits <code>-T</code> and <code>/workspace</code> on <code>PYTHONPATH</code> as in <code>EX-97</code>; the brief's line was used.</p>
+<p><strong>Audit (2026-10-07 18:00 daily review): PASS</strong> (<code>auditor</code>; <code>20261007T173058Z_EX-98.log:1944–1957</code>, Status 0 / 202 s; re-gate <code>20261007T172528Z_EX-98-mat18s3-regate.log:2082</code>, 31 passed; control <code>20261007T173430Z_EX-98-control.log</code>, Status 0 / 205 s; census <code>…173800Z_EX-98-post-figures.log:131</code>). <strong>Correction to the outcome above:</strong> the flag-vs-control ⟨θ⟩ gap "≈ 4e-14 relative" holds for k = 0 only. Over all four drives the worst is ≈ 1.8e-11 (k = 2; k = 1 / 3 ≈ 9e-12 / 1e-11), from the <code>[effect]</code> lines of the two logs. It is still inside <code>B_BAND</code> (1e-10), so nothing moves. The control's (L0) maximum is 8.882e-16 (the row quotes the flagged run's 5.551e-16).</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

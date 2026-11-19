@@ -1,0 +1,583 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>PORT-13 — Phase-6 ring-rung solve probe - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#port-13-phase-6-ring-rung-solve-probe" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              PORT-13 — Phase-6 ring-rung solve probe
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="port-13-phase-6-ring-rung-solve-probe">PORT-13 — Phase-6 ring-rung solve probe<a class="headerlink" href="#port-13-phase-6-ring-rung-solve-probe" title="Permanent link">&para;</a></h1>
+<p><strong>Phase-6 ring-rung solve probe</strong> — the first solve on the 32-ring-port high-pass layout (<code>mesh:9</code>, 265 621 cells, <code>GEO-20</code>/<code>EX-35</code>) | ✅ <strong>(steps 1, 2 and 3 all closed; a step 4 is a review's to scope)</strong> <strong>step 3 ✅ 2026-09-04, 17:00 slot — the full 32×32 exists, and it is reciprocal / passive / C16 × mirror symmetric on the first attempt; every one of the six anchors green, no band moved, widened or renamed anywhere in the step.</strong> Three foreground windows through the harness, complex build, <code>FEM_EM_REQUIRE_COMPLEX=1</code>, <code>tests/environment</code> first, the half selected by <code>FEM_EM_RING_SWEEP_HALF</code> alone (never a <code>-k</code>): <strong>window A</strong> (<code>bottom</code>, <code>-n 8</code>, <code>timeout -k 30 600</code>) <code>12 passed, 6 skipped in 271.93s</code>, Status 0, <strong>274 s</strong> (<code>20260904T170452Z_PORT-13.log:10940, 11398–11399</code>); <strong>window B</strong> (<code>top</code>, same) <code>18 passed in 268.86s</code>, Status 0, <strong>271 s</strong> (<code>20260904T170934Z_PORT-13.log:10882, 11340–11341</code>) — B also ran the assembly gates, <code>bottom.npz</code> being on disk by then; <strong>window C</strong> (assembly, <code>-n 2</code>, no solve, smoke, <code>timeout -k 30 120</code>) <code>17 passed, 1 skipped in 23.47s</code>, Status 0, <strong>25 s</strong> (<code>20260904T171419Z_PORT-13.log:183, 262–263</code>), every digit identical to window B's at a different rank count. Both windows meshed <strong>270 728 cells at ratio 1.000000</strong> of <code>RING_LONGITUDINAL_SCALED_CELL_RECORD</code> and their measured azimuth tables agree at <strong>0.000e+00 °</strong> — the halves are one fixture built twice in two processes, which is what makes anchor (i) a mesh-reproducibility reading as well as an extraction one (<code>:77</code>). <strong>Price:</strong> window A 158.87 s of solve over 16 drives (min 9.18, max 10.61 s), 246.75 s wall; window B 156.25 s (min 8.88, max 10.41), 243.76 s wall; summed <code>ru_maxrss</code> <strong>6.771 / 6.649 GiB</strong> against the 128 G cap; the 600 s stop rule was not approached (<code>20260904T170452Z_PORT-13.log:10731</code>, <code>20260904T170934Z_PORT-13.log:10731</code>). <strong>Anchor (i), reciprocity of the 32×32</strong> at the unmoved imported 1e-3: <code>‖S − Sᵀ‖_F/‖S‖_F = **5.446798e-13**</code>, <code>‖S‖_F = 5.414671</code> (against the item's predicted √(32 × 0.916) = 5.41); the in-run <strong>negative control</strong> — one cached column × <code>CONTROL_COLUMN_SCALE</code> 1.01, the <code>PORT-9</code> leg (d2) per-column normalisation class — moves it to <strong>2.496159e-03 = 2.496× the band</strong>, matching the item's computed ≈ 2.5× ceiling to three digits and clearing the locally defined <code>MATRIX_CONTROL_MARGIN = 2.0</code> bar (<code>:83–84</code>). <strong>Anchor (ii), passivity on the matrix</strong>, <code>σ_max(S) ≤ 1</code> via <code>np.linalg.norm(S, 2)</code>: <strong>0.999999452</strong>, margin <strong>+5.48e-07</strong> — passive, and <em>tight</em>, exactly as the 0.957 column norms predicted; the reading is a measurement, not a record, and it did <strong>not</strong> land in the (1, 1+1e-2] band the negative result reserved for the accounting offset (<code>:87–89</code>). <strong>Anchor (iii), the C16 × mirror class identity</strong> over the <strong>18</strong> classes built from the measured azimuths and measured ring membership (2 relations × 9 separations of 22.5°, all 1024 entries classified, every pair landing on a class to better than <code>AZIMUTH_MATCH_DEG</code>): every class inside the unmoved 5%, <strong>worst 0.4426%</strong> on the same-ring 0-step class (the 32 diagonal entries, max <code>|S_38,38|</code> = 4.315637e-02 vs min <code>|S_29,29|</code> = 4.296576e-02); the mirror class (other ring, 0 steps) reads mean <code>|S|</code> = <strong>8.948395e-01</strong> at <strong>0.0462%</strong> spread over its 32 entries, and the 14 classes at ≥ 3 steps all sit at 6.12–6.13e-02 within 0.06% — the far-field floor the rung's 32 terminations impose (<code>:92–113</code>). <strong>Anchor (iv), the tie to the audited step:</strong> the four step-2 columns' <code>Σ_i|S_ij|²</code> reproduce <strong>0.915817419 / 0.915956086 / 0.915816510 / 0.915944997</strong> at <strong>1.2e-10 … 3.1e-10</strong> relative against the rtol 1e-6 bar — two decades tighter than the <code>OPS-34</code> precedent, so the additive refactor and the two-window split moved nothing (<code>:114–118</code>). <strong>Anchor (v)</strong> above; <strong>anchor (vi), all 32 power residuals</strong> inside the imported, unmoved 1e-2: <strong>9.330979e-03 … 9.680804e-03</strong>, spread 3.498e-04, worst P37 at 0.968× the band (<code>:80</code>) — 32 drives agreeing on the 0.97-of-band offset is the 03:00 ruling's own prediction made visible, and no new band was created for it. <strong>Code:</strong> new module <code>tests/validation/test_port_birdcage_ring_matrix.py</code>; the step-2 module gained the <strong>additive</strong> plain helper <code>_build_ring_context()</code> holding the fixture body verbatim (nothing renamed, nothing removed) and <strong>step 2's 19 tests re-ran green in the same slot</strong> — <code>19 passed in 143.21s</code>, Status 0, <strong>145 s</strong> at <code>-n 8</code>, with its own digits unchanged to the digit (4×4 reciprocity 2.485653e-13, control 7.045018e-03 = 7.045×, worst mirror pair P20/P36 at 0.0308%) (<code>20260904T171451Z_PORT-13.log:10802–10803, 10866, 10943, 11401–11402</code>). The two <code>.npz</code> caches live in the gitignored <code>output/port13_ring_columns/</code> and are <strong>not</strong> committed; window C skips with a message on a clean tree. <strong>Not claimed:</strong> no σ_max <em>record</em>, no absolute accuracy, no tuning, resonance or mode spectrum, no §2 claim beyond the one clause added there. ~~Step 3 scoped 2026-09-04 10:30 review (§9 item 1) — the full 32×32, sized off step 1's slower price, not step 2's.~~ Step 2's footer projects 32 drives at 292 s of solve at <em>that</em> load, but step 1 measured 27.96 s/solve on the same fixture (895 s), and a window is sized for the price that has already happened: so <strong>two solve windows of 16 drives each</strong> (the bottom ring P17–P32, then the top ring P33–P48), each rebuilding the deterministic mesh (ratio 1.000000 in every window so far) and caching its 16 columns to the gitignored <code>output/port13_ring_columns/</code> (<code>np.savez</code> on rank 0 after a barrier; currents are already reduced), then <strong>one assembly window</strong> with no solve. Per solve window at <code>-n 8</code>: mesh 69–106 s + 16 × (9.1–28.0) s + 16 current extractions ⇒ <strong>215–560 s</strong>, <code>timeout -k 30 600</code>; a window past 600 s is the finding. The half is selected by an environment variable (<code>FEM_EM_RING_SWEEP_HALF=bottom|top</code>), never a <code>-k</code> expression. New module <code>tests/validation/test_port_birdcage_ring_matrix.py</code>; the step-2 module gains one <strong>additive</strong> plain helper, <code>_build_ring_context()</code>, holding the fixture body so the fixture, the new module and <code>ports:11</code> call one function (rename nothing; step 2's 19 tests re-run green in the same slot). <strong>Anchors (asserted in the assembly window, every band imported and unmoved):</strong> (i) reciprocity of the 32×32 at <code>RECIPROCITY_BAND</code> 1e-3 — the two halves come from two <em>separately built</em> meshes, so this one is a mesh-reproducibility reading as well as an extraction one; (ii) passivity on the full matrix, <code>σ_max(S) ≤ 1</code> (<code>PORT-9</code>'s gate; the column norms are 0.957, so the margin is small and a reading in (1, 1 + 1e-2] is the accounting residual's own size — see the negative result); (iii) the C16 × mirror class identity: <code>|S_ij|</code> grouped by (same/other ring, azimuth separation 0…8 steps) from the <em>measured</em> azimuths and ring, <strong>18 classes</strong>, each class spread ≤ <code>OPPOSITE_SPREAD_BAND</code> 5% (step 2 measured the mirror class at 0.0308%); (iv) the four step-2 columns' <code>Σ_i|S_ij|²</code> reproducing 0.915817419 / 0.915956086 / 0.915816510 / 0.915944997 (<code>20260904T093638Z_PORT-13.log:10797–10800</code>) at rtol <strong>1e-6</strong> (same <code>-n 8</code>, the <code>OPS-34</code> scatter precedent) — the tie to the audited step; (v) both halves' cell counts equal and equal to <code>RING_LONGITUDINAL_SCALED_CELL_RECORD</code>, both azimuth tables equal to 1e-9°. <strong>Negative control, ceiling first:</strong> scale one cached column by <code>CONTROL_COLUMN_SCALE</code> 1.01 — <code>‖S‖_F ≈ √(32 × 0.916) = 5.41</code>, a 1% scale on a 0.957-norm column moves <code>‖S − Sᵀ‖_F</code> by ≈ 0.01 × 0.957 × √2 = 0.0135, so the ratio moves ≈ <strong>2.5e-3 = 2.5× the band</strong>; assert ≥ <strong>2×</strong> (5× is not reachable on 32 columns, and step 2's 7× was the 4-column arithmetic). <strong>Scope:</strong> the 32×32 and its three identities on one fixture at 10 MHz, degree 1 — no σ_max <em>record</em>, no tuning, no resonance, no mode spectrum, no §2 claim beyond "the 32×32 exists and is reciprocal / passive / C16-symmetric to the stated digits". <strong>Negative result:</strong> reciprocity or a class spread outside its band, or <code>σ_max &gt; 1 + 1e-2</code>, is a known-issues entry with the matrix's <code>|S|</code> printed — the first network-level defect on this rung; <code>σ_max ∈ (1, 1 + 1e-2]</code> is a known-issues entry naming the 0.97-of-band accounting offset as the suspect, band not widened, gate not loosened; a solve window past 600 s is journaled with the per-solve price and the item is re-rung by the next review at 8 drives per window. <strong>step 2 ✅ 2026-09-04, 04:30 slot — the ring column became a 4×4 sub-block; all four anchors green on the first run, the control at 7.045× the band.</strong> <code>tests/validation/test_port_birdcage_ring_column.py</code> extended in place (nothing renamed; step 1's three tests keep passing on the P17 column), one heavy window at <code>-n 8</code>, complex build, <code>FEM_EM_REQUIRE_COMPLEX=1</code>, <code>tests/environment</code> first, <code>timeout -k 30 600</code>: <strong><code>19 passed in 147.24s</code>, Status 0, 149 s</strong> (<code>20260904T093638Z_PORT-13.log:10943, 11401–11402</code>) — half the 600 s window and a third of the ≈ 430 s estimate, the box being lighter than at 05:05 (the same fixture meshed in <strong>69.74 s</strong> against step 1's 106.07, and one solve took <strong>9.12 s</strong> against 27.96). Same mesh, same 270 728 cells at ratio 1.000000, same port spec; <strong>four drives over the one mesh</strong> — P17, its measured z-mirror P33 (both 11.250°, opposite rings) and step 1's two measured opposites P25 / P41 (191.250°) — every port terminated at <code>Z_p = z0 = 50 Ω</code>, 1 V on the driven one, solve wall times 9.12 / 11.68 / 9.94 / 10.07 s, <strong>four-drive total 40.82 s</strong>, summed <code>ru_maxrss</code> <strong>6.571 GiB</strong> against the 128 G cap (<code>:10715, :10758</code>). Column <code>j</code> of <code>S</code> is read straight off the matched-termination drive, <code>S_ij = (V_i − z0 I_i)/V_src</code>, one expression for the diagonal and the off-diagonals both (asserted to 1e-12 against <code>−2z0I_i/V_src + δ_ij</code> in the structural test); no <code>Z</code> is formed. <strong>Anchor (iii), reciprocity of the 4×4 at the unmoved imported 1e-3:</strong> <code>‖S₄ − S₄ᵀ‖_F/‖S₄‖_F = **4.118219e-13**</code> — machine-level, as a Galerkin discretisation of a reciprocal medium should be (the discrete operator is complex-symmetric and all 32 port functionals are the same object on both sides), so this gate tests column <em>extraction</em>, not mesh error; the in-run <strong>negative control</strong> is what gives it teeth — scaling the measured P17 column by 1.01, the (d2) per-column normalisation defect class, moves the ratio to <strong>7.045018e-03 = 7.045× the band</strong>, matching the item's computed ≈ 7.0e-3 ceiling to two digits and clearing the pre-stated 5× bar (<code>:10781–10795</code>). <strong>Anchor (iv), column passivity <code>Σ_i|S_ij|² ≤ 1</code>:</strong> 0.915817419 / 0.915956086 / 0.915816510 / 0.915944997 on P17 / P25 / P33 / P41 — margins <strong>+8.4183 / +8.4044 / +8.4183 / +8.4055 %</strong>, right on the ≈ 0.92 the item projected from step 1's printed currents (<code>:10796–10801</code>). <strong>Anchor (v), the top/bottom mirror identity</strong> <code>|S_{σ(i),33}|</code> vs <code>|S_{i,17}|</code> over all 32 pairs at the unmoved 5%: worst pair <strong>P20/P36 at 0.0308 %</strong> (next 0.0303 % at P36/P17), 163× inside the band, on two <em>independently solved</em> columns — the one identity the second solve buys (<code>:10806–10839</code>). <strong>Anchor (vi), step 1's power accounting re-asserted per column</strong> at the unmoved imported 1e-2: residuals <strong>9.679798e-03 / 9.680187e-03 / 9.680020e-03 / 9.680343e-03</strong> (0.968× the band, margins +3.20e-04), each with <code>WF-6</code>'s conductor-blind control at 4.14× the band (<code>:10843–10854</code>). The four residuals agree to 6 digits across four different drives, which is the ruling's own prediction made visible: the 0.97-of-band reading is a drive-independent term-accounting offset, not noise and not an h-effect — <strong>no band was moved, widened or renamed anywhere in this step</strong>. <strong>Not claimed:</strong> the 32×32 (step 3 — a 32-drive sweep now projects to <strong>292 s of solve time</strong> at this load, plus one mesh, so it may fit a single window without column caching, but that is a review's call from this footer), no C16 class gate, no σ_max on a full matrix, no tuning or resonance claim, no §2 claim beyond §2's one-column sentence. ~~Step 2 scoped 2026-09-04 03:00 review (§9 item 1) — not the 32×32.~~ Four drives over one mesh (P17, its top-ring partner P33, the two opposites P25 / P41), column <code>j</code> of <code>S</code> read directly from the matched-termination drive as <code>S_ij = (V_i − z0 I_i)/V_src</code> without forming <code>Z</code> (leg (d2)'s defect lived in the <code>Z</code> assembly, and four columns cannot be inverted); anchors: reciprocity of the 4×4 sub-block at the unmoved 1e-3 <code>RECIPROCITY_BAND</code>, column passivity <code>Σ_i \|S_ij\|² ≤ 1</code> (the P17 column projects to ≈ 0.92 from step 1's printed currents), the top/bottom mirror identity between the P17 and P33 columns at the unmoved 5%, and step 1's power accounting re-asserted per column at 1e-2. Negative control: one column scaled by 1.01 (the per-column normalisation defect class) must move the sub-block reciprocity by ≥ 5× the band — ceiling from step 1's column: <code>‖S₄‖_F ≈ 1.79</code> with the 0.893 mirror couplings, so 1% on one column gives ≈ 7.0e-3 = 7×; 5× is the assertable bar. Cost ≈ 430 s at <code>-n 8</code> (330 s window + 3 × 28 s), <code>timeout -k 30 600</code>. <strong>Ruling on step 1's 0.97-of-band residual: no new band</strong> — 9.68e-3 on 270 728 cells sits where <code>WF-6</code> step 1's 9.80e-3 sits on 116 085, a term-accounting reading rather than an h-effect; a column crossing 1e-2 is a known-issues entry, not a wider band. Step 3 (the 32×32, column caching across windows) is scoped from step 2's four-solve footer. <strong>step 1 ✅ 2026-09-04, 00:00 slot — the first field on the 16-leg / 32-ring-port longitudinal fixture, both anchors green on the first run.</strong> New module <code>tests/validation/test_port_birdcage_ring_column.py</code>, one solve, complex build, <code>FEM_EM_REQUIRE_COMPLEX=1</code>, <code>tests/environment</code> first, <code>-n 8</code>, <code>timeout -k 30 570</code>: <strong><code>14 passed in 325.27s</code>, Status 0, 329 s</strong> (<code>20260904T050538Z_PORT-13.log</code>). Fixture: <strong>270 728 cells at ratio 1.000000</strong> of <code>RING_LONGITUDINAL_SCALED_CELL_RECORD</code> (imported, not restated), orientation <code>'longitudinal'</code>, mesh 106.07 s, 32 ring ports, P17 (bottom ring, 11.250°) driven at 1 V, every other port terminated at <code>Z_p = z0 = 50 Ω</code> as <code>PORT-9</code> leg (d) terminates them, 10 MHz, degree 1 (<code>:10714</code>). Port spec as pre-registered: <code>h = ring_port_gap_chord_m</code> = <strong>8.008718871e-03 m</strong> (arc 8.0e-03), <code>w = A/h</code> from the reconstructed sheet = <strong>1.000000000e-02 m</strong> at a C32 spread of 2.255e-15 (<code>:10716</code>). <strong>Anchor (i), the <code>WF-6</code> step 1 three-way power accounting at the imported, unmoved 1e-2:</strong> supplied ½Re(V_src I*) = 5.078728668e-03 W against phantom 9.180375767e-09 (0.0002%) + conductor 1.612862046e-04 (3.1757%) + the 32 sheets' ½|I|²Re Z_p 4.868272216e-03 (95.8561%) — residual <strong>9.679798e-03, INSIDE</strong> (0.97 of the band; <code>WF-6</code> step 1's own reading was 9.80e-3, so this fixture sits where that one does), with <code>WF-6</code>'s free in-run negative control at <strong>4.143700e-02 = 4.14× the band</strong> when the conductor term is dropped (<code>:10750–10756</code>). <strong>Anchor (ii):</strong> the two ports diametrically opposite P17 — P25 and P41, both at 191.250°, found from the <em>measured</em> sheet azimuths — read <code>V</code> = −3.057655713e-02+1.781654553e-03j and −3.057233042e-02+1.888893716e-03j V, a complex spread of <strong>0.3504%</strong> (magnitude-only 0.0072%) against the pre-registered 5% <code>PORT-9</code> C4-class band (<code>:10760–10763</code>); the full 32-vector of <code>V = V_src − I·Z_p</code> and per-port <code>I</code> is printed at <code>:10717–10749</code> for step 2. <strong>PRICE (the deliverable): one solve 27.96 s wall at <code>-n 8</code></strong> — 6.4–13× <em>under</em> the item's ≈ 3–6 min prediction, the whole run being mesh-bound — summed <code>ru_maxrss</code> <strong>5.732 GiB</strong> against the 128 G cap, stop rule 900 s not approached (<code>:10715</code>). Step 2's 32 solves project to <strong>895 s of solve time</strong> plus one 106 s mesh, i.e. ≈17 min of compute — over the 20-minute per-command rule only if run as one command, so <strong>step 2 is a review's to scope</strong> (no 32×32, C16 gate, tuning or resonance claim is made or implied here). ~~⬜~~ <strong>UNBLOCKED 2026-09-03 18:00 review</strong> — <code>GEO-26</code> step 2 landed <code>RING_LONGITUDINAL_SCALED_CELL_RECORD = 270 728</code> on <code>main</code> (<code>1ad8ba3</code>, identical at <code>-n 2</code> and <code>-n 12</code>, all 32 longitudinal sheets exact) and the review ruled the rung's bistable terminal triangulation acceptable for the port model (the sheet is exact; the terminal-area covariance is a record, <code>GEO-26</code> step 3's). Step 1 runs as re-scoped below with the two pre-registered edits: the in-run cell-count control is <strong>270 728</strong> (the longitudinal mesh, not <code>EX-35</code>'s 265 621), and the port spec names <code>h = ring_port_gap_chord_m</code> and <code>w = A/h</code> from the reconstructed sheet. Queued as §9 item 4, independent of item 3. ~~🚫~~ <strong>BLOCKED 2026-09-03 (22:30 implementer slot) — the <code>GEO-20</code> ring sheets are transverse mid-sections, so the lumped-sheet port model has no <code>h</code>.</strong> Step 1 assumes the 32 ring ports can be terminated "as <code>PORT-9</code> leg (d) terminates them". They cannot: <code>PORT-9</code>'s route (<code>ports/lumped.py</code>) needs a <strong>longitudinal</strong> sheet spanning the gap <em>along the drive direction</em> — <code>R_s = Z_p·w/h</code>, <code>I = (1/R_s)∫E·ĥ dS / h</code>, <code>E_src = V_src/h</code> — which is what <code>GEO-16</code>/<code>GEO-18</code> emit for a leg gap (the box's longitudinal mid-plane, <code>dx·dz</code>, <code>h_bbox/dz − 1 &lt; 1e-9</code>). <code>io/mesh.py</code> emits the ring gap's <strong>transverse</strong> mid-section at <code>phi = phi_c</code> instead (<code>ring_port_sheet_area_m2 = box_width²</code>, <code>ring_sheet_of_ordinal</code> normal = <code>phi_hat</code>). <strong>Measured</strong> (<code>-n 2</code>, standard, 29 s, <code>20260903T033437Z_PORT-13.log:6956–6967</code>, 4-leg ring rung at its 110 786-cell record, ratio 1.000000): every one of the 8 ring sheets spans <strong>≤ 1.43e-17 m along its own <code>phi_hat</code></strong> and exactly <strong>1.000000000000 w</strong> along <code>û</code> and <code>ẑ</code> (<code>w = 1.000000000e-02 m</code>), area 1.000000000000 <code>w²</code> — so <code>h = 0</code> to machine precision, <code>w = A/h</code> is undefined, and <code>E·ĥ</code> is the H(curl)-discontinuous <em>normal</em> trace on an interior facet. No solve was attempted and no price was taken. <strong>Resolves with</strong> a <code>GEO-20</code> step that emits a longitudinal ring sheet (the radial-<code>û</code>/<code>phi</code> rectangle spanning the gap arc, <code>h = ring_gap_length</code>, <code>w = box_width</code>) — <code>src/</code> work on <code>birdcage_port_domain</code>, a review's ruling, not an in-slot fix; step 1 is unexecutable until then. Test parked on <code>attempt/PORT-13-20260903T033437Z</code> (<code>30756cf</code>). <strong>Ruled 2026-09-03 03:00 review</strong> — a <code>log-pathologist</code> read the claim <strong>SUPPORTED</strong> on the digits (<code>:6959–6966</code>, largest <code>φ̂</code> extent P9 1.428955e-17 m; footer Status 0 / 29 s at <code>:6976–6977</code>) and on the construction (the four sheet corners are built at one <code>φ_c</code>, <code>io/mesh.py:3713–3721</code>, and the test derives <code>φ̂</code> from the ordinal alone, so the reading is a consistency check of a known-transverse emission, not circular), with one clause corrected: the lumped route would <strong>not raise</strong> on this sheet — <code>gap_height_m</code> is caller-supplied (<code>ports/lumped.py:148,322</code>) and nothing in <code>ports/</code> derives <code>h</code> from the mesh — a solve would run and integrate the <em>normal</em> trace of an H(curl) field on an interior facet, which is not a defined quantity. The blocker is therefore a well-posedness gap, and it stands. Nothing in the log speaks to 16 legs (the "same code path" appeal is an argument, not a measurement) — <code>GEO-26</code> step 2 emits the new sheet there and measures it. <strong>Disposition:</strong> <code>GEO-26</code> opened (§9 item 1) with the parked module as its negative control (cherry-picked onto <code>main</code>; the branch is deleted in that commit). <strong>Step 1 re-opens, unchanged in scope, when <code>GEO-26</code> step 2's 16-leg longitudinal record exists</strong>, with two edits a review makes then: the cell-count control becomes that record (not <code>EX-35</code>'s 265 621, which is the transverse mesh), and the port spec names <code>h = ring_port_gap_chord_m</code> and <code>w = A/h</code> from the reconstructed sheet exactly as <code>test_port_birdcage_lumped_column.py:286–287</code> derives them for legs. <em>(commissioned 2026-08-30 02:15 weekly review; <strong>the ruling text was lost with that session</strong> — only the dashboard's one-line summary survived. <strong>Re-scoped 2026-09-02 weekly review — queueable as step 1.</strong> One single-port solve on <code>mesh:9</code> (16 legs, 32 ring-gap lumped-sheet ports, 265 621 cells, the <code>EX-35</code> mesh reproduced at 0.000e+00 as the in-run control) at 10 MHz, degree 1, <code>-n 8</code>, port P1 driven at 1 V with every other port terminated as <code>PORT-9</code> leg (d) terminates them. <strong>Anchors:</strong> (i) the three-way power accounting <code>WF-6</code> step 1 gate (i) uses — supplied vs dissipated + stored — inside the same <strong>1e-2</strong> band; (ii) the open-circuit ring-port voltages on the 31 undriven ports read as a C16 pattern: the two ports diametrically opposite P1 agree to the C4-class spread <code>PORT-9</code> measured (≤ 5%), asserted, and the full 32-vector is printed for step 2. <strong>Cost:</strong> priced from <code>PORT-11</code> step 1 (116 085 cells, ≈ 25 s/solve at <code>-n 2</code>) scaled by 2.3× cells and the MUMPS fill growth <code>MAT-6</code> step 10a measured (1.69× flops per 1.28× cells) ⇒ <strong>≈ 3–6 min at <code>-n 8</code></strong>; ceiling <code>timeout -k 30 1200</code>, stop rule 900 s (an overrun is the finding — journal, do not raise). Memory: report peak RSS against the 128 G cap. <strong>Scope:</strong> one solve, one identity, one price — no 32×32, no C16 gate, no tuning, no resonance claim; a full S-matrix is 32 solves and is step 2, scoped by a review from step 1's price. <strong>Negative result:</strong> a power-accounting miss or an overrun goes to known-issues with the price; nothing else moves. <strong>Pre-queued 2026-09-03 10:30 review as §9 item 5, serial on <code>GEO-26</code> step 2 (item 1) and saying so:</strong> the slot that reaches it skips it if <code>RING_LONGITUDINAL_SCALED_CELL_RECORD</code> is not on <code>main</code>; the two pre-registered edits — the cell-count control = that record, <code>h = ring_port_gap_chord_m</code> and <code>w = A/h</code> from the reconstructed sheet — are written into the item. Status stays 🚫 until that slot lands)</em> </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

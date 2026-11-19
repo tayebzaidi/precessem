@@ -1,0 +1,720 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>POST-6 — Arbitrary multi-port drive superposition - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#post-6-arbitrary-multi-port-drive-superposition" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              POST-6 — Arbitrary multi-port drive superposition
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#narrative-moved-verbatim-from-project_planmd-7-ops-47" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Narrative — moved verbatim from PROJECT_PLAN.md §7 (OPS-47)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="post-6-arbitrary-multi-port-drive-superposition">POST-6 — Arbitrary multi-port drive superposition<a class="headerlink" href="#post-6-arbitrary-multi-port-drive-superposition" title="Permanent link">&para;</a></h1>
+<p><strong>Arbitrary multi-port drive superposition</strong> — HFSS <em>Edit Sources</em>: complex amplitude + phase per port over the stored single-drive solves, package-level and N-port (<code>WF-6</code> step 2's fixed 4-port quadrature is the special case) — <strong>feature ladder A1</strong> (operator directive 2026-09-04; first in the ladder; serial on nothing) | 🟡 <em>(<strong>step 1 executed 2026-09-04, 19:30 implementer slot — the entry point exists and three of its four anchors are gated; the drive-level power identity is a documented red.</strong> <code>ports.superpose_drives</code> + <code>run_n_port_sparameter_sweep(keep_fields=True)</code> + <code>run_lumped_sheet_port_case(return_fields=True)</code>, gated by <code>tests/validation/test_port_drive_superposition.py</code>, heavy tier, <code>-n 2</code>, complex, 146 s, <code>20260905T004202Z_POST-6.log</code>. <strong>(i) green:</strong> the ccw quadrature weights through the package reproduce <code>WF-6</code> step 2's identities — C4 <strong>0.9818%</strong>, mirror <strong>0.8087%</strong>, cw control <strong>95.1975%</strong> — at rel dev 9.619e-06 / 3.585e-05 / 5.248e-07 (<code>:1911–1913</code>), and the package path (superpose <code>E</code> on N1curl, then curl) agrees with step 2's fixture path (curl, then superpose DG0 <code>B</code>) on the <em>same four solves</em> to <strong>1.2e-15 / 1.9e-15 / 1.2e-16</strong>. That last number is the item's "rtol 1e-6" made executable: the records are stored to four significant digits, so no measurement — not even a bit-identical re-run — can meet 1e-6 against the literal (±5.1e-5 by rounding alone); the literals are asserted at the imported <code>CG1_RECORD_RTOL</code> (1e-3) and the path equality at 1e-12. <strong>(ii) green:</strong> <code>w = e_k</code> returns drive k's dof array bit for bit (<code>np.array_equal</code>), <code>S(w₁)+S(w₂) = S(w₁+w₂)</code> and the terminal weighted sums at 1e-12, mapping and sequence spellings identical. <strong>(iv) green:</strong> all four single-drive residuals reproduce step 1's 9.795751e-03 — 9.795751 / 9.796209 / 9.794985 / 9.795283 e-03 (<code>:1914</code>), P3 and P4 read for the first time. <strong>(iii) RED, per the item's negative-result protocol:</strong> <code>P_acc = ½aᴴ(I − SᴴS)a</code> = 3.014424803e-03 W against ½∫σ|E_w|² = 2.663302665e-03 W, residual <strong>1.164806e-01</strong> vs the imported 1e-2 band (<code>:1915–1917</code>); cross-term share 40.4652%, blind sum 1.794631250e-03 W. Nothing widened. The log's own arithmetic makes the denominator the leading hypothesis — the same fixture's <em>single</em>-drive form of this identity, <code>supplied − sheets</code> vs volume loss, is a <strong>13.0%</strong> miss, so the four-port drive reproduces the single-drive miss rather than adding to it — but that figure is computed by hand from a log, not asserted in-run. Known-issues entry carries both readings and the two candidate mechanisms. <strong>Step 1b is the next move:</strong> measure the single-drive <code>P_acc</code> in-run beside the superposed one and let a review re-point or keep the band on that evidence. <strong>Scoping note kept from the queueing review:</strong> identity (iii) was pre-stated at ≤ 1e-3, which is below this fixture's own 9.795751e-03 accounting floor (<code>20260831T033704Z_WF-6-step2.log:4684</code>), so 1e-3 is printed against and the imported 1e-2 is asserted — scoped before measurement.) <strong>Step 1b executed 2026-09-05, 06:00 slot — the denominator question is answered.</strong> <code>20260905T110305Z_POST-6.log</code>, <code>1 failed, 21 passed … 102.66s</code> (<code>:2034</code>), 104 s (<code>:2112</code>), heavy by ceiling, <code>-n 2</code>, complex, tests-only, no new solve. The power-wave identity <code>P_acc,k = ½|a_k|²(1 − Σ_i|S_ik|²) = supplied_k − Σ_i sheets_ik</code> holds to <strong>1.7e-15 / 0 / 1.7e-15 / 0</strong> against the pre-registered 1e-6 (<code>:1924–1939</code>), so the S-derived accepted power and the sheet accounting are the same number and the 11.6% is not a normalisation disagreement; the four single-drive volume residuals read <strong>1.303004e-01 / 1.302723e-01 / 1.300031e-01 / 1.302052e-01</strong> (mean 1.301952e-01) and the superposed 1.164806e-01 is <strong>0.8947×</strong> their mean (<code>:1940</code>). Negative control (S diagonal zeroed) misses by 7.66e-01, equal to its pre-computed ceiling <code>|S_kk|²/(1 − Σ|S_ik|²)</code>, against a 1e-3 floor. <code>POWER_BALANCE_BAND</code> untouched, the (iii) test still red by design, and the ≈6.7e-05 W absolute gap common to every drive is still undiagnosed — the next review owns the re-pointing.)</em> <strong>Ruled 2026-09-06 (weekly review): identity (iii)'s drive-level use of <code>POWER_BALANCE_BAND</code> is retired, not widened — the band was pre-registered against supplied power and the fixture's own single drives carry a ≈0.98 %-of-supplied accounting gap (the four agree to 0.23 %), so an identity that re-reads that gap against a 13× smaller denominator measures the denominator. Step 2 (tests only, standard): re-register (iii) as the common-mode form <code>g_w = (P_acc,w − P_vol,w)/P_supplied,w</code> against <code>mean_k g_k</code> from the four single drives in the same run, asserted <code>|g_w − mean g_k| ≤ 0.1 · mean g_k</code> (the single drives' own scatter is 0.23 % of g, 40× inside; a superposition defect would be O(cross-term) ≈ 40 %, 400× outside), with the cw/mis-paired weights as the negative control and <code>POWER_BALANCE_BAND</code> kept imported and unmoved for the single-drive form; the deliberate red retires in the same commit. The ≈6.7e-05 W gap itself is a finding, not a band problem, and gets its own chunk — <code>PORT-16</code>.</strong></p>
+<p><strong>Step 3 EXECUTED 2026-09-13, 13:30 implementer slot (§9 item 4, the re-scoped closing step) — the 32-port ccw quadrature drive through <code>superpose_drives</code> is C16-invariant; (i)–(iii) green ⇒ <code>POST-6</code> ✅.</strong> Tests only, <code>src/</code> untouched: a step-3 block at the end of <code>tests/validation/test_port_drive_superposition.py</code>. The 16-leg / 32-ring-port high-pass fixture is <code>PORT-13</code> step 3's <code>_build_ring_context</code> (<code>test_port_birdcage_ring_matrix.py</code>, imported, never copied); 32 drives solve once via <code>run_n_port_sparameter_sweep(keep_fields=True)</code> under <code>PORT-19</code>'s reuse default, then <code>superpose_drives</code> with ccw weights from <code>quadrature_phase_weights</code> at fractional index (slot × 22.5/90 ⇒ <code>e^{∓jφ}</code>); slots from measured azimuths, ring from measured sign of z, bottom ring ×(−1) (m = 1 odd under z → −z; does not enter (i)–(iii), stated in a comment, not gated). Import cycle (<code>b1_plus_closed_form</code> → <code>power_identity</code> → half-loaded superposition module) resolved by a lazy <code>_step3_imports()</code> on the existing <code>_step1()</code> pattern; the collection-error window <code>20260913T184909Z_POST-6-step3.log</code> (Status 4, 4 s, no solve) is kept as the record. The 32-port tests run only under <code>FEM_EM_POST6_STEP3=1</code>. Bands imported: <code>C4_COVARIANCE_BAND</code> 5 % (<code>test_birdcage_b1_plus_map.py:120</code>, <code>WF-6</code>'s, already imported by this module), <code>DISCRETE_IDENTITY_RTOL</code> 1e-6, <code>MIN_SAMPLE_POINTS</code> 50. <strong>Gate window</strong> <code>20260913T185043Z_POST-6-step3.log</code> — <code>-n 8</code>, complex, env on, <code>tests/environment</code> first, <code>-v -s</code>, <code>timeout -k 30 590</code>, durable capture: <strong>15 passed (11 + 4), Status 0, 191 s</strong>, <code>[capture] rc=0</code> <code>:12347</code>. <strong>(i)</strong> worst C16 spread of the CG1 <code>|B₁⁺|_ccw</code> over 15 rotations <strong>0.8102 %</strong> at R₆ (range 0.4906–0.8102 %, <code>:11783–11798</code>) ≤ 5 %; <strong>(ii)</strong> mirror <code>|B₁⁻|_cw(Mx)</code> vs <code>|B₁⁺|_ccw(x)</code> <strong>0.6769 %</strong> ≤ 5 % (<code>:11799</code>); <strong>(iii)</strong> exact identity rel dev <strong>3.961e-15</strong> ≤ 1e-6 — <code>P_src,exact</code> 7.226844584e-03 W = <code>P_vol</code> 3.854418256e-03 W + <code>P_sheet,exact</code> 3.372426328e-03 W; package <code>P_acc</code> 6.871501158e-03 W printed only (<code>:11800</code>). <strong>Negative control:</strong> on the 32-port fixture <em>predicted</em>, printed, never asserted — cw mis-paired 98.9915 % measured vs 99.0609 % predicted, 122.17× vs 122.26× the worst C16 spread (<code>:11801</code>); <em>asserted by record</em> on the 4-leg fixture — <strong>regression window</strong> <code>20260913T185405Z_POST-6-step3.log</code> (<code>-n 2</code>, whole module, env off: <strong>24 passed / 4 skipped, Status 0, 76 s</strong>, <code>:2118</code>) reproduces <code>RECORDED_CW_SPREAD</code> 95.1975 % at rel 5.248e-07 against ccw C4 0.9818 % (≈ 97×, bar 5×; <code>:1911–1913</code>, test <code>:1988</code>), every pre-existing step-1 anchor green. <strong>Price:</strong> ring build 81.8 s, 32-drive sweep 30.3 s, two CG1 projections 0.7 s, 17 point evaluations 1.0 s, identity 44.0 s; summed <code>ru_maxrss</code> 9.32 GiB (<code>:11802</code>) — the item's ≈ 14 min estimate was ≈4× high. <strong>Caveats for the review:</strong> the r ≤ 0.02 m, |z| ≤ 0.02 m sample cylinder holds exactly <strong>50</strong> points = <code>MIN_SAMPLE_POINTS</code> (<code>:11780</code>), valid on all rotated and mirrored images (<code>:11782</code>) — a zero-margin <code>≥</code>; the gate window's 191 s is heavy-tier by 11 s. <strong>Scope:</strong> 10 MHz, one fixture; no homogeneity, absolute or Larmor claim. </p>
+<h2 id="narrative-moved-verbatim-from-project_planmd-7-ops-47">Narrative — moved verbatim from PROJECT_PLAN.md §7 (OPS-47)<a class="headerlink" href="#narrative-moved-verbatim-from-project_planmd-7-ops-47" title="Permanent link">&para;</a></h2>
+<p><strong><code>POST-6</code> — arbitrary multi-port drive superposition (HFSS <em>Edit
+Sources</em>)</strong> ⬜ <em>(<strong>feature ladder A1</strong> — the first item of the ladder,
+operator directive 2026-09-04, §9 item 5; serial on nothing.)</em> <strong>Why.</strong>
+Quadrature drive is the MRI excitation and every B₁⁺/SAR quantity in §1 step
+3 is defined under it. <code>WF-6</code> step 2 built it once, for four ports at fixed
+<code>e^{∓jkπ/2}</code>, inside a test module; <code>EX-39</code> shows it. Nothing package-level
+takes <em>N</em> stored single-drive solves and a complex weight vector, which is
+what a tuned 32-port drive (<code>PORT-15</code>) and any asymmetric drive need.</p>
+<blockquote>
+<ul>
+<li><strong>Step 1.</strong> <code>ports.superpose_drives(sweep_result, weights)</code> → the
+  combined <code>E</code> (and <code>B</code> via <code>post.magnetic_flux_density_from_e</code>), the
+  combined port voltages/currents, and the combined accepted power. Gates,
+  all identities: (i) the four-port quadrature weights reproduce <code>WF-6</code>
+  step 2's C4-invariance and mirror digits <strong>verbatim</strong> (imported, never
+  restated); (ii) linearity — the superposed port voltages equal the
+  weighted sums of the single-drive ones to 1e-12; (iii) power —
+  <code>P_acc = wᴴ(I − SᴴS)w</code> from the S-matrix equals the volume loss integral
+  of the superposed field to ≤ 1e-3 (the first drive-level power identity).
+  Standard tier on the 116 085-cell 4-leg mesh.
+  <strong>Review 2026-09-05 (03:00), two rulings on the slot's disclosures.</strong>
+  (a) <strong>Ratified:</strong> anchor (i)'s pre-registered rtol 1e-6 against
+  <code>STEP2_IDENTITY_RECORDS</code> was arithmetically unreachable — the records
+  are four-significant-digit literals (<code>0.9818e-2</code>), so even a
+  bit-identical re-run agrees with them only to ±5.1e-5 — and the
+  substituted pair (literals at the imported <code>CG1_RECORD_RTOL</code> = 1e-3,
+  package-vs-fixture path equality at 1e-12, measured 1.2e-15) is
+  strictly tighter on the quantity that carries the information. Not a
+  loosening; the 1e-6 was the queueing review's error. (b) <strong>The
+  denominator hypothesis is arithmetic on the log, adopted as the
+  working diagnosis, not as a finding:</strong> <code>WF-6</code> step 1's single-drive
+  accounting misses by 9.795751e-03 × 6.856240413e-03 W =
+  <strong>6.716e-05 W absolute</strong> (<code>20260831T033704Z_WF-6-step2.log:4684–4688</code>);
+  <code>supplied − sheets</code> is 5.154401e-04 W, so that same absolute gap is
+  <strong>13.0%</strong> of the single-drive accepted power, and the superposed drive
+  reads 3.511e-04 W absolute on 3.014e-03 W = 11.6% — the same fraction
+  within the cross-term share. Whether the S-derived <code>P_acc</code> <em>equals</em>
+  <code>supplied − sheets</code> per drive is the one thing not measured; that is
+  an identity of the power-wave definition at <code>z0 = Re Z_p</code> and is
+  step 1b's assertion.</li>
+<li><strong>Step 1b (the denominator, measured in-run; queued 2026-09-05 03:00
+  review as §9 item 2).</strong> In the existing module, for each single drive
+  k: <code>P_acc,k = ½|a_k|² (1 − Σ_i |S_ik|²)</code> from the assembled 4×4 beside
+  the fixture's <code>supplied − sheets</code> accounting, asserted equal at rtol
+  <strong>1e-6</strong> (the power-wave identity; both are already computed in the
+  module, <code>test_port_drive_superposition.py:248</code> and the <code>_power_waves</code>
+  route); then the single-drive form of identity (iii) <code>P_acc,k</code> vs
+  <code>½∫σ|E_k|²</code>, <strong>printed</strong> with its residual, and the ratio
+  (superposed residual) / (mean single-drive residual) printed. Gate:
+  the rtol 1e-6 identity only. <strong>Disposition rule, pre-stated:</strong> if it
+  holds and the four single-drive residuals read ≈ 13%, the drive-level
+  red is the fixture's ≈1% accounting offset against a 13× smaller
+  denominator — the <em>next</em> review re-points <code>POWER_BALANCE_BAND</code>'s
+  drive-level use to <code>supplied</code> (or opens a chunk for the 1% offset
+  itself), and the test stays red until it does; if the identity fails,
+  the S-matrix's power-wave normalisation disagrees with the sheet
+  accounting — known-issues entry with both numbers, stop.
+  <strong>Executed 2026-09-05, 06:00 implementer slot — the identity holds at
+  machine precision.</strong> <code>tests/validation/test_port_drive_superposition.py</code>
+  only, three new tests on the existing <code>superposition_case</code> fixture, no
+  new solve; <code>20260905T110305Z_POST-6.log</code>, <code>1 failed, 21 passed … 102.66s</code>
+  (<code>:2034</code>), Elapsed <strong>104 s</strong> (<code>:2112</code>), heavy by ceiling
+  (<code>timeout -k 30 600</code>), <code>-n 2</code>, complex. The one failure is the
+  <em>deliberate</em> step-1 red <code>test_the_drive_level_power_identity_closes</code>,
+  untouched. <strong>(1b-i) green:</strong> <code>P_acc,k = ½|a_k|²(1 − Σ_i|S_ik|²)</code> equals
+  <code>supplied_k − Σ_i sheets_ik</code> to <strong>1.683e-15 / 0.000e+00 / 1.679e-15 /
+  0.000e+00</strong> for P1–P4 against the pre-registered 1e-6 (<code>:1924–1939</code>) —
+  the power-wave normalisation and the sheet accounting are one number, so
+  "the two accountings disagree" is excluded and the 11.6% is <strong>not</strong> a
+  normalisation story. <strong>(1b-ii) green:</strong> the superposed ccw <code>P_acc</code>
+  reproduces 3.014424803e-03 W at rtol 1e-9 — same solves, same path.
+  <strong>Printed, not asserted:</strong> the four <code>|P_acc,k − P_vol,k|/P_acc,k</code> read
+  <strong>1.303004e-01 / 1.302723e-01 / 1.300031e-01 / 1.302052e-01</strong>, mean
+  <strong>1.301952e-01</strong>, and the superposed 1.164806e-01 is <strong>0.8947×</strong> that
+  mean (<code>:1940</code>) — the four-port drive misses <em>slightly less</em> than its own
+  single drives, so the superposition adds nothing. <strong>Negative control,
+  ceiling first:</strong> deleting <code>S_kk</code> from drive k's column misses by
+  7.659732e-01 / 7.656687e-01 / 7.634896e-01 / 7.652279e-01, each equal to
+  the closed form <code>|S_kk|²/(1 − Σ_i|S_ik|²)</code> computed from the assembled
+  4×4 <em>before</em> the assertion, against a claimed floor of 1e-3 (1000× the
+  band); nothing above the computed value claimed. <strong>The disposition rule
+  fires as written:</strong> the identity held and the four residuals read ≈ 13%,
+  so the drive-level red is the fixture's ≈1%-of-<code>supplied</code> accounting
+  offset read against a 13× smaller denominator. <code>POWER_BALANCE_BAND</code> was
+  <strong>not</strong> touched in-slot and the test stays red; the next review is the
+  actor. <strong>What step 1b does not settle:</strong> the ≈6.7e-05 W absolute gap
+  common to every drive is still unexplained — it is 0.98% of supplied and
+  13.0% of accepted, and candidate (b) "a real un-accounted loss channel"
+  survives at that same absolute size. Known-issues entry carries both.
+  <strong>Review 2026-09-05 10:30 — the disposition is held for the 2026-09-06
+  weekly, with a recommendation.</strong> The 03:00 review listed this decision
+  for the weekly explicitly ("a decision the dailies cannot make") before
+  step 1b ran, and step 1b's result sharpens rather than removes the
+  reason: re-pointing the drive-level band at <code>supplied</code> makes the test a
+  restatement of <code>WF-6</code> step 1's single-drive gate (0.98% of supplied,
+  already green) and gates nothing about the <em>superposition</em>, whose own
+  contribution step 1b measured at 0.8947× the single-drive mean. The
+  recommendation this review records: <strong>(a)</strong> re-scope the drive-level
+  test to the relative identity the data actually supports — the
+  superposed residual against the mean single-drive residual, both
+  computed in-run, ratio asserted ≤ 1 + <code>CG1_RECORD_RTOL</code>-class slack
+  (measured 0.8947; a superposition that <em>adds</em> power error is what it
+  would catch); <strong>(b)</strong> the 6.7e-05 W absolute gap becomes its own chunk
+  with a mechanism list (sheet-loss vs volume-integral double count in
+  the gap cells; Poynting flux through the outer wall under the natural
+  BC; the <code>_loss_power_w</code> quadrature on DG0 σ) — <code>POST-5</code>'s
+  three-term identity is the instrument, and a fixed-<code>h</code> gap that is
+  0.98% of supplied on every drive is a systematic, not noise. The test
+  stays red and <code>POWER_BALANCE_BAND</code> stays 1e-2 until the weekly rules;
+  the known-issues entry leaves with that commit.</li>
+<li><strong>Step 2.</strong> The same on <code>PORT-13</code>'s 32-ring-port fixture with the
+  16-fold quadrature weights; the C16 invariance of <code>|B₁⁺|</code> is the gate.</li>
+<li><strong>Done-when (§4).</strong> Both steps asserted; <code>WF-6</code> step 3 and <code>WF-7</code> are
+  re-pointed to consume this entry point rather than their own sums.</li>
+</ul>
+</blockquote>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

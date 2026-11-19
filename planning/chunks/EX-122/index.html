@@ -1,0 +1,933 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-122 — imp:9, a PEC disc in the coil-driven phantom: the rim 1 g SAR with and without it, and the PEC-versus-natural wall map at the rim in ParaView - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-122-imp9-a-pec-disc-in-the-coil-driven-phantom-the-rim-1-g-sar-with-and-without-it-and-the-pec-versus-natural-wall-map-at-the-rim-in-paraview" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-122 — imp:9, a PEC disc in the coil-driven phantom: the rim 1 g SAR with and without it, and the PEC-versus-natural wall map at the rim in ParaView
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-499-2026-10-16-example-54-ramp-from-imp-3-step-9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 499 — 2026-10-16 (example, §5.4 ramp from IMP-3 step 9)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-16-1030-item-499" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-16 10:30 (item 499)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#execution-2026-10-16-1330-slot-item-499" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execution 2026-10-16 13:30 slot (item 499)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-16-1800-item-499-audit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-16 18:00 (item 499 audit)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-17-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-17 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-122-imp9-a-pec-disc-in-the-coil-driven-phantom-the-rim-1-g-sar-with-and-without-it-and-the-pec-versus-natural-wall-map-at-the-rim-in-paraview">EX-122 — imp:9, a PEC disc in the coil-driven phantom: the rim 1 g SAR with and without it, and the PEC-versus-natural wall map at the rim in ParaView<a class="headerlink" href="#ex-122-imp9-a-pec-disc-in-the-coil-driven-phantom-the-rim-1-g-sar-with-and-without-it-and-the-pec-versus-natural-wall-map-at-the-rim-in-paraview" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<p><code>EX-122</code> (<code>imp:9</code>) is opened 2026-10-16 by the 10:30 daily review under daily-review.md step 5. It is the §5.4 ramp from <code>IMP-3</code> step 9 (§10 I25, §9 item 428, GREEN 2026-10-13, <code>docs/planning/chunks/IMP-3.md:1533–1546</code>). <code>IMP-3</code> is ✅ and step 9 is a record on it.
+- <strong>Base.</strong> <code>tests/validation/test_imp3_disc_birdcage.py</code> (item 428's gate module). Its fixture is the loaded F-small 4-leg birdcage at 64 MHz (untuned σ = 800 S/m solid coil, 50 Ω lumped sheets, degree 1), swept with and without an exactly revolved PEC oblate spheroid: a = 6 mm, c = 1.2 mm (aspect 5), normal x̂, centre (0.015, 0, 0). The disc is cut as a hole whose wall (facet tag 402) is pinned by the default exterior PEC. The builder is <code>GEO-36</code> step 7's <code>_build_spheroid</code> (<code>tests/mesh/test_birdcage_implant_spheroid.py:119</code>).
+- <strong>Run of record (gate).</strong> W1 <code>docs/testing/logs/20261013T213344Z_IMP-3-step9-W1.log:3673–3770</code> (<code>-n 2</code>, 13 passed, Status 0, 264 s, summed RSS 2.40 GiB; case 164.4 s and cells 116 085 / 150 140 at <code>:3764</code>; (A0) / (R0) at <code>:3765</code>; C1 at <code>:3767–3770</code>). W2 <code>20261013T213816Z_IMP-3-step9-W2.log:3784–3876</code> (1 g rung, <code>-n 4</code>, 283 s, 5.31 GiB) holds the rim ratio of record. It is cited and printed beside, never run here.</p>
+<p><strong>Gap (grep at drafting: <code>implant_spheroid</code>, <code>_build_spheroid</code>, <code>test_imp3_disc</code> over <code>examples/**/*.py</code>; all empty).</strong>
+- <code>imp:8</code> (<code>examples/implants/08_pec_oblate_disc_edge_in_gel.py</code>, <code>EX-111</code>) is the same disc under an <strong>imposed quasi-static field</strong>: "No coil, no tissue".
+- <code>imp:3</code> (<code>examples/implants/03_rod_in_birdcage_tip_sar.py</code>, <code>EX-83</code>) is a <strong>rod</strong> in the coil on the 1 g rung.
+- No example puts a flat body in the coil-driven phantom, writes the field around a PEC rim under coil drive, or shows what the PEC wall condition does there.</p>
+<p><strong>The angle.</strong>
+- First, the disc in the coil, through the gate's own builders, with the gate's identities at its imported bands.
+- Second, two P1 fields on the <strong>same disc mesh</strong>: the PEC wall and the wall left natural (the gate's C1 problem). Because they share a mesh, the local-SAR map of each, and their cellwise ratio at the rim, are meaningful in ParaView. Across the with / without arms they would not be, since those are different meshes.
+- Third, a field profile outward from the top rim point, printed beside the shape of <code>IMP-6</code>'s closed form.</p>
+<h3 id="9-item-499-2026-10-16-example-54-ramp-from-imp-3-step-9">§9 item 499 — 2026-10-16 (example, §5.4 ramp from IMP-3 step 9)<a class="headerlink" href="#9-item-499-2026-10-16-example-54-ramp-from-imp-3-step-9" title="Permanent link">&para;</a></h3>
+<p><strong>Outcome 2026-10-16 13:30 slot (CDT): DONE, <code>EX-122</code> ✅.</strong> Run of record <code>20261016T184038Z_EX-122.log</code> (<code>-n 2</code>, 204 s); every asserted anchor and control green on the first run (narrative at the end of this file).</p>
+<p><em>Drafted by a general-purpose agent for the 2026-10-16 10:30 daily review; the review reviews it.</em> <strong>This brief sets and moves no band, tolerance, record, Done-when of another chunk or validation target.</strong> Every band is imported through the gate module's own import lines (<code>test_imp3_disc_birdcage.py:98–153</code>).</p>
+<p><code>EX-122</code> (<code>imp:9</code>; the runner selects <code>imp:&lt;n&gt;</code> by the <code>%02d_</code> prefix in <code>examples/implants/</code>; the <code>imp</code> group sources the complex build, <code>scripts/run_examples.sh:72, :251–252, :273</code>; no runner edit) adds exactly three tracked files and edits nothing else:
+- <code>examples/implants/09_pec_disc_in_birdcage_rim_sar.py</code>;
+- the same-stem guide <code>examples/implants/09_pec_disc_in_birdcage_rim_sar.md</code>, with <code>## 1. What this demonstrates</code>, <code>## 2. How to run it</code>, <code>## Setup figure</code>, <code>## 3. How to analyze it, step by step</code> and <code>## Related</code> (<code>imp:3</code> / <code>imp:8</code>'s order);
+- <code>examples/implants/figures/implants_09_pec_disc_in_birdcage_rim_sar_setup.png</code>, ≤ 600 KiB.</p>
+<p><strong>Collision check (the executor repeats it before writing).</strong> At drafting, <code>ls examples/implants/09_*</code> is empty (highest is <code>08_pec_oblate_disc_edge_in_gel</code>), and no §7 row or chunk file other than this one names <code>EX-122</code> or <code>imp:9</code>. If <code>09_</code> is taken when the slot starts, stop and report. Never renumber in-slot.</p>
+<ul>
+<li><strong>Executor:</strong> <code>example-runner</code>. It does not spawn agents.</li>
+<li><strong>Class:</strong> example. <strong>Tier:</strong> heavy, <code>-n 2</code>, complex build, W1's arm (the record meshes). W2's 1 g rung is not run: W1 carries every asserted identity and the C1 control, and W2 is cited.</li>
+<li><strong>Cost:</strong> ≈ 10.5 measured (example class median) / ≈ 45 predicted min: 10 fixed + ≈ 15 script + ≈ 3 dry run + ≈ 6 run of record + ≈ 6 guide + ≈ 5 censuses, leak guard and commit. <strong>Park if window 3 has not started by minute 30</strong> (rule (d)).</li>
+<li><strong>Depends on:</strong> nothing. Item 428's module, item 427's builder and every imported band are on <code>main</code>.</li>
+<li><strong>Shared files.</strong> Three new paths, nothing under <code>tests/</code> or <code>src/</code>. <strong>If anything there turns out to be needed, stop and report.</strong></li>
+</ul>
+<p><strong>Imports (never restated).</strong> Insert <code>_REPO_ROOT</code> into <code>sys.path</code>, then <code>import tests.validation.test_imp3_disc_birdcage as g9</code>.
+- <strong>Helpers, called unchanged:</strong>
+  - <code>g9._case_disc</code> (<code>:478–506</code>), the gate's own both-arm body. It builds without the disc, then with it, in <code>GEO-23</code> order, with the guard before the disc solve.
+  - <code>g9._report</code> (<code>:509–602</code>), which prints every gate line in W1's format, so the digits line up with the log line for line.
+  - <code>g9._control_c1_disc</code> (<code>:628–674</code>).
+- <strong>Bands, reached through <code>g9</code>'s namespace:</strong> <code>CELL_COUNT_BAND</code>, <code>REUSE_REPRODUCTION_RTOL</code>, <code>RECIPROCITY_BAND</code>, <code>PASSIVITY_SIGMA_TOLERANCE</code>, <code>DISCRETE_IDENTITY_RTOL</code>, <code>ADJACENT_SPREAD_BAND</code>, <code>PEC_WALL_MAX_E</code>, <code>POOLED_SEPARATION_FLOOR</code>.
+- <strong>Records and constants:</strong> <code>SOLID_CELL_RECORD</code>, <code>SPHEROID_HOLE_CELL_RECORD</code>, <code>IMP3_FLAG_OFF_Z_64MHZ</code>, <code>RIM_POINTS</code>, <code>SPHEROID_CENTRE</code>, <code>SPHEROID_SEMI_MAJOR</code>, <code>SPHEROID_SEMI_MINOR</code>, <code>PORT_IDS</code>, <code>DRIVES</code>, <code>PHANTOM_CELL_TAG</code>, <code>PHANTOM_RHO_KG_PER_M3</code>, <code>QUADRATURE_DEGREE</code>, <code>OUTER_BOX_TAG</code>, <code>PHANTOM_HEIGHT</code>, <code>L_X_RECORD</code>.
+- <strong>Helpers:</strong> <code>_solve_driven</code>, <code>_exact_shares</code>, <code>_outer_box_tags</code>, <code>_wall_max_e</code>, <code>_in</code>.
+- <strong>From <code>src</code>:</strong> <code>mass_averaged_sar</code> (<code>fem_em_solver.post.sar</code>), <code>evaluate_vector_field_parallel</code>, <code>pec_oblate_spheroid_field</code>, <code>write_xdmf_with_tags</code>, <code>adopt_host_ownership</code>, <code>write_setup_figure</code> (<code>imp:3</code>'s import lines <code>:77–82</code>).
+- <strong>Rules:</strong>
+  - Never import a <code>test_*</code> name. Never call <code>test_imp3_disc_default_phantom</code>.
+  - The natural-wall problem is built with the gate's three lines <code>:634</code>, <code>:644–645</code> (<code>_outer_box_tags(msh, disc["built"][2], comm)</code>; <code>replace(sweep["problem"], facet_tags=outer, pec_facet_tags=(OUTER_BOX_TAG,))</code>; <code>dict(sweep, problem=problem)</code>), copied, not edited.
+  - <code>_cellwise</code> and <code>_ball_mask</code> are copied from <code>examples/implants/03_rod_in_birdcage_tip_sar.py:134–141, :179–189</code> (example to example).
+- <strong>Records:</strong> digits go only in an example-local <code>REC</code> dict, each with its <code>log:line</code> in <code>20261013T213344Z_IMP-3-step9-W1.log</code> unless marked W2. They are printed beside the readings and never asserted by equality:</p>
+<table>
+<thead>
+<tr>
+<th>Record</th>
+<th>Value</th>
+<th>Line</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cells without / with</td>
+<td>116 085 / 150 140</td>
+<td><code>:3764</code></td>
+</tr>
+<tr>
+<td>(R0) max entrywise</td>
+<td>2.983e-10</td>
+<td><code>:3765</code></td>
+</tr>
+<tr>
+<td>(P) disc arm P1</td>
+<td>2.988e-15</td>
+<td><code>:3710</code></td>
+</tr>
+<tr>
+<td>P_phantom disc arm P1</td>
+<td>1.562944066e-06 W</td>
+<td><code>:3710</code></td>
+</tr>
+<tr>
+<td>(E) tag-402 dofs / max |E|</td>
+<td>6 669 / 0.000e+00</td>
+<td><code>:3719</code></td>
+</tr>
+<tr>
+<td>(M) disc-arm max</td>
+<td>0.0425 %</td>
+<td><code>:3720</code></td>
+</tr>
+<tr>
+<td>(S) without-arm separation</td>
+<td>671.1×</td>
+<td><code>:3684</code></td>
+</tr>
+<tr>
+<td>Q P1 top / bottom</td>
+<td>1.637623 / 1.646293</td>
+<td><code>:3751–3752</code></td>
+</tr>
+<tr>
+<td>Q min over P1 / P3 / ccw / cw</td>
+<td>1.531498 (cw bottom)</td>
+<td><code>:3762</code></td>
+</tr>
+<tr>
+<td>C1 (P) / wall max |E|</td>
+<td>3.154e-15 / 2.627e-04</td>
+<td><code>:3768</code></td>
+</tr>
+<tr>
+<td>C1 PEC / natural top / bottom</td>
+<td>1.536348 / 1.551662</td>
+<td><code>:3769–3770</code></td>
+</tr>
+<tr>
+<td>W2 Q P1 top / bottom (ratio of record)</td>
+<td>1.592094 / 1.593359</td>
+<td>W2 <code>:3862–3863</code></td>
+</tr>
+<tr>
+<td>W2 Q / estimate P1 top / bottom</td>
+<td>0.961546 / 0.964433</td>
+<td>W2 <code>:3862–3863</code></td>
+</tr>
+</tbody>
+</table>
+<p>Structural asserts at start-up: the build is complex, <code>comm.size == 2</code>, <code>len(RIM_POINTS) == 2</code>, and <code>SPHEROID_SEMI_MAJOR / SPHEROID_SEMI_MINOR == 5</code> within 1e-12.</p>
+<p><strong>(1) Anchor.</strong> These are the gate's anchors, asserted at the imported bands. The assert lines are copied from <code>:682–696</code> and <code>:605–625</code>, one printed line per anchor, beside its <code>REC</code> entry.</p>
+<table>
+<thead>
+<tr>
+<th>Anchor</th>
+<th>Assertion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(A0)</td>
+<td><code>\|cells / SOLID_CELL_RECORD − 1\|</code> and <code>\|cells / SPHEROID_HOLE_CELL_RECORD − 1\|</code> ≤ <code>CELL_COUNT_BAND</code></td>
+</tr>
+<tr>
+<td>(R0)</td>
+<td>without-arm Z against <code>IMP3_FLAG_OFF_Z_64MHZ</code> entrywise ≤ <code>REUSE_REPRODUCTION_RTOL</code></td>
+</tr>
+<tr>
+<td>(i)</td>
+<td>reciprocity ≤ <code>RECIPROCITY_BAND</code>, both arms</td>
+</tr>
+<tr>
+<td>(ii)</td>
+<td>σ_max ≤ 1 + <code>PASSIVITY_SIGMA_TOLERANCE</code> and every column power ≤ 1, both arms</td>
+</tr>
+<tr>
+<td>(P)</td>
+<td>P_src = P_vol + P_sheet ≤ <code>DISCRETE_IDENTITY_RTOL</code>, every drive of both arms (W1 ≤ 7.0e-15)</td>
+</tr>
+<tr>
+<td>(M)</td>
+<td>the five σ_y pairs on the disc arm ≤ <code>ADJACENT_SPREAD_BAND</code></td>
+</tr>
+<tr>
+<td>(E)</td>
+<td>tag-402 dofs &gt; 0, and max |E| ≤ <code>PEC_WALL_MAX_E</code> on every drive</td>
+</tr>
+<tr>
+<td>(S)</td>
+<td>without-arm separation ≥ <code>POOLED_SEPARATION_FLOOR</code></td>
+</tr>
+<tr>
+<td>containment</td>
+<td>the 1 g ball fits: x₀ + a_1g &lt; R and a + a_1g &lt; H/2</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example-side anchors (asserted; imported band only).</strong> Each is a discrete identity that the same comparison has already measured.
+- <strong>(F-pec) The fresh PEC solve.</strong> <code>solved = _solve_driven(disc["case"], "P1")</code>, on a fresh solver.
+  - Assert (P) on <code>_exact_shares(disc["case"], solved)</code> ≤ <code>DISCRETE_IDENTITY_RTOL</code>. This is the gate's (P), measured with a fresh solver at <code>:3768</code>.
+  - Assert (E): <code>_wall_max_e(solved["fields"].e_complex, disc["owned_wall"], comm)</code> ≤ <code>PEC_WALL_MAX_E</code>.
+  - Printed only, never asserted: the reproduction of the sweep, |P_phantom,fresh / <code>disc["shares"]["P1"]["phantom"]</code> − 1| and |SAR_1g,fresh / <code>disc["sar"][(rim, "P1")]</code> − 1| at each rim point. Predicted ≤ 1e-8, since this is a different factorisation of the same problem.
+- <strong>(L) Loss-map sums.</strong> For each of the two P1 fields (PEC and natural), the owned sum of the DG0 phantom-loss vector <code>_cellwise(0.5·Re σ·⟨E, E⟩·v̄·dx(PHANTOM_CELL_TAG))</code>, reduced, equals that solve's <code>_exact_shares(...)["phantom"]</code> within <code>DISCRETE_IDENTITY_RTOL</code>. This is <code>imp:3</code>'s check on the rod mesh, where it read 6.228e-15 / 1.519e-14 (<code>20261003T051229Z_EX-83.log.gz:3814–3815</code>).
+- <strong>(N) The natural solve.</strong> The natural-wall problem is built as above and solved with <code>_solve_driven(nat_case, "P1")</code>.
+  - Assert its (P) ≤ <code>DISCRETE_IDENTITY_RTOL</code> (C1's (P), <code>:3768</code>).
+  - Assert that its census reads exterior = outer + 402, with tag 499 absent (C1's census, <code>:3767</code>).
+- Every profile point's <code>ok</code> mask is True (structural).</p>
+<p><strong>(2) Negative controls.</strong> All three are rule (e). Each asserted one is backed by a logged measurement of the same comparison on the same fixture and mesh, W1.
+- <strong>(C1) The gate's, called unchanged.</strong> <code>c1 = g9._control_c1_disc(case)</code>. Assert <code>c1["resid"] ≤ DISCRETE_IDENTITY_RTOL</code> and <code>c1["wall_max"] &gt; PEC_WALL_MAX_E</code>: the knob is wired, as read at <code>:3768</code>, 2.627e-4 against 1e-12. Its printed natural / without and PEC / natural lines come out in the gate's format.
+- <strong>(C1-r) The PEC wall raises the rim 1 g SAR over the natural wall.</strong> SAR_1g(PEC, P1) / SAR_1g(natural, P1) &gt; 1 at both rim points, computed from the example's own natural solve with <code>mass_averaged_sar(…, rho=disc["rho_field"], radius=case["off"]["a_1g"], quadrature_degree=QUADRATURE_DEGREE)</code>. <em>Asserted</em>: W1 measured 1.536 / 1.552 on this comparison (<code>:3769–3770</code>). The factor is printed beside the gate's [1.1, 3.0] prediction. No ceiling is claimed, because a ratio of positive SARs has none (the gate's note, <code>IMP-3.md:1488</code>). This reading must reproduce C1's printed digits. If it does not, it is a fresh-solve divergence: print both.
+- <strong>(Cq) The disc-blind arm under-reads the rim.</strong> Q = SAR_1g,rim(disc) / SAR_1g,rim(without) &gt; 1 for drives P1, P3, ccw and cw at both rim points (8 pairs). <em>Asserted</em>: W1 minimum 1.531498 (cw bottom, <code>:3762</code>).
+  - <strong>P2 / P4 are printed only, never asserted.</strong> On W1's default phantom their bottom-rim Q read 0.849 / 0.715 (<code>:3754</code>, <code>:3758</code>). The weak-drive rim SARs (≈ 30× below P1) are mesh-noisy at that resolution (<code>IMP-3.md:1540</code>), and an assertion there would be a coin toss.
+  - Print W2's P1 Q (1.592 / 1.593) and Q / estimate (0.962 / 0.964) beside W1's as the ratio of record.</p>
+<p><strong>Printed only (predictions written in the script before window 3):</strong>
+- <strong>Rim-near map ratio.</strong> Over gel cells whose midpoint lies within 1.0 mm of each rim point: count, and the max and the volume-weighted mean of local SAR (PEC) / local SAR (natural). Predicted max &gt; the 1 g ratio 1.54. No ceiling is claimed.
+- <strong>Rim profile.</strong> |E| along (0.015, 0, z) for z from a + 0.25 mm to a + 6.0 mm, 12 points, in the gel above the top rim, for the PEC and natural P1 fields. Print them normalised by their value at the far point, beside <code>pec_oblate_spheroid_field(p_l, drive="inplane", semi_major=a, semi_minor=c, e0=1, interior="continue")</code> normalised the same way (local frame p_l = (d_z, d_y, d_x), the gate's <code>:244–245</code> map). This is a shape comparator only. Predicted: PEC/far at the first point is above natural/far, and within [0.5, 2]× of the closed-form shape there. The comparison is never asserted. The degree-1 coarse mesh, the non-uniform coil background and the finite-k field all enter it.
+- Elapsed for the gate case, C1, each fresh solve, maps, figure and XDMF, and summed peak RSS (<code>g9._peak_rss_gib</code> is reached via <code>g9</code>).</p>
+<p><strong>Outputs.</strong>
+- <strong>Setup figure</strong> via <code>write_setup_figure(msh, cell_tags, …)</code> on the disc mesh, <code>imp:3</code>'s call (<code>:227–241</code>): region names {1 conductor, 2 air, 3 phantom (saline)} plus the port boxes, air hidden, phantom translucent, <code>slice_normal=(0, 1, 0)</code> through the axis. The y = 0 slice cuts the disc as its 2.4 mm × 12 mm section beside leg 1. Use a title ≤ 130 characters, e.g. "imp:9 -- PEC oblate disc (a = 6 mm, aspect 5) in the driven birdcage phantom (IMP-3 step 9, W1 mesh)". Render it after the timers.
+- <strong>Combined XDMF</strong> <code>examples/implants/paraview_output/implants_09_pec_disc_in_birdcage_rim_sar_combined.xdmf</code> via <code>write_xdmf_with_tags(…, facet_tags=disc["built"][2])</code>, so that tag 402 and the sheets are visible.
+  - DG0 fields: <code>E_magnitude_pec_P1</code>, <code>local_sar_pec_P1</code>, <code>E_magnitude_natural_P1</code>, <code>local_sar_natural_P1</code>, <code>local_sar_pec_over_natural_P1</code>, <code>one_gram_ball_top</code> and <code>one_gram_ball_bottom</code>.
+  - The ratio is set only on gel cells whose natural loss is &gt; 0, and is 0 elsewhere; it is computed in numpy.
+  - Each key equals its Function's <code>name</code>. Call <code>adopt_host_ownership</code> last.
+- <strong>CSV</strong> <code>paraview_output/implants_09_pec_disc_in_birdcage_rim_sar_rim_profile.csv</code>: z, |E| PEC, |E| natural, the closed-form shape. Written on rank 0 after the collective evaluations.</p>
+<p><strong>Guide.</strong>
+- Explain what the PEC wall does at the rim. Compare the in-plane rim enhancement (1/L_x)² = 64.25 pointwise, <code>imp:8</code>, with a 1 g ball that dilutes it to Q ≈ 1.6.
+- Explain why the with / without comparison is a 1 g ratio while the map ratio is PEC versus natural: one mesh, not two.
+- Explain why P2 / P4 rim SARs are noisy on the default mesh.
+- Say plainly that W1 is the coarse record mesh and W2 is the ratio of record.
+- A ParaView recipe: threshold cell tag 3, then <code>local_sar_pec_over_natural_P1</code> on an x = 0.015 slice. Add the facet-tag-402 block, then Plot Over Line along z through the rim.
+- One sentence in <code>## 2</code>: <code>./scripts/run_examples.sh -e imp:9 -n 2 -t 590</code>, heavy, with the measured wall time.
+- <code>Related</code>, by full filename: <code>examples/implants/03_rod_in_birdcage_tip_sar.md</code>, <code>examples/implants/08_pec_oblate_disc_edge_in_gel.md</code>, <code>tests/validation/test_imp3_disc_birdcage.py</code>, <code>tests/mesh/test_birdcage_implant_spheroid.py</code>, <code>tests/validation/test_imp3_rod_birdcage.py</code>.
+- Never name the raw capture log, or any output by a bare basename outside <code>figures/</code> or <code>paraview_output/</code> (the docrefs checker, <code>EX-115</code> item 461).
+- Write <code>≈</code>, never a tilde.</p>
+<p><strong>(3) Tier and windows.</strong> Heavy by ceiling, <code>-n 2</code>, complex build.</p>
+<p><strong>Price.</strong> The gate case is 164.4 s (<code>:3764</code>) and C1 is 15.7 s (<code>:3768</code>). On top of those:
+- two fresh P1 solves, which predict ≈ 10–15 s each (the 4-drive disc sweep took 13.3 s and the arm 49.5 s, <code>:3718</code>);
+- <code>_exact_shares</code> ×2;
+- two 1 g natural SARs (≈ 6 s; 12 balls took 33 s at <code>:3718</code>);
+- the DG0 map JIT (≈ 15 s), the figure (≈ 10–30 s), the XDMF (≈ 10 s) and start-up (≈ 10 s).</p>
+<p>The run of record is predicted at ≈ 270 s, range [200, 480] s, runner <code>-t 590</code>. On 10-15 / 10-16 the host ran ≈ 1.4–2× slow, and 2× reaches ≈ 540 s. <strong>So window 3 uses §5.1's durable-capture idiom</strong> (<code>PROJECT_PLAN.md:1034–1037</code>), verbatim inside the container command, with the trailing <code>; exit $rc</code>. Summed RSS is predicted ≈ 2.5 GiB (W1 2.40).</p>
+<p><strong>Windows.</strong> Each runs in the foreground with Bash <code>timeout: 660000</code>, as one bare, whole, repo-relative harness call:
+0. <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0. No other heavy, <code>xl</code> or <code>xxl</code> window may be live.
+1. Pre-censuses, run before any file is written:
+   - <code>scripts/testing/run_and_log.sh EX-122-pre-figures "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_setup_figures.py'"</code>
+   - <code>scripts/testing/run_and_log.sh EX-122-pre-docrefs "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py'"</code></p>
+<p>The last reading on <code>main</code> was figures 116 with <code>broken=0</code> (<code>20261016T113243Z_EX-119-post-figures.log</code>), and docrefs <code>dead=0</code>, exit 2. Use what the pre-census reads, because other 10-16 items may land first.
+2. Dry run, after the script exists: <code>scripts/testing/run_and_log.sh EX-122-dryrun "./scripts/run_examples.sh -e imp:9 -n 2 -t 590 --dry-run"</code>. It must print <code>(complex build)</code>.
+3. Run of record, labelled <code>EX-122</code>, flagged. This is the emitted inner command, with <code>-T</code>, the flag and the durable capture:
+   <code>scripts/testing/run_and_log.sh EX-122 "docker compose exec -T -e FEM_EM_SETUP_FIGURES=1 fem-em-solver bash -lc 'cd /workspace &amp;&amp; mkdir -p /workspace/logs &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src timeout -k 30 590 mpiexec -n 2 python3 examples/implants/09_pec_disc_in_birdcage_rim_sar.py &gt; /workspace/logs/EX-122-raw.log 2&gt;&amp;1; rc=\$?; echo [capture] rc=\$rc &gt;&gt; /workspace/logs/EX-122-raw.log; cat /workspace/logs/EX-122-raw.log; exit \$rc'"</code></p>
+<p>Pass means all of the following:
+   - Status 0 and <code>[capture] rc=0</code>;
+   - every anchor and asserted control green;
+   - the closing "All assertions hold" line.</p>
+<p>If the dry run's inner string differs from the above in anything but the flag and the capture, use the dry run's and say so.
+4. <code>git add</code> the PNG and check that it is ≤ 600 KiB. <strong>No unflagged control re-run.</strong> The template asks for one only when a figure is retrofitted (example-runner.md item 6, as <code>EX-117</code>), and a second ≈ 5-minute window does not buy an identity.
+5. Write the guide from window 3's log. Then <code>EX-122-post-figures</code> and <code>EX-122-post-docrefs</code> (the window 1 commands, relabelled). Predicted: figures N → N + 1, <code>broken=0</code>; docrefs <code>dead=0</code>, exit ≠ 1.
+6. <code>git status --porcelain examples/ tests/ src/</code> lists exactly the three new <code>examples/</code> paths.
+7. The pre-commit leak guard runs on the staged logs. This fixture has no AED counterpart, but the guard still runs.</p>
+<p><strong>(4) Traps already paid for.</strong>
+- <strong>Gate fidelity.</strong> <code>_case_disc(None)</code> builds the record meshes (116 085 / 150 140). Never pass a <code>phantom_resolution</code>, and never build the disc any other way. The 2026-10-13 known-issues entry (<code>IMP-6</code> step 2, the default <code>spheroid_in_box_domain</code> builder truncates the rim below ρ_r/3) concerns the <strong>imposed-field</strong> builder. The birdcage disc is item 427's exact revolve, and its rim fidelity reads 0 midpoints inside on W1 (<code>:3717</code>). Refining the rim is out of scope.
+- <strong>The sweep's fields are freed.</strong> <code>_arm_disc</code> deletes <code>result</code> and the superposed fields (<code>:387–388</code>), so the XDMF fields come only from the two fresh <code>_solve_driven</code> P1 solves. A held factorisation silently solves a different problem (<code>PORT-19</code>, <code>WF-12</code>), so use fresh solvers only.
+- <strong>Tag 402 lives in the build tuple</strong> (<code>disc["built"][2]</code>), not in the sweep's facet tags (<code>IMP-3.md:1508</code>).
+- <strong>Point evaluation inside the hole raises</strong> (<code>post/sar.py:357–361</code>). Profile points start 0.25 mm outside the rim in the gel. A failed <code>ok</code> mask is a red, never a skip.
+- <strong>The closed form near the focal ring</strong> (item 408): use <code>interior="continue"</code>, evaluated only at the gel profile points.
+- <strong>Complex build:</strong> no UFL comparison, <code>max_value</code> or <code>sqrt</code>. Masks and ratios are built in numpy. Take <code>np.real</code> before every <code>float</code>.
+- <strong>Rank safety:</strong> reduce every assembled scalar and count, and use owned cells only. Point values go through <code>evaluate_vector_field_parallel</code>. No collective goes inside a <code>rank == 0</code> branch. A rank-local exception hangs the job, and Status 124 is a finding.
+- <strong>XDMF:</strong> DG0 fields only. Each key equals its Function's <code>name</code>. <code>adopt_host_ownership</code> comes last.
+- <strong>Runner:</strong> <code>run_examples.sh</code> runs host-side. Take its line from <code>--dry-run</code>, and never wrap the script itself in <code>docker compose exec</code>. Use <code>-k 30</code> and the durable capture. Never background a window.
+- <strong>After Status 124 or a kill:</strong> run <code>pgrep -c python3</code> first. Only if it reads 0, run the orphan-<code>.c</code> sweep (daily-review.md rubric 4) labelled <code>EX-122-cache-sweep</code>.
+- <strong>Rule (i):</strong> no script edit after window 3 starts, and no guide edit after window 5 starts.</p>
+<p><strong>(5) Scope boundary.</strong> One aspect-5 PEC disc, normal x̂, at (0.015, 0, 0), in the untuned solid-coil F-small 4×4 with 50 Ω sheets, 64 MHz, degree 1, W1's default phantom, <code>-n 2</code>, P1 maps.</p>
+<p>Not claimed:
+- the accuracy of the rim ratio (<code>ANS-10</code> / (7c));
+- absolute or pointwise SAR;
+- convergence, or the 1 g rung (W2 is cited, not run);
+- tissue, heating, ISO 10974 or F2182 compliance;
+- a tuned or copper coil;
+- a square-edged plate;
+- an external check.</p>
+<p><code>IMP-6</code>'s Not-claimed "a plate in a coil" is not lifted. <code>IMP-3</code> does not move.</p>
+<p><strong>(6) What a negative result means.</strong> Report and stop: journal it in <code>docs/testing/attempts.md</code>, park on <code>attempt/EX-122-&lt;UTC&gt;</code>, and mark item 499 BLOCKED in the same commit (rule (d)). <code>EX-122</code> stays ⬜. Never widen a band, never edit <code>tests/</code> or <code>src/</code>, and never re-record from the example side.
+- <strong>A gate anchor red, or (A0) / (R0) missed:</strong> <code>main</code> has drifted from the gate. Print the first differing value beside its <code>log:line</code> and file a known-issues entry.
+- <strong>(F-pec), (L) or (N) red:</strong> an example-side finding about the fresh solve or the DG0 assembly. Print both sides.
+- <strong>(C1), (C1-r) or (Cq) not separating:</strong> a mislabelled comparand, or the fixture moved. Print all 12 Q values and both C1 ratios.
+- <strong>Status 124, over 590 s, or past minute 30 before window 3:</strong> park with the last line of the raw capture log.
+- <strong>A defect after every assertion is green</strong> (figure, XDMF or CSV; the <code>EX-114</code> shape): BLOCKED with the <code>log:line</code> and returned to the review. No in-slot fix after window 3.</p>
+<p>There is no <code>PREDICTED RED:</code> line, so any red stops the slot.</p>
+<p><strong>(7) Status it can move.</strong> <code>EX-122</code> ⬜ → ✅ under the §7 Done-when that the review pastes in the same commit as this item (rule (j)). The census rises by one with <code>broken=0</code>, and docrefs read <code>dead=0</code>. <code>IMP-3</code>, <code>IMP-6</code> and §2 are unchanged.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Use the example-runner agent to execute <code>EX-122</code>, §9 item 499 (<code>docs/planning/chunks/EX-122.md</code>, heading <code>§9 item 499</code>).
+- Read the brief and any review ruling beneath it first; the rulings hold.
+- You are the executor — do not spawn agents. The harness call is the <strong>whole</strong> Bash command: bare, repo-relative, nothing chained or piped. Never background a window. Run every window in the foreground, pass <code>timeout: 660000</code> on every harness Bash call, and never delete a log.
+- Window 3 uses §5.1's durable-capture idiom verbatim inside the container command, with container <code>timeout -k 30 590</code>. An overrun parks the item — never raise a timeout.
+- Before window 1, run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> and require 0. Confirm no heavy, <code>xl</code> or <code>xxl</code> window is live. Run both pre-censuses before writing any file. Check that <code>examples/implants/09_*</code> is free.
+- Edit nothing under <code>tests/</code> or <code>src/</code>. Call <code>_case_disc(None)</code>, <code>_report</code> and <code>_control_c1_disc</code> from <code>tests/validation/test_imp3_disc_birdcage.py</code> unchanged. Never import a <code>test_*</code> name. Take every band through that module's namespace, and assert nothing at a band the gate did not use.
+- The XDMF fields come only from fresh <code>_solve_driven</code> P1 solves. Every count and sum is owned-only and reduced. No UFL comparison or <code>sqrt</code>.
+- Emit the runner line with <code>--dry-run</code> and pass it to the harness. Never wrap <code>run_examples.sh</code> in <code>docker compose exec</code>.
+- No edit to the script after window 3 starts, or to the guide after window 5 starts.
+- If the docker socket is denied, stop and report the exact command string. On a red, park on <code>attempt/EX-122-*</code>, mark item 499 BLOCKED in the same commit, and report.
+- Return the windows' log names, every asserted and printed value beside its record (log:line) or prediction, the census before / after with the docrefs <code>dead=</code> list, and elapsed."</p>
+<h3 id="review-ruling-2026-10-16-1030-item-499">Review ruling 2026-10-16 10:30 (item 499)<a class="headerlink" href="#review-ruling-2026-10-16-1030-item-499" title="Permanent link">&para;</a></h3>
+<p><strong>Queued as drafted.</strong>
+- <strong>(C1-r) PEC / natural rim 1 g &gt; 1 and (Cq) Q &gt; 1 on P1 / P3 / ccw / cw stay asserted.</strong> Standing rule (e) allows an asserted control when a prior measurement of the <em>same</em> comparison on the <em>same</em> fixture backs it: W1 printed both on these meshes (<code>20261013T213344Z_IMP-3-step9-W1.log:3769–3770</code>, 1.536 / 1.552; <code>:3751–3762</code>, minimum Q 1.531), and <code>EX-83</code> asserted Q &gt; 1 the same way. They assert a sign, not a band. P2 / P4 (bottom-rim Q 0.849 / 0.715, mesh noise on W1) are excluded, and the guide says why.
+- <strong>The fresh-solve identities (F-pec), (N), (L) are exact discrete identities at imported bands;</strong> unmeasured on the disc mesh, so a red there stops the slot and is reported, never widened.
+- <strong>Timing:</strong> durable capture under <code>-t 590</code>; a Status 124 parks the item (rule (d)). Never two heavy windows at once.
+- Not claimed, as the row says: the rim ratio's accuracy, absolute or pointwise SAR, tissue, heating, ISO 10974 / F2182, an external check.
+- <strong>Measured class:</strong> example, median ≈ 10.5.</p>
+<h3 id="execution-2026-10-16-1330-slot-item-499">Execution 2026-10-16 13:30 slot (item 499)<a class="headerlink" href="#execution-2026-10-16-1330-slot-item-499" title="Permanent link">&para;</a></h3>
+<p>Executor <code>example-runner</code>, foreground, emit-then-harness, durable capture under <code>timeout -k 30 590</code>; <code>pgrep -c python3</code> 0 before window 1; pre-censuses before any file was written; no unflagged re-run (per the brief).
+- <strong>Run of record</strong> <code>20261016T184038Z_EX-122.log</code>: Status 0, <code>[capture] rc=0</code>, 204 s (predicted ≈ 270 s); gate case 154.5 s, C1 14.8 s, fresh PEC / natural solves 14.7 / 15.1 s; summed RSS 2.34 GiB.
+- <strong>Gate anchors (= W1 <code>20261013T213344Z_IMP-3-step9-W1.log</code>):</strong> (A0) 116 085 / 150 140 (<code>:3718</code>, <code>:3726</code>); (R0) 2.983e-10 (<code>:3727</code>); (i) 9.950e-16 / 3.922e-15; (ii) σ_max 0.999721388 / 0.999723107; (P) 6.973e-15 / 8.467e-15; (M) 0.0425 %; (E) 6 669 dofs, 0; (S) 671.1×; containment holds (<code>:3728–3735</code>).
+- <strong>Example-side identities:</strong> (F-pec) 3.652e-15 / 0 (<code>:3738</code>); (N) exterior 7 764 = 3 318 + 4 446, tag 499 absent, (P) 1.992e-15 (<code>:3744–3745</code>); (L) 1.626e-15 / 2.814e-15 (<code>:3748–3749</code>).
+- <strong>Controls:</strong> (C1) resid 3.154e-15, wall max |E| 2.627e-4 (= W1 <code>:3768</code>); (C1-r) 1.536348 / 1.551662 (fresh vs record −2.7e-7 / −6.8e-8); (Cq) on P1 / P3 / ccw / cw, minimum 1.531498 (cw bottom, = W1 <code>:3762</code>). P2 / P4 bottom 0.848855 / 0.715282 printed only.
+- <strong>Printed only:</strong> fresh vs sweep P_phantom 1.954e-14; rim-near map ratio max 395.3 / 365.3 (top / bottom); first profile point PEC / closed form 0.9338 (predicted [0.5, 2]).
+- <strong>Census:</strong> figures 118 → 119 <code>broken=0</code>, <code>missing=0</code>; docrefs <code>dead=0 guide=0 stale=129</code> exit 2 before and after. PNG 359 KiB.
+- <strong>Cosmetic, no status effect:</strong> the script's printed (P) line says "W1 ≤ 7.0e-15", but the disc arm reads 8.467e-15. That is still far inside the 1e-6 band it is asserted at. The note is wrong text only, and rule (i) froze the script.</p>
+<h3 id="review-ruling-2026-10-16-1800-item-499-audit">Review ruling 2026-10-16 18:00 (item 499 audit)<a class="headerlink" href="#review-ruling-2026-10-16-1800-item-499-audit" title="Permanent link">&para;</a></h3>
+<p><strong>Audit PASS (§4, <code>auditor</code>).</strong> <code>20261016T184038Z_EX-122.log:3718</code>, <code>:3726–3735</code> (gate anchors), <code>:3737–3749</code> ((F-pec) / (N) / (L)), <code>:3751–3765</code> ((C1) / (C1-r) / (Cq)), Exit (Status 0, 204 s); <code>Commit:</code> header <code>0ac72105</code>, the closing commit's parent. Asserts at <code>examples/implants/09_pec_disc_in_birdcage_rim_sar.py:238–278</code>, <code>:295–296</code>, <code>:320–324</code>, <code>:336</code>, <code>:343–344</code>, <code>:355</code>, <code>:366</code>; every band imported from <code>g9</code>. W1 records re-read at <code>20261013T213344Z_IMP-3-step9-W1.log:3684</code>, <code>:3710</code>, <code>:3719–3720</code>, <code>:3751–3752</code>, <code>:3762</code>, <code>:3764–3770</code>. Census 118 → 119 <code>broken=0</code> (<code>…183849Z_EX-122-pre-figures.log:154</code>, <code>…184441Z_EX-122-post-figures.log:155</code>); docrefs <code>dead=0</code> exit 2 (<code>:169</code>). No <code>tests/</code> or <code>src/</code> edit. <strong>No separate control run is owed:</strong> the Done-when names in-run controls only, and (C1-r) / (Cq) are sign tests backed by W1 measurements (10:30 ruling). The script's "W1 ≤ 7.0e-15" print against 8.467e-15 is wrong text only, disclosed, far inside 1e-6.</p>
+<h2 id="7-row-moved-verbatim-2026-10-17-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-17 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-17-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p><strong>A PEC disc in the coil-driven phantom: the rim 1 g SAR with and without it, and the PEC-versus-natural wall map at the rim in ParaView</strong> (<code>imp:9</code>; <code>example-runner</code>; opened 2026-10-16 10:30 daily, §5.4 ramp from <code>IMP-3</code> step 9, §9 item 499; <code>imp:8</code> is the disc under an imposed field with no coil, <code>imp:3</code> is a rod) <em>(history: <code>docs/planning/chunks/EX-122.md</code>)</em> <strong>Done-when:</strong> <code>examples/implants/09_pec_disc_in_birdcage_rim_sar.py</code> + same-stem guide (three required headings + <code>## Setup figure</code> + <code>## Related</code>, PNG ≤ 600 KiB); complex, <code>-n 2</code>, W1 record meshes through <code>test_imp3_disc_birdcage</code>'s <code>_case_disc</code> / <code>_report</code> / <code>_control_c1_disc</code> unchanged; no <code>tests/</code> or <code>src/</code> edit; every band imported. Asserted: (A0), (R0), (i), (ii), (P), (M), (E), (S), containment at the gate's bands; example-side (F-pec) fresh-solve (P) / (E), (L) DG0 loss-map sums ≤ <code>DISCRETE_IDENTITY_RTOL</code>, (N) natural-wall (P) + census; controls (C1) (gate's), (C1-r) PEC / natural rim 1 g &gt; 1, (Cq) Q &gt; 1 on P1 / P3 / ccw / cw (backed, W1 <code>:3751–3770</code>). Records printed beside <code>20261013T213344Z_IMP-3-step9-W1.log:3673–3770</code>. Combined XDMF (DG0 |E| / local SAR for PEC and natural P1, their ratio, 1 g ball masks, tag 402) + rim-profile CSV. Census +1, <code>broken=0</code>, docrefs <code>dead=0</code>, elapsed recorded ⇒ ✅. Not claimed: the rim ratio's accuracy, absolute or pointwise SAR, convergence, tissue, heating, ISO 10974 / F2182, a tuned or copper coil, an external check. | ✅ 2026-10-16 (audit PASS 2026-10-16 18:00 review; §9 item 499, 13:30 slot): <code>examples/implants/09_pec_disc_in_birdcage_rim_sar.py</code> + guide + setup PNG (359 KiB); run of record <code>20261016T184038Z_EX-122.log</code> (<code>-n 2</code>, Status 0, 204 s, "All assertions hold"): (A0) 116 085 / 150 140, (R0) 2.983e-10, (M) 0.0425 %, (E) 6 669 / 0, (S) 671.1× (all = W1); (F-pec) 3.652e-15 / 0, (N) 1.992e-15, (L) 1.626e-15 / 2.814e-15; (C1) = W1 <code>:3768</code>; (C1-r) 1.536348 / 1.551662; (Cq) minimum 1.531498 on P1 / P3 / ccw / cw; census figures 118 → 119 <code>broken=0</code>, docrefs <code>dead=0</code> exit 2. </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

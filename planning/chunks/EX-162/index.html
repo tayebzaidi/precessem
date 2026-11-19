@@ -1,0 +1,645 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-162 — mat:30: the walled gel box heating up — the acrylic wall's heat capacity in the transient, against the two-layer slab series - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-162-mat30-the-walled-gel-box-heating-up-the-acrylic-walls-heat-capacity-in-the-transient-against-the-two-layer-slab-series" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-162 — mat:30: the walled gel box heating up — the acrylic wall's heat capacity in the transient, against the two-layer slab series
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-686-2026-10-28-example-54-ramp-from-mat-21-step-20c-p48c-lane-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 686 — 2026-10-28 (example; §5.4 ramp from MAT-21 step 20c / P48c; lane 3)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-162-mat30-the-walled-gel-box-heating-up-the-acrylic-walls-heat-capacity-in-the-transient-against-the-two-layer-slab-series">EX-162 — <code>mat:30</code>: the walled gel box heating up — the acrylic wall's heat capacity in the transient, against the two-layer slab series<a class="headerlink" href="#ex-162-mat30-the-walled-gel-box-heating-up-the-acrylic-walls-heat-capacity-in-the-transient-against-the-two-layer-slab-series" title="Permanent link">&para;</a></h1>
+<p><em>History file for the §7 <code>EX-162</code> row (<code>OPS-46</code>). Opened by the 2026-10-28 03:00 daily review under daily-review.md step 5's example ramp, from <code>MAT-21</code> step 20c / P48c (§9 item 682, <code>eb065caf</code>), which closed a quantitative gate this interval with no example showing it (the 21:00 slot's journal: "A <code>mat:</code> transient-wall example is owed").</em>
+- <strong>The gate's records (real build, <code>-n 2</code>, m = 4, 119 808 cells):</strong> interior rel L2 2.245e-3 at t* and 1.484e-3 at t₂ = 1.6 T_C, max balance 2.35e-13, volumes 2.5e-13 / 2.7e-13, the massless-wall series missing by 2.059e-2 at t₂ (13.9× the FEM's own error) (<code>20261028T021107Z_MAT-21-step20c-W1-fem.log</code>, 156 s).
+- <strong>No example uses the two-layer transient or a wall heat capacity</strong> (<code>grep -rl "two_layer_slab_transient\|RHO_C_W" examples --include=*.py</code> empty, 2026-10-28 03:00).</p>
+<p><strong>Gap check.</strong> At execution, that grep must still be empty (window 0).</p>
+<p><strong>Done-when.</strong>
+- <code>examples/materials/30_gel_box_wall_heat_capacity_transient.py</code> and its same-stem guide <code>.md</code> exist.
+- <code>./run_examples.sh -e mat:30 -n 2 -t 480</code> exits 0 with every gate below asserted.
+- Bands and helpers imported by name; no gate-module or <code>src/</code> edit.
+- A combined XDMF: θ(t*) and θ(t₂) on the 1D-reduced walled box, plus the error against the series. A setup figure.
+- Census +1, figures <code>missing=0</code>, docrefs <code>dead=0</code>.</p>
+<h3 id="9-item-686-2026-10-28-example-54-ramp-from-mat-21-step-20c-p48c-lane-3">§9 item 686 — 2026-10-28 (example; §5.4 ramp from <code>MAT-21</code> step 20c / P48c; lane 3)<a class="headerlink" href="#9-item-686-2026-10-28-example-54-ramp-from-mat-21-step-20c-p48c-lane-3" title="Permanent link">&para;</a></h3>
+<p><strong>Licence.</strong> Daily-review.md step 5 and §9 rule (5) lane 3 (Phase 8). The angle is <strong>a second material's heat capacity in a transient</strong>: <code>mat:28</code> shows the wall in steady state, where only its conductance matters; this example shows the transient, where the wall's ρc delays the rise and the massless-wall (h_eff) shortcut is measurably wrong. No band or target is set or moved.</p>
+<p><strong>What the example does.</strong> Item 682's run, narrated: CN (θ = 0.5, two BE start-up half-steps, Δt = t*/<code>N_MAIN</code>, 8·<code>N_MAIN</code> steps) on item 670's 1D-reduced walled box at m = 4, snapshots t* and t₂, against <code>two_layer_slab_transient_temperature</code> (400 modes), then the massless-wall control.
+- <strong>Imports, by name, from their source modules</strong> (exactly the list at the top of <code>tests/validation/test_mat21_wall_transient_fem.py:44–69</code>): <code>solve_transient_conduction</code>; <code>two_layer_slab_eigenvalues</code>, <code>two_layer_slab_transient_temperature</code>; <code>E_BAND</code>, <code>INTERIOR_BAND</code>; <code>H_GEL</code>, <code>K_GEL</code>, <code>N_MAIN</code>; <code>H</code>, <code>K</code>, <code>Q</code>, <code>RHO_C</code>, <code>T_INF</code>; <code>_rel</code>; <code>A_BOX</code>, <code>B_BOX</code>, <code>C_BOX</code>, <code>T_C</code>; <code>D_WALL</code>, <code>K_W</code>, <code>RHO_C_W</code>; item 670's <code>BASE</code>, <code>GEL</code>, <code>ROBIN</code>, <code>WALL</code>, <code>_centre</code>, <code>_materials</code>, <code>_robin_facets</code>, <code>_vol_bar</code>, <code>_volumes</code>, <code>_walled_box</code>; <code>N_SERIES</code>, <code>T_STAR</code>. From item 682's module import the module-level helpers <code>_lam</code>, <code>_series</code>, <code>_exact_t</code>, <code>_rho_c_field</code> and the constants <code>RUNG</code>, <code>N2</code>, <code>T2</code>, <code>CTL_FACTOR</code>, <code>MASSLESS</code>. <strong>Never</strong> import or call the <code>walled</code> fixture or any <code>test_*</code> name; write the fixture's body out (as <code>EX-159</code> did for item 670's fixtures, disclosed).</p>
+<p><strong>Gates (asserted; bands imported).</strong>
+- <strong>(V)</strong> gel and wall tag volumes ≤ <code>_vol_bar(n)</code>;
+- <strong>(E)</strong> max per-step balance ≤ <code>E_BAND</code>;
+- <strong>(T)</strong> gel-interior rel L2 ≤ <code>INTERIOR_BAND</code> at <strong>both</strong> t* and t₂;
+- <strong>(c-m), asserted:</strong> the massless-wall series misses the FEM at t₂ by more than <code>CTL_FACTOR</code> × the FEM's interior error there (the ceiling is the gate's own 13.9× measured separation, so 2× is reachable).</p>
+<p>The records are item 682's, cited by log:line from its outcome; print each beside its reading, never assert digit equality.</p>
+<p><strong>Printed only.</strong> The centre θ(t) at both snapshots: FEM, two-layer series, massless-wall series, and their rel difference (the size of the wall-heat-capacity effect a phantom builder would ignore with h_eff); the bare box's t* rise from <code>mat:28</code>'s h_eff for orientation, labelled as such.</p>
+<p><strong>Guide (<code>30_gel_box_wall_heat_capacity_transient.md</code>).</strong> Use <code>mat:28</code>'s headings. Explain: why steady state sees only k_w and d (h_eff) while the transient also sees ρ_wc_w; why the 1D-reduced box makes the slab series exact (item 670's reduction); that <code>K_W</code> / <code>RHO_C_W</code> are nominal PMMA values with the citation owed (dashboard W3), and that the identity tested does not depend on them. Related: <code>mat:28</code>, <code>mat:29</code>, <code>mat:25</code>. Write <code>≈</code>, never a tilde.</p>
+<p><strong>Executor:</strong> <code>example-runner</code>. <strong>Tier:</strong> heavy (the window exceeds 180 s), <code>-n 2</code>.
+- <strong>Prediction:</strong> item 682's W1 took 156 s (real, no export). With the XDMF and figure, ≈ 180–300 s. Use <code>-t 480</code>, with <code>-k 30</code> on every container <code>timeout</code> (the 600 s container ceiling holds).
+- <strong>Class:</strong> example. <strong>Cost:</strong> ≈ 6.0 measured / 30 predicted slot-minutes. <strong>Depends on:</strong> nothing (item 682 DONE). <strong>Family:</strong> <code>EX-162</code>, attempt 1 of 4.</p>
+<p><strong>Windows.</strong> As <code>EX-161.md</code>, with the label <code>EX-162</code>, the group <code>mat:30</code>, <code>-n 2</code> and <code>-t 480</code>:
+1. the gap grep and census-pre;
+2. <code>--dry-run</code>, logged as its own window, stating the build;
+3. the run, after <code>pgrep -c python3</code> reads 0;
+4. census-post;
+5. figures;
+6. docrefs.</p>
+<p><strong>The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped.</strong></p>
+<p><strong>Traps already paid for.</strong>
+- If the group sources the complex build, take <code>np.real</code> of every integral, norm and series value (<code>EX-159</code>, <code>EX-161</code>). A complex miss where the real build passed is a divergence: stop and report.
+- Any rank-reduced print uses <code>comm.allreduce</code> on Python scalars or <code>Allreduce</code> on arrays — never <code>allreduce(array, op=MPI.MAX)</code>: it raised in <code>EX-158</code>'s helper and the hung ranks rode the ceiling (2026-10-28, 21:00 slot).
+- A kill parks the item; never raise the timeout. A crash in the example's own non-gate code after the gates printed is fixed and re-run at the same <code>-t</code> only with the first log kept and the crash disclosed (the 2026-10-28 03:00 ruling on item 678).
+- Census: count the same listing before and after (the 22:30 slot's three executors used three bases); state which.
+- The leak guard; rule (i); no pipe.</p>
+<p><strong>Scope.</strong> Item 682's bands, narrated. <strong>Not claimed:</strong> the six-wall box transient (lateral conduction has no closed form), a cited PMMA ρc, a measured phantom.</p>
+<p><strong>Negative result.</strong> Any red ⇒ park on <code>attempt/EX-162-*</code>, mark item 686 BLOCKED in the same commit, report. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>EX-162</code> ⬜ → ✅; the example census +1.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Use the example-runner agent to execute <code>EX-162</code>, §9 item 686 (<code>docs/planning/chunks/EX-162.md</code>, heading <code>§9 item 686</code>). Read the brief and any review ruling beneath it first; the rulings hold. You are the executor — do not spawn agents. Every harness call is the whole Bash command: bare, repo-relative, foreground, <code>timeout: 660000</code>; never background, never delete a log. Before the run, <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0; confirm <code>examples/materials/30_*</code> does not exist; run the census before writing any file. Edit nothing under <code>tests/</code> or <code>src/</code>. Import by name as the brief lists; never call a fixture or import a <code>test_*</code> name. Emit the runner line with <code>--dry-run</code>; container <code>timeout -k 30 480</code>; never raise <code>-t</code> or <code>-n</code>. If <code>check_private_leak.py</code> blocks a log, move it unchanged to <code>logs/leak-held/</code>, mark the item BLOCKED and stop. On a red, park on <code>attempt/EX-162-*</code>, mark BLOCKED in the same commit, and report. Return the log names, every asserted and printed value beside its record, the census before and after (state the listing), and the elapsed time."</p>
+<p><strong>Outcome (2026-10-28, 09:30 UTC slot, attempt 1 of 4) — DONE, green.</strong> Executor <code>example-runner</code>, foreground. <strong>Run</strong> <code>20261028T093706Z_EX-162.log</code> (<code>-n 2</code>, complex build, Status 0, 142 s harness / 138.9 s in-script, CN solve 21.3 s, <code>FEM_EM_SETUP_FIGURES=1</code>): (V) gel 2.507e-13, wall 2.724e-13 (bar 1.330e-09; <code>:46</code>); (E) 2.373e-13 over 321 (half-)steps (<code>:47</code>; record 2.350e-13); (T) interior 2.244928e-03 at t* (<code>:48</code>) and 1.483557e-03 at t₂ (<code>:50</code>); (c-m) massless-wall miss 2.059306e-02 vs 2 × 1.484e-03, separation 13.88× (<code>:52</code>). Item 682's records (<code>20261028T021107Z_MAT-21-step20c-W1-fem.log:52–57</code>) equal at the printed digits except the balance's last digit, so no real / complex divergence; max|Im θ| = 0. Printed centre θ: t* FEM 1.330815144 / series 1.327311508 / massless 1.338774894 K; t₂ 7.958737121 / 7.945611514 / 8.090989721 K. Dry-run <code>20261028T093703Z_EX-162-dry-run.log</code>. Census listing (<code>run_examples.sh --list</code>, count of <code>-&gt;</code> lines) 158 → predicted +1 → 159 (<code>20261028T093605Z_EX-162-census-pre.log</code>, <code>20261028T093949Z_EX-162-census-post.log</code>; match yes). Figures <code>20261028T093951Z_EX-162-figures.log</code> <code>ok=159 missing=0 broken=0</code>; docrefs <code>20261028T093954Z_EX-162-docrefs.log</code> <code>dead=0 guide=0</code>, exit 2 (staleness only). Setup PNG 108 KiB. <strong>Disclosed:</strong> the "bare box t* rise from <code>mat:28</code>'s h_eff" has no transient series in the gate chain, so the example prints <code>mat:28</code>'s <em>steady</em> bare-at-h_eff record (14.6001 K) labelled as steady; one assertion beyond the gate, max|Im θ| ≤ 1e-12. <code>MAT-21</code> does not move.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

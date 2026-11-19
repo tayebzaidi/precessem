@@ -1,0 +1,664 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-175 — refresh the stale example artifacts, in batches, on main - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-175-refresh-the-stale-example-artifacts-in-batches-on-main" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-175 — refresh the stale example artifacts, in batches, on main
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-762-2026-11-02-ex-175-batch-1-the-t-180-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 762 — 2026-11-02 (EX-175 batch 1, the -t 180 set)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-763-2026-11-02-ex-175-batch-2-the-t-300-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 763 — 2026-11-02 (EX-175 batch 2, the -t 300 set)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-764-2026-11-02-ex-175-batch-3-the-t-420-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 764 — 2026-11-02 (EX-175 batch 3, the -t 420 set)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-766-2026-11-02-ex-175-batch-4-meshing-no-solve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 766 — 2026-11-02 (EX-175 batch 4, meshing, no solve)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-175-refresh-the-stale-example-artifacts-in-batches-on-main">EX-175 — refresh the stale example artifacts, in batches, on <code>main</code><a class="headerlink" href="#ex-175-refresh-the-stale-example-artifacts-in-batches-on-main" title="Permanent link">&para;</a></h1>
+<p><em>History file for the §7 <code>EX-175</code> row (<code>OPS-46</code>). Opened by the 2026-11-02 10:30 daily review; <strong>for the weekly to ratify</strong>, since <code>EX-22</code> and <code>EX-30</code> were weekly commissions. Lane 1's kind of work: a closing window on the current tree for rows whose last window is old.</em></p>
+<p><strong>Why.</strong> The docrefs checker reports <code>stale=208</code> (<code>20261102T124159Z_EX-174-docrefs.log:248</code>): artifacts of 109 examples older than its 336 h limit, the oldest ≈ 1 010 h, each line saying "rerun the example that writes it". Reviews have recorded the exit 2 and moved on. <strong>What the count hides is that those examples have not run against <code>main</code> for up to six weeks,</strong> while the package has moved under them. A re-run is the only test that they still pass their own imported gates. It needs no new target: the anchor is each example's own assertions.</p>
+<p><strong>Done-when.</strong> Each batch's windows exit 0 with no script, guide, gate or band edited; each batch's named artifacts leave the stale list; a red or a kill is filed in known-issues and nothing is fixed in passing. <code>EX-175</code> closes when the four batches below have landed. The remaining stale set goes to the weekly with its count.</p>
+<p><strong>The common brief (items 762, 763, 764, 766).</strong></p>
+<p><em>Windows.</em> One harness call per example, bare, in the example's own documented form, labelled <code>EX-175-&lt;group&gt;&lt;n&gt;</code>:
+<code>scripts/testing/run_and_log.sh EX-175-imp1 "./scripts/run_examples.sh -e imp:1 -n 2 -t 180"</code>.
+Then one docrefs window for the batch: <code>scripts/testing/run_and_log.sh EX-175-b&lt;k&gt;-docrefs "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code>.</p>
+<p><em>Anchor.</em> Each window's Status 0 and the example's own closing assertion line, read in the log. The imported gates are the example's and nothing is restated.</p>
+<p><em>Negative control.</em> <strong>The artifact moved.</strong> Each batch's stems are in <code>20261102T124159Z_EX-174-docrefs.log</code> and must be absent from the batch's docrefs window. Compare by name, not by count: artifacts age into the list by wall clock while a window runs, which is the whole of the 203 → 208 rise (<code>EX-174</code>'s audit). A Status 0 with the stem still stale means the window did not write what the guide cites, and that is a finding.</p>
+<p><em>After each window.</em> <code>git status --porcelain</code> shows only logs and <code>test-results.md</code>. A tracked file that a run rewrites is a finding: name it, and restore nothing silently.</p>
+<p><em>Tier, ranks.</em> Each example's own <code>-n</code> and <code>-t</code>, listed below, unchanged. <code>FEM_EM_SETUP_FIGURES</code> stays unset. Pre-check <code>pgrep -c python3</code> reads 0. <strong>Skip the slot</strong> if <code>uptime</code> loadavg (1 min) reads ≥ 16.</p>
+<p><em>Executor.</em> The implementer directly: there is no script to write.</p>
+<p><em>Class.</em> Example. <strong>The class median understates these:</strong> a batch is several windows, and each should run ≈ 10–25 min. The floor counts the median as the protocol says.</p>
+<p><em>Timebox.</em> A slot starts no new window after minute 45. Windows not run stay listed in the item's outcome, and the item lands partial.</p>
+<p><em>Traps already paid for.</em> <strong>Never edit an example to get green.</strong> No window above ≈ 600 s container-side; every <code>-t</code> below is at or under it. Foreground only, Bash timeout 660000 ms. A kill keeps its log, and a size kill is a finding, never raised. <strong>A leak-guard hit:</strong> the log moves unchanged to <code>logs/leak-held/</code>; these are not the <code>ans:</code> group, so one would be a surprise worth naming. Count verdicts per rank by token. <code>mat:</code>, <code>imp:</code> and <code>th:</code> run complex under <code>run_examples.sh</code> (<code>EX-173</code>'s audit). A digit in a guide may differ from a new log at round-off: that is not a red, and the guide is not edited.</p>
+<p><em>Scope.</em> A re-run. <strong>Not claimed:</strong> a re-closure of any <code>EX-*</code> chunk, any guide digit, or any new capability.</p>
+<p><em>Negative result.</em> A red or a kill: stop the batch, keep the log, file a known-issues entry naming the example, the window and the first failing assertion, and mark the item BLOCKED with what ran. <strong>That is the item's most useful outcome.</strong> No <code>PREDICTED RED:</code> line.</p>
+<p><em>Status it can move.</em> <code>EX-175</code> progress, then ✅; a new known-issues entry per red.</p>
+<h3 id="9-item-762-2026-11-02-ex-175-batch-1-the-t-180-set">§9 item 762 — 2026-11-02 (<code>EX-175</code> batch 1, the <code>-t 180</code> set)<a class="headerlink" href="#9-item-762-2026-11-02-ex-175-batch-1-the-t-180-set" title="Permanent link">&para;</a></h3>
+<p><strong>Outcome (2026-11-02 13:30 slot): DONE.</strong> All six Status 0, their closing assertion lines read: <code>imp:1</code> 33 s, <code>mat:4</code> 26 s, <code>mat:6</code> 13 s, <code>mat:7</code> 32 s, <code>mat:8</code> 31 s, <code>mat:17</code> 44 s (<code>20261102T193356Z_EX-175-imp1.log</code>, <code>…193432Z_EX-175-mat4</code>, <code>…193458Z_EX-175-mat6</code>, <code>…193511Z_EX-175-mat7</code>, <code>…193543Z_EX-175-mat8</code>, <code>…193614Z_EX-175-mat17</code>). <strong>The artifact moved:</strong> 15 lines naming the batch's stems in <code>20261102T124159Z_EX-174-docrefs.log</code>, 0 in <code>20261102T193702Z_EX-175-b1-docrefs.log</code>, <code>stale=201</code>, exit 2 (staleness only). <code>git status</code> showed only logs and <code>test-results.md</code> after every window; no script, guide, gate or band edited. No red, no kill, no leak-guard hit.</p>
+<p><code>imp:1</code>, <code>mat:4</code>, <code>mat:6</code>, <code>mat:7</code>, <code>mat:8</code>, <code>mat:17</code>, each <code>-n 2 -t 180</code>. Stems: <code>implants_01_*</code>, <code>materials_04_*</code>, <code>materials_06_*</code>, <code>materials_07_*</code>, <code>materials_08_*</code>, <code>materials_17_*</code>. <strong>Cost:</strong> ≈ 7.2 measured / 25 predicted min. <strong>Depends on:</strong> nothing.</p>
+<h3 id="9-item-763-2026-11-02-ex-175-batch-2-the-t-300-set">§9 item 763 — 2026-11-02 (<code>EX-175</code> batch 2, the <code>-t 300</code> set)<a class="headerlink" href="#9-item-763-2026-11-02-ex-175-batch-2-the-t-300-set" title="Permanent link">&para;</a></h3>
+<p><strong>Outcome (2026-11-02 13:30 slot): DONE.</strong> All five Status 0, their closing assertion lines read: <code>th:13</code> 8 s, <code>th:14</code> 6 s, <code>mat:24</code> 17 s, <code>mat:13</code> 82 s, <code>mat:21</code> 20 s (<code>20261102T195010Z_EX-175-th13.log</code>, <code>…195018Z_EX-175-th14</code>, <code>…195024Z_EX-175-mat24</code>, <code>…195041Z_EX-175-mat13</code>, <code>…195203Z_EX-175-mat21</code>). <strong>The artifact moved:</strong> 11 lines naming the batch's stems in <code>20261102T124159Z_EX-174-docrefs.log</code>, 0 in <code>20261102T195223Z_EX-175-b2-docrefs.log</code>, <code>stale=190</code>, exit 2. Only logs and <code>test-results.md</code> changed; nothing edited. No red, no kill, no leak-guard hit.</p>
+<p><code>th:13</code>, <code>th:14</code> and <code>mat:24</code> at <code>-n 2 -t 180</code>; <code>mat:13</code> and <code>mat:21</code> at <code>-n 2 -t 300</code>. Stems: <code>time_harmonic_13_*</code>, <code>time_harmonic_14_*</code>, <code>materials_24_*</code>, <code>materials_13_*</code>, <code>materials_21_*</code>. <strong>Cost:</strong> ≈ 7.2 measured / 25 predicted min. <strong>Depends on:</strong> nothing.</p>
+<h3 id="9-item-764-2026-11-02-ex-175-batch-3-the-t-420-set">§9 item 764 — 2026-11-02 (<code>EX-175</code> batch 3, the <code>-t 420</code> set)<a class="headerlink" href="#9-item-764-2026-11-02-ex-175-batch-3-the-t-420-set" title="Permanent link">&para;</a></h3>
+<p><strong>Outcome (2026-11-02 13:30 slot): DONE, all five, no partial landing.</strong> All Status 0, their closing assertion lines read: <code>imp:2</code> 100 s, <code>imp:8</code> 82 s, <code>th:8</code> 5 s, <code>mat:11</code> 110 s, <code>mat:12</code> 99 s (<code>20261102T195329Z_EX-175-imp2.log</code>, <code>…195510Z_EX-175-imp8</code>, <code>…195632Z_EX-175-th8</code>, <code>…195639Z_EX-175-mat11</code>, <code>…195829Z_EX-175-mat12</code>). <strong>The artifact moved:</strong> 10 lines naming the batch's stems in <code>20261102T124159Z_EX-174-docrefs.log</code>, 0 in <code>20261102T200008Z_EX-175-b3-docrefs.log</code>, <code>stale=180</code>, exit 2. Only logs and <code>test-results.md</code> changed; nothing edited. No red, no kill, no leak-guard hit.</p>
+<p><code>imp:2</code>, <code>imp:8</code> and <code>th:8</code> at <code>-n 2 -t 400</code>; <code>mat:11</code> and <code>mat:12</code> at <code>-n 2 -t 420</code>. Stems: <code>implants_02_*</code>, <code>implants_08_*</code>, <code>time_harmonic_08_*</code>, <code>materials_11_*</code>, <code>materials_12_*</code>. <strong>Cost:</strong> ≈ 7.2 measured / 40 predicted min. <strong>Depends on:</strong> nothing. A slot may finish three of the five; that is a partial landing.</p>
+<h3 id="9-item-766-2026-11-02-ex-175-batch-4-meshing-no-solve">§9 item 766 — 2026-11-02 (<code>EX-175</code> batch 4, meshing, no solve)<a class="headerlink" href="#9-item-766-2026-11-02-ex-175-batch-4-meshing-no-solve" title="Permanent link">&para;</a></h3>
+<p><strong>Outcome (2026-11-02 15:00 slot): DONE, and <code>EX-175</code> ✅.</strong> All five Status 0, their closing assertion lines read: <code>mesh:6</code> 54 s, <code>mesh:7</code> 89 s, <code>mesh:8</code> 127 s, <code>mesh:9</code> 131 s, <code>mesh:10</code> 61 s (<code>20261102T210025Z_EX-175-mesh6.log</code>, <code>…210121Z_EX-175-mesh7</code>, <code>…210253Z_EX-175-mesh8</code>, <code>…210502Z_EX-175-mesh9</code>, <code>…210715Z_EX-175-mesh10</code>). <strong>The artifact moved:</strong> 12 lines naming the batch's stems in <code>20261102T124159Z_EX-174-docrefs.log</code>, 0 in <code>20261102T210817Z_EX-175-b4-docrefs.log</code>, <code>dead=0 guide=0 stale=168</code>, exit 2 (staleness only). Only logs and <code>test-results.md</code> changed; nothing edited. No red, no kill, no leak-guard hit. <strong>For the weekly:</strong> the remaining stale count is 168, down from 208 across the four batches and 21 examples.</p>
+<p><code>mesh:6</code>, <code>mesh:7</code>, <code>mesh:8</code>, <code>mesh:9</code> at <code>-n 2 -t 400</code>; <code>mesh:10</code> at <code>-n 2 -t 300</code>. Stems: <code>meshing_06_*</code> … <code>meshing_10_*</code>. <strong>The value here is gmsh on the current image.</strong> <strong>Cost:</strong> ≈ 7.2 measured / 40 predicted min. <strong>Depends on:</strong> nothing.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

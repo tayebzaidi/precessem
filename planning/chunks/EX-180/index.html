@@ -1,0 +1,661 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-180 — mat:37: the skipped wait inside the walled box, and what the wall's heat capacity adds to the drift - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-180-mat37-the-skipped-wait-inside-the-walled-box-and-what-the-walls-heat-capacity-adds-to-the-drift" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-180 — mat:37: the skipped wait inside the walled box, and what the wall's heat capacity adds to the drift
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-813-2026-11-04-example-10-p66-chain-ps-example-step-54-ramp-from-mat-21-p63" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 813 — 2026-11-04 (example; §10 P66, chain P's example step; §5.4 ramp from MAT-21 P63)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-180-mat37-the-skipped-wait-inside-the-walled-box-and-what-the-walls-heat-capacity-adds-to-the-drift">EX-180 — <code>mat:37</code>: the skipped wait inside the walled box, and what the wall's heat capacity adds to the drift<a class="headerlink" href="#ex-180-mat37-the-skipped-wait-inside-the-walled-box-and-what-the-walls-heat-capacity-adds-to-the-drift" title="Permanent link">&para;</a></h1>
+<p><em>History file for the §7 <code>EX-180</code> row (<code>OPS-46</code>). Opened by the 2026-11-04 03:00 daily review. It is §10 P66 ("a <code>mat:</code> example — the drift in the walled box and its FEM twin", serial on P63, the daily's), from <code>MAT-21</code> step 36 / P63 (§9 item 805, <code>b22869b8</code>).</em></p>
+<ul>
+<li><strong>The gates it draws on:</strong> <code>20261104T060527Z_MAT-21-P63-W1b.log</code>:</li>
+<li>(I) R1 8.105518e-03 against P62's comparand;</li>
+<li>(I-mw) R3 2.284679e-03 against its exact comparand;</li>
+<li>(E) ≤ 3.185e-13, with <code>source_power</code> identical;</li>
+<li>R0's control 2.244928e-03, reproducing item 682;</li>
+<li>the wall-free control miss 2.1130e-02.</li>
+<li><strong>Why an example:</strong> <code>mat:33</code> shows the skipped wait in the wall-free box. <code>mat:28</code>, <code>mat:30</code> and <code>mat:31</code> show the walled box with the source alone. None shows the drift inside the wall. <strong>Gap check, run at this review:</strong> <code>grep -l 'wall_pre_equilibration\|_drift_1d' examples/materials/*.py</code> is empty.</li>
+<li><strong>Its angle:</strong> the output quantity is the <em>wall's heat capacity in the drift</em>. The same start is run with a real wall and with a massless one, FEM against FEM, beside the h_eff closed form. No example has that.</li>
+</ul>
+<p><strong>Done-when.</strong>
+- <code>examples/materials/37_gel_box_wall_pre_equilibration_bias.py</code> and its same-stem guide <code>.md</code> exist.
+- The closing window exits 0 with every gate below asserted.
+- Bands and helpers are imported by name, never restated. No gate-module edit and no <code>src/</code> edit.
+- A combined XDMF under <code>examples/materials/paraview_output/</code> holds θ at t* on the three runs and R1's comparand. A setup figure comes through <code>write_setup_figure</code>.
+- Census +1, figures <code>missing=0</code>, docrefs <code>dead=0</code>.</p>
+<h3 id="9-item-813-2026-11-04-example-10-p66-chain-ps-example-step-54-ramp-from-mat-21-p63">§9 item 813 — 2026-11-04 (example; §10 P66, chain P's example step; §5.4 ramp from <code>MAT-21</code> P63)<a class="headerlink" href="#9-item-813-2026-11-04-example-10-p66-chain-ps-example-step-54-ramp-from-mat-21-p63" title="Permanent link">&para;</a></h3>
+<p><strong>Licence.</strong> §10 P66 is the weekly's enumerated step and is marked "the daily's". Daily-review.md step 5 covers the example ramp. No band or target is set or moved. Because it is an enumerated step it does not count against chain P's rule (6) cap.</p>
+<p><strong>What the example does.</strong> It uses item 682's walled 1D-reduced box (<code>test_mat21_wall_fem</code>'s <code>_walled_box</code>, <code>_materials</code>, <code>_robin_facets</code>; <code>test_mat21_wall_transient_fem</code>'s <code>RUNG</code>, <code>_rho_c_field</code>; m = 4, 119 808 cells, Δt = <code>T_STAR</code> / <code>N_MAIN</code>). It makes three runs, each CN with two BE start-up half-steps, <code>q = Q</code>, and Robin h = <code>H</code> on the outer wall faces:
+- <strong>R0:</strong> the reference, from θ₀ = 0.
+- <strong>R1:</strong> t_w = 0, θ₀ = g·z on every cell.
+- <strong>R3:</strong> R1 with ρ_wc_w = <code>MASSLESS</code> · <code>RHO_C_W</code>.</p>
+<p>These are item 805's <code>runs</code> body without R2. Pytest fixtures cannot be imported, so write the body out in <code>main()</code>. Import the module's plain helpers by name (<code>_series_z</code>, <code>_drift_z</code>, <code>_read</code> and the unique-z route, <code>test_mat21_wall_pre_equilibration_fem.py:91–165</code>). Read each signature first.</p>
+<p><strong>Gates (asserted; bands imported; all collected first, then asserted).</strong>
+- <strong>(I):</strong> R1 against P62's comparand (<code>_drift_1d</code> + item 682's two-layer series), ≤ <code>INTERIOR_BAND</code>. Measured 8.105518e-03 in the real build, so this is the tightest gate.
+- <strong>(I-mw):</strong> R3 against its exact comparand, ≤ <code>INTERIOR_BAND</code>.
+- <strong>(E):</strong> ≤ <code>E_BAND</code> on all three runs, and <code>source_power</code> identical on all three.
+- <strong>R0's control:</strong> its interior error reproduces item 682's 2.244928e-03 within 5e-10 absolute, as item 805.
+- <strong>(c-wf), asserted:</strong> the wall-free series (P51's comparand at H) misses R1 by &gt; <code>INTERIOR_BAND</code>. Measured 2.1130e-02.
+- <strong>max|Im θ|</strong> is 0 on all three runs. The group runs complex.</p>
+<p><strong>Printed only.</strong>
+- A table at P5, <code>ADJ_PT</code> and P0: the FEM drift part (R1 − R0), <code>_drift_1d</code>, their difference (the wall-capacity term), and R1 − R3 (FEM against FEM).
+- Item 805's real-build values beside each entry, with the log named.
+- No band, no rate, no recommended wait.</p>
+<p><strong>Guide.</strong>
+- Use <code>mat:33</code>'s headings. Related examples: <code>mat:28</code>, <code>mat:30</code>, <code>mat:31</code>, <code>mat:33</code>.
+- Say plainly that P62's comparand treats the wall as a massless resistance in the drift. Say that this example measures what that leaves out. Say that (I) on R1 holds at 0.81 of the band on this fixture <strong>under a continuous source</strong>.
+- Say that under D = 0.25 the same term was measured red (<code>20261104T061055Z_MAT-21-P65-W1.log</code>), that the comparand question is the 11-04 weekly's, and that the example does not settle it.
+- <strong>One rung, one Δt, this fixture's g.</strong> The PMMA k_w and ρ_wc_w are nominal, with the citation owed (W3); say so.
+- <strong>Round-off digits (03:00 ruling, 2026-11-01):</strong> quote a round-off term as a bound, or name the window its digits came from. Write <code>≈</code>, never a tilde.
+- <strong>Check every derived number in the prose by hand.</strong></p>
+<p><strong>Executor:</strong> <code>example-runner</code>, foreground. <strong>Tier:</strong> heavy (by the weekly's label), <code>-n 2</code>.
+- <strong>Prediction:</strong> item 805's four real-build runs took 16.5 s of solve within a 48 s window. Complex arithmetic costs ≈ 2–4 × per factorisation and back-solve. The XDMF write and the figure add ≈ 30–60 s, so the total is ≈ 100–200 s. Use <code>-t 480</code>, with <code>-k 30</code> on every container <code>timeout</code>.
+- <strong>Class:</strong> example. <strong>Cost:</strong> ≈ 7.5 measured / 30 predicted min. <strong>Depends on:</strong> nothing. <strong>Family:</strong> <code>EX-180</code>, attempt 1 of 4.
+- <strong>Skip this slot</strong> if <code>pgrep -c python3</code> in the container reads above 0, or if <code>uptime</code> loadavg (1 min) reads ≥ 16.</p>
+<p><strong>Windows.</strong> As <code>EX-176.md</code>, with the label <code>EX-180</code>, the group <code>mat:37</code>, <code>-n 2</code> and <code>-t 480</code>. <strong>Closing window:</strong> <code>scripts/testing/run_and_log.sh EX-180 "./scripts/run_examples.sh -e mat:37 -n 2 -t 480"</code>, the last window. The setup figure comes from one earlier flagged window, labelled <code>EX-180-figure</code>, which closes nothing. Nothing is edited after the closing window, the guide included. <strong>The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped.</strong></p>
+<p><strong>Traps already paid for.</strong>
+- <strong>The group runs complex.</strong> Take <code>np.real</code> on each integral and assert max|Im θ|, as <code>mat:35</code> and <code>mat:36</code> do. Any form written as <code>d * d</code> becomes <code>ufl.inner(d, d)</code>, as <code>imp:17</code>'s <code>_errors_c</code> does. Never use an ordering comparison on a complex operand.
+- <strong>Item 805's ρc swap</strong> is <code>np.where(rcf.x.array == RHO_C_W, …)</code>. On a complex array, compare the real part.
+- The h_eff drift is six-face (<code>_drift</code>). The box is 1D-reduced, so use <code>_drift_1d</code>.
+- <code>_series</code> takes ρc and λ together.
+- <code>.eval</code> bytes depend on the batch, so read on one fixed batch.
+- Hold one run's snapshots at a time.
+- <strong>Print 7 digits or fewer.</strong>
+- A kill parks the item; never raise the timeout.</p>
+<p><strong>Scope.</strong> One example. <strong>Not claimed:</strong> the D = 0.25 case (P65, open), a wall-capacity comparand, a rate, a recommended wait, a cited PMMA ρc.</p>
+<p><strong>Negative result.</strong> A gate red: stop, keep the log, BLOCKED. A red (I) on R1 in the complex build alone, with (I-mw) green, would be a finding about the build (R1 sits at 0.81 of the band): report it, change nothing. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>EX-180</code> ✅; census +1; §10 P66 DONE.</p>
+<p><strong>Outcome (2026-11-04 04:30 slot): DONE, attempt 1, <code>EX-180</code> ✅.</strong> Closing <code>20261104T104403Z_EX-180.log</code>: Status 0, 58 s harness / 42.7 s in script, <code>-n 2</code>, under the 100–200 s prediction. (I) R1 8.105518e-03, (I-mw) R3 2.284679e-03 against 1e-2 (both equal item 805's at the printed digits); (E) ≤ 3.161e-13 against 1e-9, <code>source_power</code> 49.14 W identical; R0 control |Δ| 1.008e-10 against 5e-10; (c-wf) 2.1130e-02 &gt; 1e-2; max|Im θ| 0. Printed: FEM − <code>_drift_1d</code> +2.174e-02 K at P5, +1.545e-02 K at <code>ADJ_PT</code>; R1 − R3 −6.931e-02 / −5.664e-02 K. Figure window <code>20261104T104306Z_EX-180-figure.log</code> closes nothing (the first, <code>20261104T104214Z_EX-180-figure.log</code>, died at the XDMF comparand write, <code>fem.Expression</code> interpolation points, fixed before the closing window). Census 173 → 174 as predicted (<code>20261104T104536Z_EX-180-census-post.log</code>), figures <code>missing=0 broken=0</code> (<code>20261104T104537Z_EX-180-figures.log</code>), docrefs <code>dead=0 guide=0 stale=103</code>, exit 2, unchanged (<code>20261104T104538Z_EX-180-docrefs.log</code>).</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

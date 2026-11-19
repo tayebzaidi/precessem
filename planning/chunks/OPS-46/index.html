@@ -1,0 +1,597 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>OPS-46 — Move the heavy §7 chunk histories out of PROJECT_PLAN.md - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ops-46-move-the-heavy-7-chunk-histories-out-of-project_planmd" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              OPS-46 — Move the heavy §7 chunk histories out of PROJECT_PLAN.md
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ops-46-move-the-heavy-7-chunk-histories-out-of-project_planmd">OPS-46 — Move the heavy §7 chunk histories out of <code>PROJECT_PLAN.md</code><a class="headerlink" href="#ops-46-move-the-heavy-7-chunk-histories-out-of-project_planmd" title="Permanent link">&para;</a></h1>
+<p><strong>Move the heavy §7 chunk histories out of <code>PROJECT_PLAN.md</code></strong> — <em>opened 2026-09-12 by an interactive operator session (§9 operator directive 1); the next daily review rules on it before it is queued.</em> <strong>The defect, measured 2026-09-12:</strong> the plan is 1 299 833 B, of which §7 is 1 099 241 B (<strong>85%</strong>). A chunk's whole step history accumulates inside its table cell and a table cell cannot be partially read — <code>WF-6</code>'s cell is 41 963 B, <code>ANS-4</code>'s 33 943 B, the 15 largest rows carry 44% of all row text, and 104 of the 217 rows are under 400 B. The two largest cells belong to an <em>open</em> chunk and a benchmark chunk, so closure does not predict size and archiving only ✅ rows would leave the worst offender in place. <strong>Change:</strong> every row over 2 KB (74 rows, ≈ 552 KB) moves <strong>byte-for-byte</strong> to <code>docs/planning/chunks/&lt;ID&gt;.md</code>; the §7 cell keeps title, status, the current state in ≤ 2 sentences, and the pointer. Closed chunks' files go under the existing archive path; open chunks' files are where implementers append instead of growing the cell. Extends <code>scripts/maintenance/rotate_plan_archive.py</code>; no new machinery. <strong>Prerequisite, before any row moves:</strong> <code>scripts/testing/check_private_leak.py</code> selects its corpus by glob, so <code>docs/planning/chunks/**</code> must be added to that pattern set or the moved files escape the privacy check — and <code>ANS-4</code>, the Ansys benchmark chunk, is the second-largest cell being moved. <strong>Also edits:</strong> <code>plan-navigator</code>'s corpus is explicitly fixed and must gain the new path or it will return NOT FOUND for text that exists; <code>auditor</code> step 1 ("the chunk's §7 entry, in full") becomes the row plus its chunk file; one sentence each in <code>implementer-run.md</code>, <code>daily-review.md</code>, <code>weekly-review.md</code> on which half takes the narrative and which the status; one sentence in <code>AGENTS.md</code> rule 4, since chunk files are a new surface a non-Claude agent could write to. Citations of the form "§7 <code>ANS-4</code> row" stay valid — the row still exists. <strong>Anchors (asserted):</strong> (i) every moved cell's text is byte-identical to its new file — a diff of the extracted cell against the file is empty, so no recorded figure can be silently rewritten; (ii) <code>check_private_leak.py</code> exits 0 with the extended pattern set, and a planted synthetic value under <code>docs/planning/chunks/</code> is caught by it (positive control) before the real move; (iii) <code>plan-navigator</code> answers a question whose answer now lives only in a chunk file, with a citation; (iv) the plan is under 0.85 MB, re-measured with <code>scripts/probes/measure_plan_sections.py</code> and recorded before/after. <strong>Commits:</strong> (a) leak-check pattern set + the four protocol/agent edits; (b) the row moves, <strong>one commit per §7 family</strong> so a bad move is revertable; (c) the re-measurement. Docs/tooling only — no <code>src/</code>, no test, no band. <strong>Ruled 2026-09-12 18:00 review — ACCEPTED and split into four implementer steps (§9 items 1, 3, 4, 5).</strong> Re-measured by this review with the same 2 KB cut: <strong>74 rows</strong> over 2 048 B, grouped by family — OPS 20, EX 19, GEO 12, PORT 8, TH 4, ANS 3, MAG 2, MAT 2, POST 2, WF 1 — the three largest being <code>WF-6</code> (43 961 B), <code>ANS-4</code> (41 811 B) and <code>OPS-26</code> (22 040 B). Two corrections to the scope as written: (1) <strong>the two agent-definition edits (<code>plan-navigator</code> corpus, <code>auditor</code> step 1) are operator-owned</strong> — <code>Edit(.claude/**)</code> is on the <em>ask</em> list in <code>.claude/settings.json</code>, which a headless session cannot answer — so they are a Waiting-on-you item on the dashboard, anchor (iii) is asserted only once the operator lands them, and until then reviews Read a chunk file directly instead of asking the navigator; (2) the <strong>narrative blocks below the tables</strong> (<code>PORT-14</code>, <code>TH-15</code> and others carry their step histories as <code>&gt;</code> blockquotes, not in the cell) are outside this chunk's 2 KB-row rule and are measured, not moved, by step 4 for a follow-up. <strong>Step 1 (tooling, nothing moved):</strong> <code>check_private_leak.py</code> gains <code>docs/planning/chunks/**</code> in its pattern set with a positive control; <code>rotate_plan_archive.py</code> gains a <code>chunks</code> subcommand that extracts a named row's status cell byte-for-byte to <code>docs/planning/chunks/&lt;ID&gt;.md</code>, rewrites the cell to title + status glyph + a state line the spec file supplies + the pointer, refuses to write unless the extracted text equals the file it wrote (anchor (i)) and supports <code>--dry-run</code>; the three protocol docs and <code>AGENTS.md</code> rule 4 gain their sentence. <strong>Steps 2–4 (the moves, one commit per family):</strong> WF + ANS + PORT; OPS + GEO + MAG; TH + MAT + POST + EX, then the re-measurement (anchor (iv), &lt; 0.85 MB) and the closure claim. Status moves: step 1 ⬜ → 🟡; step 4 🟡 → ✅ if (i), (ii) and (iv) hold and (iii) is recorded as operator-pending. <strong>Step 1 landed 2026-09-12 19:30 slot (tooling only, nothing moved):</strong> <code>rotate_plan_archive.py chunks</code> (spec <code>=== &lt;ID&gt;</code> + one state line; <code>--dry-run</code>; <code>--census</code>) and the tracked anchor script <code>scripts/probes/ops46_step1_anchors.sh</code>, all green in <code>20260913T003904Z_OPS-46-step1.log</code> (smoke, 20 s, no <code>mpiexec</code>): (b) <code>OPS-36</code> moved on a copy under <code>logs/</code> — chunk body equals the independently re-extracted cell (<code>cmp</code> 0, 2212 B both), the copy shrinks by exactly cell − replacement (2212 − 229 B), <code>git diff --stat PROJECT_PLAN.md</code> empty; negative controls — one altered chunk-file byte refused (exit 1, copy unchanged) and a nonexistent row refused (exit 1, nothing written); (a) a synthetic plant under <code>docs/planning/chunks/</code> caught (exit 1, file named) and the tree clean afterwards in hook and <code>--audit</code> mode. <strong>Three readings recorded:</strong> (1) <code>check_private_leak.py</code> has no path glob — its corpus is the staged diff (hook) or every tracked file (<code>--audit</code>) — so no pattern-set edit was needed and the positive control is the proof; (2) §7 rows are <code>ID \| Title \| Status \| Tier</code>, and the history sits mostly in the <em>Title</em> cell, so the tool moves the span from the ID cell's end to the Tier cell's start (Title + Status) byte for byte and derives the title from the head before the first " — "; (3) the container's <code>git</code> refuses <code>/workspace</code> ("dubious ownership") and the leak check swallows git errors into "nothing staged", so a leak check run in the container without <code>GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=safe.directory GIT_CONFIG_VALUE_0=/workspace</code> passes vacuously (printed in the log, exit 0 on the plant) — the host <code>pre-commit</code> hook is unaffected. <strong>Census on the current plan (c):</strong> 75 rows over 2 048 B parse (0 unparseable), per family OPS 20, EX 19, GEO 13, PORT 8, ANS 4, TH 4, MAG 2, MAT 2, POST 2, WF 1; against §9 items 3–5's lists (73 IDs) the census adds <code>GEO-17</code> and <code>ANS-5</code> and misses none — the review's "74"/GEO 12/ANS 3 is off by these two. <strong>Step 2 landed 2026-09-12 19:30 slot (docs only): the WF, ANS and PORT families (12 rows) moved, one commit per family</strong> (<code>2592c5b</code>, <code>efb05ed</code>, <code>8404422</code>), each through <code>scripts/probes/ops46_move_family.sh</code>: (i) every span re-extracted from <code>git show HEAD:PROJECT_PLAN.md</code> <code>cmp</code>-equals its chunk body, (ii) the leak check exits 0 on the move staged into a scratch index with git asserted to see it, (iii) one plan line per row and nothing else; the missing-row negative control refused before the first move (<code>20260913T005037Z_OPS-46-step2-WF.log</code>, <code>…005108Z_…-ANS.log</code>, <code>…005133Z_…-PORT.log</code>, Status 0, 3 s each). Plan 1342548 → 1165545 B. One earlier WF window (<code>…004941Z</code>) was red on the script's own no-other-changes check (harness outputs counted); the move was reverted and re-run. <strong>Step 3 partly landed 2026-09-12 19:30 slot:</strong> the MAG (2 rows, <code>c96873e</code>, <code>20260913T005401Z_OPS-46-step3-MAG.log</code>) and GEO (12 rows, <code>ac1b22c</code>, <code>20260913T005431Z_OPS-46-step3-GEO.log</code>) families moved with (i)/(ii)/(iii) green, Status 0; plan → 1064162 B. The OPS family (20 rows) is not yet moved (§9 item 4). | 🟡 </p>
+<p><strong>Step 3 landed 2026-09-12 21:00 slot — the OPS family (20 rows) moved, so step 3 is complete</strong> (<code>b27e690</code>, <code>20260913T020237Z_OPS-46-step3-OPS.log</code>, Status 0, 5 s, smoke, no <code>mpiexec</code>). This row moved with its own family, so this file now holds the history; the §7 row carries the state line "in progress, steps 1–3 landed". Anchors through <code>scripts/probes/ops46_move_family.sh</code>, 47 PASS and 0 FAIL: (i) all 20 spans re-extracted from <code>git show HEAD:PROJECT_PLAN.md</code> <code>cmp</code>-equal their chunk bodies; (iii) <code>git diff --numstat</code> 20/20 on the plan, 20 new chunk files, no other change; (ii) the leak check exits 0 on the move staged in a scratch index, with git seeing 21 paths. A <code>--dry-run</code> on the spec went first and confirmed every glyph (19 ✅, 1 🟡) and every state line before the real move. Plan 1 064 986 → 927 309 B (137 677 B moved out). The glyphs are unchanged by construction. Step 4 (TH, MAT, POST, EX, then anchor (iv) &lt; 850 000 B and the closure claim) is §9 item 5.</p>
+<p><strong>Step 4 landed 2026-09-12 21:00 slot (second item) ⇒ chunk ✅.</strong> Four family moves, one commit each, all through <code>scripts/probes/ops46_move_family.sh</code> with every anchor green. Each spec was dry-run first and the tool's glyph read-back checked (TH-11 ✅, TH-12 ✅, TH-15 🟡, TH-19 ⬜, POST-6 🟡, the rest ✅). One dry-run refusal fixed before the move: <code>EX-24</code>'s first state line carried a digit run the row lacks.
+- <strong>TH</strong> (4 rows): <code>7abb7f0</code>, <code>20260913T020527Z_OPS-46-step4-TH.log</code>, Status 0, 15 PASS / 0 FAIL; plan 927 147 → 898 428 B.
+- <strong>MAT</strong> (2 rows): <code>294603d</code>, <code>…020555Z_OPS-46-step4-MAT.log</code>, Status 0, 11 PASS / 0 FAIL; → 889 116 B.
+- <strong>POST</strong> (2 rows): <code>dfa6377</code>, <code>…020624Z_OPS-46-step4-POST.log</code>, Status 0, 11 PASS / 0 FAIL; → 882 390 B.
+- <strong>EX</strong> (19 rows): <code>6c0c529</code>, <code>…020641Z_OPS-46-step4-EX.log</code>, Status 0, 45 PASS / 0 FAIL; → 806 962 B.</p>
+<p><strong>Closure anchors.</strong>
+- <strong>(i)</strong> held on every moved row: 12 (step 2) + 34 (step 3) + 27 (step 4) = <strong>73 rows</strong>, each span re-extracted from git HEAD and <code>cmp</code>-equal to its chunk body. The 18:00 review's "74" is the census discrepancy recorded under step 1: §9 items 3–5 list 73 IDs, and <code>GEO-17</code> / <code>ANS-5</code> are over 2 048 B but in no list, so they were not moved.
+- <strong>(ii)</strong> <code>check_private_leak.py --audit</code> on the final tree at <code>6c0c529</code> exits 0, with git asserted to see the 73 tracked chunk files so the pass is not vacuous (<code>20260913T020720Z_OPS-46-step4-leak-audit.log</code>, Status 0, 17 s).
+- <strong>(iv)</strong> plan <strong>806 962 B &lt; 850 000 B</strong>. Before and after, each with <code>measure_plan_sections.py</code>'s top-45: <code>20260913T020422Z_OPS-46-step4-measure-before.log</code> (927 147 B before step 4; 1 342 548 B before step 2) and <code>20260913T020712Z_OPS-46-step4-measure-after.log</code> (806 962 B, 73 chunk files).
+- <strong>(iii)</strong> is <strong>operator-pending</strong>: the <code>plan-navigator</code> corpus and <code>auditor</code> step 1 edits sit under <code>Edit(.claude/**)</code>, which a headless session cannot make. Until they land, read a chunk file directly.</p>
+<p><strong>For the narrative-block follow-up</strong> (<code>--blocks</code>, same after-log): <code>TH-15</code> row 1 line plus a <code>nar</code> block of 1 242 lines (lines 1912–3153); <code>PORT-14</code> row 1 line plus a <code>nar</code> block of 735 lines (3945–4679). The top-45 after the moves is led by chunk spans that are now mostly narrative blocks: <code>WF-6</code> 158.4 kchars, <code>TH-15</code> 85.7, <code>PORT-14</code> 49.9, <code>MAT-4</code> 21.6, <code>POST-6</code> 10.9.</p>
+<p><strong>2026-09-13 (operator session):</strong> the two <code>.claude/agents</code> edits anchor (iii) was pending on landed — <code>plan-navigator.md</code> corpus gains <code>docs/planning/chunks/&lt;ID&gt;.md</code>, <code>auditor.md</code> step 1 loads the chunk file beside the row. Anchor (iii) itself (a navigator answer cited from a chunk file) is the auditing review's to exercise.</p>
+<p><strong>2026-09-13 10:30 daily review — audited PASS (<code>auditor</code>, re-cited by the review).</strong> (i) 12 + 34 + 27 = 73 rows <code>cmp</code>-equal to their chunk bodies (per-family <code>[anchor] … PASS</code> gates 15 / 11 / 11 / 45, 0 FAIL, <code>20260913T020527Z_OPS-46-step4-TH.log</code>, <code>…020555Z_…-MAT.log</code>, <code>…020624Z_…-POST.log</code>, <code>…020641Z_…-EX.log</code>); (ii) <code>leak_audit_rc=0</code>, Status 0, 17 s, 73 tracked chunk files (<code>20260913T020720Z_OPS-46-step4-leak-audit.log:34–42</code>); (iv) 927 147 → <strong>806 962 B</strong> (<code>20260913T020422Z_…-measure-before.log:34</code>, <code>20260913T020712Z_…-measure-after.log:34–35</code>); <code>git show --stat 1f4e706</code> docs-only; smoke tier honest (worst window 17 s). <strong>(iii) exercised:</strong> <code>plan-navigator</code> answered "which log is cited for the final-tree leak audit, with what elapsed time and file count" from this file (line 15: the leak-audit log, 17 s, 73 files) with the citation, checked against the file by the review — the <code>2a0ca4d</code> corpus edit works. Caveats: (iv) is a printed <code>wc -c</code> compared by hand, not a scripted assert — carried as an <code>OPS-47</code> step 1 rider; the row's "74" was the step-1 census discrepancy (73 listed and moved; <code>GEO-17</code> / <code>ANS-5</code> over 2 KB, in no list). Verdict stands: ✅.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

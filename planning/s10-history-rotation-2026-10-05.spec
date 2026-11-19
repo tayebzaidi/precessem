@@ -1,0 +1,6 @@
+=== §10 weekly block 2026-10-03, part 1 (pace ledger, the 09-30 forecast audit, rulings F9 / F16 / T13 / T6 / ANS-8 / H8b / H12b′ / H13a / F14 / windows / POST-1 7b / WF-9 and ratifications, chains F / T / H / P / I / U as written 10-03 with the dailies' provisional steps of 10-04 / 10-05 and their slot outcomes, supply arithmetic) 4373 4806
+*(Superseded weekly blocks, 2026-10-03 — pace ledger, the 09-30 forecast audit, the F9 / F16 / T13 / T6 / `ANS-8` / H8b / H12b′ / H13a / F14 / windows / `POST-1` 7b / `WF-9` rulings and ratifications, chains F / T / H / P / I / U as written on 10-03 with the dailies' provisional steps of 10-04 / 10-05 and their slot outcomes, the supply arithmetic — moved verbatim to `docs/planning/plan-archive.md` 2026-10-05. The current block of each kind is the 2026-10-05 one below.)*
+=== §10 weekly block 2026-10-03, part 2 (Phase 6 exit arithmetic, Phase 9 no-date note, seventh agent-value measurement, XL/XXL, examples health, benchmarks, hygiene, flagged-for-the-daily) 4808 4912
+*(Superseded weekly blocks, 2026-10-03 — the Phase 6 exit arithmetic, the Phase 9 no-date note, seventh agent-value measurement, XL/XXL, examples health, benchmarks, hygiene, flagged-for-the-daily: `docs/planning/plan-archive.md`, moved verbatim 2026-10-05.)*
+
+<!-- 2026-10-05 weekly blocks follow -->

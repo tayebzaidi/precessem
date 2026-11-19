@@ -1,0 +1,787 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>Retention policy — logs, journals, and repo hygiene - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#retention-policy-logs-journals-and-repo-hygiene" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Retention policy — logs, journals, and repo hygiene
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-artifact-classes-and-retention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Artifact classes and retention
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-prevention-the-harness-filter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Prevention — the harness filter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-budgets-and-tripwires" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Budgets and tripwires
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-cadence-and-ownership" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Cadence and ownership
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-what-the-sweep-never-does" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. What the sweep never does
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="retention-policy-logs-journals-and-repo-hygiene">Retention policy — logs, journals, and repo hygiene<a class="headerlink" href="#retention-policy-logs-journals-and-repo-hygiene" title="Permanent link">&para;</a></h1>
+<p>Adopted 2026-09-03. This document says what the repo keeps, for how long,
+and who removes the rest. It exists because harness logs were arriving at
+about forty a day and the tracked log volume passed 110 MB in August 2026;
+the journals that cite them had passed 70 000 lines between them.</p>
+<p>The mechanical half of this policy is <code>scripts/maintenance/housekeeping.py</code>
+(<code>--report</code> is read-only, <code>--apply</code> performs the sweep, <code>--check</code> exits
+non-zero when a budget is exceeded). The preventive half is the filter
+built into <code>scripts/testing/run_and_log.sh</code>. Nothing in this policy edits a
+log's contents after it is written, rewrites git history, or removes a log
+that a closure cites.</p>
+<h2 id="1-artifact-classes-and-retention">1. Artifact classes and retention<a class="headerlink" href="#1-artifact-classes-and-retention" title="Permanent link">&para;</a></h2>
+<p>Ages are measured from the UTC timestamp in the log's filename
+(<code>YYYYMMDDTHHMMSSZ_&lt;chunk&gt;.log</code>), not from mtime, so a checkout on another
+machine reaches the same verdict.</p>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>What it is</th>
+<th>Compress</th>
+<th>Delete</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Gating log</strong></td>
+<td>Cited by basename from <code>PROJECT_PLAN.md</code>, <code>docs/planning/plan-archive.md</code>, <code>docs/testing/known-issues.md</code>, any <code>examples/**/*.md</code>, <code>docs/validation/**/*.md</code>, <code>docs/ports/**/*.md</code>, or pinned in <code>docs/testing/retention-keep.txt</code></td>
+<td>at 7 days</td>
+<td><strong>never</strong></td>
+</tr>
+<tr>
+<td><strong>Non-gating log</strong></td>
+<td>Every other file in <code>docs/testing/logs/</code> — failed attempts, reruns, probes, dry runs, smoke checks whose only citation is <code>attempts.md</code> or the <code>test-results.md</code> index</td>
+<td>at 7 days</td>
+<td>at 14 days</td>
+</tr>
+<tr>
+<td><strong>Index</strong> (<code>docs/testing/test-results.md</code>)</td>
+<td>One row per harness run, append-only</td>
+<td>never</td>
+<td>never — it is the record that a deleted log once existed</td>
+</tr>
+<tr>
+<td><strong>Journals</strong> (<code>attempts.md</code>, <code>known-issues.md</code>, <code>PROJECT_PLAN.md</code>)</td>
+<td>Narrative of record</td>
+<td>rotated to the <code>*-archive.md</code> files by the weekly review, on the line thresholds in §3</td>
+<td>never</td>
+</tr>
+<tr>
+<td><strong>Probe scripts</strong> (<code>scripts/probes/</code>)</td>
+<td>One-off measurement scripts</td>
+<td>—</td>
+<td>flagged by the sweep when their chunk ID no longer appears in <code>PROJECT_PLAN.md</code>; removal is a review decision, never automatic</td>
+</tr>
+</tbody>
+</table>
+<p>Why citation defines "gating": §4 of the plan makes a chunk ✅ only on an
+executed, logged, quantitative assertion, and the auditor and
+log-pathologist agents re-read those logs to overrule a status. Anything the
+plan, the archive, known-issues, or an example guide points at is therefore
+evidence and is kept. <code>attempts.md</code> cites every run it journals, including
+the ones that went nowhere, so it does <strong>not</strong> confer gating status; the
+journal entry itself is the surviving summary of a deleted log.</p>
+<p>Compression keeps the basename and appends <code>.gz</code>, so every existing
+citation still matches on a substring search. Readers use <code>zcat</code> or
+<code>gzip -dc</code>; the Read tool does not open <code>.gz</code> files.</p>
+<p>Deleted logs leave three traces: the <code>test-results.md</code> row, the
+<code>attempts.md</code> entry, and git history. A citation that resolves to a missing
+file should be read as "expired under this policy on the 14-day rule", and
+if that log turns out to matter, restore it from history and add its
+basename to <code>retention-keep.txt</code>.</p>
+<h2 id="2-prevention-the-harness-filter">2. Prevention — the harness filter<a class="headerlink" href="#2-prevention-the-harness-filter" title="Permanent link">&para;</a></h2>
+<p><code>run_and_log.sh</code> post-processes each log once the command exits. Runs of
+consecutive gmsh mesh-optimisation progress lines (<code>ImproveMesh</code>,
+<code>SwapImprove</code>, <code>SplitImprove</code>, <code>N swaps performed</code>, <code>Total badness</code>,
+<code>a &lt; quality &lt; b</code>, and the like) collapse to one line reporting how many
+were elided. Nothing else is touched: pytest output, tracebacks, the
+<code>set -x</code> command echo, timing lines, and gmsh's node/element counts all
+survive verbatim. The <code>## Exit</code> footer records the elided count so a reader
+knows the log was filtered. Set <code>FEM_LOG_FILTER=0</code> to disable it for a run
+whose raw mesher chatter is the object of study.</p>
+<p>Rationale: the largest logs on main were ≈1.9 MB each, and about nine
+lines in ten were this chatter; the filter removes the growth at source
+rather than paying for it in the sweep.</p>
+<h2 id="3-budgets-and-tripwires">3. Budgets and tripwires<a class="headerlink" href="#3-budgets-and-tripwires" title="Permanent link">&para;</a></h2>
+<p>The sweep reports these; <code>--check</code> fails when any is exceeded (gating-log
+volume is reported for information only, per the operator's 2026-09-03
+decision), which is the
+signal for the daily review to raise a "Housekeeping over budget" item in
+the dashboard's Waiting-on-you section.</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Ceiling</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tracked <strong>non-gating</strong> log volume</td>
+<td>25 MB — gating logs are exempt: they are closure evidence, never deleted, and grow with every closure (≈ 60 MB on 2026-09-03), so their size is reported but never a breach</td>
+</tr>
+<tr>
+<td>Loose git objects (<code>git count-objects -v</code> size)</td>
+<td>50 MiB → <code>git gc</code> on <code>--apply</code></td>
+</tr>
+<tr>
+<td><code>docs/testing/attempts.md</code></td>
+<td>6 000 lines → rotate at the next weekly review</td>
+</tr>
+<tr>
+<td><code>docs/testing/known-issues.md</code></td>
+<td>6 000 lines → rotate at the next weekly review</td>
+</tr>
+<tr>
+<td><code>PROJECT_PLAN.md</code></td>
+<td>9 000 lines → compress closed §7 narratives per the weekly-review carve-out</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-cadence-and-ownership">4. Cadence and ownership<a class="headerlink" href="#4-cadence-and-ownership" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Every harness run</strong>: the filter (§2). No agent action.</li>
+<li><strong>Weekly sweep</strong>: <code>scripts/automation/housekeeping.sh</code>, cron Sunday
+  01:45 local (<code>scripts/automation/crontab</code>), runs <code>housekeeping.py --apply</code>
+  and commits <code>chore(housekeeping): weekly sweep YYYY-MM-DD</code>. No Claude
+  session is involved: the sweep is mechanical, skips on a dirty tree or off
+  <code>main</code>, and shares the automation flock. What it can only flag (orphan
+  probes, over-budget journals) lands in <code>docs/testing/housekeeping.md</code> for
+  the next daily review; nobody widens the deletion set by hand.</li>
+<li><strong>Weekly review</strong>: journal rotation on the §3 thresholds, as already
+  specified in <code>docs/automation/weekly-review.md</code>.</li>
+<li><strong>Daily review</strong>: reads <code>--check</code>, escalates an over-budget state.</li>
+</ul>
+<h2 id="5-what-the-sweep-never-does">5. What the sweep never does<a class="headerlink" href="#5-what-the-sweep-never-does" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Delete a gating log, whatever its age.</li>
+<li>Modify a log's contents (compression is byte-preserving).</li>
+<li>Rewrite history, <code>git filter-*</code>, or force-push.</li>
+<li>Delete a probe script, an example, or a journal line.</li>
+<li>Run compute of any kind.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

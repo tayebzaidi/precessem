@@ -1,0 +1,659 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-91 — The first study through the installed API: a Study on the lossy sphere reproduces MAT-4's SAR (history) - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-91-the-first-study-through-the-installed-api-a-study-on-the-lossy-sphere-reproduces-mat-4s-sar-history" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-91 — The first study through the installed API: a Study on the lossy sphere reproduces MAT-4's SAR (history)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-272-2026-10-06-54-example-phase-9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 272 — 2026-10-06 (§5.4 example, Phase 9)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-91-the-first-study-through-the-installed-api-a-study-on-the-lossy-sphere-reproduces-mat-4s-sar-history">EX-91 — The first study through the installed API: a <code>Study</code> on the lossy sphere reproduces <code>MAT-4</code>'s SAR (history)<a class="headerlink" href="#ex-91-the-first-study-through-the-installed-api-a-study-on-the-lossy-sphere-reproduces-mat-4s-sar-history" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<h3 id="9-item-272-2026-10-06-54-example-phase-9">§9 item 272 — 2026-10-06 (§5.4 example, Phase 9)<a class="headerlink" href="#9-item-272-2026-10-06-54-example-phase-9" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-06 03:00 daily review; the review reviews it.</em></p>
+<p><code>EX-91</code> (<code>mri:7</code>): <code>examples/mri/07_study_lossy_sphere.py</code> + same-stem guide <code>07_study_lossy_sphere.md</code> (three required headings + <code>## Setup figure</code> + <code>## Related</code>; setup PNG ≤ 600 KiB). It builds <code>WF-15</code>'s <code>Study</code> on <code>MAT-4</code>'s lossy sphere (σ 0.57 S/m, εᵣ 78, 64 MHz, imposed uniform 1 V/m field, 74 020 cells) at the <strong>default degree</strong> (no <code>degree=</code> keyword; 2), and reads its mean SAR against <code>WF-15</code>'s record and <code>MAT-4</code>'s closed form. <code>mri:1</code>–<code>mri:6</code> exist; <code>mri:7</code> is free. <code>run_examples.sh</code> selects by file-name prefix, so no registry edit is needed.</p>
+<ul>
+<li><strong>Executor:</strong> <code>example-runner</code>.</li>
+<li><strong>Tier:</strong> heavy, <code>-n 2</code>, complex. Runner <code>-t 590</code>; container <code>timeout -k 30 590</code>.</li>
+<li><strong>Cost:</strong> ≈ 13 measured (example class median) / ≈ 50 predicted min (15 fixed + ≈ 20 script and guide + ≈ 15 windows).</li>
+<li><strong>Depends on:</strong> nothing. <code>WF-15</code> and <code>WF-17</code> are ✅ (items 251, 257).</li>
+</ul>
+<p><strong>Imports (never restated).</strong>
+- From <code>tests.package.test_wf15_study_lossy_sphere</code>: <code>GEOMETRY</code>, <code>_study</code>, <code>_closed</code>, <code>MAT4_DEG1_RECORD</code> (<code>:87</code>), <code>MAT1_MID_PRINT</code> (<code>:90</code>).
+- From <code>tests.package.test_wf17_first_study_tutorial</code>: <code>WF15_DEG2_RECORD</code> (<code>:72</code>). The <code>WF-15</code> module holds no named constant for its degree-2 record; <code>WF-17</code> holds it with the <code>W2a</code> log citation. Import it from there, never add it to <code>WF-15</code>.
+- From <code>tests.validation.test_mat5_em_coupled_sphere</code>: <code>L0_BAND</code> (<code>:104</code>, 1e-9).
+- From <code>tests.materials.test_phantom_material_model</code>: <code>MAT4_BAND</code> (<code>:222</code>, 0.10).
+- From <code>tests.validation.test_lossy_sphere_sar</code>: <code>SIGMA_HIGH</code>, <code>EPSILON_R_SPHERE</code>, <code>RHO_KG_M3</code>.
+- From <code>src</code>: <code>fem_em_solver.Study</code> and the public names <code>_study</code> already uses; <code>fem_em_solver.post.sar.uniform_sphere_sar_closed_form</code> (via <code>_closed</code>); <code>fem_em_solver.io.paraview_utils</code> writers; <code>fem_em_solver.post.setup_figure.write_setup_figure</code>.
+- <strong>No new number.</strong> The example states no σ, εᵣ, frequency, field or radius; it reads them from the built <code>Study</code>.</p>
+<p><strong>(1) Anchor (asserted in-script).</strong>
+- <strong>(Deg):</strong> <code>study.degree == 2</code> and the solved space is degree 2 (<code>WF-17</code> (Deg), <code>20261006T004709Z_WF-17-W2-first-study-deg2.log:161</code>).
+- <strong>(R):</strong> |SAR − <code>WF15_DEG2_RECORD</code>| / record ≤ <code>L0_BAND</code>. Record 8.0116577245e-08 W/kg (<code>20261005T170537Z_WF-15-r2-W2a-deg2-study.log:170</code>). <code>WF-17</code> reproduced it at 2.007e-11 (<code>…WF-17-W2…log:162</code>); predicted ≤ 1e-10.
+- <strong>(G):</strong> |SAR − closed(σ 0.57)| / closed ≤ <code>MAT4_BAND</code>. Record 0.0413 % (<code>W2a:165</code>, <code>WF-17 W2:163</code>).
+- Print the <code>.10e</code> SAR, cells and N1curl dofs beside 74 020 / 482 158 (version-tagged, printed only).</p>
+<p><strong>(2) Negative controls (rule (e)).</strong>
+- <strong>(c1) asserted — the σ-shifted <code>Study</code>:</strong> <code>_study(material="mid", degree=1)</code> (σ 0.75). Assert its <code>.4e</code> SAR equals <code>MAT1_MID_PRINT</code>, and that |SAR_mid − closed(0.57)| / closed(0.57) &gt; <code>MAT4_BAND</code>. Backing: the same Study on the same fixture, <code>-n 2</code>, degree 1, measured 6.8832364899e-08 (<code>20261005T170210Z_WF-15-r2-W1-deg1.log:393</code>). Against the 0.57 closed form 8.008354e-08 that is a 14.05 % miss, 1.4× the band. Ceiling: closed(0.75)/closed(0.57) − 1 = −17.0 %, reduced by the measured degree-1 bias of +3.548 %. Cost ≈ 15 s.
+- <strong>(c2) asserted — the (R) comparator separates degrees:</strong> |<code>MAT4_DEG1_RECORD</code> / <code>WF15_DEG2_RECORD</code> − 1| &gt; <code>L0_BAND</code>. This compares two imported constants, so it needs no solve. The degree-1 SAR measured against this record gave 3.494e-02 (<code>20261006T004414Z_WF-17-W1-planted-deg1.log:161</code>); print the value beside that log line.
+- No other control. Writing XDMF is output, not a separation.</p>
+<p><strong>(3) Windows.</strong> Each Bash call that runs a window is foreground with <code>timeout: 660000</code> and makes one bare, whole harness call. Nothing is chained or piped.
+0. <strong>Orphan check:</strong> <code>docker compose exec -T fem-em-solver pgrep -c python3</code> reads 0. Then run the rubric's cache sweep as one bare call with label <code>EX-91-cache-sweep</code>.
+1. <strong>Pre-censuses, before any file is written:</strong>
+   - <code>scripts/testing/run_and_log.sh EX-91-pre-figures "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_setup_figures.py'"</code>
+   - <code>scripts/testing/run_and_log.sh EX-91-pre-docrefs "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py'"</code>
+2. <strong>Dry run:</strong> <code>scripts/testing/run_and_log.sh EX-91-dryrun "./scripts/run_examples.sh -e mri:7 -n 2 -t 590 --dry-run"</code>. It must print <code>(complex build)</code>. Use the command it emits.
+3. <strong>Flagged run of record,</strong> predicted [300, 430] s. Basis: <code>WF-15</code> W2a solve and mesh 282.4 s (<code>W2a:158</code>), window 428 s; <code>WF-17</code> block exec 273.8 s (<code>W2:164</code>), window 340 s; summed RSS ≈ 20–22 GiB. The example adds ≈ 15 s for (c1), ≈ 10 s for XDMF and ≈ 15 s for the setup figure.
+   <code>scripts/testing/run_and_log.sh EX-91 'docker compose exec -T -e FEM_EM_SETUP_FIGURES=1 fem-em-solver bash -lc "cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 590 mpiexec -n 2 python3 examples/mri/07_study_lossy_sphere.py"'</code>
+   <code>PYTHONPATH</code> includes <code>/workspace</code> because the script imports from <code>tests.*</code>. If the dry run's emitted string differs otherwise, use the emitted one and note the difference.
+4. <strong>Control run:</strong> <code>git add</code> the PNG, then run the same line without <code>-e FEM_EM_SETUP_FIGURES=1</code>, labelled <code>EX-91-control</code>. The readings must be digit-equal (same width, same arithmetic).
+5. <strong>Post-censuses:</strong> <code>EX-91-post-figures</code> / <code>EX-91-post-docrefs</code>, the step 1 commands with those labels. Write the prediction first: <code>examples</code> N → N + 1, <code>ok</code> +1, <code>broken=0</code>; docrefs runnable +1, <code>dead=0</code>, <code>guide=0</code>, <code>exit != 1</code>. Take N fresh from step 1.</p>
+<p><strong>Output.</strong>
+- <strong>Setup figure</strong> <code>examples/mri/figures/mri_07_study_lossy_sphere_setup.png</code>, drawn on <code>study.result.mesh</code> / <code>cell_tags</code>. Region names: sphere "gel sphere (sigma 0.57 S/m)", box "air box (imposed-field walls)". The box is hidden or translucent.
+- <strong>Combined XDMF</strong> <code>examples/mri/paraview_output/mri_07_study_lossy_sphere_combined.xdmf</code>, holding:
+  - <code>E_abs</code>: |E| interpolated into a P1 (or DG1) Lagrange space. The mesh is affine, so a degree-2 N1curl Function cannot be written directly.
+  - <code>SAR</code>: DG0, σ·Re(inner(E, E))/(2ρ) evaluated at cell midpoints through <code>fem.Expression</code>, with the <code>Study</code>'s own σ field.
+  - <code>sigma</code>: DG0.
+  The guide names every artifact by full filename.
+- <strong>Guide.</strong> It explains the default-degree choice (<code>degree=1</code> is 3.4 % low, as (c2) shows). <code>## Related</code> lists <code>docs/guide/first_study.md</code>, <code>mri:2</code> and <code>tests/package/test_wf15_study_lossy_sphere.py</code>. It includes a ParaView recipe: Threshold on the sphere and colour by <code>SAR</code>, then Plot Over Line along x on <code>E_abs</code>.</p>
+<p><strong>(4) Traps already paid for.</strong>
+- The deg-2 solve is the whole window. Never add a second deg-2 solve: no direct-call leg and no (U) operator diff, since those belong to <code>WF-15</code>. A killed window leaves an orphan <code>.c</code>: check the orphan state, then sweep.
+- Every collective runs on every rank. Prints, CSV and PNG go under <code>rank == 0</code> with no collective inside (item 227's deadlock).
+- No UFL comparison or <code>sqrt</code> comparison on complex operands (<code>OPS-22</code>, <code>WF-6</code> 4c). Take <code>np.real</code> on readings.
+- Point evaluation only through <code>evaluate_vector_field_parallel</code>; none is needed here.
+- Harness calls are bare and whole. Never pipe pytest or the example. The container <code>timeout</code> carries <code>-k 30</code>.
+- No edit to the script or guide after its last window (rule (i)).</p>
+<p><strong>(5) Scope.</strong> Not claimed: anything <code>WF-15</code> does not claim. That excludes a coil, convergence and h-statements, local or 10 g SAR accuracy, and a degree-1 production use.</p>
+<p><strong>(6) Negative result.</strong> If (R) or (G) misses, or the <code>-n 2</code> digits differ from <code>W2a:170</code>, report the measurement and stop. Journal it in <code>docs/testing/attempts.md</code>, park the branch on <code>attempt/EX-91</code>, and leave <code>EX-91</code> ⬜. Never widen a band. If the run is killed at 590 s, that is not a result: shrink nothing, check orphans and stop. The fallback is a re-queue, not a degree-1 substitute.</p>
+<p><strong>(7) Status it can move.</strong> The <code>EX-91</code> §7 row ⬜ → ✅ (Done-when met, elapsed recorded); census <code>examples</code> +1, <code>broken=0</code>; docrefs runnable +1. This is the first example on the Phase 9 API.</p>
+<p><strong>Outcome — 2026-10-06 15:00 slot (fourth item): GREEN, <code>EX-91</code> → ✅ (one disclosure for the review).</strong> <code>example-runner</code>, <code>-n 2</code>, heavy. Script <code>examples/mri/07_study_lossy_sphere.py</code>, guide <code>07_study_lossy_sphere.md</code>, setup PNG <code>examples/mri/figures/mri_07_study_lossy_sphere_setup.png</code> (467 KiB); combined XDMF gitignored (<code>E_abs</code>, <code>SAR</code>, <code>sigma</code>). Flagged run <code>20261006T202424Z_EX-91.log</code> (Status 0, 297 s, predicted [300, 430]): (Deg) <code>study.degree</code> 2, solved space degree 2; (R) SAR 8.0116577237e-08 against 8.0116577245e-08, rel 9.512e-11 ≤ <code>L0_BAND</code> (<code>:188</code>); (G) 0.0413 % ≤ <code>MAT4_BAND</code>; (c1) <code>"mid"</code> degree 1 6.8832364899e-08, <code>.4e</code> = <code>MAT1_MID_PRINT</code>, 14.0493 % off closed(0.57) (<code>:190</code>); (c2) 3.4937e-02 (<code>:191</code>); 74 020 cells, 482 158 N1curl dofs. Control <code>20261006T202928Z_EX-91-control.log</code> (Status 0, 304 s): (R) 8.0116577246e-08, rel 1.207e-11; (G), (c1), (c2), cells and dofs digit-equal. Censuses: figures <code>examples</code> 86 → 87, <code>ok</code> 87, <code>missing=0</code>, <code>broken=0</code> (predicted); docrefs runnable 86 → 87, <code>dead=0</code>, <code>guide=0</code>, exit 2 (≠ 1). Other logs: <code>…202149Z_EX-91-cache-sweep.log</code>, <code>…202317Z_EX-91-pre-figures.log</code>, <code>…202318Z_EX-91-pre-docrefs.log</code>, <code>…202320Z_EX-91-dryrun.log</code> (exit 2, "No mri example found for number: 7" — the brief orders the dry run before the script exists), <code>…202419Z_EX-91-dryrun.log</code> (Status 0, <code>(complex build)</code>), <code>…203435Z_EX-91-post-figures.log</code>, <code>…203438Z_EX-91-post-docrefs.log</code>. The emitted command carries <code>PYTHONPATH=/workspace/src</code>; the brief's <code>/workspace/src:/workspace</code> was run, as instructed. <code>LISTED_EXAMPLE_ARTIFACTS</code> needs no entry (PNG admitted by rule, XDMF gitignored).</p>
+<p><strong>Disclosure.</strong> Step 4 says the flagged and control readings "must be digit-equal", and §(6) stops on "<code>-n 2</code> digits differ from <code>W2a:170</code>". The degree-2 SAR differs at the 10th significant digit between the two runs (rel ≈ 1.1e-10) and from <code>W2a:170</code> (9.5e-11 / 1.2e-11). That is the <code>-n 2</code> complex MUMPS non-bit-reproducibility (known-issues 2026-09-10 observation; <code>SOLVE_FLOOR_RECORD</code> up to 4.45e-11 on <code>MAT-1</code>), and the brief's own (R) prediction (≤ 1e-10) and <code>WF-17</code>'s reproduction (2.007e-11) assume it. Every asserted anchor and control is green, and the degree-1 (c1) solve is digit-equal. The slot reads the digit clauses as print-precision agreement inside <code>L0_BAND</code> and closes the row; the review confirms or reverts the ✅.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

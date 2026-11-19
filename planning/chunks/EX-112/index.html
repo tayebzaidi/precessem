@@ -1,0 +1,845 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-112 — mat:19, the F2182-sized gel box: a slab at its centre, cooled through its two large faces - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-112-mat19-the-f2182-sized-gel-box-a-slab-at-its-centre-cooled-through-its-two-large-faces" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-112 — mat:19, the F2182-sized gel box: a slab at its centre, cooled through its two large faces
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-438-2026-10-13-example-54-ramp-after-mat-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 438 — 2026-10-13 (example, §5.4 ramp after MAT-21 ✅)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-13-1030-daily-on-the-item-438-draft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-13 10:30 (daily) on the item 438 draft
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-audit-2026-10-14-0300-demote-on-custody-restored-by-landing-the-held-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review audit 2026-10-14 03:00 — DEMOTE on custody, ✅ restored by landing the held logs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-14-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-14 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="§7 row moved verbatim 2026-10-14 (rotate_plan_archive.py chunks)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#review-2026-10-15-1800-on-the-landed-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review 2026-10-15 18:00 — ✅ on the landed logs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-112-mat19-the-f2182-sized-gel-box-a-slab-at-its-centre-cooled-through-its-two-large-faces">EX-112 — mat:19, the F2182-sized gel box: a slab at its centre, cooled through its two large faces<a class="headerlink" href="#ex-112-mat19-the-f2182-sized-gel-box-a-slab-at-its-centre-cooled-through-its-two-large-faces" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<p><code>EX-112</code> (<code>mat:19</code>) is opened 2026-10-13 by the 10:30 daily review under daily-review.md step 5 (§5.4 ramp from <code>MAT-21</code> ✅, landed <code>0ee0cc49</code>). The 03:00 review's journal named it (<code>docs/planning/reviews/2026-10-13-daily.md</code> §5, "<code>mat:19</code> after <code>MAT-21</code> ✅"), and so does the 10-12 weekly's examples-health paragraph ("<code>mat:19</code>, the F2182-sized box"). Its base is <code>MAT-21</code> step 1 (§9 item 423): <code>tests/validation/test_mat21_box_fem.py</code>. The runs of record are <code>docs/testing/logs/20261013T142646Z_MAT-21-step1r-W1-steady.log</code> (heavy, <code>-n 2</code>, 129 s, 19 passed) and <code>…142900Z_MAT-21-step1r-W2-transient.log</code> (136 s, 17 passed). The closed form is step 0's (<code>tests/validation/test_mat21_box_closed_form.py</code>, records <code>docs/testing/logs/20261013T004329Z_MAT-21-step0-W1.log</code>). On the m = 6 rung (<code>create_box</code>, (78, 48, 12) hexahedra split into 6 tetrahedra each; 650 × 420 × 90 mm; gel k 0.6, ρc 4.18e6, h 10, q 2000; Robin on every face; P1) it holds:
+- 269 568 cells, 50 323 P1 dofs, 380 725 P2 points; whole L2 1.547121e-03; (S2) Gauss 1.682e-12 (W1 <code>:106</code>);
+- (S1) finest interior 1.417055e-03 ≤ <code>INTERIOR_BAND</code> 1e-2; θ_h(0) 12.005487 K against the series' 12.003947 K (W1 <code>:108</code>);
+- (c1) the comparand at 2h misses: 5.9734e-01 (W1 <code>:110</code>);
+- (T) CN N = 40 at t* = 0.2 t_C = 2 821.5 s: interior 9.071528e-04, whole 1.417652e-03, balance 2.809e-12 (W2 <code>:92</code>);
+- (c2) Dirichlet z-roots at t* miss: 3.6135e-01 (W2 <code>:93</code>);
+- closed-form records (step 0 W1): θ_ss(0) 12.003947 K, slab 12.3750 K (<code>:92</code>); corner 2.5524 K, face centres x / y / z 6.1504 / 6.2367 / 8.7340 K (<code>:93</code>); τ₁ 20 193 s, t_C 14 107.5 s (<code>:94</code>); θ(0, t*) 1.335697 K against qt*/ρc 1.3500 K (<code>:80</code>); surface area 0.7386 m², face-mean θ 6.6531 K = qV/(hA_s) (<code>:68</code>); truncation deficit 1 − ΠS_d(40) 4.6708e-06 (<code>:67</code>).</p>
+<p><strong>Proposed §7 row</strong> (to paste right after the <code>EX-111</code> row; ≤ 2 KB):</p>
+<p>| <code>EX-112</code> | <strong>The F2182-sized gel box: a 90 mm slab to 3 % at its centre, cooled ≈ 80 % through its two large faces, and hours from steady</strong> <em>(history and §9 briefs: <code>docs/planning/chunks/EX-112.md</code>)</em> (<code>mat:19</code>; <code>example-runner</code>; opened 2026-10-13 by the 10:30 daily review, §5.4 ramp from <code>MAT-21</code> ✅, §9 item 438; <code>mat:10</code> is the Robin cylinder, no example builds the box) <strong>Done-when:</strong> <code>examples/materials/19_f2182_gel_box_slab_and_faces.py</code> + same-stem guide (three required headings + <code>## Setup figure</code> + <code>## Related</code>, PNG ≤ 600 KiB); complex, <code>-n 2</code>, the gate's m = 6 rung through its module-level helpers; no gate-module edit, no <code>src/</code> edit; every band imported, none restated. Asserted at the imported bands, each beside <code>20261013T142646Z_MAT-21-step1r-W1-steady.log:106–110</code> / <code>…142900Z_…-W2-transient.log:92–93</code>: (S1) interior ≤ <code>INTERIOR_BAND</code>, (S2) Gauss ≤ <code>S2_GAUSS_BAND</code>, (T) ≤ <code>INTERIOR_BAND</code>, CN balance ≤ <code>E_BAND</code>; controls (c1), (c2) miss. Example-side: six face tags partition the Robin facets (integer counts), Σ face powers = qV_h ≤ <code>S2_GAUSS_BAND</code>, the −z-dropped partition misses. Printed: per-face heat fractions against the series, slab-vs-box profiles and volume shares, the centre history against qt/ρc. Outputs: combined XDMF (steady / t* FEM and series, difference, slab ratio, six face tags) and a centre-line CSV. Census +1, <code>broken=0</code>, docrefs <code>dead=0</code>; elapsed recorded ⇒ ✅. Not claimed: F2182 compliance, a coil or SAR source, the duty cycle (item 424), the LSQ rate, degree 2, an external check. | ⬜ Queued §9 item 438. | heavy (<code>-n 2</code>, ≈ 140 s per run, <code>-t 420</code>) |</p>
+<p><strong>Gap.</strong> No example builds the box or reads the triple series.
+- <code>examples/materials/</code> holds 01–18: balls (02, 04, 06–08, 11–13, 17), the Robin cylinder against its double series (10, <code>EX-81</code>), and the coil-heated cylinder phantom (09, 14–16, 18). None imports <code>test_mat21_box_fem.py</code> / <code>test_mat21_box_closed_form.py</code> or calls <code>robin_box_steady_temperature</code> / <code>robin_box_transient_temperature</code> (<code>grep -rn 'MAT-21\|mat21\|box_fem' examples/</code> is empty at drafting).
+- <code>mat:10</code> shows a phantom-sized cylinder whose three dimensions are comparable. The F2182 box is the opposite shape: 90 mm thick and 650 × 420 mm wide, with Biot numbers 5.42 / 3.50 / 0.75. No example shows what that shape does to the heat path or how far a thin-slab estimate carries.</p>
+<h3 id="9-item-438-2026-10-13-example-54-ramp-after-mat-21">§9 item 438 — 2026-10-13 (example, §5.4 ramp after MAT-21 ✅)<a class="headerlink" href="#9-item-438-2026-10-13-example-54-ramp-after-mat-21" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-13 10:30 daily review; the review reviews it.</em> <strong>This brief sets and moves no band, tolerance, record, Done-when of another chunk or validation target.</strong> Every band is imported from <code>MAT-21</code> step 1's module, which imports them from <code>MAT-12</code> / <code>MAT-13</code> / <code>MAT-15</code>.</p>
+<p><code>EX-112</code> (<code>mat:19</code>; <code>examples/materials/</code> holds 01–18 and the runner selects <code>mat:&lt;n&gt;</code> by the <code>%02d_</code> prefix, <code>scripts/run_examples.sh:201–219, :243</code>, so <code>19_</code> is <code>mat:19</code>; the <code>mat:</code> group sources the complex build; no runner edit) adds three tracked files and edits nothing else:
+- <code>examples/materials/19_f2182_gel_box_slab_and_faces.py</code>;
+- the same-stem guide <code>examples/materials/19_f2182_gel_box_slab_and_faces.md</code>, with <code>## 1. What this demonstrates</code>, <code>## 2. How to run it</code>, <code>## Setup figure</code>, <code>## 3. How to analyze it, step by step</code> and <code>## Related</code>;
+- <code>examples/materials/figures/materials_19_f2182_gel_box_slab_and_faces_setup.png</code>, ≤ 600 KiB.</p>
+<p><strong>The angle: what the F2182 box's shape does to its heat.</strong> <code>MAT-21</code> gates the FEM against the triple series. This example adds three readings no example has. All three are closed-form or FEM prints, and none is asserted.
+1. <strong>A slab at the centre, not at the sides.</strong> The 1-D Robin slab θ_slab(z) = q(C² − z²)/(2k) + qC/h (step 0's (R5) slab limit, <code>test_mat21_box_closed_form.py:273</code>) gives 12.375 K at the centre against the box's 12.003947 K. Stdlib arithmetic at 40 terms per axis while drafting (predicted, not recorded) puts slab/series − 1 as follows:
+   - ≈ 3.05–3.09 % all the way up the centre column (z/C = 0, 0.5, 0.9, 1: 3.09 / 3.07 / 3.05 / 3.05 %). The slab's z-profile is right there; only its level is high.
+   - Along x (y = z = 0): 3.5 % at 0.25A, 5.7 % at 0.5A, 12.7 % at 0.7A, 42 % at 0.9A, 101 % at the face. Along y: 9.5 % at 0.5B, 20.7 % at 0.7B, 53 % at 0.9B, 98 % at the face.
+   - So the slab picture holds to 10 % only for |x| ≲ 0.64A on the x-axis and |y| ≲ 0.51B on the y-axis.
+2. <strong>Where the heat leaves.</strong> Per-face-pair convective power ∫h θ dA as a fraction of qV, against the series' face integrals. Predicted by the same arithmetic: ±z (the two 650 × 420 faces) <strong>0.795501</strong>, ±y 0.126245, ±x 0.078249 (sum 0.9999953 = ΠS_d(40), step 0's deficit 4.6708e-06 at W1 <code>:67</code>). Their area shares are 0.7392 / 0.1584 / 0.1024, so the large faces carry more than their area share because they are hotter: face-mean θ 7.1595 / 5.3023 / 5.0862 K (z / y / x pairs) against the all-face mean 6.6531 K.
+3. <strong>Hours from steady.</strong> τ₁ = 20 193 s ≈ 5.6 h (step 0 W1 <code>:94</code>). At t* = 47 min the centre is at 1.335697 K, 98.9 % of the adiabatic qt*/ρc = 1.35 K and only 11.1 % of its steady 12.003947 K. The FEM centre history (nine snapshots) is printed beside the series and qt/ρc.</p>
+<p>The guide explains these as reasons, not claims: the box is thin in z (Bi_z 0.75), so its centre column sees the slab; its side walls are 3–5 face-heights away, so lateral cooling is a 3 % correction at the centre that grows toward the sides.</p>
+<ul>
+<li><strong>Executor:</strong> <code>example-runner</code>. It does not spawn agents.</li>
+<li><strong>Class:</strong> example. <strong>Tier:</strong> heavy, <code>-n 2</code> (the gate's record width), complex build (the <code>mat:</code> group sources it).</li>
+<li><strong>Cost:</strong> ≈ 10 measured (example class) / ≈ 40 predicted min: 10 fixed + ≈ 14 script + ≈ 6 windows + ≈ 6 guide + ≈ 4 censuses / journal / commit. No lift and no re-gate window: the example calls the gate's module-level helpers unchanged. <strong>Park if the flagged run (window 3) has not started by minute 28, or the control (window 4) by minute 38</strong> (rule (d)). Price basis:</li>
+<li>The gate's own m = 6 clocks (W1 <code>:103–111</code>, W2 <code>:87–94</code>): build 0.8 s, steady 2.6 s, steady P2 series interpolation 14.9 s, interior 0.8 s, (c1) 15.3 s, CN N = 40 9.0 s, t* interpolation 15.7 s, (c2) 16.3 s, ≈ 75 s in all.</li>
+<li>This example adds the following:<ul>
+<li>the P2 → CG1 copies (&lt; 2 s);</li>
+<li>the series at 269 568 + ghost cell midpoints for the slab mask, ≈ 11 s (scaled from 380 725 points in 14.9 s);</li>
+<li>the closed-form face quadrature, 6 × 128² points, ≈ 4 s;</li>
+<li>three 101-point centre lines through <code>evaluate_vector_field_parallel</code> (&lt; 3 s) and the nine-snapshot centre history (&lt; 2 s);</li>
+<li>the XDMF, ≈ 5–10 s;</li>
+<li>the setup figure, ≈ 10–20 s, flagged run only;</li>
+<li>interpreter start-up and JIT, ≈ 15–25 s. The gate's forms are cached; the six <code>ds(tag)</code> forms are new.</li>
+</ul>
+</li>
+<li>The nearest example analogue is <code>mat:10</code> (<code>EX-81</code>): ≈ 270 s at <code>-n 2</code> on a 58 866-cell cylinder with a P2 series comparand, <code>-t 480</code>. That example's series is a double series with Bessel roots; this one is a product of cosines.</li>
+<li><strong>Flagged run predicted ≈ 140 s, range [100, 280] s; control ≈ 125 s, range [90, 260] s.</strong> Runner <code>-t 420</code>, container <code>timeout -k 30 420</code>.</li>
+<li>Dry run plus four census windows: ≈ 1 min. Total compute ≈ 6 min. Every window is under 10 min, so the plain runner form is used (no durable capture).</li>
+<li><strong>Depends on:</strong> nothing open. <code>MAT-21</code> step 1 is on <code>main</code> (<code>0ee0cc49</code>). <code>19_</code> is free in <code>examples/materials/</code>, and no row or chunk names <code>EX-112</code>. Item 424 (<code>MAT-21</code> step 2) may run before or after; it adds two new modules and edits neither of the modules this example imports (its brief, <code>MAT-21.md:341</code>).</li>
+<li><strong>Shared files.</strong> Three new paths, nothing under <code>tests/</code> or <code>src/</code>. <strong>If anything under <code>tests/</code> or <code>src/</code> turns out to be needed, stop and report; do not edit it.</strong> Never beside another heavy window.</li>
+</ul>
+<p><strong>Imports (never restated).</strong> Use module aliases: both <code>MAT-21</code> modules define <code>_say</code>, <code>HALF</code>, <code>K</code>, <code>Q</code>, <code>H</code> and <code>RHO_C</code>.
+- <code>import tests.validation.test_mat21_box_fem as m1</code>: <code>RUNGS</code>, <code>T_STAR</code>, <code>V_BOX</code>, <code>_rung</code>, <code>_Clock</code>, <code>_exact</code>, <code>_interior_chi</code>, <code>_steady_ex</code>, <code>_trans_ex</code>, and the names it imports: <code>INTERIOR_BAND</code>, <code>E_BAND</code>, <code>S2_GAUSS_BAND</code>, <code>RHO_C</code>, <code>K_GEL</code>, <code>H_GEL</code>, <code>N_MAIN</code>, <code>T_INF</code>, <code>ROBIN_TAG</code>, <code>_allsum</code>, <code>_rel</code>, <code>_robin_tags</code>, <code>A_BOX</code>, <code>B_BOX</code>, <code>C_BOX</code>, <code>HALF</code>, <code>Q</code>, <code>T_C</code>, <code>SERIES_TERMS</code>.
+- <code>import tests.validation.test_mat21_box_closed_form as m0</code>: <code>ALPHA</code> and <code>_axis_data</code> (to print γ₁ and τ₁ beside step 0's records). Its <code>_steady</code> carries <code>T_INF</code>, so use <code>m1._steady_ex()</code> (t_inf = 0) for every θ.
+- <code>import tests.validation.test_mat13_transient_perfusion_sphere as m13</code>, <code>import tests.validation.test_mat12_transient_sar_heating_sphere as m12</code> and <code>import tests.validation.test_mat15_finite_cylinder_fem as m15b</code> are used only for the identity checks below.
+- From <code>src</code>: <code>solve_transient_conduction</code> (<code>fem_em_solver.thermal</code>), <code>write_setup_figure</code>, <code>write_xdmf_with_tags</code>, <code>adopt_host_ownership</code>, <code>evaluate_vector_field_parallel</code>.
+- Insert <code>_REPO_ROOT</code> into <code>sys.path</code> (<code>examples/materials/10_finite_cylinder_robin_series.py:45–47</code>). Raise if <code>default_scalar_type</code> is not complex.
+- <strong>Structural asserts at start-up</strong> (the <code>mat:10</code> precedent, <code>:108–113</code>):
+  - <code>m1.INTERIOR_BAND is m13.INTERIOR_BAND</code>, <code>m1.E_BAND is m12.E_BAND</code>, <code>m1.S2_GAUSS_BAND is m15b.S2_GAUSS_BAND</code>;
+  - <code>m1.HALF is m0.HALF</code>, <code>m1.RUNGS[-1] == 6</code>, <code>m1.T_STAR == 0.2 * m1.T_C</code>, <code>m1.K_GEL == m1.K</code> and <code>m1.H_GEL == m1.H</code> (the gate's (P0)).
+- Record digits go only into an example-local <code>REC</code> dict, each entry commented with its <code>log:line</code> (<code>EX-89</code> item 332 (Q1)). Never assert a record by equality; print it beside the reading.</p>
+<p><strong>(1) Anchor.</strong> One m = 6 rung through the gate's own helpers, mirroring its fixtures. Pytest fixtures cannot be called directly (see Traps).
+- <strong>Steady.</strong> <code>msh, ft, ns, n, v_h, st = m1._rung(6, m1._Clock("EX-112"))</code>; <code>th = st.temperature - T_INF</code>; <code>ex, npts = m1._exact(msh, m1._steady_ex())</code>; <code>chi = m1._interior_chi(msh)</code>.
+  - (S1) <code>m1._rel(msh, th, ex, chi) &lt;= INTERIOR_BAND</code>. Record 1.417055e-03 (W1 <code>:108</code>).
+  - (S2) <code>abs(∮h θ ds(ROBIN_TAG) − q·v_h)/(q·v_h) &lt;= S2_GAUSS_BAND</code>, the gate's expression (<code>test_mat21_box_fem.py:175–178</code>). Record 1.682e-12 (W1 <code>:106</code>).
+  - Printed beside records: cells 269 568, whole L2 1.547121e-03 (<code>:106</code>), θ_h(0) through <code>evaluate_vector_field_parallel</code> 12.005487 K against the series' 12.003947 K (<code>:108</code>).
+- <strong>Transient.</strong> The gate's (T) call, copied verbatim from <code>test_mat21_box_fem.py:247–250</code>: <code>solve_transient_conduction(msh, ft, k=K_GEL, rho_c=RHO_C, q=Q, h=H_GEL, t_inf=T_INF, t_init=T_INF, robin_tag=ROBIN_TAG, dt=T_STAR / N_MAIN, n_steps=N_MAIN, theta=0.5, startup_half_steps=2, degree=1, snapshot_steps=range(0, N_MAIN + 1, 5))</code>. The only addition is <code>snapshot_steps</code>, which records copies and does not change the solve.
+  - (T) interior <code>_rel</code> against <code>m1._exact(msh, m1._trans_ex(T_STAR))</code> ≤ <code>INTERIOR_BAND</code>. Record 9.071528e-04 (W2 <code>:92</code>).
+  - (E-cn) <code>res.max_balance_residual &lt;= E_BAND</code>. Record 2.809e-12 (<code>:92</code>).
+  - Printed: the whole-box L2, record 1.417652e-03.
+  - <strong>The (T) record reproduced at the printed digits is the check that the copied call is the gate's.</strong>
+- <strong>Records predicted equal at the printed digits</strong> (same code, width and image), each printed beside its <code>log:line</code>: cells, whole L2, (S1) interior, θ_h(0), (c1), (T) interior and whole, (c2). <strong>Excluded</strong> (2026-10-13 10:30 ruling, <code>MAT-21.md:442</code>): the Gauss and balance prints (≤ 1e-10 relative, round-off floor). They are asserted at their bands only, and a last-digit move there is not a finding. A covered reading that moves past its last two printed digits stops the item (Negative result).</p>
+<p><strong>Example-side anchors (asserted, imported bands only).</strong>
+- <strong>(F0) The face tags partition the Robin boundary.</strong> Six example-local facet tags on the m = 6 mesh (1/2 = ±x, 3/4 = ±y, 5/6 = ±z). Locate each face with <code>dmesh.locate_entities_boundary(msh, 2, marker)</code>, using <code>np.isclose(x[d], ±L_d, rtol=0, atol=1e-9)</code> (see the y-face round-off trap below).
+  - Global owned counts per tag, <code>allreduce</code> of the facets with index &lt; <code>index_map(2).size_local</code>, must equal 1 152 / 1 152 / 1 872 / 1 872 / 7 488 / 7 488 (2·N_a·N_b per face from (78, 48, 12)). Their sum must be 21 024, the global owned count of <code>ft.find(ROBIN_TAG)</code>.
+  - Integer equalities, no bar. Printed beside them: each pair's ∫1 ds against its exact area (2·4BC, 2·4AC, 2·4AB).
+- <strong>(F1) The six face powers sum to the gate's Gauss.</strong> P_f = Re <code>_allsum(h·θ·ds(f))</code> per tag, with <code>ds = ufl.Measure("ds", domain=msh, subdomain_data=face_tags)</code>. The check is |ΣP_f/(q·v_h) − 1| ≤ <code>S2_GAUSS_BAND</code>. Predicted: equal to the (S2) reading to ≈ 1e-13.
+- Printed: pair fractions P_±x, P_±y, P_±z over q·v_h beside the series' face integrals and the area shares.
+  - The series side uses 128-point Gauss–Legendre per face direction, applied to <code>m1._steady_ex()</code> (step 0's (R3) quadrature, <code>test_mat21_box_closed_form.py:162–175</code>, written locally).
+  - <strong>Predicted: series 0.078249 / 0.126245 / 0.795501; FEM within 0.5 % relative of each</strong> (first measurement, a reading).
+  - Face-mean θ per pair predicted 5.0862 / 5.3023 / 7.1595 K.</p>
+<p><strong>(2) Negative controls (rule (e)).</strong>
+- (c1), the gate's control, asserted: the comparand at 2h, interior <code>_rel</code> &gt; <code>INTERIOR_BAND</code>. Record 5.9734e-01 (W1 <code>:110</code>).
+- (c2), the gate's control, asserted: Dirichlet z-roots at t* (<code>roots=(None, None, (np.arange(1, 41) - 0.5) * np.pi)</code>, <code>test_mat21_box_fem.py:263</code>), interior <code>_rel</code> &gt; <code>INTERIOR_BAND</code>. Record 3.6135e-01 (W2 <code>:93</code>).
+- (F1-c), example-side, asserted only as a miss: the partition with the −z face (tag 6) dropped, |Σ_{f≠6}P_f/(q·v_h) − 1| &gt; <code>S2_GAUSS_BAND</code>.
+  - <strong>Predicted 0.39775</strong> (half the ±z share), range [0.39, 0.41], from stdlib arithmetic while drafting with no prior measurement (rule (e)).
+  - Ceiling: the miss cannot exceed 1. It sits ≈ 4e8× above the band, with no saturation issue.
+  - It shows that a tag set missing a face is caught, so the (F1) identity is not vacuous.</p>
+<p><strong>Printed only (no band; predicted beside measured; a value outside its prediction is reported, with no status effect).</strong>
+- <strong>Slab against box (angle 1).</strong>
+  - θ_slab(z) from imported <code>Q</code>, <code>K_GEL</code>, <code>H_GEL</code>, <code>C_BOX</code>. Step 0's (R5) asserts this slab limit at A = B = 20C (<code>:266–283</code>), so the formula is the gate's.
+  - On three centre lines (x-axis, y-axis, z-axis through the origin, 101 points each, s ∈ [−0.995L, 0.995L]), print FEM θ, series θ, θ_slab and slab/series − 1 at s/L = 0, 0.25, 0.5, 0.7, 0.9, 0.995. Predicted as listed in the angle (series side); FEM within 0.3 % of the series away from the walls.
+  - Print the x and y positions where slab/series − 1 crosses 5 % and 10 % on the series lines. Predicted 10 % at ≈ 0.64A and ≈ 0.51B.
+  - <strong>Volume shares</strong> where |θ_slab/θ_series − 1| ≤ 5 % and ≤ 10 %, from the series at cell midpoints: DG0 mask, <code>_allsum(mask·dx)/v_h</code>, mask in numpy. Rough predictions: [0.06, 0.16] and [0.20, 0.35] (first measurement).
+- <strong>Where the heat leaves (angle 2).</strong> The (F1) table above.
+- <strong>Hours from steady (angle 2/3).</strong>
+  - The FEM centre at the nine snapshots (t = 0, 5, …, 40 × t*/40) beside <code>m1._trans_ex(t)</code> at the origin and beside qt/ρc. Predicted: FEM ≈ series to ≲ 0.1 %; centre/(qt/ρc) falling from 1 to 0.989 at t*.
+  - Closed-form centre fraction θ(0, t)/θ_ss(0) at t*, t_C, τ₁ and 3τ₁. Predicted 0.1113 and 0.4592 at the first two (step 0 W1 <code>:80</code>: 1.335697 and 5.511710 K over 12.003947 K); the last two are first records.
+  - γ₁ per axis and τ₁ via <code>m0._axis_data</code> and <code>m0.ALPHA</code>, beside step 0's records 1.330018 / 1.232272 / 0.771359 and 20 193 s (<code>:91</code>, <code>:94</code>).</p>
+<p><strong>Output.</strong>
+- <strong>Setup figure</strong> <code>examples/materials/figures/materials_19_f2182_gel_box_slab_and_faces_setup.png</code>.
+  - <code>create_box</code> gives no cell tags, so build <code>dmesh.meshtags(msh, 3, cells, 1)</code> over every local cell (owned + ghost, sorted <code>int32</code>).
+  - Use <code>region_names={1: "gel (650 x 420 x 90 mm)"}</code>, <code>slice_normal=(0, 1, 0)</code>, <code>slice_origin=(0, 0, 0)</code>, <code>clip_normal=(0, -1, 0)</code>. The x–z section shows how thin the box is.
+  - Title ≤ 130 characters, e.g. "mat:19 -- F2182-sized gel box (650 x 420 x 90 mm), Robin on all six faces, m = 6 rung: x-z slice".
+  - If the PNG is over 600 KiB, re-render once with <code>show_edges_on_slice=False</code>.
+- <strong>Combined XDMF</strong> <code>examples/materials/paraview_output/materials_19_f2182_gel_box_slab_and_faces_combined.xdmf</code>, through <code>write_xdmf_with_tags(path, msh, cell_tags, fields, comm=comm, facet_tags=face_tags)</code>:
+  - CG1 <code>theta_steady_fem</code>; <code>theta_steady_series</code> (the P2 comparand interpolated into CG1: P1 nodes are P2 nodes, so the values are the series' own); <code>theta_steady_fem_minus_series</code>; <code>slab_over_series_minus_1</code> (numpy on the CG1 series and <code>tabulate_dof_coordinates()[:, 2]</code>; the series is ≥ 2.55 K everywhere, so no division hazard); <code>theta_tstar_fem</code>; <code>theta_tstar_series</code>;
+  - DG0 <code>slab_within_10pct</code>;
+  - the six face tags.
+- <strong>CSV</strong> <code>examples/materials/paraview_output/materials_19_f2182_gel_box_slab_and_faces_centre_lines.csv</code>, rank 0, one row per point, with columns <code>line</code>, <code>s_over_L</code>, <code>x_m</code>, <code>y_m</code>, <code>z_m</code>, <code>theta_fem_K</code>, <code>theta_series_K</code>, <code>theta_slab_K</code>, <code>slab_over_series_minus_1</code>.
+- Write the CSV, then the XDMF, then <code>adopt_host_ownership(OUTPUT_DIR, comm=comm)</code> on every rank. Only the PNG is tracked.
+- <strong>Guide.</strong> The required headings, <code>## Setup figure</code> and <code>## Related</code>.
+  - <code>Related</code> lists, by full filename (rule (b)): <code>examples/materials/10_finite_cylinder_robin_series.md</code> first, then <code>examples/materials/08_gel_ball_settling_time.md</code>; then <code>tests/validation/test_mat21_box_fem.py</code>, <code>tests/validation/test_mat21_box_closed_form.py</code>, <code>tests/validation/test_mat15_finite_cylinder_fem.py</code>.
+  - The guide explains:
+    - the triple series as a product of three slab series, and why the centre column is a slab offset by ≈ 3 %;
+    - why the ±z faces carry ≈ 80 % of the heat on ≈ 74 % of the area (they are hotter);
+    - why a 47-minute run leaves the centre near-adiabatic (τ₁ ≈ 5.6 h) — as explanation, never as an F2182 test-procedure statement;
+    - a ParaView recipe: open the combined file; colour by <code>theta_steady_fem</code> and compare <code>theta_steady_series</code> and <code>theta_steady_fem_minus_series</code>; colour by <code>slab_over_series_minus_1</code> with a range of [0, 0.1] and threshold <code>slab_within_10pct</code>; extract the face blocks; open the CSV in a Line Chart View and plot <code>theta_fem_K</code>, <code>theta_series_K</code> and <code>theta_slab_K</code> against <code>s_over_L</code> per <code>line</code>.
+  - One sentence in <code>## 2. How to run it</code>: <code>./scripts/run_examples.sh -e mat:19 -n 2 -t 420</code>, complex build sourced by the runner, heavy, the measured wall time.
+  - Write <code>≈</code>, never a tilde.</p>
+<p><strong>(3) Windows.</strong> Each one is foreground with <code>timeout: 660000</code>, and each is one bare, whole, repo-relative harness call, nothing chained or piped.
+0. Orphan check: <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0.
+1. <strong>Pre-censuses, before any file is written:</strong>
+   - <code>scripts/testing/run_and_log.sh EX-112-pre-figures "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_setup_figures.py'"</code>
+   - <code>scripts/testing/run_and_log.sh EX-112-pre-docrefs "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py'"</code></p>
+<p>The last reading was <code>examples=108 ok=108 missing=0 broken=0</code> and docrefs <code>dead=0 guide=0 stale=90 exit=2</code> (<code>20261013T003930Z_EX-111-post-figures.log</code>, <code>…003932Z_EX-111-post-docrefs.log</code>). Use what the pre-census reads. Exit 2 is staleness info; exit 1 is a failure.
+2. <strong>Dry run</strong>, after the script exists: <code>scripts/testing/run_and_log.sh EX-112-dryrun "./scripts/run_examples.sh -e mat:19 -n 2 -t 420 --dry-run"</code>. It must print <code>(complex build)</code>. Copy its emitted string for windows 3–4, adding only <code>-T</code> (and the flag in window 3). Note its <code>PYTHONPATH=/workspace/src</code> (no <code>:/workspace</code>; the script inserts <code>_REPO_ROOT</code> itself).
+3. <strong>Run of record (flagged)</strong>, predicted ≈ 140 s, range [100, 280] s. The expected form, which must match the dry run apart from <code>-T</code> and the flag:
+   <code>scripts/testing/run_and_log.sh EX-112 'docker compose exec -T -e FEM_EM_SETUP_FIGURES=1 fem-em-solver bash -lc "cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src timeout -k 30 420 mpiexec -n 2 python3 examples/materials/19_f2182_gel_box_slab_and_faces.py"'</code>
+   - Pass: Status 0; (S1), (S2), (T), (E-cn), (F0), (F1) and the three control asserts green; the covered records as in (1); the closing "All assertions hold" line.
+4. <strong>Control:</strong> <code>git add</code> the PNG window 3 wrote, then run the same line without <code>-e FEM_EM_SETUP_FIGURES=1</code>, label <code>EX-112-control</code>. Predicted ≈ 125 s, range [90, 260] s. Compare at the bands, never bitwise.
+5. <strong>The guide</strong>, written from window 3's log. Then the post-censuses <code>EX-112-post-figures</code> / <code>EX-112-post-docrefs</code> (window 1's commands with those labels).
+   - <strong>Write the prediction first:</strong> figures N → N + 1, <code>missing=0 broken=0</code>; docrefs <code>dead=0</code>, no new dead reference, exit ≠ 1.
+   - Any dead reference naming a <code>materials_19_*</code> file or <code>19_f2182_gel_box_slab_and_faces.md</code> fails the item.
+6. <code>git status --porcelain examples/ tests/ src/</code> lists exactly the three new <code>examples/</code> paths.</p>
+<p><strong>(4) Traps already paid for.</strong>
+- <strong>Pytest fixtures are not callable.</strong> <code>steady</code> and <code>transient</code> in <code>test_mat21_box_fem.py</code> are <code>@pytest.fixture</code> functions, and calling one directly raises. Use only the module-level helpers (<code>_rung</code>, <code>_exact</code>, <code>_rel</code>, <code>_interior_chi</code>, <code>_steady_ex</code>, <code>_trans_ex</code>, <code>_Clock</code>) and copy the CN call at <code>:247–250</code>. The four-rung LSQ rate is the gate's and is not re-run here (<code>mat:10</code>'s precedent).
+- <strong>The y-face round-off (new, found while drafting).</strong> <code>create_box</code> puts the +y wall at 0.20999999999999994, not 0.21 (W1 <code>:107</code>). An exact-equality face locator misses the whole +y face, and (F0) would then read 0 on tag 3. Use <code>np.isclose(…, atol=1e-9)</code>. If (F0) is red on the first run, one in-slot fix of the locator is allowed: re-run window 3 under rule (i), keep the failed log, and journal it. A second red parks.
+- <strong>Module-name collisions.</strong> Both <code>MAT-21</code> modules define <code>_say</code>, <code>HALF</code>, <code>K</code>, <code>Q</code>, <code>H</code> and <code>RHO_C</code>, and <code>MAT-17</code>'s duty module defines a different <code>HALF</code> (<code>MAT-21.md:407</code>). Use module aliases <code>m1</code> / <code>m0</code>, never <code>from … import *</code>, and never import another example's module (<code>EX-37</code>).
+- <strong>Empty owned slices (<code>EX-110</code> attempt 1, 2026-10-12).</strong> At <code>-n 2</code> a rank can own no facet of a face tag or no centre-line point.
+  - Every owned-slice <code>np.max</code> / <code>np.min</code> carries <code>initial=</code>; every <code>argmax</code> / <code>[0]</code> on an owned slice is size-guarded; no collective sits inside a <code>rank == 0</code> branch.
+  - A rank-local exception hangs the job rather than failing it. Status 124 is a finding, never a retry.
+- <strong>Rank-local counts.</strong> Facet counts use owned facets only (index &lt; <code>index_map(2).size_local</code>), then <code>allreduce</code>. <code>ft.find</code> and <code>locate_entities_boundary</code> include ghost facets, which would double-count across the partition seam. Areas and powers go through <code>_allsum</code>.
+- <strong>Points never on a wall.</strong> Centre lines stop at ±0.995L (the y wall is below its nominal value). If <code>evaluate_vector_field_parallel</code> returns any point not found, raise with the point; do not drop it silently.
+- <strong>The complex build.</strong> <code>.x.array</code> is complex: the CSV, the masks and the slab ratio take <code>np.real(...)</code> copies; call <code>scatter_forward</code> after assigning. Masks are numpy; no UFL comparison and no <code>sqrt</code> comparison. <code>float(...)</code> only after <code>np.real</code>.
+- <strong><code>T_INF</code> offsets.</strong> <code>st.temperature</code> and the snapshots carry T∞ = 20; the series (<code>_steady_ex</code>, <code>_trans_ex</code>) is θ with t_inf = 0. Subtract <code>T_INF</code> from every FEM value before comparing; θ_slab is a θ.
+- <strong>Name every Function</strong>, each XDMF key equal to its Function's <code>name</code> (<code>EX-79</code>'s HDF5 collision cost a window).
+- <strong>Snapshot memory.</strong> Nine snapshots × 50 323 complex dofs is negligible. Free the P2 comparands after their <code>_rel</code> calls; each is 380 725 complex dofs.
+- <strong>Harness shape.</strong> Every harness call is the whole Bash command: bare, repo-relative, no <code>cd … &amp;&amp;</code>, no <code>; date</code> / <code>| tail</code>, no redirect (<code>bash_guard</code> rule 3). <code>./scripts/run_examples.sh</code> is host-side: emit it with <code>--dry-run</code> and pass the string to the harness; never wrap it in <code>docker compose exec</code> (Status 127). A docker-socket denial means stop and report the exact command string.
+- <strong>Timeouts and foreground.</strong> Bash <code>timeout: 660000</code> on every window; container <code>timeout -k 30 420</code>. Never background a harness window (the 2026-09-01 <code>example-runner</code> orphan). Never raise a timeout or <code>-n</code>. After a kill, run <code>pgrep -c python3</code> first; only at 0, run the orphan-<code>.c</code> cache sweep (daily-review.md rubric item 4) as one bare call labelled <code>EX-112-cache-sweep</code>.
+- <strong>Rule (i):</strong> no edit to the script after window 3 starts (except the one licensed (F0) locator fix above), or to the guide after window 5 starts. Check file mtimes against window starts before committing.
+- <strong>PNG ≤ 600 KiB.</strong></p>
+<p><strong>(5) Scope.</strong> One rung (m = 6), P1, uniform q, Robin h 10 on all six faces, the gel constants, the F2182 box dimensions, steady and CN at one t*, <code>-n 2</code>. The slab comparison, the face partition and the centre history are printed readings, not gates. Not claimed:
+- F2182 compliance or any test-procedure statement; whether the phantom fits a coil ((8e), the operator's); a coil or SAR source;
+- the duty cycle and six-minute operators (item 424, §10 P26);
+- the LSQ rate, (S-slope), (∞) or (P1), which are the gate's and are not re-run here; degree 2; convergence of the face fractions;
+- perfusion, a container wall, <code>ANS-9</code> or any external check.
+- <code>MAT-21</code> does not move.</p>
+<p><strong>(6) Negative result.</strong> Report and stop. Journal in <code>docs/testing/attempts.md</code>, park on <code>attempt/EX-112-&lt;UTC&gt;</code>, and mark item 438 BLOCKED with the unblock condition in the same commit (rule (d)). <code>EX-112</code> stays ⬜. Never widen a band, never edit <code>tests/</code> or <code>src/</code>, never re-record from the example side.
+- <strong>(S1) / (S2) / (T) / (E-cn) red, or a covered record off W1 / W2 beyond its last two printed digits:</strong> an example/test divergence (a call shape not the gate's, the T∞ offset, a wrong comparand), or <code>main</code> drifted. Print the first differing value beside its <code>log:line</code>, file a known-issues entry, and park. Re-run the gate's W1 / W2 commands (<code>MAT-21.md:311, :314</code>) only if the review asks.
+- <strong>(F0) red after the one licensed locator fix:</strong> the face partition is not what the brief says. Report the per-tag counts and stop.
+- <strong>(F1) red with (S2) green:</strong> a face tag is missing, duplicated or double-counted across ranks. Print ΣP_f against the single-tag Gauss and stop.
+- <strong>A control inside its band:</strong> the comparand or the tag set is mislabelled. Stop.
+- <strong>Status 124, over 420 s, or the slot past its park minutes:</strong> park with the last printed line.
+- <strong>A printed value outside its prediction</strong> (face fractions, slab profiles, volume shares, centre history): report it; no status effect.</p>
+<p>No <code>PREDICTED RED:</code> line. A red anywhere stops the slot.</p>
+<p><strong>(7) Status it can move.</strong> <code>EX-112</code> ⬜ → ✅ under the §7 Done-when the review pastes in the same commit as this item (rule (j); this brief matches the row). Census <code>examples</code> +1 (108 → 109 if the pre-census reads 108), <code>broken=0</code>; docrefs <code>dead=0</code>. <code>MAT-21</code> stays ✅. No §2 sentence moves. The §10 Phase 8 (8a) ramp gains the box example, which the weekly reads.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Use the example-runner agent to execute <code>EX-112</code>, §9 item 438 (<code>docs/planning/chunks/EX-112.md</code>, heading <code>§9 item 438</code>). Read the brief and any review ruling beneath it first; the rulings hold. You are the executor — do not spawn agents, and never background a harness window. Pass <code>timeout: 660000</code> on every Bash call that runs a harness window, run every window in the foreground, and never delete a log. The harness call is the <strong>whole</strong> Bash command: bare, repo-relative, nothing chained or piped. Before window 1, run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> and require 0. Run both pre-censuses before writing any file. Edit nothing under <code>tests/</code> or <code>src/</code> — call the gate's module-level helpers in <code>tests/validation/test_mat21_box_fem.py</code> unchanged (its pytest fixtures cannot be called), copy its CN call at <code>:247–250</code>, and if anything there is needed, stop and report. Locate faces with <code>np.isclose(…, atol=1e-9)</code> (the +y wall sits at 0.20999999999999994). Guard every owned-slice reduction with <code>initial=</code>; count facets on owned indices only. Emit the runner line with <code>--dry-run</code> and pass it to the harness; never wrap <code>run_examples.sh</code> in <code>docker compose exec</code>. No edit to the script after window 3 starts (one licensed (F0) locator fix excepted), or to the guide after window 5 starts. If the docker socket is denied, stop and report the exact command string. Return the windows' log names, every asserted and printed value beside its record (log:line) or prediction, the census before / after with the docrefs <code>dead=</code> list, and elapsed."</p>
+<p><strong>Outcome 2026-10-14 (22:30 CDT slot, <code>example-runner</code>): DONE.</strong> Flagged <code>20261014T033257Z_EX-112.log</code> Status 0, 90 s; control <code>20261014T033435Z_EX-112-control.log</code> Status 0, 80 s, the same printed readings. Every covered record was reproduced at its printed digits: cells 269 568, whole L2 1.547121e-03, (S1) 1.417055e-03, θ_h(0) 12.005487 K, (c1) 5.9734e-01, (T) 9.071528e-04 / 1.417652e-03, (c2) 3.6135e-01. (S2) 1.682e-12, (E-cn) 2.809e-12. (F0) per-tag 1 152 / 1 152 / 1 872 / 1 872 / 7 488 / 7 488 = 21 024 on the first run, so the locator fix was not used. (F1) 1.684e-12; (F1-c) 0.39779 (predicted 0.39775).
+- <strong>Printed readings.</strong> Face fractions ±x / ±y / ±z: FEM 0.078223 / 0.126203 / 0.795574 against series 0.078249 / 0.126245 / 0.795501. Slab 10 % crossings: 0.650A / 0.515B. Volume shares (≤ 5 % / ≤ 10 %): 0.1171 / 0.2978. Centre FEM/series − 1 at t*: +1.018e-3, at the edge of the "≲ 0.1 %" prediction. θ(0, τ₁) 7.062970 K and θ(0, 3τ₁) 11.256572 K are first records.
+- <strong>Outside prediction, no status effect.</strong> Slab/series − 1 at s/L = 0.995 reads +95.97 % (x) and +95.04 % (y). The prediction of 101 % / 98 % was for the face itself, not the 0.995 line end.
+- <strong>Census.</strong> Figures 108 → 109, <code>missing=0 broken=0</code>; docrefs <code>dead=0 stale=90 exit=2</code> before and after.
+- <strong>Logs held.</strong> Both run logs sit in the gitignored <code>/logs/leak-held/</code>, not in <code>docs/testing/logs/</code>. The pre-commit private-leak guard flagged their y-line row at s/L = 0.7, an 8-digit prefix collision of our own gel-box θ. The review rules on landing them (attempts.md 2026-10-14T03:38Z).</p>
+<h3 id="review-ruling-2026-10-13-1030-daily-on-the-item-438-draft">Review ruling 2026-10-13 10:30 (daily) on the item 438 draft<a class="headerlink" href="#review-ruling-2026-10-13-1030-daily-on-the-item-438-draft" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>No lift</strong> — accepted: the example reuses the gate module's module-level helpers and copies its CN call; reproducing the (T) record 9.071528e-04 is the proof the copy matches. No edit to <code>tests/validation/test_mat21_box_fem.py</code> (item 424 imports it).</li>
+<li><strong>The one face-finder fix</strong> — accepted, narrowly: the +y wall sits at 0.20999999999999994 (W1 <code>:107</code>), so a face finder must locate faces with a geometric tolerance (e.g. <code>np.isclose(…, atol=1e-12 · max(A, B, C))</code>) from the start. If a window still flags a face-location miss, one fix of the <em>finder</em> (never a band, never an asserted quantity) and one re-run of that window are allowed, disclosed in the guide and the journal; a second miss parks the item.</li>
+<li><strong>Order</strong> — queued last among the open items (the example never displaces a chain step); independent of item 424.</li>
+<li><strong>Predicted ranges</strong> (volume shares, face-fraction agreement) are printed only; a value outside them is reported with no status effect.</li>
+</ol>
+<h3 id="review-audit-2026-10-14-0300-demote-on-custody-restored-by-landing-the-held-logs">Review audit 2026-10-14 03:00 — DEMOTE on custody, ✅ restored by landing the held logs<a class="headerlink" href="#review-audit-2026-10-14-0300-demote-on-custody-restored-by-landing-the-held-logs" title="Permanent link">&para;</a></h3>
+<p><code>auditor</code> on the closure at <code>476a838b</code> returned <strong>DEMOTE (check 1, footer identity)</strong>, a custody finding only. The two logs the ✅ rests on, <code>20261014T033257Z_EX-112.log</code> and <code>20261014T033435Z_EX-112-control.log</code>, are not in <code>docs/testing/logs/</code>, neither plain nor <code>.gz</code>. They exist, untouched, in the gitignored repo-root <code>logs/leak-held/</code>, which <code>.gitignore:82</code> (<code>/logs/</code>) covers. The headers carry Commit <code>4c582a85</code> (the sole parent of the closing commit), Status 0, and 90 s / 80 s. <code>test-results.md:4204–4205</code> indexes both runs.</p>
+<p>Checks 2–8 pass:
+- Every claimed digit traces. The MAT-21 records trace to the tracked step-1 logs: (S1) <code>20261013T142646Z_MAT-21-step1r-W1-steady.log:108</code>, (T) <code>20261013T142900Z_MAT-21-step1r-W2-transient.log:92</code>. The (F) series traces only to the held logs.
+- No <code>src/</code> or <code>tests/</code> edit.
+- The asserts are executed at the imported bands (script <code>:233–235</code>, <code>:273–274</code>, <code>:287–288</code>, <code>:406–408</code>).
+- Census 108 → 109 (<code>20261014T033627Z_EX-112-post-figures.log:145</code>).
+- Docrefs <code>dead=0</code>.
+- Heavy tier honoured.</p>
+<p><strong>Ruling (this review).</strong> <code>EX-112</code> is 🧪 until both held logs land in <code>docs/testing/logs/</code> <strong>unchanged</strong>. It then returns to ✅ with no re-run, citing them.</p>
+<p>The logs are not edited and the hook is not bypassed. An 8-digit match to a private value is the guard working as designed, even when the digits are our own. Whether they land (an allowlist entry for that row, or an operator ruling) is the operator's call: dashboard Waiting-on-you.</p>
+<p>Until then the held directory is the only copy. It sits outside every sweep, so it must not be cleaned. The plan text's <code>/logs/leak-held/</code> means the repo-root <code>logs/leak-held/</code>.</p>
+<p><strong>For future examples:</strong> print profile and table rows at ≤ 6 significant digits, keeping the asserted records' own digits. A leak-guard hit then holds the item BLOCKED rather than ✅ (the drafters' trap list from 2026-10-14).</p>
+<h2 id="7-row-moved-verbatim-2026-10-14-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-14 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-14-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p><strong>The F2182-sized gel box: a 90 mm slab to 3 % at its centre, cooled ≈ 80 % through its two large faces, and hours from steady</strong> <em>(history and §9 briefs: <code>docs/planning/chunks/EX-112.md</code>)</em> (<code>mat:19</code>; <code>example-runner</code>; opened 2026-10-13 by the 10:30 daily review, §5.4 ramp from <code>MAT-21</code> ✅, §9 item 438; <code>mat:10</code> is the Robin cylinder, no example builds the box) <strong>Done-when:</strong> <code>examples/materials/19_f2182_gel_box_slab_and_faces.py</code> + same-stem guide (three required headings + <code>## Setup figure</code> + <code>## Related</code>, PNG ≤ 600 KiB); complex, <code>-n 2</code>, the gate's m = 6 rung through its module-level helpers; no gate-module edit, no <code>src/</code> edit; every band imported, none restated. Asserted at the imported bands, each beside <code>20261013T142646Z_MAT-21-step1r-W1-steady.log:106–110</code> / <code>…142900Z_…-W2-transient.log:92–93</code>: (S1) interior ≤ <code>INTERIOR_BAND</code>, (S2) Gauss ≤ <code>S2_GAUSS_BAND</code>, (T) ≤ <code>INTERIOR_BAND</code>, CN balance ≤ <code>E_BAND</code>; controls (c1), (c2) miss. Example-side: six face tags partition the Robin facets (integer counts), Σ face powers = qV_h ≤ <code>S2_GAUSS_BAND</code>, the −z-dropped partition misses. Printed: per-face heat fractions against the series, slab-vs-box profiles and volume shares, the centre history against qt/ρc. Outputs: combined XDMF (steady / t* FEM and series, difference, slab ratio, six face tags) and a centre-line CSV. Census +1, <code>broken=0</code>, docrefs <code>dead=0</code>; elapsed recorded ⇒ ✅. Not claimed: F2182 compliance, a coil or SAR source, the duty cycle (item 424), the LSQ rate, degree 2, an external check. | 🧪 <strong>Demoted 2026-10-14 03:00 review (audit: custody)</strong> — the result is sound (every other §4 check passes), but the two gating run logs are not in <code>docs/testing/logs/</code>: the leak guard held them in the gitignored repo-root <code>logs/leak-held/</code> (an 8-digit collision of our own gel-box θ). <strong>⇒ ✅ with no re-run when both land unchanged</strong> (operator ruling, dashboard). Item 438 (22:30 slot): (S1) 1.417055e-03, (T) 9.071528e-04; census 108 → 109; audit and readings in the chunk file. </p>
+<h3 id="review-2026-10-15-1800-on-the-landed-logs">Review 2026-10-15 18:00 — ✅ on the landed logs<a class="headerlink" href="#review-2026-10-15-1800-on-the-landed-logs" title="Permanent link">&para;</a></h3>
+<p>The operator landed the two held logs at <code>dcdbc42c</code> (ruling (a), 2026-10-14). That commit adds 269 lines and modifies nothing. An <code>auditor</code> read gave <strong>PASS</strong>: both footers show Status 0 (<code>20261014T033257Z_EX-112.log:136–137</code>, 90 s; <code>20261014T033435Z_EX-112-control.log:129–130</code>, 80 s). Each log carries commit <code>4c582a85</code> at line 3, the parent of the closing commit <code>476a838b</code>. Item 438's readings trace in both logs: (S1) 1.417055e-03 at <code>:56</code> / <code>:49</code>, (T) 9.071528e-04 at <code>:106</code> / <code>:99</code>, and (F1-c) 0.39779 at <code>:69</code> / <code>:62</code>. The census reads 108 → 109 (<code>20261014T033627Z_EX-112-post-figures.log:145</code>). The script and guide are unchanged since <code>476a838b</code>. Caveat: no hash of the held logs was recorded, so "landed unchanged" rests on the digits matching. Glyph 🧪 → ✅.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

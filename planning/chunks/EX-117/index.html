@@ -1,0 +1,815 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-117 — mesh:15, the clinical-scale body coil in ParaView: F-clinical-1.5T (32 legs, 64 ring-gap sheets, closed PEC can) with the ASTM F2182 gel box as its load - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-117-mesh15-the-clinical-scale-body-coil-in-paraview-f-clinical-15t-32-legs-64-ring-gap-sheets-closed-pec-can-with-the-astm-f2182-gel-box-as-its-load" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-117 — mesh:15, the clinical-scale body coil in ParaView: F-clinical-1.5T (32 legs, 64 ring-gap sheets, closed PEC can) with the ASTM F2182 gel box as its load
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-489-2026-10-15-example-54-ramp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 489 — 2026-10-15 (example, §5.4 ramp)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-15-1800-item-489" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-15 18:00 (item 489)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-16-1030-item-489-audit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-16 10:30 (item 489 audit)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-17-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-17 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="§7 row moved verbatim 2026-10-17 (rotate_plan_archive.py chunks)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#9-item-543-2026-10-18-ex-117-follow-on-ops-docs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 543 — 2026-10-18 (EX-117 follow-on; ops / docs)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-18-1800-item-543" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-18 18:00 (item 543)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-117-mesh15-the-clinical-scale-body-coil-in-paraview-f-clinical-15t-32-legs-64-ring-gap-sheets-closed-pec-can-with-the-astm-f2182-gel-box-as-its-load">EX-117 — mesh:15, the clinical-scale body coil in ParaView: F-clinical-1.5T (32 legs, 64 ring-gap sheets, closed PEC can) with the ASTM F2182 gel box as its load<a class="headerlink" href="#ex-117-mesh15-the-clinical-scale-body-coil-in-paraview-f-clinical-15t-32-legs-64-ring-gap-sheets-closed-pec-can-with-the-astm-f2182-gel-box-as-its-load" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<p><code>EX-117</code> (<code>mesh:15</code>) is opened 2026-10-15 by the 18:00 daily review under daily-review.md step 5, the §5.4 ramp the 10-14 weekly named for chain C: "a chain-C setup figure after C1 (a)" (<code>PROJECT_PLAN.md</code> §10, ≈ line 5041; budget line ≈ 4973, "examples the daily opens after <code>ANS-9</code> ✅, <code>EX-115</code> and the chain-C generator"). Its gated base is <code>GEO-38</code> step 1a (C1 (a), §9 item 478) and step 2 (C2, §9 item 470), both green on <code>main</code>; <code>GEO-38</code> itself is 🟡 (step 1 waits for the weekly's census re-pose, step 1b for its <code>xl</code> column). <strong>This example demonstrates only the two green mesh gates; it claims nothing that waits on step 1b or the census ruling.</strong>
+- <strong>Base.</strong> <code>tests/validation/test_geo38_f_clinical_box.py</code> (<code>FEM_EM_GEO38_STEP2=1</code>; <code>_box_kwargs()</code> = item 478's r1 kwargs with <code>phantom_box</code> 0.42 × 0.09 × 0.65 m, offset 0) and its imports from <code>tests/validation/test_geo38_f_clinical_build.py</code>. The generator is <code>MeshGenerator.birdcage_port_domain(..., return_diagnostics=True)</code> with the keyword-only <code>shield_radius</code> and <code>phantom_box</code> (<code>src/fem_em_solver/io/mesh.py</code>; disclosed in <code>GEO-38.md:396, :445</code>).
+- <strong>Runs of record</strong> (<code>GEO-38.md:399–405</code>). W3 <code>20261015T185056Z_GEO-38-s2-W3-n4.log</code> (<code>-n 4</code>, 339 s; build 335.4 s, gmsh 310.0 s, summed RSS 2.61 GiB; build line <code>:11896</code>, census <code>:11898</code>, (T1) <code>:11899</code>, (B1) <code>:11901</code>, (V1) <code>:11903</code>, (V2) <code>:11904</code>). W2 <code>…184154Z_GEO-38-s2-W2-n2.log</code> (<code>-n 2</code>, 529 s under host load; <code>:11880–11888</code>). At every width: <strong>1 149 150 cells</strong>; tag 2 1 061 834, tag 3 33 372, leg boxes 28–32 cells, no tag 1; (T1) 64/64 sheets, N_gmsh total 2 882; (B1) 2.457e-02 m³ at ≤ 1.1e-16; (V1) 4.780e-11; (V2) 2.220e-16; (c2) local-copy excess 0 / 0 / 5 at <code>-n 1 / 2 / 4</code>.</p>
+<p><strong>Gap.</strong> No example builds F-clinical, a shielded coil, or a box load inside a coil. <code>grep -rnE "F-clinical|phantom_box|f_clinical|shield_radius" examples --include=*.py --include=*.md</code> is empty at drafting (ansys_benchmarks excluded).
+- <code>mesh:12</code> (<code>EX-51</code>) is the 16-leg, 0.15 m F-human rung — cylinder phantom, no shield, solid conductors.
+- <code>mat:19</code> (<code>EX-112</code>, 🧪 on custody) is the F2182 gel box <strong>alone</strong>, thermal, no coil.
+- <code>mesh:13</code> integrates over interior sheets on a smaller fixture; <code>mri:4</code> / <code>mri:17</code> / <code>mri:18</code> solve F-human.
+- Nothing shows the clinical-scale geometry (0.71 m rungs, 0.745 m can, 64 ring sheets), the box's placement in the bore, or why the gate counts <strong>owned</strong> facets.</p>
+<h3 id="9-item-489-2026-10-15-example-54-ramp">§9 item 489 — 2026-10-15 (example, §5.4 ramp)<a class="headerlink" href="#9-item-489-2026-10-15-example-54-ramp" title="Permanent link">&para;</a></h3>
+<p><strong>Outcome 2026-10-16 (06:00 slot): DONE.</strong> Run of record <code>docs/testing/logs/20261016T110247Z_EX-117.log</code> (flagged, <code>-n 4</code>, <code>-t 600</code> per the 18:00 ruling, durable capture; Status 0, <code>[capture] rc=0</code>, 324 s harness / 321.8 s script; build 315.1 s, gmsh 290.9 s, summed peak RSS 2.586 GiB, figure 6.4 s). Cells 1 149 150 printed (= W3; +1.5549e-03 against the r1 record), not asserted; tag 2 / 3 1 061 834 / 33 372 exact; (T1) 64/64, N_gmsh 2 882; (T2) worst 2.220e-15; (B1) 1.110e-16; (B2) 0; (V1) 4.780e-11; (V2) 2.220e-16; (K) clean, tag 3 present, no tag 1. (F) 7 708 owned box facets, Σ area rel 1.110e-16 against 2(LxLy+LyLz+LxLz), face pairs 0 / 0 / 0, none unclassified or multi-claimed; (R3) 0.214767315949 m, rel 0. Controls: (c1) 43 = N_gmsh − 1, area miss 7.072e-03; (cF) 3.696e-01; (cG) asserted — 234 ghost box facets (7 942 local vs 7 708 owned), area +3.028e-02. Printed: rung clearance 134.233 mm, can clearance 5.6851 mm, box / can 0.0591. Censuses <code>…110042Z</code>/<code>…110851Z_EX-117-*-figures.log</code> 113 → 114 <code>missing=0 broken=0</code>; docrefs <code>…110046Z</code>/<code>…110852Z</code> <code>dead=0 guide=0</code> exit 2 (stale 127 both sides). PNG 66.6 KB. One extra smoke window, <code>…110237Z_EX-117-importcheck.log</code> (imports resolve), before window 3.</p>
+<p><em>Drafted by a general-purpose agent for the 2026-10-15 18:00 daily review; the review reviews it.</em> <strong>This brief sets and moves no band, tolerance, record, Done-when of another chunk or validation target.</strong> Every band is imported from the <code>GEO-38</code> modules or the modules they import from.</p>
+<p><code>EX-117</code> (<code>mesh:15</code>; <code>15_</code> is free in <code>examples/meshing/</code> — highest on <code>main</code> is <code>14_implant_tip_refinement</code>; meshing examples are auto-discovered by number and run in the <strong>real</strong> build, <code>scripts/run_examples.sh:51–54, :161</code>; check <code>--list</code> before assuming any dispatch edit) adds three tracked files and edits nothing else:
+- <code>examples/meshing/15_f_clinical_coil_astm_box.py</code>;
+- the same-stem guide <code>examples/meshing/15_f_clinical_coil_astm_box.md</code>, with <code>## 1. What this demonstrates</code>, <code>## 2. How to run it</code>, <code>## Setup figure</code>, <code>## 3. How to analyze it, step by step</code> and <code>## Related</code>;
+- <code>examples/meshing/figures/meshing_15_f_clinical_coil_astm_box_setup.png</code>, ≤ 600 KiB.</p>
+<p><strong>The angle: the clinical-scale fixture as a user sees it, and the box as a load.</strong> The gate proves the sheets and the box are right. This example puts the whole fixture in ParaView with its 64 sheets and the box interface as facet tags, and adds two box readings the gate does not make: the box's <strong>surface</strong> (its six planar faces recovered from the tag-3 / tag-2 interface) and its <strong>reach</strong> in the bore (the farthest box vertex from the axis is the CAD circumradius the generator exported), so a user can see the gel's clearance from the rungs. It differs from <code>mesh:12</code> in scale, shield, conductor route (hole, not solid) and load shape, and from <code>mat:19</code> in that the box sits in a coil.</p>
+<ul>
+<li><strong>Executor:</strong> <code>example-runner</code>. It does not spawn agents.</li>
+<li><strong>Class:</strong> example. <strong>Tier:</strong> heavy, <code>-n 4</code> (asserted), real build, mesh only.</li>
+<li><strong>Width choice.</strong> <code>-n 4</code> is the measured-fastest window (339 s; gmsh is serial on rank 0, so width buys only the post-gmsh distribution) and the only width where owned and local-copy facet counts differ (excess 5, <code>GEO-38.md:404</code>), which is what the (cG) control shows. <code>-n 2</code> measured 529 s under host load (<code>GEO-38.md:401</code>) and would leave &lt; 60 s of headroom.</li>
+<li><strong>Cost:</strong> ≈ 9 measured (example class median) / ≈ 45 predicted min: 10 fixed + ≈ 12 script + ≈ 9 window + ≈ 6 guide + ≈ 5 censuses / leak guard / commit. <strong>Park if window 3 has not started by minute 30</strong> (rule (d)). Price basis: W3's build 335.4 s at <code>-n 4</code>; plus the setup figure on 1.15 M cells (unmeasured at this size — <code>mesh:12</code> rendered ≈ 0.5 M cells inside a 196 s run, <code>20260906T033712Z_EX-51.log</code>; predict 30–120 s), the combined XDMF with a DG0 field and two facet tag sets (≈ 20–40 s), the analysis (owned numpy sums, &lt; 10 s), start-up (≈ 10 s). <strong>Window 3 predicted ≈ 450 s, range [350, 630] s.</strong> Runner <code>-t 630</code>, container <code>timeout -k 30 630</code>, the most that still returns a footer inside the Bash tool's 660 s. A host-loaded build like W2's (+160 s) plus a slow figure would overrun, so the window runs only on a quiet host (window 0). Because the range reaches ≈ 10 minutes, the window <strong>must use §5.1's durable-capture idiom</strong> (<code>PROJECT_PLAN.md:1034–1037</code>): container-side output to <code>/workspace/logs/EX-117-raw.log</code>, <code>[capture] rc=$rc</code> appended, <code>cat</code>, then <code>; exit $rc</code> — copied verbatim, inside the container's quoted command, never as a host-side redirect.</li>
+<li><strong>No unflagged control re-run.</strong> The template asks for one only when retrofitting a figure (example-runner.md item 6); a second ≈ 7-minute build would not fit the slot. The setup figure renders <strong>after</strong> the build timer is captured, so the printed build time is not polluted.</li>
+<li><strong>Depends on:</strong> nothing. <code>GEO-38</code> steps 1a and 2 are on <code>main</code>. <strong>Never run beside any heavy window or the 02:00 <code>xl</code> / <code>xxl</code> window</strong> (the W2 build lost 160 s to host load).</li>
+<li><strong>Shared files.</strong> Three new paths, nothing under <code>tests/</code> or <code>src/</code>. <strong>If anything there turns out to be needed, stop and report.</strong></li>
+</ul>
+<p><strong>Imports (never restated).</strong>
+- <code>from tests.validation.test_geo38_f_clinical_box import _box_kwargs</code>.
+- From <code>tests.validation.test_geo38_f_clinical_build</code>: <code>F_CLINICAL_R1_CELL_RECORD</code>, <code>LEG_COUNT</code>, <code>DESIGN_CORNER_CLEARANCE_M</code>, <code>_area</code>, <code>_facet_coords</code>, <code>_owned</code>, <code>_ring_ports</code>.
+- <code>CAD_ANALYTIC_BAND</code> (<code>tests.mesh.test_birdcage_conductor_hole</code>), <code>CELL_COUNT_BAND</code> (<code>tests.mesh.test_birdcage_port_sheet_prerequisite</code>), <code>PORT_LOWER</code>, <code>PORT_UPPER</code>, <code>SHEET_IFACE</code> (<code>tests.mesh.test_birdcage_port_sheets</code>), <code>STRIP_BAND</code> (<code>tests.validation.test_ops61_exact_strip_ports</code>), <code>_census_checks</code>, <code>_owned_census</code> (<code>tests.validation.test_wf12_f_human_hole</code>) — exactly the gate's lines <code>:73–78</code>.
+- From <code>src</code>: <code>MeshGenerator</code>, <code>_interface_facet_tags</code> (<code>fem_em_solver.io.mesh</code>), <code>write_xdmf_with_tags</code>, <code>adopt_host_ownership</code>, <code>write_setup_figure</code> (<code>mesh:12</code>'s import lines <code>:72–74</code>).
+- Insert <code>_REPO_ROOT</code> into <code>sys.path</code>. Box dimensions come only from <code>kw["phantom_box"]["size_m"]</code> and <code>["table_offset_m"]</code> of <code>_box_kwargs()</code>; never typed.
+- Record digits only in an example-local <code>REC</code> dict, each entry commented with its <code>log:line</code>: cells 1 149 150, tag-3 cells 33 372, tag-2 cells 1 061 834 (<code>…185056Z…W3-n4.log:11898</code>), N_gmsh total 2 882 (<code>:11899</code>).</p>
+<p><strong>Structural asserts at start-up.</strong> <code>comm.size == 4</code>; <code>default_scalar_type</code> is real (the meshing group); <code>len(_ring_ports()) == 2 * LEG_COUNT</code>; <code>_box_kwargs()["phantom_box"]["table_offset_m"] == 0.0</code>.</p>
+<p><strong>Record checks</strong> (the 2026-10-14 10:30 ruling's form, adopted in its own words): integers exact (cells, census tags 2 / 3, N_gmsh total); <code>|cells / F_CLINICAL_R1_CELL_RECORD − 1| &lt; CELL_COUNT_BAND</code> asserted (prior 1.555e-3, <code>GEO-38.md:405</code>). Readings at or below <code>STRIP_BAND</code> are asserted at their bands and printed beside the gate's line, never record-checked.</p>
+<p><strong>(1) Anchors (the gate's, recomputed on this run's mesh through the imported helpers).</strong>
+- (T1) owned facets of tag <code>SHEET_IFACE + i</code> = <code>diag["ring_sheet_gmsh_triangles"][i]</code> on all 64 sheets.
+- (T2) per sheet, area / (chord·w) − 1 ≤ <code>STRIP_BAND</code> (prior worst 2.220e-15).
+- (B1) Σ owned tag-3 tet volumes = Lx·Ly·Lz ≤ <code>STRIP_BAND</code>; (B2) tag-3 extents exact ≤ <code>STRIP_BAND</code>.
+- (V1) CAD partition ≤ <code>STRIP_BAND</code> (prior 4.780e-11); (V2) can vs π R_s²·2z_e ≤ <code>CAD_ANALYTIC_BAND</code>.
+- (K) <code>_census_checks</code> empty; tag 3 present, tag 1 absent.</p>
+<p><strong>Example-side anchors (asserted, imported bands only).</strong>
+- <strong>(F) The box surface.</strong> <code>_interface_facet_tags(msh, cells, {BOX_IFACE: (3, 2)})</code> with <code>BOX_IFACE</code> an unused tag (assert it is not in the sheet tag set); owned facets only (<code>_owned</code>), areas by <code>_area(_facet_coords(...))</code>, reduced. Assert Σ area = 2(LxLy + LyLz + LxLz) ≤ <code>STRIP_BAND</code> (0.7386 m² by the formula — computed in-script from <code>size_m</code>, never typed). Then classify each owned facet by the coordinate its three vertices share (|x| = Lx/2, |y| = Ly/2 + off, |z| = Lz/2, at <code>STRIP_BAND</code> relative), and assert the three face-pair sums 2LyLz, 2LxLz, 2LxLy each ≤ <code>STRIP_BAND</code>, with no unclassified facet. The box touches only air (circumradius ≈ 0.215 m &lt; R = 0.355 m; |z| ≤ 0.325 m), so every box facet is on this interface; a facet shared with another tag is a finding.
+- <strong>(R3) The box's reach.</strong> max over owned tag-3 vertices of hypot(x, y), reduced with <code>MPI.MAX</code>, equals <code>diag["phantom_box_circumradius_m"]</code> ≤ <code>STRIP_BAND</code> (a planar-faced box's corner is a mesh vertex — the (S′) pattern of item 478). Printed beside it: the radial clearance R − r_box − r_leg to the rung surface, in mm, and the shield clearance R_s − <code>diag["leg_box_corner_radius_m"]</code> against <code>DESIGN_CORNER_CLEARANCE_M</code> (5.685 mm prior, <code>GEO-38.md:450</code>).</p>
+<p><strong>(2) Negative controls.</strong>
+- <strong>(c1), the gate's, by construction:</strong> one facet dropped on P33 reads N_gmsh − 1 and misses chord·w by &gt; <code>STRIP_BAND</code>.
+- <strong>(cF) A face missing:</strong> Σ area over the five faces other than y = +(Ly/2 + off) misses 2(LxLy + LyLz + LxLz) by LxLz / total ≈ 37 % &gt; <code>STRIP_BAND</code> (no ceiling binds).
+- <strong>(cG) Local copies are not facets:</strong> the box interface's area summed over <strong>local copies</strong> (owned + ghost) is printed beside the owned sum; at <code>-n 4</code> it is asserted to exceed the owned sum by &gt; <code>STRIP_BAND</code> <strong>only if</strong> the gathered ghost count is &gt; 0, else printed as "no ghost copy on this partition" (the gate's (c2) read 5 sheet ghost copies at <code>-n 4</code>; the box count is unmeasured, so this control is conditional by design and says so in the guide).</p>
+<p><strong>Printed only.</strong> Build and gmsh seconds, summed peak RSS, figure and XDMF seconds; the tag census; the volume fraction tag-3 / can (≈ 5.9 % from (B1) and (V2)'s values); N_gmsh min / max; the unknown records <code>F_CLINICAL_R1_UNKNOWNS_RECORD</code> printed, never recomputed (no N1curl space is built here).</p>
+<p><strong>Output.</strong>
+- <strong>Setup figure</strong> <code>examples/meshing/figures/meshing_15_f_clinical_coil_astm_box_setup.png</code>: air (tag 2) hidden, box (tag 3) translucent, leg boxes 101–132 drawn, the coil drawn as a void (hole route — say so in the guide), <code>slice_normal=(0, 1, 0)</code> through the axis so the box's 0.65 m length sits between the rings; <code>show_edges_on_slice=False</code> from the start (1.15 M cells). Title ≤ 130 characters, e.g. "mesh:15 -- F-clinical-1.5T: 32-leg body coil, closed PEC can, 64 ring-gap sheets, ASTM F2182 gel box (GEO-38 C1/C2)". Over 600 KiB ⇒ re-render once with a coarser <code>window_size</code>.
+- <strong>Combined XDMF</strong> <code>examples/meshing/paraview_output/meshing_15_f_clinical_coil_astm_box_combined.xdmf</code>: <code>write_xdmf_with_tags(path, msh, cells, {"cell_diameter": diam}, comm=comm, facet_tags=...)</code> (<code>mesh:12</code>'s <code>_write_combined</code>, <code>:140–153</code>, its <code>cell_diameter</code> DG0 built in-script) with the 64 sheet tags and the box interface tag merged into one facet <code>MeshTags</code> (sorted indices); then <code>adopt_host_ownership</code>. Each XDMF key equals its Function's <code>name</code>.
+- <strong>Guide.</strong> The fixture's provenance (operator directive 2026-10-14; the provisional modelling choices of the 2026-10-15 03:00 / 10:30 rulings: rung length as ring-centreline separation, the closed PEC can, dx = 4 mm leg boxes) stated as <strong>provisional, pending the weekly's ratification</strong>; the 64-sheet census (2·N_legs) and that the "= 32" question is the weekly's; what (F) and (R3) read; why owned facets (the (cG) reading); a ParaView recipe (Threshold on cell tag 3; Extract Block / threshold the facet tags for the sheets and the box interface; colour <code>cell_diameter</code> on a y = 0 slice to see the graded sizing at the sheets). <code>Related</code> by full filename: <code>examples/meshing/12_birdcage_f_human_rung.md</code>, <code>examples/materials/19_f2182_gel_box_slab_and_faces.md</code>, <code>examples/meshing/13_interior_sheet_surface_integral.md</code>, <code>tests/validation/test_geo38_f_clinical_box.py</code>, <code>tests/validation/test_geo38_f_clinical_build.py</code>. Never name the raw capture log or any output by a bare basename that is not in <code>figures/</code> or <code>paraview_output/</code> (the docrefs checker keys on basenames, <code>EX-115</code> item 461). One sentence in <code>## 2</code>: <code>./scripts/run_examples.sh -e mesh:15 -n 4 -t 630</code>, heavy, ≈ 7–8 minutes, and the measured wall time. Write <code>≈</code>, never a tilde.</p>
+<p><strong>(3) Windows.</strong> Each one foreground, Bash <code>timeout: 660000</code>, one bare, whole, repo-relative harness call. The container ceiling is <strong>630 s</strong> so that the harness returns its footer inside the Bash tool's 660 s maximum (rubric item 4: "container-side <code>timeout</code> sized to return a footer inside that window"); an overrun is a finding to shrink, never a reason to raise it (CLAUDE.md hard rules).
+0. Orphan check: <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0. Also confirm no <code>xl</code> / <code>xxl</code> or other heavy window is live (<code>uptime</code> load ≤ ≈ 12).
+1. <strong>Pre-censuses, before any file is written:</strong> <code>EX-117-pre-figures</code> / <code>EX-117-pre-docrefs</code>, the commands of <code>EX-116.md</code> window 1 with these labels. Last readings on <code>main</code>: <code>examples=112 ok=112 missing=0 broken=0</code>, docrefs <code>dead=0 stale=120</code> exit 2 (<code>20261015T200817Z_EX-115-post-figures-r3.log</code>, <code>…200821Z_EX-115-post-docrefs-r3.log:160</code>). Use what the pre-census reads (item 488 may land first).
+2. <strong>Dry run</strong>, after the script exists: <code>scripts/testing/run_and_log.sh EX-117-dryrun "./scripts/run_examples.sh -e mesh:15 -n 4 -t 630 --dry-run"</code>; it must <strong>not</strong> print <code>(complex build)</code>. Copy its emitted string, adding <code>-T</code>, the flag, and the durable-capture wrapping inside the container command only.
+3. <strong>Run of record (flagged)</strong>, predicted ≈ 450 s, range [350, 630] s, label <code>EX-117</code>, with <code>-e FEM_EM_SETUP_FIGURES=1</code>. Pass: footer Status 0 and <code>[capture] rc=0</code>; (T1), (T2), (B1), (B2), (V1), (V2), (K), (F), (R3), (c1), (cF) green, (cG) as stated; the covered records exact; the closing "All assertions hold" line.
+4. <code>git add</code> the PNG; check ≤ 600 KiB.
+5. <strong>The guide</strong> from window 3's log; then <code>EX-117-post-figures</code> / <code>EX-117-post-docrefs</code>. <strong>Prediction first:</strong> figures N → N + 1, <code>missing=0 broken=0</code>; docrefs <code>dead=0</code>, exit ≠ 1.
+6. <code>git status --porcelain examples/ tests/ src/</code> lists exactly the three new <code>examples/</code> paths.
+7. Pre-commit leak guard on the staged logs (no AED counterpart exists for this fixture; the guard still runs).</p>
+<p><strong>(4) Traps already paid for.</strong>
+- <strong>Wrapper death on a long window</strong> (§5.1, TH-11 step 5d): the durable-capture idiom with the trailing <code>; exit $rc</code> verbatim (<code>WF-6</code> step 4h read Status 0 over a failure without it). After any kill, <code>pgrep -c python3</code> before anything else; at 0 only, the orphan-<code>.c</code> cache sweep (daily-review.md rubric item 4) labelled <code>EX-117-cache-sweep</code>.
+- <strong>Over-coarse sizing is refused by gmsh</strong> (<code>GEO-38.md:398</code>, overlapping facets at h_c 6 mm): use <code>_box_kwargs()</code> unchanged, never a coarser rung to save time.
+- <strong>Owned facets only.</strong> <code>_interface_facet_tags</code> returns local copies including ghosts (5 at <code>-n 4</code>); every area, count and extent goes through <code>_owned</code> and a reduction (<code>cell_tags.values</code> and numpy sums are rank-local). Owned-slice maxima carry <code>initial=-np.inf</code> (<code>EX-110</code> item 399).
+- <strong>No UFL <code>dS</code> over the sheets or the box</strong> (the gate's rule; a <code>SpatialCoordinate</code> facet form on a gmsh mesh can compile for &gt; 9 min, <code>POST-5</code>).
+- <strong>Facet tag merge.</strong> <code>meshtags</code> needs sorted, unique indices: concatenate, <code>np.unique(..., return_index=True)</code>, assert no index carries two tags.
+- <strong>Setup figure memory and size</strong> on 1.15 M cells: hide air, edges off on the slice; render after the build timer; one re-render allowed.
+- <strong>Rank-0 output, collectives:</strong> no collective inside a <code>rank == 0</code> branch; a rank-local exception hangs the job — Status 124 is a finding, never a retry.
+- <strong>Harness shape</strong> as <code>EX-116.md</code> (4): bare whole calls; <code>run_examples.sh</code> host-side, emitted by <code>--dry-run</code>, never wrapped in <code>docker compose exec</code>; never background a window.
+- <strong>Rule (i):</strong> no script edit after window 3 starts, no guide edit after window 5 starts.</p>
+<p><strong>(5) Scope.</strong> One fixture: F-clinical-1.5T r1 with the ASTM box at offset 0, mesh only, <code>-n 4</code>, real build. Not claimed: any solve, port gate, S-matrix, tuning, resonance, B₁ or SAR; the degree-1 column or degree-2 price (step 1b, the weekly's <code>xl</code>); the 32-vs-64 census question or ratification of the provisional modelling choices; a scanner-specific or compliance (ASTM F2182 test) claim; the 3 T twin; any external check. <code>GEO-38</code> does not move.</p>
+<p><strong>(6) Negative result.</strong> Report and stop; journal in <code>docs/testing/attempts.md</code>, park on <code>attempt/EX-117-&lt;UTC&gt;</code>, mark item 489 BLOCKED with the unblock condition in the same commit (rule (d)). <code>EX-117</code> stays ⬜. Never widen a band, never edit <code>tests/</code> or <code>src/</code>, never re-record from the example side.
+- <strong>A gate anchor or covered record red:</strong> example/gate divergence or <code>main</code> drifted — print the first differing value beside its <code>log:line</code>, file a known-issues entry, park.
+- <strong>(F) red:</strong> the box interface is not the six exact faces (a facet shared with another tag, or a missing face) — a finding about the generator's fragment; print the per-face sums and stop.
+- <strong>(R3) red:</strong> the exported circumradius and the mesh disagree — print both and stop.
+- <strong>(c1) / (cF) inside the band:</strong> a blind sum; stop.
+- <strong>Status 124, over 630 s, or past minute 30 before window 3:</strong> park with the last line of the raw capture log.
+- <strong>A defect after every assertion is green</strong> (figure / XDMF, the <code>EX-114</code> shape): BLOCKED with the <code>log:line</code>, returned to the review; no in-slot fix after window 3.</p>
+<p>No <code>PREDICTED RED:</code> line. A red anywhere stops the slot.</p>
+<p><strong>(7) Status it can move.</strong> <code>EX-117</code> ⬜ → ✅ under the §7 Done-when the review pastes in the same commit as this item (rule (j)); census <code>examples</code> +1, <code>broken=0</code>; docrefs <code>dead=0</code>. <code>GEO-38</code> unchanged; no §2 sentence moves. The §10 chain-C entry gains the setup figure the weekly named; the weekly reads it.</p>
+<p><strong>(8) Proposed §7 row</strong> (≤ 2 KB; paste after the <code>EX-116</code> row): returned in the review draft.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Use the example-runner agent to execute <code>EX-117</code>, §9 item 489 (<code>docs/planning/chunks/EX-117.md</code>, heading <code>§9 item 489</code>). Read the brief and any review ruling beneath it first; the rulings hold. You are the executor — do not spawn agents, and never background a harness window. Run every window in the foreground and never delete a log; pass <code>timeout: 660000</code> on every harness Bash call; window 3 uses §5.1's durable-capture idiom verbatim inside the container command with container <code>timeout -k 30 630</code>, and an overrun parks the item — never raise a timeout. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Before window 1, run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> and require 0, and confirm no heavy or <code>xl</code> window is live. Run both pre-censuses before writing any file. Edit nothing under <code>tests/</code> or <code>src/</code>; build with <code>_box_kwargs()</code> unchanged at <code>-n 4</code>. Every count, area and extent is owned-only and reduced; no UFL <code>dS</code>. Emit the runner line with <code>--dry-run</code> and pass it to the harness; never wrap <code>run_examples.sh</code> in <code>docker compose exec</code>. No edit to the script after window 3 starts, or to the guide after window 5 starts. If the docker socket is denied, stop and report the exact command string. Return the windows' log names, every asserted and printed value beside its record (log:line) or prediction, the census before / after with the docrefs <code>dead=</code> list, and elapsed."</p>
+<h3 id="review-ruling-2026-10-15-1800-item-489">Review ruling 2026-10-15 18:00 (item 489)<a class="headerlink" href="#review-ruling-2026-10-15-1800-item-489" title="Permanent link">&para;</a></h3>
+<p><strong>Queued, with two changes.</strong>
+- <strong>The container ceiling is 600 s, not 630</strong> (<code>-t 600</code> in the dry run and the run of record). With the <code>-k 30</code> grace, 630 s reaches the Bash tool's 660 s exactly, and a footerless log is not a window. The <code>-n 4</code> build measured 339 s with the box (item 470 W3), so 600 s holds the brief's ≈ 450 s prediction with margin. A Status 124 at 600 s is the brief's park branch, unchanged.
+- <strong>The cell count is printed, not asserted, neither exactly nor at <code>CELL_COUNT_BAND</code>.</strong> Item 470 registered no box record: its (A0) was printed, not asserted in-module, rel 1.55e-3 against the r1 record. An example never asserts more than its gate did. Print 1 149 150 and the r1-relative value beside the cited log line (<code>20261015T185056Z_GEO-38-s2-W3-n4.log</code>).</p>
+<p>Every other anchor stands: the gate's (T1), (T2), (B1), (B2), (V1), (V2) and (K) at their imported bands, plus the example-side (F) box-surface closed form and the (R3) circumradius identity.</p>
+<h3 id="review-ruling-2026-10-16-1030-item-489-audit">Review ruling 2026-10-16 10:30 (item 489 audit)<a class="headerlink" href="#review-ruling-2026-10-16-1030-item-489-audit" title="Permanent link">&para;</a></h3>
+<p><strong>Audit PASS (§4, <code>auditor</code>).</strong> Run of record <code>20261016T110247Z_EX-117.log:11880–11897</code> (anchors and controls), <code>:11901–11902</code> ("All assertions hold", <code>[capture] rc=0</code>), Exit <code>:11904–11906</code> (Status 0, 324 s, inside the 600 s ceiling); asserts at <code>examples/meshing/15_f_clinical_coil_astm_box.py:409–439</code>; census 113 → 114 <code>broken=0</code> (<code>…110042Z_EX-117-pre-figures.log:149</code>, <code>…110851Z_EX-117-post-figures.log:150</code>); docrefs <code>dead=0</code> exit 2 (<code>:167</code>). No <code>tests/</code> or <code>src/</code> edit. Cells printed only, per the 18:00 ruling. <strong>One cosmetic mis-cite, left as is:</strong> the script's REC comment and the printed (A0) line cite the gate log's <code>:11898</code> for 1 149 150 cells; the count is on <code>:11897</code> (<code>:11898</code> is the tag census). Print-only; rule (i) forbids an edit after the window of record, so the next item that touches the script corrects it. The extra <code>EX-117-importcheck</code> smoke window (not in the brief) is disclosed and harmless.</p>
+<h2 id="7-row-moved-verbatim-2026-10-17-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-17 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-17-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p><strong>The clinical-scale body coil in ParaView: F-clinical-1.5T (32 legs, 64 ring-gap sheets, closed PEC can) with the ASTM F2182 gel box as its load</strong> <em>(history and §9 briefs: <code>docs/planning/chunks/EX-117.md</code>)</em> (<code>mesh:15</code>; <code>example-runner</code>; opened 2026-10-15 by the 18:00 daily review, the chain-C setup figure the 10-14 weekly named after C1 (a); §9 item 489; <code>mesh:12</code> is F-human, <code>mat:19</code> the box alone) <strong>Done-when:</strong> <code>examples/meshing/15_f_clinical_coil_astm_box.py</code> + same-stem guide (three required headings + <code>## Setup figure</code> + <code>## Related</code>, PNG ≤ 600 KiB); real build, <code>-n 4</code>, <code>_box_kwargs()</code> unchanged, mesh only; no <code>tests/</code> or <code>src/</code> edit; every band imported. Gate anchors recomputed on this mesh beside <code>20261015T185056Z_GEO-38-s2-W3-n4.log:11896–11904</code>: (T1) 64/64 sheets, (T2), (B1), (B2), (V1) ≤ <code>STRIP_BAND</code>, (V2) ≤ <code>CAD_ANALYTIC_BAND</code>, (K); cells printed beside 1 149 150 and the r1 record, not asserted (18:00 ruling — no box record is registered). Example-side: (F) owned tag-3/tag-2 interface area = 2(LxLy+LyLz+LxLz) and each face pair ≤ <code>STRIP_BAND</code>; (R3) max tag-3 vertex hypot(x, y) = <code>phantom_box_circumradius_m</code> ≤ <code>STRIP_BAND</code>. Controls: (c1) the gate's dropped facet; (cF) one face missing misses by ≈ 37 %; (cG) local-copy sum (conditional, printed). Outputs: combined XDMF with <code>cell_diameter</code> and the sheet + box facet tags. Census +1, <code>broken=0</code>, docrefs <code>dead=0</code>; elapsed recorded ⇒ ✅. Not claimed: any solve, port gate, tuning, B₁/SAR, step 1b's column, ratification of the provisional choices, F2182 compliance. | ✅ 2026-10-16 (§9 item 489, 06:00 slot): <code>examples/meshing/15_f_clinical_coil_astm_box.py</code> + guide + setup PNG; flagged <code>20261016T110247Z_EX-117.log</code> (<code>-n 4</code>, Status 0, 324 s): cells 1 149 150 printed (+1.555e-03 vs r1); (T1) 64/64, (T2) 2.220e-15, (B1) 1.110e-16, (B2) 0, (V1) 4.780e-11, (V2) 2.220e-16, (K) clean; (F) 1.110e-16, face pairs 0; (R3) 0; (c1) 7.072e-03, (cF) 3.696e-01, (cG) asserted (234 ghost facets, +3.028e-02); census figures 113 → 114 <code>broken=0</code>, docrefs <code>dead=0</code> exit 2. </p>
+<h3 id="9-item-543-2026-10-18-ex-117-follow-on-ops-docs">§9 item 543 — 2026-10-18 (EX-117 follow-on; ops / docs)<a class="headerlink" href="#9-item-543-2026-10-18-ex-117-follow-on-ops-docs" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a read-only drafter for the 2026-10-18 18:00 daily review; the review checks every command against its source before queueing.</em></p>
+<p><strong>Licence.</strong> The 03:00 review's ruling (h) (<code>GEO-38.md</code>, "Review ruling 2026-10-18 03:00") put the <code>mesh:15</code> can-length erratum with item 527. Item 527 carried it on its page instead (<code>docs/guide/clinical_coil_fixtures.md:145–153</code>) and, under its own reading, left this guide untouched, because editing it would have made its (N1) control vacuous (<code>GEO-38.md</code>, item 527 outcome; <code>attempts.md</code> 2026-10-18T21:58Z, "For the review (EX-117 follow-on)"). This item makes the fix and retargets (N1) in the same commit. No band, record, tolerance or target is set or moved.</p>
+<p><strong><code>EX-117</code> follow-on: correct two stale passages of <code>examples/meshing/15_f_clinical_coil_astm_box.md</code>, mark the guide page's Erratum resolved, and retarget the page test's (N1) control so it stays non-vacuous — one commit, no script touched.</strong>
+- <strong>Executor:</strong> implementer (ops / docs). Not <code>example-runner</code>: no example window runs.
+- <strong>Tier:</strong> smoke, <code>-n 1</code>. Six windows of ≈ 2–5 s each: W0 page test ≈ 2 s (<code>20261018T215811Z_GEO-38-C9-W0-page.log:72</code>, 1.81 s), W1 guide docrefs ≈ 2 s (<code>20261018T215820Z_GEO-38-C9-W1-docrefs.log:41</code>), pre / post example censuses ≈ 2 s each.
+- <strong>Slots:</strong> any. Not daytime-restricted (no build).
+- <strong>Class:</strong> ops / docs. <strong>Cost:</strong> ≈ 3 measured (ops/docs median) / <strong>≈ 18 predicted</strong> slot-minutes: reading ≈ 4, guide edits ≈ 4, test edit ≈ 4, windows ≈ 2, commit and journal ≈ 4.
+  - <strong>Park-by-minute rule:</strong> if W0 is not green by minute 30, revert the working tree to <code>main</code> (nothing is committed half-done), park any diff on <code>attempt/EX-117-&lt;UTC&gt;</code>, and mark item 543 BLOCKED in the same commit (rule (d)).
+- <strong>Depends on:</strong> item 527 (DONE, <code>a373abc0</code>). Independent of items 538 and 542; it may land before or after either. If item 538 has already edited the page's "Box cells" bullet, leave that bullet as it stands.</p>
+<p><strong>Rule (i) and the run of record — the review's ruling, stated here.</strong> The <code>mesh:15</code> example script <code>examples/meshing/15_f_clinical_coil_astm_box.py</code> is <strong>not edited</strong>, so <strong>the heavy example is not re-run</strong>: the run of record <code>docs/testing/logs/20261016T110247Z_EX-117.log</code> (Status 0, 324 s) stands, and <code>EX-117</code> stays ✅ on it. The guide's own windows are the example censuses (EX-117 window 5: <code>check_example_setup_figures.py</code> and <code>check_example_doc_references.py</code>), so those re-run after the guide edit, together with the page test (its (N1) reads this guide) and the <code>docs/guide</code> docrefs (the page edit). The audit's cosmetic script mis-cite (<code>:11898</code> for the cell count, which is on <code>:11897</code>; "Review ruling 2026-10-16 10:30" above) stays as is — it lives in the script, and touching the script is exactly what would re-open the run of record.</p>
+<p><strong>Edits (three files; nothing else).</strong>
+1. <strong><code>examples/meshing/15_f_clinical_coil_astm_box.md:9–14</code>, the can sentence.</strong> Replace "a closed\nPEC can (<code>shield_radius</code> 0.3725 m, length 0.745 m), conductors meshed as" so that the parenthesis reads, <strong>unbroken on one source line</strong>, exactly <code>PEC can (</code>shield_radius<code>0.3725 m, length 0.954285714 m)</code> (the (P3) regex below needs it on one line; keep the parenthesis's shape — no other text inside it). Follow it with: "— Ø 0.745 m; the length is the generator's 2·z_extent (<code>20261015T171259Z_GEO-38-s1a-W2-r2-a2.log:12106</code>; corrected 2026-10-18, §9 item 543) —". Source: that log line reads "<code>(S) shield R_s 0.3725 (Ø 0.745000 m), length 0.954285714 m</code>"; the generator's rule is <code>src/fem_em_solver/io/mesh.py:5636</code>. Rewrap the paragraph; change no other value.
+2. <strong><code>examples/meshing/15_f_clinical_coil_astm_box.md:19–24</code>, the "Provisional" paragraph.</strong> Replace with a paragraph headed <strong>Modelling choices</strong> stating: the fixture is the operator's directive of 2026-10-14; its modelling choices (rung length as ring-centreline separation, the closed PEC can, 4 mm leg boxes) are the 2026-10-15 03:00 and 10:30 rulings, <strong>ratified by the 2026-10-17 weekly</strong> (<code>PROJECT_PLAN.md:4716–4718</code>, "<code>GEO-38</code>'s modelling choices (the closed PEC can, the corner refusal, the 4 mm leg-box dx) … all ratified"; commit <code>169a81b4</code>); the 64-sheet census (2 × N_legs) is the human operator's 2026-10-15 ruling, which <code>GEO-38</code>'s Done-when now carries ("port census = <strong>64</strong>", the <code>GEO-38</code> §7 row); the full list is on the relative link <code>../../docs/guide/clinical_coil_fixtures.md</code>. Also, in <code>## Scope</code> (<code>:84–85</code>), replace "the 32-vs-64 census question" with "the census ruling" (the question is closed; same stale cause). Write "the human operator", never a name; <code>≈</code>, never a tilde. <strong>Do not edit</strong> the guide's records, step text, figure caption, run line or measured times — they describe the run of record, which still prints "modelling choices provisional" (script <code>:153–154</code>); add one sentence after the run line in <code>## 2</code>: "The run of record predates the 2026-10-17 ratification, so its header still prints 'provisional'."
+3. <strong><code>docs/guide/clinical_coil_fixtures.md:145–153</code>, <code>## Erratum</code>.</strong> Rewrite in the past tense: the <code>mesh:15</code> guide gave the can as "length 0.745 m" (its diameter); corrected to 0.954285714 m (2·z_extent, same log) by §9 item 543, together with the stale "pending the weekly's ratification" text. Keep the heading <code>## Erratum</code> (the page test parses <code>## Geometry</code> up to the next <code>##</code>, <code>tests/package/test_geo38_clinical_fixture_page.py:84</code>, so the heading's presence matters only as a terminator; do not move it above <code>## Geometry</code>). Edit no table cell.
+4. <strong><code>tests/package/test_geo38_clinical_fixture_page.py</code>, (N1) retargeted and (P3) added.</strong> Today (N1) (<code>:133–142</code>) parses the <strong>live</strong> <code>mesh:15</code> guide with the regex <code>PEC can \(</code>shield_radius<code>[0-9.]+ m, length ([0-9.]+) m\)</code> and asserts exactly one mismatch against the code's "0.954 m". After edit 1 the live guide would read "0.954285714 m" and still mismatch the 3-decimal string, so the old (N1) would stay "green" while asserting that a <strong>correct</strong> sentence is wrong — the control would be lying, not vacuous. Therefore:
+   - <strong>(N1), retargeted:</strong> add a module constant <code>MESH15_CAN_SENTENCE_PRE_543 = "PEC can (</code>shield_radius<code>0.3725 m, length 0.745 m)"</code> with the comment "the <code>mesh:15</code> guide's sentence before §9 item 543 (<code>a373abc0:examples/meshing/15_f_clinical_coil_astm_box.md:11</code>)"; (N1) applies the <strong>same regex and the same comparator</strong> to that in-memory string and asserts <code>bad == [("shield (can) length", "1.5", "0.745 m", "0.954 m")]</code>. Pinned to a literal of the pre-change text, never to <code>HEAD:</code> (rubric item 4's stale-<code>HEAD</code> control trap, <code>OPS-43</code>).
+   - <strong>(P3), new, asserted on the live guide:</strong> the same regex finds the sentence in <code>MESH15</code> (assert found); its value v satisfies <code>abs(v / can_length_m(s1a.F_CLINICAL_15T_KWARGS) − 1) ≤ s1a.IDENTITY_BAND</code> (1e-9; drafter-computed: v = 0.954285714 against 0.954285714285714…, rel 2.99e-10), and <code>f"{v:.3f} m"</code> equals <code>EXPECTED["1.5"]["shield (can) length"]</code> ("0.954 m"), i.e. the comparator reports <strong>no</strong> mismatch on it.
+   - Update the module docstring's Anchors / Negative controls lines (<code>:7–19</code>) to match. Touch no other test.</p>
+<p><strong>Anchors (asserted).</strong>
+- <strong>(P3)</strong> the corrected <code>mesh:15</code> can length equals the generator's 2·z_extent rule on the 1.5 T kwargs at <code>IDENTITY_BAND</code> 1e-9, and formats to the page's "0.954 m".
+- <strong>(P1), (P2), (N2)</strong> unchanged and still green (18 / 18 cells, 3 / 3 URLs, the one planted mismatch; <code>20261018T215811Z_GEO-38-C9-W0-page.log</code>).
+- <strong>(D)</strong> <code>test_wf14_docrefs_guide_zero_dead_with_page</code> green; W1 <code>RESULT: dead=0</code> on <code>docs/guide</code>.
+- Example censuses: <code>examples=</code> unchanged at its pre-census value, <code>missing=0 broken=0</code>; docrefs <code>dead=0</code>, exit ≠ 1.</p>
+<p><strong>Negative control.</strong> <strong>(N1)</strong> on the pinned pre-543 sentence reports exactly the one known mismatch (0.745 m vs 0.954 m), while (P3) on the live, corrected sentence reports none: the same comparator separates the wrong and the right text, binary, no ceiling.</p>
+<p><strong>Windows.</strong> Each foreground, Bash <code>timeout: 660000</code>, pytest with <code>-s</code>, the harness call the whole Bash command. <code>pgrep -c python3</code> reads 0 before W0 (<code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code>).
+- <strong>Wpre</strong> (before any edit), both censuses:
+  <code>scripts/testing/run_and_log.sh EX-117-i543-pre-figures "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_setup_figures.py'"</code>
+  <code>scripts/testing/run_and_log.sh EX-117-i543-pre-docrefs "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py'"</code>
+  Last readings: <code>SUMMARY: examples=128 ok=128 missing=0 broken=0</code> (<code>20261018T215214Z_EX-131-post-figures.log:164</code>), <code>RESULT: dead=0 guide=0 stale=141 … exit=2</code> (<code>20261018T215216Z_EX-131-post-docrefs.log:181</code>); use what Wpre reads (item 542 may land first).
+- <strong>W0</strong> (after all four edits). Expected: <strong>6 passed</strong> (the four page tests plus (P3) plus <code>WF-14</code>'s (D)).
+  <code>scripts/testing/run_and_log.sh EX-117-i543-W0-page "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 60 python3 -m pytest tests/package/test_geo38_clinical_fixture_page.py tests/package/test_wf14_validation_page.py::test_wf14_docrefs_guide_zero_dead_with_page -v -s --tb=short'"</code>
+- <strong>W1</strong>, docrefs on the guide pages:
+  <code>scripts/testing/run_and_log.sh EX-117-i543-W1-docrefs "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py --docs-root docs/guide --check-links'"</code>
+- <strong>Wpost</strong>, the two censuses again, labelled <code>EX-117-i543-post-figures</code> / <code>EX-117-i543-post-docrefs</code> (the Wpre commands with those labels). Predicted: examples N → N, <code>missing=0 broken=0</code>; <code>dead=0</code>, stale unchanged.
+- Then <code>git status --porcelain</code> lists exactly the three edited files plus the new logs; run <code>scripts/testing/check_private_leak.py</code> on the staged logs per the usual pre-commit hook (nothing AED-related exists here).
+- <strong>Rule (i):</strong> no guide, page or test edit after W0 starts; any edit means W0, W1 and Wpost again.</p>
+<p><strong>Traps already paid for.</strong>
+- <strong>Do not touch <code>examples/meshing/15_f_clinical_coil_astm_box.py</code>.</strong> One byte there re-opens the run of record (rule (i)) and costs a ≈ 6-minute daytime heavy window.
+- <strong>(N1) against <code>HEAD:</code> or the live guide</strong> goes stale or lies the moment the fix lands (rubric item 4, <code>test_orphan_guard.sh</code>, <code>OPS-43</code>); pin the literal.
+- <strong>Keep the parenthesis on one source line</strong>, or (P3)'s regex (no <code>re.S</code>) finds nothing and W0 fails on "sentence not found".
+- <strong>Never write a <code>.json</code> / <code>.png</code> / <code>.h5</code> / <code>.xdmf</code> / <code>.csv</code> / <code>.msh</code> / <code>.bp</code> basename in new text</strong> (docrefs' 14-day freshness rule); <code>.log</code> names are safe and must exist — <code>20261015T171259Z_GEO-38-s1a-W2-r2-a2.log</code> does (<code>docs/testing/logs/</code>).
+- <strong>Relative links</strong> from <code>examples/meshing/</code> resolve as <code>../../docs/guide/…</code>.
+- <strong><code>≈</code>, never <code>~</code></strong> in tracked Markdown; "the human operator", never a name.</p>
+<p><strong>Scope.</strong> Two stale guide passages (plus the <code>## Scope</code> phrase of the same cause), one page section, one test control. <strong>Not claimed:</strong> any new measurement; any change to <code>EX-117</code>'s Done-when, records or run of record; the script's cosmetic mis-cite (left, see above); <code>GEO-38</code> status.</p>
+<p><strong>Negative result.</strong> Report and stop.
+- <strong>(P3) red:</strong> the guide's new number or the rule disagrees — fix the guide text (never <code>can_length_m</code> or a kwargs constant); a constant that disagrees with its log is the review's.
+- <strong>(N1) not exactly the one mismatch:</strong> the comparator changed shape — stop, park, BLOCKED (rule (d)).
+- <strong>Census <code>broken</code> &gt; 0 or docrefs <code>dead</code> &gt; 0:</strong> fix the link or heading before the commit; if the cause is outside these three files, park and report.</p>
+<p><strong>Status it can move.</strong> No glyph. The <code>EX-117</code> §7 row (archived verbatim above) is unchanged; the <code>GEO-38</code> §7 row's guide clause may drop "erratum on the page" for "erratum corrected (§9 item 543)". <code>known-issues.md</code> is untouched (no entry exists for this erratum). The C9 page's Erratum section is resolved.</p>
+<p><strong>Execution order.</strong> Read → Wpre → edits 1–4 → W0 → W1 → Wpost → leak guard → commit (three files + logs) → journal.</p>
+<p><strong>Spawn line (if delegated):</strong> "Use the implementer agent to execute <code>EX-117</code> follow-on §9 item 543 per <code>docs/planning/chunks/EX-117.md</code> (heading <code>§9 item 543</code>; read the brief and any review ruling beneath it first). The harness call is the <strong>whole</strong> Bash command: bare, repo-relative, nothing chained or piped. Edit exactly three files: the <code>mesh:15</code> guide, <code>docs/guide/clinical_coil_fixtures.md</code>'s Erratum section, and <code>tests/package/test_geo38_clinical_fixture_page.py</code> ((N1) pinned to the pre-543 literal, (P3) added) — never <code>examples/meshing/15_f_clinical_coil_astm_box.py</code>. Run Wpre, W0, W1, Wpost in the foreground with <code>timeout: 660000</code>, pytest with <code>-s</code>. You are the executor: do not spawn agents, and never background a harness window. If the docker socket is denied, stop and report the exact command string."</p>
+<h3 id="review-ruling-2026-10-18-1800-item-543">Review ruling 2026-10-18 18:00 (item 543)<a class="headerlink" href="#review-ruling-2026-10-18-1800-item-543" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>A guide-text-only fix with the script untouched does not re-run the heavy example</strong> (rule (i) binds the module a window ran). <code>20261016T110247Z_EX-117.log</code> stays the run of record.</li>
+<li><strong>(N1) is pinned to a fixed copy of the old sentence, and (P3) is added</strong> as a positive check on the corrected guide, in the same commit as the guide fix. The drafter's reasoning is accepted: a live-guide (N1) would stay green while calling a correct sentence wrong.</li>
+<li><strong>The two further stale passages are in scope:</strong> the census sentence (<code>:22–24</code>) and the "32-vs-64 census question" in <code>## Scope</code> (<code>:84–85</code>). So is marking the <code>clinical_coil_fixtures.md</code> Erratum section resolved. No other edit.</li>
+<li>Spot-checked by the review: <code>tests/package/test_geo38_clinical_fixture_page.py:133–142</code>; <code>examples/meshing/15_f_clinical_coil_astm_box.md:10–11</code>.</li>
+</ul>
+<p><strong>Outcome (2026-10-19 00:00 slot, take-next): DONE.</strong> Three files edited as briefed (the <code>mesh:15</code> guide, the page's <code>## Erratum</code>, the page test); <code>examples/meshing/15_f_clinical_coil_astm_box.py</code> untouched, so <code>20261016T110247Z_EX-117.log</code> stays the run of record. W0 <code>20261019T051248Z_EX-117-i543-W0-page.log</code> 6 passed in 1.81 s: (P3) live guide 0.954285714 against the rule's 2·z_extent, rel 2.994e-10 ≤ <code>IDENTITY_BAND</code> (drafter 2.99e-10), formats to "0.954 m"; (N1) on <code>MESH15_CAN_SENTENCE_PRE_543</code> reports exactly <code>[('shield (can) length', '1.5', '0.745 m', '0.954 m')]</code>; (P1) 18 / 18, (P2) 3 / 3, (N2) 0.770 vs 0.700 caught, <code>WF-14</code> (D) green. W1 <code>docs/guide</code> docrefs <code>dead=0 stale=0</code> exit 0. Censuses pre / post <code>examples=129 ok=129 missing=0 broken=0</code>, docrefs <code>dead=0</code>, stale 143 → 143. Disclosed: the brief's <code>PROJECT_PLAN.md:4716–4718</code> cite had drifted; the guide cites the ratification at <code>:4733–4737</code> with <code>169a81b4</code>. Logs: <code>20261019T051138Z_EX-117-i543-pre-figures.log</code>, <code>…051140Z_EX-117-i543-pre-docrefs.log</code>, <code>…051303Z_EX-117-i543-W1-docrefs.log</code>, <code>…051305Z_EX-117-i543-post-figures.log</code>, <code>…051307Z_EX-117-i543-post-docrefs.log</code>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

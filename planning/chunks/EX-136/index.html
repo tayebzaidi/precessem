@@ -1,0 +1,1077 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-136 — femem run on the duty-cycled transverse-quadratic thermal_box file and the two ball-probe thermal_ball files: P38's (T-qduty) and U60's three ball-probe readings read back from the CLI's JSON summary, θ_file = θ_Python (mri:32) - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-136-femem-run-on-the-duty-cycled-transverse-quadratic-thermal_box-file-and-the-two-ball-probe-thermal_ball-files-p38s-t-qduty-and-u60s-three-ball-probe-readings-read-back-from-the-clis-json-summary-_file-_python-mri32" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-136 — femem run on the duty-cycled transverse-quadratic thermal_box file and the two ball-probe thermal_ball files: P38's (T-qduty) and U60's three ball-probe readings read back from the CLI's JSON summary, θ_file = θ_Python (mri:32)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-550-2026-10-19-example-54-ramp-from-wf-1-steps-1819" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 550 — 2026-10-19 (example, §5.4 ramp from WF-1 steps 18–19)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-19-1030-item-550" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-19 10:30 (item 550)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-136-femem-run-on-the-duty-cycled-transverse-quadratic-thermal_box-file-and-the-two-ball-probe-thermal_ball-files-p38s-t-qduty-and-u60s-three-ball-probe-readings-read-back-from-the-clis-json-summary-_file-_python-mri32">EX-136 — <code>femem run</code> on the duty-cycled transverse-quadratic <code>thermal_box</code> file and the two ball-probe <code>thermal_ball</code> files: P38's (T-qduty) and U60's three ball-probe readings read back from the CLI's JSON summary, θ_file = θ_Python (<code>mri:32</code>)<a class="headerlink" href="#ex-136-femem-run-on-the-duty-cycled-transverse-quadratic-thermal_box-file-and-the-two-ball-probe-thermal_ball-files-p38s-t-qduty-and-u60s-three-ball-probe-readings-read-back-from-the-clis-json-summary-_file-_python-mri32" title="Permanent link">&para;</a></h1>
+<p><em>History file for EX-136 (§7 row in PROJECT_PLAN.md).</em></p>
+<h3 id="9-item-550-2026-10-19-example-54-ramp-from-wf-1-steps-1819">§9 item 550 — 2026-10-19 (example, §5.4 ramp from WF-1 steps 18–19)<a class="headerlink" href="#9-item-550-2026-10-19-example-54-ramp-from-wf-1-steps-1819" title="Permanent link">&para;</a></h3>
+<p><em>Drafted read-only for the 2026-10-19 10:30 daily review, which rules on it (ruling below the brief). It sets and moves no band, record or Done-when.</em></p>
+<p><strong>Licence.</strong> §5.4 example ramp from two items:
+- <code>WF-1</code> step 18 (§9 item 540, U66, DONE 2026-10-19 04:30, <code>af3d6764</code>);
+- <code>WF-1</code> step 19 (§9 item 545, U67, DONE 2026-10-19 06:00, <code>aa88e5bc</code>).</p>
+<p>Only those two items' gated readings, and the bands their modules import, are asserted. No new YAML file is written: every file the example runs is tracked under <code>tests/package/wf1/</code> and was gated by 540 or 545. Both are rule-(6) provisional chain-U steps, awaiting the 10-19 weekly's ratification (<code>docs/planning/chunks/WF-1.md:2709</code>).</p>
+<p><strong>Gap evidence (drafter, grep 2026-10-19).</strong>
+- No <code>examples/**</code> file (<code>*.py</code>, <code>*.yaml</code>, <code>*.md</code>) contains <code>thermal_ball</code>. None names <code>quadratic_duty</code>, <code>P38</code>, <code>test_wf1_yaml_thermal_box_quadratic_duty</code> or <code>test_wf1_yaml_thermal_ball_probes</code>.
+- The neighbours differ:
+  - <code>mri:13</code> runs a <code>sphere_in_box</code> file with EM through <code>cli.main</code> (<code>13_temperature_from_yaml.py:7–11</code>, <code>:131</code>), not the thermal-only ball family.
+  - <code>mri:25</code> (<code>EX-123</code>) drives <code>ThermalBallGeometry</code> through <code>Study</code> objects, not a file (<code>25_study_transient_duty_and_wall.py:1–9</code>).
+  - <code>mri:29</code> runs the uniform-source duty box file (<code>29_femem_run_f2182_gel_box_files.py:8–9</code>).
+  - <code>mri:31</code> runs the quadratic source steady and CN without <code>thermal.duty</code>, and the box probes (<code>31_femem_run_gel_box_source_and_probe_files.py:9–12</code>).
+  - <code>mat:13</code> reads MAT-19's probes through <code>probe_series</code> on MAT-19's own 19 496-cell submesh (<code>13_virtual_probe_in_gel_ball.py:66</code>, <code>:100</code>), from no file.
+- <code>examples/mri/31_*</code> is the highest; <code>examples/mri/32_*</code> does not exist. The runner resolves <code>mri:32</code> by its <code>32_</code> prefix (<code>scripts/run_examples.sh:206–210</code>).</p>
+<p><strong>Angle.</strong> Two firsts:
+- <strong>The first <code>femem run</code> example on the ball geometry, with probes read back from the JSON summary.</strong> The <code>thermal_ball</code> family (<code>study_yaml.py:742</code>) with <code>outputs.probes</code> (<code>:858–863</code>), written by <code>_run_thermal_ball_probes</code> (<code>:1628–1655</code>). The table is <code>probes.{centres, radii, values_k, volumes_m3}</code> (<code>:1642–1647</code>), tied to U60's three ball-probe readings, the whole-ball identity and the displaced probe.
+- <strong>The first duty-cycled non-uniform source from a file.</strong> <code>excitation.source: {kind: transverse_quadratic}</code> together with <code>thermal.duty</code> (<code>tests/package/wf1/thermal_box_quadratic_duty_m4.yaml:10</code>, <code>:20–22</code>), tied to P38's (T-qduty) and the square-wave schedule.</p>
+<p>How it differs from its neighbours:
+- <strong>Unlike <code>mri:31</code> (<code>EX-135</code>):</strong> that example's quadratic file is unscheduled and its probes are on the box. Here the source is duty-cycled, and the probes sit in a ball whose comparand is MAT-19's ball mean.
+- <strong>Unlike <code>mri:25</code> (<code>EX-123</code>):</strong> that example builds Python objects. Here the input is the text file and the output is the bundle.</p>
+<p><strong>No file combines the two capabilities.</strong> Duty-quadratic with probes is ungated, and so is the walled ball with probes, which 545 refuses (ruling Q3, <code>WF-1.md:2712</code>). The example runs the file sets separately, writes no file, and asserts (F-none).</p>
+<p><strong>Executor and files.</strong> <code>example-runner</code>, which spawns no agents. It adds exactly three tracked files and edits nothing under <code>tests/</code> or <code>src/</code>:
+- <code>examples/mri/32_femem_run_ball_probes_and_duty_quadratic_files.py</code>;
+- the same-stem guide, with <code>## 1. What this demonstrates</code>, <code>## 2. How to run it</code>, <code>## Setup figure</code>, <code>## 3. How to analyze it, step by step</code> and <code>## Related</code>;
+- <code>examples/mri/figures/mri_32_femem_run_ball_probes_and_duty_quadratic_files_setup.png</code>, ≤ 600 KiB.</p>
+<p><strong>Build: one run, complex, under the item 546 ruling. Nothing is dropped; the ball leg asserts bands only.</strong> The two gates ran in different builds:
+- 540's solve leg asserts <code>IS_COMPLEX</code> (<code>tests/package/test_wf1_yaml_thermal_box_quadratic_duty.py:202</code>). P38's and U66's readings are complex-build records (<code>20261019T094516Z_WF-1-s18-W1-qduty.log:12</code>, <code>:50</code>).
+- 545's solve legs assert <code>not IS_COMPLEX</code> (<code>test_wf1_yaml_thermal_ball_probes.py:254</code>). U67's readings are real-build records (<code>20261019T110412Z_WF-1-s19-W1-ball-probes.log:12</code>, with no complex source; <code>:50</code> <code>linux-gnu-real64-32</code>).</p>
+<p>The runner sources the complex build for every <code>mri:</code> example (<code>scripts/run_examples.sh:273–274</code>). Only <code>mag:</code> and <code>mesh:</code> run real, and a thermal-ball example filed under either would be misfiled. A runner edit is out of <code>example-runner</code> scope, and a window outside the runner has no census precedent. <strong>One script cannot run both builds.</strong></p>
+<p>The 2026-10-19 03:00 ruling on item 546 (Q1, <code>EX-135.md</code> "Review ruling") sets the pattern, which this brief follows:
+- one complex run;
+- the real-build gate's <strong>bands</strong> asserted;
+- its <code>.4e</code> <strong>digits</strong> printed beside the reading, never asserted as string equality.</p>
+<p><strong>Difference from <code>EX-135</code>, disclosed.</strong> <code>EX-135</code>'s probe leg was backed by <code>EX-130</code>'s complex <code>Study.probe</code> readings on the same box mesh (<code>20261018T214035Z_EX-130.log:63–70</code>). For the ball the backing is partial:
+- <strong>Backed in complex:</strong>
+  - the duty-ball fixture through the Study: case A, 151 548 cells, 95 multipliers equal, (IT) 6.982e-15 (<code>20261017T005319Z_EX-123.log:42</code>, <code>:44</code>);
+  - <code>Study.probe</code>'s <code>ball_average</code> (<code>src/fem_em_solver/study.py:1744</code>, <code>:1763</code>), on the box (E130:63–70);
+  - 545's parse / refusal node (<code>20261019T110312Z_WF-1-s19-W0.log:64–78</code>).
+- <strong>Not backed in complex:</strong> the 19 489-cell m19 ball through <code>Study.probe</code>. The drafter found no such reading. <code>mat:13</code>'s complex MAT-19 readings were taken on a different mesh (19 496 cells, <code>13_…py:100</code>) through <code>probe_series</code>, so they back nothing here.</p>
+<p>The m19 leg is therefore the <strong>first complex run of the ball-probe route</strong>. That is <code>EX-123</code>'s "first complex run" class (<code>EX-123.md:20</code>, <code>:36–39</code>), and a red there is a finding under (6). Its complex readings are <strong>predicted</strong>:
+- cells 19 489 (gmsh does not depend on the PETSc scalar);
+- (T*-ball) digits equal to U60's at <code>.4e</code>, by the box precedent;
+- every band clears by ≥ 10×.</p>
+<p><strong>CLI capture.</strong> <code>cli.main</code> imports <code>run_study_file</code> inside the call (<code>src/fem_em_solver/cli.py:159</code>) and calls it at <code>:201</code>. Copy <code>mri:31</code>'s helpers verbatim from <code>examples/mri/31_femem_run_gel_box_source_and_probe_files.py:107–167</code>:
+- <code>fmt</code>, <code>hexeq</code>, <code>flat_diff</code>;
+- <code>cli_run</code>, the call-through wrapper on <code>fem_em_solver.study_yaml.run_study_file</code>, restored in <code>finally</code>, with <code>is original</code> asserted;
+- <code>cli_check</code>, with stdout captured by <code>contextlib.redirect_stdout(io.StringIO())</code>;
+- <code>read_summary</code>, a Barrier and then <code>json.load</code> on every rank;
+- <code>ones_tags</code>;
+- <code>p1_field</code> and <code>diff_field</code> (<code>:170–185</code>);
+- <code>json_hex</code> (<code>:608</code>).</p>
+<p>In the copy, replace <code>q.cli</code> with <code>d.cli</code>. The ball file's dispatch lives inside <code>run_study_file</code>, so the wrapper captures the <code>StudyRun</code> with <code>.probes</code> set (<code>study_yaml.py:1654</code>).</p>
+<p><strong>Imports (never restated).</strong> <code>_REPO_ROOT</code> goes on <code>sys.path</code> (<code>31_…py:55–57</code>), then:</p>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Module</th>
+<th>Names reached through it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>d</code></td>
+<td><code>tests.package.test_wf1_yaml_thermal_box_quadratic_duty</code></td>
+<td><code>QUAD_DUTY</code>, <code>DIV4</code>, <code>CELLS_M4</code>, <code>P38_T_QDUTY</code>, <code>P38_E</code>, <code>P38_C_STEP</code>, <code>P38_DOFS</code>, <code>_quad_study</code>, <code>_cooling</code>, <code>_transient</code>, <code>_duty</code>, <code>_ndofs</code>, <code>_hex_dict_equal</code>, <code>_field</code>, <code>_without</code>, <code>cli</code> (<code>:42</code>, <code>:66–74</code>, <code>:97–127</code>, <code>:189–194</code>); through its imports (<code>:46–63</code>): <code>_study_from_mapping</code>, <code>load_study</code>, <code>IS_COMPLEX</code>, <code>LOGS</code>, <code>_fresh_dir</code>, <code>_mapping</code>, <code>_rc_all</code>, <code>_check_summary</code> (the box one), <code>P36_DOFS</code>, <code>_on_p</code>, <code>_owned_rel</code>, <code>_same_mesh</code>, <code>L0_BAND</code>, <code>E_BAND</code>, <code>RHO_C</code>, <code>INTERIOR_BAND</code>, <code>H_GEL</code>, <code>K_GEL</code>, <code>T_INF</code>, <code>HALF</code>, <code>Q</code>, <code>DT_BOX</code>, <code>DUTY</code>, <code>HALF_T</code>, <code>N_STEPS</code>, <code>T_STAR</code>, <code>_interior_chi</code>, <code>DEGREE</code>, <code>_exact_p</code>, <code>_rel_p</code>, <code>_quad_duty</code>, <code>SCHEDULE</code>, <code>_quad_trans_ex</code></td>
+</tr>
+<tr>
+<td><code>b</code></td>
+<td><code>tests.package.test_wf1_yaml_thermal_ball_probes</code></td>
+<td><code>M19</code>, <code>DUTY</code>, <code>DUTY_PLAIN</code>, <code>MALFORMED</code>, <code>DUTY_PROBES</code>, <code>U60_T_BALL</code>, <code>U60_C_DISP</code>, <code>U60_A_BALL</code>, <code>U60_BALL_CELLS</code>, <code>_py_m19</code>, <code>_py_duty</code>, <code>_probe_hex</code>, <code>_check_summary</code> (the ball one), <code>_field</code>, <code>_all</code> (<code>:89–102</code>, <code>:125–146</code>, <code>:259–273</code>); through its imports (<code>:49–86</code>): <code>load_study</code>, <code>ProbeBall</code>, <code>BALL_PROBES</code>, <code>DISP_PROBE</code>, <code>WHOLE_BALL</code>, <code>_domain_mean</code>, <code>RES</code>, <code>_on</code>, <code>_same_mesh</code>, <code>_theta_owned_rel</code>, <code>L0_BAND</code>, <code>H9</code>, <code>K9</code>, <code>Q9</code>, <code>R9</code>, <code>RHO_C9</code>, <code>T_INF9</code>, <code>B_BAND</code>, <code>H</code>, <code>K</code>, <code>P_BAND</code>, <code>R</code>, <code>T_INF</code>, <code>N_MAIN</code>, <code>RHO_C</code>, <code>T_STAR</code>, <code>CASES</code>, <code>T_END_A</code>, <code>_n</code>, <code>A_PROBE</code>, <code>CENTRES</code>, <code>DISPLACED</code>, <code>_ball_mean</code>, <code>_q_cf</code>, <code>RobinCooling</code>, <code>TransientSpec</code>, <code>DutyCycle</code></td>
+</tr>
+<tr>
+<td><code>q</code></td>
+<td><code>tests.package.test_wf1_yaml_thermal_box_quadratic</code></td>
+<td><code>QUAD_CN</code> only, for (F-diff)</td>
+</tr>
+</tbody>
+</table>
+<p>Prohibitions:
+- Never call <code>b._require</code> or either module's <code>_knob</code>-gated node. <code>b._require</code> asserts the real build and raises here.
+- Never set <code>FEM_EM_WF1_S18</code> or <code>FEM_EM_WF1_S19</code>.
+- Never import a <code>test_*</code> name, and never use <code>from … import</code>. Every name is reached as <code>d.X</code> / <code>b.X</code> (see the name-collision trap).</p>
+<p><strong>Node bodies, copied verbatim</strong> with the allowed substitutions listed below:
+- quadratic duty <code>d:205–254</code>;
+- ball m19 <code>b:278–329</code>;
+- ball duty <code>b:334–370</code>;
+- the ball malformed block <code>b:205–218</code>;
+- the duty-without-transient refusal <code>d:180–182</code>.</p>
+<p>Allowed substitutions:
+1. <code>run_study_file(...)</code> → the captured <code>cli_run(...)</code>, with <code>rc</code> asserted <code>(0, 0)</code> and exactly one capture;
+2. <code>LOGS / …</code> → <code>RUN_DIR / …</code>;
+3. in the m19 body, <code>assert tuple(digits) == U60_T_BALL</code> (<code>b:327</code>) becomes a printed equality (the build differs; the item 546 ruling);
+4. the four full-<code>repr</code> probe-value prints (<code>b:299–300</code>, <code>:360–361</code>) print at <code>.6g</code>;
+5. <code>_check_summary(run, comm, "quadratic duty", transient=True)</code> (<code>d:241</code>) runs inside <code>contextlib.redirect_stdout</code>, because it prints the unrounded θ_max and power (D18:70);
+6. every bare name becomes <code>d.X</code> / <code>b.X</code>, according to the body's own module.</p>
+<p>Result meshes stay as the gate has them:
+- quadratic duty on <code>th.mesh</code> (<code>d:211</code>);
+- the ball runs on <code>pr.theta.function_space.mesh</code> (<code>b:287</code>, <code>:343</code>).</p>
+<p><strong>Records.</strong> An example-local <code>REC</code> holds each value with its <code>log:line</code>. Each is printed beside its reading and never asserted by equality, except where the copied body asserts a <code>.6e</code> string (P38, a complex record). Log aliases:
+- D18 = <code>20261019T094516Z_WF-1-s18-W1-qduty.log</code> (complex)
+- D0 = <code>20261019T094458Z_WF-1-s18-W0.log</code> (complex)
+- B19 = <code>20261019T110412Z_WF-1-s19-W1-ball-probes.log</code> (real)
+- B0 = <code>20261019T110312Z_WF-1-s19-W0.log</code> (complex)
+- E123 = <code>20261017T005319Z_EX-123.log</code> (complex)
+- E130 = <code>20261018T214035Z_EX-130.log</code> (complex)
+- E135 = <code>20261019T123750Z_EX-135.log</code> (complex)</p>
+<table>
+<thead>
+<tr>
+<th>Record</th>
+<th>Line</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(Pdeg) 116 025 P2 dofs ×2; file run 33.9 s, Python run 32.8 s; summary source <code>'transverse_quadratic'</code>, duty dict</td>
+<td>D18:63</td>
+</tr>
+<tr>
+<td>(UT) 79 872 / 79 872, geometry bitwise</td>
+<td>D18:64</td>
+</tr>
+<tr>
+<td>(S0) schedule = <code>SCHEDULE</code>, multipliers equal</td>
+<td>D18:65</td>
+</tr>
+<tr>
+<td>(I-Py) 2.221e-14</td>
+<td>D18:66</td>
+</tr>
+<tr>
+<td>(T-qduty) <code>2.543310e-04</code>, 380 725 P3 points</td>
+<td>D18:67</td>
+</tr>
+<tr>
+<td>(E-qduty) 2.288e-13</td>
+<td>D18:68</td>
+</tr>
+<tr>
+<td>(c-step) 5.0333e-01</td>
+<td>D18:69</td>
+</tr>
+<tr>
+<td>(I=) JSON == summary; θ_max 1.43990 K; source power Q·V, +1.157e-13 relative (drafter's arithmetic on the printed value)</td>
+<td>D18:70</td>
+</tr>
+<tr>
+<td>quadratic duty leg 117.5 s; window 121 s</td>
+<td>D18:71, :95</td>
+</tr>
+<tr>
+<td>(K) spec diff <code>[]</code>, dt / period / duty hex; <code>femem check</code> lines; (cX-duty) <code>'thermal.duty'</code></td>
+<td>D0:64–68 (B0:103–107)</td>
+</tr>
+<tr>
+<td>(K) ball spec diffs <code>[]</code>, 5 / 2 probes hex-equal, <code>check</code> rc (0, 0); (cX) malformed rc (2, 2) / (2, 2), no directory</td>
+<td>B0:64–69 (complex); B19:62–67 (real)</td>
+</tr>
+<tr>
+<td>(UT) 19 489 / 19 489, geometry equal; file run 4.1 s</td>
+<td>B19:80</td>
+</tr>
+<tr>
+<td>(I-Py) 2.973e-13; temperature block vs probe re-solve 2.973e-13</td>
+<td>B19:81</td>
+</tr>
+<tr>
+<td>(A-ball) 4.511e-16 / 1.332e-15</td>
+<td>B19:84</td>
+</tr>
+<tr>
+<td>(T*-ball) c0…c2 <code>9.7501e-04</code> / <code>5.0491e-04</code> / <code>9.4257e-04</code></td>
+<td>B19:85–87</td>
+</tr>
+<tr>
+<td>(c-disp) 5.4208e-02; comparand separation 5.4663e-02</td>
+<td>B19:88</td>
+</tr>
+<tr>
+<td>(U′) m19; m19 leg 6.7 s</td>
+<td>B19:89–90</td>
+</tr>
+<tr>
+<td>(I-du) 151 548 / 151 548, 8.146e-15, 95 multipliers equal / summary equal</td>
+<td>B19:93</td>
+</tr>
+<tr>
+<td>(I-du) whole ball 8.476e-15 / 6.994e-15</td>
+<td>B19:94</td>
+</tr>
+<tr>
+<td>(U′) duty; duty leg 51.2 s; window 60 s</td>
+<td>B19:97–98, :134</td>
+</tr>
+<tr>
+<td>complex duty-ball Study: 151 548 cells, multipliers equal (95), (IT) 6.982e-15, balance 2.632e-14, API solve + mesh 15.4 s</td>
+<td>E123:42, :44–45, :47</td>
+</tr>
+<tr>
+<td>complex <code>Study.probe</code> (<code>ball_average</code>) on the box: digits = U60's</td>
+<td>E130:63–70</td>
+</tr>
+<tr>
+<td>quadratic CN θ_max at t* 2.9282 K (<code>mri:31</code>)</td>
+<td>E135:86</td>
+</tr>
+</tbody>
+</table>
+<p><strong>(1) Anchors.</strong> All are asserted at imported bands. The labels follow §9 rule (e).</p>
+<table>
+<thead>
+<tr>
+<th>Anchor</th>
+<th>Assertion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(K)</td>
+<td><code>d.IS_COMPLEX</code>; <code>comm.size == 2</code>. <code>femem check</code> on <code>d.QUAD_DUTY</code> gives rc <code>d._rc_all == (0, 0)</code>; rank 0's lines contain exactly one <code>family: thermal_box</code> and <code>excitation: TransverseQuadraticHeatSource</code> (<code>d:169–177</code>; D0:67). On <code>b.M19</code> and <code>b.DUTY</code>: rc <code>(0, 0)</code> and exactly one <code>family: thermal_ball</code> (<code>b:195–203</code>; B0:67–68). The ball excitation line is printed.</td>
+</tr>
+<tr>
+<td>(F-diff), by construction</td>
+<td>The <code>flat_diff</code> of the <code>_mapping</code> dicts, read from the tracked files at drafting: <code>d.QUAD_DUTY</code> vs <code>q.QUAD_CN</code> = {<code>thermal.duty</code>}; <code>b.DUTY</code> vs <code>b.DUTY_PLAIN</code> = {<code>outputs</code>}; <code>b.M19</code> vs <code>b.MALFORMED</code> = {<code>outputs.probes</code>}.</td>
+</tr>
+<tr>
+<td>(F-none), by construction</td>
+<td>No file the example runs carries both <code>excitation.source</code> and <code>outputs</code>, and no ball file carries <code>geometry.wall</code>. Checked over the five mappings.</td>
+</tr>
+<tr>
+<td>(Pdeg) / (UT) / (S0)</td>
+<td>The copied bodies' own checks: <code>dofs == [P38_DOFS] * 2</code>, <code>ca == cb == CELLS_M4</code> with geometry equal, <code>s0 == SCHEDULE</code>, multipliers equal (<code>d:243–246</code>). The ball meshes have <code>ca == cb</code> with geometry equal (<code>b:321</code>, <code>:364</code>). The m19 cell count is printed beside <code>U60_BALL_CELLS</code>; predicted 19 489.</td>
+</tr>
+<tr>
+<td>(I-Py) θ_file = θ_Python</td>
+<td>Quadratic duty <code>d._owned_rel(...) ≤ L0_BAND</code> (<code>d:249</code>; D18:66). Ball m19 <code>ip</code> and <code>two</code> <code>≤ L0_BAND</code> (<code>b:322–323</code>; B19:81 real; complex <strong>predicted</strong> 0 to 1e-12). (I-du) on the duty ball <code>≤ L0_BAND</code>, with the multipliers <code>array_equal</code> to Python and to the summary (<code>b:365–366</code>; B19:93; E123:42, :44 for the same fixture through the Study in complex).</td>
+</tr>
+<tr>
+<td>(R) quadratic duty</td>
+<td>In the copied body: <code>t_qduty ≤ INTERIOR_BAND</code> and <code>f"{t_qduty:.6e}" == P38_T_QDUTY</code>; <code>bal ≤ E_BAND</code>; <code>st["source"] == "transverse_quadratic"</code>; duty dict hex-equal to <code>{2·HALF_T, DUTY}</code> (<code>d:247–252</code>).</td>
+</tr>
+<tr>
+<td>(R) ball</td>
+<td>In the copied bodies: (A-ball) both ratios <code>≤ B_BAND</code> (<code>b:324</code>); each (T*-ball) ratio <code>≤ P_BAND</code> (<code>b:325–326</code>), with the <code>.4e</code> digits printed beside <code>U60_T_BALL</code> (substitution 3); duty whole-ball identity <code>≤ B_BAND</code>; duty dict <code>== CASES["A"]</code> (<code>b:367–369</code>).</td>
+</tr>
+<tr>
+<td>(I=) quadratic duty</td>
+<td><code>d._check_summary(run, comm, "quadratic duty", transient=True)</code>, with stdout redirected (substitution 5). It is the same writer, <code>_run_thermal_box</code> (<code>study_yaml.py:1534–1597</code>), with the hex tree equal; D18:70. Collective.</td>
+</tr>
+<tr>
+<td>(U′) ball</td>
+<td><code>b._check_summary(run, comm, label)</code> on the m19 and duty runs (<code>b:320</code>, <code>:363</code>; B19:89, :97). Collective.</td>
+</tr>
+</tbody>
+</table>
+<p>Example-side identities, each read <strong>from the JSON summary loaded from disk</strong> (<code>read_summary</code>) on every rank:
+- <strong>(S-json)</strong>, backed.
+  - Quadratic-duty JSON: <code>temperature.source == "transverse_quadratic"</code>, <code>temperature.thermal_degree == d.DEGREE</code>, and <code>temperature.duty</code> hex-equal to <code>{2·d.HALF_T, d.DUTY}</code>. The gate asserts the same keys in memory (D18:63), and (I=) makes the JSON equal to memory.
+  - Ball JSONs: <code>family == "thermal_ball"</code>, with <code>probes</code> present; the duty JSON's <code>temperature.duty == {CASES["A"]}</code>.
+  - The ball writer has <strong>no</strong> <code>temperature.source</code> key (<code>study_yaml.py:1497–1519</code>). Print the key list, and never assert that key.
+- <strong>(Sch-json)</strong>, quadratic duty, backed: the schedule string rebuilt from the JSON's <code>temperature.source_multipliers</code> (41 entries) <code>== d.SCHEDULE</code>. The gate reads the same list from <code>run.summary</code> (D18:65), and (I=) makes the JSON equal to memory.
+- <strong>(P-json)</strong>, quadratic duty, backed: <code>|source_power_w / (d.Q · 8 · ∏ d.HALF) − 1| ≤ L0_BAND</code>. The writer records the full-on power, not the duty mean (<code>study_yaml.py:1565</code>), and the transverse shape averages to 1. Backed by D18:70, whose unrounded power is Q·V + 1.157e-13 relative. The guide states that the key is the full-on power.
+- <strong>(E-json)</strong>, quadratic duty, backed: the JSON's <code>max_balance_residual ≤ E_BAND</code>. That is the key the gate's (E-qduty) reads (D18:68, 2.288e-13).
+- <strong>(R-json)</strong>, ball m19. Recompute (T*-ball) from the JSON's <code>probes.values_k[1:4]</code>: for each of the three centres, <code>|values_k[1+j] / b._ball_mean(‖CENTRES[j]‖, A_PROBE, T_STAR, _q_cf()) − 1| ≤ P_BAND</code>. Also recompute (A-ball) from <code>values_k[0]</code> against <code>b._domain_mean(pr.theta, comm)</code> and <code>volumes_m3[0] / V_h − 1</code>, both <code>≤ B_BAND</code>.
+  - The displaced reading <code>values_k[4]</code> against c2's comparand is asserted <code>&gt; P_BAND</code>: (c-disp), read from disk.
+  - Backing: B19:84–88 (real). The complex digits are predicted equal. The <code>.4e</code> digits are printed beside <code>U60_T_BALL</code>.
+  - This is the example's own claim: <strong>the ball probe table read from disk alone reproduces U60.</strong>
+- <strong>(C-json)</strong>, by construction: the JSON's <code>probes.centres</code> / <code>probes.radii</code>, compared by <code>float.hex</code> (<code>json_hex</code>), equal <code>b._probe_hex([b.WHOLE_BALL, *b.BALL_PROBES, b.DISP_PROBE])</code> on M19 and <code>b._probe_hex(b.DUTY_PROBES)</code> on DUTY. These are the parse node's (K) hex lists (<code>b:173–193</code>; B0:65–66), read back from disk.
+- <strong>(M-json)</strong>, duty ball, backed: the JSON's <code>source_multipliers</code> equals the in-memory list, 95 entries (B19:93; E123:42 complex). On the m19 JSON (no duty), compare JSON == memory only and <strong>print</strong> the length; do not assert one (<code>EX-135</code>'s in-slot red; see the traps).</p>
+<p><strong>Printed only (no band):</strong>
+- θ_max from each JSON (<code>fmt</code>);
+- the quadratic-duty θ_max at t* against <code>mri:31</code>'s unscheduled CN θ_max at t* (E135:86). The ratio is predicted 0.4917 from D18:70 / E135:86, range [0.45, 0.55]; a miss has no status effect;
+- each file's run time beside D18:63 / B19:80;
+- the duty-ball <code>values_k</code> at <code>.6g</code> beside B19:95. No comparand is posed (<code>WF-1.md:2656</code>);
+- the duty-ball JSON's <code>max_balance_residual</code> beside <code>E_BAND</code>. Predicted ≈ 3e-14 from E123:45, range [0, 1e-11].</p>
+<p><strong>(2) Negative controls</strong> (§9 rule (e) labels).
+- <strong>(c-step), backed, asserted &gt; <code>INTERIOR_BAND</code></strong> (copied, <code>d:253</code>).
+  - The duty file against the unscheduled transient series: 5.0333e-01 (D18:69, complex, the build of record). It clears the band by ≈ 50×.
+  - This is a relative L2 miss, so the assertion is a floor, not a factor.
+  - A file whose <code>thermal.duty</code> was ignored would fail it.
+- <strong>(c-disp), backed, asserted &gt; <code>P_BAND</code></strong> (copied, <code>b:328</code>, and again from disk in (R-json)).
+  - Reading: 5.4208e-02 (B19:88, real).
+  - The build-independent part is the analytic comparand separation, 5.4663e-02 (B19:88). The probe's own miss at c2 is 9.4e-04, so the complex reading is predicted ≥ ≈ 5.3e-02, ≈ 5× the band. That margin is thin, but the gate asserts this control, and the body is copied.
+  - A table that repeated c2's value at the displaced row would fail it.
+- <strong>(cX), backed.</strong> <code>b.MALFORMED</code> (radius 0) gives:
+  - <code>b._field(lambda: b.load_study(b.MALFORMED)) == "outputs.probes[1].radius"</code>;
+  - <code>cli.main</code> <code>run</code> and <code>check</code> rc <code>(2, 2)</code> both;
+  - no output directory, by <code>MPI.LOR</code> (copied <code>b:205–218</code>; B0:69 complex, B19:67 real).</p>
+<p>Whether stderr names the field is printed, not asserted (the <code>mri:29</code> disclosure).
+- <strong>(cX-duty), backed:</strong> <code>d._field(lambda: d._study_from_mapping(d._without(d._mapping(d.QUAD_DUTY), "thermal", "transient"))) == "thermal.duty"</code> (copied <code>d:180–182</code>; D0:68, B0:107, both complex). No mesh is built.</p>
+<p><strong>Outputs.</strong>
+- <strong>Setup figure:</strong> the m19 ball probe mesh (<code>pr.theta.function_space.mesh</code>), z = 0 slice. The cell tags are <code>ones_tags</code>, with <code>region_names={1: "gel ball (R = 10 mm)"}</code>, <code>slice_normal=(0, 0, 1)</code>, <code>slice_origin=(0, 0, 0)</code> and <code>clip_normal=(0, 0, -1)</code> (<code>31_…py:314–320</code>). Title (125 characters, ≤ 130, <code>setup_figure.py:65</code>): <code>mri:32 -- gel ball from femem run: probe balls read back from the JSON summary; duty-cycled quadratic box beside, z = 0 slice</code>.
+- <strong>Three combined XDMFs</strong>, one per mesh object. Every field is P1, <code>np.real</code> is taken, and the name equals its dict key.
+  - <code>paraview_output/mri_32_femem_run_ball_probes_and_duty_quadratic_files_quadratic_duty_combined.xdmf</code> (box <code>th.mesh</code>, P2 → P1) holds:
+    - <code>theta_quadratic_duty_tstar</code>;
+    - <code>theta_quadratic_duty_series_tstar</code> (the body's <code>ex_d</code>, reused);
+    - <code>theta_quadratic_duty_minus_series</code>;
+    - <code>theta_unscheduled_series_tstar</code> (<code>ex_s</code>, reused);
+    - <code>q_transverse_quadratic</code>, the <code>study.py:1491</code> polynomial on P1, for display only;
+    - the Robin facet tags <code>th.facet_tags</code>.
+  - <code>paraview_output/mri_32_femem_run_ball_probes_and_duty_quadratic_files_ball_m19_combined.xdmf</code> holds:
+    - <code>theta_ball_probe_file</code> (<code>pr.theta</code>);
+    - <code>theta_ball_python</code> (via <code>b._on</code> after <code>_same_mesh</code>);
+    - <code>probe_balls</code>, the P1 indicator of the four 2 mm balls (c0, c1, c2, displaced), for display only.
+  - <code>paraview_output/mri_32_femem_run_ball_probes_and_duty_quadratic_files_ball_duty_combined.xdmf</code> holds <code>theta_ball_duty_file_tend</code> (the duty run's <code>pr.theta</code>).
+  - Never re-evaluate a series for the XDMF.
+  - Call <code>adopt_host_ownership(OUTPUT_DIR)</code> last.
+- <strong>Two CSVs</strong>, written on rank 0, with values at ≤ 6 significant digits:
+  - <code>paraview_output/mri_32_femem_run_ball_probes_and_duty_quadratic_files_summary_readback.csv</code>: file, key, JSON value, in-memory value, hex-equal, one row per scalar <code>temperature</code> key on the three good runs;
+  - <code>paraview_output/mri_32_femem_run_ball_probes_and_duty_quadratic_files_probe_table.csv</code>: file, probe index, centre, radius, <code>values_k</code>, <code>volumes_m3</code> (from the JSON), comparand, ratio <code>.4e</code>, U60 digit, digits-equal.
+- <strong>Run bundles</strong> under <code>paraview_output/</code>: <code>mri_32_run_quadratic_duty/</code>, <code>mri_32_run_ball_m19/</code>, <code>mri_32_run_ball_duty/</code> and <code>mri_32_bad/</code>. Call <code>d._fresh_dir</code> on each first.</p>
+<p><strong>Guide.</strong>
+- <code>## 1</code>:
+  - the source and duty keys, line by line, with q(x) and the square wave written out;
+  - the ball probe list, line by line (whole ball, three 2 mm probes, displaced probe);
+  - the summary keys each family writes, including that the ball family writes no <code>temperature.source</code>;
+  - that <code>source_power_w</code> is the full-on power;
+  - a plain sentence that <strong>no file here carries both a source and probes, and that combination is not yet gated</strong>;
+  - a plain sentence that <strong>the ball-probe leg is an example record in the complex build, not a complex gate of <code>WF-1</code> step 19</strong>.
+- ParaView recipe: open the quadratic-duty XDMF and color by <code>theta_quadratic_duty_minus_series</code>, then by <code>theta_unscheduled_series_tstar</code>. Open the m19 XDMF and threshold <code>probe_balls</code>.
+- <code>## 2</code>: <code>./scripts/run_examples.sh -e mri:32 -n 2 -t 590</code>, heavy, with the measured wall time. Explain that <code>femem run tests/package/wf1/thermal_box_quadratic_duty_m4.yaml</code> and <code>femem run tests/package/wf1/thermal_ball_m19_probes.yaml</code> are the same calls from a shell.
+- <code>## 3</code> walks through the probe table CSV first.
+- <code>Related</code>:
+  - <code>examples/mri/31_femem_run_gel_box_source_and_probe_files.md</code>;
+  - <code>examples/mri/29_femem_run_f2182_gel_box_files.md</code>;
+  - <code>examples/mri/25_study_transient_duty_and_wall.md</code>;
+  - <code>examples/materials/13_virtual_probe_in_gel_ball.md</code>;
+  - <code>tests/package/test_wf1_yaml_thermal_box_quadratic_duty.py</code>;
+  - <code>tests/package/test_wf1_yaml_thermal_ball_probes.py</code>;
+  - <code>docs/planning/chunks/WF-1.md</code>.
+- Write <code>≈</code>.</p>
+<p><strong>(3) Tier, ranks, price, windows.</strong> Heavy, <code>-n 2</code>, complex, <code>-t 590</code>.</p>
+<p><strong>Price inputs (measured):</strong>
+- quadratic duty leg 117.5 s (D18:71): file run 33.9 s, Python 32.8 s (D18:63), and two P3 series on 380 725 points. <code>mri:31</code> ran the like CN leg at 94.3 s against its gate's 95.6 s (E135:82), so ≈ 115 s;
+- ball m19 leg 6.7 s in the real build (B19:90). <code>EX-135</code>'s probe legs ran at the real-build pace in complex (13.7 / 7.7 s against 13.9 / 8.7 s, E135:101, :117), so ≈ 7–10 s;
+- ball duty leg 51.2 s in the real build (B19:98). The same fixture's complex Study solve took 15.4 s (E123:47), and the leg runs ≈ 3–4 solves (file temperature, probe re-solve, Python probe), so ≈ 50–65 s;
+- three <code>check</code> calls, the malformed run and (cX-duty), with no mesh, &lt; 3 s (D0 / B0);
+- setup figure ≈ 3 s (E135:61);
+- three XDMFs, the 151 548-cell duty ball the largest, ≈ 10–20 s;
+- start-up ≈ 10 s.</p>
+<p><strong>Prediction:</strong> run of record ≈ 210 s, range [160, 450]. That includes a host ≈ 2× slow on the series. The precedent <code>mri:31</code> was predicted at 230 s and measured 189 s (E135:132). No coarser case is posed: the records are m = 4 at P2 and the MAT-19 ball at P1.</p>
+<p><strong>Item minutes:</strong> ≈ 10.0 measured (example class median, 2026-10-19 10:30 review) / ≈ 45 predicted (fixed ≈ 9, code ≈ 20 for three bodies plus the JSON identities, windows ≈ 6, guide ≈ 10).</p>
+<p><strong>Park by the minute (rule (d)).</strong>
+- If windows 1–3 are not green and the script is not written by minute 30, park.
+- If the run of record has not started by minute 38, park. It needs ≈ 4 min, plus ≈ 12 for the guide, the censuses and the commit.
+- Never start window 4 after minute 40.
+- As take-next, the same minute lines apply, counted from the slot's start.</p>
+<p><strong>Windows.</strong> Each runs in the foreground with Bash <code>timeout: 660000</code>, as one bare, whole, repo-relative call.
+0. <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0, and no other heavy, <code>xl</code> or <code>xxl</code> window may be live. With Glob, confirm <code>examples/mri/32_*</code> does not exist and the five tracked inputs exist: <code>tests/package/wf1/thermal_box_quadratic_duty_m4.yaml</code>, <code>thermal_ball_m19_probes.yaml</code>, <code>thermal_ball_duty_a_probes.yaml</code>, <code>thermal_ball_duty_a.yaml</code> and <code>malformed_thermal_ball_probe_radius_zero.yaml</code> (plus <code>thermal_box_quadratic_cn_m4.yaml</code> for (F-diff)).
+1. Pre-censuses, before any file is written:
+   - <code>scripts/testing/run_and_log.sh EX-136-pre-figures "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_setup_figures.py'"</code>
+   - the same command labelled <code>EX-136-pre-docrefs</code> with <code>check_example_doc_references.py</code>.</p>
+<p>The last reading was <code>examples=131 ok=131 missing=0 broken=0</code> (<code>20261019T124207Z_EX-135-post-figures.log:167</code>) and docrefs <code>dead=0 guide=0 stale=143 … exit=2</code> (<code>20261019T124209Z_EX-135-post-docrefs.log:183</code>). If <code>EX-133</code> lands first, the count is higher. <strong>Read the baseline in-slot</strong> (the 2026-10-18 18:00 ruling on item 541). Exit 2 means stale; exit 1 is a failure. Write down the predicted delta (+1 example, +1 figure) before reading the post-census.
+2. <strong>Import check (complex):</strong>
+   <code>scripts/testing/run_and_log.sh EX-136-import "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 10 60 python3 -c \"import tests.package.test_wf1_yaml_thermal_box_quadratic_duty as d, tests.package.test_wf1_yaml_thermal_ball_probes as b, tests.package.test_wf1_yaml_thermal_box_quadratic as q; print(d.P38_T_QDUTY, d.P38_C_STEP, d.P38_DOFS, d.CELLS_M4, d.SCHEDULE, b.U60_T_BALL, b.U60_C_DISP, b.U60_BALL_CELLS, d.QUAD_DUTY.name, b.M19.name, b.DUTY.name, b.DUTY_PLAIN.name, b.MALFORMED.name, q.QUAD_CN.name)\"'"</code>
+   An <code>ImportError</code> or a renamed constant means a later edit (or the 10-19 weekly's ratification work) moved a module. That is BLOCKED; re-pose, and never restate a constant.
+3. <strong>Dry run:</strong> <code>scripts/testing/run_and_log.sh EX-136-dryrun "./scripts/run_examples.sh -e mri:32 -n 2 -t 590 --dry-run"</code>. It must print <code>(complex build)</code>.
+4. <strong>Run of record, <code>EX-136</code>:</strong> the emitted line with <code>-T -e FEM_EM_SETUP_FIGURES=1</code> added. That is <code>scripts/testing/run_and_log.sh EX-136 "docker compose exec -T -e FEM_EM_SETUP_FIGURES=1 fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src timeout -k 30 590 mpiexec -n 2 python3 examples/mri/32_femem_run_ball_probes_and_duty_quadratic_files.py'"</code>, the <code>EX-135</code> form (E135:12). Copy the emitted string, not this one. Pass means all of:
+   - Status 0;
+   - every anchor and asserted control green;
+   - the closing <code>All assertions hold</code> line.
+5. <code>git add</code> the PNG and check it is ≤ 600 KiB. One re-render with <code>show_edges_on_slice=False</code> is the only permitted re-run. Write the guide from window 4's log, stage it, and run the leak guard on it. Then run <code>EX-136-post-figures</code> / <code>EX-136-post-docrefs</code> (window 1's commands, relabelled). Predicted N → N + 1, <code>broken=0</code>, <code>dead=0</code>.
+6. <code>git status --porcelain examples/ tests/ src/</code> lists only the three new paths. Run <code>scripts/testing/check_private_leak.py</code> on the staged logs.</p>
+<p>After Status 124 or a kill: run <code>pgrep -c python3</code> first. At 0, run the rubric-4 orphan-<code>.c</code> sweep labelled <code>EX-136-cache-sweep</code>.</p>
+<p><strong>(4) Traps already paid for.</strong>
+- <strong>Build.</strong> Never call <code>b._require</code>: it asserts the real build and raises here. Never compare a digit or hex across builds. The real-build B19 digits are printed beside the complex reading; only bands are asserted (the item 546 ruling).
+- <strong>Name collisions between <code>d</code> and <code>b</code> (new to this item).</strong> The two modules export the same names with different meanings:
+  - <code>DUTY</code> (the float 0.5 in <code>d</code>; a <code>Path</code> in <code>b</code>);
+  - <code>T_STAR</code> (MAT-21's box t* against MAT-12's sphere t*);
+  - <code>RHO_C</code>, <code>T_INF</code>, <code>Q</code> (against <code>Q9</code>) and <code>K</code>/<code>H</code> (against <code>K_GEL</code>/<code>H_GEL</code>);
+  - <code>_check_summary</code>: the box <code>(run, comm, label, transient)</code> against the ball <code>(run, comm, label)</code>.</p>
+<p>Always qualify by alias, and never use <code>from … import</code>.
+- <strong>P2 versus P1 helpers.</strong> Use <code>d._on_p</code> / <code>d._owned_rel</code> for the P2 box and <code>b._on</code> / <code>b._theta_owned_rel</code> for the P1 balls (<code>docs/testing/attempts.md:1678</code>).
+- <strong>(I-Py) on the ball compares temperatures, not θ</strong>, normalised by max|T − T∞| (the shared helper). Keep the copied bodies' arguments.
+- <strong>The ball file solves twice.</strong> <code>_run_thermal_ball</code> runs, then <code>Study.probe</code> re-solves (<code>study_yaml.py:1634–1640</code>). <code>run.thermal</code> and <code>run.probes.thermal</code> are different objects, and the body's <code>two</code> check compares them; keep it.
+- <strong><code>source_multipliers</code> on an unscheduled run is empty</strong> (<code>EX-135</code>'s in-slot red, <code>EX-135.md:335</code>). Assert a length only where a duty is set: 41 on the quadratic duty JSON, 95 on the duty ball. On m19, compare JSON == memory and print the length.
+- <strong>The ball summary is not the box summary.</strong> It has no <code>temperature.source</code>; <code>dt_s</code> / <code>n_steps</code> sit at the top of the <code>temperature</code> block, and there is a <code>wall</code> key (<code>study_yaml.py:1497–1519</code>). Print the key lists, and assert only the keys named above.
+- <strong><code>summary.json</code> is not a guide token.</strong> The docref checker reads any <code>*.json</code> token as an artifact under <code>paraview_output/</code> (<code>scripts/testing/check_example_doc_references.py:116–122</code>; <code>attempts.md:1686</code>). Write "the JSON summary". Name every artifact by its <strong>full filename</strong>, never a stem or a glob (§9 standing rule (b)).
+- <strong>Leak guard.</strong>
+  - Print θ and probe values at ≤ 6 significant digits: <code>fmt</code> for θ, <code>.6g</code> for <code>values_k</code> (substitution 4; B19:82–83, :95–96 print full <code>repr</code>).
+  - Print errors at <code>.3e</code> / <code>.4e</code>. The gate's <code>.6e</code> record string stays as the gate prints it; it passed the guard in D18.
+  - Never print a summary dict or a JSON whole.
+  - <code>d._check_summary</code> prints the unrounded θ_max and power (D18:70), so redirect its stdout (substitution 5).
+  - The guard matches at 8 digits (<code>check_private_leak.py:76</code>).
+- <strong>Rank 0.</strong> Everything that exists only on rank 0 is used only under <code>if rank0:</code>. That includes <code>check</code> stdout lines, CSV rows and the return of <code>write_xdmf_with_tags</code> (the <code>EX-127</code> failure). No collective inside <code>if rank0:</code>. Both <code>_check_summary</code>s, <code>_same_mesh</code>, <code>_domain_mean</code>, <code>_rel_p</code>, <code>_exact_p</code>, <code>b._all</code> and <code>Study.probe</code> are collective, so call them on every rank. Read every tail f-string before window 4.
+- <strong>Mesh mixing.</strong> There are three result meshes (box <code>th.mesh</code>, the m19 probe mesh, the duty-ball mesh), and each Python Study builds its own. Fields move only through <code>_on</code> / <code>_on_p</code> after a same-mesh check. That is why there is one XDMF per mesh.
+- <strong>Comparands.</strong> Use the body's <code>_exact_p</code> (chunked), never <code>interpolate(callable)</code> on a series. Reuse <code>ex_d</code> and <code>ex_s</code> for the XDMF; the two series cost most of the quadratic leg's ≈ 117 s.
+- <strong><code>.eval</code> bytes depend on batch composition</strong> (item 537; PROJECT_PLAN §9 rulings, <code>POST-8.md:870</code>). Every byte comparison is made call by call on that call's own array. The JSON values and <code>run.probes.values</code> are one list from one <code>ball_average</code> pass (<code>study_yaml.py:1645</code>), not an <code>.eval</code> re-sample. Never re-sample θ or a probe by <code>.eval</code> and compare bytes against the run, and never concatenate or split a batch.
+- <strong>XDMF needs P1</strong>, and <code>np.real</code> before every <code>float</code>.
+- <strong>Wrapper.</strong> Restore <code>study_yaml.run_study_file</code> in <code>finally</code> and assert <code>is original</code> (<code>31_…py:141–146</code>). A leaked wrapper corrupts every later call.
+- <strong>Runner.</strong> <code>./scripts/run_examples.sh</code> is host-side, so never wrap it in <code>docker compose exec</code>. Emit, then harness. Use <code>-k 30</code>.
+- <strong>Windows.</strong> No background window, no raised <code>-t</code> / <code>-n</code>, no script edit after window 4 starts, and no guide edit after window 5 starts (rule (i)).
+- <strong>No new YAML.</strong> Never write a file that sets a source with probes, duty-quadratic with probes, or a walled ball with probes (545 refuses the last, ruling Q3).</p>
+<p><strong>(5) Scope.</strong>
+- Covered:
+  - <code>femem check</code> / <code>femem run</code> in-process (<code>cli.main</code>) on four tracked files: the duty-cycled transverse-quadratic <code>thermal_box</code> file, two ball-probe <code>thermal_ball</code> files and one malformed ball file;
+  - one in-memory refusal (duty without transient);
+  - P38's duty-cycled quadratic source CN to t* at m = 4, P2;
+  - MAT-19's ball with five probes at P1, and the duty ball's pass-through;
+  - complex, <code>-n 2</code>;
+  - the summaries and the ball probe table read back from disk and tied to P38, <code>SCHEDULE</code>, Q·V, the CN balance and U60.
+- <strong>Not claimed:</strong>
+  - a source with probes in one file, which is ungated;
+  - a walled ball with probes (refused);
+  - any comparand on the duty-ball probes;
+  - probes at P2;
+  - scalar point values (P37);
+  - <strong>a complex-build gate of the ball-probe file route.</strong> The example's complex readings are example records, not a gate (Q1);
+  - the real build;
+  - another duty, period or weight;
+  - the installed console script, <code>--ranks</code> or <code>--estimate</code>;
+  - EM, a coil or SAR (the quadratic is the closed-form shape, not a solved field);
+  - perfusion;
+  - bundle reproducibility (<code>mri:27</code>);
+  - F2182 compliance;
+  - any external check.</p>
+<p><strong>(6) Negative result.</strong> Report and stop. Journal it in <code>docs/testing/attempts.md</code>, park on <code>attempt/EX-136-&lt;UTC&gt;</code>, and mark item 550 BLOCKED in the same commit. Never widen a band or edit <code>tests/</code> or <code>src/</code>.
+- <strong>A quadratic-duty anchor red</strong> ((K), (Pdeg), (UT), (S0), (I-Py), (R) quadratic duty, (I=)): an example/test divergence in the build of record. Print the first differing value beside its record, and file a known-issues entry against <code>WF-1</code> step 18.
+- <strong>A ball anchor red with every quadratic anchor green:</strong> the ball-probe route differs between builds, or <code>ball_average</code> misbehaves on the ball in complex. That is a finding against <code>WF-1</code> step 19's untested complex build, the very question Q1 poses. File a known-issues entry; <code>WF-1</code> does not move, and no band moves.
+- <strong>(R-json), (C-json) or (M-json) red with (R) ball green:</strong> the JSON probe table misreports <code>run.probes</code>. That is a finding against <code>_run_thermal_ball_probes</code> (<code>study_yaml.py:1628–1655</code>). Handle it the same way.
+- <strong>(S-json), (Sch-json), (P-json) or (E-json) red:</strong> the summary misreports a gated quantity. Handle it the same way.
+- <strong>(F-diff) or (F-none) red:</strong> a tracked input changed since drafting. BLOCKED, re-pose.
+- <strong>The wrapper captures nothing:</strong> the CLI route differs from <code>cli.py:159</code>/<code>:201</code>. BLOCKED, with no fallback to calling <code>run_study_file</code> directly.
+- <strong>A printed value missed</strong> (the θ_max ratio, the duty-ball balance, a time, the m19 cell count): report it in the guide and the journal. It has no status effect.
+- <strong>A kill at 590 s:</strong> not a result; a price finding.</p>
+<p>There is no <code>PREDICTED RED:</code> line, so any red stops the slot.</p>
+<p><strong>(7) Status it can move.</strong>
+- <code>EX-136</code> ⬜ → ✅ on the §7 Done-when, with the setup-figure census rising N → N + 1, <code>broken=0</code> and docrefs <code>dead=0</code>.
+- <code>WF-1</code>, <code>WF-15</code>, <code>MAT-19</code>, <code>MAT-21</code> and §2 do not move. A green ball leg in complex is an example record, not a re-gate of item 545.
+- If the 10-19 weekly reverts U66 or U67 (rule (6), <code>WF-1.md:2709</code>), or a review demotes item 540 or 545, <code>EX-136</code> is withdrawn. Withdrawing 545 alone narrows it to the quadratic-duty leg, as Q1's "no" branch describes.</p>
+<p><strong>Commits.</strong>
+1. The three new example paths; the harness logs <code>EX-136-pre-figures</code>, <code>-pre-docrefs</code>, <code>-import</code>, <code>-dryrun</code>, <code>EX-136</code>, <code>-post-figures</code> and <code>-post-docrefs</code> (plus <code>-cache-sweep</code> if run) with their <code>docs/testing/test-results.md</code> rows; the §7 <code>EX-136</code> row ⬜ → ✅; §9 item 550 → DONE with its readings line; the outcome paragraph under this item.
+2. <code>attempts: EX-136 §9 item 550 journal</code>, the <code>docs/testing/attempts.md</code> entry: readings beside records, census before and after, elapsed, disclosed deviations.</p>
+<p><strong>Execution order.</strong> Windows 0 → 1 → write the script → 2 → 3 → 4 → 5 (PNG, guide, post-censuses) → 6 → commit 1 → commit 2.</p>
+<p><strong>Spawn prompt (verbatim).</strong> "Use the example-runner agent to execute <code>EX-136</code>, §9 item 550 (<code>docs/planning/chunks/EX-136.md</code>, heading <code>§9 item 550</code>).
+- Read the brief and the review ruling beneath it first; the ruling holds, including its answer to Q1.
+- You are the executor: do not spawn agents.
+- The harness call is the <strong>whole</strong> Bash command: bare, repo-relative, nothing chained or piped. Run every window in the foreground with <code>timeout: 660000</code>, never in the background, and never delete a log.
+- Run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> (require 0, and no other heavy / <code>xl</code> / <code>xxl</code> window live) before windows 1 and 4. Confirm <code>examples/mri/32_*</code> does not exist, and run both pre-censuses before writing any file.
+- Edit nothing under <code>tests/</code> or <code>src/</code>, and write no YAML file. Import through <code>tests.package.test_wf1_yaml_thermal_box_quadratic_duty</code> as <code>d</code>, <code>…_thermal_ball_probes</code> as <code>b</code> and <code>…_thermal_box_quadratic</code> as <code>q</code> (for <code>QUAD_CN</code> only). Qualify every name by its alias; <code>d</code> and <code>b</code> share names with different meanings.
+- Copy the three solve-node bodies, the malformed block and the duty-without-transient refusal verbatim, with only the six listed substitutions. Never call <code>_require</code> or a <code>_knob</code>-gated node, never set <code>FEM_EM_WF1_S18</code> / <code>FEM_EM_WF1_S19</code>, and never import a <code>test_*</code> name.
+- Restore the <code>run_study_file</code> wrapper in <code>finally</code>. Redirect <code>d._check_summary</code>'s stdout.
+- Print θ and probe values at ≤ 6 significant digits. Use rank-0-only values only under <code>if rank0:</code>, with no collective there. Never write <code>summary.json</code> as a token in the guide.
+- Emit the runner line with <code>--dry-run</code>; use container <code>timeout -k 30 590</code>; never raise <code>-t</code> or <code>-n</code>.
+- Park by minute 30 / 38 / 40 as the brief states.
+- If <code>check_private_leak.py</code> blocks a log, move it unchanged to <code>logs/leak-held/</code>, mark the item BLOCKED and stop.
+- On a red, park on <code>attempt/EX-136-*</code>, mark the item BLOCKED in the same commit, and report.
+- Return the log names, each asserted and printed value beside its record or prediction, the census before and after, and elapsed."</p>
+<p><strong>Questions for the review</strong> (answered in the ruling below).
+- <strong>Q1, the build of the ball leg.</strong> Item 545 gated the ball-probe file route in the real build only and lists "the complex build for the probe legs" as not claimed (<code>WF-1.md:2661</code>). The <code>mri:</code> runner is complex-only (<code>run_examples.sh:273–274</code>). Unlike 546, the m19 ball has no complex backing reading; the m19 leg is a first complex run (<code>EX-123</code>'s class), every band clearing by ≥ 10×. The "no" branch drops the ball leg and keeps the duty-quadratic file (≈ 140 s).
+- <strong>Q2, the duty-ball file.</strong> Included as an identity only ((I-du), (U′), (C-json), (M-json); ≈ 55 s), as 545 gated it. Alternatively drop it.
+- <strong>Q3, provisional parents.</strong> U66 and U67 await the 10-19 weekly. Run before it (the <code>EX-135</code> precedent) and withdraw or narrow on a revert, or hold behind the weekly.</p>
+<h3 id="review-ruling-2026-10-19-1030-item-550">Review ruling 2026-10-19 10:30 (item 550)<a class="headerlink" href="#review-ruling-2026-10-19-1030-item-550" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Q1: yes — one complex run, ball leg kept.</strong> The item 546 pattern binds: the real-build gate's bands asserted, its <code>.4e</code> digits printed, never asserted as strings. The m19 leg is a first complex run of the ball-probe route; its readings are example records, not a complex gate of <code>WF-1</code> step 19. A ball red with every quadratic anchor green is a reported finding (known-issues entry, item BLOCKED), not a re-pose inside the slot and never a band.</li>
+<li><strong>Q2: keep the duty-ball file</strong>, identities only, as 545 gated it. If the run of record exceeds 450 s, that is a price finding for the journal, not a reason to drop it in-slot.</li>
+<li><strong>Q3: run before the weekly.</strong> If the weekly reverts U66 or U67, <code>EX-136</code> is withdrawn or narrowed exactly as (7) states, by the next review.</li>
+<li><strong>Measured minutes:</strong> the example class median is 10.0 (this review's table), not 8.4.</li>
+<li><strong>Ordering:</strong> 550 is independent; it may be taken as take-next under its minute lines.</li>
+</ul>
+<p><strong>Outcome (2026-10-19 12:00 slot): DONE, ✅ pending audit.</strong> Run of record <code>20261019T171706Z_EX-136.log</code> Status 0 in 190 s (predicted ≈ 210 s, range [160, 450]; quadratic duty leg 114.3 s, m19 ball 9.1 s, duty ball 64.0 s), "All assertions hold", first run, no re-run. Quadratic duty (complex, build of record): (T-qduty) 2.543310e-04 <code>== P38_T_QDUTY</code>, (I-Py) 2.221e-14, (E-qduty) 2.289e-13, (c-step) 5.0333e-01, schedule <code>== SCHEDULE</code>, (P-json) 1.157e-13, θ_max 1.4399 K = 0.4917 × the unscheduled CN's. Ball m19 (first complex run of the route): 19 489 cells, (I-Py) 2.379e-13, (A-ball) 6.014e-16 / 1.332e-15, (T*-ball) <code>.4e</code> digits equal U60's from memory and from the JSON on disk, (c-disp) 5.4208e-02 = U60's; duty ball (I-du) 9.309e-15, 95 multipliers, balance 2.632e-14. Controls (cX) rc (2, 2) / (2, 2), (cX-duty) <code>thermal.duty</code>. Census: setup figures <code>examples=131 ok=131 broken=0</code> → <code>132 / 132 / 0</code> (predicted +1), docrefs <code>dead=0 stale=123 exit=2</code> → unchanged (predicted <code>dead=0</code>). Not a complex gate of <code>WF-1</code> step 19; no band moved.</p>
+<p><strong>Audit 2026-10-19 18:00 daily review: PASS</strong> (<code>auditor</code>; journal <code>docs/planning/reviews/2026-10-19-daily-1800.md</code> §3). (T-qduty) <code>20261019T171706Z_EX-136.log:54</code>, asserted at the script <code>:332–333</code>; "All assertions hold" <code>:115</code>; Status 0, 190 s <code>:117–119</code>; census 131 → 132 <code>broken=0</code>, docrefs <code>dead=0</code> both sides. The U60 ball digits stay a printed example record.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

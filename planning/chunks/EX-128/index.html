@@ -1,0 +1,1064 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-128 — imp:10, a σ = 800 S/m rod in the tuned copper F-human's gel phantom: with and without on one mesh, the tip 1 g SAR ratio, the adjoint fold at human scale, and the local-SAR ratio map in ParaView - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-128-imp10-a-800-sm-rod-in-the-tuned-copper-f-humans-gel-phantom-with-and-without-on-one-mesh-the-tip-1-g-sar-ratio-the-adjoint-fold-at-human-scale-and-the-local-sar-ratio-map-in-paraview" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-128 — imp:10, a σ = 800 S/m rod in the tuned copper F-human's gel phantom: with and without on one mesh, the tip 1 g SAR ratio, the adjoint fold at human scale, and the local-SAR ratio map in ParaView
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-508-2026-10-17-example-54-ramp-example-runner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 508 — 2026-10-17 (example, §5.4 ramp; example-runner)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-17-0300-item-508-overrides-the-brief-and-its-spawn-prompt-where-they-differ" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-17 03:00 (item 508; overrides the brief and its spawn prompt where they differ)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-512-2026-10-17-example-54-ramp-re-pose-of-item-508-example-runner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 512 — 2026-10-17 (example, §5.4 ramp, re-pose of item 508; example-runner)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-note-2026-10-17-1800-audit-of-item-512" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review note — 2026-10-17 18:00 (audit of item 512)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-17-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-17 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-128-imp10-a-800-sm-rod-in-the-tuned-copper-f-humans-gel-phantom-with-and-without-on-one-mesh-the-tip-1-g-sar-ratio-the-adjoint-fold-at-human-scale-and-the-local-sar-ratio-map-in-paraview">EX-128 — imp:10, a σ = 800 S/m rod in the tuned copper F-human's gel phantom: with and without on one mesh, the tip 1 g SAR ratio, the adjoint fold at human scale, and the local-SAR ratio map in ParaView<a class="headerlink" href="#ex-128-imp10-a-800-sm-rod-in-the-tuned-copper-f-humans-gel-phantom-with-and-without-on-one-mesh-the-tip-1-g-sar-ratio-the-adjoint-fold-at-human-scale-and-the-local-sar-ratio-map-in-paraview" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<p><code>EX-128</code> (<code>implants:10</code>, runner token <code>imp:10</code>) is opened 2026-10-17 by the 03:00 daily review under daily-review.md step 5. It is the §5.4 ramp from <code>IMP-3</code> step 8 (§10 I21b, §9 item 381, landed <code>0e7d3abd</code>, 2026-10-11; <code>docs/planning/chunks/IMP-3.md:1187–1457</code>). <code>IMP-3</code> is ✅. Step 8 is a record on it ("Step 8 record", <code>IMP-3.md:1452–1457</code>).
+- <strong>Base.</strong> <code>tests/validation/test_imp3_f_human_tuned_rod.py</code> (the gate module, unchanged since <code>0e7d3abd</code>). The fixture is I21a's kept-rod copper (Leontovich) F-human hole mesh: 436 541 cells, degree 1, 64 MHz, κ off, r = 0.2 Ω on all 32 gaps, and the two Thevenin feeds P17 / P21 at C_in,F-human = 118.2437 pF.
+- <strong>The rod.</strong> One capped rod (r = 1 mm, ℓ = 30 mm between cap centres, axis ẑ, centre (0.015, 0, 0)) is kept as cell tag 403. It is switched by material only: gel (the <em>without</em> arm) or σ = 800 S/m (<code>SIGMA_WIRE_S_PER_M</code>, the <em>with</em> arm). <strong>Both arms are on the same mesh.</strong>
+- <strong>Run of record (gate).</strong> W1b <code>docs/testing/logs/20261011T200932Z_IMP-3-step8-W1b-rod.log:6350–6376</code> (heavy, <code>-n 8</code>, 6 passed, Status 0, 323 s harness / 319.4 s window; build 177.1 s, without arm 53.6 s, with arm 42.7 s, tip balls 28.1 s; summed RSS 11.49 GiB, <code>:6376</code>).
+- <strong>Cited, not run.</strong> W1a (<code>20261011T200648Z_IMP-3-step8-W1a-repro.log:6297–6303</code>, 156 s) is the rod-free reproduction on item 358's own 369 387-cell mesh, a different mesh. It carries (S_rep) 2.658e-13, which is cited and not re-run here (see §(3)).</p>
+<p><strong>Gap (grep at drafting: <code>imp3_f_human_tuned_rod</code>, <code>_build_f_human_rod</code>, <code>ROD_FH</code>, <code>F_HUMAN_KEPT_ROD</code>, <code>implant_rod_f_human</code> over <code>examples/</code>; all empty).</strong>
+- <code>imp:3</code> (<code>examples/implants/03_rod_in_birdcage_tip_sar.py</code>, <code>EX-83</code>) puts the rod in the <strong>untuned solid-coil F-small</strong> 4-leg birdcage as a PEC hole. Its with / without arms are different meshes.
+- <code>imp:9</code> (<code>EX-122</code>) puts the PEC disc in the same F-small fixture. Its brief notes that a with / without cellwise map is meaningless there, because the arms are different meshes (<code>EX-122.md:16</code>).
+- <code>imp:7</code> (<code>examples/implants/07_lead_tf_in_the_coil.md:97</code>) shows the lead TF fold in the F-small coil. Its Not claimed lists "F-human, or a tuned coil".
+- <code>mri:17</code> / <code>mri:28</code> (<code>EX-109</code> / <code>EX-127</code>) read the tuned copper F-human with no implant.
+- <strong>The angle (new).</strong> An implant in the <strong>human-scale tuned copper coil under the clinical two-port 90° drive</strong>, through the gate's own builder:
+  - the gate's identities, including <code>WF-9</code>'s exact adjoint fold (T3), at human scale;
+  - a <strong>material-switched</strong> implant, so the with / without arms share one mesh and the <strong>cellwise</strong> local-SAR ratio is meaningful in ParaView, for the first time in the implants group;
+  - the tip 1 g ratio Q beside its <code>IMP-2</code> estimate, the rod's own dissipation map, and the near-tip / shaft / far ratio readings.</p>
+<h3 id="9-item-508-2026-10-17-example-54-ramp-example-runner">§9 item 508 — 2026-10-17 (example, §5.4 ramp; example-runner)<a class="headerlink" href="#9-item-508-2026-10-17-example-54-ramp-example-runner" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-17 03:00 daily review; the review reviews it.</em> <strong>This brief sets and moves no band, tolerance, record, Done-when of another chunk or validation target.</strong> Every band is imported through the gate module's own import lines (<code>test_imp3_f_human_tuned_rod.py:341–408</code>, inside <code>_run_rod</code>).</p>
+<p><code>EX-128</code> (<code>imp:10</code>; the runner selects <code>imp:&lt;n&gt;</code> by the <code>%02d_</code> prefix in <code>examples/implants/</code>, and the <code>imp</code> group sources the complex build, <code>scripts/run_examples.sh:72, :251–252, :273</code>; no runner edit) adds exactly three tracked files and edits nothing else:
+- <code>examples/implants/10_sigma_rod_in_tuned_f_human_tip_sar.py</code>;
+- the same-stem guide <code>examples/implants/10_sigma_rod_in_tuned_f_human_tip_sar.md</code>, with <code>## 1. What this demonstrates</code>, <code>## 2. How to run it</code>, <code>## Setup figure</code>, <code>## 3. How to analyze it, step by step</code> and <code>## Related</code> (<code>imp:9</code>'s order);
+- <code>examples/implants/figures/implants_10_sigma_rod_in_tuned_f_human_tip_sar_setup.png</code>, ≤ 600 KiB.</p>
+<p>The combined XDMF, its <code>.h5</code> and the CSV go to <code>examples/implants/paraview_output/</code>, which is gitignored, and are never committed.</p>
+<p><strong>Collision check (the executor repeats it before writing).</strong> At drafting, <code>ls examples/implants/</code> ends at <code>09_pec_disc_in_birdcage_rim_sar</code>, and no §7 row or chunk file other than this one names <code>EX-128</code> or <code>imp:10</code>. If <code>10_</code> is taken when the slot starts, stop and report. Never renumber in-slot.</p>
+<ul>
+<li><strong>Executor:</strong> <code>example-runner</code>. It does not spawn agents.</li>
+<li><strong>Class:</strong> example, median ≈ 8.8 measured min. <strong>Tier:</strong> heavy, <code>-n 8</code> (the gate's width; <code>comm.size == 8</code> asserted), complex build, runner <code>-t 590</code>, container <code>timeout -k 30 590</code>, durable capture.</li>
+<li><strong>Cost:</strong> ≈ 8.8 measured / ≈ 55 predicted min. That is 10 fixed + ≈ 20 script (a ≈ 440-line lift) + ≈ 2 dry run + ≈ 2 tail smoke + ≈ 8 run of record + ≈ 6 guide + ≈ 5 censuses, leak guard and commit + ≈ 2 spare. <strong>Park if window 3 has not started by minute 28</strong> (rule (d)).</li>
+<li><strong>Depends on:</strong> nothing open. The gate module (<code>0e7d3abd</code>), I21a's <code>tests/mesh/test_birdcage_implant_rod_f_human.py</code> and every imported band are on <code>main</code>.</li>
+<li><strong>Gitignored input.</strong></li>
+<li><strong><code>NODE_JSON</code> = <code>logs/wf10/h9p-node-118.2437.json</code>.</strong> The rod arm reads it before the build, for <code>c_in_pf</code> (asserted exact) and for <code>s_rec</code> in the printed remesh move (<code>_read_record</code>, <code>:253–264</code>). It was on disk at drafting (5 476 bytes, host mtime 2026-10-16 22:36 CDT). <code>EX-127</code>'s window 3 rewrote it (<code>20261017T033328Z_EX-127.log</code>; its (S_rep) against the previous copy read 2.578e-13), so the remesh move reproduces W1b's 1.2408e-02 far inside its record tolerance.</li>
+<li><strong><code>logs/wf12/h12c-cu-s32-a2.npz</code></strong> (20 812 bytes, present) is read only by <code>build_tuned_quadrature</code> (W1a's path). The rod arm never calls it.</li>
+<li><strong>If <code>NODE_JSON</code> is absent, stop: BLOCKED. Never re-run 358 or W1a to regenerate it.</strong></li>
+<li><strong>Never beside another heavy window.</strong> No other heavy, <code>xl</code> or <code>xxl</code> window may be live (pre-check below). The nightly <code>xl</code> window starts 02:00 local and may run 4 h.</li>
+<li><strong>Shared files.</strong> New paths only; nothing under <code>tests/</code> or <code>src/</code>. <strong>If anything there turns out to be needed, stop and report; do not edit it.</strong></li>
+</ul>
+<p><strong>How the script reaches the gate's fields (the one design decision).</strong> <code>_run_rod</code> (<code>:340–847</code>) is a single function that returns nothing. Its arm runner <code>_arm</code> is a closure inside it, so neither can supply fields to an output section.
+- <strong>Never call <code>_run_rod</code>.</strong> It discards its fields, and a second build for the maps would add ≈ 177 s and break the window.
+- Instead, the script <strong>repeats <code>_run_rod</code>'s body verbatim</strong> with a provenance comment: <code>tests/validation/test_imp3_f_human_tuned_rod.py</code> at <code>0e7d3abd</code>, lines 410–847, with its import block <code>:341–408</code> moved to module level. This is the <code>mri:17</code> / <code>EX-127</code> pattern (<code>EX-127.md:42</code>). It is allowed three changes, each commented:
+  1. the asserts block <code>:836–847</code> runs verbatim, and then execution <strong>continues</strong> into the example's own section instead of returning;
+  2. <code>_say</code> and <code>_in</code> come from the gate module, so every gate line prints in W1b's exact format and the digits line up with <code>:6350–6376</code> line for line;
+  3. nothing else. Every print, prediction constant and order stays as it is, and <code>_arm</code> (<code>:548–689</code>) is copied whole, with its own <code>0e7d3abd</code> / <code>232a6fe2</code> provenance comments kept.</p>
+<p><strong>Imports (never restated).</strong> Insert <code>_REPO_ROOT</code> into <code>sys.path</code>, then <code>import tests.validation.test_imp3_f_human_tuned_rod as g8</code>.
+- <strong>Called unchanged from <code>g8</code>:</strong> <code>_read_record</code> (<code>:253</code>), <code>_load</code> (<code>:102</code>), <code>_build_f_human_rod</code> (<code>:110</code>), <code>_ball_mean_closed_form_tag3</code> (<code>:198</code>), <code>_c_star</code> (<code>:267</code>), <code>_say</code>, <code>_in</code>.
+- <strong>Constants from <code>g8</code>:</strong> <code>SAR10G_C_STAR_359</code>, <code>C_STAR_LABEL</code>, and every <code>PRED_*</code> (<code>:54–67</code>).
+- <strong>The gate's import block <code>:341–408</code>, copied verbatim to module level.</strong> This brings in every band (<code>CELL_COUNT_BAND</code>, <code>DISCRETE_IDENTITY_RTOL</code>, <code>EXACT_IDENTITY_RTOL</code>, <code>BLIND_FACTOR</code>), every record (<code>F_HUMAN_KEPT_ROD_CELL_RECORD</code>, <code>F_HUMAN_KEPT_ROD_CELL_GUARD</code>, <code>ROD_FH</code>) and every helper.
+- <strong>From <code>src</code> and <code>imp:9</code> / <code>mri:18</code>'s import lines:</strong> <code>write_setup_figure</code>, <code>write_xdmf_with_tags</code>, <code>adopt_host_ownership</code>; <code>PORT_LOWER</code> / <code>PORT_UPPER</code> (<code>tests/mesh/test_birdcage_port_sheets</code>) and <code>CONDUCTOR_CELL_TAG</code> as <code>mri:18</code> imports them (<code>:76</code>, <code>:95–96</code>).
+- <strong>Copied example to example:</strong> <code>_dg0_vec</code> from <code>mri:17</code> (<code>:190–196</code>).
+- <strong>Rules.</strong>
+  - Never import a <code>test_*</code> name. Never call <code>test_imp3_s8_tuned_rod</code>, <code>test_imp3_s8_coding</code>, <code>_run_rod</code> or <code>_run_repro</code>.
+  - Never call <code>_build_f_human</code> directly. <code>_build_f_human_rod</code> patches <code>wf7._f_human_kwargs</code> for one call and restores it.
+  - <code>FEM_EM_IMP3_STEP8</code> plays no part.
+  - Raise if <code>default_scalar_type</code> is not complex.</p>
+<p><strong>Structural asserts at start-up.</strong>
+- <code>comm.size == 8</code>.
+- <code>os.path.exists(NODE_JSON)</code>; <code>_read_record</code> asserts this itself and runs before the build.
+- <code>ROD_FH == dict(ROD, keep_cells=True)</code>.
+- <code>TIPS["top"] == ROD_CENTRE + (0, 0, ℓ/2 + r)</code> bit for bit (the gate's W0 coding checks, <code>:182–185</code>, repeated as asserts).</p>
+<p><strong>Record checks (the 2026-10-14 10:30 ruling's form, as <code>EX-127</code>).</strong> Record digits go only into an example-local <code>REC</code> dict. Each entry is commented with its <code>20261011T200932Z_IMP-3-step8-W1b-rod.log:&lt;line&gt;</code>.
+- Integers and strings are exact.
+- Every other record is compared at a relative tolerance of <code>10^-(d−2)</code>, where d is its printed significant digits. A complex record is compared as |a − b| / |b|.
+- <strong>A record off by more than its tolerance stops the item.</strong></p>
+<table>
+<thead>
+<tr>
+<th>Record</th>
+<th>Value (W1b)</th>
+<th>d ⇒ tol</th>
+<th>Line</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cells / tag-403 cells / degree-1 dofs</td>
+<td>436 541 / 15 025 / 579 178</td>
+<td>exact</td>
+<td><code>:6350</code></td>
+</tr>
+<tr>
+<td>(M0) σ, εᵣ on 403, with / without</td>
+<td>(800, 800), (78, 78) / (0.5, 0.5), (78, 78)</td>
+<td>exact</td>
+<td><code>:6351</code></td>
+</tr>
+<tr>
+<td>mask cells lead / ball; V_b</td>
+<td>15 025 / 7 974; 1.080564e-07 m³</td>
+<td>exact; 7 ⇒ 1e-5</td>
+<td><code>:6352</code></td>
+</tr>
+<tr>
+<td>feeds</td>
+<td><code>['P17', 'P21']</code></td>
+<td>exact</td>
+<td><code>:6353</code></td>
+</tr>
+<tr>
+<td>node partition per arm: P_src, ΣP_sheet, P_phantom, P_surf</td>
+<td>e.g. 4.336252680e-02 W (without)</td>
+<td>10 ⇒ 1e-8</td>
+<td><code>:6354</code>, <code>:6357</code></td>
+</tr>
+<tr>
+<td>node NEG per arm</td>
+<td>7.0154e-03 / 7.0153e-03</td>
+<td>5 ⇒ 1e-3</td>
+<td><code>:6354</code>, <code>:6357</code></td>
+</tr>
+<tr>
+<td>(P_w) per arm and sense: P_src, ΣP_sheet, P_phantom, P_rod, P_surf; blind</td>
+<td>e.g. 8.664505689e-02 W; 7.0298e-03</td>
+<td>10 ⇒ 1e-8; 5 ⇒ 1e-3</td>
+<td><code>:6355–6356</code>, <code>:6359–6360</code></td>
+</tr>
+<tr>
+<td>(T3) q_without, q_with, dq, fold per drive; ccw dq / fold</td>
+<td>e.g. 2.3050242690e-01+2.5875400976e-01j</td>
+<td>11 ⇒ 1e-9</td>
+<td><code>:6361–6363</code></td>
+</tr>
+<tr>
+<td>|q_with / q_without| P17 / P21 / ccw</td>
+<td>2.233475 / 2.308146 / 2.304690</td>
+<td>7 ⇒ 1e-5</td>
+<td><code>:6361–6363</code></td>
+</tr>
+<tr>
+<td>C1 miss, C2 miss per drive</td>
+<td>1.9933 / 1.9932; 0.9306 / 0.9305</td>
+<td>5 ⇒ 1e-3</td>
+<td><code>:6361–6362</code></td>
+</tr>
+<tr>
+<td>R_cov; C3 whole-ball miss</td>
+<td>108.143 mm; 8.3070e-05</td>
+<td>6 ⇒ 1e-4; 5 ⇒ 1e-3</td>
+<td><code>:6364–6365</code></td>
+</tr>
+<tr>
+<td>tip rows (6): SAR1g without / with</td>
+<td>e.g. 5.774083444e-04 / 2.196670608e-03 W/kg</td>
+<td>10 ⇒ 1e-8</td>
+<td><code>:6366–6371</code></td>
+</tr>
+<tr>
+<td>tip rows: Q; masses; η_z; M_cf; est; Q/est</td>
+<td>e.g. 3.804362; 0.980607 g; 0.918468; 2.905124; 2.749796; 1.383507</td>
+<td>7 / 6 / 6 / 7 / 7 / 7</td>
+<td><code>:6366–6371</code></td>
+</tr>
+<tr>
+<td>a₁g</td>
+<td>6.2035 mm</td>
+<td>5 ⇒ 1e-3</td>
+<td><code>:6372</code></td>
+</tr>
+<tr>
+<td>SAR10g(c*) without / with; with/without − 1</td>
+<td>4.877452318e-03 / 4.796853846e-03 W/kg; −1.6525e-02</td>
+<td>10; 5</td>
+<td><code>:6373</code></td>
+</tr>
+<tr>
+<td>remesh move; rod move</td>
+<td>1.2408e-02; 3.5593e-04</td>
+<td>5 ⇒ 1e-3</td>
+<td><code>:6374</code></td>
+</tr>
+<tr>
+<td>P_rod (with, ccw); P_rod / P_phantom</td>
+<td>6.809682718e-07 W; 8.3070e-05</td>
+<td>10; 5</td>
+<td><code>:6375</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Excluded from record equality.</strong> These are round-off readings, asserted at their bands only and printed beside their line:
+- (A0r) rel 0, (P_RC) 1.067e-12 / 1.064e-12, (P_w) rel, (Lin), (T3) rel 8.428e-13 / 1.954e-13 / 2.357e-13, (Σ_P) 0, and the coverage power / mass misses.
+- <strong>P_rest on every line.</strong> It is a subtraction p_total − p_phantom (3.458288996e-09 against a 4.1e-03 total on the without node line), so run-to-run noise of ≈ 1e-13 is amplified ≈ 1e6× past its 1e-8 tolerance. P_rod, a direct integral, carries that physics instead.
+- Wall times and RSS are never records.</p>
+<p><strong>(1) Anchor — the gate's, asserted at the imported bands.</strong> The assert lines are the gate's own (<code>:422</code>, <code>:435–437</code>, <code>:476–479</code>, <code>:506</code>, <code>:533</code>, <code>:537–538</code>, <code>:743</code>, <code>:836–847</code>), which run in the repeated body. Each prints in W1b's format beside its <code>REC</code> entry.</p>
+<table>
+<thead>
+<tr>
+<th>Anchor</th>
+<th>Assertion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(A0r)</td>
+<td>cells &lt; <code>F_HUMAN_KEPT_ROD_CELL_GUARD</code>; |cells / <code>F_HUMAN_KEPT_ROD_CELL_RECORD</code> − 1| ≤ <code>CELL_COUNT_BAND</code>; <code>_census_checks</code> clean; tag-403 cells &gt; 0</td>
+</tr>
+<tr>
+<td>(M0)</td>
+<td>DG0 σ / εᵣ on owned 403 cells, min = max: 800 / gel εᵣ (with), gel σ / εᵣ (without)</td>
+</tr>
+<tr>
+<td>masks</td>
+<td>lead and 3 mm tip-ball counts &gt; 0, disjoint</td>
+</tr>
+<tr>
+<td>feeds</td>
+<td>32 ports in order; P17 / P21 90° apart within <code>AZIMUTH_MATCH_DEG</code>; slots 0 / 4</td>
+</tr>
+<tr>
+<td>(P_RC)</td>
+<td>node partition per arm ≤ <code>DISCRETE_IDENTITY_RTOL</code></td>
+</tr>
+<tr>
+<td>(P_w)</td>
+<td>ccw / cw per arm ≤ <code>DISCRETE_IDENTITY_RTOL</code></td>
+</tr>
+<tr>
+<td>(T3)</td>
+<td>|fold_d − Δq_d| ≤ <code>DISCRETE_IDENTITY_RTOL</code>·|Δq_d| for d ∈ {P17, P21}</td>
+</tr>
+<tr>
+<td>(Σ_P)</td>
+<td><code>mean_sar</code> (solver σ, tag 3) against the partition's P_phantom, per arm, ≤ <code>EXACT_IDENTITY_RTOL</code></td>
+</tr>
+<tr>
+<td>coverage</td>
+<td>whole-phantom ball (σ₃) power and mass per arm ≤ <code>EXACT_IDENTITY_RTOL</code>; R_cov &lt; <code>F_HUMAN_RING_RADIUS − CONDUCTOR_CLEARANCE_M</code></td>
+</tr>
+</tbody>
+</table>
+<p>(S_rep) is <strong>not</strong> among them: it is W1a's anchor on item 358's mesh, cited at <code>20261011T200648Z_IMP-3-step8-W1a-repro.log:6297</code>, and this example does not build that mesh.</p>
+<p><strong>Example-side anchors (asserted; imported bands only).</strong> Each is an exact identity on this window's own fields.
+- <strong>(L)₀ / (L)_w: the DG0 phantom-loss maps sum to the partition.</strong> <code>loss = _dg0_vec(0.5 * arm["sigma"] * ufl.inner(E_ccw, E_ccw) * ufl.conj(v) * dx(PHANTOM_CELL_TAG))</code> is <code>mri:17</code>'s form (<code>:396–397</code>). Its owned sum, reduced, equals <code>arm["parts"]["ccw"]["p_phantom"]</code> within <code>EXACT_IDENTITY_RTOL</code>, for both arms. This is <code>mri:17</code>'s (X1) (asserted at <code>:559</code>), which read 2.220e-16 / 6.661e-16 on this family's 369 387-cell mesh (<code>20261017T033328Z_EX-127.log:6235</code>). It is unmeasured on the rod mesh, so a red stops the slot.
+- <strong>(L-rod): the rod's own loss map sums to P_rod.</strong> The same form on <code>dx(BIRDCAGE_IMPLANT_CELL_TAG)</code> with the with arm's solver σ, owned sum reduced, equals <code>arm_w["parts"]["ccw"]["p_rod"]</code> within <code>EXACT_IDENTITY_RTOL</code>. The integrand is the gate's <code>p_rod</code> (<code>:677</code>).
+- <strong>(B) Ball masks (structural).</strong> The two 1 g masks (gel cells whose midpoint is within a₁g of <code>TIPS[tip]</code>) have reduced counts &gt; 0 and contain no tag-403 cell.</p>
+<p><strong>(2) Negative controls (rule (e)).</strong>
+- <strong>The gate's, as the gate wired them (asserted):</strong> C1 (Hermitian read-back, conj(w)) and C2 (total-field fold, E_with) each miss &gt; <code>DISCRETE_IDENTITY_RTOL</code> (<code>:843</code>). The predicted factors are printed beside W1b's (<code>PRED_C1</code> (0.10, 2.00), read 1.9933 / 1.9932; <code>PRED_C2</code> (0.80, 1.05), read 0.9306 / 0.9305).
+- <strong>Newly asserted, backed by W1b on the same comparison, fixture and mesh.</strong> The gate printed these because none had a prior (ruling (3)); W1b is now that prior.
+  - <strong>Node NEG per arm</strong> ≥ <code>BLIND_FACTOR</code> × <code>DISCRETE_IDENTITY_RTOL</code>, the P_surf-blind miss of (P_RC). W1b read 7.0154e-3 / 7.0153e-3 (<code>:6354</code>, <code>:6357</code>), ≈ 700× above the bar. Its ceiling is P_surf / P_src ≈ 7e-3. The bar is the one the gate's W1a asserts (<code>:335</code>).
+  - <strong>C3</strong> (the with-arm whole ball computed with the solver σ instead of σ₃) misses by &gt; <code>EXACT_IDENTITY_RTOL</code>. W1b read 8.3070e-05 = P_rod / P_phantom (<code>:6365</code>, <code>:6375</code>). Only "&gt; band" is asserted; the equality with P_rod / P_phantom is printed.
+  - <strong>(Cq) Q &gt; 1 on all six tip rows</strong> (top / bottom × ccw / P17 / P21). W1b's minimum is 1.647872 (P17 bottom, <code>:6370</code>); the rows are at <code>:6366–6371</code>. This asserts a sign, not a band, as <code>EX-122</code>'s (Cq) and <code>EX-83</code> did.
+- The review may relabel any of the three as printed.</p>
+<p><strong>Printed only (predictions written in the script before window 3; no band).</strong> All from numpy masks over owned gel cells, reduced, ccw, using the two arms' σ₃ local SAR on the shared mesh:
+- <strong>Tip-near map ratio.</strong> Over gel cells within 1.0 mm of each tip: count, max and volume-weighted mean of SAR_with / SAR_without. Predicted max &gt; Q_top,ccw (3.804): pointwise exceeds the 1 g average. No ceiling is claimed.
+- <strong>Shaft shadow.</strong> Over gel cells with 1.0 mm &lt; distance to the rod axis &lt; 2.0 mm and |z| &lt; 5 mm: the volume-weighted mean ratio. Predicted in [0, 1): the conductor shorts E_z along its shaft, and η_z,ccw = 0.918.
+- <strong>Far field.</strong> Over gel cells more than 30 mm from the rod axis: the volume-weighted mean ratio. Predicted in [0.97, 1.03]. ΔSAR10g(c*) at ≈ 30.4 mm read −1.65 %.
+- <strong>Price:</strong> the gate phases (build, both arms, tip balls), the DG0 maps, XDMF, figure, <code>_rss_gib</code> summed, and the window. Labelled "degree 1, one σ rod, tuned copper F-human at the rod-free root: SAR values are not an absolute, a tip-ratio accuracy or a compliance figure".</p>
+<p><strong>Outputs.</strong> All written after the asserts.
+- <strong>Setup figure</strong> with <code>mri:18</code>'s call shape (<code>:267–290</code>):
+  - names: air 2 hidden, phantom <code>PHANTOM_CELL_TAG</code> translucent, <code>CONDUCTOR_CELL_TAG</code> "conductor (hole route: void)", 403 "rod sigma = 800 S/m (tag 403)";
+  - port boxes: "feed P17 (0 deg)", "feed P21 (90 deg)", all other gaps "C_in + 0.2 Ohm gap";
+  - <code>slice_normal=(0, 1, 0)</code> through <code>slice_origin=(0, 0, 0)</code>, which cuts the rod's axis at x = 15 mm;
+  - title ≤ 130 characters, e.g. "imp:10 -- sigma = 800 S/m rod in the tuned copper F-human gel phantom, two-port 90 deg drive (IMP-3 step 8)".
+  - Over 600 KiB ⇒ re-render once with <code>show_edges_on_slice=False</code>.
+- <strong>Combined XDMF</strong> <code>examples/implants/paraview_output/implants_10_sigma_rod_in_tuned_f_human_tip_sar_combined.xdmf</code> via <code>write_xdmf_with_tags(path, msh, cell_tags, export, comm=comm)</code>. DG0, real, each key equal to its Function's <code>name</code>:
+  - <code>SAR_local_without_ccw_per_W</code> and <code>SAR_local_with_ccw_per_W</code>: each arm's (L) loss / (ρ·vol) on tag-3 cells, divided by that arm's own ccw P_src (<code>mri:17</code>'s <code>:593–594</code> construction);
+  - <code>SAR_local_with_over_without_ccw</code>: their ratio where the without loss &gt; 0, else 0, computed in numpy;
+  - <code>rod_loss_density_with_ccw_per_W</code>: the (L-rod) vector / vol on tag-403 cells, divided by P_src (W/m³ per W);
+  - <code>one_gram_ball_top</code>, <code>one_gram_ball_bottom</code>, <code>tf_probe_ball</code> (χ_b, the 3 mm (T3) ball).
+  - Then call <code>adopt_host_ownership(OUTPUT_DIR, comm=comm)</code>.
+- <strong>CSV</strong> <code>…_tip_rows.csv</code> in the same <code>paraview_output/</code>, on rank 0 after every collective: tip, drive, SAR1g without, SAR1g with, Q, mass, η_z, M_cf, est, Q/est (the six gate rows).
+- <strong>Guide.</strong>
+  - What a material-switched implant buys: one mesh, so the cellwise ratio is meaningful, unlike <code>imp:3</code> / <code>imp:9</code>.
+  - Why the tip enhances and the shaft shadows.
+  - Q against the <code>IMP-2</code> estimate η_z·M_cf + (1 − η_z), and why P17 alone (η_z 0.459) reads Q ≈ 1.7 while ccw reads 3.8.
+  - The adjoint fold (T3): Δq from one held solve, LOAD·Δσ·∫χ_lead w·E_without, against the with-arm solve, and C1 / C2 as the conjugation and total-field traps.
+  - Why σ₃ rather than the solver σ (C3).
+  - That C_in is the rod-free root (no re-tune).
+  - A ParaView recipe: threshold <code>CellTags</code> = 3, slice y = 0 on <code>SAR_local_with_over_without_ccw</code> (log scale), add the threshold <code>CellTags</code> = 403 coloured by <code>rod_loss_density_with_ccw_per_W</code>, then Plot Over Line along x = 0.015, y = 0.
+  - One sentence in <code>## 2</code>: <code>./scripts/run_examples.sh -e imp:10 -n 8 -t 590</code>, heavy, the measured wall time.
+  - <strong><code>Related</code></strong>, by full filename: <code>examples/implants/03_rod_in_birdcage_tip_sar.md</code>, <code>examples/implants/07_lead_tf_in_the_coil.md</code>, <code>examples/implants/09_pec_disc_in_birdcage_rim_sar.md</code>, <code>examples/mri/17_f_human_tuned_quadrature_b1_sar.md</code>, then <code>tests/validation/test_imp3_f_human_tuned_rod.py</code>, <code>tests/mesh/test_birdcage_implant_rod_f_human.py</code>, <code>tests/validation/test_wf9_lead_in_coil_phantom.py</code>.
+  - States plainly: degree 1, one fixture, one σ rod, no tip-ratio accuracy, no heating, no compliance. Write <code>≈</code>, never a tilde.
+- <strong>Docrefs (the <code>EX-115</code> item 477 lesson).</strong> The guide names no output file but the combined XDMF, its <code>.h5</code>, the CSV and the setup PNG. <strong>The node record is named as <code>NODE_JSON</code> in prose, never by its <code>.json</code> filename.</strong> Before the census windows, <code>grep -nE "\.(json|msh|bp|npz)\b" examples/implants/10_sigma_rod_in_tuned_f_human_tip_sar.md</code> must read nothing.</p>
+<p><strong>(3) Tier and windows.</strong> Heavy, <code>-n 8</code>, complex build.</p>
+<p><strong>One arm, one window.</strong> The example runs W1b's body only.
+- W1a (156 s) is cited, not run. Its (S_rep) is a reproduction on a different mesh, which <code>mri:17</code> and <code>mri:28</code> already show in-window.
+- Running it as well would put the window at ≈ 510 s on a normal host.
+- <strong>No split exists.</strong> (T3) needs E_without, E_with and w in one process, and every window needs the 177 s kept-rod build (gmsh). A split would cost two builds and lose (T3).</p>
+<p><strong>Price (from W1b <code>:6376</code>).</strong> The window was 319.4 s: build 177.1 s, without arm 53.6 s, with arm 42.7 s, tip balls 28.1 s, and ≈ 18 s for (T3), coverage and SAR10g. On top of that:
+- the import and start-up, ≈ 10 s;
+- four DG0 loss vectors plus three masks, ≈ 1–15 s (<code>mri:28</code>'s maps read 0.2 s warm, <code>20261017T033328Z_EX-127.log:6238</code>);
+- the seven-field XDMF on 436 541 cells, ≈ 10 s;
+- the figure, flagged, ≈ 5 s (<code>mri:28</code> 4.4 s).</p>
+<p><strong>The run of record is predicted at ≈ 350 s harness, range [300, 560] s</strong>, runner <code>-t 590</code>. Summed RSS is predicted ≈ 11.5–12 GiB (W1b 11.49), ≤ 14 GiB.</p>
+<p><strong>The host-speed risk, stated plainly.</strong>
+- <code>GEO-38</code> item 485's window was killed at 590 s with gmsh at 431 s against 295–310 s on the same geometry (+39 %, <code>docs/testing/attempts.md:1725</code>). <code>EX-125</code> ran ≈ 1.9× slow at 2026-10-17 05:10Z.
+- At +39 % on the build alone, the window reads ≈ 420 s. At 1.7× on the whole window it reaches 590 s.
+- <strong>So window 3 uses §5.1's durable-capture idiom</strong> verbatim inside the container command, with the trailing <code>; exit $rc</code>. A kill parks the item; it never raises <code>-t</code> or <code>-n</code>.</p>
+<p><strong>Windows.</strong> Each runs in the foreground with Bash <code>timeout: 660000</code>, as one bare, whole, repo-relative harness call.
+0. <strong>Pre-checks.</strong>
+   - <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0 (two heavy windows never at once).
+   - Confirm no <code>xl</code> / <code>xxl</code> window is live by reading the last rows of <code>docs/testing/xl-ledger.md</code> / <code>xxl-ledger.md</code> with the Read tool, never a shell command naming that service.
+   - <code>ls -la logs/wf10/h9p-node-118.2437.json</code> must exist; absent ⇒ BLOCKED.
+   - Confirm <code>examples/implants/10_*</code> does not exist.
+1. Pre-censuses, run before any file is written:
+   - <code>scripts/testing/run_and_log.sh EX-128-pre-figures "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_setup_figures.py'"</code>
+   - <code>scripts/testing/run_and_log.sh EX-128-pre-docrefs "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py'"</code></p>
+<p>The last reading on <code>main</code> at drafting was <code>examples=123 ok=123 missing=0 broken=0</code> (<code>20261017T051854Z_EX-125-post-figures.log:159</code>) and <code>dead=0 guide=0 stale=132</code> exit 2 (<code>20261017T051857Z_EX-125-post-docrefs.log:172</code>). <strong><code>EX-127</code> (item 505, parked) may land first and make it 124.</strong> Use what the pre-census reads, and state the census as before / after measured. Exit 2 is staleness information; exit 1 is a failure.
+2. Dry run, after the script exists: <code>scripts/testing/run_and_log.sh EX-128-dryrun "./scripts/run_examples.sh -e imp:10 -n 8 -t 590 --dry-run"</code>. It must print <code>(complex build)</code>.</p>
+<p>2b. <strong>Tail smoke</strong> (standard, <code>-n 2</code>, ≈ 30 s; the <code>EX-127</code> trap's guard).
+   - The script puts everything after the asserts (DG0 fields, map readings, XDMF, CSV, the final prints; not the figure) in one function <code>_outputs(comm, msh, cell_tags, arrays, rows, basename)</code>.
+   - Under <code>FEM_EM_EX128_TAIL_SMOKE=1</code> it calls only that function, then exits 0 printing <code>tail smoke ok</code>. The inputs are <code>dolfinx.mesh.create_unit_cube(comm, 4, 4, 4)</code>, cell tags of 3 with 403 on cells within 0.15 of the cube centre, synthetic positive loss arrays, and synthetic tip rows. The basename is <code>implants_10_tail_smoke</code>, in the gitignored <code>paraview_output/</code>.
+   - <code>scripts/testing/run_and_log.sh EX-128-tail-smoke "docker compose exec -T -e FEM_EM_EX128_TAIL_SMOKE=1 fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src timeout -k 30 120 mpiexec -n 2 python3 examples/implants/10_sigma_rod_in_tuned_f_human_tip_sar.py'"</code>
+   - It must read Status 0 and <code>tail smoke ok</code>. A red here is fixed before window 3; rule (i) binds only from window 3.
+3. Run of record, labelled <code>EX-128</code>, flagged. This is the emitted inner command, with <code>-T</code>, the flag and the durable capture:
+   <code>scripts/testing/run_and_log.sh EX-128 "docker compose exec -T -e FEM_EM_SETUP_FIGURES=1 fem-em-solver bash -lc 'cd /workspace &amp;&amp; mkdir -p /workspace/logs &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src timeout -k 30 590 mpiexec -n 8 python3 examples/implants/10_sigma_rod_in_tuned_f_human_tip_sar.py &gt; /workspace/logs/EX-128-raw.log 2&gt;&amp;1; rc=\$?; echo [capture] rc=\$rc &gt;&gt; /workspace/logs/EX-128-raw.log; cat /workspace/logs/EX-128-raw.log; exit \$rc'"</code></p>
+<p>Pass means all of the following:
+   - Status 0 and <code>[capture] rc=0</code>;
+   - every gate anchor, (L)₀ / (L)_w / (L-rod), (B) and every asserted control green;
+   - every covered record inside its tolerance;
+   - the closing "All assertions hold" line.</p>
+<p>If the dry run's inner string differs from the above in anything but the flag and the capture, use the dry run's and say so.
+4. <code>git add</code> the PNG and check that it is ≤ 600 KiB. <strong>No unflagged control re-run</strong> (<code>EX-122</code>'s ruling; a second ≈ 6-minute window buys no identity).
+5. Write the guide from window 3's log and run the docrefs grep above. Then <code>EX-128-post-figures</code> and <code>EX-128-post-docrefs</code> (the window 1 commands, relabelled). <strong>Prediction first:</strong> figures N → N + 1, <code>missing=0 broken=0</code>; docrefs <code>dead=0</code>, exit ≠ 1. Any dead reference naming <code>implants_10_*</code> or <code>10_sigma_rod_in_tuned_f_human_tip_sar.md</code> fails the item.
+6. <code>git status --porcelain examples/ tests/ src/</code> lists exactly the three new <code>examples/</code> paths.
+7. The pre-commit leak guard runs on the staged logs.</p>
+<p><strong>(4) Traps already paid for.</strong>
+- <strong>The rank-0 tail (<code>EX-127</code> item 505, 2026-10-17).</strong> <code>write_xdmf_with_tags</code> returns <code>(None, None)</code> on every rank but 0 (<code>src/fem_em_solver/io/paraview_utils.py:192–194</code>). <code>mri:28</code> printed <code>xdmf_path.name</code> outside <code>if rank0:</code>, so ranks 1–7 raised <code>AttributeError</code> after every assertion was green (<code>20261017T033328Z_EX-127.log:6278–6287</code>), rank 0 hung to Status 124, and the slot parked.
+  - Discard that return value. Print the path built locally from <code>OUTPUT_DIR / f"{BASENAME}_combined.xdmf"</code>.
+  - A rank-0 printer (<code>_say</code>, <code>P</code>) still <strong>evaluates its f-string on every rank</strong>: no rank-0-only object (that return value, an un-<code>bcast</code> point evaluation, a rank-0 CSV handle) may appear inside one.
+  - Window 2b exercises exactly this tail at <code>-n 2</code>.
+- <strong>Gate fidelity.</strong> The body is repeated verbatim; never reorder <code>_arm</code>, the without-then-with order, <code>_free(solver)</code> between arms, or the held ℓ solve on the with-arm P17 factorisation. A held solve under a different termination silently solves a different problem (<code>PORT-19</code>, <code>WF-12</code>), and the wall and every sheet go into both factorisations. Only one factorisation is alive at a time (<code>_free</code>).
+- <strong>Unmapped kept cells silently become vacuum</strong> (<code>WF-9.md:262</code>). <code>_build_f_human_rod</code> maps 403 to the gel, and (M0) is the guard. Never build the mesh any other way.
+- <strong>σ₃, never the solver σ, for every SAR ball, the coverage and the SAR maps.</strong> The kept σ = 800 S/m rod sits inside every whole-phantom ball and within the tip balls' reach. C3 is the measured miss. The maps restrict to <code>dx(PHANTOM_CELL_TAG)</code>, where solver σ = σ₃.
+- <strong><code>ufl.inner</code> conjugates its second argument.</strong> q, the fold, C2 and every field reading use <code>ufl.dot</code> or components (the gate's lines, unchanged). The loss form is <code>inner(E, E)·conj(v)</code>, as <code>mri:17</code>.
+- <strong>Read <code>NODE_JSON</code> before the build</strong> (<code>_read_record</code> does this first). The rod arm never rewrites it. Any other <code>logs/</code> write is the raw capture only.
+- <strong>Complex build.</strong> <code>.x.array</code> is complex: masks and ratios are built in numpy from midpoints, <code>np.real</code> comes before every <code>float</code>, and there is no UFL comparison, <code>max_value</code> or <code>sqrt</code>. Every Function is named (<code>EX-79</code>).
+- <strong>Collectives.</strong> Every rank enters every <code>mass_averaged_sar</code> / <code>mean_sar</code> / <code>evaluate_vector_field_parallel</code> call (item 227's deadlock). Ball centres go in as plain floats. Map counts, sums and maxima are owned-only and reduced; an empty set reduces as 0 / −inf, never a rank-local <code>max()</code> of an empty array. No collective goes inside a <code>rank == 0</code> branch (the <code>EX-115</code> item 456 crash). A rank-local exception hangs the job, and Status 124 is a finding, never a retry.
+- <strong>Record subtraction noise.</strong> P_rest is excluded (above). Never add a subtraction-derived quantity to <code>REC</code>.
+- <strong>The private-leak guard (<code>EX-112</code>).</strong> The copper F-human has private AED counterparts (<code>ANS-8</code>). Every new value prints at ≤ 6 significant digits; only the gate's own <code>_say</code> lines carry W1b's digits, which are already tracked. Never print an S, Z or Y array with <code>repr</code>. If the guard fires: never bypass it and never edit a log; move the flagged logs unchanged into <code>logs/leak-held/</code>, commit the rest, mark item 508 BLOCKED, journal the <code>log:line</code> (never the figure), and stop.
+- <strong>Harness shape.</strong> Bare, whole command. <code>./scripts/run_examples.sh</code> runs host-side; take its line from <code>--dry-run</code>, and never wrap the script itself in <code>docker compose exec</code>. A docker-socket denial ⇒ stop and report the exact string. Never raise a timeout or <code>-n</code>. After Status 124 or a kill, run <code>pgrep -c python3</code> first, and only if it reads 0, the orphan-<code>.c</code> cache sweep (daily-review.md rubric 4) labelled <code>EX-128-cache-sweep</code>.
+- <strong>Rule (i):</strong> no script edit after window 3 starts, and no guide edit after window 5 starts. Check mtimes before committing.</p>
+<p><strong>(5) Scope boundary.</strong> One fixture:
+- I21a's kept-rod copper (Leontovich) F-human hole mesh, 436 541 cells, degree 1, κ off, 64 MHz, <code>-n 8</code>;
+- r = 0.2 Ω on all 32 gaps; the two-port 90° drive at the <strong>rod-free</strong> root C_in = 118.2437 pF;
+- one σ = 800 S/m capped rod (r = 1 mm, ℓ = 30 mm, axis ẑ, centre (0.015, 0, 0)) in the gel phantom;
+- ccw maps.</p>
+<p>Not claimed:
+- an accurate tip ratio (no published comparand until (7c); <code>ANS-10</code> is the accuracy route);
+- a PEC, insulated or real lead;
+- ISO 10974 or ASTM F2182;
+- heating;
+- absolute, tuned-coil or pointwise SAR;
+- compliance;
+- degree 2 or h-convergence (the 5.50 % human-scale order caveat, <code>WF-7</code> step 0b);
+- f₀, Q, match or a re-tune with the rod in;
+- C16 or the mirror;
+- (S_rep) on 358's mesh (W1a, cited);
+- AED, Palace or any external check.</p>
+<p><code>IMP-3</code>, <code>WF-9</code>, <code>WF-10</code>, <code>EX-83</code>, <code>EX-109</code> and <code>EX-122</code> do not move.</p>
+<p><strong>(6) What a negative result means.</strong> Report and stop: journal it in <code>docs/testing/attempts.md</code>, park on <code>attempt/EX-128-&lt;UTC&gt;</code>, and mark item 508 BLOCKED with the unblock condition in the same commit (rule (d)). <code>EX-128</code> stays ⬜. Never widen a band, never edit <code>tests/</code> or <code>src/</code>, and never re-record from the example side.
+- <strong>(A0r), (M0) or a mask check red:</strong> the kept-rod build moved on <code>main</code> (a mesher or image change). Print cells beside <code>:6350</code> and file a known-issues entry; never re-band.
+- <strong>(P_RC), (P_w), (T3), (Σ_P) or coverage red:</strong> <code>main</code> no longer reproduces the gate. Print the line beside its W1b line; known-issues entry.
+- <strong>A covered record off its tolerance:</strong> an example / gate divergence or a drifted <code>main</code>. Print the first differing value beside its <code>log:line</code>.
+- <strong>(L)₀, (L)_w or (L-rod) red:</strong> an example-side finding about the DG0 assembly on the rod mesh. Print both sides.
+- <strong>NEG, C3 or (Cq) not separating with the records inside tolerance:</strong> not possible, since they are the same numbers. If it happens, the control's code is wrong: BLOCKED.
+- <strong>Window 2b red:</strong> fixed before window 3 (not a park).
+- <strong>Leak guard fires:</strong> BLOCKED as in the traps, not ✅.
+- <strong>A defect after every assertion is green</strong> (figure, XDMF or CSV; the <code>EX-114</code> / <code>EX-127</code> shape): BLOCKED with the <code>log:line</code>, returned to the review. No in-slot fix after window 3.
+- <strong>Status 124, over 590 s, or past minute 28 before window 3:</strong> park with the last line of the raw capture log. The shrink is the review's: the figure into a separate item, or the P17 / P21 tip rows printed from fewer balls. Never raise <code>-t</code>.
+- Every printed map ratio is a reading, never a red.</p>
+<p>There is no <code>PREDICTED RED:</code> line, so any red stops the slot.</p>
+<p><strong>(7) Status it can move.</strong> <code>EX-128</code> ⬜ → ✅ under the §7 Done-when that the review pastes in the same commit as this item (rule (j)). The figures census rises by one from its measured pre-census value, with <code>missing=0 broken=0</code>, and docrefs read <code>dead=0</code>. <code>IMP-3</code> (its step-8 record stands), <code>WF-9</code>, <code>WF-10</code> and §2 are unchanged.</p>
+<p><strong>Execution order.</strong> pre-checks (pgrep 0, ledgers, <code>NODE_JSON</code>, <code>10_</code> free) → pre-censuses → script → dry run → tail smoke (2b) → pgrep 0 → run of record (3) → PNG check → guide + docrefs grep → post-censuses → porcelain check → leak guard → commit (script, guide, PNG, harness logs, the §7 row and the §9 DONE line together) → journal.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Use the example-runner agent to execute <code>EX-128</code>, §9 item 508 (<code>docs/planning/chunks/EX-128.md</code>, heading <code>§9 item 508</code>).
+- Read the brief and any review ruling beneath it first; the rulings hold.
+- You are the executor — do not spawn agents. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Never background a window. Run every window in the foreground, pass <code>timeout: 660000</code> on every harness Bash call, and never delete a log.
+- Window 3 uses §5.1's durable-capture idiom verbatim inside the container command, with container <code>timeout -k 30 590</code>. An overrun parks the item — never raise a timeout or <code>-n</code>.
+- Before window 1, run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> and require 0. Confirm no heavy, <code>xl</code> or <code>xxl</code> window is live (read the ledgers with the Read tool). Confirm <code>logs/wf10/h9p-node-118.2437.json</code> exists; if it is absent, stop and mark item 508 BLOCKED — never re-run 358. Run both pre-censuses before writing any file. Check that <code>examples/implants/10_*</code> is free.
+- Edit nothing under <code>tests/</code> or <code>src/</code>. Import <code>tests/validation/test_imp3_f_human_tuned_rod.py</code> as a module and call <code>_read_record</code>, <code>_load</code>, <code>_build_f_human_rod</code>, <code>_ball_mean_closed_form_tag3</code>, <code>_c_star</code>, <code>_say</code> and <code>_in</code> unchanged. Repeat <code>_run_rod</code>'s body (<code>0e7d3abd</code>, lines 410–847, imports 341–408) verbatim with provenance; never call <code>_run_rod</code>, <code>_run_repro</code> or any <code>test_*</code> name. Take every band through the gate's import lines, and assert nothing at a band the gate did not use.
+- Every rank enters every ball and point-evaluation call. Every count and sum is owned-only and reduced. No UFL comparison or <code>sqrt</code>; no collective inside a <code>rank == 0</code> branch. Discard <code>write_xdmf_with_tags</code>' return value; no rank-0-only object inside any f-string. Run the tail smoke (window 2b) green before window 3.
+- Print every new value at ≤ 6 significant digits. If <code>check_private_leak.py</code> blocks a log, move it unchanged to <code>logs/leak-held/</code>, mark item 508 BLOCKED (not ✅) and stop. The guide names the node record only as <code>NODE_JSON</code>, never by its filename.
+- Emit the runner line with <code>--dry-run</code> and pass it to the harness. Never wrap <code>run_examples.sh</code> in <code>docker compose exec</code>.
+- No edit to the script after window 3 starts, or to the guide after window 5 starts.
+- If the docker socket is denied, stop and report the exact command string. On a red, park on <code>attempt/EX-128-*</code>, mark item 508 BLOCKED in the same commit, and report.
+- Return the windows' log names, every asserted and printed value beside its record (log:line) or prediction, the census before / after with the docrefs <code>dead=</code> list, peak memory and elapsed."</p>
+<p><strong>Outcome 2026-10-17 04:30 CDT slot: BLOCKED (window 3 ran; a script defect after every assertion was green).</strong> <code>20261017T095121Z_EX-128.log</code>: Status 1, <code>[capture] rc=1</code>, 358 s harness, window 354.4 s (<code>:6276</code>), summed RSS 11.09 GiB. All gate lines and records matched W1b (max relative 2.48e-05, <code>:6277–6287</code>); node NEG 701.5x the bar, C3, (Cq) min Q 1.6479, (L)_0 / (L)_w / (L-rod) and (B) green (<code>:6288–6296</code>). The tip-near reading print then raised <code>UnboundLocalError</code> on <code>_x</code> (the f-string argument was evaluated before the call that binds it), so no XDMF, CSV or figure was written. No in-slot fix after window 3 (rule (i)); script parked on <code>attempt/EX-128-20261017T0957Z</code> (<code>c1a9512b</code>). Pre-censuses: figures <code>examples=124 ok=124 missing=0 broken=0</code> (<code>20261017T094827Z_EX-128-pre-figures.log:160</code>), docrefs <code>dead=0 guide=0 stale=133</code> exit 2 (<code>20261017T094832Z_EX-128-pre-docrefs.log:173</code>). Post-censuses not run. Re-pose: fix the <code>_reading</code> call ordering, re-run window 3, then guide and censuses.</p>
+<h3 id="review-ruling-2026-10-17-0300-item-508-overrides-the-brief-and-its-spawn-prompt-where-they-differ">Review ruling 2026-10-17 03:00 (item 508; overrides the brief and its spawn prompt where they differ)<a class="headerlink" href="#review-ruling-2026-10-17-0300-item-508-overrides-the-brief-and-its-spawn-prompt-where-they-differ" title="Permanent link">&para;</a></h3>
+<p>(1) <strong>Queued:</strong> no example shows an implant in the human-scale tuned coil. <code>implants:03</code> / <code>:09</code> are F-small, and <code>implants:07</code> excludes the F-human and a tuned coil (<code>07_lead_tf_in_the_coil.md:97</code>). (2) <strong>Copy <code>_run_rod</code>'s body with provenance; no rule (a) lift.</strong> A lift would need a second heavy W1b re-gate in the same hour. (3) <strong>Window 2b (the tail smoke) and the <code>FEM_EM_EX128_TAIL_SMOKE</code> mode are dropped.</strong> A user-facing example carries no test mode. The guard is the static rule instead: discard <code>write_xdmf_with_tags</code>' return value, keep every rank-0-only object out of every f-string, and before window 3 read the script's output tail line by line against <code>EX-127</code>'s <code>:603</code> defect. (4) <strong>Node NEG per arm, C3 and (Cq) Q &gt; 1 on the six tip rows are asserted.</strong> W1b measured the same comparisons on the same fixture (<code>20261011T200932Z_IMP-3-step8-W1b-rod.log:6354</code>, <code>:6357</code>, <code>:6365–6371</code>; smallest Q 1.648), so rule (e) allows it. (5) <strong>(L) / (L-rod) are discrete identities</strong> (the DG0 loss map integrates to P by construction) asserted at the imported <code>EXACT_IDENTITY_RTOL</code>. A red is reported, never re-banded in-slot. (6) <strong>(S_rep) is cited, not run</strong> (<code>…W1a-repro.log:6297</code>). (7) <strong>A 590 s kill parks the item.</strong> The next review re-poses it (figure split out, then fewer tip balls) and never raises <code>-t</code>. Two heavy windows never run at once. The <code>xxl</code> window (H26) runs on its own service. Before window 3, confirm it has finished or check host load with <code>pgrep</code>, and say which you did. (8) The selector is <code>imp:10</code>, as <code>EX-122</code> used <code>imp:9</code>.</p>
+<h3 id="9-item-512-2026-10-17-example-54-ramp-re-pose-of-item-508-example-runner">§9 item 512 — 2026-10-17 (example, §5.4 ramp, re-pose of item 508; example-runner)<a class="headerlink" href="#9-item-512-2026-10-17-example-54-ramp-re-pose-of-item-508-example-runner" title="Permanent link">&para;</a></h3>
+<p><em>Written by the 2026-10-17 10:30 daily review.</em> Everything in item 508's brief and its 2026-10-17 03:00 ruling holds except where this section differs. Family count: attempt 2 of 4.</p>
+<ul>
+<li><strong>Diagnosis (read from the log and the parked script).</strong> Window 3 (<code>20261017T095121Z_EX-128.log</code>, Status 1, 358 s) was green through every gate and example assertion: gate lines <code>:6234–6276</code> match W1b; REC groups max rel 2.48e-05 (<code>:6277–6287</code>); node NEG, C3, (Cq) (<code>:6288–6291</code>); (L)₀ / (L)_w / (L-rod) (<code>:6292–6294</code>); (B) balls (<code>:6295–6296</code>). Then every rank raised <code>UnboundLocalError: … '_x'</code> (<code>:6297–6357</code>). The cause is in the parked script (<code>attempt/EX-128-20261017T0957Z</code>, <code>c1a9512b</code>, <code>:841–851</code>): the <code>predicted</code> argument of <code>_reading(label, sel, predicted)</code> is an f-string that tests <code>_x</code> / <code>_m</code>, and Python evaluates it <strong>before</strong> <code>_reading</code> returns them. On the first call <code>_x</code> is unbound, which is the crash. On the shaft and far calls the same pattern would silently read the <strong>previous</strong> reading's <code>_m</code>, which is a wrong IN / OUT verdict, not a crash. This is the same class as <code>EX-127</code>'s <code>:603</code>: an f-string evaluated before the value it names exists on that rank or at that time.</li>
+<li><strong>What changes.</strong></li>
+<li>Take the parked script by path: <code>git checkout attempt/EX-128-20261017T0957Z -- examples/implants/10_sigma_rod_in_tuned_f_human_tip_sar.py</code>. This is code, not an append-only record, so a path checkout is safe.</li>
+<li><strong>The one fix.</strong> <code>_reading</code> takes the prediction as a text prefix plus a predicate on <code>(mean, mx)</code>, and builds the <code>IN</code> / <code>OUT</code> word <strong>after</strong> its reductions. The three call sites pass <code>lambda m, x: x &gt; q_top_ccw</code>, <code>lambda m, x: 0.0 &lt;= m &lt; 1.0</code> and <code>lambda m, x: 0.97 &lt;= m &lt;= 1.03</code>, with the prefix text unchanged. Each printed line must read exactly as the parked script intended, with the verdict computed on its own reading.</li>
+<li>Read script <code>:812–918</code> line by line, after the fix and before window 3, for any other expression that names a value before it is assigned, or names a rank-0-only object outside <code>if rank0:</code>. <code>xdmf_name</code> is a plain string built on every rank, and <code>csv_path</code> is built on every rank; both are safe. Fix any such expression the same way.</li>
+<li>Nothing else changes: no anchor, band, record, prediction range, mask or other print text. Disclose the diff in the commit; it is expected to touch only <code>_reading</code> and its three calls.</li>
+<li><strong>Windows.</strong> Item 508's windows in order, with the 03:00 ruling's drop of the tail smoke:</li>
+<li>pre-censuses as <code>EX-128-pre-figures-2</code> / <code>EX-128-pre-docrefs-2</code>. <code>main</code> read <code>examples=125 ok=125 missing=0 broken=0</code> and <code>dead=0 stale=133</code> exit 2 after <code>EX-129</code> (<code>20261017T110540Z_EX-129-post-figures.log:161</code>, <code>…110541Z_EX-129-post-docrefs.log:173</code>). Use whatever the pre-census reads.</li>
+<li>dry run as <code>EX-128-dryrun-2</code>.</li>
+<li>window 3 with item 508's exact command (chunk file line 201).</li>
+<li>PNG check, guide, post-censuses and the leak guard.
+  The PNG is generated by window 3 (<code>FEM_EM_SETUP_FIGURES=1</code>).</li>
+<li><strong>Price.</strong></li>
+<li>Window 3's measured body is 354.4 s at <code>-n 8</code> (<code>:6276</code>) and the harness took 358 s. The tail is the XDMF, CSV and setup figure: <code>EX-127</code>'s tail at the same width added ≈ 10 s.</li>
+<li>Predicted harness ≈ 375 s, range [330, 560] s, <code>-t 590</code> unchanged. The 03:00 ruling (7) holds: a 590 s kill parks the item and never raises <code>-t</code>.</li>
+<li>Slot cost: ≈ 8.2 measured / ≈ 40 predicted slot-minutes (fix ≈ 3, window ≈ 7, guide ≈ 8, censuses and commit ≈ 6, spare).</li>
+<li>Park if window 3 has not started by minute 25.</li>
+<li><strong>Anchor (unchanged).</strong> Item 508's set: (A0r), (M0), masks, (P_RC) / (P_w) per arm, (T3) P17 / P21, (Σ_P), coverage, records at 10^-(d−2) beside <code>20261011T200932Z_IMP-3-step8-W1b-rod.log:6350–6376</code>; example-side (L) / (L-rod) at <code>EXACT_IDENTITY_RTOL</code>, (B). Window 3 of item 508 read them green, and this run must reproduce them to the records' tolerances.</li>
+<li><strong>Negative control (unchanged, asserted, backed).</strong> Node NEG per arm, C3, (Cq) Q &gt; 1 on the six tip rows (<code>…W1b-rod.log:6354</code>, <code>:6357</code>, <code>:6365–6371</code>; item 508's window 3 read the minimum Q as 1.6479 at <code>:6291</code>).</li>
+<li><strong>Traps (added).</strong> An f-string argument is evaluated at the call, before the callee runs: a verdict that depends on the callee's result is built inside it or after it, never in the argument list (this item's cause). The pre-check is <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> = 0, and no <code>xl</code> / <code>xxl</code> window is live. Tonight's <code>xl</code> runs at 02:00, so a slot before 18:00 does not meet it. Every other trap of item 508 holds.</li>
+<li><strong>Scope boundary.</strong> Item 508's Not-claimed list, unchanged. The three tip / shaft / far readings stay printed only, with no band.</li>
+<li><strong>Negative result.</strong> Any red other than a repeat of the <code>_x</code> defect:</li>
+<li>park on <code>attempt/EX-128-*</code> and mark item 512 BLOCKED in the same commit with the <code>log:line</code>;</li>
+<li>report it. Attempt 3 of 4 is the next review's.
+  A second tail defect after all-green is handled the same way, and named. A reading outside its printed prediction range is a printed <code>OUT</code>, not a red.</li>
+<li><strong>Status it can move.</strong> <code>EX-128</code> ⬜ → ✅ under its §7 Done-when (unchanged); figure census +1, <code>broken=0</code>; docrefs <code>dead=0</code>. On success, delete <code>attempt/EX-128-20261017T0957Z</code> in the same slot after the commit.</li>
+</ul>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Use the example-runner agent to execute <code>EX-128</code>, §9 item 512 (<code>docs/planning/chunks/EX-128.md</code>, headings <code>§9 item 508</code> and <code>§9 item 512</code>; item 512 and the 2026-10-17 03:00 review ruling override item 508 where they differ). You are the executor — do not spawn agents. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Never background a window; pass <code>timeout: 660000</code> on every harness Bash call; never delete a log. Before window 1, run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> and require 0, and confirm no heavy, <code>xl</code> or <code>xxl</code> window is live (read the ledgers and <code>logs/inflight/</code> with the Read tool / ls). Take the script from <code>attempt/EX-128-20261017T0957Z</code> by path; make only the <code>_reading</code> fix item 512 names (the verdict built after the reductions, via a predicate) and anything the line-by-line read of <code>:812–918</code> finds of the same class, and disclose the diff. Edit nothing under <code>tests/</code> or <code>src/</code>. Window 3 is item 508's exact command with durable capture and <code>timeout -k 30 590</code>; an overrun parks the item — never raise a timeout or <code>-n</code>. No edit to the script after window 3 starts, or to the guide after the guide's census window starts. Print every new value at ≤ 6 significant digits; if <code>check_private_leak.py</code> blocks a log, move it unchanged to <code>logs/leak-held/</code>, mark item 512 BLOCKED and stop. If the docker socket is denied, stop and report the exact command string. On a red, park on <code>attempt/EX-128-*</code>, mark item 512 BLOCKED in the same commit, and report. On success, delete the branch <code>attempt/EX-128-20261017T0957Z</code> in the same slot after the commit. Return the windows' log names, every asserted and printed value beside its record (log:line), the census before / after with the docrefs <code>dead=</code> list, peak memory and elapsed."</p>
+<h3 id="review-note-2026-10-17-1800-audit-of-item-512">Review note — 2026-10-17 18:00 (audit of item 512)<a class="headerlink" href="#review-note-2026-10-17-1800-audit-of-item-512" title="Permanent link">&para;</a></h3>
+<p><strong>Item 512 DONE 2026-10-17 12:00 CDT slot (<code>e7c5797b</code>); <code>EX-128</code> ✅, audit PASS.</strong>
+- <strong>Run of record:</strong> <code>20261017T171502Z_EX-128.log</code>.
+  - Status 0; 316 s harness. The example itself prints 317.8 s (<code>:6310</code>), a clock-rounding difference that does not move the tier.
+  - "All assertions hold" (<code>:6311</code>); <code>[capture] rc=0</code> (<code>:6312</code>).
+  - The node NEG is 701.5× its bar (<code>:6288</code>).
+  - The largest record difference against W1b is 2.48e-05 (<code>:6287</code>).
+- <strong>The gate body is byte-identical to the gate module:</strong> script <code>:165–671</code> equals <code>tests/validation/test_imp3_f_human_tuned_rod.py:341–847</code> at <code>0e7d3abd</code>.
+- <strong>The fix against the parked <code>c1a9512b</code> is only the <code>_reading</code> predicate</strong> (<code>:827–853</code>).
+- <strong>Censuses:</strong> figures 125 → 126, <code>broken=0</code>; docrefs <code>dead=0</code>, exit 2.</p>
+<p><strong>One wording note, no status change.</strong> Guide Step 1 says the gate lines match W1b "digit for digit". Round-off lines differ in the last digit, e.g. (P_RC) 1.060e-12 against 1.067e-12. The records match at their 10^-(d−2) tolerance, which is what the row claims.</p>
+<h2 id="7-row-moved-verbatim-2026-10-17-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-17 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-17-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p><strong>A σ = 800 S/m rod in the tuned copper F-human's gel phantom under the two-port drive: with / without on one mesh, the tip 1 g ratio, the adjoint fold at human scale, and the local-SAR ratio map</strong> (<code>imp:10</code>; <code>example-runner</code>; opened 2026-10-17 03:00 daily, §5.4 ramp from <code>IMP-3</code> step 8 (§10 I21b, §9 item 381), §9 item 508; <code>imp:3</code> / <code>imp:9</code> are F-small, <code>imp:7</code> excludes F-human and a tuned coil) <em>(history: <code>docs/planning/chunks/EX-128.md</code>)</em> <strong>Done-when:</strong> <code>examples/implants/10_sigma_rod_in_tuned_f_human_tip_sar.py</code> + same-stem guide (three required headings + <code>## Setup figure</code> + <code>## Related</code>, PNG ≤ 600 KiB); complex, <code>-n 8</code>, <code>_run_rod</code>'s body repeated with provenance (<code>0e7d3abd</code>, <code>:410–847</code>) through <code>_build_f_human_rod</code> / <code>_read_record</code> unchanged (kept-rod mesh, degree 1, κ off, r = 0.2 Ω, C_in 118.2437 pF); no <code>tests/</code> or <code>src/</code> edit; every band imported. Asserted beside <code>20261011T200932Z_IMP-3-step8-W1b-rod.log:6350–6376</code>: (A0r), (M0), masks, (P_RC) / (P_w) per arm, (T3) P17 / P21, (Σ_P), coverage; records at 10^-(d−2). Example-side: (L) DG0 loss maps = P_phantom per arm, (L-rod) = P_rod. Controls: C1 / C2 wired; node NEG, C3, (Cq) Q &gt; 1 on six tip rows (backed, <code>:6354–6371</code>). Printed: tip / shaft / far map ratios. Combined XDMF + tip CSV. A leak-blocked log ⇒ BLOCKED. Census +1, <code>broken=0</code>, docrefs <code>dead=0</code>, elapsed recorded ⇒ ✅. Not claimed: tip-ratio accuracy, other leads, heating, absolute SAR, compliance, degree 2, h, f₀ / Q with the rod in, an external check. | ✅ <strong>DONE 2026-10-17 (17:00 UTC slot, §9 item 512, attempt 2 of 4; audit PASS 2026-10-17 18:00 review).</strong> <code>20261017T171502Z_EX-128.log</code>: Status 0, <code>[capture] rc=0</code>, 316 s harness, example window 317.8 s (<code>:6310</code>), summed RSS 10.92 GiB, "All assertions hold" (<code>:6311</code>). Gate lines <code>:6234–6276</code> match W1b; REC groups max relative 2.48e-05 (<code>:6277–6287</code>); node NEG 701.5× the bar, C3 8.307e-05, (Cq) min Q 1.6479 (<code>:6288–6291</code>); (L)₀ / (L)_w / (L-rod) 0 / 1.33e-15 / 5.88e-15 (<code>:6292–6294</code>); (B) (<code>:6295–6296</code>); tip-near / shaft / far readings all IN (<code>:6297–6300</code>). Figures census 125 → 126, <code>missing=0 broken=0</code>; docrefs <code>dead=0</code>, exit 2. Fix to the parked script: the <code>_reading</code> verdict built from a predicate after its reductions. </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,663 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-163 — mri:36: tune a saved human-scale birdcage with no second solve — the 32-port copper F-human through Study.load_result - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-163-mri36-tune-a-saved-human-scale-birdcage-with-no-second-solve-the-32-port-copper-f-human-through-studyload_result" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-163 — mri:36: tune a saved human-scale birdcage with no second solve — the 32-port copper F-human through Study.load_result
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-690-2026-10-28-example-54-ramp-from-wf-16-step-15-u100-chain-u-9d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 690 — 2026-10-28 (example; §5.4 ramp from WF-16 step 15 / U100′; chain U, 9d)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-163-mri36-tune-a-saved-human-scale-birdcage-with-no-second-solve-the-32-port-copper-f-human-through-studyload_result">EX-163 — <code>mri:36</code>: tune a saved human-scale birdcage with no second solve — the 32-port copper F-human through <code>Study.load_result</code><a class="headerlink" href="#ex-163-mri36-tune-a-saved-human-scale-birdcage-with-no-second-solve-the-32-port-copper-f-human-through-studyload_result" title="Permanent link">&para;</a></h1>
+<p><em>History file for the §7 <code>EX-163</code> row (<code>OPS-46</code>). Opened by the 2026-10-28 10:30 daily review under daily-review.md step 5's example ramp, from <code>WF-16</code> step 15 / U100′ (§9 item 685, <code>81f25e92</code>), the gate the 03:00 review named as owed ("after 685 lands: an <code>mri:</code> example of a saved human-scale tune").</em></p>
+<ul>
+<li><strong>U100's gates</strong> (<code>20261028T004356Z_WF-16-s15-W1.log</code>, code byte-identical on <code>main</code> per item 685): <code>:7348</code> cells 369 387, solve 227.9 s at <code>-n 8</code>; <code>:7352</code> (S0) class-level spies 0 / 0; <code>:7353</code> (CM) loaded <code>C_mode</code> 1.181185799070e-10 F vs <code>WF12_STEP3_C_MODE_CU_F</code>, rel 3.421e-13 (<code>REDUCTION_BAND</code> 1e-3); <code>:7354</code> (T=) loaded vs in-memory rel 1.110e-14; <code>:7356</code> the P1 ↔ P2 swapped file misses by 4.254907e-01 (<code>LEG_D0_REPRODUCTION_BAND</code> 1e-9). Footer Status 0, 232 s.</li>
+<li><strong>No example loads a saved human-scale result.</strong> <code>mri:35</code> (<code>EX-160</code>) loads a four-port; <code>mri:20</code> builds the F-human from YAML for heat, with no Touchstone. The angle is <strong>geometry</strong>: the same capability at human scale (32 ring-gap ports, Leontovich copper, <code>n_slots=16</code>), where a solve costs ≈ 4 minutes at 8 ranks and the load costs seconds.</li>
+</ul>
+<p><strong>Gap check.</strong> At execution, <code>grep -rl "s32p" examples --include=*.py</code> must be empty (window 0).</p>
+<p><strong>Done-when.</strong>
+- <code>examples/mri/36_tune_a_saved_human_scale_result.py</code> and its same-stem guide <code>.md</code> exist.
+- <code>./run_examples.sh -e mri:36 -n 8 -t 540</code> exits 0 with every gate below asserted.
+- Bands and helpers imported by name; no gate-module or <code>src/</code> edit.
+- A combined XDMF under <code>examples/mri/paraview_output/</code> holding the mesh's cell tags and σ (DG0). <strong>No field</strong> is exported: a second 32-column <code>keep_fields</code> sweep would double the window (U100's solve is 228 s), and a loaded result has no field by design. Say so in the guide.
+- A setup figure.
+- Census +1, figures <code>missing=0</code>, docrefs <code>dead=0</code>.</p>
+<h3 id="9-item-690-2026-10-28-example-54-ramp-from-wf-16-step-15-u100-chain-u-9d">§9 item 690 — 2026-10-28 (example; §5.4 ramp from <code>WF-16</code> step 15 / U100′; chain U, 9d)<a class="headerlink" href="#9-item-690-2026-10-28-example-54-ramp-from-wf-16-step-15-u100-chain-u-9d" title="Permanent link">&para;</a></h3>
+<p><strong>Licence.</strong> Daily-review.md step 5. No band or target is set or moved.</p>
+<p><strong>What the example does.</strong>
+1. One copper F-human solve with U100's Study and <code>write_touchstone</code> to a <code>.s32p</code> under <code>examples/mri/paraview_output/</code> (gitignored output, never committed), plus the in-memory <code>tune(1, n_slots=16)</code>.
+2. A fresh Study: <code>load_result(path)</code> + <code>tune(1, n_slots=16)</code>.
+3. The swapped-port copy (ports 1 ↔ 2 in the data, names kept) loaded into a third fresh Study and tuned.
+4. The XDMF and the setup figure from the solved Study's mesh.</p>
+<ul>
+<li><strong>Imports (check every name exists before writing the script; never import a <code>test_*</code> function name):</strong></li>
+<li><code>_study</code>, <code>WF12_STEP3_C_MODE_CU_F</code>, <code>RECORD_RANK_WIDTH</code> from <code>tests.package.test_wf16_study_tune_f_human_copper</code>;</li>
+<li><code>_write_named</code>, <code>_swap12_n</code>, <code>N_SLOTS</code> from <code>tests.package.test_wf16_load_result_f_human</code>;</li>
+<li><code>REDUCTION_BAND</code> from <code>tests.validation.test_port_lumped_rlc_termination</code>;</li>
+<li><code>LEG_D0_REPRODUCTION_BAND</code> from <code>tests.validation.test_port_birdcage_four_port</code>.</li>
+<li>Assert <code>comm.size == RECORD_RANK_WIDTH</code> (8) first, as U100's fixture does (<code>test_wf16_load_result_f_human.py:178</code>).</li>
+</ul>
+<p><strong>Gates (asserted; bands imported).</strong>
+- <strong>(CM)</strong> the loaded <code>C_mode</code> = <code>WF12_STEP3_C_MODE_CU_F</code> within <code>REDUCTION_BAND</code> (record rel 3.421e-13).
+- <strong>(T=)</strong> loaded = in-memory within <code>REDUCTION_BAND</code> (record 1.110e-14). No <code>float.hex</code> equality: Touchstone text round-trips at ≈ 6e-14.
+- <strong>(S0)</strong> class-level spies on <code>Study.solve</code> and <code>Study._solve_ports</code> read 0 calls on the fresh Study (U100's pattern, <code>:193–210</code>; restore them before step 3's own load, which also must not solve).
+- <strong>(c-sw), asserted:</strong> the swapped file misses <code>WF12_STEP3_C_MODE_CU_F</code> by &gt; <code>LEG_D0_REPRODUCTION_BAND</code> (record 0.4254907). If <code>tune</code> raises <code>ValueError</code> on the swapped file, that counts as a miss, printed as U100 does (<code>:238–240</code>).
+- Every <code>allreduce</code> on a scalar uses <code>comm.allreduce(x, op=MPI.MAX)</code> with a Python float, never a numpy array (<code>EX-158</code>'s crash: <code>allreduce(array, op=MPI.MAX)</code> → "truth value of an array is ambiguous").</p>
+<p><strong>Printed only.</strong> The solve seconds beside the load + tune seconds; the file's 32 port names in order; the off-block residual, loaded vs in-memory.</p>
+<p><strong>Guide (<code>36_tune_a_saved_human_scale_result.md</code>).</strong> Use <code>mri:35</code>'s headings. Explain:
+- why the human-scale case is where saving the matrix pays (the solve's minutes against the load's seconds, both printed);
+- what <code>n_slots=16</code> means on 32 ring-gap ports;
+- why the swapped file misses;
+- that a loaded result has no field, so the XDMF carries σ and the tags only.</p>
+<p>Related: <code>mri:35</code>, <code>docs/guide/tuning_a_saved_result.md</code>. Write <code>≈</code>, never a tilde.</p>
+<p><strong>Executor:</strong> <code>example-runner</code>. <strong>Tier:</strong> heavy, complex, <code>-n 8</code>.
+- <strong>Prediction:</strong> U100's W1 took 232 s, of which the solve was 227.9 s; with the swap tune, the XDMF and the figure, ≈ 260–330 s. Use <code>-t 540</code>, with <code>-k 30</code> on every container <code>timeout</code>. 8 ranks is within the 12-core ceiling. Run it only with <code>pgrep -c python3</code> reading 0, and never beside another heavy window.
+- <strong>Class:</strong> example. <strong>Cost:</strong> ≈ 6.0 measured / 30 predicted slot-minutes. <strong>Depends on:</strong> nothing. <strong>Family:</strong> <code>EX-163</code>, attempt 1 of 4.</p>
+<p><strong>Windows.</strong> As <code>EX-160.md</code>, with the label <code>EX-163</code>, the group <code>mri:36</code>, <code>-n 8</code> and <code>-t 540</code>:
+1. the gap grep and census-pre;
+2. <code>--dry-run</code>, logged as its own window, which must print <code>(complex build)</code>; <strong>commit that log</strong> (the 10-26 weekly flagged two example runs with no committed dry-run log);
+3. the run, after <code>pgrep -c python3</code> reads 0;
+4. census-post;
+5. figures;
+6. docrefs.</p>
+<p><strong>Traps already paid for.</strong>
+- <code>EX-158</code>'s array <code>allreduce</code> (above). A deterministic crash in non-gate example code after every gate printed may be fixed and re-run once at the same <code>-t</code>, first log kept and disclosed (§9 digest, 2026-10-28 03:00); a timeout or size kill parks the item.
+- <code>EX-159</code>'s census label drift: read the census numbers from the logs, never from another listing.
+- The setup figure on a 369 k-cell mesh: draw the gated mesh; hide the air; the phantom translucent; slice through the coil mid-plane (z = 0) so the ring-gap ports survive the clip.
+- Rank-local <code>cell_tags.values</code>: gather before naming regions (<code>mri:35</code>'s <code>:206–208</code>).
+- A spawned executor runs every window foreground with Bash <code>timeout: 660000</code>; a container <code>timeout</code> above ≈ 600 s is unrunnable.</p>
+<p><strong>Scope.</strong> A saved 32-port matrix tunes with no solve, as an example. <strong>Not claimed:</strong> a 64-port (F-clinical) load, a field from a loaded file, degree 2, any resonance / Q / match statement.</p>
+<p><strong>Negative result.</strong> Any gate red ⇒ report the measurement and park on <code>attempt/EX-163-*</code>, BLOCKED. A red (CM) with green (T=) would mean the record moved, not the load; never edit the band. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>EX-163</code> ⬜ → ✅; the census +1.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Execute <code>EX-163</code> (§9 item 690) per <code>docs/planning/chunks/EX-163.md</code> "§9 item 690". Import every band and helper by name; edit no test module and nothing in <code>src/</code>. Commit the dry-run log. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Run every window in the foreground with Bash <code>timeout: 660000</code>; never background a harness window and never return while one is running."</p>
+<p><strong>Outcome (2026-10-28, 12:00 CDT slot, attempt 1 of 4) — DONE, green.</strong> Executor: the example-runner, foreground. <strong>Run</strong> <code>20261028T170623Z_EX-163.log</code> (<code>-n 8</code>, complex build per <code>20261028T170619Z_EX-163-dry-run.log</code>, Status 0, 238 s harness / 234.6 s in-script, <code>FEM_EM_SETUP_FIGURES=1</code>): <code>:7232</code> 369 387 cells, solve 231.0 s; <code>:7233</code> (S0) 0 / 0, load + tune 0.003 s; <code>:7234</code> (CM) loaded <code>C_mode</code> 1.181185799070e-10 F, rel 3.691e-13 of <code>WF12_STEP3_C_MODE_CU_F</code> (<code>REDUCTION_BAND</code> 1e-3); <code>:7235</code> (T=) rel 1.554e-14, off-block 4.195925e-03 loaded and in-memory; <code>:7236</code> 32 ports <code>P17</code>…<code>P48</code>; <code>:7237</code> (c-sw) swapped file misses by 4.254907e-01 (C 1.683769323767e-10 F; record 0.4254907; <code>LEG_D0_REPRODUCTION_BAND</code> 1e-9). No band, test module or <code>src/</code> edit; the XDMF carries cell tags + σ only. <strong>Census</strong> (predicted 159 → 160, <code>dead=0</code>, <code>stale=159</code>, exit 2; measured as predicted): <code>20261028T170526Z_EX-163-census-pre.log</code> / <code>20261028T171054Z_EX-163-census-post.log</code> (<code>mri:36</code> listed at <code>:79</code>); figures <code>20261028T171055Z_EX-163-figures.log:35</code> <code>examples=160 ok=160 missing=0 broken=0</code>; docrefs <code>20261028T171057Z_EX-163-docrefs.log:199</code> <code>dead=0 guide=0 stale=159 exit=2</code> (pre-run <code>20261028T170528Z_EX-163-docrefs-pre.log</code>, same exit 2). Setup PNG 550 KiB. No committed non-setup artifact under <code>examples/</code>, so <code>LISTED_EXAMPLE_ARTIFACTS</code> is unchanged.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

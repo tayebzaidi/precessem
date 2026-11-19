@@ -1,0 +1,639 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>OPS-69 — docrefs dead=2: the ans9 SPEC names private results files - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ops-69-docrefs-dead2-the-ans9-spec-names-private-results-files" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              OPS-69 — docrefs dead=2: the ans9 SPEC names private results files
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-336-2026-10-08-ops-docs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 336 — 2026-10-08 (ops / docs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ops-69-docrefs-dead2-the-ans9-spec-names-private-results-files">OPS-69 — docrefs dead=2: the ans9 SPEC names private results files<a class="headerlink" href="#ops-69-docrefs-dead2-the-ans9-spec-names-private-results-files" title="Permanent link">&para;</a></h1>
+<p><em>Opened 2026-10-08 by the 18:00 daily review, under §9 rule (5) lane 1 (an open known-issues entry whose own "Resolves it" a slot can execute). Documentation only: no solve, no <code>src/</code> change, no checker change.</em></p>
+<p><strong>Proposed §7 row.</strong> <code>OPS-69</code> | docrefs <code>dead=2</code>: the <code>ans:9</code> SPEC names gitignored private results files | ⬜ The known-issues entry "2026-10-08 — 🟡 OPEN (found by <code>EX-89</code> …) — the examples docrefs census reads <code>dead=2</code>, <code>exit=1</code> on clean <code>main</code>" (<code>known-issues.md</code> ≈ :816) traces both dead references to <code>examples/ansys_benchmarks/ans9_coil_driven_gel_heating_10MHz/SPEC.md</code> :36 / :38, which the operator's commit <code>4d4d93c5</code> added. Those lines name two gitignored JSON files in <code>aed_results/</code> as filenames. <strong>Done-when:</strong> those SPEC lines (and the script name on :39, the same class) are reworded so that they form no filename token. The meaning is kept, no number is added, and the change is disclosed in the SPEC, the commit and the journal. Then the census reads <code>dead=0</code> and <code>exit != 1</code> (W1, after W0 read <code>dead=2 … exit=1</code>), the checker's module goes green with its planted-dead fixtures still exiting 1 (W2), and the entry is re-marked RETIRED in place (W3 dry-run lists it closed) ⇒ ✅. | smoke</p>
+<h3 id="9-item-336-2026-10-08-ops-docs">§9 item 336 — 2026-10-08 (ops / docs)<a class="headerlink" href="#9-item-336-2026-10-08-ops-docs" title="Permanent link">&para;</a></h3>
+<p><strong>Executor:</strong> implementer. The slot may execute it directly. <strong>Tier:</strong> smoke, no MPI. There are four bare harness windows, each a few seconds: the census measured <code>Elapsed (s): 1</code> (<code>20261008T173603Z_EX-89-item332-post-docrefs.log</code>, footer), and the checker's unit module took 12.25 s for 24 tests together with a second module (<code>20261007T003811Z_ANS-7-item288-pin.log:488</code>). <strong>Cost:</strong> ≈ 4 measured / 20 predicted min. In the ops / docs class, <code>OPS-68</code> measured 5 min against 25 min predicted.</p>
+<p><strong>Anchor.</strong> The census's <code>RESULT:</code> line, from <code>scripts/testing/check_example_doc_references.py</code> (exit-code contract <code>OPS-19</code>: 0 clean, 1 hard violation, 2 stale-only).
+- <strong>Before:</strong> <code>20261008T173603Z_EX-89-item332-post-docrefs.log:98</code> reads <code>RESULT: dead=2 guide=0 stale=56 stale_severity=report exit=1</code>. The two dead references are listed at <code>:36–38</code>: <code>ans9_aed_results.json</code> [<code>SPEC.md:36</code>] and <code>ans9_corrected_rows.json</code> [<code>SPEC.md:38</code>]. The last clean reading is <code>20261008T004224Z_EX-102-post-docrefs.log:96</code> (<code>dead=0 … exit=2</code>).
+- <strong>After:</strong> <code>dead=0</code>, <code>guide=0</code>, <code>exit != 1</code>. Expect <code>exit=2</code>, because <code>stale=56</code> is staleness only and is not this item's to clear. <code>stale</code> must not move because of this edit: compare W0 and W1 within the same hour.
+- <strong>Second identity (W2):</strong> <code>tests/unit/test_doc_reference_exit_codes.py::test_current_tree_is_free_of_hard_violations_and_obeys_the_contract</code> asserts <code>counts["dead"] == 0</code> on the committed tree (<code>:124</code>). That test is red on <code>main</code> by construction now and must go green.</p>
+<p><strong>What counts as a reference.</strong> The checker scans every <code>*.md</code> under <code>examples/</code> except <code>*_private.md</code> (<code>:446–448</code>). On each raw line, including HTML comments, it matches <code>REFERENCE_RE</code> (<code>:120–122</code>), a filename-shaped token ending in <code>.py</code> / <code>.xdmf</code> / <code>.h5</code> / <code>.bp</code> / <code>.csv</code> / <code>.json</code> / <code>.png</code> / <code>.msh</code>. A <code>.py</code> resolves if any file with that basename exists under <code>src/ examples/ scripts/ tests/</code> <strong>on disk</strong> (<code>repo_basenames</code>, <code>:266–272</code>). An artifact resolves if git tracks it or a fresh run wrote it. A directory name such as <code>`aed_results/`</code> or the word "JSON" is not a reference.</p>
+<p><strong>The edit.</strong> <code>SPEC.md</code> is an operator-authored benchmark spec, so change the fewest words possible and disclose the change.
+1. <strong>:36–39.</strong> Replace the two JSON filenames and the script path with descriptions, for example: "(i) the raw harvest (the private results JSON in the gitignored <code>aed_results/</code>) is superseded for rows 2 / 3 / 6 by the operator's offline correction pass (its corrected-rows JSON, beside it in <code>aed_results/</code>; script: the operator's offline processing script in the gitignored <code>aed/</code>; it rescales …". Leave the rest of the parenthetical, and every other line, byte-identical.
+   - <strong>Why :39 is in scope:</strong> <code>aed/ans9_private_process_offline.py</code> resolves on this box only because the operator's untracked <code>aed/</code> directory is on disk. It is excluded by <code>.git/info/exclude:9</code>, not committed. On a fresh clone it is a third dead reference that the census here cannot see.
+2. <strong>One disclosure line</strong> directly under the bullet, in the SPEC's own indentation: <code>*(Wording of (i) changed 2026-10-xx by</code>OPS-69<code>: the private file names were replaced by descriptions so the examples docrefs census resolves this page; the files and their meaning are unchanged.)*</code> This line must contain no filename token.
+3. <strong>Check before W1:</strong> <code>git diff</code> on <code>SPEC.md</code> shows only those lines. The new text has no <code>.json</code> / <code>.py</code> token and contains no digit that was not already on the line.</p>
+<p><strong>The windows.</strong> Each harness call is the whole Bash command: bare, repo-relative, nothing chained. Use Bash <code>timeout: 660000</code>.
+- <code>OPS-69-W0</code>, <strong>before</strong> any edit, is the exact command from <code>20261008T173603Z_EX-89-item332-post-docrefs.log:12</code> with the ID changed:
+  <code>scripts/testing/run_and_log.sh OPS-69-W0 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py'"</code>
+- <code>OPS-69-W1</code>, <strong>after</strong> the SPEC edit, is the same command under <code>OPS-69-W1</code>.
+- <code>OPS-69-W2</code> runs the checker's module, which contains both the tree anchor and the planted-dead controls. The command is the form from <code>20260929T094710Z_ANS-7-item69-W3-pin-rerun.log:12</code>:
+  <code>scripts/testing/run_and_log.sh OPS-69-W2 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src timeout -k 30 60 python3 -m pytest tests/unit/test_doc_reference_exit_codes.py -s -v --tb=short'"</code>
+- <code>OPS-69-W3</code> runs <strong>after</strong> the heading re-mark. It is the exact command from <code>20261008T005620Z_OPS-68-W1.log:12</code>, with the date moved to the slot's date:
+  <code>scripts/testing/run_and_log.sh OPS-69-W3 "timeout -k 30 30 python3 scripts/maintenance/rotate_plan_archive.py known-issues &lt;slot date&gt; --dry-run"</code>. The entry must appear in its closed list. <strong>Never run the rotation itself</strong> (<code>OPS-66</code>: rotation belongs to the weekly).</p>
+<p>PREDICTED RED: OPS-69-W0 census <code>dead</code> range [2, 3] (<code>exit=1</code>; 3 only if the tree lacks the operator's <code>aed/</code> script)</p>
+<p><strong>Negative control.</strong>
+- <strong>W0 is the control for the fix.</strong> On the unedited tree it must read <code>dead=2 … exit=1</code>, naming exactly the two SPEC sites. If W0 already reads <code>dead=0</code>, the premise is wrong (someone fixed it): stop and report.
+- <strong>The checker's own control</strong> is <code>test_dead_reference_still_exits_one_after_the_split[dead-artifact|dead-script]</code> (<code>test_doc_reference_exit_codes.py:161–178</code>). Each case plants one dead reference in a temp-dir fixture and asserts <code>dead == 1</code> and exit 1. In W2 both cases must pass beside the now-green tree anchor. That separates "the references became resolvable or disappeared" from "the checker stopped seeing dead references". No checker change is allowed, so these cases guard against an accidental one.</p>
+<p><strong>Traps.</strong>
+- <strong>Never open <code>aed_results/</code>, <code>COMPARISON_private.md</code> or <code>docs/private/</code>.</strong> The edit needs only the tracked SPEC. No AED value goes anywhere.
+- Do not add the names to <code>ALLOWLIST</code> (<code>:126</code>). The review chose the reword: an allowlist entry would publish private file names inside a tracked checker, and an <code>.json</code> allowlist entry still leaves the <code>.py</code> on a fresh clone.
+- An HTML comment does not hide a filename from the census, because it scans raw lines. The disclosure line must not contain the old names.
+- <code>stale</code> can drift between windows as artifacts age. Run W0 and W1 within the same few minutes and read only <code>dead</code> / <code>guide</code> / <code>exit</code> as the anchor.
+- Write <code>≈</code>, never <code>~</code>. Bare harness calls only. <code>python3</code> on the host runs only through the harness, as in item 307's W3 form.</p>
+<p><strong>Scope.</strong> This item changes only <code>SPEC.md</code> :36–39 plus one disclosure line, the known-issues heading, and the <code>OPS-69</code> row. It does not touch the 56 stale artifacts (their examples' re-runs belong to other items), the checker, or the <code>ANS-9</code> adjudication: the weekly reads the private files under their real names. It does not move <code>ANS-9</code>'s status.</p>
+<p><strong>Negative result.</strong> If W1 still reads <code>dead &gt;= 1</code>, report the remaining reference and its site from the W1 log and stop. Do not widen the reword beyond the named lines without a review ruling. If W2's tree anchor goes green but a planted-dead case goes red, the checker regressed independently: file a known-issues entry and do not retire this one. If the dry-run tool errors in W3, retire anyway by heading (W1 + W2 carry the evidence) and record the tool error in the journal.</p>
+<p><strong>Retirement mechanics</strong> follow <code>known-issues.md</code> ≈ :728–734. Re-mark the heading <strong>in place</strong> as <code>✅ RETIRED &lt;date&gt; (OPS-69, §9 item 336) — was 🟡 OPEN 2026-10-08 (found by EX-89 …)</code>, keep the body verbatim, and add one retired-by blockquote line citing W1's <code>RESULT:</code> line and W2's footer. The weekly's <code>rotate_plan_archive.py known-issues</code> moves the body verbatim to <code>known-issues-archive.md</code> and leaves the index line. Commit the SPEC edit, the four logs, the heading re-mark, the §7 row and the journal entry together.</p>
+<p><strong>Status it can move.</strong> <code>OPS-69</code> ⬜ → ✅. The known-issues entry OPEN → RETIRED, ready for the weekly's rotation. It also makes the "docrefs <code>exit != 1</code>" done-when clause of every <code>EX-*</code> item meetable again (entry, "Consequence").</p>
+<p><strong>Review rulings (2026-10-08 18:00 review) — these outrank the brief above.</strong> (Q1) Retirement follows <code>known-issues.md</code>'s own convention: re-mark the heading RETIRED in place; the weekly's rotation moves the body. (Q2) SPEC :39 (<code>aed/ans9_private_process_offline.py</code>) is in scope — a fresh clone would read it dead. (Q3) No disclosure line inside the operator's SPEC; the change is disclosed in the commit message and the slot journal only. (Q4) No allowlist route: it would put private filenames in a tracked checker. The reword names no file and adds no number.</p>
+<p><strong>Outcome: ✅ DONE 2026-10-09 02:15Z</strong> (2026-10-08 21:00 CDT slot, take-next after item 345, attempt 1). Four windows, first run each, no checker change. W0 control (<code>20261009T021416Z_OPS-69-W0.log:98</code>, 1 s): <code>RESULT: dead=2 guide=0 stale=56 stale_severity=report exit=1</code>, naming exactly <code>SPEC.md:36</code> / <code>:38</code>. Edit: SPEC (i) :36–39 → "the raw harvest (the private results JSON in the gitignored <code>aed_results/</code>) … (its corrected-rows JSON, beside it in <code>aed_results/</code>; script: the operator's offline processing script in the gitignored <code>aed/</code>; it rescales …" — no <code>.json</code> / <code>.py</code> token, no new digit, rest of the file byte-identical, no disclosure line in the SPEC (ruling Q3). W1 (<code>20261009T021429Z_OPS-69-W1.log:96</code>, 2 s): <code>RESULT: dead=0 guide=0 stale=56 stale_severity=report exit=2</code> (<code>stale</code> unmoved). W2 (<code>20261009T021433Z_OPS-69-W2.log</code>, 13 s): 20 passed in 11.49 s — tree anchor green (<code>dead=0 … exit=2</code>), <code>[dead-artifact]</code> / <code>[dead-script]</code> each <code>dead=1 … exit=1</code>, passed. Known-issues entry re-marked RETIRED in place; W3 dry-run (<code>20261009T021502Z_OPS-69-W3.log</code>, Status 0) lists it as the 1 RETIRED entry. Rotation not run (weekly's).</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

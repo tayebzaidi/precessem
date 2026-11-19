@@ -1,0 +1,785 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-97 — A temperature from a config file: femem run on a YAML with thermal: reproduces MAT-10's records (history) - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-97-a-temperature-from-a-config-file-femem-run-on-a-yaml-with-thermal-reproduces-mat-10s-records-history" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-97 — A temperature from a config file: femem run on a YAML with thermal: reproduces MAT-10's records (history)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-297-2026-10-07-54-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 297 — 2026-10-07 (§5.4 example)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-07-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-07 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-97-a-temperature-from-a-config-file-femem-run-on-a-yaml-with-thermal-reproduces-mat-10s-records-history">EX-97 — A temperature from a config file: <code>femem run</code> on a YAML with <code>thermal:</code> reproduces <code>MAT-10</code>'s records (history)<a class="headerlink" href="#ex-97-a-temperature-from-a-config-file-femem-run-on-a-yaml-with-thermal-reproduces-mat-10s-records-history" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<p><code>EX-97</code> (<code>mri:13</code>) was opened 2026-10-07 by the 03:00 daily review under daily-review.md step 5 (§5.4 ramp). §10 chain U20 (<code>WF-1</code> step 3, §9 item 295, landed 2026-10-07 05:21Z) closed a quantitative gate: a <code>thermal:</code> section in the YAML that drives <code>Study.temperature(RobinCooling)</code> and reproduces <code>MAT-10</code>'s (A) / (P) digits. No example drives a temperature from a config file. <code>EX-93</code> (<code>mri:9</code>) is EM-only from YAML, and <code>EX-94</code> (<code>mri:10</code>) computes the temperature in Python.</p>
+<h3 id="9-item-297-2026-10-07-54-example">§9 item 297 — 2026-10-07 (§5.4 example)<a class="headerlink" href="#9-item-297-2026-10-07-54-example" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-07 03:00 daily review; the review reviews it.</em></p>
+<p><code>EX-97</code> (<code>mri:13</code>) adds four files:
+- <code>examples/mri/13_temperature_from_yaml.py</code>;
+- a same-stem guide, <code>13_temperature_from_yaml.md</code>;
+- two YAML files beside them: <code>13_temperature_from_yaml_sphere.yaml</code> and <code>13_temperature_from_yaml_sphere_control_2g.yaml</code>.</p>
+<p>The guide carries the three required headings plus <code>## Setup figure</code> and <code>## Related</code>. The setup PNG is ≤ 600 KiB.</p>
+<p>What the script does:
+- It drives <code>fem_em_solver.cli.main(["run", &lt;yaml&gt;, "--output-dir", &lt;dir&gt;])</code> in-process on the sphere file (degree 1, <code>-n 2</code>, complex) and reads the <code>temperature</code> block of the JSON summary that run writes.
+- It calls the exported <code>fem_em_solver.run_study_file</code> on the same file. That is the function <code>femem run</code> calls (<code>src/fem_em_solver/cli.py:103</code>), and it returns the temperature field that <code>cli.main</code> discards (it returns an int).
+- On that field it reads <code>MAT-10</code>'s (A) / (P) / (B) / (C) and the (IT) identity against the in-Python <code>Study.temperature</code>, the way <code>WF-1</code> step 3 reads them.</p>
+<p>Numbering and independence:
+- <code>mri:10</code>, <code>mri:11</code> and <code>mri:12</code> belong to other items. This item writes <code>mri:13</code> only.
+- It imports nothing from <code>examples/</code> and does not depend on <code>EX-94</code> landing. <code>EX-94</code> (§9 item 279) runs earlier in the same queue and may park.</p>
+<ul>
+<li><strong>Executor:</strong> <code>example-runner</code>. The executor does not spawn agents.</li>
+<li><strong>Tier:</strong> standard; <code>-n 2</code>, complex. Runner <code>-t 180</code>; container <code>timeout -k 30 180</code>.</li>
+<li><strong>Cost:</strong> ≈ 9 measured (example class median) / ≈ 45 predicted min (15 fixed + ≈ 20 script, guide and YAMLs + ≈ 10 windows).</li>
+<li><strong>Depends on:</strong> nothing open. <code>WF-1</code> step 3 is recorded (item 295, <code>20261007T051444Z_WF-1-s3-W1-thermal.log</code>). Its chain step U20 is provisional; see (5).</li>
+</ul>
+<p><strong>The YAML files.</strong> Copy <code>tests/package/wf1/sphere_mat10_thermal.yaml</code> and <code>sphere_mat10_thermal_control_2g.yaml</code> byte for byte, changing only the first (comment) line, and say so in the guide.
+- Copy by file, never by retyping. The numbers are PyYAML-1.1 floats (<code>25000000.0</code>, never <code>2.5e7</code>).
+- The script asserts each copy against its original, by spec and by cooling; see (K) below. Neither file can drift silently.
+- Never edit <code>tests/package/wf1/*</code>.</p>
+<p><strong>Imports (never restated).</strong>
+- From <code>tests.package.test_wf1_yaml_thermal</code>: <code>THERMAL_FILE</code> (<code>:83</code>), <code>CONTROL_2G_FILE</code> (<code>:84</code>), <code>MALFORMED_THERMAL</code> (<code>:85</code>), <code>_hex_diff</code> (<code>:96</code>) and <code>_cooling</code> (<code>:110</code>).
+- From <code>tests.package.test_wf1_study_yaml</code>: <code>WF1</code> (<code>:85</code>), <code>_spec_diff</code> (<code>:145</code>), <code>_fresh_dir</code> (<code>:161</code>) and <code>_rc_all</code> (<code>:167</code>).
+- From <code>tests.package.test_wf15_study_temperature</code>: <code>MAT10_SUB_CELLS</code> (<code>:81</code>), <code>MAT10_A_PRINT</code> (<code>:82</code>), <code>MAT10_P_PRINT</code> (<code>:83</code>), <code>MAT10_B_MISSING_HALF_PRINT</code> (<code>:84</code>) and <code>_theta_owned_rel</code> (<code>:100</code>).
+- From <code>tests.package.test_wf15_study_lossy_sphere</code>: <code>_study</code>.
+- From <code>tests.validation.test_mat10_sar_to_heat_sphere</code>: <code>K</code>, <code>H</code>, <code>T_INF</code>, <code>G</code>, <code>ROBIN_TAG</code>, <code>P_BAND</code>, <code>A_BAND</code>, <code>B_BAND</code>, <code>C_BAND</code> (<code>:52–62</code>), <code>_allsum</code> (<code>:70</code>), <code>_interior_indicator</code> (<code>:133</code>), <code>_theta_cf</code> (<code>:145</code>) and <code>_interior_rel</code> (<code>:151</code>).
+- From <code>tests.validation.test_lossy_sphere_sar</code>: <code>E0</code>, <code>EPSILON_R_SPHERE</code>, <code>OMEGA</code>, <code>RHO_KG_M3</code> and <code>SIGMA_HIGH</code>.
+- From <code>tests.validation.test_mat5_em_coupled_sphere</code>: <code>L0_BAND</code> (<code>:104</code>).
+- From <code>src</code>:
+  - from <code>fem_em_solver</code>: <code>RobinCooling</code>, <code>StudyConfigError</code>, <code>cli</code>, <code>load_study</code> and <code>run_study_file</code>;
+  - <code>fem_em_solver.post.sar.uniform_sphere_sar_closed_form</code>;
+  - <code>fem_em_solver.thermal.steady.solve_steady_conduction</code>, used for (P);
+  - <code>fem_em_solver.utils.constants.EPSILON_0</code>;
+  - from the <code>paraview_utils</code> writers: <code>write_xdmf_with_tags</code> and <code>adopt_host_ownership</code>;
+  - <code>write_setup_figure</code>.
+- <strong>No new number.</strong> The script has no numeric literal: k, h, T∞ and the source scale come from the YAML or the imports.
+- <strong>Arithmetic.</strong> (A) / (P) / (B) / (C) follow <code>test_wf1_thermal_yaml_reproduces_mat10_record</code> (<code>test_wf1_yaml_thermal.py:197–214</code>) term for term, so the <code>.4e</code> digits come out of the same arithmetic.
+  - That means: the closed-form q from <code>uniform_sphere_sar_closed_form</code>, scaled by <code>G · RHO_KG_M3</code>; χ from <code>_interior_indicator</code>; (P) from <code>solve_steady_conduction</code> on <code>th.submesh</code> / <code>th.facet_tags</code>; and (B) against <code>th.cooling.source_scale · study.mean_sar()["dissipated_power_w"]</code>.
+  - Never call <code>_parse_mapping</code> directly. The private route stays inside <code>_cooling</code>.</p>
+<p><strong>(1) Anchor (asserted in-script).</strong>
+- <strong>(K) spec and cooling, no solve:</strong>
+  - <code>_spec_diff(load_study(ex_yaml), load_study(THERMAL_FILE)) == []</code> and <code>_hex_diff(_cooling(ex_yaml), _cooling(THERMAL_FILE)) == []</code>;
+  - the same two checks for the control copy against <code>CONTROL_2G_FILE</code>;
+  - <code>_spec_diff(load_study(ex_yaml), _study(degree=1)) == []</code> and <code>_hex_diff(_cooling(ex_yaml), RobinCooling(K, H, T_INF, source_scale=G)) == []</code>.
+  - Record: <code>[]</code> / <code>[]</code> (<code>20261007T051444Z_WF-1-s3-W1-thermal.log:64</code>).
+- <strong>(R-cli) <code>femem run</code> writes the temperature:</strong>
+  - <code>cli.main(["run", ex_yaml, "--output-dir", &lt;cli dir&gt;])</code> returns 0 on every rank (<code>_rc_all == (0, 0)</code>).
+  - After <code>comm.Barrier()</code>, the JSON summary has <code>family == "sphere_in_box"</code>, <code>degree == 1</code>, <code>ranks == comm.size</code>, and a <code>temperature</code> block with exactly the keys <code>source_power_w</code>, <code>convected_power_w</code> and <code>theta_max_k</code>.
+  - Each of the three values is within <code>L0_BAND</code> (relative) of the <code>run_study_file</code> run's <code>run.summary["temperature"]</code>.
+  - That comparison spans two EM solves of one file, so it is held at the band, never bitwise. Predicted ≤ 1e-11, from the nearest same-fixture two-solve reading: (IT) 6.079e-12 (<code>W1:221</code>).
+  - Print the three values at <code>!r</code>. The record from item 295 is source 0.008651525642063975 W, convected 0.008651525642062842 W and θ max 0.12682242431550605 K (<code>W1:147</code>). These are printed beside the readings, not asserted.
+- <strong>(R) <code>MAT-10</code>'s records on the YAML θ (<code>run.thermal</code>):</strong>
+  - <code>run.study.result is run.result</code>, i.e. one EM solve;
+  - <code>th.submesh</code> global cells <code>== MAT10_SUB_CELLS</code> (19 496, version-tagged);
+  - <code>f"{err_A:.4e}" == MAT10_A_PRINT</code> and <code>f"{err_P:.4e}" == MAT10_P_PRINT</code>;
+  - <code>err_A ≤ A_BAND</code>, <code>err_P ≤ P_BAND</code>, <code>err_B ≤ B_BAND</code> and <code>err_C ≤ C_BAND</code>.
+  - Record (<code>W1:149</code>): (A) 3.2463961444e-02 [3.2464e-02], (P) 3.1923343273e-03 [3.1923e-03], (B) 6.817e-15, (C) 1.309e-13.
+  - The <code>.4e</code> strings sit ≥ 5e-7 relative from a rounding edge, far above the ≈ 1e-11 two-solve spread.
+- <strong>(IT) YAML vs Python:</strong>
+  - Build <code>_study(degree=1)</code>, solve it, then call <code>.temperature(RobinCooling(K, H, T_INF, source_scale=G))</code>.
+  - Assert <code>_theta_owned_rel(run.thermal.temperature, th_py.temperature, comm)[0] ≤ L0_BAND</code>.
+  - Record 6.079e-12 (<code>W1:221</code>).</p>
+<p><strong>(2) Negative controls (rule (e)).</strong>
+- <strong>(c1) asserted: the missing ½, through the control YAML.</strong>
+  - Apply <code>_cooling(&lt;control copy&gt;)</code> (<code>source_scale</code> 2G) to <code>run.study</code>, which is already solved, so there is no second EM solve: <code>run.study.result is run.result</code> still holds.
+  - Compute the (A) comparator on that call's own submesh against <code>_theta_cf(th2.submesh, q_cf)</code>.
+  - Assert <code>c1 &gt; A_BAND</code>. Print <code>f"{c1:.4e}"</code> beside <code>MAT10_B_MISSING_HALF_PRINT</code>, and <code>.10e</code> too (review ruling 2026-10-07 03:00: the <code>.4e</code> string equality is printed, not asserted — only four digits were ever logged, so its distance from a rounding edge is unknown).
+  - Backing, the same comparison on the same fixture: 1.0649e+00 (<code>20261007T051444Z_WF-1-s3-W1-thermal.log:150</code>; also <code>20261006T035826Z_WF-15-s2-W1-deg1.log:250</code>).
+  - <strong>Ceiling.</strong> With q doubled, the comparator is ‖2θ_h − θ‖ / ‖θ‖ ≈ 1 + 2e, where e is the signed degree-1 bias ≈ +0.032. So an exact solver reads 1.0, which is 9.1× <code>A_BAND</code>, and this fixture reads ≈ 1.065, which is 9.7×. The assertion asks only for &gt; 1×.
+  - The YAML being controlled is not the one under test. That is why it is a file beside the example: one value differs (<code>_hex_diff</code> names <code>['source_scale']</code> only, <code>W1:64</code>).
+- <strong>(c1′) printed, not asserted:</strong> <code>th2.source_power / th.source_power</code>, predicted 2 to ≤ 1e-12 by linearity. No prior measurement exists.
+- <strong>(X) asserted: thermal on a port geometry.</strong> Use <code>WF1 / "malformed_thermal_on_port.yaml"</code>, with no solve:
+  - <code>load_study</code> raises <code>StudyConfigError</code> whose <code>.field == MALFORMED_THERMAL["malformed_thermal_on_port.yaml"]</code> (<code>thermal</code>);
+  - <code>cli.main(["run", …])</code> and <code>cli.main(["check", …])</code> each return 2 on every rank;
+  - the output dir does not exist afterwards.
+  - Backing, the same file at <code>-n 2</code>: <code>W1:66</code> (field <code>'thermal'</code>) and <code>W1:69</code> (run / check rc (2, 2), out exists False).
+  - <code>malformed_thermal_k_zero.yaml</code> is not shown. <code>WF-1</code> step 3 gates it, and one refusal suffices here.</p>
+<p><strong>(3) Windows.</strong> Each Bash call that runs a window is foreground, passes <code>timeout: 660000</code>, and makes one bare, whole, repo-relative harness call, with nothing chained or piped. The executor never backgrounds a window and never returns while one is running.
+0. <strong>Pre-flight.</strong> U20 still stands: <code>_parse_thermal</code> exists in <code>src/fem_em_solver/study_yaml.py</code> and <code>tests/package/test_wf1_yaml_thermal.py</code> is on <code>main</code>. Otherwise see (5).
+   - Orphan check: <code>docker compose exec -T fem-em-solver pgrep -c python3</code> must read 0.
+   - Then run the rubric's cache sweep, as one bare call labelled <code>EX-97-cache-sweep</code>.
+1. <strong>Pre-censuses, before any file is written:</strong>
+   - <code>scripts/testing/run_and_log.sh EX-97-pre-figures "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_setup_figures.py'"</code>
+   - <code>scripts/testing/run_and_log.sh EX-97-pre-docrefs "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py'"</code>
+   - Census at drafting: 88 (<code>EX-93</code>). Use whatever the pre-census reads. <code>EX-94</code> / <code>EX-95</code> / <code>mri:12</code> may land first.
+2. <strong>Dry run:</strong> <code>scripts/testing/run_and_log.sh EX-97-dryrun "./scripts/run_examples.sh -e mri:13 -n 2 -t 180 --dry-run"</code>. It must print <code>(complex build)</code>.
+3. <strong>Flagged run of record,</strong> predicted [50, 140] s.
+   - Basis: <code>run_study_file</code> with thermal took 17.2 s (<code>W1:147</code>), and the Python Study plus thermal 17.8 s (<code>W1:221</code>). Three sphere EM solves here (<code>cli.main</code>, <code>run_study_file</code>, <code>_study</code>) come to ≈ 52 s. Two thermal calls at ≈ 0.4 s each and one (P) conduction solve are negligible.
+   - The example adds ≈ 15 s each for startup and the setup figure, and ≈ 5 s for the XDMF.
+   - Cross-check: <code>EX-93</code>'s three solves (two sphere, one F-small) ran 73 s (<code>20261006T213328Z_EX-93.log</code>).
+   - Memory is ≈ 2.4 GiB summed per Study (<code>20261006T035826Z_WF-15-s2-W1-deg1.log:251</code>), so ≤ 8 GiB with three Studies held.
+   - Command: <code>scripts/testing/run_and_log.sh EX-97 'docker compose exec -T -e FEM_EM_SETUP_FIGURES=1 fem-em-solver bash -lc "cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 180 mpiexec -n 2 python3 examples/mri/13_temperature_from_yaml.py"'</code>.
+   - <code>EX-93</code> found that the runner's dry-run string omits <code>-T</code> and <code>/workspace</code> on <code>PYTHONPATH</code>. Use this brief's command and note any other difference.
+4. <strong>Control run.</strong> <code>git add</code> the PNG, then rerun the same line without the flag, labelled <code>EX-97-control</code>.
+   - Every assertion stays green.
+   - (K) and (X) are digit-equal.
+   - (R) / (c1) are equal at their <code>.4e</code> records.
+   - (R-cli) / (IT) agree inside <code>L0_BAND</code>: flag-vs-control at the band, never bitwise (2026-10-06 18:00 review §3, the <code>EX-91</code> / <code>EX-93</code> ruling). A 10th-digit drift is not a stop.
+5. <strong>Post-censuses.</strong> Run <code>EX-97-post-figures</code> / <code>EX-97-post-docrefs</code>, writing the prediction first:
+   - figures: <code>examples</code> N → N + 1, <code>ok</code> +1, <code>broken=0</code>;
+   - docrefs: runnable +1, <code>dead=0</code>, <code>guide=0</code>, <code>exit != 1</code>.</p>
+<p>No pytest window is needed: the gates are re-read in-script. If the review adds one, it runs with <code>-s</code>.</p>
+<p><strong>Output.</strong>
+- <strong>Run directories:</strong> <code>examples/mri/paraview_output/mri_13_temperature_from_yaml_{cli,api,malformed}/</code>. Both run directories hold the JSON summary; the malformed one must be absent after the run. All three are gitignored.
+- <strong>Combined XDMF</strong> <code>examples/mri/paraview_output/mri_13_temperature_from_yaml_combined.xdmf</code>.
+  - <code>run_study_file</code> writes no field file (<code>study_yaml.py:495–550</code> writes only the JSON and a port study's Touchstone), so the example writes it itself from <code>run.thermal</code> on <code>th.submesh</code>, with <code>facet_tags=th.facet_tags</code> so the Robin surface is a block.
+  - Fields: <code>theta</code>, P1, <code>Re(T) − cooling.t_inf_c</code> in K; <code>q</code>, DG0, <code>Re(th.heat_source)</code> in W/m³.
+  - No <code>src/</code> change.
+- <strong>Setup figure</strong> <code>examples/mri/figures/mri_13_temperature_from_yaml_setup.png</code>.
+  - Use <code>EX-91</code>'s recipe on <code>run.result.mesh</code> / <code>cell_tags</code>: the air tag is hidden, the sphere translucent, and the slice is z = 0.
+  - Region names come from the parsed objects, e.g. <code>f"gel sphere (Robin-cooled, h {cooling.h_w_per_m2_k:g} W/m²K)"</code>, with no literal.
+- <strong>Guide.</strong>
+  - Show the <code>thermal:</code> block inline, with units given by key names.
+  - Give the <code>femem run</code> invocation, both as <code>femem run &lt;file&gt; --output-dir &lt;dir&gt;</code> and as <code>./scripts/run_examples.sh -e mri:13</code>.
+  - Show the <code>temperature</code> block's three keys and say what each means: θ max over owned dofs, <code>MPI.MAX</code>-reduced.
+  - State that omitted <code>source_scale</code> / <code>degree</code> take <code>RobinCooling</code>'s defaults (<code>W1:65</code>).
+  - State the exit-code contract: 0 on success, 2 on a config error.
+  - Quote the port-refusal text from <code>W1:66</code> as illustration, not as a record.
+  - Say that <code>femem check</code> does not echo the <code>thermal:</code> section (<code>cli.py:92–101</code>).
+  - ParaView recipe: colour by <code>theta</code> and Plot Over Line along x. The parabola plus surface offset is described in words, with no numbers.
+  - <code>## Related</code> lists <code>mri:9</code>, <code>docs/guide/first_study.md</code>, <code>tests/package/test_wf1_yaml_thermal.py</code>, <code>tests/validation/test_mat10_sar_to_heat_sphere.py</code> and <code>src/fem_em_solver/study_yaml.py</code>. It does not list <code>mri:10</code>: that page may not exist when this runs, and a dead link fails docrefs.</p>
+<p><strong>(4) Traps already paid for.</strong>
+- <strong><code>cli.main</code> returns an int and keeps no field.</strong> θ comes from <code>run_study_file</code>. That is a second EM solve of the same file, by design: reading the summary cannot give (A).
+- <strong>Each <code>temperature()</code> call builds its own submesh.</strong>
+  - Build (c1)'s <code>_theta_cf</code> / χ on <code>th2.submesh</code>, never on <code>th.submesh</code>. Item 260's first W1 went red on this (<code>RuntimeError: Incompatible mesh</code>, <code>20261006T035625Z_WF-15-s2-W1-deg1.log</code>).
+  - (IT)'s <code>_theta_owned_rel</code> asserts that both owned layouts match, so both Studies run at the same <code>-n</code>.
+- <strong>The JSON summary's name in prose.</strong> A bare <code>summary.json</code> in guide prose reads as a dead file reference. <code>EX-93</code>'s first post-docrefs exited 1 on it (<code>20261006T213633Z_EX-93-post-docrefs.log</code>), and item 274 did too. Write "the JSON summary" in words, or give the full repo-relative path.
+- <strong>Complex operands.</strong> T and <code>heat_source</code> are complex-typed in the complex build.
+  - Take <code>np.real</code> on owned dofs before the XDMF and before any max.
+  - Use no UFL ordering or <code>sqrt</code> comparison (<code>OPS-22</code>, <code>WF-6</code> 4c). <code>_interior_rel</code> takes <code>np.real</code> before its <code>sqrt</code>.
+- <strong>Collectives.</strong>
+  - <code>cli.main</code>, <code>run_study_file</code>, <code>_allsum</code> and <code>_interior_rel</code> are collective: call them on every rank.
+  - Read the JSON after <code>comm.Barrier()</code>.
+  - <code>femem check</code> prints on rank 0.
+  - Rank-0 print blocks hold no collective (item 227).
+- <strong>Clean output dirs.</strong> Clear the output dirs with <code>_fresh_dir</code> (rank 0, then barrier). A stale JSON summary would pass for a fresh one. Never pre-create the malformed run's dir.
+- <strong>Rank-local counts.</strong> Cell and dof counts are rank-local; use <code>size_global</code> or reduce.
+- <strong>Orphan <code>.c</code>.</strong> A killed compile leaves an orphan <code>.c</code>: check orphans, then sweep.
+- <strong>Bare harness calls.</strong> Make bare harness calls only, with <code>-k 30</code> on the timeout. Never pipe, and never background.
+- <strong>Rule (i).</strong> Make no edit to the script, YAMLs or guide after the last window.</p>
+<p><strong>(5) Scope.</strong>
+- <strong>Covered:</strong> the steady Robin-cooled temperature of <code>WF-15</code>'s sphere, driven entirely from a YAML file through <code>femem run</code>'s in-process entry, at degree 1 and <code>-n 2</code>.
+- <strong>Not claimed:</strong>
+  - degree 2 through YAML;
+  - transient heating, Pennes or duty cycle;
+  - thermal on a port Study;
+  - tissue or a coil;
+  - a stable schema;
+  - the installed-wheel <code>femem</code> with a solve, or <code>femem run --ranks</code> (<code>WF-13</code> step 3, not exercised);
+  - anything <code>WF-1</code> / <code>WF-15</code> / <code>MAT-10</code> do not claim.
+- <strong>The base step is provisional.</strong> U20 is a daily-provisional step (§9 rule (6)) that the 10-07 weekly ratifies. If the weekly reverts U20, or <code>thermal:</code> is gone from <code>study_yaml.py</code>, before this slot runs, the item stops BLOCKED at step 0 with nothing run and nothing written. The unblock condition is U20 ratified, or re-landed.</p>
+<p><strong>(6) Negative result.</strong> If (K), (R-cli), (R), (IT), (c1) or (X) misses:
+- report the measurement and stop;
+- journal it in <code>docs/testing/attempts.md</code>, park on <code>attempt/EX-97</code>, and mark item 297 BLOCKED in the same commit (rule (d));
+- leave <code>EX-97</code> ⬜ and never widen a band.</p>
+<p>What each miss means:
+- <strong>(K) red:</strong> the copy differs. Quote the diff: a named field is itself the finding. This is fixable before the record window only, by re-copying.
+- <strong>(R) or (IT) red with (K) green:</strong> a <code>WF-1</code> step-3 regression. It is a §7 annotation on <code>WF-1</code>, not an example fix.
+- <strong>(R-cli) red with (R) and (IT) green:</strong> the CLI path assembles something <code>run_study_file</code> does not. That finding goes to <code>WF-1</code>.
+- <strong>(c1) ≤ <code>A_BAND</code>:</strong> a blind comparator. Stop.</p>
+<p>A run killed at 180 s is not a result: check orphans and stop. The fallback is a re-queue, never a longer timeout.</p>
+<p>No <code>PREDICTED RED:</code> line.</p>
+<p><strong>(7) Status it can move.</strong> The <code>EX-97</code> §7 row moves ⬜ → ✅ (Done-when met, elapsed recorded). Census <code>examples</code> +1 with <code>broken=0</code>; docrefs runnable +1. The review adds the row in the same commit as this item (rule (j)).</p>
+<p><strong>Review rulings (2026-10-07 03:00 daily review).</strong> (1) The source-scale control (the 2G YAML, the missing ½) is accepted as (c1); the h → 10 h control stays with <code>EX-94</code>. (2) (R-cli) is an asserted anchor at the imported <code>L0_BAND</code> — a band, not a separation factor, so rule (e) does not apply; the nearest two-solve reading, (IT) 6.079e-12, sits ≈ 160× inside it. No <code>src/</code> change to make <code>cli.main</code> return the <code>StudyRun</code>. (3) (c1) asserts <code>&gt; A_BAND</code> only; its <code>.4e</code> string is printed beside <code>MAT10_B_MISSING_HALF_PRINT</code> (edited in place above). (4) The example class median is 9 measured minutes (recomputed by this review). (5) Base step U20 is provisional: if the 10-07 weekly reverts it before a slot takes this item, the item stops BLOCKED with nothing run.</p>
+<p><strong>Outcome (2026-10-07 06:00 slot, second item): ✅ DONE, first try.</strong> Step 0: <code>_parse_thermal</code> present, <code>test_wf1_yaml_thermal.py</code> on <code>main</code>. (K) spec / cooling mismatches <code>[]</code> for all three pairs; (R-cli) rc (0, 0), family <code>sphere_in_box</code>, degree 1, ranks 2, summary keys exact, JSON vs <code>run_study_file</code> rel 0.000e+00 on all three values (flagged) and 1.82e-11 / 1.82e-11 / 1.85e-11 (control, two EM solves); (R) 19 496 sub-cells, (A) 3.2463961444e-02 / (P) 3.1923343273e-03 at <code>.4e</code> = records, (B) 6.817e-15, (C) 1.309e-13, <code>study.result is res</code>; (IT) 4.874e-12 (control 5.597e-11). (c1) 1.0649e+00 &gt; <code>A_BAND</code> (≈ 9.7×), <code>.4e</code> = <code>MAT10_B_MISSING_HALF_PRINT</code>, source ratio 2.0 (printed); (X) port YAML with <code>thermal:</code> names the field, run / check rc (2, 2), no output dir. Flagged <code>20261007T111919Z_EX-97.log</code> (50 s), control <code>20261007T112043Z_EX-97-control.log</code> (47 s). Census 92 → 93 ok, <code>broken=0</code>; docrefs runnable 92 → 93, <code>dead=0 guide=0 exit=2</code>, stale 46 unchanged. PNG 468 KiB. The guide was written between the flagged and control windows (06:20:37 &lt; 06:20:43 CDT), so its "rel 0 (bitwise here)" row is the flagged run's reading; the control read ≈ 1.8e-11, inside the band.</p>
+<h2 id="7-row-moved-verbatim-2026-10-07-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-07 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-07-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p><strong>A temperature from a config file: <code>femem run</code> on a YAML with <code>thermal:</code> reproduces <code>MAT-10</code>'s records</strong> <em>(history and §9 briefs: <code>docs/planning/chunks/EX-97.md</code>)</em> (<code>mri:13</code>; <code>example-runner</code>; opened 2026-10-07 by the 03:00 daily review, §5.4 ramp; angle: the thermal result through the YAML / CLI layer; base step §10 U20 — <code>WF-1</code> step 3 — provisional until the 10-07 weekly ratifies) <strong>Done-when:</strong> <code>examples/mri/13_temperature_from_yaml.py</code> + same-stem guide (as <code>EX-91</code>) + the two YAML files beside it (copies of <code>tests/package/wf1/sphere_mat10_thermal.yaml</code> / <code>…_control_2g.yaml</code>); degree 1, <code>-n 2</code>, complex; imports <code>WF-1</code> step 3's and <code>MAT-10</code>'s records and bands, restates none; asserted in-script: <code>femem run</code> returns 0 and its summary's <code>temperature</code> block equals <code>run_study_file</code>'s within <code>L0_BAND</code>; on the YAML θ, (A) / (P) at <code>.4e</code> equal <code>MAT10_A_PRINT</code> / <code>MAT10_P_PRINT</code>, (B) / (C) inside their bands, (IT) against the in-Python <code>Study.temperature</code> ≤ <code>L0_BAND</code>; controls: the 2G control YAML's (A) exceeds <code>A_BAND</code>, and <code>thermal:</code> on a port YAML raises <code>StudyConfigError</code> (rc 2, nothing written); combined XDMF (θ, q) opens in ParaView; census +1, docrefs green; elapsed recorded ⇒ ✅. Not claimed: degree 2, transient heating, a coil, tissue, a stable schema. | ✅ <em>(<strong>DONE 2026-10-07 (06:00 slot, §9 item 297), first try:</strong> pre-flight U20 stands. (K) YAML copies equal their originals and the Python <code>Study</code> by spec and cooling; (R-cli) rc 0, summary vs <code>run_study_file</code> rel 0 (flagged) / ≤ 1.85e-11 (control); (R) 19 496 sub-cells, (A) 3.2464e-02 / (P) 3.1923e-03 equal <code>MAT10_A_PRINT</code> / <code>MAT10_P_PRINT</code>, (B) 6.8e-15, (C) 1.3e-13, one EM solve; (IT) 4.874e-12 (control 5.597e-11). Controls: (c1) 2G YAML (A) 1.0649e+00 &gt; <code>A_BAND</code>, <code>.4e</code> = <code>MAT10_B_MISSING_HALF_PRINT</code>; (X) <code>thermal:</code> on a port YAML rc 2, nothing written. <code>20261007T111919Z_EX-97.log</code> (50 s), control <code>…112043Z_EX-97-control.log</code> (47 s); census 92 → 93 <code>broken=0</code>, docrefs runnable 92 → 93 <code>dead=0</code>. Base step U20 is provisional until the 10-07 weekly. The XDMF is written; it was not opened in ParaView by the slot. History: <code>docs/planning/chunks/EX-97.md</code>.)</em> </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

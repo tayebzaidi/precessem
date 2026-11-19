@@ -1,0 +1,583 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>OPS-43 — Long-window robustness: durable capture, orphan-rank cleanup, and per-run memory instrumentation - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ops-43-long-window-robustness-durable-capture-orphan-rank-cleanup-and-per-run-memory-instrumentation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              OPS-43 — Long-window robustness: durable capture, orphan-rank cleanup, and per-run memory instrumentation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ops-43-long-window-robustness-durable-capture-orphan-rank-cleanup-and-per-run-memory-instrumentation">OPS-43 — Long-window robustness: durable capture, orphan-rank cleanup, and per-run memory instrumentation<a class="headerlink" href="#ops-43-long-window-robustness-durable-capture-orphan-rank-cleanup-and-per-run-memory-instrumentation" title="Permanent link">&para;</a></h1>
+<p><strong>Long-window robustness: durable capture, orphan-rank cleanup, and per-run memory instrumentation</strong> — the three defects the 2026-09-09 XL runs paid for, each measured, none yet mechanised (§5.1 now states all three as rules; this chunk makes them checkable rather than remembered). (a) <strong>Durable capture</strong>: a helper — <code>run_and_log.sh</code> keyword or a documented command shape — that redirects container-side output to <code>/workspace/logs/&lt;name&gt;-raw.log</code> and echoes it back, plus a <code>--capture-orphan &lt;raw file&gt;</code> mode that turns a surviving raw file into a properly footered harness log when the wrapper died. Gate: kill a wrapper mid-window on a smoke-tier case and show the raw file is complete and the recovered log carries a real <code>## Exit</code>. (b) <strong>Orphan detection</strong>: <code>run_and_log.sh</code> checks for live ranks in the target service <em>before</em> starting and refuses with the offending PIDs and elapsed times, so a killed window cannot silently double-book the box. Gate: start a sleep in the container, assert the harness refuses, kill it, assert the harness proceeds. (c) <strong>Per-run memory</strong>: <code>memory.peak</code> is per container lifetime and read-only on this kernel, so either the harness restarts the XL service before an <code>xl</code> window (zeroing it) or the measured module prints <code>resource.getrusage(RUSAGE_SELF).ru_maxrss</code> summed over ranks. Gate: two consecutive runs in one container lifetime report <em>different</em>, individually correct peaks. (d) <strong>Progress visibility — added 2026-09-09 on operator direction; d1–d3 landed.</strong> A direct solve is silent for its entire factorization: <code>TH-11</code> step 5d went <strong>&gt;30 minutes without writing a line</strong> while perfectly healthy, and the only evidence it was alive came from outside it. Three levels, stacking, all opt-in and default-off: <strong>(d1)</strong> <code>FEM_EM_SOLVER_PROGRESS</code> raises MUMPS's <code>ICNTL(4)</code> so it reports its analysis and factorization phases and their memory estimates on rank 0 (<code>core/time_harmonic.py</code>; unset — every existing run and CI — leaves the options dict byte-identical, and an explicit <code>solver_petsc_options</code> still wins, being applied after); <strong>(d2)</strong> the same gate prints dof count, degree and cell count before the dominating solve call and its elapsed after, rank 0 only; <strong>(d3)</strong> <code>scripts/testing/watch_run.sh &lt;service&gt; &lt;out&gt; [interval]</code> samples cgroup memory, rank count and summed CPU into a TSV from <em>outside</em> the run, so it reports when the process says nothing and survives the run's own death — the memory column is the progress bar a direct solve does not have, climbing through the factorization and plateauing when it completes. Verified live against step 5d: <strong>262.1 GiB flat at 672 % CPU across 8 ranks</strong>, i.e. mid-factorization. Two traps recorded in the script: <code>memory.peak</code> is per container lifetime (§5.1), and wrapping the watcher in <code>timeout</code> kills its process group and reads as an unreachable container. <strong>Gate still owed for (d1)/(d2):</strong> one smoke solve with the variable set and one without, identical results, the extra lines present only in the first. Opened 2026-09-09 by the operator-interactive session that hit all four; smoke tier throughout — no solve is needed to gate (a)–(c). <strong>(c) INSTRUMENT AND CALIBRATION LANDED 2026-09-10, 00:00 CDT implementer slot — both pre-registered gates green; the <code>test_ans4_resolution_ladder.py</code> wiring is DELIBERATELY DEFERRED past the 02:00 XL window and is the one piece (c) still owes.</strong> Shared helper <code>src/fem_em_solver/utils/instrumentation.py</code> (<code>summed_peak_rss_bytes</code> / <code>report_peak_rss</code>: <code>resource.getrusage(RUSAGE_SELF).ru_maxrss</code> × 1024 → bytes, <code>comm.allreduce(..., MPI.SUM)</code>, rank-0-only print, non-Linux refused rather than ported), calibrated by <code>tests/unit/test_memory_instrument.py</code>. One window, <code>20260910T050613Z_OPS-43c.log</code>, <code>-n 2</code>, real build, <code>timeout -k 30 180</code>, <strong>9 passed / 4 skipped, <code>Status: 0</code>, elapsed 53 s</strong> (smoke). <strong>Anchor (closed form):</strong> 256 MiB touched per rank, summed rise <strong>0.5010 GiB = 1.0020 ×</strong> the 0.5 GiB allocation, band [0.8, 1.5] — a KiB/bytes error, a constant, or a rank-local figure fails it. <strong>Negative control:</strong> large (1 GiB) run first then small (32 MiB), separate subprocesses, one container lifetime — <code>/sys/fs/cgroup/memory.peak</code> reads <strong>25 960 632 320 B (24.1777 GiB) identically at all three sampling points</strong>, i.e. it reports a stale container high-water as both runs' peak and cannot distinguish them, while summed <code>ru_maxrss</code> separates them <strong>2.5636 ×</strong> (2.3398 vs 0.9127 GiB) against the 2.0 floor. That is the two ledger rows' defect reproduced deliberately at smoke cost; neither ledger row is re-measured or re-attributed and both keep their caveats. <strong>Why the ladder wiring was deferred, recorded so the next review can simply order it:</strong> the slot ran at 05:04Z with <code>scripts/automation/xl-queue.env</code> still carrying <code>XL_CHUNK="ANS-4-step2d"</code> and no <code>ANS-4-step2d</code> log present — the week's single un-repeatable 7 200 s / 16-rank window fires against that exact module at 02:00 local. §9 item 4's own trap list notes the allreduce is a <strong>collective</strong> that hangs the window if any rank misses it, and its ordering note ("every implementer slot is at 04:30 or later, so the window has returned first") is false for the 00:00 slot. The helper was therefore placed where the ladder's import graph does not reach (verified by grep: the ladder imports no <code>tests.unit</code> and no <code>utils.instrumentation</code>; <code>utils/__init__.py</code> is a docstring only), so nothing the XL window reads moved. <strong>The five existing <code>ru_maxrss</code> call sites were NOT refactored onto the helper</strong> — the licence is "only if each printed digit is unchanged", and every one of them lives in a heavy/<code>xl</code> module that cannot be re-executed at smoke tier to prove it, so inspection alone would not have discharged the condition. <strong>Trap measured and recorded in the test (worth reusing):</strong> a plain subprocess of an <code>mpiexec</code>-launched rank inherits Hydra's <code>PMI_*</code> handshake, so importing <code>fem_em_solver</code> — whose <code>__init__</code> eagerly pulls DolfinX → mpi4py → <code>MPI_Init</code> — aborts with <code>PMI_Init failed</code>, <strong>exit 15</strong> (first run <code>20260910T050412Z_OPS-43c.log</code>, <code>Status: 1</code>, anchor already green at 1.0023 ×); the fix is scrubbing <code>PMI_</code>/<code>PMIX_</code>/<code>HYDRA_</code>/<code>MPICH_</code>/<code>OMPI_</code>/<code>MPIEXEC_</code> from the child environment. <strong>(d) GATE ATTEMPTED 2026-09-10, 06:00 CDT implementer slot — BLOCKED on the anchor's instrument, not on the variable (known-issues 2026-09-10).</strong> Module <code>tests/solver/test_solver_progress_inert.py</code> (smoke fixture of <code>test_time_harmonic_smoke.py</code>, h = 0.03, 1 405 cells / 2 004 dofs; each solve a separate child <code>mpiexec -n 2</code> from rank 0, PMI-scrubbed env). Window 1 <code>20260910T110332Z_OPS-43d.log</code> <strong>red</strong> (<code>Status: 1</code> <code>:388</code>, 36 s): unset <code>norm2 = 0x1.2bbe0e158fda1p-5</code> vs set <code>0x1.2bbe0e158fda0p-5</code>, diff −6.94e-18. Windows 2–4 <strong>green</strong> (<code>20260910T110452Z</code> <code>Status: 0</code> <code>:383</code> 37 s; <code>20260910T110629Z</code> <code>:383</code> 37 s; <code>20260910T110803Z</code> <code>:403</code> 61 s) with norm2 <code>0x1.2bbe0e158fda0p-5</code> = 3.65896487314743002e-02 on both settings and three-term imbalance <code>0x1.56f8034472e29p-3</code> = 0.167465234 (inside the smoke gate's 25 %, two-term on its 116.7465 % record). But a same-setting repeat control drifted too: 2 of 22 <code>-n 2</code> children moved 1 ULP (window 1 unset, window 3 set_repeat → <code>…fd9fp-5</code>) with <strong>identical</strong> geometry / <code>‖A‖_F</code> / <code>‖b‖</code> fingerprints, and <code>-n 1</code> read 8/8 identical. So the variable is measured inert where the solve is reproducible, and a single-pair bit-identity at <code>-n 2</code> is not a reliable gate; closing on the green windows would be selecting them. Negative-control legs green in all four windows: <code>[solve]</code> lines 0 unset / 2 set, options dict unset == pre-<code>81861d0</code> literal, set == literal + <code>mat_mumps_icntl_4: 2</code>, MUMPS ICNTL(4) read back <code>[0,0]</code> / <code>[2,2]</code>. Owed: a review ruling on the anchor (e.g. <code>-n 1</code> children, or unset-vs-set spread against repeat spread). <strong>(b) LANDED 2026-09-10, 07:30 CDT implementer slot — gate green, one smoke window plus one regression window.</strong> <code>scripts/testing/run_and_log.sh</code>: when <code>CMD</code> matches <code>docker compose … exec</code>, before the log header and the XL ledger row, it lists <code>ps -eo pid,etimes,args</code> in the target service (<code>fem-em-solver-xl</code> if named, with <code>--profile xl</code>; else <code>fem-em-solver</code>), skips the listing's own line, and on any <code>mpiexec|hydra_pmi_proxy|pytest</code> match prints PID / elapsed / args on stderr and exits <strong>75</strong> (<code>ORPHAN_REFUSAL</code>, named in the header comment; the script's pre-existing exits were 2 usage / 0 dry run / the wrapped status). Host-only commands and dry runs skip the check; if the listing itself fails (service down) it warns and proceeds so the wrapped command fails visibly in its own log. Container <code>ps</code> table read first: PID 1 <code>/bin/bash</code> and the listing only — no permanent process matches, pattern kept as specified. Gate <code>scripts/testing/test_orphan_guard.sh</code> (host-side, <code>trap</code> kills the probe and removes the scratch root on every exit path), window <code>20260910T123339Z_OPS-43b.log</code>, <code>timeout -k 30 120</code>, <strong>0 failures <code>:81</code>, <code>Status: 0</code> <code>:84</code>, elapsed 6 s <code>:85</code></strong> (smoke). <strong>Anchor (asserted, exact):</strong> probe <code>hydra_pmi_proxy-orphan-probe</code> live as PID 20527 (<code>:39</code>, <code>:43</code>) → modified harness exit <strong>75</strong>, message names <code>pid=20527</code> (<code>:46–51</code>), test-results rows <strong>1601 → 1601</strong> and log files <strong>1298 → 1298</strong> (<code>:49</code>, <code>:52–53</code>); probe killed (<code>:71</code>) → same call exit <strong>0</strong>, rows <strong>1602 → 1603</strong> (<code>:78–80</code>). <strong>Negative control (asserted):</strong> <code>git show HEAD:scripts/testing/run_and_log.sh</code> with the same live probe exits <strong>0</strong> and the probe is still live afterwards (<code>:63–69</code>). The copy ran from a scratch root <code>.ops43b_scratch_root/scripts/testing/</code>, not the repo root as the item said, because the harness resolves its root two levels above itself and a repo-root copy would have written outside the repo; the control's own log and index lived in the scratch root (deleted), and its Exit block is echoed into the gate log (<code>:65–67</code>). <strong>Scope check (asserted, extra):</strong> a host-only <code>true</code> with the probe live exits 0 and appends one row (<code>:57–59</code>). <strong>Regression (asserted):</strong> the <code>OPS-44</code> command verbatim through the modified harness, <code>20260910T123359Z_OPS-43b.log</code>, <strong>19 passed <code>:208</code>, <code>Status: 0</code> <code>:211</code>, elapsed 7 s <code>:212</code></strong>. The gate's nested harness calls add two companion logs/rows (<code>…123342Z_OPS-43b-hostonly.log</code>, <code>…123345Z_OPS-43b-proceed.log</code>); every row assertion is a delta around its own call. <strong>Not exercised, inspection only:</strong> the <code>fem-em-solver-xl</code> resolution path (the slot does not exec into that service) and the warn-and-proceed branch. <strong>Rulings, 2026-09-10 10:30 review.</strong> <strong>(d) anchor re-registered, not relaxed:</strong> the identity stays <code>==</code> on <code>float.hex</code>, and moves to child <code>mpiexec -n 1</code> solves — 4 unset + 4 set, interleaved, asserted as <strong>one</strong> value across all eight children, so repeat reproducibility and unset == set are a single assertion that cannot be green by selecting windows. <code>-n 2</code> children are printed only. Licence: (d1)/(d2) change MUMPS verbosity and a print, nothing partition-dependent. The 06:00 windows show the <code>-n 2</code> drift in <em>both</em> settings with bit-identical A/b fingerprints, and 8/8 <code>-n 1</code> children agree (<code>20260910T110803Z_OPS-43d.log:269–270</code>). <strong>Exposure census (<code>Explore</code>, 167 test modules, spot-checked here):</strong> no assertion compares a MUMPS solve result against a recorded number tighter than <strong>1e-9</strong> relative (<code>LEG_D0_REPRODUCTION_BAND</code>, <code>test_port_birdcage_four_port.py:165</code>); the only bit-exact solve comparisons (<code>test_port_drive_superposition.py:736, 825</code>) are same-process. So the drift exposes no existing record. Queued as §9 item 1. <strong>(a) queued</strong> as §9 item 3 with its gate written (rc line inside the raw file; <code>--capture-orphan</code>). <strong>(c) wiring:</strong> the queue half of its unblock condition is met (<code>76e78c4</code> emptied <code>xl-queue.env</code>), but it still rides with the next chunk that executes the ladder module — no standalone window. <strong>(b)'s XL listing branch</strong> was taken for real by the operator's 15:20Z <code>ANS-4-step2d</code> harness call (it proceeded; whether it listed or warned is not visible in that log's stdout). The refusal case on the XL service stays unexercised and is not queueable headless: the bash guard denies XL-service commands inside 7 days of a ledger row. <strong>(d) GATE CLOSED 2026-09-10, 13:30 CDT implementer slot, re-anchored as ruled.</strong> Module <code>tests/solver/test_solver_progress_inert.py</code> was taken by path from <code>attempt/OPS-43d-20260910T111045Z</code> and restructured to the ruling: rank 0 of a <code>-n 2</code> pytest job launches 20 PMI-scrubbed children. The retired single-pair <code>-n 2</code> asserts, the <code>FEM_EM_OPS43D_PROBE</code> opt-in and the smoke-scalar asserts were removed; the smoke scalars are now printed, since the smoke test gates them itself. One window, <code>20260910T183305Z_OPS-43d.log</code>, complex build, <code>FEM_EM_REQUIRE_COMPLEX=1</code>, <code>tests/environment</code> first, <code>-s</code>, <code>timeout -k 30 180</code>: <strong>12 passed</strong> (<code>:177</code>), <strong><code>Status: 0</code> <code>:245</code>, elapsed 54 s <code>:246</code></strong> (smoke). <strong>Anchor (asserted, a set of size 1, no tolerance):</strong> 8 child <code>-n 1</code> solves, interleaved unset/set, all exit 0 (<code>:82–89</code>). norm2 <code>{'0x1.2bbe0e158fdb3p-5': 8}</code> (<code>:90</code>), which is the 06:00 record. Three-term imbalance <code>{'0x1.56f8034472e19p-3': 8}</code> (<code>:91</code>). <strong>Negative controls (asserted, all green):</strong> <code>[solve]</code> lines 0 on each unset child and 2 on each set child; options dict unset == pre-<code>81861d0</code> literal, set == literal + <code>mat_mumps_icntl_4: 2</code>; ICNTL(4) read back <code>[0]</code> / <code>[2]</code> (<code>:82–89</code>). <strong>Printed, asserted nowhere:</strong> <code>-n 2</code> 6 unset + 6 set (<code>:96–107</code>). Both settings gave norm2 <code>{'0x1.2bbe0e158fda0p-5': 6}</code> and three-term <code>{'0x1.56f8034472e29p-3': 6}</code> (<code>:108–111</code>). The prediction held: the modal value is the same for both settings. No drift this window, so the tally is 2 of 34. Fingerprints: <code>‖A‖_F</code> differs by 16 ULP between <code>-n 1</code> (<code>0x1.35c8f773e9107p+14</code>) and <code>-n 2</code> (<code>…9117p+14</code>), and <code>‖b‖</code> by 1 ULP; geometry is identical. That makes the <code>-n 1</code>/<code>-n 2</code> value split an assembly-order difference, separate from the <code>-n 2</code> factor drift. Smoke scalars at <code>-n 1</code> (printed): three-term 0.167465234 &lt; 0.25, two-term 1.167465234 against the 1.167465 record (<code>:93</code>). The known-issues 2026-09-10 entry is re-headed as an observation the gate no longer depends on; it is <strong>not</strong> retired. <strong>(a) LANDED 2026-09-10, 16:30 CDT implementer slot — gate green; one gate window plus one regression window, each needing a second run for a defect in a gate script (both disclosed below).</strong> <code>scripts/testing/run_and_log.sh</code>: (i) the rc-in-raw-file shape is documented in the header comment (escaped host-side form) and in §5.1; (ii) <code>--capture-orphan &lt;chunk_id&gt; &lt;raw&gt;</code> writes the normal header plus <code>- Mode: capture-orphan</code>, <code>- Raw file:</code> and the raw file's mtime. The raw contents go in as <code>## Output</code> through the retention filter, followed by <code>## Exit</code> with <code>Status:</code> from the <strong>last</strong> <code>[capture] rc=</code> line. It appends one test-results row and exits with that status. With no rc line it writes <code>Status: unknown (no rc line)</code>, puts <code>unknown</code> in the row's Exit column, and exits <strong>76</strong> (<code>NO_RC_CAPTURE</code>, named in the header). Pre-existing exits: 0 / 2 / 75 / the wrapped status. Capture mode skips the orphan check and the XL ledger. The raw path may be relative, absolute, or <code>/workspace/…</code>. Gate <code>scripts/testing/test_durable_capture.sh</code> (host-side, structured like <code>test_orphan_guard.sh</code>; its <code>trap</code> kills the container command by marker and removes raw files and scratch on every exit path). Window <code>20260910T213636Z_OPS-43a.log</code>, <code>timeout -k 30 120</code>: <strong>0 failures <code>:136</code>, <code>Status: 0</code> <code>:139</code>, elapsed 16 s <code>:140</code></strong> (smoke). <strong>Anchor (asserted, exact):</strong> the harness was started on the shape in its own session (pgid 828748 ≠ gate 828596, <code>:41</code>) and SIGKILLed as a process group at t = 4.08 s with 4 lines written (<code>:49–51</code>). No host wrapper or compose client survived (<code>:52–53</code>). The container command was still live (pids 424/435, <code>:54–61</code>) and finished by itself at t = 13.14 s (<code>:63–64</code>). The raw file held 12 <code>line</code> lines, <code>line 1</code>…<code>line 12</code>, plus exactly one <code>[capture] rc=3</code> (<code>:79–95</code>). <code>--capture-orphan</code> → <code>20260910T213650Z_OPS-43a-capture.log</code>: one <code>## Exit</code>, <code>Status: 3</code>, the 12 lines in its Output, call exit <strong>3</strong>, rows <strong>1616 → 1617</strong> (<code>:97–116</code>). <strong>Negative controls (asserted):</strong> the killed wrapper's own log <code>20260910T213637Z_OPS-43a-killed.log</code> has <strong>no</strong> <code>## Exit</code> and wrote no row (1616 → 1616, <code>:69–76</code>). A copy with the rc line stripped → exit <strong>76</strong>, <code>Status: unknown (no rc line)</code>, no numeric status, one row with Exit <code>unknown</code> (<code>20260910T213651Z_OPS-43a-norc.log</code>, <code>:117–131</code>). <strong>First gate window</strong> <code>20260910T213546Z_OPS-43a.log</code>, <code>Status: 1</code> (<code>:137</code>, <code>:140</code>), 17 s: every item assertion was green. Its one failure was an extra check the gate adds itself (no host survivor): a bare host <code>pgrep -f &lt;marker&gt;</code> matched the <strong>container's</strong> bash processes, which are visible in the WSL2 host PID namespace (host 826758/826769 = container 282/293, <code>:52–55</code>), while the compose clients were already gone. The check was narrowed to the killed group plus <code>compose exec</code> clients, with the measurement recorded in the script. <strong>Regression:</strong> <code>test_orphan_guard.sh</code> first ran as <code>20260910T213658Z_OPS-43a.log</code> with <strong>2 failures</strong> (<code>:82</code>, <code>Status: 1</code> <code>:85</code>), both in its negative-control leg (<code>:61–69</code>). That leg copied <code>HEAD:scripts/testing/run_and_log.sh</code>, which carries the check on every HEAD after <code>d10a940</code>, so the leg went stale when (b) landed, independently of (a). The control is now pinned to <code>d10a940^</code>, the parent of the (b) commit, with the log cited in a comment. Re-run <code>20260910T213744Z_OPS-43a.log</code>: <strong>0 failures <code>:81</code>, <code>Status: 0</code> <code>:84</code>, elapsed 7 s <code>:85</code></strong>. Anchor legs are unchanged (exit 75, rows 1622 → 1622, logs 1322 → 1322, <code>:49–53</code>; proceed 0, rows 1623 → 1624, <code>:78–80</code>) and the pinned control proceeds with exit 0 (<code>:63–69</code>). Companion logs from nested calls: <code>…213547Z</code>/<code>…213637Z_OPS-43a-killed</code>, <code>…213601Z</code>/<code>…213650Z_OPS-43a-capture</code>, <code>…213602Z</code>/<code>…213651Z_OPS-43a-norc</code>, <code>…213700Z</code>/<code>…213747Z_OPS-43b-hostonly</code>, <code>…213703Z</code>/<code>…213749Z_OPS-43b-proceed</code>. <strong>Not exercised (inspection only):</strong> an rc line appended to a partial last line (the regex tolerates it) and the <code>/workspace/…</code> and absolute path forms. Adopting the shape for XL queues stays the weekly review's job. | ✅ <strong>2026-09-11, 03:00 daily review</strong> — all four parts landed with harness logs, quantitative anchors inside real asserts, and elapsed recorded (<code>auditor</code>: checks 1–7 clean; (c) anchor 1.0020× <code>20260910T050613Z_OPS-43c.log:80–83</code>, (b) exit 75 <code>20260910T123339Z_OPS-43b.log:43–53</code>, (a) <code>Status: 3</code> recovery <code>20260910T213636Z_OPS-43a.log:97–116</code>, (d) one hex value over 8 children <code>20260910T183305Z_OPS-43d.log:90</code>). <strong>Tier corrected, not the evidence:</strong> the row had declared <em>smoke</em>, but (c)/(d) ran under <code>timeout -k 30 180</code> and measured 36–61 s (<code>20260910T050613Z_OPS-43c.log:12, :230</code>; <code>20260910T183305Z_OPS-43d.log:12, :246</code>), which is the standard tier. The auditor returned DEMOTE on that label alone. The tier column now reads standard, and no window was re-run. <em>(d1–d3 landed; (b) landed 2026-09-10 with its gate green; <strong>(d) gate closed 2026-09-10 13:30 at child <code>-n 1</code></strong> (<code>20260910T183305Z_OPS-43d.log</code>); (c)'s instrument + calibration landed 2026-09-10, its ladder wiring deferred past the 02:00 XL window; <strong>(a) landed 2026-09-10 16:30</strong> (<code>20260910T213636Z_OPS-43a.log</code>); still open: only the (c) ladder wiring. <strong>(c) ladder wiring landed 2026-09-10 19:30 slot with <code>ANS-4</code> step 2a′</strong> — <code>report_peak_rss</code> after every rung on all ranks in <code>tests/validation/test_ans4_resolution_ladder.py</code>; its <code>[mem]</code> line printed on all four rungs of two consecutive windows in one container lifetime, and neither hung. Window 1 green (<code>20260911T003204Z_ANS-4-step2a-prime.log:2030, :3897</code>, 2.4269 / 2.9917 GiB summed over 4 ranks); window 2 is the deliberate flag-off red (<code>20260911T003442Z…:1916, :3678</code>, 2.4599 / 3.0097 GiB). The legacy <code>ru_maxrss</code> sites are untouched. Closeable; the review audits)</em> </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

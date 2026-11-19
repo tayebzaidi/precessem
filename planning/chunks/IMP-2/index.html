@@ -1,0 +1,637 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>IMP-2 — history - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#imp-2-history" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              IMP-2 — history
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-144-2026-10-01-chain-i4-queued-by-the-1030-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 144 — 2026-10-01 (chain I4; queued by the 10:30 review)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-01-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-01 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="imp-2-history">IMP-2 — history<a class="headerlink" href="#imp-2-history" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history moved out of PROJECT_PLAN §9 (operator directive 2026-10-01). The §7 row is the status of record. Step 0's brief (§9 item 136) is archived verbatim in <code>docs/planning/plan-archive.md</code> § "§9 digest and restock of the 2026-10-01 03:00 review".</p>
+<h3 id="9-item-144-2026-10-01-chain-i4-queued-by-the-1030-review">§9 item 144 — 2026-10-01 (chain I4; queued by the 10:30 review)<a class="headerlink" href="#9-item-144-2026-10-01-chain-i4-queued-by-the-1030-review" title="Permanent link">&para;</a></h3>
+<p><code>IMP-2</code> step 1 — FEM at aspect 2 and 5 (implementer; heavy, <code>-n 2</code>, complex; ≈ 10 measured / ≈ 70 predicted min; depends on nothing — item 136 landed <code>dc2e1707</code>).</p>
+<ul>
+<li><strong>Sizing, stated first.</strong> |k| = |15.178 − 9.489j| = 17.90 1/m. With c = 6 mm, (|k|c)² = 1.154 %, under a third of the tighter band (4.886 / 3 = 1.629 %); the limit is c ≤ 7.13 mm. Aspect 2 ⇒ a = 3 mm; aspect 5 ⇒ a = 1.2 mm. Box half-extents (c, c, 2c), corner at 14.7 mm, (|k|R)² = 6.9 % (below <code>IMP-1</code>'s 9.6 %). The quasi-static box trace is printed beside I2a's 1.56e-2 face departure.</li>
+<li><strong>Code.</strong></li>
+<li>Mesher (none exists; the minimal addition, rule (c) disclosed): additive <code>MeshGenerator.spheroid_in_box_domain(semi_major, semi_minor, box_half_extents, resolution_tip, resolution_surface, resolution_far, comm, rank, *, as_hole=True)</code> in <code>src/fem_em_solver/io/mesh.py</code>, modelled on <code>sphere_in_box_domain</code>'s <code>as_hole</code> branch (<code>:2316–2349</code>): <code>occ.addSphere(0,0,0,1)</code> → <code>occ.dilate(…, a, a, c)</code> → <code>occ.cut</code> from the box; volume tag 2; the cavity group (facet tag 2) from the <strong>meshed</strong> volume's boundary; outer walls facet tag 1 by a per-axis <code>_on_wall</code>; sizing a <code>Min</code> of two <code>Ball</code> fields at (0,0,±c) (radius 3ρ_t, ρ_t = a²/c, VIn ρ_t/3) and a Distance→Threshold from the cavity (a/6 at the wall, h_far = c/4 beyond 2a). Only <code>as_hole=True</code>; anything else raises.</li>
+<li>Field: additive <code>pec_prolate_spheroid_field(points, *, semi_major, semi_minor, e0=1.0, interior="zero"|"continue")</code> in <code>utils/analytical.py</code> (after item 137's block): E = E₀ẑ − ∇φ_s, ∇φ_s = E₀fξ₀/Q₁(ξ₀)·[Q₁(ξ)∇η + ηQ₁′(ξ)∇ξ], ∇ξ = (r̂₁ + r̂₂)/(2f), ∇η = (r̂₂ − r̂₁)/(2f).</li>
+<li>Test module <code>tests/validation/test_imp2_spheroid_fem.py</code>, importing <code>TH15_BETA_BAND</code>, <code>MAT4_BAND</code>, the tags, <code>DEGREE</code>, <code>E0</code>, the host constants, <code>_assemble_real</code>, <code>_cavity_dofs</code>, <code>_phi_closed_form_on_mask</code> from <code>test_imp1_pec_sphere_lossy_host.py</code>; a module-local <code>_solve_spheroid(aspect, drive)</code> following <code>_solve:198–257</code>.</li>
+<li>β: the least-squares amplitude of the closed-form scattered field on 24 Fibonacci points on each of the 1.2× and 1.5× scaled spheroids (at a = c, <code>IMP-1</code>'s β). Tip mask: DG0 indicator of cell midpoints within r_t = 2a²/c of either tip (3 mm / 0.48 mm). Φ_tip,cf,h: a numpy degree-8 quadrature (<code>basix.make_quadrature</code>) over the same cells with <code>interior="continue"</code>.</li>
+<li><strong>Anchors (asserted).</strong> (F) numpy: field vs the central-difference gradient of step 0's potential at δ = 2e-3·c ≤ 1e-7; tangential E on the surface ≤ 1e-12; E_z(tip)·L_z = 1 ≤ 1e-12. (M′) on each aspect's mesh the numpy quadrature of <code>IMP-1</code>'s dipole field equals <code>_phi_closed_form_on_mask(msh, chi, 1.0)</code> ≤ 1e-12. At each aspect: (i) |β − 1| ≤ <code>TH15_BETA_BAND</code>; (ii) |Φ_tip,h/Φ_tip,cf,h − 1| ≤ <code>MAT4_BAND</code>; (iii) cavity dofs &gt; 0, max |E| &lt; 1e-12. Printed: the air volume's occ mass against 8·b_x·b_y·b_z − 4πa²c/3 (predicted ≤ 1e-4); pointwise tip (1/L_z)² = 33.2 / 320.9; cells, seconds, RSS.</li>
+<li><strong>Negative control (predicted, rule (e)).</strong> The aspect-5 mesh driven transversely (trace E₀x̂, zero on the cavity, β fitted on Re E − E₀x̂). β predicted ≈ 0 by x-parity (ceiling 1/0.04886 = 20.5×): assert only |β − 1| &gt; band. Φ_tip miss predicted 60–100 % (saturates at 100 %, so at most 10× the band): assert only &gt; 10 %.</li>
+<li><strong>Price.</strong> <code>IMP-1</code> at <code>-n 2</code>, degree 2: 13 467 cells 13.4 s; 54 524 cells 101.8 s / 10.1 GiB; 90 713 cells 221.9 s / 19.4 GiB (<code>20261001T033100Z_IMP-1-land-W1.log:372,446,529</code>). Predicted ≈ 25–55 k cells at aspect 2, ≈ 40–90 k at aspect 5. <strong>Cell guard 95 000, checked in W0 before any solve.</strong></li>
+<li><strong>Windows</strong> (complex).</li>
+<li>W0 (≈ 90 s, census + numpy): <code>scripts/testing/run_and_log.sh IMP-2-step1-W0 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 300 mpiexec -n 2 python3 -m pytest tests/environment tests/unit/test_analytical_lightweight.py tests/validation/test_imp2_spheroid_closed_form.py tests/validation/test_imp2_spheroid_fem.py::test_census_and_numpy -s -v --tb=short'"</code></li>
+<li>W1 (≈ 250–400 s): label <code>IMP-2-step1-W1</code>, <code>timeout -k 30 600</code>, paths <code>tests/environment tests/validation/test_pec_sphere_hole.py tests/validation/test_imp2_spheroid_fem.py::test_both_aspects</code> (the first module is the rule (c) re-gate of the mesher).</li>
+<li>W2 (≈ 150 s): label <code>IMP-2-step1-W2</code>, <code>timeout -k 30 400</code>, <code>tests/environment tests/validation/test_imp2_spheroid_fem.py::test_transverse_control</code>.</li>
+<li><strong>Traps.</strong> The OCC sphere's poles become the tips after <code>dilate</code>; if W0 prints minimum quality under 0.1, rotate the unit sphere so its poles lie on the x axis before dilating. The cavity group from the meshed boundary, never the tool. No UFL comparisons and no <code>sqrt</code> comparisons — masks in numpy. Owned cells only (<code>size_local</code>). Read <code>geometry.dofmap</code>'s shape at runtime. Append to <code>analytical.py</code> after item 137's block. Foreground, <code>timeout: 660000</code>; <code>-s</code>; no edit after the last window.</li>
+<li><strong>Scope.</strong> Quasi-static trace, PEC, one c. Not: finite-k spheroid, 1 g SAR, the rod, convergence.</li>
+<li><strong>Status it can move.</strong> <code>IMP-2</code> 🟡 → ✅ ("step 1 at both aspects ⇒ ✅"; the row made precise by the 10:30 review).</li>
+<li><strong>Negative result.</strong> Over the cell guard in W0: stop before any solve, report the counts, BLOCKED. (F) red: a gradient bug — fix in-slot. (i) or (ii) red with (iii) and (M′) green: print h_tip/ρ_t, park on <code>attempt/*</code>, BLOCKED; no band moves.</li>
+</ul>
+<p><strong>Outcome (2026-10-01 15:00 slot) — DONE, <code>IMP-2</code> 🟡 → ✅.</strong> W0 <code>20261001T201413Z_IMP-2-step1-W0.log</code> (109 s): |k| = 17.900 1/m, (|k|c)² = 1.1535 %, (|k|R)² = 6.92 %; cells 37 359 / 44 304 (guard 95 000), min SICN 0.294 / 0.153; air OCC mass vs 8·b_x·b_y·b_z − 4πa²c/3 rel 3.1e-5 / 4.6e-6; (M′) rel 1.1e-15 / 3.8e-14; tangential E ≤ 2.5e-14, tip identity ≤ 1.7e-15; tip (1/L_z)² 33.2 / 320.9. (F) <strong>bound moved with measurement</strong>: the raw central difference at δ = 2e-3·c reads 1.1e-6 / 6.2e-7 with δ/2δ ratio 4.000 (truncation, not a gradient error), so 1e-7 is asserted on the Richardson combination (1.5e-11 / 1.2e-11) beside the ratio in [3.8, 4.2]. W1 <code>20261001T201608Z_IMP-2-step1-W1.log</code> (307 s, <code>test_pec_sphere_hole.py</code> re-gate green): aspect 2 β = 0.995439 (0.456 %), Φ_tip,h / Φ_tip,cf,h = 4.692920 / 4.745757 (1.113 %), 105.8 s; aspect 5 β = 0.990979 (0.902 %), 49.805748 / 49.904262 (0.197 %), 83.3 s; h_tip/ρ_t 0.80 / 0.67; cavity dofs 9 378 / 23 886 at max |E| 0; peak RSS summed over 2 ranks 6.46 GiB. W2 <code>20261001T202123Z_IMP-2-step1-W2.log</code> (179 s): transverse β = 4.4e-5, Φ_tip,h = 0.7185 vs 49.904 (miss 98.56 %, predicted 60–100 %), 76.8 s, 5.86 GiB. Two pre-W0 fixes logged by failing W0 runs (<code>20261001T200341Z</code>, <code>20261001T200855Z</code>: a scale-relative wall tolerance under OCC's 1e-7 bbox padding; a collective RSS reduction inside a rank-0 branch).</p>
+<h2 id="7-row-moved-verbatim-2026-10-01-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-01 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-01-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p><em>(history and §9 briefs: <code>docs/planning/chunks/IMP-2.md</code>)</em> <strong>A PEC prolate spheroid in a lossy host under a uniform axial field — the closed-form stand-in for a rod tip (Phase 7 subgoal (7a))</strong> (opened 2026-09-30 by the weekly; §10 chain I3 / I4). <em>Step 0 (I3), numpy only:</em> the exterior potential in prolate spheroidal coordinates, the depolarisation factor L_z(e) and the tip enhancement 1 / L_z, verified by Laplace and boundary residuals and the e → 0 sphere limit (enhancement 3). <em>Step 1 (I4):</em> FEM by <code>TH-15</code>'s hole route at aspect ratios 2 and 5 <em>(made precise 2026-10-01 10:30 review, §9 item 144: c = 6 mm, (|k|c)² = 1.154 % ≤ 4.886/3 %; new additive <code>spheroid_in_box_domain(as_hole=True)</code>; β the fitted amplitude of the closed-form scattered field, <code>IMP-1</code>'s β at a = c; the tip ball of radius 2a²/c about each tip; the control the transverse drive E₀x̂ on the aspect-5 mesh)</em>, tips graded, the body sized so the quasi-static error (|k|c)² is under a third of the band and stated before the run: the fitted dipole coefficient at <code>TH-15</code>'s imported band; the mean SAR enhancement over a tip ball against the closed form integrated on the same discrete mask at <code>MAT-4</code>'s 10 %; control — the transverse orientation's factor differs. <strong>Done-when (§4):</strong> step 0 green ⇒ 🟡; step 1 at both aspects ⇒ ✅. Pointwise tip SAR is printed only. <strong>Step 0 green 2026-10-01</strong> (§9 item 136, <code>20261001T142617Z_IMP-2-step0-W1b.log</code>, 45 s at <code>-n 2</code>, standard): tip identity ≤ 4.3e-14 at aspect 1.01–20, boundary ≤ 3.9e-15, far-field dipole a²c/(3L_z) to 1.3e-14, ODE 2.0e-14, sphere limit 1.2001 (6/5); L_z 0.173564 / 0.055821 (1/L_z 5.762 / 17.914) at aspect 2 / 5; FD-Laplacian ratio asserted at δ = 2e-3 / 4e-3·c (4.000) because the pre-registered 1e-4·c is round-off-bound (measured ratio ≈ 0.28, recorded in the test). <strong>Step 1 green 2026-10-01</strong> (§9 item 144, <code>20261001T201608Z_IMP-2-step1-W1.log</code> 307 s + control <code>20261001T202123Z_IMP-2-step1-W2.log</code> 179 s, <code>-n 2</code>, heavy): |β − 1| 0.46 % / 0.90 % and tip-ball Φ miss 1.11 % / 0.20 % at aspect 2 / 5 (37 359 / 44 304 cells, degree 2), cavity exactly zero; the transverse control misses (β 4e-5, Φ 98.6 %) — quasi-static, PEC, one c, imposed trace: no rod, no coil, no 1 g SAR. <em>Audited PASS 2026-10-01 18:00 review (<code>…201608Z_IMP-2-step1-W1.log:381–384,449–452,602,605–606</code>; <code>…202123Z…-W2.log:151–154,303–304</code>; W0 <code>…201413Z…:138,246</code>). <strong>Ratified (rule (h)):</strong> (F) was pre-registered as a raw central difference ≤ 1e-7 at δ = 2e-3·c and now asserts the truncation ratio 3.8–4.2 plus the Richardson-extrapolated error ≤ 1e-7. Same δ, same bound, same quantity, with the O(δ²) truncation (measured 1.1e-6 / 6.2e-7, ratio 4.000) removed. A wrong gradient would still read a ratio ≈ 1. The raw form was predictably red from step 0's own ladder (<code>…142617Z_IMP-2-step0-W1b.log:103–108</code>). Lesson for briefs: pre-register FD checks in Richardson or ratio form. Accuracy-level bands, not convergence (h_tip/ρ_t 0.80 / 0.67).</em> | ✅ </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

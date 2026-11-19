@@ -1,0 +1,1421 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>Daily review protocol (scheduled) - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#daily-review-protocol-scheduled" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Daily review protocol (scheduled)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rubric-what-a-queueable-item-states" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rubric: what a queueable item states
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#standing-9-rules-moved-verbatim-from-project_plan-9-2026-10-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standing §9 rules (moved verbatim from PROJECT_PLAN §9, 2026-10-24)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Standing §9 rules (moved verbatim from PROJECT_PLAN §9, 2026-10-24)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#9-head-items-history-pointers-the-feature-ladder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 head items (history pointers, the feature ladder)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-rules-16-and-the-binding-rulings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 rules (1)–(6) and the binding rulings
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="daily-review-protocol-scheduled">Daily review protocol (scheduled)<a class="headerlink" href="#daily-review-protocol-scheduled" title="Permanent link">&para;</a></h1>
+<p><em>Model: <code>scripts/automation/review-model.env</code> (dated override, self-expiring —
+see CLAUDE.md § Scheduled automation). High effort (operator directive
+2026-09-15; was medium).</em></p>
+<p>Run by <code>scripts/automation/daily-review.sh</code> via cron <strong>three times a day,
+every day</strong> (03:00 / 10:30 / 18:00 local; full schedule restored 2026-09-28,
+operator directive — the 2026-09-13 wind-down is over; canonical crontab
+<code>scripts/automation/crontab</code>), each followed by four implementer runs (04:30 /
+06:00 / 07:30 / 09:00, 12:00 / 13:30 / 15:00 / 16:30, 19:30 / 21:00 / 22:30 /
+00:00; no 21:00 run on Monday, Wednesday and Saturday, when the weekly holds that
+window). "Since the last review" therefore spans about eight hours, and the
+restock floor is one four-slot interval. One
+session, documentation work only — <strong>no solves, no meshing</strong>; reading harness
+logs is fine. You are maintaining the plan, not executing it.</p>
+<p><strong>Subagents are available to you, and web tools are not.</strong> Because this session
+never solves or meshes, a subagent costs tokens rather than cores and does not
+touch the 12-core compute budget. Use them for the mechanical, parallel, read-
+heavy work — one <code>auditor</code> (.claude/agents/auditor.md) per newly-✅ chunk in
+step 3, a <code>log-pathologist</code> ruling on any disputed or status-changing log
+reading in step 4, <code>plan-navigator</code> for plan/known-issues lookups instead of
+paging those files yourself, an <code>Explore</code> sweep when
+step 5 asks whether the backlog still reaches §10 — and keep your own context
+for the judgement calls: what a negative result means, and what to queue next.
+A subagent's report is evidence, not a verdict; if one says a chunk passes §4,
+the log it cites is what you cite back in the commit. Do not delegate steps 2,
+6, 7, or 8 — disposition, queue order, the dashboard refresh, and the commit
+are yours.</p>
+<h2 id="steps">Steps<a class="headerlink" href="#steps" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Establish what happened since the last review:</li>
+<li><code>git log</code> since the previous <code>docs(plan): daily review</code> commit (or 24 h
+     if none exists)</li>
+<li>new rows in <code>docs/testing/test-results.md</code> and logs in
+     <code>docs/testing/logs/</code></li>
+<li>new entries in <code>docs/testing/attempts.md</code></li>
+<li><code>git branch --list 'attempt/*'</code> for parked incomplete work</li>
+<li>
+<p><code>git status --porcelain -uno</code> — dirty tracked files at review time mean
+     every implementer run since they appeared has been tripping preflight</p>
+</li>
+<li>
+<p><strong>Clear any stalled tree, and dispose of <code>recovered/*</code> branches.</strong> A dirty
+   tracked tree older than one implementer cycle (90 min) is an outage, not a
+   curiosity, and this review is the scheduled actor responsible for ending
+   it. Read the diff and the attempts.md anomaly entries about it, then
+   resolve it now: commit the changes (accurate message, its own commit) if
+   they describe reality, or revert them if they do not, and record which
+   you did and why in the review commit. Documentation-only diffs that a
+   prior run journaled as an anomaly should normally have been landed by the
+   next implementer run (implementer-run.md step 1 exception); if one is
+   still sitting here, also note why that didn't happen. Never leave the
+   tree dirty at the end of the review.</p>
+</li>
+</ol>
+<p><code>git branch --list 'recovered/*'</code> lists trees a <em>second</em> implementer
+   encounter parked rather than stopped for (implementer-run.md step 1). Each
+   one is a change nobody has adjudicated: read it, then land it, fold it into
+   a §7 entry, or delete the branch — and say which in the review commit. An
+   accumulating <code>recovered/*</code> list means the tree keeps going dirty from a
+   source nobody has found; name that in the commit rather than clearing it
+   silently.</p>
+<ol>
+<li>
+<p><strong>Audit every chunk whose status changed to ✅ since the last review</strong>
+   against PROJECT_PLAN.md §4: does a harness log exist, was the verification
+   executed by the agent itself, is at least one assertion quantitative
+   (closed form / convergence rate / conservation, reciprocity, or symmetry
+   identity), is elapsed time recorded? Demote anything non-compliant to 🧪
+   with a dated note. Do not re-run anything. A chunk's evidence is its §7
+   row <strong>plus</strong> its history file <code>docs/planning/chunks/&lt;ID&gt;.md</code> when the row
+   points to one (<code>OPS-46</code>); the auditor reads both. Delegate each audit to the
+   <code>auditor</code> agent; treat its DEMOTE/PASS as evidence and re-cite its
+   log:line evidence yourself in the review commit. Through 2026-09-03:
+   re-verify one cited claim per agent report (a random digit trace) before
+   acting on it; this clause expires on its own after that date.</p>
+</li>
+<li>
+<p>For each incomplete attempt (attempts.md entries + <code>attempt/*</code> branches):
+   diagnose from the logs and the parked diff; rescope the chunk's §7 entry —
+   smaller case, sharper implementation plan, or split into two chunks — and
+   record the diagnosis in the entry. Delete an attempt branch only when its
+   useful content is fully captured in the plan. Before banking a diagnosis
+   whose log reading is surprising or changes a status, get a
+   <code>log-pathologist</code> ruling; UNCOUNTABLE means diagnose from the parked diff
+   only.</p>
+</li>
+<li>
+<p>Assess against §10 success criteria: does the existing backlog still lead
+   to the mission? If a gap exists, add new chunk entries (stable IDs,
+   §4-compliant done-whens, implementation plans meeting the rubric below).
+   If no gap exists, do not invent work. <strong>Scope boundary:</strong> the §6 phase map
+   and §10's long-horizon roadmap (phases, subgoals, dated assessments)
+   belong to the weekly planning review (docs/automation/weekly-review.md) —
+   add chunks <em>within</em> the current phase's subgoals; do not restructure
+   phases or edit the roadmap here.</p>
+</li>
+</ol>
+<p><strong>Example chunks (§5.4 ramp):</strong> for each chunk that newly closed a
+   quantitative gate since the last review (the step-3 list, post-audit),
+   check whether an existing example already demonstrates that capability;
+   if not, add a standalone example chunk to §7 — sized for one implementer
+   run, executed via <code>./run_examples.sh</code>, producing combined-XDMF that opens
+   in ParaView, and demonstrating the capability from an angle no existing
+   example covers (geometry, materials, drive, or output quantity). Example
+   chunks are never riders on physics chunks and never target ungated
+   capability.</p>
+<ol>
+<li>Refresh <strong>"On deck"</strong> in §9. <strong>The restock floor counts <em>measured</em>
+   slot-minutes (operator directive 2026-10-01; was predicted minutes from
+   2026-09-13):</strong> the queue must carry <strong>≥ 160 measured slot-minutes</strong> of
+   open, unblocked work — four slots × ≈ 40 min, the work a slot can
+   actually consume, since it starts items only before minute 30 — <strong>and
+   ≥ 5 items</strong> (the spare). Predicted minutes ran 5–10× high (09-30: six
+   items predicted at 245 min landed in 33; 17 of 36 slots short of work),
+   so they no longer count toward the floor; each item still states its
+   predicted cost (rubric element 3), which sets its tier and timebox.
+   <strong>An item's measured slot-minutes</strong> are its class's median over the last
+   ≥ 5 landed items of that class, measured from the slots' own commits: an
+   item's duration is its outcome-commit time minus the slot's start (first
+   item) or minus the previous item's outcome commit (take-next). Classes:
+   chain step (solve), chain step (no solve), lane-1 revalidation, lane-2
+   feature step, lane-3 closed form, example (<code>example-runner</code>), ops / docs.
+   A class with &lt; 5 landed items uses its predicted minutes × the last
+   interval's overall measured / predicted ratio until it calibrates. Write
+   the class table (class, n, median minutes) in the review journal every
+   run and the running measured total beside the list. Since 2026-09-12 a slot that commits its item with
+   a clean tree before minute 30 takes the next one (implementer-run.md
+   step 2), which is why five items is not a floor any more: on 09-12 a
+   five-item queue of cheap serial moves lasted two slots and three further
+   slots drained with every review alive. Each item is still sized for one
+   run (≤ 1 h wall clock, ≤ 20 min per compute command, ≤ 12 ranks) and
+   ordered; independent items first. If the ready items do not reach the
+   floor, list what exists, <strong>state the shortfall in minutes</strong>, and say so —
+   step 5 still forbids inventing work, and a visible shortfall is the
+   signal the weekly needs. Each listed item meets the rubric below; an item
+   that cannot yet state its anchor is not ready to queue, and writing that
+   anchor is itself the better queue item.</li>
+</ol>
+<p><strong>Where an item lives (operator directive 2026-10-01).</strong> The full brief —
+   every rubric element, the spawn prompt, commands, <code>PREDICTED RED</code> lines —
+   goes in the chunk's history file <code>docs/planning/chunks/&lt;CHUNK&gt;.md</code> under
+   a heading <code>### §9 item N — &lt;date&gt; (&lt;chain step / lane&gt;)</code> (create the file
+   if the chunk has none; the §7 row already points there or gains the
+   pointer). <strong>§9 carries two lines per item:</strong> line 1 —
+   <code>N. &lt;status&gt; — &lt;chunk&gt; &lt;step&gt; (&lt;chain step / lane&gt;; &lt;executor&gt;; &lt;tier&gt;,
+   -n &lt;ranks&gt;; ≈ &lt;measured&gt; measured / &lt;predicted&gt; predicted min;
+   depends on &lt;item | nothing&gt;)</code>; line 2 — the anchor in one clause and the
+   link <code>→ docs/planning/chunks/&lt;CHUNK&gt;.md#§9-item-N</code>. When an item lands,
+   its §9 entry collapses to the single DONE / BLOCKED line the digest
+   already uses; the brief stays in the chunk file as history. §9 itself
+   keeps only the rules, the rulings that bind the next slots, the entries
+   and the running totals — <strong>target ≤ 25 KB</strong>. <em>Migration:</em> the first
+   review after this directive moves every open item's body from §9 into its
+   chunk file verbatim (the zero-loss check: each moved body byte-identical
+   at its destination) and leaves the two-line entries.</p>
+<p><strong>§7 rows follow the same split (operator directive 2026-10-01): each
+   row ≤ 2 KB</strong> — ID, short title, glyph, a ≤ 2-sentence current-state line,
+   the Done-when, the tier. When you amend a row (a ruling, a re-scope, an
+   audit result), write the narrative into <code>docs/planning/chunks/&lt;ID&gt;.md</code>
+   and change only the glyph / state line / Done-when in the row. The
+   weekly runs the census and moves any row that has grown past 2 KB
+   (weekly-review.md step 6).</p>
+<p><strong>The enumerated-chain licence (operator directive 2026-09-18; §9 rule
+   (4)).</strong> "Forbids inventing work" does not forbid <em>executing the weekly's
+   plan</em>. When the ready items do not reach the floor, you may write and
+   queue — at the full rubric grain, anchor and control and status-it-can-
+   move included — any <strong>numbered</strong> step the weekly has enumerated in a §10
+   chain (today the "step count to a tuned birdcage" list, §10 Phase 6)
+   whose serial prerequisites have landed on <code>main</code>. The weekly supplied the
+   question and the validation target; you supply the execution detail
+   (fixture, files, tier by measurement or cost probe, imported bands). You
+   may not add a step to a chain, reorder one, or change a step's target; a
+   step whose target you cannot make assertable is queued as "write the
+   anchor" (a documentation item) and named in the dashboard for the
+   weekly. Say in the item which chain step it executes. This is what
+   keeps four slots a day from draining into figures while a written plan
+   sits idle between weeklies.</p>
+<p><strong>The backlog-lane licence (operator directive 2026-09-28; §9 rule
+   (5)).</strong> When the ready chain steps do not reach the floor, also write
+   and queue, at the same full rubric grain, items from the three standing
+   lanes §9 rule (5) defines — <strong>lane 1</strong> revalidation of <code>🧪</code> / <code>⚠️</code>
+   chunks, <strong>lane 2</strong> feature-ladder Tier B (<code>TH-16</code>, then <code>TH-18</code>, then
+   <code>TH-5</code>), <strong>lane 3</strong> Phases 7 and 8 and their materials (<code>MAT-3</code>,
+   <code>MAT-5</code>, Pennes gel regime, implant geometry). Fill the shortfall
+   round-robin across the lanes; each item is independent of the chain
+   critical path and never displaces a ready chain step above it. Here
+   "forbids inventing work" means you do not invent <em>targets</em>: a lane item's
+   anchor is the chunk's own done-when, a closed form (Jin or another cited
+   text, chapter/equation named), or a cited published result. A lane-3
+   chunk you open because the weekly has not yet written one is named in
+   the dashboard for the weekly to ratify. <strong>A drained queue is a supply
+   problem, never a reason to recommend fewer slots:</strong> if chains and all
+   three lanes are genuinely empty, say which lane is empty and why in a
+   🔴 dashboard item.</p>
+<p><strong>The chain-extension licence (operator directive 2026-10-02; §9 rule
+   (6)).</strong> When the ready chain steps and the lanes still do not reach the
+   floor — or a chain's last enumerated step has landed or been parked — you
+   may <strong>write the next numbered steps of a live §10 chain</strong> yourself, at
+   full rubric grain, toward that chain's <strong>stated subgoal and validation
+   target</strong> (the weekly's; you never write or change one). Tag each step in
+   §10 <em>"(daily, YYYY-MM-DD — provisional)"</em> and queue it like any chain
+   step. <strong>At most six provisional steps per chain</strong> may stand between
+   weeklies (raised from three, operator ruling 2026-10-24 — W8); the weekly ratifies or reverts them. You may also <strong>re-pose a
+   blocked step</strong> — a different fixture, split windows, a measurement that
+   separates two readings — when the re-pose keeps the step's target and
+   its family's attempt count (the four-attempt cap still applies; a
+   re-pose is the next attempt). Never under this licence: set or move a
+   band, tolerance, done-when or validation target; open a new chain,
+   subgoal or phase; ratify your own provisional ruling. Bands you rule
+   provisionally stay provisional until the weekly ratifies (as <code>WF-12</code>'s
+   and <code>MAT-15</code>'s did, 2026-10-01). Do the supply work in the review that
+   finds the shortfall — usually 18:00 and 03:00 — so the 10:30 run stays
+   light when the morning queue holds.</p>
+<p><strong>The setup-figure filler (operator directive 2026-09-13, <code>EX-57</code>).</strong>
+   After the real items, <strong>always append one <code>EX-57</code> item</strong> — the recurring
+   background task the operator asked for — naming the scripts that
+   <code>python3 scripts/testing/check_example_setup_figures.py --next 3</code> prints,
+   cut at the first one outside the leading script's group directory
+   (run it; do not guess the order). <strong>Batched since 2026-09-25</strong> (operator
+   directive): one <code>example-runner</code> run draws all of them, so its start-up
+   reads are paid once, not once per figure. Cost it at the examples'
+   recorded windows + 15 min + 10 min per figure after the first (≈ 20
+   slot-min for one, ≈ 40 for three), tier the heaviest example's,
+   <code>example-runner</code>, independent, "<strong>Status it can move:</strong> <code>EX-57</code> census
+   <code>missing</code> − k" (k = scripts named). Its
+   done-when is the §7 <code>EX-57</code> entry's per-item list; copy nothing else.
+   When the census prints nothing (<code>missing=0</code>), flip <code>EX-57</code> to ✅ in §7
+   and stop appending. This item counts toward the slot-minutes floor but
+   never displaces a physics item above it, and it is also the
+   drained-queue fallback in §9, so a slot that empties the queue draws the
+   next figure instead of stopping.</p>
+<p><strong>The family cap (operator directive 2026-09-12, four attempts).</strong> A
+   <em>step family</em> is a numbered step plus all of its lettered sub-steps
+   (<code>4</code>, <code>4a</code>–<code>4k</code> are one family). Count the attempts since the last
+   sub-step in the family that landed a gate — an asserted, pre-registered
+   anchor that moved a §7 status, retired a known-issues entry or registered
+   a record; a green run of <em>imported</em> gates does not count. <strong>At four, the
+   family is frozen</strong>: this review must either re-scope the question at a
+   higher altitude as a <em>new numbered step</em> or bank the measured negative and
+   close the question in the §7 row and known-issues — it may not queue a
+   fifth letter. Relettering does not reset the count; a landed gate does.
+   The rule replaced §9's "fails twice" rule, which never fired because every
+   reletter was formally a new item (<code>WF-6</code> step 4 ran twelve).</p>
+<p><strong>Prefer independent items over a dependency chain.</strong> Four runs will take
+   items 1–4 in order without waiting for each other's results, so an item
+   that only works if the item above it landed will fail for reasons that are
+   not about that item. Where the critical path is genuinely serial, say so
+   explicitly in the item ("depends on item 1 landing; if it did not, skip to
+   item 3") rather than leaving the run to discover it.</p>
+<p>6b. <strong>XL clerk and XL backlog floor (operator directives 2026-09-13 and
+   2026-09-15).</strong> The XL / XXL windows are the cheapest compute the project
+   has — cron scripts, no tokens — and they are meant to run <strong>every
+   night</strong>. This step keeps them fed. Read
+   <code>docs/testing/xl-pending.md</code> and both ledgers, then do all of the
+   following, in order.</p>
+<ol>
+<li><strong>Mark runs.</strong> When a ledger has gained a row since the last review,
+      mark the matching pending entry <code>RUN &lt;log&gt;</code> and remove nothing else.</li>
+<li><strong>Queue every READY entry, not just the top one.</strong> For each tier,
+      copy each <code>READY</code> entry whose prerequisite has landed on <code>main</code> into
+      its own file in <code>docs/testing/&lt;tier&gt;-queue.d/</code> — named
+      <code>&lt;intended run date&gt;-&lt;chunk&gt;.env</code>, <code>XL_CHUNK</code> / <code>XL_COMMAND</code> (and
+      <code>XL_OUTPUTS</code> when the entry declares one, <code>OPS-64</code>) copied
+      <strong>verbatim</strong> (the Write tool, not a shell redirect — the guard trips
+      on XL command text in a shell command) — up to the tier's budget:
+      <code>xl</code> six charged rows per trailing 7 days of <code>xl-ledger.md</code>, one
+      window per night Sun–Fri; <code>xxl</code> one per trailing 7 days, Saturday.
+      Run dates are consecutive tier nights from the next 02:00. Mark each
+      entry <code>QUEUED &lt;today&gt; for &lt;run date&gt;</code>. The launcher runs the files
+      in lexical order, re-checks the budget itself and deletes each file
+      after its window, so queueing ahead over several nights is
+      exactly the point. Never alter a command, never queue on a dirty
+      tree. The legacy one-slot <code>&lt;tier&gt;-queue.env</code> stays empty.</li>
+<li><strong>Check the floor.</strong> After queueing, count the <code>xl</code> entries that are
+      <code>READY</code> or <code>QUEUED</code> for a future night, and the <code>xxl</code> ones. <strong>Floor:
+      ≥ 4 <code>xl</code> and ≥ 1 <code>xxl</code> ahead</strong> — enough to cover every window until
+      the next weekly. Write the count and any shortfall in the review
+      commit and in the dashboard's Automation-health section as <em>XL:
+      N of 6 windows used in the trailing 7 days, M entries ahead (floor
+      4)</em>, and when the floor is not met add a 🔴 Waiting-on-you item
+      that says so.</li>
+<li><strong>Fill the shortfall under the daily licence.</strong> When the floor is not
+      met you may <strong>write new pending entries yourself</strong>, in two classes
+      only, and must still write them in full (tier, chunk and step, exact
+      command, price, readout, decision rule — the same rubric as the
+      weekly's):<ul>
+<li><strong>Priced-family variants:</strong> the same script and mesh as an entry
+    or ledger row that already carries a <em>measured</em> price at this tier,
+    varying only frequency, polynomial degree, drive or port set, rank
+    count, or one named env knob. The measured price of the family
+    member is the price you cite, with the scaling stated (a degree or
+    rung change is a variant only when a measured point at the target
+    order or rung exists; otherwise it is a cost probe).</li>
+<li><strong>Cost probes:</strong> the first window on an unpriced case, whose
+    readout <em>is</em> the price (§5.1: "the first XL window on it is a cost
+    probe whose readout says so"). Fixed brackets in the readout, no
+    gate, no band.
+  Prefer variants that answer a §10 question the weekly has already
+  posed (the ANS-4 degree-2 rung at the other Larmor frequency; the
+  F-human degree-1 solve at the full port set; resolution-ladder rungs
+  the heavy tier cannot hold; the <code>TH-16</code> symmetry-plane cost). New
+  physics questions, new fixtures and anything that moves a band stay
+  the weekly's to commission; say in the entry which licence class it
+  is under. An entry you write is <code>READY</code> or <code>PENDING PREREQUISITE</code>
+  like any other and is queued by rule 2 in the same review.</li>
+</ul>
+</li>
+<li><strong>Prerequisites.</strong> A <code>PENDING PREREQUISITE</code> entry's prerequisite is an
+      ordinary §9 item — queue it in step 6 like any other, and write into
+      that item that the implementer landing it marks the pending entry
+      <code>READY</code> in the same commit (so a landing does not wait for the next
+      review).</li>
+</ol>
+<p>6c. <strong>Keep §9 current-state only</strong> (added 2026-09-19, operator directive —
+   every agent reads this section before it starts, and on that date it was
+   71 KB). §9 answers one question: <em>what does the next slot do?</em> Three
+   rules, applied every review, in the same commit as the restock:
+   - <strong>A DONE item collapses to one line</strong> the review after it lands:
+     <code>N. DONE &lt;date&gt; (&lt;slot&gt;) — &lt;chunk/step&gt;: &lt;result in ≤ 25 words&gt;;
+     &lt;commit&gt;; &lt;log&gt;</code>. Its execution text has served its purpose — the
+     closure narrative is already in the §7 row / <code>docs/planning/chunks/&lt;ID&gt;.md</code>
+     and the journal entry. Move nothing; delete the execution text (git
+     keeps it) unless it holds a ruling recorded nowhere else, in which case
+     move that paragraph verbatim to the chunk's history file first.
+   - <strong>This review's own journal</strong> — interval recap, audit reports, rulings,
+     §10 assessment, restock and XL-clerk notes — is written to
+     <code>docs/planning/reviews/YYYY-MM-DD-daily.md</code> (create the directory on
+     first use), <strong>not</strong> into §9. §9 carries a digest of <strong>≤ 15 lines</strong>:
+     the rulings that bind the next slots, one line each, and the path of
+     the full journal. The dashboard (step 7) digests the same file.
+   - <strong>Standing rules stay, dated one-offs go.</strong> A standing rule that a
+     slot must obey stays in §9 verbatim. A paragraph that records <em>why</em> a
+     rule exists, or an incident, moves verbatim to
+     <code>docs/planning/plan-archive.md</code> with a one-line pointer.
+   Target, not a gate: §9 under ≈25 KB with a full queue. If it is over,
+   say so in the journal and say which rule was not enough.</p>
+<ol>
+<li><strong>Refresh the status dashboard.</strong> Rewrite <code>docs/status/dashboard.md</code> from
+   what steps 1–6 established — Waiting-on-you first, then the §2 digest
+   (only when §2 changed), recent activity, automation health, on-deck
+   summary. Keep it a digest: no content that exists only there.</li>
+</ol>
+<p><strong>Then regenerate the cold-start index (added 2026-09-19):</strong></p>
+<p><code>scripts/testing/run_and_log.sh PLAN-INDEX "timeout -k 30 30 python3 scripts/maintenance/plan_index.py"</code></p>
+<p>It rewrites the generated open-chunk block of <code>docs/status/START_HERE.md</code>
+   from the §7 rows you have just edited (through the harness: a bare
+   <code>python3</code> is not on the headless allowlist). Never edit that block by
+   hand, and put no status, number or ruling into the rest of that file — it
+   points, it does not record. Commit it with the dashboard.</p>
+<p>The artifact republish is <strong>interactive-only</strong>: the Artifact tool is not
+   available in headless scheduled sessions, so do not attempt it here —
+   the file update is this step's whole deliverable. The published copy at</p>
+<p><code>https://claude.ai/code/artifact/d5040a1e-ae6c-42dd-8e11-2330e0b9bbc8</code></p>
+<p>is refreshed by the next interactive session (pass that URL as <code>url</code> so
+   the link stays stable), and lags <code>docs/status/dashboard.md</code> until one
+   runs — the operator confirmed this arrangement 2026-08-11 after the
+   artifact was found six days stale. Anything blocked on the human
+   operator goes at the
+   top of Waiting-on-you — the dashboard is the only alerting channel; do
+   not send push notifications. Dashboard staleness alone does not justify
+   a commit — fold the refresh into a commit the other steps already
+   earned, or skip it this interval.</p>
+<p><strong>Weekly usage-limit outages are accepted (operator ruling 2026-10-09).</strong>
+   When launcher logs read "You've hit your weekly limit", report the lost
+   sessions in Automation health as information — count and window — not as
+   a Waiting-on-you decision. The allowance resets Friday 12:00 local, so the
+   outage falls on Thursday night / Friday morning, where no weekly runs, and
+   the two-slot dirty-tree containment covers a session cut off mid-run.
+   <strong>Re-raise it to Waiting-on-you only if</strong> a weekly review is lost to it,
+   the first failure moves earlier than Thursday 18:00, a mid-run cut-off
+   leaves a <code>recovered/*</code> branch, or the outage exceeds one 12-hour window.</p>
+<ol>
+<li>Commit everything as <code>docs(plan): daily review YYYY-MM-DD</code>. If nothing
+   needs changing, <strong>commit nothing</strong> — §5.2 explicitly prohibits audit-note
+   commits, and that rule exists because of a 35-commit pile of them.</li>
+</ol>
+<h2 id="rubric-what-a-queueable-item-states">Rubric: what a queueable item states<a class="headerlink" href="#rubric-what-a-queueable-item-states" title="Permanent link">&para;</a></h2>
+<p>This is the standard the strongest items have already met — <code>PORT-1</code> step 1
+named its closed form, its meshed-vs-nominal current correction, and the two
+traps that had each cost a run, which is why it returned a decisive negative
+inside one slot instead of a confused half-result. Below that bar, the
+implementer spends its hour rescoping instead of measuring. Every item added in
+step 5 or listed in step 6 states all six. An item whose chunk class has a
+specialist executor (<code>example-runner</code> for EX-* example chunks, <code>mesh-probe</code>
+for measurement-only mesh/resolution probes, <code>record-reconciler</code> for
+version-bump record sweeps) says so in its first line:</p>
+<ol>
+<li><strong>The anchor</strong> — the specific closed form, conservation/reciprocity
+   identity, or convergence rate the item will assert against, named with the
+   symbol or the function that computes it (<code>utils/analytical.py</code>, a paper's
+   kernel). "Check that it works" is not an anchor, and an item without one
+   cannot close a chunk under §4.</li>
+<li><strong>The negative control</strong> — what a blind or broken solver returns on the same
+   fixture, and the separation to assert. Compute the <em>ceiling</em> before naming a
+   factor: <code>POST-3</code> step 2's blind imbalance saturates just under 100%, so
+   1/0.1185 = 8.4× is arithmetically the most that fixture can show and a 10×
+   bar would have been unreachable, not merely unmet.</li>
+<li><strong>Tier, ranks, and expected wall clock</strong> — smoke 30 s / standard 180 s /
+   heavy 1200 s (never <code>xl</code>: that tier is the weekly review's to commission,
+   §5.1), the rank count, and a cost estimate taken from a prior
+   measurement where one exists (a probe's solve time, a comparable fixture).
+   An item nobody has costed is an item that overruns.</li>
+<li><strong>The traps already paid for</strong> — name the failures this project has already
+   bought, so the run does not buy them twice: <code>ufl.max_value</code> and any
+   ordering comparison (<code>&lt;=</code>) on complex-typed operands do not compile in the
+   complex build — the error surfaces either as a UFL <code>ComplexComparisonError</code>
+   or as a swallowed FFCx "root node" failure, and three fixture
+   <code>current_density</code> callables carried it (<code>OPS-22</code>, 2026-08-19; regularise
+   inside the <code>sqrt</code> instead) — and <strong>real operands do not save a comparison
+   that contains a <code>sqrt</code></strong>: UFL types <code>Sqrt</code> as complex whatever its
+   argument, so <code>proj &gt; sqrt(x² + y²)·c</code> on a real <code>SpatialCoordinate</code> raised
+   the same error and cost a 400 s window (<code>WF-6</code> step 4c, 2026-09-08; compare
+   squares — <code>proj &gt; 0 ∧ proj² &gt; (x² + y²)·c²</code>); a killed compile leaves an <strong>orphan <code>.c</code></strong> in
+   <code>/root/.cache/fenics</code> — a stem with its <code>.c</code> but no <code>.cpython-*.so</code>,
+   either a 0-byte stub (2026-08-18/19, three windows) or a partial file
+   (44 KB, <code>MAT-15</code> item 160, 2026-10-01, missed by the old <code>-size 0</code>
+   sweep) — that is a <em>live lock</em>: later runs (even in the same session)
+   stall in <code>MPI_Bcast</code> or fail with "JIT compilation timed out, probably
+   due to a failed previous compile". Every complete stem has four files
+   (<code>.c</code>, <code>.c.cached</code>, <code>.o</code>, <code>.cpython-312-…so</code>). <strong>Sweep only when no
+   compute is running</strong> (<code>pgrep -c python3</code> in the container reads 0 — a
+   live compile legitimately has <code>.c</code> without <code>.so</code>), as one bare harness
+   call:
+   <code>scripts/testing/run_and_log.sh &lt;ID&gt;-cache-sweep "docker compose exec -T fem-em-solver bash -lc 'cd /root/.cache/fenics &amp;&amp; for c in libffcx_*.c; do s=\${c%.c}; ls \$s.*.so &gt;/dev/null 2&gt;&amp;1 || { echo orphan \$s; rm -f \$s.c \$s.c.cached \$s.o; }; done; echo sweep done'"</code>
+   — delete orphan stems only, never clear the cache wholesale (the
+   targeted delete is also the diagnostic: a real defect re-creates its
+   orphan, a cache artifact does not); <code>cell_tags.values</code> and
+   <code>assemble_scalar</code> are rank-local; pytest captures prints without <code>-s</code>;
+   <code>-k a or b</code> splits into stray argv inside an already-quoted container
+   command; a headless session that backgrounds a harness run and ends its
+   turn exits the CLI and SIGKILLs the harness (footerless log, no journal —
+   three slots on 2026-08-10/11): harness runs go foreground, Bash-tool
+   timeout 660000 ms, container-side <code>timeout</code> sized to return a footer
+   inside that window — and the same rule binds a <strong>spawned executor's</strong>
+   windows and the slot that spawned it: on 2026-09-01 00:00
+   <code>example-runner</code> returned with a <code>./run_examples.sh</code> window still
+   running (killed host-side 267 s in, footerless, the container process
+   orphaned), and the slot that ended its turn waiting for it was
+   terminated by the CLI's 600 s background ceiling with no journal —
+   spawn executors foreground, state the rule in the spawn prompt; the
+   container-side <code>timeout</code> needs <code>-k 30</code> — a plain
+   TERM does not reliably stop an <code>mpiexec</code> job, and an overrun can wedge
+   the container (MAT-6 step 10, 2026-08-12; recovery is
+   <code>docker compose up -d --force-recreate</code>); piping pytest through
+   <code>grep -v</code> (or anything) inside the harness command makes the log
+   footer record the pipe's exit status, not pytest's — two OPS-17
+   step-2 footers show exit 0 over a failing and a killed run
+   (2026-08-17); filter after the fact, never in the pipeline; a
+   <code>SpatialCoordinate</code>-bearing facet integral on a gmsh mesh without
+   <code>metadata={"quadrature_degree": …}</code> can send FFCx into a compile that
+   does not finish in nine minutes, and each killed window poisons that
+   form's cache entry (<code>rm /root/.cache/fenics/*&lt;hash&gt;*</code> recovers; pin
+   the degree — <code>POST-5</code> step 1, 2026-08-18, two windows); landing a
+   parked branch by <strong>path checkout</strong> of an append-only record
+   (<code>git checkout attempt/… -- docs/testing/test-results.md</code>) replaces
+   the file and silently deletes every row <code>main</code> appended since the
+   branch — <code>8d4cf58</code> (<code>TH-15</code> step 3b, 2026-09-09) dropped nine rows
+   across four chunks, restored by the 2026-09-10 03:00 review; take
+   code by path, append record rows by hand, and check
+   <code>git diff --stat</code> shows only insertions on record files; a negative
+   control that copies <code>HEAD:</code> of the file its change edits goes stale the
+   moment that change lands — <code>test_orphan_guard.sh</code>'s control was red on
+   every HEAD after <code>d10a940</code> and cost <code>OPS-43</code> (a)'s regression a window
+   (2026-09-10 16:30); pin the pre-change commit (<code>&lt;sha&gt;^</code>) instead; an
+   orphan-rank check spelled <code>pgrep -f "python3 -m pytest"</code> is <strong>denied by
+   <code>bash_guard.py</code></strong> (the string matches its pytest-routing rule) —
+   <code>pgrep -c python3</code> inside the container is the check that runs
+   (<code>TH-19</code> steps 1–2, 2026-09-10 22:30); a durable-capture command that
+   drops the idiom's trailing <strong><code>; exit $rc</code></strong> exits with <code>cat</code>'s status, so
+   the harness footer and test-results row read <strong>0 over a failed pytest</strong> —
+   <code>WF-6</code> step 4h's red window (<code>[capture] rc=1</code>, <code>Status: 0</code>, 2026-09-11
+   09:00); copy §5.1's idiom verbatim. Since <code>OPS-45</code> (2026-09-11 12:00) the
+   footer honours a <strong>final</strong> <code>[capture] rc=</code> line, but an rc line followed
+   by any further output is still ignored by design, so the trailing
+   <code>; exit $rc</code> stays mandatory. A DOLFINx <code>.eval</code> / point sample's
+   <strong>bytes depend on the batch it was evaluated in</strong>: re-sampling four
+   captured batches as one 46-point batch differed in the last ULP at some
+   probes and turned a W4 red (<code>POST-8</code> 3b-ii-t2, item 537, 2026-10-18
+   21:00, <code>20261019T020649Z_POST-8-step3b-ii-t2-W4-wire.log</code>). A bitwise
+   comparison compares call by call on the same batch. Add to this list as
+   runs discover more.</li>
+<li><strong>The scope boundary</strong> — what the item does <em>not</em> close, stated so the
+   implementer holds the chunk at 🟡 rather than over-claiming. <code>POST-3</code> step 1
+   correctly stayed 🟡 because a scalar-σ identity does not gate the coil+
+   phantom case, which is where it would earn its keep.</li>
+<li><strong>What a negative result means</strong> — the disposition if the measurement comes
+   back wrong or zero. The answer is always <em>report the measurement and stop</em>,
+   never fabricate a gate around it or loosen a bound to swallow it; the item
+   should say which artifact captures it (a §7 annotation, a known-issues
+   entry, an <code>attempt/*</code> branch). <strong>A pre-registered negative</strong> (operator
+   directive 2026-10-01): when the item is queued <em>expecting</em> an assertion to
+   fail — the confirming measurement of a ruling, as item 133 was — write it
+   in this fixed form on its own line of the brief:
+   <code>PREDICTED RED: &lt;assertion id&gt; range [&lt;a&gt;, &lt;b&gt;]</code> (one line per predicted
+   red; a range, never a point). Only a red that lands inside its stated
+   range, with every other assertion green, lets the slot continue
+   (implementer-run.md step 2); without that line a red stops the slot as
+   before.</li>
+<li><strong>The status its result can move</strong> <em>(added 2026-09-12, operator
+   directive)</em> — the §7 chunk row, §2 sentence or known-issues entry the
+   measurement can change, and what result would change it (a glyph flip, a
+   retired entry, a registered record, a re-pointed §2 clause). An item that
+   cannot name one is a curiosity, not work, and the review declines to queue
+   it — <code>WF-6</code> steps 4h–4k all diagnosed a rung the review had already
+   removed from the ladder, four slots that could not move a status by
+   construction. This is a filter applied while queueing, not a regret
+   afterwards.</li>
+</ol>
+<p>Prefer items where a negative result is still informative — those convert a
+failed hour into a finding. <code>PORT-1</code> step 1 measured exactly-zero mutual
+coupling and thereby found the unfragmented mesh that had been quietly
+corrupting three other fixtures.</p>
+<h2 id="constraints">Constraints<a class="headerlink" href="#constraints" title="Permanent link">&para;</a></h2>
+<ul>
+<li>AED benchmark numbers are private (CLAUDE.md hard rules): read the gitignored <code>aed_results/</code> / <code>COMPARISON_private.md</code> / <code>docs/private/</code> files if you need context, but never copy a number from them into a tracked file, a journal entry or a commit message.</li>
+<li>Never loosen a test bound or a done-when to make history look better.</li>
+<li><strong>Write "approximately" as <code>≈</code>, never <code>~</code>,</strong> in any tracked Markdown
+  (plan, journals, dashboard, known-issues, chunk files). GitHub-flavoured
+  Markdown renders a single <code>~text~</code> as strikethrough, so two approximate
+  tildes in one paragraph cross out everything between them (swept
+  2026-09-28, 1 800 lines). Literal tildes go in backticks or as <code>\~</code>;
+  <code>~~…~~</code> stays reserved for deliberate retractions.</li>
+<li>known-issues.md discipline applies: failures observed but not fixed get an
+  entry; entries leave only with the commit that fixes them.</li>
+<li>Your session transcript is not durable. Anything worth keeping goes into
+  the repo in this session's commit.</li>
+</ul>
+<h2 id="standing-9-rules-moved-verbatim-from-project_plan-9-2026-10-24">Standing §9 rules (moved verbatim from PROJECT_PLAN §9, 2026-10-24)<a class="headerlink" href="#standing-9-rules-moved-verbatim-from-project_plan-9-2026-10-24" title="Permanent link">&para;</a></h2>
+<p><em>Operator ruling 2026-10-24 (interactive session): §9 holds the queue; the standing blocks that govern how the reviews fill it live here, verbatim, and keep their numbers — "§9 rule (N)", "§9 item 5" and "ladder A1–C4" cite this section. Amend them here, not in §9.</em></p>
+<h3 id="9-head-items-history-pointers-the-feature-ladder">§9 head items (history pointers, the feature ladder)<a class="headerlink" href="#9-head-items-history-pointers-the-feature-ladder" title="Permanent link">&para;</a></h3>
+<p><em>(Items 1–3 — the birdcage-port lineage to <code>PORT-9</code> ✅, the 64 MHz h → 0
+bracket, the <code>PORT-4</code>…<code>8</code> ordering — are history, archived verbatim
+2026-09-28 in <code>docs/planning/plan-archive.md</code> § "§9 head items 1–3".)</em></p>
+<ol>
+<li><em>(Operator directive 2026-09-04, the conductor lineage <code>TH-15</code> → <code>TH-14</code> → <code>ANS-6</code> — its ordering is spent: <code>TH-14</code> ✅, <code>ANS-6</code> AGREE on the loss partition, <code>TH-15</code> 🟡 on its own row, all now driven by the §10 chains; archived verbatim 2026-10-01 in <code>plan-archive.md</code> § "§9 head items 4 and 6".)</em></li>
+<li><strong>Operator directive 2026-09-04 (interactive session) — the Ansys
+   feature ladder.</strong> The boundary conditions and excitations HFSS users
+   rely on for the §1 workflow that this repo lacked, ranked once by the
+   operator so that no review has to re-derive the priority. <strong>Reviews
+   queue the ladder in this order; an item is skipped only when blocked
+   (serial dependency not ✅, or a measured cost the box cannot pay), and
+   every skip is recorded in this table with its reason, in the row's
+   Note column.</strong> Tier A is cheap linear algebra on solves that already
+   pass their gates and comes <em>before</em> the conductor lineage of item 4;
+   Tier B is real FEM work and comes after it; Tier C is phase-gated and
+   is not queued until its phase opens.</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Rank</th>
+<th>Chunk</th>
+<th>HFSS feature</th>
+<th>Serial on</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A1</strong></td>
+<td><code>POST-6</code></td>
+<td>Edit Sources (multi-port amplitude/phase)</td>
+<td>—</td>
+<td>first item; package-level version of <code>WF-6</code> step 2</td>
+</tr>
+<tr>
+<td><strong>A2</strong></td>
+<td><code>PORT-14</code></td>
+<td>Lumped RLC boundary</td>
+<td>—</td>
+<td>capacitors in the model</td>
+</tr>
+<tr>
+<td><strong>A3</strong></td>
+<td><code>PORT-15</code></td>
+<td>HFSS + Circuit link</td>
+<td><code>PORT-13</code> ✅</td>
+<td>tuning at zero field-solve cost. Queued in ladder order 2026-09-04 18:00 review as §9 item 3 — <strong>step 1 is the part that is serial on nothing</strong>: the ladder-network closed form and the termination-reduction algebra, gated by pure-numpy identities (no FEM); gate (i) against <code>PORT-14</code>'s in-model solve waits on A2</td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>TH-15</code> → <code>TH-14</code> → <code>ANS-6</code></td>
+<td>Perfect E on bodies → Finite Conductivity → the copper AED case</td>
+<td>—</td>
+<td>item 4's lineage, between the tiers. <code>TH-15</code> step 0 (<code>mesh-probe</code>, 🧪 by the §3 rule until step 1 gates it) queued 2026-09-04 18:00 review as §9 item 4</td>
+</tr>
+<tr>
+<td><strong>B1</strong></td>
+<td><code>TH-5</code></td>
+<td>Radiation boundary</td>
+<td>—</td>
+<td>existing ⬜ chunk, now dated by this ladder. <strong>Skip recorded 2026-09-23 03:00 review:</strong> not queued — Tier B follows item 4's conductor lineage, which has not closed (<code>TH-15</code> 🟡, <code>ANS-6</code> 🟡 awaiting the 09-26 adjudication); B3 (<code>TH-17</code>) went ahead only as the weekly's chain step T5. Whether B1 opens before the lineage closes is the weekly's call. <strong>Released onto lane 2 by rule (5), 2026-09-28; 🟡 2026-09-30 (step 1a, §9 item 94); step 1b re-posed on a sphere and green (items 107, 114: Γ_sph(π) to 1.83e-3, band 6e-3; the weekly ratifies the re-pose); step 2's bar is above its predicted ceiling — the weekly's (10:30 review)</strong></td>
+</tr>
+<tr>
+<td><strong>B2</strong></td>
+<td><code>TH-16</code></td>
+<td>Perfect E / H symmetry planes</td>
+<td><code>GEO-25</code> report</td>
+<td>the F-human memory lever. The <code>GEO-25</code> report landed 2026-09-04 16:30 (cost exponent ≈ 0.84 at fixed sizing, not r³; 504 642 cells at 0.15 m) — the weekly re-dates the 62 GiB figure from it. <strong>✅ 2026-09-30 (§9 item 93, audited PASS 10:30 review) on the re-anchored gate: quarter = its mirror-built full 4×4 to 1.5e-12; quarter sweeps 0.36 GiB against the full's 1.24 on F-small at degree 1. Its F-human use is a chain step the weekly writes</strong></td>
+</tr>
+<tr>
+<td><strong>B3</strong></td>
+<td><code>TH-17</code></td>
+<td>Eigenmode solution</td>
+<td><code>TH-15</code>, <code>PORT-14</code></td>
+<td>Phase 6's first target</td>
+</tr>
+<tr>
+<td><strong>B4</strong></td>
+<td><code>TH-18</code></td>
+<td>Layered Impedance</td>
+<td><code>TH-14</code></td>
+<td>last in Tier B. <strong>✅ 2026-09-30 (§9 item 87) on the σ = 10 S/m amended gate — the weekly ratifies</strong></td>
+</tr>
+<tr>
+<td><strong>C1</strong></td>
+<td><code>WF-9</code></td>
+<td>(implant TF excitation, ISO 10974)</td>
+<td>Phase 7 open</td>
+<td>scope <code>WF-7</code> as its consumer</td>
+</tr>
+<tr>
+<td><strong>C2</strong></td>
+<td><code>PORT-17</code></td>
+<td>Wave Port</td>
+<td>a benchmark that needs it</td>
+<td>low <em>(renumbered from <code>PORT-16</code> 2026-09-09 03:00 review — ID collision with the closed accounting-gap chunk)</em></td>
+</tr>
+<tr>
+<td><strong>C3</strong></td>
+<td><code>MAT-3</code></td>
+<td>frequency-dependent materials</td>
+<td>Phase 7 open</td>
+<td>existing ⬜ chunk</td>
+</tr>
+<tr>
+<td><strong>C4</strong></td>
+<td>Phase 9 AMR</td>
+<td>adaptive passes</td>
+<td>Phase 6 closed</td>
+<td>not a BC; the largest workflow gap</td>
+</tr>
+</tbody>
+</table>
+<p>What is deliberately <em>not</em> on the ladder, because it already exists:
+   PEC outer box, lumped ports (<code>PORT-9</code>), incident plane wave (<code>TH-6</code>),
+   projected current drives, the 4-port fixed quadrature (<code>WF-6</code> step 2).
+6. <em>(Operator directive 2026-09-05, the XL tier — now §5.1; archived verbatim, same section.)</em></p>
+<h3 id="9-rules-16-and-the-binding-rulings">§9 rules (1)–(6) and the binding rulings<a class="headerlink" href="#9-rules-16-and-the-binding-rulings" title="Permanent link">&para;</a></h3>
+<p><strong>Three rules enacted 2026-09-12 18:00 review (operator directives of
+2026-09-12, <code>247290d</code>):</strong> (1) <strong>a slot that commits its item with a clean
+tree before minute 30 takes the next open item</strong> (implementer-run.md step 2 —
+never on a dirty tree, never an item whose stated dependency has not landed,
+one outcome commit and one journal entry per item); (2) <strong>a step family is
+capped at four attempts</strong> since its last sub-step that landed a gate — a
+numbered step plus all its lettered sub-steps is one family, relettering
+does not reset the count, a landed gate does — and at four the family is
+frozen: a review re-scopes the question as a new numbered step or banks the
+measured negative, and never queues a fifth letter (this replaces the former
+"items that fail twice get rescoped" sentence, which never fired); (3)
+<strong>every item below names the status its result can move</strong> (daily-review.md
+rubric element 7) — an item that cannot is not queued; (4) <strong>enumerated-chain
+licence (operator directive 2026-09-18):</strong> when the queue is below the floor,
+the daily review may write and queue, at full rubric grain, any <em>numbered</em>
+step that the weekly has enumerated in a §10 chain (today: the "step count to
+a tuned birdcage" list) whose serial prerequisites have landed — the weekly
+supplied the question and the validation target, the review supplies the
+execution detail; it may not add, reorder or re-target chain steps, and a
+step whose target it cannot make assertable is queued as "write the anchor"
+and returned to the weekly. Families frozen at
+enactment: <code>WF-6</code> step 4 (4h–4k since 4g), <code>ANS-4</code> step 2 (2a‴, 2e, 2f, 2g
+since 2a″), <code>PORT-14</code> step 2 (2, 2b–2e; no gate landed) — each carries its
+ruling in §7.</p>
+<p><strong>Binding ruling — sheets and κ (operator, 2026-10-02).</strong> <strong>Port and lumped-element sheets are exact rectangles; κ is not applied to them</strong> (operator ruling 2026-10-02, interactive session). Evidence: on exact-rectangle ports Palace and ours agree to 0.0000 % at matched order and κ falls to ≈ 1.6e-5 / 1.8e-5 (degree 1 / 2, items 159 / 166) against ≈ 1.1e-2 on the old ragged sheets — κ measured the ragged sheet geometry, not the solver; and the κ-corrected copper F-human 32×32 is non-passive (σ_max 1.000002129) where the uncorrected one is passive (0.999993339, item 175). So: (i) <strong>every new fixture or step builds its port / RLC / impedance sheets as exact CAD rectangles</strong> (OCC faces — <code>leg_sheet_strip_fraction</code>, the longitudinal ring sheets), never a sub-sheet triangulated out of a box; (ii) <strong>the κ width correction is off on exact-rectangle sheets</strong> (<code>width_correction_kappa=None</code>), with every gate at its existing band — the passivity ceiling stands; (iii) records measured on the old ragged sheets stay valid as records; moving existing fixtures (the <code>ANS-4</code> / <code>ANS-6</code> / <code>ANS-7</code> F-small half-sheets) to exact rectangles is the weekly's to plan, re-recorded under the (1*) licence, no band moved; κ remains available as a <em>diagnostic</em> (a non-zero κ on an exact sheet is a reading, not a correction).</p>
+<p><strong>Binding ruling — capacitor ESR (operator, 2026-10-06, interactive session).</strong> <strong>Every lumped
+capacitor carries a 0.2 Ω series resistance (ESR)</strong>: tuning capacitors on ring gaps, and any
+RLC sheet that models a capacitor. It is frequency-independent and the same on every capacitor.
+Why: real RF capacitors are lossy. A lossless C overstates the Q of a copper coil, whose own
+conductor loss is small enough that the capacitor ESR dominates it.
+(i) <strong>Circuit layer:</strong> a capacitor termination is <code>Z = r + 1/(jωC)</code> with r = 0.2 Ω. A feed is
+driven across its gap's (r + C) branch. Uniform r adds r to every mode's eigen-impedance, so
+<code>C_mode</code> (from Im λ₁) is unchanged and Re λ shifts by r.
+(ii) <strong>In-model:</strong> a series-RC sheet impedance carrying the same r and C.
+(iii) <strong>AED:</strong> HFSS's Lumped RLC boundary is a <strong>parallel</strong> R ‖ L ‖ C. A series (r, C) maps
+exactly at one frequency to R_p = r(1 + Q²), C_p = C·Q²/(1 + Q²), with Q = 1/(ωCr). At
+113 pF and 64 MHz, Q ≈ 110, R_p ≈ 2.4 kΩ and C_p is C to 8e-5. Entering 0.2 Ω as the HFSS R
+shorts the gap. On a sweep, R_p follows 1/f² away from the conversion frequency, so a SPEC
+names that frequency.
+<strong>Scope:</strong> new steps and fixtures. Lossless-C results stay valid as records, labelled lossless.
+<strong>Not a gate change:</strong> r never re-reads or rescues a red. H12c's identity question was posed on
+lossless C and stands as posed. Whether H12c / H9 are re-posed with r (both sides at once) is
+the 10-07 weekly's decision, together with which in-flight chains and SPECs adopt it (H9,
+<code>ANS-8</code> step 2, the ANS SPEC template, an <code>esr_ohm</code> argument on <code>ring_mode_rows</code> and the
+terminations).</p>
+<p><strong>Rule (6), the chain-extension licence (operator directive 2026-10-02,
+interactive session).</strong> Slots consume a weekly's enumerated steps in about two
+days, then sit idle until the next weekly (09-30 weekly: 17 of 36 slots short
+of work). The daily review may therefore write the <strong>next numbered steps of a
+live §10 chain</strong> toward that chain's stated subgoal and validation target,
+tagged <em>(daily, date — provisional)</em>, at most <strong>six per chain</strong> between
+weeklies (raised from three by operator ruling 2026-10-24, interactive
+session — dashboard W8: twelve idle periods traced to chains at the cap; the
+dailies' provisional steps have been ratified without reversion), and <strong>re-pose blocked steps</strong> within the four-attempt family cap.
+It never sets or moves a band, tolerance, done-when or validation target,
+never opens a chain, subgoal or phase, and never ratifies its own provisional
+ruling; the weekly ratifies or reverts (daily-review.md step 6,
+weekly-review.md step 3).</p>
+<p><strong>Rule (5), the backlog lanes (operator directive 2026-09-28, interactive
+session).</strong> The queue ran dry on 09-27 and 09-28 while 60 chunks were open:
+rule (4) is the only licence, and every enumerated chain sits on one serial
+critical path gated by <code>xl</code> windows, weekly rulings and operator steps. From
+2026-09-28, when the ready chain steps do not reach the floor, the daily
+review <strong>also</strong> writes and queues, at full rubric grain (anchor, control,
+tier by measurement, the status it can move), items from three standing
+lanes. Each lane item must be independent of the chain critical path, and a
+review fills the shortfall round-robin across the lanes, not from one:</p>
+<ul>
+<li><strong>Lane 1 — revalidation.</strong> A <code>🧪</code> chunk's never-executed test run
+  through the harness with a quantitative assertion (→ ✅, or a recorded
+  negative plus a known-issues entry), or a <code>⚠️</code> chunk's placeholder test
+  replaced by an assertion against the real solve (§3: never by loosening
+  it; the ⚠️ no-new-features rule still holds). Today's list (pruned 2026-09-30 10:30
+  review; closed since 09-28: <code>PORT-7</code>, <code>TH-4</code>, <code>PORT-8</code>, <code>GEO-3</code>, <code>PORT-4</code>,
+  <code>MAT-1</code>, <code>PORT-6</code>, <code>TH-3</code>, <code>POST-2</code>, <code>PORT-5</code>, <code>WF-3</code>, <code>GEO-5</code>):
+  <code>GEO-1</code>/<code>2</code>/<code>4</code>/<code>6</code>/<code>7</code>, <code>GEO-27</code>…<code>32</code>, <code>PORT-2</code>/<code>3</code>/<code>18</code>,
+  <code>OPS-7</code>/<code>8</code>, <code>WF-1</code>/<code>4</code> (<code>🧪</code>); <code>TH-2</code> (<code>⚠️</code>; <code>WF-2</code> ✅ 2026-10-09, §9 item 346, provisional). <strong>Every listed
+  member has been examined and rejected, with reasons</strong>
+  (<code>docs/planning/reviews/2026-09-29-daily-1800.md</code> §6,
+  <code>…2026-09-30-daily.md</code> §6): the lane's 🧪 / ⚠️ list is exhausted unless
+  the weekly opens new members. What the 10:30 review queued in its place
+  is the same kind of work on other rows: a closing window on the current
+  image for a 🟡 chunk whose steps closed on the old one (<code>POST-3</code>), an
+  audit's unmeasured control (<code>MAT-5</code> (D′)), and open known-issues entries
+  whose own "Resolves with" a slot can execute. A probe-only chunk (§3:
+  measurement steps are <code>🧪</code> until a gate lands) is revalidated by writing
+  its gate.</li>
+<li><strong>Lane 2 — feature ladder Tier B, released now.</strong> <code>TH-16</code> (symmetry
+  planes), then <code>TH-18</code> (layered impedance), then <code>TH-5</code> (radiation
+  boundary) — item 5's table, no longer held behind the conductor lineage's
+  formal closure. Each is gated on its closed form (Jin, cited) before any
+  birdcage use.</li>
+<li><strong>Lane 3 — Phases 7 and 8 in parallel, and their materials.</strong> Phases 7
+  (implants) and 8 (Pennes bioheat) are <strong>open</strong> from 2026-09-28 and do not
+  wait for Phase 6; they consume <code>WF-7</code>'s SAR and the F-small phantom, not
+  the tuned coil. <code>MAT-3</code> (Debye / Cole–Cole) and <code>MAT-5</code>
+  (temperature-dependent σ) join this lane (ladder C3 released). Phase 8
+  starts at the gel regime — conduction plus a prescribed source, gated on
+  analytic solutions (§10 Phase 8); Phase 7 at parametric implant geometry
+  in the phantom, gated on a closed form or a published measurement. Until
+  the weekly has written the §10 subgoals and §7 chunks for them, the daily
+  may open a Phase 7/8 chunk itself <strong>only</strong> where the validation target is
+  a closed form or a cited published result, and names it in the dashboard
+  for the weekly to ratify.</li>
+</ul>
+<p>A lane item never displaces a ready chain step above it. Slots do not
+write items, so the lanes work through the reviews: with three dailies a
+day, each restocks its four-slot interval from chains and lanes, and a slot
+that still finds the queue drained stops and journals (the <code>EX-57</code> fallback
+is exhausted, <code>missing=0</code>). A drain is reported as a 🔴 dashboard item
+naming the empty lanes — a supply failure, never a reason to cut slots.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,704 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>MAT-5 — Temperature-dependent conductivity. Done-when (written 2026-09-29 18:00 review, rule (j); step 1 queued §9 lane 3 - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#mat-5-temperature-dependent-conductivity-done-when-written-2026-09-29-1800-review-rule-j-step-1-queued-9-lane-3" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              MAT-5 — Temperature-dependent conductivity. Done-when (written 2026-09-29 18:00 review, rule (j); step 1 queued §9 lane 3
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-237-2026-10-04-chain-p6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 237 — 2026-10-04 (chain P6)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-239-2026-10-05-chain-p6-re-pose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 239 — 2026-10-05 (chain P6, re-pose)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="mat-5-temperature-dependent-conductivity-done-when-written-2026-09-29-1800-review-rule-j-step-1-queued-9-lane-3">MAT-5 — Temperature-dependent conductivity. Done-when (written 2026-09-29 18:00 review, rule (j); step 1 queued §9 lane 3<a class="headerlink" href="#mat-5-temperature-dependent-conductivity-done-when-written-2026-09-29-1800-review-rule-j-step-1-queued-9-lane-3" title="Permanent link">&para;</a></h1>
+<p>Temperature-dependent conductivity. <strong>Done-when (written 2026-09-29 18:00 review, rule (j); step 1 queued §9 lane 3 — the weekly ratifies the lane-3 opening).</strong> <em>Step 1:</em> <code>materials/temperature.py</code> (<code>LinearTemperatureConductivity</code>, σ = σ₀[1 + α(T − T₀)], numpy; nothing in <code>materials/phantom.py</code> while <code>MAT-1</code> is ⚠️) and the fixed-|E| Joule-heated Robin ball on <code>MAT-9</code>'s fixture against the closed form θ(r) = (1/α)[Bi·R·sin(mr)/(r·D) − 1], D = mR cos mR + (Bi − 1) sin mR, m² = αq₀/k (<code>utils/analytical.py: robin_sphere_linear_source_temperature</code>; reduces to <code>MAT-9</code> as α → 0; D = 0 is <code>MAT-9</code>'s eigen-equation, so runaway sits at mR = λ₁). Numpy anchors N1–N6; FEM (P1, R/10): (i) Picard fixed point interior relative L2 on θ ≤ 1 %, (ii) the increment ratio within 1 % of (mR/λ₁)², (iii) balance ≤ 1e-9, each with a control; <code>MAT-9</code>'s modules re-run green (rule (c)). <em>Step 2 (Done-when written 2026-09-30 03:00 review, rule (j); queued §9 lane 3):</em> on <code>MAT-4</code>'s sphere (R/10 in / R/5 out, complex, <code>-n 2</code>) with a per-cell DG0 σ = σ₀[1 + αθ̄_K] inside the EM solve — σ₀ = 0.285 S/m, α = 0.02 /K, h = 3 W/m²/K (Bi = 0.05), G set so the lumped root θ_L of θ = (R/3h)·G·ρ·SAR_cf(σ₀[1 + αθ]) is 50 K at σ* = 0.57, <code>MAT-4</code>'s gated σ — (A′) the 8-iterate Picard state meets <code>robin_sphere_steady_temperature</code> at q* = G·ρ·SAR_cf(σ<em>) to interior relative L2 on θ ≤ 11.7 %, a composed band never tightened after reading (<code>MAT-4</code>'s 10 % mean-SAR band, step 1 (i)'s 1 %, and 0.7 % for the lumped model's bracket |L|/(1 − L)·Bi/2 = 0.573 % at L = −0.300, its second order and the Picard truncation); (L0) a uniform DG0 σ = 0.57 through the same EM path reproduces <code>MAT-10</code>'s θ_h to ≤ 1e-9 within one run; (P′) uniform q</em> at h = 3 ≤ 1 %; (B′) ∫_sub q_h dV = G·<code>dissipated_power_w</code> ≤ 1e-10 and (C′) the surface balance ≤ 1e-9 at the final iterate; (D′) the σ transfer moment ≤ 1e-10; the increments alternate in sign with |δ₈|/θ₈ ≤ 1e-3; and the frozen-σ₀ iterate misses (A′)'s band (closed-form separation 25.04 %, the ceiling for a fixed point at 0.57 — 2.14× the band). The contraction factor (predicted −0.30) is a printed record. A numerical fixture (a 50 K rise), not a material or exposure claim; heavy tier. ✅ = steps 1 and 2. <strong>Out of scope:</strong> ε(T), perfusion, <code>phantom.py</code>. <strong>Step 1 green 2026-09-30 (21:00 CDT slot, §9 item 85):</strong> N1–N6 ≤ 1.4e-15 (N2 9.6e-6 at α = 1e-6), and the P1 Picard fixed point at 0.01 m reads interior θ 0.384 %, δ₆/δ₅ 0.182809 vs κ 0.183302 (−0.27 %, implied λ₁,h 1.90966), balance 5.2e-16 in 18 iterations, controls (a) 18.7 % / (b) 39.5 %, <code>MAT-9</code> reproducing 8.2619e-04 / 2.039 / 6.9220e-01 / 2.000000; 123 s, <code>-n 2</code> real (<code>20260930T020225Z_MAT-5-step1-numpy.log:43–56</code>, <code>20260930T020340Z_MAT-5-step1.log:89–100,144–166</code>). <strong>Step 2 green 2026-09-30 (07:30 CDT slot, §9 item 105; tests only):</strong> N1 root 50 K exactly, N2 −0.2302 % / −0.5727 %, N3 raises (mR 0.4331 &gt; λ₁ 0.3854); on 74 020 / 19 496 cells (L0) 7.19e-11, (P′) 0.168 %, (A′) θ₈ 2.32 % against the 11.7 % band, (B′) 2.3e-15, (C′) 6.3e-15, (D′) 0, increments alternating with |δ₈|/θ₈ 2.96e-4, frozen-σ₀ control 29.19 %. Records: θ<em>s,h 51.163 K (+2.33 % on θ_L, +2.56 % on the c = Bi/5 root), contraction −0.3103, EM ≈ 12 s per iterate; heavy tier, 178 s, <code>-n 2</code> complex (<code>20260930T124539Z_MAT-5-step2-numpy.log:44–52</code>, <code>20260930T124701Z_MAT-5-step2-W2.log:158–184</code>). *(Audit PASS, 2026-09-30 10:30 review. What the ✅ rests on: (L0), (P′), (S), the identities and the fr<strong>en-σ₀ control; (A′) has ≈ 5× headroom — it excludes an absent coupling (25–29 %), not a modest gain e</strong>or — and N1 is near-tautological (G is derived from θ* = 50 K). <em>*<strong>′) is the only ga</strong></em></em>e on the "per-cell DG0 σ" clause and its planted failure was argued, not measured** — §9 item 109 measures it; a (D′) that cannot see an un-transferred field demotes this row to 🧪.)* <em>(<strong>(D′) measured against planted failures, 2026-09-30 12:00 slot (§9 item 109), and the audit caveat closes.</strong> On the row's fixture (74 020 / 19 496 cells) with no solve, the closed-form σ(T) profile goes to the sub. The committed <code>_sub_to_parent</code> reads 0.0. The planted failures read: no transfer 1.3936e-3 (predicted 1.42e-3), per-rank shifted 4.3869e-4, per-rank reversed 9.9312e-4, each asserted above <code>D_BAND</code> 1e-10. A ghost-blind transfer reads 0.0 at <code>-n 2</code> as predicted: (D′) does not gate ghost propagation (printed only). <code>tests/validation/test_mat5_sigma_transfer_controls.py</code>; <code>20260930T172753Z_MAT-5-Dprime-controls.log:158–164</code> (55 s, 13 passed).)</em> | ✅ </p>
+<h3 id="9-item-237-2026-10-04-chain-p6">§9 item 237 — 2026-10-04 (chain P6)<a class="headerlink" href="#9-item-237-2026-10-04-chain-p6" title="Permanent link">&para;</a></h3>
+<p><code>MAT-5</code> step 3: σ(T) fed back on P1's fixture, Phase 8 subgoal (8d) (implementer; heavy by ceiling, <code>-n 2</code>, complex; ≈ 23 measured / ≈ 45 predicted min; depends on nothing). It is the first step of the family, so this is attempt 1 of 4.</p>
+<p><strong>P1's fixture.</strong> It is <code>MAT-15</code> step 1, §10 chain P1 (<code>docs/planning/plan-archive.md:36414–36419</code>; <code>tests/validation/test_mat15_coil_driven_heating_phantom.py</code>). The EM side is <code>ANS-2</code>'s 10 MHz loaded F-small birdcage on the 0.0025 m phantom rung: 199 920 / 58 866 cells, a σ = 800 S/m wire, and saline phantom σ₀ = <code>SALINE_SIGMA</code> 0.5 S/m, εᵣ 78 (<code>test_lossy_sphere_fullwave.py:92–93</code>). The thermal side is the tag-3 submesh with Robin cooling on every exterior facet: gel <code>K_GEL</code> 0.6, <code>H_GEL</code> 10, <code>T_INF</code> 20 (<code>test_mat15_coil_driven_heating_phantom.py:82–84</code>), Bi = 0.5. The normalisation is G = 1 W / P₁. This item uses drive k = 0 (<code>P1</code>) only. The C4 rotation is already <code>MAT-15</code>'s and is not re-bought here.</p>
+<p><strong>Formulation (pinned here).</strong> The coupling is a steady Picard fixed point. A transient trajectory with σ(T(t)) would need one EM solve per time step, which is out of reach. Let θ = T − 20, let Π₀ be the DG0 interpolant on the sub (step 2's <code>t_dg0.interpolate</code>), and let S be <code>solve_steady_conduction(sub, ft, k=K_GEL, h=H_GEL, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=1)</code>. The map is Φ(θ) = S[G·½σ(θ)|E(σ(θ))|²], with σ(θ) = σ₀[1 + α Π₀θ] on tag 3 only. The law is <code>LinearTemperatureConductivity(sigma_ref=SALINE_SIGMA, alpha_per_k=ALPHA, t_ref=T_INF)</code>, with α = <code>ALPHA</code> 0.02 /K imported from <code>tests/materials/test_mat5_step2_lumped_root.py:54</code> (an input, not a material claim). <strong>E is re-solved on every iterate</strong> through P1's own lumped-sheet path, <code>_solve_driven(sweep, "P1")</code> (<code>test_birdcage_b1_plus_map.py:142</code>). G is fixed once, from iterate 1 (σ ≡ σ₀): <strong>never renormalise per iterate</strong>, because a per-iterate G = 1/P_diss removes the feedback being measured. θ₀ = 0, N = 8 iterates, no relaxation. The loop lives in the test, as in step 2: <code>thermal/steady.py</code>'s Picard routine has no per-iterate hook.</p>
+<p><strong>Code.</strong>
+- (1) <strong>Additive knob, unset-identical.</strong> Add <code>TimeHarmonicSolver.solve(..., sigma_field_hook=None)</code> in <code>src/fem_em_solver/core/time_harmonic.py:393</code>. When the hook is not <code>None</code>, it is called as <code>sigma_field_hook(sigma_field)</code> immediately after <code>build_material_fields</code> (<code>:468–475</code>) and before <code>bilinear_form</code> (<code>:490</code>). It mutates the parent DG0 σ in place, so <code>fields.sigma_field</code> (<code>:749</code>) is the field that was solved and that <code>mean_sar</code> reads. With <code>None</code> no line executes, so the assembled forms are the gated ones. The docstring cites this item.
+- (2) Add the same keyword to the test helper <code>_solve_driven(sweep, driven_port_id, degree=None, sigma_field_hook=None)</code>, passed through to <code>solver.solve</code>. Every existing caller passes nothing.
+- (3) New <code>tests/solver/test_sigma_field_hook.py</code>, built on <code>test_time_harmonic_smoke.py</code>'s <code>_smoke_mesh(0.03, comm)</code>: SIGMA 0.7, 127.74 MHz, an axial drive on tag 1. It has three cases:
+  - (a) no hook against an identity hook (each cell rewritten with its own value): <code>np.array_equal</code> on the owned E coefficients;
+  - (b) a doubling hook: <code>fields.sigma_field</code> reads exactly 2 × 0.7 on every owned cell;
+  - (c) the same doubling hook moves ‖E‖ by &gt; 1e-6 relative. This is a control, predicted O(1e-1) and printed.
+- (4) New <code>tests/validation/test_mat5_coil_driven_sigma_feedback.py</code>, with two module-scoped fixtures, <code>alpha0</code> (W1) and <code>coupled</code> (W2). Each builds <code>build_four_port_sweep(phantom_resolution=PHANTOM_RESOLUTION_1G_RUNG, build_only=True)</code> (<code>test_port_birdcage_four_port.py:516–529</code>; P1's mesh, without the 4-port sweep's solves). It imports the following:
+  - <code>_tag_submesh</code>, <code>_cell_average_dg0_tag</code>, <code>_cn</code>, <code>_e_prime</code>, <code>P1_RECORD_W</code>, <code>K_GEL</code>, <code>H_GEL</code>, <code>T_INF</code> from P1's module;
+  - <code>_robin_tags</code>, <code>_to_sub</code>, <code>_allsum</code>, <code>_say</code>, <code>ROBIN_TAG</code>, <code>B_BAND</code>, <code>C_BAND</code> from <code>MAT-10</code>;
+  - <code>_sub_to_parent</code>, <code>L0_BAND</code>, <code>D_BAND</code>, <code>S_BAND</code> from step 2 (<code>test_mat5_em_coupled_sphere.py:104,107,108,117</code>);
+  - <code>E_BAND</code> from <code>MAT-12</code>.
+  The σ write is <code>sigma_field_hook=lambda sf: _sub_to_parent(sf, sig_sub, parent_ids)</code>. It goes cell → dof through both dofmaps, never dof = cell. The source is step 1's <code>G·½σ|E|²</code> DG0 cell average on tag 3, transferred by <code>_to_sub</code>.</p>
+<p><strong>Anchors (asserted).</strong>
+- <strong>(R0a) α = 0, in-run: the hook path equals P1's path.</strong> Compare <code>_solve_driven(sweep, "P1")</code> with no hook against the same call with a hook writing σ ≡ σ₀ through <code>_sub_to_parent</code>. The checks are |P_diss,hook/P_diss − 1| and ‖q_h,hook − q_h‖<em>{L2(sub)}/‖q_h‖ ≤ <code>L0_BAND</code> 1e-9. Predicted: 0.0, because the matrix is identical and the solve is in-process.
+- <strong>(R0b) α = 0 reproduces P1's records</strong>, at <code>REPRO_BAND</code> 1e-9 (new constant, relative). The band is above ½ ulp of every compared print (13 digits, ≤ 1e-13 relative). It is also ≈ 190× above the measured cross-run spread of P₁ over six runs: 5.503204728583e-08 … 612e-08, ≤ 5.3e-12 (<code>20261001T123309Z_MAT-15-step1-W1.log:1925</code>, <code>20261002T112729Z_EX-79-mat15-regate.log:1925</code>, <code>20261004T141433Z_ANS-9-step1a-mat15-regate.log:1925</code>). Complex MUMPS at <code>-n 2</code> is not bit-reproducible across processes (<code>OPS-43</code>, known-issues 2026-09-10), so no cross-run comparison is bitwise. The records:
+  - P₁ against <code>P1_RECORD_W</code> 5.503204728588e-08 (<code>test_mat15_coil_driven_heating_phantom.py:97</code>);
+  - CN N = 40 through P1's <code>_cn</code> on iterate 1's q_h: (E′)'s stored 7.657997570402e-01 W and surface 2.342002429598e-01 W (<code>…123309Z…W1.log:1930</code>, new constants <code>P1_E_STORED_W</code>, <code>P1_E_SURFACE_W</code>; the other two runs read 7.657997570404 / 405e-01, ≤ 4e-13);
+  - mean θ(t*) 1.153314 K (<code>:1929</code>). It is printed to 6 decimals, so it is compared at ½ ulp = 5e-7 K absolute, never tighter;
+  - V_sub against <code>V_SUB_RECORD_M3</code> at P1's <code>V_BAND</code> 1e-10 (<code>:96,98</code>).
+- <strong>(R0c) α = 0 map: the residual vanishes.</strong> Two Picard iterates with α = 0 give ‖θ₂ − θ₁‖/‖θ₁‖ ≤ 1e-12. Predicted 0.0: the map is constant, and the in-run solve is identical.
+- <strong>(D0) The hook touches only the phantom.</strong> Rank-reduced max |σ_hooked − σ_built| over non-tag-3 owned cells = 0 exactly. This covers the conductor's 800 S/m and the air's 0.
+- <strong>(K) Contraction against the linearised prediction (§10: within 10 %).</strong> δ_k = θ_k − θ</em>{k−1} on the sub (P1), and the signed Picard ratio is ρ_k = ⟨δ_{k+1}, δ_k⟩/⟨δ_k, δ_k⟩ in L2(sub), rank-reduced. The gate is <strong>|ρ₄/μ_pred − 1| ≤ 0.10</strong>. ρ₄ = ⟨δ₅, δ₄⟩/‖δ₄‖², chosen early enough that ‖δ₅‖ stays ≫ solver noise even at μ ≈ 0.01. Every ρ_k and the surface-mean increment ratio (step 2's metric) are printed.
+  - <strong>What μ_pred is.</strong> It is the dominant eigenvalue of the Jacobian of Φ at the fixed point, with E re-solved: J v = S[G·(½·σ₀α Π₀v·|E*|² + σ*·Re(E*·conj δE[σ₀α Π₀v]))], where δE is the field response to the conductivity perturbation. With E frozen, J reduces to S[α σ₀ G ½|E*|² Π₀v], whose eigenvalue is ≈ α·θ̄ — step 1's (mR/λ₁)² generalised. The δE term is why it must be computed and not quoted.
+  - <strong>How μ_pred is computed.</strong> By finite-difference J-vector products on the same mesh at the base θ_b = θ₇: Jv ≈ [Φ(θ_b + εv) − θ₈]/ε, with θ₈ = Φ(θ₇) from the Picard run. v is L2-normalised so that εv has RMS 1e-2 K. The truncation is O(αε) ≈ 2e-4, and the round-off ≈ 1e-12·6 K/1e-2 ≈ 6e-10. Power iteration runs from <strong>v₀ ≡ 1</strong> (not the Picard direction), M = 5 steps (5 EM + 5 Robin solves), with μ_j = ⟨Jv_j, v_j⟩/⟨v_j, v_j⟩ and μ_pred = μ₅.
+- <strong>(K-conv)</strong> |μ₅/μ₄ − 1| ≤ 1e-2, predicted ≤ 1e-3.
+- <strong>(M0)</strong> |μ_pred| ≥ 5e-3. This is the floor that makes (K) a measurement and not noise.
+- <strong>(F) The fixed point converged:</strong> ‖δ₈‖/‖θ₈‖ ≤ <code>S_BAND</code> 1e-3. Predicted ≈ μ⁷, below 1e-6.
+- <strong>Energy identity at the fixed point (iterate 8), at the imported bands:</strong>
+  - (E*) |∮h θ₈ dS − G·P_diss,8|/(G·P_diss,8) ≤ <code>C_BAND</code> 1e-9. This is EM-deposited power against convected power, with P_diss from <code>mean_sar(…, sigma=fields.sigma_field, subdomain_ids=PHANTOM_CELL_TAG)</code>;
+  - (B′) ∫_sub q_h dV = G·P_diss,8 ≤ <code>B_BAND</code> 1e-10;
+  - (C′) <code>convected_power</code> = <code>source_power</code> ≤ <code>C_BAND</code>;
+  - (D′) the σ transfer moment ∫σ x·x dV, parent tag 3 against sub, ≤ <code>D_BAND</code> 1e-10.</p>
+<p><strong>Printed (predicted).</strong>
+- μ_pred in [+0.03, +0.14]. The estimate: a 1 W steady state has surface-mean θ = 1/(h·∮dS) = 4.83 K and θ̄ ≈ 5–6.5 K, so the frozen-E factor μ_E ≈ α·θ̄ ≈ 0.10–0.13. The eddy part of E is σ-independent at a/δ ≈ 0.13, while the conservative part goes as 1/σ, so it scales μ by c ∈ [0.3, 1.05].
+- ρ₁ … ρ₇.
+- The steady α = 0 state, a new record: θ̄, θ_s and max θ.
+- θ̄₈/θ̄₁ − 1, predicted ≈ μ/(1 − μ) ≈ 3–16 %.
+- σ̄₈, P_diss,8/P₁, the EM seconds per solve and peak RSS summed over ranks.</p>
+<p><strong>Negative controls (rule (e)).</strong>
+- <strong>(N1) frozen σ₀, asserted.</strong> Feeding σ(T₀) on every iterate is the α = 0 map, so its contraction factor is exactly 0, which (R0c) asserts to ≤ 1e-12. Its miss of (K) is therefore |0 − μ_pred|/|μ_pred| = 1.000 exactly. That is 10× the 10 % band, and it is the ceiling for any map that carries no feedback. In W2 the separation is carried by (M0): |μ_pred| ≥ 5e-3 makes the frozen ratio's miss ≥ 1.0 relative.
+- <strong>(N2) frozen-|E| prediction, predicted and printed, not asserted.</strong> μ_E is a thermal-only power iteration at θ_b using E₈: J_E v = S[α σ₀ G ½|E₈|² Π₀v], M = 5, under 1 s each. Its separation |μ_E/μ_pred − 1| is the δE share, predicted 0–50 %. No ceiling can be computed before the run, so it is not a gate. If it lands inside 10 %, the journal says that (K) cannot tell a re-solved E from a frozen one on this fixture.
+- <strong>(N3) the hook's own control:</strong> W0's doubling hook moves E by &gt; 1e-6, asserted.</p>
+<p><strong>Windows</strong> (complex; foreground; Bash <code>timeout: 660000</code>; container <code>timeout -k 30 590</code> on heavy windows).
+- <strong>First, two checks.</strong> <code>pgrep -c python3</code> in the container must read 0. Then run the orphan sweep as one bare call: <code>scripts/testing/run_and_log.sh MAT-5-step3-cache-sweep "docker compose exec -T fem-em-solver bash -lc 'cd /root/.cache/fenics &amp;&amp; for c in libffcx_*.c; do s=\${c%.c}; ls \$s.*.so &gt;/dev/null 2&gt;&amp;1 || { echo orphan \$s; rm -f \$s.c \$s.c.cached \$s.o; }; done; echo sweep done'"</code>
+- <strong>W0, the knob</strong> (standard; predicted ≤ 60 s; the smoke fixture is 1 405 cells). It runs at <code>-n 1</code> because the (a) bitwise check is defined there (<code>OPS-43</code>): <code>scripts/testing/run_and_log.sh MAT-5-step3-W0-hook "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 170 mpiexec -n 1 python3 -m pytest tests/environment tests/solver/test_sigma_field_hook.py tests/solver/test_time_harmonic_smoke.py::test_time_harmonic_smoke_solve_conserves_real_power -s -v --tb=short'"</code>
+- <strong>W0b, the core closed-form re-gate (added by the 18:00 review, binding — rule (c)).</strong> The hook edits <code>core/time_harmonic.py</code>, which every EM gate imports, so <code>TH-6</code>'s lossy plane-wave module re-runs green through the harness in the same slot, after the edit and before W1: <code>scripts/testing/run_and_log.sh MAT-5-step3-W0b-th6 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 300 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_lossy_plane_wave.py -s -v --tb=short'"</code>. A red W0b stops the item before W1: revert the <code>src/</code> edit and park, BLOCKED. Disclose the <code>src/</code> diff in the commit.
+- <strong>W1, α = 0</strong> (heavy by ceiling; predicted ≈ 150 s). The pricing: mesh+rung 61.3 s (<code>…123309Z…W1.log:1924</code>; 59.8–63.0 s over six runs) + 3 EM ≈ 31 s + CN 2.5 s + JIT. ≈ 10.2 s per EM is P1's (142.6 − 61.3)/8 at <code>:1924</code>. <code>scripts/testing/run_and_log.sh MAT-5-step3-W1-alpha0 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 590 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_mat5_coil_driven_sigma_feedback.py::test_r0a_hook_path_equals_p1_path tests/validation/test_mat5_coil_driven_sigma_feedback.py::test_r0b_alpha0_reproduces_p1_records tests/validation/test_mat5_coil_driven_sigma_feedback.py::test_r0c_alpha0_map_residual_vanishes tests/validation/test_mat5_coil_driven_sigma_feedback.py::test_d0_hook_touches_only_phantom_cells -s -v --tb=short'"</code>
+- <strong>Box-speed gate.</strong> If W1's printed mesh+rung clock exceeds 92 s (1.5 × 61.3), or its EM clock exceeds 20 s per solve, stop BLOCKED as a slow box before W2.
+- <strong>W2, coupled</strong> (heavy; predicted ≈ 250 s). The pricing: mesh 61 s + 8 Picard EM + 5 power-iteration EM ≈ 135 s + ≈ 20 Robin solves + JIT. <code>scripts/testing/run_and_log.sh MAT-5-step3-W2-coupled "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 590 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_mat5_coil_driven_sigma_feedback.py::test_k_contraction_matches_linearised_prediction tests/validation/test_mat5_coil_driven_sigma_feedback.py::test_k_power_iteration_converged tests/validation/test_mat5_coil_driven_sigma_feedback.py::test_m0_coupling_measurable tests/validation/test_mat5_coil_driven_sigma_feedback.py::test_f_fixed_point_converged tests/validation/test_mat5_coil_driven_sigma_feedback.py::test_energy_identity_at_fixed_point tests/validation/test_mat5_coil_driven_sigma_feedback.py::test_dprime_sigma_transfer -s -v --tb=short'"</code>
+- If the module names its nodes differently, use the new node IDs and say so in the journal. Never use <code>-k</code> inside the quoted command.</p>
+<p><strong>Traps.</strong>
+- <strong>G is fixed</strong> from iterate 1. A per-iterate normalisation silently zeroes the coupling.
+- <strong>σ goes on tag 3 only</strong>, through <code>_sub_to_parent</code>, so the conductor's 800 S/m is never touched ((D0)). (D′) does not gate ghost propagation (item 109: a ghost-blind transfer reads 0.0 at <code>-n 2</code>); print it only.
+- <strong>Every reduction takes <code>np.real</code></strong>, through <code>_allsum</code> or an allreduce. <code>cell_tags.values</code> and <code>assemble_scalar</code> are rank-local.
+- <strong>No ordering comparison on complex UFL operands.</strong> The DG0 θ is <code>np.real</code> of <code>t_dg0.x.array</code>, as in step 2.
+- <strong>No cross-run comparison is bitwise.</strong> In-run comparisons may be.
+- <strong><code>build_only=True</code> returns no S-matrix and no sweep solves.</strong> <code>_solve_driven</code> reads <code>sweep["degree"]</code> (1).
+- <strong>The FD step must stay at εv RMS 1e-2 K.</strong> 1e-6 K reaches the solver-noise floor, and 1 K is nonlinear.
+- <strong>Orphan <code>.c</code> sweep</strong> before W1, "any <code>.c</code> without its <code>.so</code>".
+- <strong>Shared files.</strong> <code>core/time_harmonic.py</code> and <code>test_birdcage_b1_plus_map.py</code> are imported by most EM gates. Make each change by edit, and on a rebase keep both sides.
+- <strong>No edit to either new module after its last window</strong> (rule (i)). W1 and W2 run the same module, so an edit after W1 re-runs W1.
+- Status 124 is a finding, not a retry. After a kill, run <code>pgrep -c python3</code> first.</p>
+<p><strong>Scope.</strong> One drive, 10 MHz, degree-1 EM, P1 thermal, one rung, the σ = 800 wire (not copper), the steady fixed point, a linear σ(T) with α as an input, and G = 1 W. <strong>Not covered:</strong> transient two-way coupling, ε(T), perfusion, tissue, h-convergence, C4, a tuned coil, an absolute temperature claim, and the external check (<code>ANS-9</code> step 2, (8d)'s other half).</p>
+<p><strong>Status it can move.</strong> No glyph. The <code>MAT-5</code> row's Done-when is "✅ = steps 1 and 2", which is already met. Step 3 lands as a <strong>step-3 record line</strong> in the row: ρ₄ against μ_pred, the energy identity at the fixed point, α = 0 = P1, and μ_E printed. The weekly can then read <strong>§10 P6 as closed</strong> and (8d) as having its in-house half; <code>ANS-9</code> step 2 stays open. A review that wants step 3 to carry a glyph amends the row in its own commit (rule (j)); this brief does not. A red leaves <code>MAT-5</code> ✅ (steps 1–2 untouched) and P6 open.</p>
+<p><strong>Negative result.</strong> In every case: report the measurement, park on <code>attempt/MAT-5-step3-*</code>, mark the item BLOCKED and journal it in attempts.md.
+- <strong>(R0a) or (D0) red:</strong> the knob or the σ write is wrong. This is a code bug: stop.
+- <strong>(R0b) red with (R0a) green:</strong> the environment has drifted from P1's record. Stop. The ruling belongs to the review / <code>record-reconciler</code>, never a wider band.
+- <strong>(K) red with (K-conv) and (M0) green:</strong> print ρ₁…ρ₇, μ₁…μ₅ and μ_E. The review rules on whether a subdominant mode or the nonlinearity is the cause. The 10 % band is never widened in-slot.
+- <strong>(M0) red:</strong> the coupling at 1 W is too weak to measure on this fixture. Record μ_pred and μ_E; the review re-poses with a larger G, as step 2 did with θ* = 50 K.
+- <strong>Energy identity red:</strong> a code bug.
+- <strong>Slow-box gate missed:</strong> BLOCKED before W2.</p>
+<p>No <code>PREDICTED RED:</code> line. A red anywhere stops the slot.</p>
+<p><strong>Outcome (2026-10-05 00:00 slot): BLOCKED, attempt 1 of 4.</strong> W0 green (16 passed, 65 s; (a) bitwise equal, (b) max|σ − 1.4| = 0, (c) ‖ΔE‖ 4.586e-01; <code>20261005T050254Z_MAT-5-step3-W0-hook.log:456–462</code>). W0b <code>TH-6</code> re-gate green (14 passed, 84 s; <code>20261005T050406Z_MAT-5-step3-W0b-th6.log</code>). W1 at <code>-n 2</code>, 15 passed and 1 failed, 178.5 s (<code>20261005T050759Z_MAT-5-step3-W1-alpha0.log:1874–1882,1962</code>): (R0a) green, |P ratio − 1| 1.698e-12, q 2.143e-10; (R0b) green, P₁ 8.5e-13 relative, CN stored / surface ≤ 1.73e-12, mean θ(t*) 1.153313650 K (Δ 3.5e-7 K), V_sub 3.4e-13; (D0) 0 exactly; <strong>(R0c) red, 2.747e-12 against 1e-12</strong>. The 1e-12 band assumed in-process MUMPS solves are bitwise-identical, and (R0a) itself shows they are not (P 1.7e-12 apart). Box-speed gate also missed: EM 20.5 / 21.6 / 20.8 s per solve against 20 s; mesh+rung 43.5 s. New record, the α = 0 steady state at 1 W: θ̄ 5.407744963 K, θ_s 4.825137589 K, max θ 9.544040487 K. W2 not run. Parked on <code>attempt/MAT-5-step3-20261005T0512Z</code> (the <code>src/</code> hook, both new modules, logs). Unblock: the review rules on (R0c)'s band under rule (f), with the measured 2.7e-12 in-process floor as evidence, and W1 re-runs on a box that passes the gate.</p>
+<p><strong>Ruling (2026-10-05 03:00 review, <code>log-pathologist</code>).</strong> (A) <strong>The box was not slow; the gate was mispriced.</strong> P1's window (<code>20261001T123309Z_MAT-15-step1-W1.log:1924</code>) spans <strong>four</strong> <code>_solve_driven</code> calls in its 81.3 s EM interval, not eight (the 8 at <code>:1953</code> counts thermal runs), so P1's own price is <strong>20.3 s per solve</strong>. The two re-gates of the same fixture read 18.0 s (<code>20261002T112729Z_EX-79-mat15-regate.log:1924</code>) and 18.4 s (<code>20261004T141433Z_ANS-9-step1a-mat15-regate.log:1924</code>). W1's 20.5 / 21.6 / 20.8 s is ordinary run-to-run spread. The 92 s mesh gate was also priced off a reference that includes the four-port sweep (22.1 s, <code>:1903</code>); like-for-like <code>build_only</code> builds read 38.8–40.7 s. (B) <strong>(R0c)'s red is band calibration, not a map defect.</strong> At α = 0 the σ fed to both iterates is <code>sigma_ref</code> exactly (<code>materials/temperature.py:43–56</code>), and each iterate assembles and factorises afresh. (R0a), in the same window, shows two such in-process solves on equal σ differing by 1.7e-12 in P and 2.1e-10 in q, while W0's <code>-n 1</code> comparison is bitwise. So 1e-12 assumed a bitwise repeat that <code>-n 2</code> does not give. Which of the two parallel solves (MUMPS or the Robin solve) carries the noise is not established. Verdict: COUNTABLE on both claims.</p>
+<h3 id="9-item-239-2026-10-05-chain-p6-re-pose">§9 item 239 — 2026-10-05 (chain P6, re-pose)<a class="headerlink" href="#9-item-239-2026-10-05-chain-p6-re-pose" title="Permanent link">&para;</a></h3>
+<p><code>MAT-5</code> step 3, <strong>re-pose of item 237, attempt 2 of 4</strong> (implementer; heavy, <code>-n 2</code>, complex; ≈ 11 measured / 30 predicted min; depends on nothing). Item 237's brief above stands verbatim except for the four changes below. Its anchors, controls, traps, scope, negative-result list and status line are unchanged.</p>
+<ol>
+<li><strong>Land the parked code by path; do not rewrite it.</strong> <code>git checkout attempt/MAT-5-step3-20261005T0512Z -- src/fem_em_solver/core/time_harmonic.py tests/validation/test_birdcage_b1_plus_map.py tests/solver/test_sigma_field_hook.py tests/validation/test_mat5_coil_driven_sigma_feedback.py</code>, plus the four logs (<code>20261005T050129Z_MAT-5-step3-cache-sweep.log</code>, <code>…050254Z_…W0-hook.log</code>, <code>…050406Z_…W0b-th6.log</code>, <code>…050759Z_…W1-alpha0.log</code>). <code>main</code> has not touched any of these four code files since the branch point <code>71e54677</code> (checked by this review, <code>git diff --stat 71e54677 main -- src tests</code> is empty). Re-check that diff before checking out. Append the four test-results rows <strong>by hand</strong>, never by path checkout, and confirm that <code>git diff --stat</code> on <code>test-results.md</code> shows insertions only. W0 and W0b were green on these exact <code>src/</code> bytes, so they stand. Before W1, confirm that <code>git diff attempt/MAT-5-step3-20261005T0512Z -- src</code> is empty. If it is not, re-run W0 and W0b.</li>
+<li><strong>(R0c) imports <code>L0_BAND</code> 1e-9</strong> (<code>test_mat5_em_coupled_sphere.py:104</code>; provisional ruling, the weekly ratifies or reverts). This is step 2's in-run α = 0 reproduction band, which this brief's (R0a) already applies to the same class of in-process repeat. Replace <code>R0C_BAND = 1.0e-12</code> (<code>:87</code> of the module) with the import, update the docstring and the <code>(N1)</code> print line (<code>:402</code>), and <strong>change nothing else</strong>. The measured 2.747e-12 sits 364× below the band. (M0)'s 5e-3 floor sits 5 × 10⁶× above it, so (N1)'s separation is unchanged. No other band moves.</li>
+<li><strong>Two diagnostics added to (R0c), printed, never asserted.</strong> These are the pathologist's separation test. Print max |σ_it2 − σ_it1| over <strong>all local</strong> (owned + ghost) parent DG0 dofs, predicted 0.0 exactly, and ‖E_it2 − E_it1‖/‖E_it1‖ on the owned dofs, rank-reduced, predicted 1e-12 … 1e-9. If σ is exactly equal and E differs, the noise lives upstream of the thermal solve. Any non-zero σ difference is a finding: stop, park and journal it. It means the hook is not idempotent, which is a code bug (item 237's "(R0a) or (D0) red" line).</li>
+<li><strong>The box-speed gate is re-priced from measurement</strong> (a price, not a band). Stop BLOCKED as a slow box before W2 only if W1's mean EM clock exceeds <strong>30 s per solve</strong> (1.5 × 20.3) or its build-only mesh+rung clock exceeds <strong>61 s</strong> (1.5 × 40.7). W1 read 21.0 s and 43.5 s, so the gate passes on that window's box.</li>
+</ol>
+<p><strong>Windows.</strong> The cache sweep and <code>pgrep -c python3</code> first, as in item 237. Then <strong>W1</strong> (module edited, so rule (i) re-runs it) with item 237's W1 command, tag <code>MAT-5-step3-r2-W1-alpha0</code>, predicted 180 s. Then <strong>W2</strong> with item 237's W2 command, tag <code>MAT-5-step3-r2-W2-coupled</code>. <strong>W2 is re-priced:</strong> 8 Picard + 5 power-iteration EM solves × ≈ 20 s = 260 s, plus build-only ≈ 44 s, ≈ 20 Robin solves and JIT, ≈ 330–380 s against the container's <code>timeout -k 30 590</code>. If W1's EM mean × 13 + 120 s exceeds 560 s, stop BLOCKED before W2 as a price reading. Never lengthen the timeout.</p>
+<p><strong>Negative result.</strong> This is item 237's list. Attempt 3 of 4 is the next re-pose, and a W2 red parks on a new <code>attempt/MAT-5-step3-r2-*</code> branch. Delete <code>attempt/MAT-5-step3-20261005T0512Z</code> in the landing commit once its content is on <code>main</code>, and say so.</p>
+<p><strong>Status it can move.</strong> Item 237's line: the <code>MAT-5</code> row gains the step-3 record, and §10 P6 can be read as closed. The (R0c) band is provisional until the weekly ratifies it.</p>
+<p><strong>Outcome (2026-10-05 09:30 UTC slot): DONE, GREEN on attempt 2 of 4.</strong> Parked code landed by path from <code>attempt/MAT-5-step3-20261005T0512Z</code> (<code>git diff --stat 71e54677 main -- src tests</code> empty; <code>src/</code> identical to the branch, so W0 / W0b stand); test-results rows appended by hand. Module edits: <code>R0C_BAND = L0_BAND</code>, docstring, (N1) print, two printed (R0c) diagnostics. Cache sweep: no orphans (<code>20261005T093946Z_MAT-5-step3-r2-cache-sweep.log</code>). <strong>W1</strong> 16 passed, 169 s (<code>20261005T094115Z_MAT-5-step3-r2-W1-alpha0.log:1874–1883</code>): (R0a) P 7.844e-13, q 3.200e-12; (R0b) P₁ 6.428e-14, CN stored 4.756e-13 / surface 1.827e-12, mean θ(t*) 1.153313650 K (Δ 3.498e-7 K), V_sub 3.447e-13; (D0) 0 exactly; <strong>(R0c) 0.000e+00</strong> this run; diagnostics max|σ_it2 − σ_it1| 0.0 (all local dofs) and ‖E_it2 − E_it1‖/‖E_it1‖ 0.0 — this time the in-process repeat was bitwise, so item 237's 2.7e-12 is run-to-run, not structural (hook idempotent). Box gate: mesh+rung 40.6 s (≤ 61), EM 19.7 / 19.6 / 19.3 s (≤ 30); price 19.5 × 13 + 120 = 374 s ≤ 560. <strong>W2</strong> 18 passed, 391 s (<code>20261005T094412Z_MAT-5-step3-r2-W2-coupled.log:1874–1908</code>): ρ₁…ρ₇ +0.098771 / +0.099295 / +0.099156 / +0.099100 / +0.099090 / +0.099088 / +0.099088; μ₁…μ₅ +0.090690 / +0.098360 / +0.098907 / +0.099056 / +0.099081; <strong>(K) |ρ₄/μ_pred − 1| 1.8312e-4</strong> (band 0.10); (K-conv) 2.592e-4; (M0) 9.908e-2; (F) 8.483e-8; (E*) 9.382e-15, (B′) 6.188e-15, (C′) 3.194e-15, (D′) 0.0. (N1) miss 1.000 by construction; <strong>(N2) μ_E +0.133794, |μ_E/μ_pred − 1| 35.03 %</strong> (inside the predicted 0–50 %, outside the 10 % band, so (K) does distinguish re-solved E from frozen E on this fixture). Records: θ̄₈/θ̄₁ − 1 +11.149 % (μ/(1 − μ) +10.998 %), σ̄(θ₈) 0.560106 S/m, P_diss,8/P₁ 1.112344, θ̄₈ 6.010627 K, max θ₈ 10.522845 K, EM 20.2 s mean over 13 solves, peak RSS 4.71 GiB summed. No glyph moves; §10 P6 readable as closed (in-house half of (8d); <code>ANS-9</code> step 2 open).</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

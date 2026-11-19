@@ -1,0 +1,667 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>TH-19 — Carry the matched source projection to the coil, and retest the production element order - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#th-19-carry-the-matched-source-projection-to-the-coil-and-retest-the-production-element-order" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              TH-19 — Carry the matched source projection to the coil, and retest the production element order
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-486-2026-10-15-lane-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 486 — 2026-10-15 (lane 2)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-15-1800-item-486-not-queued" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-15 18:00 (item 486 — NOT queued)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-18-0300-the-row-written-the-2026-10-17-weeklys-ruling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-18 03:00 — the row written ✅ (the 2026-10-17 weekly's ruling)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="th-19-carry-the-matched-source-projection-to-the-coil-and-retest-the-production-element-order">TH-19 — Carry the matched source projection to the coil, and retest the production element order<a class="headerlink" href="#th-19-carry-the-matched-source-projection-to-the-coil-and-retest-the-production-element-order" title="Permanent link">&para;</a></h1>
+<p><strong>Carry the matched source projection to the coil, and retest the production element order</strong> — <em>opened 2026-09-10, operator direction.</em> <strong>The decision this reopens.</strong> §10's <code>TH-12</code> clause (2026-08-23) pins <strong>degree 1</strong> for every coil-fed Phase-5/6 solve. It was never an accuracy judgement — degree 2 wins outright on the sphere, 0.1405 % against 3.643 % at 3.01× fewer cells — it was an identity failure: on the coil the complex-power identity <code>Im Z = 4ω(W_m − W_e)/I′²</code> read <strong>4.5931e-09 loaded / 3.0030e-09 free against a 1e-9 family bound</strong>, while the degree-1 rows of the <em>same run, same mesh, same process</em> sat at 8.07e-15. The known-issues entry names the mechanism: <code>W_m</code> is unmoved (3.04e-08 → 3.13e-08 J) while <code>W_e</code> explodes <strong>3.5e7×</strong> (2.03e-13 → 7.16e-06 J), so <code>Im Z</code> goes from the physical <strong>+9.02 Ω</strong> to <strong>−2 117 Ω</strong>. The ungauged curl-curl null space is far richer at second order (882 296 vs 162 710 dofs) and the penalty-free formulation lets irrotational content sit in <code>E</code>. <strong>The clause is explicitly reversible on evidence, and its condition is already satisfied.</strong> <code>TH-13</code> closed the discriminator: the injector is the <strong>degree-1-only</strong> <code>H¹₀</code> source projection — a plumbing defect in the excitation, not a property of the element. <code>TH-13</code> step 3a then <em>built the fix</em> and measured it on a loop fixture: residue <strong>8.1e-17 / 1.8e-16</strong> against ≤ 1e-8, and the gradient share of <code>W_e</code> <strong>4.6e-23 / 3.1e-21</strong> against ≤ 1e-6 — six to fourteen orders of margin, with the default path bit-identical on its control. It landed as <code>project_source="matched"</code> (<code>core/time_harmonic.py:50</code>, which sets the projection degree to the solve's own and pins the exterior to the solve's own Dirichlet set) and <strong>has zero callers in <code>tests/</code> or <code>examples/</code></strong>. So the blocker is unqueued work, not an open question. <strong>What is NOT evidence, stated so a later reader does not mistake it:</strong> <code>ANS-4</code> steps 2b and 2d ran fifteen degree-2 coil solves on 2026-09-09/10 and passed reciprocity, σ_max and the C4 spreads — but those are the weak gates (§2.2), and that module asserts <strong>no</strong> power identity. Nothing since August has tested the actual objection. One genuinely new datum does favour degree 2: on the <em>identical</em> mesh it gave <strong>tighter</strong> C4 spreads than degree 1 (0.0191 / 0.0334 / 0.0241 % against 0.1012 / 0.0916 / 0.0654 %), i.e. it is less sensitive to the sheet-triangulation asymmetry <code>GEO-31</code> identified. <strong>Step 1 — reproduce the red first</strong> (standard, <code>-n 2</code>, complex): the <code>TH-12</code> fixture at degree 2 with <code>project_source</code> at its default, asserting the identity is <strong>still</strong> missed and printing <code>W_e</code>, <code>W_m</code> and <code>W_e/W_m</code>. A fix measured against an unreproduced red is worth nothing, and this repo has paid for that lesson. Expected ≈ 4.6e-09 / 3.0e-09; a materially different reading is itself the finding and stops the chunk. <strong>Step 2 — the same fixture, <code>project_source="matched"</code></strong> (standard): the identity asserted at the <strong>imported, unmoved 1e-9</strong>, with <code>W_e/W_m</code> printed beside step 1's. Three pre-registered outcomes, none of them decided in-slot: <strong>(a) passes</strong> ⇒ degree 2 is identity-clean on a coil-fed drive and the production-order clause goes back to a <strong>weekly</strong> with evidence — this chunk does <strong>not</strong> change the default; <strong>(b) improves but still misses</strong> ⇒ record the factor; some null-space content is not the source's, and a gauged degree-2 formulation is the next chunk (the branch <code>TH-12</code> step 3 called CLASS); <strong>(c) essentially unchanged</strong> ⇒ the source projection is not the mechanism <em>on a coil</em>, which contradicts the loop result and makes this a finding about the feed rather than about the element. <strong>Step 3, only on (a)</strong> (heavy): the same identity on the <strong>birdcage</strong> 4-leg fixture at 10 and 128 MHz — the loop is not the production drive, and the clause is about the birdcage. <strong>Negative control, asserted throughout:</strong> with <code>matched</code> off the identity must still fail, so the keyword is provably doing the work and a silently ignored flag cannot read as success. <strong>Cost:</strong> <code>TH-12</code> step 2 measured degree 2 at 96.8 % of <code>memory.max</code> on the 138 k-cell fixture <em>against the old 64 GiB ceiling</em>; today's measurement puts degree 2 at 743 k unknowns near 20–40 GiB, so this is ordinary-tier work now and needs no <code>xl</code> slot. <strong>Not in scope:</strong> changing the production default (a weekly's), iterative solvers, gauged formulations, and the <code>ANS-4</code> comparison. <strong>Re-priced 2026-09-10 18:00 review (steps 1–2 queued as §9 item 3).</strong> (i) The red lives in <code>tests/validation/test_coil_loading_degree2_pair.py::test_complex_power_identity_holds_at_degree2</code>, one σ-half per window via <code>TH12_DEGREE2_HALF</code>. The 2026-08-18 figures above are superseded by the last observation: <strong>3.8990e-09 loaded / 3.7235e-09 free</strong> on 138 490 cells (<code>20260901T033434Z_TH-13-step3a3-degree2-loaded.log</code>, 374 s; <code>20260901T034059Z_TH-13-step3a3-degree2-free.log</code>, 405 s; both <code>-n 8</code>, <code>timeout -k 30 600</code>, cost probe 52.35 GiB projected; <code>docs/testing/attempts.md:7494–7514</code>). Step 1's expectation reads against those. (ii) The tier is <strong>heavy at <code>-n 8</code></strong>, not standard at <code>-n 2</code>. (iii) The coil drive is a projected volume current (<code>_solve_projected_at</code>, <code>tests/validation/test_coil_loading_larmor_probe.py:173–176</code>, default projection), so <code>"matched"</code> does reach it. <strong>Step 3 as written is void</strong>, though: the birdcage's lumped-sheet drive passes <code>current_density=None, project_source=False</code> (<code>ports/lumped.py:480–483</code>), so the matched projection never touches it (known-issues degree-2 entry, <code>TH-13</code> step-3a row). Outcome (a) therefore goes to the weekly with that gap named, and a birdcage version needs a sheet-drive formulation ruling first. <strong>Steps 1–2 EXECUTED 2026-09-10, 22:30 implementer slot — OUTCOME (a) ON BOTH σ-HALVES: with <code>project_source="matched"</code> the degree-2 coil identity holds at the imported, unmoved 1e-9, by five orders.</strong> Test-side only, <code>git diff -- src/</code> empty: additive <code>project_source=True</code> on <code>_solve_projected_at</code> (forwarded to <code>solver.solve</code>; every other caller unchanged), and env <code>TH19_PROJECT_SOURCE</code> in <code>test_coil_loading_degree2_pair.py</code> (unset ⇒ <code>True</code>, <code>matched</code> ⇒ <code>"matched"</code>, anything else raises; degree-2 half only — the degree-1 control row always runs the default), printing the choice and <code>W_e</code>, <code>W_m</code>, <code>W_e/W_m</code>. <code>IDENTITY_TOLERANCE</code> not touched. All three windows <code>-n 8</code>, <code>timeout -k 30 600</code>, complex, <code>FEM_EM_REQUIRE_COMPLEX=1</code>, <code>tests/environment</code> first, <code>-s</code>, §5.1 durable capture (<code>[capture] rc=</code> in the raw file); collect-only smoke <code>20260911T033155Z_TH-19-step1-collect.log</code> (20 collected, Status 0, 2 s). <strong>Window 1 — step 1, loaded, env unset</strong> <code>20260911T033210Z_TH-19-step1.log</code>: <strong>1 failed / 17 passed / 2 skipped, Status 1, 475 s</strong> (the 17 are 11 <code>tests/environment</code> + the 6 the record passed). The red is reproduced: <code>test_complex_power_identity_holds_at_degree2</code> at relative <strong>2.3898e-09</strong> vs 1e-9 (<code>:538</code>); <code>Im Z</code> −2.323123e+03 Ω both routes, <code>W_e</code> <strong>7.859344e-06 J</strong>, <code>W_m</code> <strong>3.135703e-08 J</strong>, <code>W_e/W_m</code> <strong>2.506405e+02</strong> (<code>:436–437</code>) — <code>Im Z</code>, <code>W_e</code>, <code>W_m</code> equal the 2026-09-01 record to every printed digit, while the residual itself moved 3.8990e-09 → 2.3898e-09, which is the cancellation round-off the item said not to assert (anomaly recorded, not a different reading of the physics). Degree-2 solve 396.2 s, summed peak RSS 59.20 GiB (<code>:324</code>). <strong>Window 2 — matched, loaded</strong> <code>20260911T034033Z_TH-19-step2-loaded.log</code>: <strong>18 passed / 2 skipped, Status 0, 484 s</strong>. Identity residual <strong>2.0421e-14</strong> (<code>:398</code>), <code>Im Z</code> <strong>+9.307547 Ω</strong> both routes (degree-1 default: +9.017628 Ω); <code>W_e</code> <strong>2.043905e-13 J</strong>, <code>W_m</code> <strong>3.135703e-08 J</strong> (unmoved to 7 digits), <code>W_e/W_m</code> <strong>6.518171e-06</strong> (<code>:399</code>) — <code>W_e</code> falls <strong>3.845e7×</strong>, back to the degree-1 default's 2.03e-13 J scale; residual improves 1.17e5× over window 1. <code>P_loss</code> +1.3543067e-01 W vs +1.3543068e-01 W default. Solve 399.9 s, 60.10 GiB (<code>:482</code>). <strong>Window 3 — matched, free</strong> (window 2's 484 s was under the 560 s skip rule) <code>20260911T034858Z_TH-19-step2-free.log</code>: <strong>18 passed / 2 skipped, Status 0, 483 s</strong>. Residual <strong>5.9380e-15</strong> (<code>:420</code>), <code>Im Z</code> <strong>+9.871903 Ω</strong> (degree-1: +9.584200 Ω); <code>W_e</code> <strong>3.405566e-13 J</strong>, <code>W_m</code> <strong>3.325847e-08 J</strong>, <code>W_e/W_m</code> <strong>1.023970e-05</strong> (<code>:421</code>) against the default-path free record <code>W_e</code> 7.8594e-06 J / <code>W_m</code> 3.3258e-08 J / residual 3.7235e-09 (<code>20260901T034059Z_TH-13-step3a3-degree2-free.log:401</code>; free default <strong>not</strong> re-run this slot) — <code>W_e</code> falls 2.308e7×. <code>P_loss</code> exactly +0.0000000e+00 W (<code>:446</code>). Solve 405.3 s, 59.51 GiB (<code>:324</code>). <strong>Degree-1 control, all three windows:</strong> 138 490 cells; ΔR deviation <strong>+1.5838%</strong> vs record +1.5834% → +0.00039 pp against the 0.01 pp floor (<code>:337</code> / <code>:327</code> / <code>:337</code>); degree-1 identity residuals loaded / free 8.0765e-15 / 7.4137e-16, 4.9247e-15 / 8.8964e-15, 1.2607e-14 / 3.5215e-15. <strong>Negative control:</strong> matched off (window 1) the identity fails at the same fixture, same code, same rank count, so the keyword is provably doing the work. <strong>Printed, asserted nowhere, cross-window:</strong> matched degree-2 <code>ΔX</code> = 9.307547 − 9.871903 = −0.5644 Ω (degree-1 −0.5666 Ω). <strong>Disposition, not decided in-slot:</strong> pre-registered (a) — refer to the weekly with no default change, and with step 3's named gap (the birdcage's lumped-sheet drive bypasses the projection, <code>ports/lumped.py:480–483</code>). | ⬜</p>
+<p><strong>Step 3 EXECUTED 2026-09-13, 13:30 implementer slot (§9 item 3, re-scoped by the 09-13 weekly) — BOTH DEGREE-2 POWER IDENTITIES HOLD ON THE SHEET-DRIVEN 4-LEG BIRDCAGE AT 10 AND 128 MHz; no <code>W_e</code> excess on this drive.</strong> Tests only, <code>git diff -- src/</code> empty; new module <code>tests/validation/test_birdcage_power_identity_degree2.py</code>: <code>build_four_port_sweep(frequency_hz, build_only=True)</code> (116 085 cells, asserted <code>== STEP2_CELL_COUNT</code>), P1 driven through <code>run_lumped_sheet_port_case(…, degree=1|2, return_fields=True)</code> — the sheet drive's projection bypass left untouched, nothing routed through the injector; one frequency per process via <code>TH19_STEP3_FREQ_MHZ</code> (no default). Bands imported, never restated: (a) <code>DISCRETE_IDENTITY_RTOL</code> 1e-6 and <code>STEP2D_10MHZ_RTOL</code> 1e-5 from <code>test_birdcage_power_identity.py</code>, terms via its <code>_exact_shares</code>; (b) <code>IDENTITY_TOLERANCE</code> 1e-9 from its defining module <code>test_coil_loading_larmor_probe.py:124</code> (the degree-2 pair module re-imports it, <code>:82</code>), <code>Im S_src = Re L(E)/(2ωμ₀)</code> against <code>2ω(W_m − W_e)</code> with the family's <code>stored_electric_energy</code> / <code>_stored_magnetic_energy</code> (derivation in the module docstring: μᵣ = 1, real 50 Ω sheets store no reactive energy, the solver adds no gauge term). Windows <code>-n 8</code>, complex, <code>FEM_EM_REQUIRE_COMPLEX=1</code>, <code>tests/environment</code> first, <code>-v -s</code>, <code>timeout -k 30 590</code>, §5.1 durable capture: collect <code>20260913T183419Z_TH-19-step3-collect.log</code> (4 collected, Status 0, 3 s); <strong>10 MHz</strong> <code>20260913T183446Z_TH-19-step3-10MHz.log</code> <strong>15 passed, Status 0, 134 s</strong> (<code>[capture] rc=0</code> <code>:2506</code>); <strong>128 MHz</strong> <code>20260913T183723Z_TH-19-step3-128MHz.log</code> <strong>15 passed, Status 0, 118 s</strong> (<code>:2500</code>). <strong>Readings (<code>:1946–1955</code> in each):</strong> degree 2 (a) <strong>4.575e-15</strong> / <strong>8.928e-15</strong> (10 / 128 MHz; degree 1 9.656e-16 / 3.527e-16); (b) <strong>6.789e-11</strong> / <strong>1.816e-12</strong> (degree 1 2.975e-12 / 4.734e-14). <code>W_e/W_m</code> degree 1 → 2: <strong>2.343550e-02 → 2.228745e-02</strong> at 10 MHz, <strong>1.209660e-01 → 1.174350e-01</strong> at 128 MHz; <code>W_e(2)/W_e(1)</code> 0.9213 / 0.9305, <code>W_m(2)/W_m(1)</code> 0.9688 / 0.9585 — against the coil default path's 3.8e7× <code>W_e</code> rise. 139 140 → 745 938 DOFs; P1 solve 3.4 → 68.0 s (10 MHz), 3.2 → 57.4 s (128 MHz); peak <code>ru_maxrss</code> 2.57 GiB/rank, 17.86 GiB summed (10 MHz degree 2, <code>:1954</code>). <strong>Negative control (asserted, by record, 10 MHz):</strong> degree 1 reproduces <code>PORT-16</code> step 1's P1 <code>P_src,exact</code> 3.143759587e-03 W, <code>P_vol</code> 4.482780406e-04 W, <code>P_sheet,exact</code> 2.695481546e-03 W (<code>20260907T051231Z_PORT-16.log:1882</code>) at rel ≤ 1e-10 against 1e-5 (<code>:1960–1964</code>), record width <code>-n 2</code> vs this <code>-n 8</code> (integrals, not <code>OPS-41</code>'s point-sampled <code>V</code>). At 128 MHz no record exists; the degree-1 control asserts both identities at their bands instead (an executor addition, disclosed). <strong>Caveats for the review:</strong> (b)'s 10 MHz degree-2 margin is 15× and is cancellation round-off of the class step 1 saw move between runs — a second observation before it is leaned on; the <code>TH-13</code> step-3a known-issues expectation that the coil's <code>W_e</code> excess would reappear on the sheets as their own discrete divergence is <strong>not</strong> borne out on this drive. <strong>Disposition, not decided in-slot:</strong> both identities green ⇒ the production-order decision goes to the 09-16 weekly with both fixtures identity-clean (coil under <code>matched</code>, birdcage sheet drive as-is); no default change; <code>TH-12</code> step 3 (gauged degree 2) not opened. </p>
+<h3 id="9-item-486-2026-10-15-lane-2">§9 item 486 — 2026-10-15 (lane 2)<a class="headerlink" href="#9-item-486-2026-10-15-lane-2" title="Permanent link">&para;</a></h3>
+<p><strong>Step 3′: a second observation of step 3's two degree-2 power identities, run on today's image as committed.</strong> Implementer; heavy, <code>-n 8</code>, complex. Tests only: no <code>src/</code> change and no module edit.</p>
+<p><strong>Why this step and not <code>TH-15</code>'s.</strong> Step 3's own caveat names the next step: "(b)'s 10 MHz degree-2 margin is 15× and is cancellation round-off … a second observation before it is leaned on". <code>TH-15</code> has no ready, assertable step on its row. Its 🟡 holds on step 3's <code>gap_cell_tags</code> default, which "waits for a gate that reads <code>|V|</code> directly" (2026-09-09 ruling (2), <code>plan-archive.md:28891–28895</code>). No such gate is posed, and step 2 is killed (10-07 epitaph). Its natural-cavity control is unconstructible: there is no outer-box tag (<code>TH-15.md:1253</code>).</p>
+<p><strong>Rule (j): the row has no Done-when.</strong> The review either amends the row in its commit or this item moves no glyph. Proposed text: <em>"Steps 1–3 recorded green. Step 3's (a) ≤ <code>DISCRETE_IDENTITY_RTOL</code> and (b) ≤ <code>IDENTITY_TOLERANCE</code> re-observed green at 10 and 128 MHz on the current image, as committed (rule (i)). The production-order question it reopened is answered by the order rule in force (2026-10-01: degree 2 default, degree 1 ladder-licensed; §10 Phase-6 conventions) ⇒ ✅."</em> The coil volume-current default-path red (known-issues "complex-power identity reads 3–5e-9 at degree-2", still open) is <strong>not</strong> part of this Done-when and is not touched.</p>
+<ol>
+<li><strong>Anchor.</strong> The module's own imported bands; nothing is restated or moved.</li>
+<li>(a) The exact discrete power identity <code>P_src = P_vol + ΣP_sheet,field</code>, rel ≤ <code>DISCRETE_IDENTITY_RTOL</code> 1e-6 (<code>test_birdcage_power_identity.py</code>).</li>
+<li>(b) The reactive identity <code>Im S_src = Re L(E)/(2ωμ₀) = 2ω(W_m − W_e)</code>, rel ≤ <code>IDENTITY_TOLERANCE</code> 1e-9 (defined at <code>test_coil_loading_larmor_probe.py:124</code>; derivation in the <code>test_birdcage_power_identity_degree2.py</code> docstring: μᵣ = 1, real 50 Ω sheets, no gauge term).</li>
+<li>Step 3 recorded degree 2 at (a) 4.575e-15 / 8.928e-15 and (b) 6.789e-11 / 1.816e-12 (10 / 128 MHz; <code>20260913T183446Z_TH-19-step3-10MHz.log:1946–1955</code>, <code>…183723Z_…-128MHz.log:1946–1955</code>).</li>
+<li><strong>Negative controls.</strong></li>
+<li><em>Asserted, by record:</em> at 10 MHz the degree-1 control reproduces <code>PORT-16</code> step 1's P1 <code>P_src,exact</code> / <code>P_vol</code> / <code>P_sheet,exact</code> at rel ≤ <code>STEP2D_10MHZ_RTOL</code> 1e-5. Step 3 read ≤ 1e-10 (<code>…183446Z…:1960–1964</code>).</li>
+<li><em>Asserted, by record:</em> the cell count equals <code>STEP2_CELL_COUNT</code> 116 085. A moved mesh stops the item before any identity is read.</li>
+<li><em>Predicted, printed beside the measured value, never asserted:</em> an energy-blind solver that drops <code>W_e</code> misses (b) by <code>W_e/(W_m − W_e)</code>. From step 3's degree-2 <code>W_e/W_m</code> (2.228745e-02 / 1.174350e-01) that is ≈ 2.28e-02 at 10 MHz and ≈ 1.33e-01 at 128 MHz. The ceiling is ≈ 7–8 orders above the 1e-9 band. The journal computes it by hand from the printed energies; the module is not edited.</li>
+<li><strong>Tier, ranks, wall clock.</strong> Heavy, <code>-n 8</code> (step 3's width), <code>timeout -k 30 590</code>. Measured times were 134 s at 10 MHz and 118 s at 128 MHz, with a 3 s collect (<code>docs/testing/test-results.md:1717–1719</code>). Peak was 2.57 GiB/rank, 17.86 GiB summed. The prediction is ≈ 20 slot-minutes, allowing for first-compile JIT on forms not cached since 09-13. Each window is a bare whole Bash command, one frequency per window (<code>TH19_STEP3_FREQ_MHZ</code> has no default, so leaving it unset raises):
+   <code>scripts/testing/run_and_log.sh TH-19-step3p-10MHz "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src FEM_EM_REQUIRE_COMPLEX=1 TH19_STEP3_FREQ_MHZ=10 timeout -k 30 590 mpiexec -n 8 python3 -m pytest tests/environment tests/validation/test_birdcage_power_identity_degree2.py -v -s --tb=short'"</code>. The 128 MHz window is the same command with <code>128</code> and the label <code>…-128MHz</code>.</li>
+<li><strong>Traps.</strong></li>
+<li>The module is unrun since <code>dd465d4</code> (09-13). <code>build_four_port_sweep</code> has since gained <code>width_correction_kappa=None</code>, <code>c4_congruent_sheets=False</code> and <code>degree=1</code> keywords (<code>PORT-21</code>, <code>GEO-34</code>). All default off. Confirm that the module's call passes none of them before the window.</li>
+<li>Run <code>pgrep -c python3</code> in the container (not <code>pgrep -f "python3 -m pytest"</code>, which the guard denies) before and after each window.</li>
+<li>Do not sweep the FFCx cache while compute runs.</li>
+<li>Never pipe the pytest output.</li>
+<li>Run each window in the foreground with Bash-tool timeout 660000 ms.</li>
+<li>Run a collect-only smoke first if the module fails to import.</li>
+<li><strong>Scope boundary.</strong></li>
+<li>Two identities on one fixture; no accuracy claim.</li>
+<li>No default change, and <code>project_source</code> is untouched. The sheet drive still bypasses the projection by design (<code>ports/lumped.py</code>).</li>
+<li>The coil default-path known-issues red is not addressed. Its disposition is the weekly's if <code>TH-19</code> closes (flagged for the review).</li>
+<li>No band moves, and <code>src/</code> is untouched.</li>
+<li><strong>Negative result.</strong></li>
+<li>A red on (a) or (b), or a cell-count or <code>PORT-16</code>-record miss: report the readings and stop. Park the work on <code>attempt/TH-19-step3p-…</code> and mark the item BLOCKED in the same commit. A (b) red at 10 MHz with (a) green is the round-off the caveat warned of. It goes to the review as a finding, never as a widened band.</li>
+<li>Energies (<code>W_e</code>, <code>W_m</code>, <code>W_e/W_m</code>) that differ from step 3's printed values beyond the 7th digit while the cell count holds are a fixture drift since 09-13. Report it.</li>
+<li><strong>Status it can move.</strong></li>
+<li>If the review amends the Done-when as above: <code>TH-19</code> ⬜ → ✅ on both windows green.</li>
+<li>Otherwise: a registered second observation on the §7 row, with the glyph unchanged.</li>
+<li>Either way, step 3's caveat is discharged (or confirmed) in the row and in the known-issues <code>TH-19</code> step-3 row (<code>known-issues.md:628</code>).</li>
+</ol>
+<h3 id="review-ruling-2026-10-15-1800-item-486-not-queued">Review ruling 2026-10-15 18:00 (item 486 — NOT queued)<a class="headerlink" href="#review-ruling-2026-10-15-1800-item-486-not-queued" title="Permanent link">&para;</a></h3>
+<p><strong>Declined; the draft above is banked.</strong> Step 3′ would re-run step 3's two identities on the same fixture at the same frequencies (10 / 128 MHz). Step 3 already holds them green: (a) 4.6e-15 / 8.9e-15, (b) 6.8e-11 / 1.8e-12 (<code>20260913T183446Z_TH-19-step3-10MHz.log</code>, <code>…183723Z_…-128MHz.log</code>). The row has no Done-when, so a second green moves no glyph (rubric element 7). Writing a Done-when is not the daily's to do (rule (6)). <strong>For the 10-17 weekly:</strong> <code>TH-19</code> sits at ⬜ with its step 3 green. The production-order decision it fed has since been taken (degree 2 is the default, 2026-10-01). The weekly can write a Done-when that step 3 already meets, or close the row as superseded. Number 486 is spent and is not reused.</p>
+<h3 id="review-ruling-2026-10-18-0300-the-row-written-the-2026-10-17-weeklys-ruling">Review ruling 2026-10-18 03:00 — the row written ✅ (the 2026-10-17 weekly's ruling)<a class="headerlink" href="#review-ruling-2026-10-18-0300-the-row-written-the-2026-10-17-weeklys-ruling" title="Permanent link">&para;</a></h3>
+<p>The 2026-10-17 weekly ruled <code>TH-19</code> ✅: "Steps 1–3 are green with logged, asserted identities … The row's Done-when is the daily's banked draft (<code>TH-19.md</code>, rule (j)) with '⇒ ✅'; the 03:00 review writes the row and audits it. No new window" (<code>PROJECT_PLAN.md</code> § 10, rulings 2026-10-17, <code>TH-19</code>). This review wrote the row. <strong>One clause of the banked draft is not carried:</strong> "re-observed green … on the current image, as committed (rule (i))" described step 3′ (item 486), a window the 10-15 18:00 review declined and the weekly did not commission ("No new window"). The Done-when therefore reads on step 3's recorded windows of 2026-09-13. Step 3's own caveat (the 10 MHz (b) margin of ≈ 15× is cancellation round-off; "a second observation before it is leaned on") stays recorded and is not discharged by this closure. The coil default-path known-issues red is untouched. The audit result is in the 2026-10-18 03:00 journal (<code>docs/planning/reviews/2026-10-18-daily.md</code> §3).</p>
+<p><strong>Audit 2026-10-18 03:00 review — DEMOTE on check 8 only, corrected in the same review ⇒ PASS.</strong> The <code>auditor</code> traced 13 / 13 digits. (a) is asserted at module <code>:303</code> and (b) at <code>:313</code>, with residuals computed at <code>:174</code> / <code>:177</code>. The controls are asserted: cells at <code>:264</code>, the degree-1 <code>PORT-16</code> reproduction at <code>:287</code>. The 10 MHz figures are at <code>20260913T183446Z_TH-19-step3-10MHz.log.gz:1951–1952</code> (re-read: 4.575e-15, band 1e-06; 6.789e-11, band 1e-09). Footers: <code>:2510</code> (134 s) and <code>…183723Z…:2504</code> (118 s). The one failure was the tier cell. It read "standard (steps 1–2)", but steps 1–2 measured 475 / 484 / 483 s at <code>-n 8</code> (<code>step1.log.gz:1127</code>, <code>step2-loaded.log.gz:1055</code> (re-read), <code>step2-free.log.gz:1055</code>). The cell now reads heavy, and the Done-when label says which clause of the banked draft is not carried. <strong>Recorded, not ruled:</strong>
+- The module has not been re-run since 2026-09-13. The fixture file and several <code>src/</code> paths have changed since then, additively on the auditor's reading, but no one has traced their effect on the 116 085-cell build. The weekly ruled "no new window", so the record stands as the 09-13 record.
+- Step 3's 10 MHz (b) round-off caveat (≈ 14.7× margin) is not discharged.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

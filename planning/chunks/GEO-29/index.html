@@ -1,0 +1,583 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>GEO-29 — Global-resolution cost ladder of the unloaded F-small birdcage port fixture - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#geo-29-global-resolution-cost-ladder-of-the-unloaded-f-small-birdcage-port-fixture" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              GEO-29 — Global-resolution cost ladder of the unloaded F-small birdcage port fixture
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="geo-29-global-resolution-cost-ladder-of-the-unloaded-f-small-birdcage-port-fixture">GEO-29 — Global-resolution cost ladder of the unloaded F-small birdcage port fixture<a class="headerlink" href="#geo-29-global-resolution-cost-ladder-of-the-unloaded-f-small-birdcage-port-fixture" title="Permanent link">&para;</a></h1>
+<p><strong>Global-resolution cost ladder of the unloaded F-small birdcage port fixture — the price of the <code>h</code>-ladder <code>WF-6</code> step 4f and <code>ANS-4</code> both need</strong> — opened 2026-09-08 10:30 review from the <code>WF-6</code> step-4d ruling: the converged image-lattice comparand sits <em>below</em> <code>S_3</code> (<code>S_∞ − S_3 ≈ −0.00977</code> on 1.16929, <code>20260908T093332Z_WF-6.log:41–46</code>), so the eleven-point B₁⁺ miss (≈ 3% at the centre, ≈ 5–8% at <code>r ≥ 0.4R</code> along <code>+ŷ</code>, predicted from <code>…004020Z:1889–1899</code>) is the FEM's to explain, and the 116 085-cell fixture has <strong>never been refined in its global <code>resolution</code></strong> (0.015 m — 1.5 cm air cells inside a 7 cm coil; <code>PORT-14</code> step 1b's ×0.75 / ×0.6 rungs refined the conductor and <code>GEO-27</code>'s ladder the phantom). Executor <strong><code>mesh-probe</code></strong>, measurement-only, asserts nothing, 🧪 by the §3 rule; real build, no solve, <code>-n 1</code> (gmsh is serial). <strong>The mesh:</strong> <code>birdcage_port_domain</code> with exactly the parameter set <code>tests/mesh/test_birdcage_port_sheets._build(True)</code> passes (import its constants; <code>conductor_resolution</code> pinned at the fixture's <code>CONDUCTOR_RESOLUTION</code>, <code>phantom_resolution</code> at its default), the global <code>resolution</code> stepped <strong>0.015</strong> (control — must reproduce <strong>116 085</strong> <code>size_global</code>, <code>20260908T004020Z_WF-6.log:1881</code>), <strong>0.012</strong>, <strong>0.0095</strong>, <strong>0.0075</strong>. Per rung print <code>size_global</code>; the air / coil / phantom / gap tag cell counts (reduced); mesh wall time; peak RSS; and the mean circumradius (<code>dolfinx.cpp.mesh.h</code>, reduced) of the air cells inside <code>r ≤ 0.5R</code>, <code>\|z\| ≤ 0.01</code> m — the cell size the B₁⁺ gate actually samples at. <strong>Stop rule (pre-registered):</strong> a rung above <strong>900 k cells</strong> or <strong>300 s</strong> to mesh is recorded and the ladder stops; the next rung is attempted only if the previous rung's count × <code>(h_prev/h_next)³</code> stays under the ceiling (<code>GEO-25</code>'s licence arithmetic). <strong>Tier / ranks / cost:</strong> the ×1 mesh builds in 23–29 s (<code>20260906T213913Z_TH-15.log:2628</code>); if the air dominates the count, 0.0075 is ≈ 8× the air cells ⇒ predicted ≤ 600 k cells / ≤ 200 s; one window <code>-n 1</code>, <code>timeout -k 30 900</code>, heavy by ceiling. <strong>Traps:</strong> rank-0 meshing, <code>size_global</code> after distribution, never <code>cell_tags.values</code> lengths; ghosts once via <code>index_map(dim).size_local</code> (<code>OPS-39</code>); a count non-monotone in <code>1/h</code> (<code>GEO-22</code> class) is a finding to print, not a failure; no solve, no assertion. <strong>Deliverable:</strong> the table in this row and <code>scripts/probes/geo29_birdcage_resolution_ladder.py</code>. <strong>The question it answers:</strong> which rungs <code>WF-6</code> step 4f can afford at <code>-n 4</code> / <code>-n 8</code> inside a 560 s window (four single-drive solves per rung; the ×1 rung solves eight in 71 s, <code>…004020Z:1998</code>), and whether the interior cell size actually falls with <code>resolution</code> or is pinned by the conductor refinement's gradient — and, for the weekly, whether the same ladder can carry <code>ANS-4</code>'s 64 / 128 MHz convergence question on the ordinary service. <strong>Negative result:</strong> the control not reproducing 116 085 is an <code>OPS-18</code>-class drift — record, stop; a rung that does not mesh is a <code>GEO-21</code>/<code>GEO-23</code>-class known-issues entry — record, stop. — <strong>MEASURED 2026-09-08 19:30 slot (<code>mesh-probe</code>): the ladder is cheap, it runs to completion, and the interior cell size <em>does</em> fall with <code>resolution</code>.</strong> One window, <code>-n 1</code>, real build, no solve, <code>timeout -k 30 560</code>, harness elapsed <strong>145 s</strong>, <code>Status: 0</code> (<code>20260909T003221Z_GEO-29.log</code>, probe wall time 141.30 s at <code>:7052</code>). <strong>Control REPRODUCED to the integer:</strong> <code>size_global=116085</code>, ratio <strong>1.000000</strong> against <code>20260908T004020Z_WF-6.log:1881</code> (<code>:1792</code>) — no <code>OPS-18</code>-class drift. <strong>The ladder</strong> (<code>:7038–7042</code>, per-rung prints at <code>:1792–1795</code>, <code>:3520–3523</code>, <code>:5289–5292</code>, <code>:7032–7035</code>): <code>h=0.015</code> → <strong>116 085</strong> cells (air 74 326 / coil 35 917 / phantom 537 / gap 5 305), mesh 21.60 s, peak RSS 0.353 GiB, interior air cells 41, interior mean <code>h</code> <strong>2.189033e-02</strong> m; <code>h=0.012</code> → <strong>149 049</strong> (100 997 / 41 720 / 867 / 5 465), 26.44 s, 0.408 GiB, 70 cells, <strong>1.708717e-02</strong> m; <code>h=0.0095</code> → <strong>197 393</strong> (143 330 / 46 728 / 1 497 / 5 838), 32.91 s, 0.492 GiB, 148 cells, <strong>1.366960e-02</strong> m; <code>h=0.0075</code> → <strong>281 728</strong> (217 687 / 54 590 / 2 746 / 6 705), 45.56 s, 0.529 GiB, 324 cells, <strong>1.069368e-02</strong> m. The tag counts sum to <code>size_global</code> <strong>exactly on every rung</strong> — no cell unaccounted. <strong>Stop rule never fired</strong> (<code>:7051</code>): the worst rung is 31% of the 900 k ceiling and 15% of the 300 s ceiling, and the pre-registered <code>GEO-25</code> licence arithmetic printed before each rung (226 729 / 42.2 s, 300 401 / 53.3 s, 401 161 / 66.9 s, <code>:1796, 3524, 5293</code>) <strong>over-estimated every time</strong> — the measured 0.0075 rung came in 30% under its own licence figure. <strong>The question is answered YES:</strong> the interior mean circumradius inside <code>r ≤ 0.5R</code>, <code>\|z\| ≤ 0.01</code> m falls 2.189e-02 → 1.709e-02 → 1.367e-02 → 1.069e-02 m, <code>h/h₀</code> = 1.0000 / 0.7806 / 0.6245 / <strong>0.4885</strong> against nominal ratios 1.0 / 0.80 / 0.633 / 0.50 (slightly slower than nominal at the two middle rungs, slightly faster at the finest), and the interior cell <em>count</em> grows 41 → 70 → 148 → <strong>324</strong> (7.9×) — <strong>the interior is not pinned by the conductor refinement's gradient</strong>. <strong>The absolute scale is the finding for <code>WF-6</code>:</strong> at the ×1 rung the interior mean circumradius is <strong>2.19e-02 m — 1.46× the nominal 0.015 m and larger than the 1.4e-02 m-thick shell <code>GEO-28</code> measured in</strong> (<code>GEO-28</code> read 2.1–2.6e-02 m there, the same number by an independent route); only at <code>h = 0.0075</code> does it drop to 1.07e-02 m, i.e. below the shell thickness. <strong>Cost (<code>:7044–7048</code>):</strong> total cells grow only <strong>2.43×</strong> over a nominal 8× volumetric refinement (air 2.93× against the ideal 8.00×, coil <strong>1.52×</strong>, gap 1.26×, phantom 5.11×) and mesh time only <strong>2.11×</strong> — the fixture's budget is already dominated by the conductor-graded region, so the air is 64% of cells at 0.015 and 77% at 0.0075. The count is <strong>monotone in <code>1/h</code> on every rung</strong> (<code>:7050</code>) — no <code>GEO-22</code>-class non-monotonicity — and no rung failed to mesh: zero <code>Invalid boundary mesh (overlapping facets)</code>, zero Frontal-Delaunay → MeshAdapt fallbacks, so <strong>no <code>GEO-21</code>/<code>GEO-23</code> known-issues entry opens</strong>. The phantom's 2 746 cells at 0.0075 is <code>GEO-27</code>'s 0.0075-phantom figure, as expected with <code>phantom_resolution=None</code> letting the global value drive it. <strong>What step 4f may assume and what it may not:</strong> the mesh side of all four rungs is affordable (the finest is 2.4× the ×1 fixture's cells at 46 s to mesh, single-rank); <strong>the solve side is unmeasured — this probe ran no solve</strong>, so the <code>-n 4</code> / <code>-n 8</code> window arithmetic against the ×1 rung's eight-drive 71 s (<code>…004020Z:1998</code>) is the 18:00 review's to make, not this row's. <strong>Caveat (three of the four rungs are single readings):</strong> gmsh initialises and finalises per <code>birdcage_port_domain</code> call and all four rungs ran in one process; only the 0.015 rung has a cross-process repeat (today, against <code>…004020Z:1881</code>). <strong>None of 0.012 / 0.0095 / 0.0075 may be pinned as a version-tagged record without its own repeat</strong> — they are a cost table, not <code>MAT-4</code>-style records. Probe: <code>scripts/probes/geo29_birdcage_resolution_ladder.py</code> (asserts nothing; the 116 085 control is printed, not asserted). | 🧪 <strong>measured 2026-09-08</strong> <em>(measurement-only — 🧪 by the §3 rule, never ✅; the row's question is answered and the deliverable landed)</em> </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

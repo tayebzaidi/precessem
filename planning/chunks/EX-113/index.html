@@ -1,0 +1,731 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-113 — mri:19, Study.tune: the mode capacitance is read from Im z_k, the loss from Re z_k, and the mode fields show which mode was tuned - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-113-mri19-studytune-the-mode-capacitance-is-read-from-im-z_k-the-loss-from-re-z_k-and-the-mode-fields-show-which-mode-was-tuned" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-113 — mri:19, Study.tune: the mode capacitance is read from Im z_k, the loss from Re z_k, and the mode fields show which mode was tuned
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-446-2026-10-14-example-54-ramp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 446 — 2026-10-14 (example, §5.4 ramp)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-14-0300-item-446" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-14 03:00 (item 446)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-audit-2026-10-14-1030" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review audit 2026-10-14 10:30
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-14-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-14 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-113-mri19-studytune-the-mode-capacitance-is-read-from-im-z_k-the-loss-from-re-z_k-and-the-mode-fields-show-which-mode-was-tuned">EX-113 — mri:19, <code>Study.tune</code>: the mode capacitance is read from Im z_k, the loss from Re z_k, and the mode fields show which mode was tuned<a class="headerlink" href="#ex-113-mri19-studytune-the-mode-capacitance-is-read-from-im-z_k-the-loss-from-re-z_k-and-the-mode-fields-show-which-mode-was-tuned" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<p><code>EX-113</code> (<code>mri:19</code>) is opened 2026-10-14 by the 03:00 daily review under daily-review.md step 5 (§5.4 ramp from <code>WF-16</code> step 6(a), §9 item 429, landed <code>ac947c9c</code>). Its base is <code>tests/package/test_wf16_study_tune.py</code> (<code>Study.tune</code>, <code>src/fem_em_solver/study.py:998–1060</code>). The run of record is <code>docs/testing/logs/20261014T004318Z_WF-16-s6-W1.log</code> (<code>-n 2</code>, 66 s, 10 passed). On the exact-rectangle PEC hole F-small Study (<code>_py_copper("pec")</code>, degree 1, 64 MHz, κ off) and the solid σ = 800 control Study (<code>_solid_study()</code>), it holds:
+- pec: 80 798 cells, mesh 22.0 s, sweep 6.6 s, total 29.1 s; z_k and C_1 / C_2 printed (<code>:944–947</code>); solid: 117 206 cells, total 33.9 s (<code>:2760–2763</code>);
+- (R0) class-mean rel against the <code>"pec"</code> record 5.052e-11 / 3.878e-11 / 5.875e-11 (<code>:2765</code>);
+- (I) API equals <code>TH-17</code>'s modal route, 0.000e+00 / 0.000e+00; off-diagonal residual 3.798e-05 (<code>:2769</code>);
+- (a) C_mode 6.626796421e-11 F against <code>TH17_STEP3_C_MODE_RECORD_F</code>, gap −2.976552e-04 ≤ <code>REDUCTION_BAND</code> (<code>:2773</code>);
+- (c1) k = 2 gap +4.894874e-01 (<code>:2777</code>); (c2) solid tie 9.557e-11, gap −6.980694e-02 (<code>:2781</code>).</p>
+<p><strong>Proposed §7 row</strong> (to paste right after the <code>EX-112</code> row; ≤ 2 KB):</p>
+<p>| <code>EX-113</code> | <strong><code>Study.tune</code>: the mode capacitance is read from Im z_k only, cancels mode 1 exactly, and the mode fields show which mode it tuned</strong> <em>(history and §9 briefs: <code>docs/planning/chunks/EX-113.md</code>)</em> (<code>mri:19</code>; <code>example-runner</code>; opened 2026-10-14 by the 03:00 daily review, §5.4 ramp from <code>WF-16</code> step 6(a), §9 item 446; <code>mri:8</code> / <code>mri:16</code> solve this fixture, no example calls <code>tune</code>) <strong>Done-when:</strong> <code>examples/mri/19_study_tune_mode_capacitance.py</code> + same-stem guide (three required headings + <code>## Setup figure</code> + <code>## Related</code>, PNG ≤ 600 KiB); complex, <code>-n 2</code>, the gate's PEC hole and solid Studies through the API; no <code>tests/</code> or <code>src/</code> edit; every band imported. Asserted at the imported bands beside <code>20261014T004318Z_WF-16-s6-W1.log:2765–2781</code>: (R0) cells + class means, (I) API = <code>TH-17</code> route, (a) C_1 vs <code>TH17_STEP3_C_MODE_RECORD_F</code> ≤ <code>REDUCTION_BAND</code>; controls (c1) k = 2, (c2) solid miss. Example-side (≤ <code>EXACT_IDENTITY_RTOL</code>): a uniform series r leaves C_1 and shifts every z_k by r; C_1's series capacitor cancels Im z_1 / Im z_3; a uniform jX and the C_2 capacitor miss. Printed: z_k tables, Re z_1 PEC vs solid, Im z_2 after tuning, k = 1 / 2 / 3 mode-field |B₁±| at the centre. Outputs: combined XDMF (mode B, nodal |B₁±|) and a mode CSV. New values at ≤ 6 significant digits; a leak-blocked log ⇒ BLOCKED, not ✅. Census +1, <code>broken=0</code>, docrefs <code>dead=0</code>; elapsed recorded ⇒ ✅. Not claimed: a resonance, f₀, Q, S₁₁ / Z_in or tuning-accuracy figure, copper tuning, degree 2, F-human, an external check. | ⬜ Queued §9 item 446. | heavy (<code>-n 2</code>, ≈ 125 s per run, <code>-t 420</code>) |</p>
+<p><strong>Gap.</strong> No example calls <code>Study.tune</code>.
+- <code>examples/mri/</code> holds 01–18. <code>08</code> (<code>EX-92</code>) and <code>16</code> (<code>EX-108</code>) solve the same F-small four-port Study and read S / class means / loss partition. <code>11</code> sweeps frequency. None imports <code>test_wf16_study_tune.py</code>, calls <code>.tune(</code>, or forms the DFT mode impedances z_k (<code>grep -rn 'tune(\|wf16_study_tune\|_modal_z' examples/</code> is empty at drafting).
+- No example shows what the mode capacitance <em>is</em> in circuit terms (the series C that cancels Im z_k), that a uniform ESR cannot move it, or what the k = 1 and k = 2 mode fields look like.</p>
+<h3 id="9-item-446-2026-10-14-example-54-ramp">§9 item 446 — 2026-10-14 (example, §5.4 ramp)<a class="headerlink" href="#9-item-446-2026-10-14-example-54-ramp" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-14 03:00 daily review; the review reviews it.</em> <strong>This brief sets and moves no band, tolerance, record, Done-when of another chunk or validation target.</strong> Every band is imported from the gate module, which imports them from <code>PORT-*</code> / <code>TH-17</code> / <code>ANS-6</code> modules.</p>
+<p><code>EX-113</code> (<code>mri:19</code>; the runner selects <code>mri:&lt;n&gt;</code> by the <code>%02d_</code> prefix, <code>scripts/run_examples.sh:201–219, :239–240</code>, so <code>19_</code> is <code>mri:19</code>; the <code>mri:</code> group sources the complex build, <code>:273</code>; no runner edit) adds three tracked files and edits nothing else:
+- <code>examples/mri/19_study_tune_mode_capacitance.py</code>;
+- the same-stem guide <code>examples/mri/19_study_tune_mode_capacitance.md</code>, with <code>## 1. What this demonstrates</code>, <code>## 2. How to run it</code>, <code>## Setup figure</code>, <code>## 3. How to analyze it, step by step</code> and <code>## Related</code>;
+- <code>examples/mri/figures/mri_19_study_tune_mode_capacitance_setup.png</code>, ≤ 600 KiB.</p>
+<p><strong>The angle: what <code>tune</code> reads, what it ignores, and which mode it tuned.</strong> The gate checks the number against <code>TH-17</code>. This example adds three readings no example has; the first two are exact circuit identities (asserted), the third is a field picture (printed).
+1. <strong>C comes from Im z_k only.</strong> A uniform series resistance r on all four ports (Z′ = Z + r·I) shifts every z_k by exactly r (F is unitary, F·I·F^H = I), so C_1 is unchanged; a uniform series reactance jX shifts Im z_1 and moves C_1. The PEC and solid σ = 800 Studies show the same thing physically: Re z_1 is 0.025 Ω against 5.97 Ω (≈ 240×, the solid conductor's loss), while C_1 moves only −6.98 % (<code>:945</code>, <code>:2761</code>).
+2. <strong>What C_mode tunes.</strong> Adding the series capacitor 1/(jωC_1) on every port (Z_t = Z + I/(jωC_1)) cancels Im z_1 (and Im z_3, the degenerate partner) exactly, and leaves mode 2 with Im z_2 − 1/(ωC_1) &lt; 0 (predicted ≈ 25.19 − 37.53 = −12.3 Ω, from <code>:945</code>). This is a circuit-layer statement at 64 MHz on one degree-1 fixture — <strong>no resonance, f₀, Q or tuning-accuracy claim</strong> (§2; <code>ANS-7</code> stays 🟡).
+3. <strong>The mode fields.</strong> <code>Study.b1_plus()</code> returns one CG1 B per port drive. Superposing them with the DFT weights v_p = conj(F[k, p]) = e^{+2πi k p/4}/2 gives the incident-wave mode-k field (S is near-circulant, off-diagonal residual 3.8e-05, so a mode-k incident vector excites mode k). Printed: |B₁⁺| and |B₁⁻| at the coil centre for k = 1 and k = 3 (one co-rotating, one counter-rotating — which is which is the e^{jωt} convention, printed, not claimed), and |B_k=2(0)| / |B_k=1(0)| (predicted ≲ 1e-2: the k = 2 transverse field has a null on the axis in the C4-symmetric limit; first measurement).</p>
+<ul>
+<li><strong>Executor:</strong> <code>example-runner</code>. It does not spawn agents.</li>
+<li><strong>Class:</strong> example. <strong>Tier:</strong> heavy, <code>-n 2</code> (<code>ANS6_EXACT_STRIP_RECORD_RANK_WIDTH</code>, asserted), complex build.</li>
+<li><strong>Cost:</strong> ≈ 10 measured (example class) / ≈ 40 predicted min: 10 fixed + ≈ 14 script + ≈ 6 windows + ≈ 6 guide + ≈ 4 censuses / journal / commit. <strong>Park if the flagged run (window 3) has not started by minute 28, or the control (window 4) by minute 38</strong> (rule (d)). Price basis:</li>
+<li>The gate's own clocks (W1 <code>:944</code>, <code>:2760</code>): pec Study 29.1 s, solid Study 33.9 s; the whole gate window 66 s.</li>
+<li>This example adds: the field-keeping sweep <code>b1_plus()</code> triggers (<code>_solve_port_fields</code>, a second build + sweep of the PEC Study, ≈ 30 s — it does not reuse <code>self.result</code>, <code>study.py:1683</code>), four <code>project_to_cg1</code> projections (≈ 4–8 s), the circuit arithmetic (&lt; 1 s), the centre-point evaluation (&lt; 1 s), the XDMF on 80 798 cells (≈ 5 s), the setup figure (≈ 10 s, flagged only), start-up and JIT (≈ 15 s).</li>
+<li>Nearest analogue: <code>mri:16</code> (<code>EX-108</code>), two Studies on this hole fixture, 76 s flagged / 75 s control at <code>-n 2</code> (<code>20261009T052039Z_EX-108.log</code>).</li>
+<li><strong>Flagged run predicted ≈ 125 s, range [90, 280] s; control ≈ 115 s, range [80, 260] s.</strong> Runner <code>-t 420</code>, container <code>timeout -k 30 420</code>. Every window is under 10 min, so the plain runner form is used.</li>
+<li><strong>Depends on:</strong> nothing open. <code>WF-16</code> step 6(a) is on <code>main</code> (<code>ac947c9c</code>). <code>19_</code> is free in <code>examples/mri/</code>; no row or chunk names <code>EX-113</code>. Independent of item 447 (<code>EX-114</code>, <code>mri:20</code>); never run beside it (both heavy).</li>
+<li><strong>Shared files.</strong> Three new paths, nothing under <code>tests/</code> or <code>src/</code>. <strong>If anything under <code>tests/</code> or <code>src/</code> turns out to be needed, stop and report; do not edit it.</strong></li>
+</ul>
+<p><strong>Imports (never restated).</strong> <code>import tests.package.test_wf16_study_tune as g</code> and use its names: <code>TH17_STEP3_C_MODE_RECORD_F</code>, <code>KEY</code>, <code>_solid_study</code>, <code>_py_copper</code>, <code>_class_means</code>, <code>_rel_means</code>, <code>_record</code>, <code>_rel</code>, <code>_modal_z</code>, <code>s_to_z</code>, <code>REDUCTION_BAND</code>, <code>EXACT_IDENTITY_RTOL</code>, <code>LEG_D0_REPRODUCTION_BAND</code>, <code>ANS6_EXACT_STRIP_CLASS_MEANS_P1</code>, <code>ANS6_EXACT_STRIP_HOLE_CELL_RECORD</code>, <code>ANS6_EXACT_STRIP_RECORD_RANK_WIDTH</code>, <code>CLASSES</code>, <code>REFERENCE_IMPEDANCE_OHM</code>, <code>FREQUENCY_64_HZ</code>, <code>PHANTOM_CELL_TAG</code> if needed from <code>tests.validation.test_port_birdcage_lumped_column</code>. From <code>src</code>: <code>fem_em_solver.ports.circuit.z_to_s</code>, <code>write_setup_figure</code>, <code>write_xdmf_with_tags</code>, <code>adopt_host_ownership</code>, <code>evaluate_vector_field_parallel</code>. Insert <code>_REPO_ROOT</code> into <code>sys.path</code> (the <code>mri:16</code> precedent). Raise if <code>default_scalar_type</code> is not complex. Record digits go only into an example-local <code>REC</code> dict, each entry commented with its <code>log:line</code>; never assert a record by equality.
+- <strong>Structural asserts at start-up:</strong> <code>comm.size == g.ANS6_EXACT_STRIP_RECORD_RANK_WIDTH</code>; <code>g._py_copper("pec").degree == 1</code> and <code>.conductor is None</code>; <code>g.REDUCTION_BAND</code> is the <code>tests.validation.test_port_lumped_rlc_termination</code> object (<code>is</code>).
+- <strong>Example-local inputs (cited, not records):</strong> r ∈ {0.2, 1.0} Ω (0.2 Ω is the F-human ESR the refusal test uses, <code>test_wf16_study_tune.py:108</code>) and X = 1.0 Ω. Name them as inputs in the guide.</p>
+<p><strong>(1) Anchor.</strong> The gate's two Studies through the API, mirroring its <code>tuned</code> fixture (<code>test_wf16_study_tune.py:139–162</code>; pytest fixtures cannot be called — see Traps).
+- <code>pec = g._py_copper("pec")</code>; <code>res = pec.solve(comm)</code>; <code>t1 = pec.tune(k=1, comm=comm)</code>; <code>t2 = pec.tune(k=2, comm=comm)</code>. Same for <code>solid = g._solid_study()</code>.
+- (R0) <code>res.cells == ANS6_EXACT_STRIP_HOLE_CELL_RECORD</code>; <code>_rel_means(_class_means(S), ANS6_EXACT_STRIP_CLASS_MEANS_P1[KEY]["pec"])[c] &lt;= LEG_D0_REPRODUCTION_BAND</code> per class. Records 80 798, 5.052e-11 / 3.878e-11 / 5.875e-11 (<code>:944</code>, <code>:2765</code>).
+- (I) <code>max |t1.z_k − _modal_z(s_to_z(S, REFERENCE_IMPEDANCE_OHM))[0]| / |·| &lt;= EXACT_IDENTITY_RTOL</code>; residual likewise; <code>Im z_1 &gt; 0</code>; <code>|C_1·ω·Im z_1 − 1| &lt;= EXACT_IDENTITY_RTOL</code> (<code>:2769</code>).
+- (a) <code>|t1.c_mode_farad / TH17_STEP3_C_MODE_RECORD_F − 1| &lt;= REDUCTION_BAND</code>. Record gap −2.976552e-04 (<code>:2773</code>).
+- <strong>Records predicted equal at the printed digits</strong> (same code, width, image): cells, C_1 6.626796421e-11 F, C_2 9.873468900e-11 F, solid C_1 6.166035422e-11 F, the gaps above. A covered reading that moves past its last two printed digits stops the item (Negative result).</p>
+<p><strong>Example-side anchors (asserted, imported bands only).</strong> All on the PEC Study's S, in numpy; tune is read on a fresh <code>g._py_copper("pec")</code> Study whose <code>result = SimpleNamespace(s_matrix=S′)</code> (the gate's own W0 pattern, <code>test_wf16_study_tune.py:128</code> — no solve, no mesh).
+- <strong>(ESR) a uniform resistance leaves C.</strong> For each r: S′ = <code>z_to_s(Z + r·I, z0)</code>; <code>|C_1(S′)/C_1(S) − 1| &lt;= EXACT_IDENTITY_RTOL</code>, and <code>max_k |z_k′ − z_k − r| / |z_k| &lt;= EXACT_IDENTITY_RTOL</code>. Predicted ≤ 1e-12 (z_to_s ↔ s_to_z round trip).
+- <strong>(Tuned) C_1 cancels mode 1.</strong> Z_t = Z + I/(jωC_1), ω = <code>pec.omega</code>; <code>zt = _modal_z(Z_t)[0]</code> (direct, no S round trip); <code>|Im zt[1]| / Im z_1 &lt;= EXACT_IDENTITY_RTOL</code> and the same for k = 3. Printed: Im zt[2] (predicted ≈ −12.3 Ω), Re zt[1] = Re z_1.</p>
+<p><strong>(2) Negative controls (rule (e)).</strong>
+- (c1), the gate's, asserted: k = 2 misses the record by &gt; <code>REDUCTION_BAND</code>. Record +4.894874e-01 (<code>:2777</code>).
+- (c2), the gate's, asserted: the solid Study ties to its own record (<code>_rel(S_solid, _record(1)) &lt;= LEG_D0_REPRODUCTION_BAND</code>, record 9.557e-11) and misses <code>TH-17</code>'s by &gt; <code>REDUCTION_BAND</code>. Record −6.980694e-02 (<code>:2781</code>).
+- (ESR-c), example-side, asserted only as a miss: Z + jX·I moves C_1, <code>|C_1(S_X)/C_1 − 1| &gt; EXACT_IDENTITY_RTOL</code>. <strong>Predicted X/(Im z_1 + X) = 1/38.53 ≈ 0.02596</strong>, range [0.025, 0.027] (stdlib arithmetic from <code>:945</code>; first measurement). No saturation: ≈ 2.6e8× the band.
+- (Tuned-c), example-side, asserted only as a miss: tuning with C_2 instead, <code>|Im z_1 − 1/(ωC_2)| / Im z_1 &gt; EXACT_IDENTITY_RTOL</code>. <strong>Predicted 1 − C_1/C_2 ≈ 0.3288</strong>, range [0.32, 0.34].</p>
+<p><strong>Printed only (no band; a value outside its prediction is reported, with no status effect).</strong>
+- The z_k table for both Studies (Re, Im), C_1 / C_2 / C_3, and the solid-over-PEC ratios of Re z_1 (predicted ≈ 239) and C_1 (≈ 0.9305).
+- <code>|S(fields_result) − S(result)|_max / |S|_max</code> between the plain sweep and the field-keeping sweep (predicted ≤ 1e-12; the two are separate solves of one problem).
+- Mode fields (angle 3): build B_k for k ∈ {1, 2, 3} as CG1 Functions (<code>B_k.x.array[:] = Σ_p v_p · B_p.x.array</code>, <code>scatter_forward</code>). The port order is <code>[d.port_id for d in pec.fields_result.port_definitions]</code>, asserted equal to the S row order and to <code>sorted(b1, key=lambda p: int(p[1:]))</code>. At the origin, through <code>evaluate_vector_field_parallel</code>: |B₁⁺| = |B_x + jB_y|/2, |B₁⁻| = |B_x − jB_y|/2 (the <code>b1_plus_at</code> form, <code>study.py:1915–1920</code>), for k = 1, 3; and |B_2(0)|/|B_1(0)|. Per unit incident-wave mode excitation — a record, not an absolute field.</p>
+<p><strong>Output.</strong>
+- <strong>Setup figure</strong> <code>examples/mri/figures/mri_19_study_tune_mode_capacitance_setup.png</code>, through <code>write_setup_figure</code> with <code>mri:16</code>'s call on this mesh (<code>16_study_copper_birdcage.py:170–191</code>): air tags hidden, phantom translucent, <code>slice_normal=(0, 0, 1)</code>; title ≤ 130 characters, e.g. "mri:19 -- Study.tune on the exact-rectangle PEC hole F-small birdcage, four gap ports, phantom (WF-16 step 6a)". Over 600 KiB ⇒ re-render once with <code>show_edges_on_slice=False</code>. The hole route has no conductor cells: the guide says the coil is drawn as a void.
+- <strong>Combined XDMF</strong> <code>examples/mri/paraview_output/mri_19_study_tune_mode_capacitance_combined.xdmf</code>, <code>write_xdmf_with_tags(path, msh, cell_tags, fields, comm=comm)</code>: CG1 <code>B_mode1_real</code>, <code>B_mode2_real</code> (vector, <code>.real</code> copies), CG1 scalars <code>B_mode1_abs</code>, <code>B_mode2_abs</code>, <code>B1_plus_mode1</code>, <code>B1_minus_mode1</code>, <code>B1_plus_mode3</code> (nodal |·| in numpy on the CG1 dofs, labelled nodal in the guide). Then <code>adopt_host_ownership(OUTPUT_DIR, comm=comm)</code> on every rank. Only the PNG is tracked.
+- <strong>CSV</strong> <code>examples/mri/paraview_output/mri_19_study_tune_mode_capacitance_modes.csv</code>, rank 0: one row per (study, k, variant ∈ {base, r=0.2, r=1.0, X=1.0, tuned_C1, tuned_C2}) with <code>Re_zk_ohm</code>, <code>Im_zk_ohm</code>, <code>C_k_F</code> (blank when Im ≤ 0).
+- <strong>Guide.</strong> <code>Related</code> lists, by full filename: <code>examples/mri/16_study_copper_birdcage.md</code> first, then <code>examples/mri/08_study_four_port_birdcage.md</code>; then <code>tests/package/test_wf16_study_tune.py</code>, <code>tests/validation/test_th17_birdcage_eigenmodes.py</code>. The guide explains z_k = diag(F Z F^H) and why k = 1 / 3 are degenerate; why a uniform r cannot move C and a uniform jX can; what "C_1 cancels Im z_1" means in circuit terms and why it is not a resonance or tuning claim; a ParaView recipe (colour by <code>B_mode1_abs</code> and <code>B_mode2_abs</code> on a z = 0 slice; Glyph <code>B_mode1_real</code>; compare <code>B1_plus_mode1</code> with <code>B1_plus_mode3</code>). One sentence in <code>## 2</code>: <code>./scripts/run_examples.sh -e mri:19 -n 2 -t 420</code>, heavy, the measured wall time. Write <code>≈</code>, never a tilde.</p>
+<p><strong>(3) Windows.</strong> Each one is foreground with Bash <code>timeout: 660000</code>, and each is one bare, whole, repo-relative harness call, nothing chained or piped.
+0. Orphan check: <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0.
+1. <strong>Pre-censuses, before any file is written:</strong> <code>scripts/testing/run_and_log.sh EX-113-pre-figures "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_setup_figures.py'"</code> and <code>scripts/testing/run_and_log.sh EX-113-pre-docrefs "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py'"</code>. Last reading <code>examples=109 ok=109 missing=0 broken=0</code>, docrefs <code>dead=0 stale=90 exit=2</code> (<code>…T033627Z_EX-112-post-figures.log</code>, <code>…033631Z_EX-112-post-docrefs.log</code>). Use what the pre-census reads (item 447 may land first). Exit 2 is staleness info; exit 1 is a failure.
+2. <strong>Dry run</strong>, after the script exists: <code>scripts/testing/run_and_log.sh EX-113-dryrun "./scripts/run_examples.sh -e mri:19 -n 2 -t 420 --dry-run"</code>. It must print <code>(complex build)</code>. Copy its emitted string for windows 3–4, adding only <code>-T</code> (and the flag in window 3).
+3. <strong>Run of record (flagged)</strong>, predicted ≈ 125 s, range [90, 280] s, of the form <code>scripts/testing/run_and_log.sh EX-113 'docker compose exec -T -e FEM_EM_SETUP_FIGURES=1 fem-em-solver bash -lc "cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src timeout -k 30 420 mpiexec -n 2 python3 examples/mri/19_study_tune_mode_capacitance.py"'</code> (must match the dry run apart from <code>-T</code> and the flag). Pass: Status 0; (R0), (I), (a), (ESR), (Tuned) and the four control asserts green; the covered records as in (1); the closing "All assertions hold" line.
+4. <strong>Control:</strong> <code>git add</code> the PNG window 3 wrote, then the same line without <code>-e FEM_EM_SETUP_FIGURES=1</code>, label <code>EX-113-control</code>. Compare at the bands, never bitwise.
+5. <strong>The guide</strong>, written from window 3's log. Then <code>EX-113-post-figures</code> / <code>EX-113-post-docrefs</code>. <strong>Write the prediction first:</strong> figures N → N + 1, <code>missing=0 broken=0</code>; docrefs <code>dead=0</code>, exit ≠ 1. Any dead reference naming <code>mri_19_*</code> or <code>19_study_tune_mode_capacitance.md</code> fails the item.
+6. <code>git status --porcelain examples/ tests/ src/</code> lists exactly the three new <code>examples/</code> paths.
+7. <strong>Before committing, run the pre-commit leak guard on the staged logs</strong> (it runs anyway on <code>git commit</code>). See the leak-guard trap.</p>
+<p><strong>(4) Traps already paid for.</strong>
+- <strong>The private-leak guard (<code>EX-112</code>, attempts.md 2026-10-14T03:38Z).</strong> <code>scripts/testing/check_private_leak.py</code> refuses any staged figure sharing an <strong>8-significant-digit prefix</strong> (<code>MIN_SIGNIFICANT_DIGITS = 8</code>) with a raw AED export; figures already in a tracked file at HEAD are subtracted. <code>EX-112</code>'s two run logs were blocked by a collision on our own gel-box θ and cost the item its ✅ (demoted 🧪 for custody by the 03:00 audit). The F-small fixture has private AED counterparts (<code>ANS-4</code>), so: <strong>print every new value (z_k tables, ratios, mode-field readings, CSV columns echoed to stdout) at ≤ 6 significant digits</strong>; only the asserted records' own reproduced prints may carry their gate-log digits (already tracked, so subtracted). The CSV and XDMF are gitignored and are not scanned. <strong>If the guard still fires: never bypass it and never edit a log</strong> — move the flagged logs unchanged into the gitignored <code>logs/leak-held/</code>, commit everything else, mark item 446 <strong>BLOCKED</strong> (not ✅; a ✅ needs its run logs committed), journal the flagged <code>log:line</code> (never the figure) in attempts.md, and stop.
+- <strong>Pytest fixtures are not callable.</strong> <code>tuned</code> is a <code>@pytest.fixture</code>; copy its two-Study loop (<code>:145–152</code>) and use only module-level helpers.
+- <strong>The field-keeping solve is separate.</strong> <code>b1_plus()</code> builds and sweeps again into <code>fields_result</code>; it never sets <code>self.result</code>, and <code>tune()</code> never reads <code>fields_result</code>. Call <code>solve</code> + <code>tune</code> first, then <code>b1_plus</code>. Do not assign <code>result</code> on the solved Study; the circuit-variant reads use a fresh <code>_py_copper("pec")</code> Study (no mesh is built while <code>result</code> is set).
+- <strong><code>tune</code> raises on Im z_k ≤ 0.</strong> Never call it on Z_t (Im z_1 ≈ ±round-off) or for k = 0 / 3 after <code>result</code> is set; read those through <code>_modal_z</code> directly.
+- <strong>Port order.</strong> Superpose in <code>port_definitions</code> order (the S row order); a dict-order mismatch gives a mixed-mode field that still looks plausible. Assert the order.
+- <strong>Rank-local values.</strong> Point evaluation through <code>evaluate_vector_field_parallel</code> only, points identical on every rank; raise on any point not found; numpy maxima carry <code>initial=</code>; no collective inside a <code>rank == 0</code> branch. A rank-local exception hangs the job: Status 124 is a finding, never a retry.
+- <strong>The complex build.</strong> <code>.x.array</code> is complex; nodal magnitudes are numpy on <code>np.abs(...)</code>; <code>scatter_forward</code> after assigning; no UFL comparison; name every Function, each XDMF key equal to its Function's <code>name</code> (<code>EX-79</code>).
+- <strong>Harness shape.</strong> Every harness call is the whole Bash command: bare, repo-relative, no <code>cd … &amp;&amp;</code>, no <code>; date</code> / <code>| tail</code>, no redirect (<code>bash_guard</code> rule 3). <code>./scripts/run_examples.sh</code> is host-side: emit it with <code>--dry-run</code> and pass the string to the harness; never wrap it in <code>docker compose exec</code> (Status 127). A docker-socket denial means stop and report the exact command string.
+- <strong>Timeouts and foreground.</strong> Bash <code>timeout: 660000</code> on every window; container <code>timeout -k 30 420</code>. <strong>Spawn executors foreground</strong>, and never background a harness window (the 2026-09-01 <code>example-runner</code> orphan). Never raise a timeout or <code>-n</code>. After a kill, <code>pgrep -c python3</code> first; only at 0, the orphan-<code>.c</code> cache sweep (daily-review.md rubric item 4) as one bare call labelled <code>EX-113-cache-sweep</code>.
+- <strong>Rule (i):</strong> no edit to the script after window 3 starts, or to the guide after window 5 starts. Check mtimes before committing.</p>
+<p><strong>(5) Scope.</strong> One fixture (exact-rectangle PEC hole F-small, κ off) plus the gate's solid control, degree 1, 64 MHz, <code>-n 2</code>. The ESR / jX / C-closure statements are circuit identities on the field-derived Z; the mode fields are incident-wave superpositions, printed. Not claimed: a resonance, f₀, Q, S₁₁ / Z_in or tuning-accuracy figure (§2; <code>ANS-7</code> 🟡); copper (<code>LeontovichWall</code>) tuning; degree 2; 10 / 128 MHz; F-human (<code>tune</code> refuses it); an external check. <code>WF-16</code> does not move.</p>
+<p><strong>(6) Negative result.</strong> Report and stop. Journal in <code>docs/testing/attempts.md</code>, park on <code>attempt/EX-113-&lt;UTC&gt;</code>, and mark item 446 BLOCKED with the unblock condition in the same commit (rule (d)). <code>EX-113</code> stays ⬜. Never widen a band, never edit <code>tests/</code> or <code>src/</code>, never re-record from the example side.
+- <strong>(R0) / (I) / (a) red, or a covered record off W1 beyond its last two printed digits:</strong> an example/gate divergence or <code>main</code> drifted; print the first differing value beside its <code>log:line</code>, file a known-issues entry, park.
+- <strong>(ESR) or (Tuned) red:</strong> the circuit algebra or the z0 convention is not what the brief says; print the residuals and stop.
+- <strong>A control inside its band:</strong> mislabelled variant; stop.
+- <strong>The leak guard fires:</strong> BLOCKED as in Traps, not ✅.
+- <strong>Status 124, over 420 s, or past the park minutes:</strong> park with the last printed line.
+- <strong>A printed value outside its prediction</strong> (Re z_1 ratio, Im zt[2], the mode-field ratios): report it; no status effect.</p>
+<p>No <code>PREDICTED RED:</code> line. A red anywhere stops the slot.</p>
+<p><strong>(7) Status it can move.</strong> <code>EX-113</code> ⬜ → ✅ under the §7 Done-when the review pastes in the same commit as this item (rule (j)). Census <code>examples</code> +1 (109 → 110 if the pre-census reads 109), <code>broken=0</code>; docrefs <code>dead=0</code>. <code>WF-16</code> unchanged. No §2 sentence moves. The §10 Phase 9 (9a) ramp gains a <code>Study.tune</code> example, which the weekly reads.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Use the example-runner agent to execute <code>EX-113</code>, §9 item 446 (<code>docs/planning/chunks/EX-113.md</code>, heading <code>§9 item 446</code>). Read the brief and any review ruling beneath it first; the rulings hold. You are the executor — do not spawn agents, and never background a harness window. Pass <code>timeout: 660000</code> on every Bash call that runs a harness window, run every window in the foreground, and never delete a log. The harness call is the <strong>whole</strong> Bash command: bare, repo-relative, nothing chained or piped. Before window 1, run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> and require 0. Run both pre-censuses before writing any file. Edit nothing under <code>tests/</code> or <code>src/</code>; call the gate module's helpers unchanged. Print every new value at ≤ 6 significant digits; if <code>check_private_leak.py</code> blocks a log, move it unchanged to <code>logs/leak-held/</code>, mark item 446 BLOCKED (not ✅) and stop. Emit the runner line with <code>--dry-run</code> and pass it to the harness; never wrap <code>run_examples.sh</code> in <code>docker compose exec</code>. No edit to the script after window 3 starts, or to the guide after window 5 starts. If the docker socket is denied, stop and report the exact command string. Return the windows' log names, every asserted and printed value beside its record (log:line) or prediction, the census before / after with the docrefs <code>dead=</code> list, and elapsed."</p>
+<h3 id="review-ruling-2026-10-14-0300-item-446">Review ruling 2026-10-14 03:00 (item 446)<a class="headerlink" href="#review-ruling-2026-10-14-0300-item-446" title="Permanent link">&para;</a></h3>
+<p>Accepted as <code>mri:19</code>; no runner edit is needed. The mode fields come from <code>b1_plus()</code>'s own second solve, which is priced in. The example-side controls (uniform jX, C₂ in place of C₁) are <strong>predicted</strong> and printed beside their measured misses (§9 rule (e)). Never run beside item 447 (two heavy windows). The leak-guard clause in the brief binds.</p>
+<p><strong>Outcome 2026-10-14 (11:00 slot, §9 item 446): DONE, <code>EX-113</code> ✅.</strong> Flagged run <code>20261014T111653Z_EX-113.log</code> (Status 0, 98 s, predicted 125 s in [90, 280]) and unflagged control <code>20261014T111841Z_EX-113-control.log</code> (99 s). Every record equals <code>20261014T004318Z_WF-16-s6-W1.log:2765–2781</code> at its printed digits; (ESR), (Tuned) and the four controls hold; (ESR-c) 0.025956 and (Tuned-c) 0.32883 sit in their predicted ranges. Printed-prediction miss, no status effect: <code>|B_2(0)|/|B_1(0)|</code> = 1.0277e-2 against the predicted ≲ 1e-2. Census figures 109 → 110, <code>missing=0 broken=0</code>; docrefs <code>dead=0 stale=101 exit=2</code> (unchanged, as predicted). The leak guard was run on the staged logs (see attempts.md).</p>
+<h3 id="review-audit-2026-10-14-1030">Review audit 2026-10-14 10:30<a class="headerlink" href="#review-audit-2026-10-14-1030" title="Permanent link">&para;</a></h3>
+<p><strong>PASS</strong> (auditor; all eight checks). The flagged and control logs exist plain in <code>docs/testing/logs/</code>, with Status 0 / Elapsed 98 s and Status 0 / Elapsed 99 s (<code>20261014T111653Z_EX-113.log:3636–3637</code>, <code>20261014T111841Z_EX-113-control.log:3629–3630</code>). (a) re-asserts the gate record at <code>REDUCTION_BAND</code> (<code>…111653Z_EX-113.log:3617</code>). The asserts at <code>examples/mri/19_study_tune_mode_capacitance.py:350–368</code> import their bands unchanged. Census 109 → 110 (<code>20261014T112059Z_EX-113-post-figures.log:146</code>), docrefs <code>dead=0</code> (<code>…112101Z_EX-113-post-docrefs.log:141</code>). No <code>tests/</code> or <code>src/</code> edit. Caveat: the script was untracked at run time, so file mtimes are the only evidence of its version: it was written before the flagged run, and the guide before the post-censuses. <code>|B₂(0)|/|B₁(0)|</code> 1.0277e-2 is a printed miss of its ≲ 1e-2 prediction, with no status effect. The §9 line's "11:00 slot" is UTC; it was the 06:00 slot.</p>
+<h2 id="7-row-moved-verbatim-2026-10-14-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-14 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-14-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p><strong><code>Study.tune</code>: the mode capacitance is read from Im z_k only, cancels mode 1 exactly, and the mode fields show which mode it tuned</strong> <em>(history and §9 briefs: <code>docs/planning/chunks/EX-113.md</code>)</em> (<code>mri:19</code>; <code>example-runner</code>; opened 2026-10-14 by the 03:00 daily review, §5.4 ramp from <code>WF-16</code> step 6(a), §9 item 446; <code>mri:8</code> / <code>mri:16</code> solve this fixture, no example calls <code>tune</code>) <strong>Done-when:</strong> <code>examples/mri/19_study_tune_mode_capacitance.py</code> + same-stem guide (three required headings + <code>## Setup figure</code> + <code>## Related</code>, PNG ≤ 600 KiB); complex, <code>-n 2</code>, the gate's PEC hole and solid Studies through the API; no <code>tests/</code> or <code>src/</code> edit; every band imported. Asserted at the imported bands beside <code>20261014T004318Z_WF-16-s6-W1.log:2765–2781</code>: (R0) cells + class means, (I) API = <code>TH-17</code> route, (a) C_1 vs <code>TH17_STEP3_C_MODE_RECORD_F</code> ≤ <code>REDUCTION_BAND</code>; controls (c1) k = 2, (c2) solid miss. Example-side (≤ <code>EXACT_IDENTITY_RTOL</code>): a uniform series r leaves C_1 and shifts every z_k by r; C_1's series capacitor cancels Im z_1 / Im z_3; a uniform jX and the C_2 capacitor miss. Printed: z_k tables, Re z_1 PEC vs solid, Im z_2 after tuning, k = 1 / 2 / 3 mode-field |B₁±| at the centre. Outputs: combined XDMF (mode B, nodal |B₁±|) and a mode CSV. New values at ≤ 6 significant digits; a leak-blocked log ⇒ BLOCKED, not ✅. Census +1, <code>broken=0</code>, docrefs <code>dead=0</code>; elapsed recorded ⇒ ✅. Not claimed: a resonance, f₀, Q, S₁₁ / Z_in or tuning-accuracy figure, copper tuning, degree 2, F-human, an external check. | ✅ 2026-10-14 (§9 item 446, 06:00 slot; <strong>audit PASS 2026-10-14 10:30</strong>): <code>examples/mri/19_study_tune_mode_capacitance.py</code> + guide + setup PNG; flagged run 98 s and unflagged control 99 s at <code>-n 2</code> (<code>20261014T111653Z_EX-113.log</code>, <code>20261014T111841Z_EX-113-control.log</code>, Status 0, "All assertions hold" both). (R0) cells 80 798, class means 5.052e-11 / 3.878e-11 / 5.875e-11; (I) 0.000e+00 / 0.000e+00; (a) gap −2.976552e-04 ≤ <code>REDUCTION_BAND</code>; (c1) +4.894874e-01 (489×); (c2) tie 9.557e-11, gap −6.980694e-02 (69.8×): all equal the gate's <code>:2765–2781</code>. (ESR) r = 0.2 / 1 Ω: C₁ shift ≤ 5.6e-16, z_k shift ≤ 1.6e-15; (Tuned) |Im zt₁|/Im z₁ 1.1e-16, k = 3 6.5e-16, Im zt₂ = −12.34 Ω; (ESR-c) 0.025956 and (Tuned-c) 0.32883 inside their predicted ranges. Mode fields printed: centre |B₁⁻| ≫ |B₁⁺| for k = 1 and the reverse for k = 3; |B₂(0)|/|B₁(0)| = 1.0277e-2 (predicted ≲ 1e-2, just above, no status effect). Census figures 109 → 110 <code>missing=0 broken=0</code>, docrefs <code>dead=0</code> exit 2 (<code>stale=101</code> unchanged; <code>20261014T112059Z_EX-113-post-figures.log</code>, <code>20261014T112101Z_EX-113-post-docrefs.log</code>). </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

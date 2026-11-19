@@ -1,0 +1,684 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-92 — Four-port S from one Study: the F-small birdcage on exact rectangles, with its Touchstone file (history) - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-92-four-port-s-from-one-study-the-f-small-birdcage-on-exact-rectangles-with-its-touchstone-file-history" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-92 — Four-port S from one Study: the F-small birdcage on exact rectangles, with its Touchstone file (history)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-278-2026-10-06-54-example-phase-9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 278 — 2026-10-06 (§5.4 example, Phase 9)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-92-four-port-s-from-one-study-the-f-small-birdcage-on-exact-rectangles-with-its-touchstone-file-history">EX-92 — Four-port S from one <code>Study</code>: the F-small birdcage on exact rectangles, with its Touchstone file (history)<a class="headerlink" href="#ex-92-four-port-s-from-one-study-the-f-small-birdcage-on-exact-rectangles-with-its-touchstone-file-history" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<h3 id="9-item-278-2026-10-06-54-example-phase-9">§9 item 278 — 2026-10-06 (§5.4 example, Phase 9)<a class="headerlink" href="#9-item-278-2026-10-06-54-example-phase-9" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-06 03:00 daily review; the review reviews it.</em></p>
+<p><code>EX-92</code> (<code>mri:8</code>) adds <code>examples/mri/08_study_four_port_birdcage.py</code> and a same-stem guide <code>08_study_four_port_birdcage.md</code> (three required headings + <code>## Setup figure</code> + <code>## Related</code>; setup PNG ≤ 600 KiB).
+- The script builds <code>WF-16</code>'s <code>Study(FourPortBirdcageGeometry.f_small(), phantom, LumpedPortDrive(), frequency_hz=…, degree=1)</code> on exact port rectangles, κ off, at 64 MHz, <code>-n 2</code>, complex.
+- It reads S, writes the <code>.s4p</code> and reads it back through <code>scikit-rf</code>, all against item 192's <code>P1</code> record.
+- <code>mri:7</code> is <code>EX-91</code>'s and <code>mri:9</code> is <code>EX-93</code>'s. This item writes <code>mri:8</code> only and depends on neither existing. <code>run_examples.sh</code> selects by file-name prefix, so no registry edit is needed.</p>
+<ul>
+<li><strong>Executor:</strong> <code>example-runner</code>.</li>
+<li><strong>Tier:</strong> standard by prediction, heavy by ceiling; <code>-n 2</code>, complex. Runner <code>-t 300</code>; container <code>timeout -k 30 300</code>.</li>
+<li><strong>Cost:</strong> ≈ 13 measured (example class median) / ≈ 45 predicted min (15 fixed + ≈ 20 script and guide + ≈ 10 windows).</li>
+<li><strong>Depends on:</strong> nothing. <code>WF-16</code> step 1 is ✅ (item 244).</li>
+<li><strong>Degree.</strong> Degree 1 at <code>-n 2</code> is the row's letter and the cheaper measured leg: Study 35.7 s against 268 s for the degree-2 W2 at <code>-n 8</code> (<code>20261005T202623Z_WF-16-W1-deg1.log:3732</code>). The guide says degree 2 is the <code>Study</code> default and that <code>P2_X1</code> is held at <code>-n 8</code> by <code>WF-16</code>.</li>
+</ul>
+<p><strong>Imports (never restated).</strong>
+- From <code>tests.package.test_wf16_study_four_port</code>: <code>_record</code> (<code>:110</code>) and <code>_rel</code> (<code>:115</code>); <code>P1 = _record(1)</code>.
+- From <code>tests.validation.test_ans4_exact_strip_records</code>: <code>ANS4_EXACT_STRIP_RECORD_RANK_WIDTH</code> (<code>:227</code>).
+- From <code>tests.validation.test_port_birdcage_four_port</code>: <code>LEG_D0_REPRODUCTION_BAND</code> (<code>:165</code>), <code>PASSIVITY_SIGMA_TOLERANCE</code> (<code>:129</code>), <code>POOLED_SEPARATION_FLOOR</code> (<code>:173</code>), <code>_circulant_classes</code>, <code>_class_spread</code>.
+- From <code>tests.validation.test_port_lumped_sheet_sweep</code>: <code>RECIPROCITY_BAND</code> (<code>:86</code>).
+- From <code>tests.validation.test_port_birdcage_lumped_column</code>: <code>ADJACENT_SPREAD_BAND</code> (<code>:121</code>).
+- From <code>tests.io.test_touchstone_skrf_crosscheck</code> (<code>PORT-7</code>): <code>ANCHOR_TOL</code> (<code>:51</code>) and <code>FREQ_ATOL_HZ</code> (<code>:52</code>).
+- From <code>tests.validation.test_lossy_sphere_fullwave</code>: <code>SALINE_SIGMA</code>, <code>SALINE_EPSILON_R</code>, <code>FREQUENCY_64_HZ</code>.
+- From <code>tests.validation.test_ops61_exact_strip_ports</code>: <code>ANS4_EXACT_STRIP_CELL_RECORD</code>. The cell count 117 206 is printed as version-tagged and never asserted.
+- From <code>src</code>: <code>fem_em_solver.{Study, FourPortBirdcageGeometry, LumpedPortDrive}</code>; <code>fem_em_solver.materials.GelledSalinePhantomMaterial</code>; <code>fem_em_solver.ports.sparameters.run_n_port_sparameter_sweep</code> (for the XDMF leg only); the <code>paraview_utils</code> writers; <code>write_setup_figure</code>.
+- <strong>No new number.</strong> The script states no σ, εᵣ, frequency, geometry dimension or impedance.</p>
+<p><strong>(1) Anchor (asserted in-script).</strong>
+- <strong>(W):</strong> <code>comm.size == ANS4_EXACT_STRIP_RECORD_RANK_WIDTH</code> before any S comparison (<code>OPS-41</code>, as <code>WF-16</code>'s fixture does at <code>:136</code>).
+- <strong>(R):</strong> <code>_rel(S, P1) ≤ LEG_D0_REPRODUCTION_BAND</code>. Record 9.557e-11 (<code>…WF-16-W1-deg1.log:3742</code>), repeated at 9.558e-11 (<code>20261006T033609Z_WF-16-s2-W1-deg1.log:3743</code>); predicted ≤ 2e-10.
+- <strong>(G):</strong> <code>PORT-11</code>'s gates on the Study's own S and Z, following <code>test_wf16_port11_gates</code> (<code>:364</code>):
+  - reciprocity ≤ <code>RECIPROCITY_BAND</code>;
+  - σ_max and every column power ≤ 1 + <code>PASSIVITY_SIGMA_TOLERANCE</code>;
+  - every class spread ≤ <code>ADJACENT_SPREAD_BAND</code>;
+  - pooled separation ≥ <code>POOLED_SEPARATION_FLOOR</code>.
+  - Record: 4.509e-16; 0.999760093664; 0.820520164533; 0.0747 / 0.0691 / 0.0897 %; 451.71× (<code>W1:3751</code>).
+- <strong>(T):</strong> the <code>.s4p</code> read back through <code>skrf.Network</code>:
+  - max |S_skrf − S| ≤ <code>ANCHOR_TOL</code>, record 6.873e-14 (<code>W1:3747</code>);
+  - |f − <code>FREQUENCY_64_HZ</code>| ≤ <code>FREQ_ATOL_HZ</code>, <code>nports == 4</code>, <code>z0 == 50</code> (read from <code>LumpedPortDrive().port_impedance_ohm</code>, not typed);
+  - <code>_rel(S_file, P1) ≤ LEG_D0_REPRODUCTION_BAND</code>, record 9.557e-11 (<code>W1:3748</code>).
+- Print the cells and the Study and sweep times.</p>
+<p><strong>(2) Negative controls (rule (e)).</strong> Each costs no solve.
+- <strong>(c1) asserted — the record comparator separates degrees:</strong> <code>_rel(S, _record(2)) &gt; LEG_D0_REPRODUCTION_BAND</code>. Measured 4.910e-02 (<code>W1:3742</code>), 4.9e7× the band. Its ceiling is fixed by the two records (record-to-record 0.0491).
+- <strong>(c2) asserted — the comparator sees a port relabelling:</strong> <code>_rel(S[perm][:, perm], P1)</code> with P1↔P2 swapped (<code>perm = [1, 0, 2, 3]</code>) is &gt; <code>LEG_D0_REPRODUCTION_BAND</code>. Measured 0.2492 (<code>W1:3748</code>). A cyclic rotation reads only 6.185e-04 because of C4 symmetry. Print it beside (c2) as the reason the swap, not the rotation, is the control.</p>
+<p><strong>(3) Windows.</strong> Each Bash call that runs a window is foreground with <code>timeout: 660000</code> and makes one bare, whole harness call. Nothing is chained or piped.
+0. <strong>Orphan check:</strong> <code>docker compose exec -T fem-em-solver pgrep -c python3</code> reads 0. Then run the rubric's cache sweep as one bare call with label <code>EX-92-cache-sweep</code>.
+1. <strong>Pre-censuses, before any file is written:</strong>
+   - <code>scripts/testing/run_and_log.sh EX-92-pre-figures "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_setup_figures.py'"</code>
+   - <code>scripts/testing/run_and_log.sh EX-92-pre-docrefs "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py'"</code>
+2. <strong>Dry run:</strong> <code>scripts/testing/run_and_log.sh EX-92-dryrun "./scripts/run_examples.sh -e mri:8 -n 2 -t 300 --dry-run"</code>. It must print <code>(complex build)</code>.
+3. <strong>Flagged run of record,</strong> predicted [70, 170] s.
+   - Basis: Study 35.7 s (mesh 27.2 s, sweep 8.1 s) and ≈ 1.9 GiB summed RSS (<code>W1:3732–3733</code>).
+   - The example adds the <code>keep_fields</code> XDMF sweep (≈ 8 s, the measured sweep), ≈ 15 s for startup and ≈ 15 s for the setup figure.
+   - Command: <code>scripts/testing/run_and_log.sh EX-92 'docker compose exec -T -e FEM_EM_SETUP_FIGURES=1 fem-em-solver bash -lc "cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 300 mpiexec -n 2 python3 examples/mri/08_study_four_port_birdcage.py"'</code>. If the dry run emits a string that differs in any other way, use the emitted one and note it.
+4. <strong>Control run.</strong> <code>git add</code> the PNG, then rerun the same line without the flag, labelled <code>EX-92-control</code>. The readings must match digit for digit.
+5. <strong>Post-censuses.</strong> Run <code>EX-92-post-figures</code> / <code>EX-92-post-docrefs</code>, writing the prediction first:
+   - figures: <code>examples</code> N → N + 1, <code>ok</code> +1, <code>broken=0</code>;
+   - docrefs: runnable +1, <code>dead=0</code>, <code>guide=0</code>, <code>exit != 1</code>.</p>
+<p><strong>Output.</strong>
+- <strong>Touchstone</strong> <code>examples/mri/paraview_output/mri_08_study_four_port_birdcage.s4p</code>, from <code>res.write_touchstone</code>. It is gitignored.
+- <strong>Combined XDMF</strong> <code>examples/mri/paraview_output/mri_08_study_four_port_birdcage_combined.xdmf</code>.
+  - <code>PortStudyResult.fields</code> is <code>None</code> (<code>study.py:466</code>): the Study keeps no field. Get the P1-drive field with one <code>run_n_port_sparameter_sweep(res.problem, res.port_definitions, lumped_sheet_ports=res.specs, lumped_sheet_facet_tags=res.facet_tags, degree=res.degree, keep_fields=True)</code> on the Study's own problem and mesh, then take <code>.fields["P1"].e_complex</code>.
+  - Assert this sweep's S is within <code>LEG_D0_REPRODUCTION_BAND</code> of the Study's S, so the drawn field belongs to the gated S. The S is printed, not a record.
+  - Write <code>E_abs</code> as |E| interpolated into P1 (or DG1) Lagrange, plus DG0 <code>sigma</code>. The mesh is affine, so the N1curl Function cannot be written directly.
+- <strong>Setup figure</strong> <code>examples/mri/figures/mri_08_study_four_port_birdcage_setup.png</code>, drawn on <code>res.mesh</code> / <code>res.cell_tags</code>. Region names are "copper-proxy conductor (sigma 800 S/m)", "gel phantom" and "air (PEC outer wall)"; the air is hidden or translucent. The four port sheets are labelled P1–P4 if <code>write_setup_figure</code> takes facet tags. If it does not, the guide names them instead. Do not extend <code>src</code>.
+- <strong>Guide.</strong>
+  - It explains exact rectangles with κ off (operator ruling 2026-10-02), shows the <code>.s4p</code> head, and gives a ParaView recipe: Threshold on the phantom, colour by <code>E_abs</code>, Slice at z = 0.
+  - It states that S is a self-consistency record, not an absolute-accuracy claim (§2.2).
+  - <code>## Related</code> lists <code>mri:7</code>, <code>mri:9</code>, <code>tests/package/test_wf16_study_four_port.py</code> and <code>docs/guide/first_study.md</code>.</p>
+<p><strong>(4) Traps already paid for.</strong>
+- <strong>Rank width.</strong> The <code>P1</code> record holds at <code>-n 2</code> only (<code>OPS-41</code>). Assert the width; never run at another rank count.
+- <strong>κ / ragged refusal.</strong> <code>FourPortBirdcageGeometry</code> refuses κ and ragged sheets (<code>WF-16</code> (K)). Do not pass <code>strip_fraction</code> or κ keywords.
+- <strong>Collectives.</strong> <code>write_touchstone</code> is rank-0 plus <code>Barrier</code>. Read the file back after it returns on every rank. Run <code>skrf</code> on rank 0 only and <code>bcast</code> the readings, with no collective inside a rank-0 block (item 227).
+- <strong>Complex operands.</strong> Use no UFL or <code>sqrt</code> comparison on complex operands (<code>OPS-22</code>, <code>WF-6</code> 4c). Take <code>np.real</code> / <code>np.abs</code> in numpy.
+- <strong>Orphan <code>.c</code>.</strong> A killed compile leaves an orphan <code>.c</code>: check orphans, then sweep.
+- <strong>Bare harness calls.</strong> Make bare harness calls only, with <code>-k 30</code> on the timeout, and never pipe.
+- <strong>Rule (i).</strong> Make no edit after the last window.</p>
+<p><strong>(5) Scope.</strong> Not claimed: degree 2, tuning or resonance, an absolute <code>S₁₁</code> / <code>Z_in</code>, a sweep (that is <code>EX-95</code>), or anything <code>WF-16</code> does not claim.</p>
+<p><strong>(6) Negative result.</strong> If (W), (R), (G) or (T) misses:
+- report the measurement and stop;
+- journal it in <code>docs/testing/attempts.md</code> and park on <code>attempt/EX-92</code>;
+- leave <code>EX-92</code> ⬜ and never widen a band.</p>
+<p>A run killed at 300 s is not a result: check orphans and stop.</p>
+<p><strong>(7) Status it can move.</strong> The <code>EX-92</code> §7 row moves ⬜ → ✅ (Done-when met, elapsed recorded). Census <code>examples</code> +1 with <code>broken=0</code>; docrefs runnable +1.</p>
+<p><strong>Outcome (2026-10-07 04:30 slot, second item): ✅ DONE, first try.</strong> (W) 2 == 2; (R) 9.557e-11; (G) reciprocity 4.377e-16, σ_max 0.999760093664, column power 0.820520164533, spreads 0.0747 / 0.0691 / 0.0897 %, separation 451.71×; (T) 6.855e-14, |df| 0, 4 ports, z0 50, file vs P1 9.556e-11; (c1) 4.9103e-02; (c2) 0.2492, rotation 6.185e-04; XDMF <code>keep_fields</code> sweep vs Study S 0.000e+00. Cells 117 206 (version-tagged). Study 36.8 s (mesh 28.1, sweep 8.3). Flagged <code>20261007T094132Z_EX-92.log:1885–1900</code> (51 s), control <code>20261007T094301Z_EX-92-control.log:1878–1893</code> (45 s, same at the band; reciprocity 4.509e-16, XDMF 8.8e-16). Census <code>examples=88 → 89 ok, missing=0 broken=0</code>; docrefs 109 → 110 guides, <code>dead=0 guide=0 stale=45 exit=2</code>. PNG 410 KiB. Deviations: the dry run emits <code>PYTHONPATH=/workspace/src</code> (used as emitted); <code>write_setup_figure</code> takes cell tags only, so P1–P4 are named in the guide; the legend repeats "air (PEC outer wall)" for the generator's several air tags.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

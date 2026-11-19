@@ -1,0 +1,583 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>OPS-18 — DolfinX version upgrade, recurring (0.7.2 → newest qualifying; operator directive 2026-08-16) - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ops-18-dolfinx-version-upgrade-recurring-072-newest-qualifying-operator-directive-2026-08-16" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              OPS-18 — DolfinX version upgrade, recurring (0.7.2 → newest qualifying; operator directive 2026-08-16)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ops-18-dolfinx-version-upgrade-recurring-072-newest-qualifying-operator-directive-2026-08-16">OPS-18 — DolfinX version upgrade, recurring (0.7.2 → newest qualifying; operator directive 2026-08-16)<a class="headerlink" href="#ops-18-dolfinx-version-upgrade-recurring-072-newest-qualifying-operator-directive-2026-08-16" title="Permanent link">&para;</a></h1>
+<p>DolfinX version upgrade, recurring (0.7.2 → newest qualifying; operator directive 2026-08-16) | ✅ <em>(glyph reconciled 2026-09-01 10:30 review to this row's own "Step 3b CLOSED 2026-08-23 ⇒ chunk ✅" text and §2's "<code>OPS-18</code> ✅ scope caveat is discharged"; history follows)</em> <strong>steps 1–2 ✅ 2026-08-22</strong> — <code>0.11.0.post0</code> builds and boots in both modes on <code>attempt/OPS-18</code> (<code>c767171</code>), negative control fires; step 2 closed the same day, <strong><code>418 collected / 0 errors</code> in both modes</strong> against the red baseline's <code>124 / 75</code>, the whole migration being one module (<code>io/mesh.py</code>: <code>gmshio</code> → <code>dolfinx.io.gmsh</code>, <code>MeshData</code> unpacking, 11 call sites, one shim) and validation unmoved at 232. One new-gmsh volume drift (4.251e-04 relative) filed to known-issues for step 3 to dispose of; no assertion touched. <strong>Step 3 attempt 1 2026-08-22 🟡</strong> — three of five gate families reproduce (<code>TH-6</code> 3.609441e-02 / α 0.017% / β 0.060%; <code>TH-10</code> bit-identical at 64 MHz, 3.643% and power 3.629%, with 128 MHz re-recorded 1.826% → 1.769% <em>with</em> its mesh 55 251 → 55 241 cells; <code>MAT-4</code> SAR 3.422% / 3.536%), after fixing the pack's second wave, which fires only under a <strong>solve</strong>: <code>petsc_options_prefix</code> × 7, <code>functionspace</code> × 1, and the undocumented <code>interpolate(cells=)</code> → <code>cells0=</code> × 2. <code>MAT-6</code>, <code>PORT-1</code>, the real-mode leg and §5.3's table remain. <strong>Step 3 attempt 2 2026-08-22 🟡</strong> (<code>3cbd5b5</code>) — <code>MAT-4</code> gets the clean green log it owed (<code>9 passed</code>/35.83 s/exit 0), <code>MAT-6</code> re-gates green on its impedance file (<code>24 passed</code>/88.60 s with <code>port_lumped_bc</code>, +1.3% on the record) and on the §2.1 ΔR site (<code>projected_drive</code>, 8 passed); one more undocumented break fixed (<code>create_cell_partitioner</code> now requires <code>max_facet_to_cell_links</code>, 1 site, value 2). <strong><code>PORT-1</code> blocked, cause measured:</strong> the image's <strong>numpy 2.4.6</strong> renders <code>f"{np.float64(x)!r}"</code> as <code>np.float64(…)</code>, so <code>two_torus_domain</code>'s gap-arc <code>MathEval</code> string carries a token <strong>gmsh 4.15.2</strong> cannot parse — SIGABRT at Meshing 1D. Two probes separate grammar from literals; fix is a <code>float()</code> coercion, one slot away. Real-mode leg and §5.3's table still owed. <strong>Step 3 attempt 3 2026-08-22 🟡</strong> (<code>445a3ea</code>) — <strong><code>PORT-1</code> meshes again</strong>: the <code>float()</code> coercion turns the SIGABRT into <code>17 passed / 2 failed</code> in 260.93 s, and the prescribed <code>!r</code> sweep is measured (53 hits in <code>src/</code>, 4 parser-facing, <strong>one</strong> <code>MathEval</code> call site in the whole package — the predicted birdcage siblings do not exist). A <strong>fifth</strong> undocumented break fixed: <code>element.interpolation_points</code> is now a property, not a method (2 <code>src/</code> sites, 4 in <code>examples/</code>), taking the real-mode <code>MAG</code> leg from <code>5 failed / 13 passed</code> to <code>17 passed / 1 failed</code>. <strong>Both legs then stopped on records that moved, not code that broke</strong> — <code>PORT-1</code>'s <code>passivity_max_sigma</code> 0.861356895 vs 0.861449 (band 1e-6) and gap ratio 0.894141 vs 0.894310 (band 1e-4) <em>while</em> reciprocity holds at 3.112128e-05 inside its 1e-3 physics band and passivity holds; and <code>test_straight_wire_b_field</code> at 15.3848% vs a 15% band that the test records as 1.18× the measured error of a mesh gmsh has since grown 145 900 → 147 235 cells. Two known-issues entries, no band touched; disposal is a review decision. <strong>Step 3 attempt 4 2026-08-22 🟡</strong> (<code>231d6c7</code>) — both experiments those entries named were run, and they <strong>split the two failures apart</strong>: the two-torus mesh <strong>moved</strong> (184 919 → 184 176 cells, −4.017e-03, i.e. 24-40× the records' misses ⇒ mesh reading <em>consistent</em> for leg 1), while the straight-wire ladder <strong>refutes</strong> it for leg 2 — the other two rungs mesh to within 0.13% of their recorded counts on 0.11 yet move −1.6% and <strong>−51.8%</strong> in error (9.2568% → <strong>4.4605%</strong>), with a 0.7.2 control reproducing July's record to 0.035%. The fitted rate goes <strong>1.10 → 1.99</strong> and the gated rung h = 0.0025 is a <strong>1.8× outlier on its own 0.11 ladder</strong> that <code>-n 4</code> reproduces bit-identically (partitioning excluded). 0.11 is the <em>more</em> accurate solver here, so loosening the 15% band is likely the wrong disposal; still owed are the review's re-record ruling (leg 1) and one cheap <code>n_points</code> probe on leg 2's outlier. <strong>Step 3 attempt 5 2026-08-22 🟡</strong> (<code>731c40e</code>) — the <code>n_points</code> 8/10/20 sweep on both images, one solve per rung: the sampler is <strong>excluded</strong> as the outlier's cause (0.11 gated rung worse at every count), and the 0.7.2 control finds the larger fact — the 10-point radial L2 swings <strong>34%</strong> of its own value under the sampler on the recording image and <strong>the 15% band already fails on 0.7.2 at <code>n_points = 8</code> (15.8028%)</strong>; the gate was passing on a sampler choice. 16:30 slot marked 3a ⛔ pending two rulings. <strong>Rulings, 18:00 review 2026-08-22:</strong> (1) leg 1 <strong>re-record licensed</strong> — version-tagged, bit-identical twice, no band moved (§9 item 4); (2) leg 2 <strong>gate replaced, not re-banded</strong> — <code>MAG-18</code> commissioned (§9 item 1), 3a resumes behind it; full text in the prose entry below. <strong>Step 3a CLOSED 2026-08-23, attempt 8</strong> — the 10:30 review's class ruling (1*) executed: <code>STEP1_LUMPED_RATIO_RECORD</code> 0.829782 → <strong>0.828893</strong> and <code>STEP1_CROSS_ROUTE_RECORD</code> 0.077095 → <strong>0.077431</strong> written version-tagged, no band moved, and the anchor is <strong><code>19 passed</code> / exit 0 twice in the slot</strong> (238.64 s / 238.73 s, complex, <code>-n 2</code>, both rank footers identical) against attempt 7's <code>1 failed / 18 passed</code>, with both records identical to six digits across the two runs, reciprocity 2.679e-05 inside 1e-3 and σ_max 0.861356895 &lt; 1; the loop unmasked no further record, and the only other consumer of the two constants (<code>test_port_lumped_narrowed_sheet.py</code>'s <code>f = 1.0</code> control) is <code>12 passed</code> / exit 0 on the same digits. Leg 2 closed in attempt 7 ⇒ <strong>only 3b remains</strong> (§5.3 table, drift disposal, merge). <strong>Step 3b CLOSED 2026-08-23, 15:00 slot ⇒ chunk ✅ — <code>main</code> boots <code>0.11.0.post0</code>.</strong> (i) §5.3's environment table rewritten from a probe of the built image (<code>20260823T200740Z_OPS-18-step3b-env-probe.log</code>: dolfinx <code>0.11.0.post0</code>, Python 3.12.3, numpy 2.4.6, gmsh 4.15.2-git-657c8e9, h5py 3.16.0 / HDF5 2.1.1, petsc4py 3.25.1, mpi4py 4.1.2), with the compose <code>PYTHONPATH</code> named as the project's only version-encoded literal. (ii) The step-2 volume drift <strong>disposed by re-record under (1*)</strong>: <code>UNIFORM_VOLUMES_RECORD</code> carries the v0.11.0 values version-tagged (tag 1 → 1.192257046e-04, tag 2 → 1.185069486e-04, tag 3 unmoved, tag 4 → 1.143589055e-02), the 1e-9 band untouched, the partition identity still exactly <strong>1.000000000000</strong> and the <code>GEO-17</code> sign + recovery gates green on their own digits; <code>TH-10</code>'s 128 MHz 55 251 → 55 241 re-record is now explicit in that entry. (iii) Three known-issues entries closed (numpy-2 <code>!r</code> by <code>445a3ea</code>; the two-torus re-records and the non-determinism entry by <code>5df1e39</code>, the latter quoting (b′)); the straight-wire entry is <strong>superseded not resolved</strong> and its scope updated — <code>MAG-18</code> de-gated the band, but the <code>E_Ω</code> ladder has <strong>not</strong> been re-measured on 0.11 and is owed. (iv) <strong>Anchor met:</strong> <code>tests/environment</code> + <code>test_mesh_tag_integrity.py</code> real / <code>-n 2</code> is <strong><code>7 passed, 4 skipped</code> / exit 0</strong> where step 2's shim-runtime log read <code>1 failed, 6 passed, 4 skipped</code> — reproduced three times in-slot (one plain, two <code>-s</code>, every printed digit identical, rank footers identical), and the same red baseline was first reproduced this slot on the rebuilt image (<code>20260823T200356Z_OPS-18-step3b-confirm.log</code>, Status 1) before the re-record. Full-suite collect <strong><code>437 collected / 0 errors</code> in both modes</strong> (<code>…200620Z…-collect-real.log</code>, <code>…200631Z…-collect-complex.log</code>, <code>PYTEST_RC=0</code>), reconciled per module against step 2's 418 by counting, not assuming: <strong>418 + 5 (leg (d)) + 4 (leg (c)) + 2 (leg (d0)) + 5 (leg (d2)) + 3 (<code>MAG-18</code>) = 437</strong>. (v) <code>attempt/OPS-18</code> merged to <code>main</code> with every log. <strong>Scope caveat on ✅:</strong> every §2.1 family was re-gated green on 0.11 across attempts 1–8 and item 1 (<code>TH-6</code> <code>20260822T123401Z</code>; <code>TH-10</code> <code>20260822T…-th10</code>; <code>MAT-4</code> <code>20260822T140418Z_OPS-18-step3-mat4.log</code>; <code>MAT-6</code> <code>20260822T140709Z_…-mat6-dR-port1-sparams.log</code>; <code>PORT-1</code> <code>20260823T170403Z</code> / <code>20260823T170821Z_OPS-18-step3a-leg1-run*.log</code>) — <strong>except the real-mode <code>MAG</code> family, whose last 0.11 observation is attempt 3's <code>17 passed / 1 failed</code> on the since-retired 15% band</strong>; the <code>MAG-18</code> <code>E_Ω</code> gates that replaced it are unobserved on 0.11 and are owed to a review. <strong>Scope caveat DISCHARGED 2026-08-23, 19:30 slot</strong> (§9 item 1, ruling (3*)): the real-mode <code>MAG</code> family is now re-gated green on 0.11 — <code>MAG-18</code>'s three anchors met twice in-slot on <code>main</code> (<code>7 passed</code> / exit 0, <code>20260824T003059Z</code> / <code>20260824T003650Z_MAG-18-regate-run*.log</code>, plus the <code>-n 4</code> leg <code>20260824T003606Z</code>), rate 1.6854 ≥ 0.7, cross-width 4.86e-07 ≤ 1e-6, natural-BC ratio 0.3285, no record and no band moved. Every §2.1 family has now been re-gated on the image <code>main</code> boots. </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

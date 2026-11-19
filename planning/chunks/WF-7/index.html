@@ -1,0 +1,850 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>WF-7 — SAR10g hotspot identification - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#wf-7-sar10g-hotspot-identification" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              WF-7 — SAR10g hotspot identification
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-213-2026-10-04-chain-h15a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 213 — 2026-10-04 (chain H15a)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-227-2026-10-04-chain-h15a-re-pose-of-item-213-attempt-2-of-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 227 — 2026-10-04 (chain H15a, re-pose of item 213, attempt 2 of 4)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-231-2026-10-04-chain-h15a-re-pose-of-item-227-attempt-3-of-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 231 — 2026-10-04 (chain H15a, re-pose of item 227, attempt 3 of 4)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="wf-7-sar10g-hotspot-identification">WF-7 — SAR10g hotspot identification<a class="headerlink" href="#wf-7-sar10g-hotspot-identification" title="Permanent link">&para;</a></h1>
+<p>SAR10g hotspot identification | ✅ (<strong>Step 0d (<code>xxl</code>, chain H2) RUN 2026-09-26, recorded by the 03:00 review:</strong> the full degree-2 F-human 32×32 at 64 MHz in one window — one factorisation plus 31 back-substitutions, 3 256 418 unknowns, 10.65 min, 103.06 GiB peak, reciprocity 9.715e-14 asserted; the printed terminal residual is 1.08–1.18e-2 on <strong>every</strong> column (degree 1: 4.1–4.6e-3), unattributed and gating nothing (<code>20260926T070009Z_WF-7-step0d.log</code>, <code>xxl-ledger.md</code>). The closure below is degree 1 and unaffected. <strong>Audit PASS 2026-09-26</strong> (<code>20260925T093315Z_WF-7-step3.log:11615–11617</code>). <em>Then:</em> <strong>step 3 DONE 2026-09-25 (09:30 slot, §9 item 39, chain H5): the 10 g SAR hotspot located at human scale, C16- and mirror-gated.</strong> New <code>tests/validation/test_wf7_f_human_sar10g_hotspot.py</code> (<code>FEM_EM_WF7_STEP3=1</code>) + additive <code>phantom_resolution=None</code> keyword on <code>_build_f_human</code> (<code>None</code> ⇒ no new generator key); no <code>src/</code>. <code>20260925T093315Z_WF-7-step3.log</code>, Status 0, 352 s, heavy, <code>-n 8</code>, 4 passed (<code>:11666</code>). Refined phantom 0.0075 m: <strong>537 546 cells, 22 594 phantom cells</strong> (printed beside 504 642, not asserted — no record), build 133.33 s (<code>:10468</code>); measured phantom (allreduced tag-3 vertex bbox) centre (0, 7.2e-9, 0) m, R = 64.2857 mm, H/2 = 85.7143 mm; 10 g ball a = 13.3650 mm = 3.56 phantom h across (<code>:11559</code>). Nine-ball lattice at az_ref 11.25°, ccw drive: <strong>c* = r 45 mm, z = z_c</strong>, SAR₁₀g 2.0858e-04 W/kg (ball masses 9.984–10.024 g; the ±50 mm rows peak at 1.44e-04, <code>:11589–11598</code>, <code>:11614</code>). (i) coverage identity, ball radius 108.1429 mm (&lt; 140 mm conductor clearance, asserted): power rel <strong>9.592e-14</strong>, mass rel <strong>1.297e-13</strong> ≤ <code>EXACT_IDENTITY_RTOL</code> 1e-10 (<code>:11617</code>); (ii) <strong>C16 worst 0.4904 %</strong> (R_7; range 0.0098–0.4904 %) ≤ <code>C4_COVARIANCE_BAND</code> 5 % (<code>:11599–11615</code>); (iii) <strong>mirror 0.0502 %</strong> ≤ 5 % (<code>:11616</code>) — <em>disclosed: c* lies on the az_ref ray, which is the mirror plane, so <code>_mirror_xy(c*)</code> = c* (identical ball mass 10.001116 g, <code>:11584</code>); the identity read here is cw SAR at c* vs ccw SAR at c*, the pre-registered one, not an off-plane reflection</em>; (iv) all 30 balls contained 1 mm clear (asserted). Negative control (<em>predicted</em> ≫ 5 %, printed, never asserted): single-drive P17 SAR₁₀g at c* and C4 images R_4/R_8/R_12 68.11 / 96.40 / 70.03 %, spread 96.40 % = 196.6× the ccw worst — as predicted (<code>:11619</code>). Printed only: whole-phantom mean SAR (ccw) 1.7356e-04 W/kg (<code>:11618</code>); step 2's <code>|B₁⁺|</code> on the refined mesh C16 worst 0.0513 %, mirror 0.0456 %, <strong>215 / 215</strong> valid sample points (the 38-point question), identity 3.475e-16 (<code>:11620</code>); PRICE build 133.33 s, sweep+case 93.86 s, SAR phase 120.40 s (30 balls, 2.5–4.7 s each — the 25 s STOP rule did not fire), 348.02 s wall, 19.052 GiB summed <code>ru_maxrss</code> (<code>:11621</code>). Rule (a): the step-2 module re-run with the keyword unset, 5 passed, 507 266 cells, C16 worst 0.1495 % reproduced, 210 s (<code>20260925T093918Z_WF-7-step3-ruleA-step2.log:10480</code>, <code>:11566</code>, <code>:11609</code>). <em>One phantom, one fixture, 64 MHz, degree 1 — a SAR location and two symmetry identities; no C95.3, compliance or absolute SAR claim; carries the 5.50 % order caveat (step 0b).</em>) (<strong>step 2, 2026-09-23 (04:30 slot, §9 item 36, chain H4): <code>|B₁⁺|</code> C16 gated at human scale.</strong> New <code>tests/validation/test_wf7_f_human_b1_quadrature.py</code> (<code>FEM_EM_WF7_STEP2=1</code>) + additive <code>built=None, cell_record=None</code> keywords and four additive return keys (<code>result</code>, <code>points</code>, <code>mask</code>, <code>az_ref</code>, needed by (vi) and the P17 control) on <code>_build_ring_quadrature_case()</code>; no <code>src/</code>. <code>20260923T095104Z_WF-7-step2.log</code>, Status 0, 227 s, <code>-n 8</code>, 5 passed. On the F-human fixture at 64 MHz, degree 1, 32-port ccw quadrature with <code>POST-6</code> step 3's weights: (i) 507 266 cells (step 1's count reproduced), +0.52 % to the 504 642 record inside <code>CELL_COUNT_BAND</code> (<code>:10480</code>); (ii) 16 ports per ring on the 22.5° grid (<code>_ring_quadrature_slots</code> asserts; reference azimuth 11.250000°, <code>:11550</code>); (iii) worst C16 image of <code>|B₁⁺|_ccw</code> <strong>0.1495 %</strong> (R_8; range 0.0978–0.1495 %) ≤ <code>C4_COVARIANCE_BAND</code> 5 % (<code>:11551–11566</code>); (iv) mirror <code>|B₁⁻|_cw(Mx)</code> vs <code>|B₁⁺|_ccw(x)</code> <strong>0.1634 %</strong> ≤ 5 % (<code>:11567</code>); (v) <code>PORT-16</code> exact discrete identity on the superposed field 2.316e-16 ≤ 1e-6 (<code>:11568</code>); (vi) unit weight e_P17 deviation 0.000e+00 ≤ 1e-12 (<code>:11571</code>). Predicted controls, printed only: cw mis-paired 99.2969 % vs predicted 99.3438 % (<code>:11569</code>); single-drive P17 worst C16 spread 33.3425 %, 223× the ccw worst (<code>:11572</code>). Printed: <strong>38 / 38 sample points — below the 50-point <code>MIN_SAMPLE_POINTS</code> floor <code>POST-6</code> step 3 asserts on its own fixture, not gated here (review to rule)</strong>; <code>S[P17,P17]</code> 0.407423+0.344417j = step 1's digits (<code>:11573</code>); PRICE build 134.02 s, sweep 66.20 s, 223.82 s wall, 17.713 GiB summed <code>ru_maxrss</code> (<code>:11574</code>). Rule (a): <code>POST-6</code> step 3 re-run 17 / 17 green, 0.8102 % / 0.6769 % reproduced, 172 s (<code>20260923T095500Z_POST-6-step3-rerun-WF-7-step2.log:13670–13674</code>). <em>C16 invariance of <code>|B₁⁺|</code> at human scale only — no homogeneity, absolute <code>B₁⁺</code>, SAR or Larmor-accuracy claim.</em> <em>Self-consistency only; degree 1 at human scale carries the weekly's 5.50 % order caveat (<code>WF-7</code> step 0b, 2026-09-19).</em> H5 (step 3) becomes queueable. <strong>Ruling on the 38 sample points (2026-09-25 03:00 review): step 2 stands as recorded.</strong> <code>MIN_SAMPLE_POINTS</code> = 50 (<code>tests/validation/test_birdcage_b1_plus_map.py:135</code>) belongs to <code>POST-6</code>'s fixture. Its sample cylinder is absolute (radius 20 mm, half-height 20 mm, <code>:125–126</code>) and does not scale with the phantom, so on F-human's 15 mm phantom cells it holds 38 centroids. Step 2's Done-when (this row) names the band, the two identities and the unit weight, not the floor, and the count is disclosed. Not demoted. Step 3 runs on a refined phantom and reprints the same C16 reading on its denser point set as a record.) (<strong>Step 3 (chain H5; §9 item 39, written 2026-09-25 review under rule (4)) — Done-when (added by that review, rule (j)):</strong> on the F-human fixture at 64 MHz, degree 1, 32-port ccw quadrature (step 2's superposition), with the phantom refined to <code>phantom_resolution</code> = 0.0075 m (the 10 g ball, a = 13.365 mm at ρ = 1000, ≈ 3.6 phantom cells across — the regime <code>MAT-4</code> step 4 gated 10 g at on F-small; at the default 15 mm it is ≈ 1.8, the regime whose 1 g column missed 5 %), all asserted green in one logged window with elapsed: (i) <code>MAT-4</code>'s <strong>coverage identity</strong> — one ball enclosing the whole phantom (centre and radius from the allreduced tag-3 bounding box; radius just over the circumradius and clear of the conductor), ρ = 1000 on tag 3 and 0 elsewhere, reproduces <code>mean_sar(…, subdomain_ids=PHANTOM_CELL_TAG)</code>'s dissipated power and ρ × the meshed phantom volume within the imported <code>EXACT_IDENTITY_RTOL</code> (1e-10); (ii) the <strong>10 g hotspot</strong> — the argmax of <code>mass_averaged_sar</code> over a fixed candidate lattice — and its fifteen <strong>C16 images</strong> within the imported <code>C4_COVARIANCE_BAND</code> (5 %); (iii) the <strong>mirror identity</strong> — the cw drive's 10 g SAR at the mirrored hotspot vs the ccw drive's at the hotspot — within the same band; (iv) every ball's containment in the phantom. The location table is printed ⇒ <strong><code>WF-7</code> 🟡 → ✅</strong> at the stated grain: <em>one phantom, one fixture, degree 1, the 5.50 % order caveat; a SAR location and a symmetry identity, not a C95.3 or compliance figure.</em>) (step 1, 2026-09-21: the F-human degree-1 32×32's identities gated — self-consistency only, see the step-1 record at the end of this cell) Step 0 (cost probe, 2026-09-13): one degree-1 single-drive lumped-sheet solve on the F-human rung (longitudinal ring sheets, 507 266 cells, +0.52 % vs <code>GEO-25</code>'s transverse record) at 64 MHz, <code>-n 8</code> — 607 039 unknowns, solve 37 s, mesh build 123 s, summed <code>ru_maxrss</code> 10.93 GiB (<code>20260913T190102Z_WF-7-step0.log:10419–10427</code>, 178 s); below the predicted 11–33 GiB / 3–8 min bracket. A measurement for the XXL commissioning, no physics claim. <strong>Step 0b queued 2026-09-13 (operator, interactive) for the Saturday 2026-09-19 02:00 <code>xxl</code> window (<code>docs/testing/xl-pending.md</code> entry 1; <code>docs/testing/xxl-queue.env</code>):</strong> the same probe with the new <code>FEM_EM_WF7_DEGREE=2</code> knob (unset is byte-identical), degree-1 control first in the same window at <code>-n 16</code>, against <code>fem-em-solver-xxl</code>. Readout, record only: <code>S_driven</code> at degree 1 and 2 on the same F-human mesh and <code>|S₂ − S₁|/|S₁|</code> — the human-scale order sensitivity — plus the degree-2 price (predicted ≈ 3.2 M unknowns, ≈ 235 GiB, ≈ 17 min from 2d's point; brackets 150–350 GiB / 10–60 min printed). Decision rule for the 09-19 weekly pre-registered in the pending file: same class as F-small's 64 MHz order move ⇒ degree 2 is the production order at human scale and this is its price; an order of magnitude smaller ⇒ degree 1 suffices for human-scale S; does not finish ⇒ the price is the finding and <code>TH-16</code> moves up. Nothing asserted beyond the imported cell band. <strong>Step 0c (opened 2026-09-16 review, §9 item 1 + <code>xl-pending.md</code> entry 6):</strong> the probe gains <code>FEM_EM_WF7_PORTS</code> (unset = byte-identical; <code>k</code> or <code>all</code> = the first <code>k</code> / every ring port driven in turn, each column's fields dropped), proved at heavy tier by the flag-off control (<code>S_driven</code> = step 0's <code>0.407423+0.344417j</code>) and a two-drive reciprocity assert; then the XL cost probe — the full 32-port degree-1 set on the F-human mesh at <code>-n 16</code>, readout the price plus the 32×32's reciprocity / passivity / C16 spreads printed beside <code>PORT-13</code>'s bands, nothing asserted. <strong>The knob landed 2026-09-16 (heavy, <code>-n 8</code>, two windows): (a) flag-off control — the knob unset, the probe reproduces step 0's printed <code>S_driven</code> digits <code>0.407423+0.344417j</code> exactly, cells 507 266 (+0.52 %, inside the imported band), solve 31.71 s, summed <code>ru_maxrss</code> 10.93 GiB, 158 s window (<code>20260916T093301Z_WF-7-step0c.log:10425–10430</code>); (b) <code>FEM_EM_WF7_PORTS=2</code> — two drives P17, P18, the 2×2's reciprocity ratio <strong>9.767e-16</strong> against the imported <code>RECIPROCITY_BAND</code> 1e-3 and drive 2's <code>S_driven</code> 0.407959+0.343115j differing from drive 1's by 1.407e-03 &gt; 1e-6, 155 s window (<code>20260916T093548Z_WF-7-step0c.log:10431–10438</code>). Priced for the XL window: the first drive factorises (27.71 s), the second back-substitutes the held MUMPS factor (<code>solve_kind</code> <code>held</code>, <strong>0.59 s</strong>, <code>PORT-19</code> step 3), so 32 drives extrapolate to ≈ 2 min mesh + 28 s + 31 × 0.6 s ≈ 3.5 min at <code>-n 8</code>; summed <code>ru_maxrss</code> moved 10.892 → 11.082 GiB over the second drive (+0.19 GiB per retained column). Negative control (<em>predicted</em>, printed, never asserted): the 2×2's <code>σ_max</code> 0.709401 ≤ <code>COLUMN_PASSIVITY_CEILING</code> 1 — as predicted; class spreads printed (|S_jj| spread 8.0579e-04, full-column Σ|S_ij|² 0.895804 / 0.895395). No F-human <code>S</code> claim, no band moved.</strong> <em>The 32-port XL cost probe was queued by the 2026-09-18 03:00 review for Monday 2026-09-21 02:00 (<code>docs/testing/xl-queue.d/20260921-WF-7-step0c.env</code>, <code>xl-pending.md</code> entry 6).</em> <strong>Step 0b ran 2026-09-19 02:00 (<code>xxl</code>, cron, no session) — a record, 🧪, banked by the 03:00 review from a <code>log-pathologist</code> reading</strong> (<code>20260919T070008Z_WF-7-step0b.log</code>; both legs rc 0, Status 0, 673 s, <code>memory.peak</code> 106.1 GiB): degree 1 at <code>-n 16</code> reproduces step 0's <code>S_driven</code> digits (printed, not asserted at this width; 607 039 unknowns, 24.61 s); <strong>degree 2 is 3 256 418 unknowns, 347.56 s, 107.9 GiB summed</strong> — a third of the predicted price on both axes, so a degree-2 F-human drive is <code>xl</code>-sized; <code>S_driven(P17)</code> <code>0.436656+0.346994j</code>, i.e. <code>|S₂ − S₁|/|S₁|</code> = <strong>5.50 %</strong> (the review's arithmetic from two printed values; nothing about the degree-2 <code>S</code> is asserted). Unattributed and for the weekly: the printed power-accounting residual is 1.104e-02 at degree 2 against 4.187e-03 at degree 1. The decision rule's branch (c) is excluded; (a)-vs-(b) is the 2026-09-19 weekly's. <strong>Step 0d</strong> (daily licence, priced-family variant: degree 2 at the full 32-port set) is queued for the 2026-09-26 <code>xxl</code> window (<code>xl-pending.md</code> entry 9). Probe label defects from this log: <code>OPS-52</code>. <strong>Step 0c RUN 2026-09-21 (<code>xl</code>, chain H1; <code>20260921T070008Z_WF-7-step0c.log</code>, Status 0, 228 s, <code>log-pathologist</code> CONFIRMED countable):</strong> the degree-1 32-drive set is one factorisation (24.73 s) + 31 held back-substitutions (0.40–0.57 s), 607 039 unknowns, cumulative 224.19 s, summed <code>ru_maxrss</code> 13.842 GiB, <code>memory.peak</code> 11.96 GiB at <code>-n 16</code>; full 32×32 reciprocity <strong>1.084e-14 ≤ the imported 1e-3, asserted</strong>; σ_max 0.999915, <code>|S_jj|</code> spread 1.7891e-03, column sums 0.895287–0.896108, terminal residual 4.061e-03–4.624e-03 — printed only. ⇒ the F-human degree-1 32×32 is a <strong>heavy-tier</strong> job. <strong>Step 1 (chain H3; §9 item 21, written 2026-09-21 review under rule (4)) — Done-when (added by that review, rule (j)):</strong> on the F-human fixture at 64 MHz, degree 1, all 32 drives: the cell band, reciprocity ≤ <code>RECIPROCITY_BAND</code>, σ_max ≤ <code>MATRIX_PASSIVITY_CEILING</code>, exactly 18 C16 × mirror classes with worst spread ≤ <code>OPPOSITE_SPREAD_BAND</code>, <code>PORT-16</code>'s exact discrete power identity ≤ <code>DISCRETE_IDENTITY_RTOL</code> on the driven columns, and the mesh-level mis-paired-orientation control, all imported and asserted green in one logged window with elapsed ⇒ <code>WF-7</code> 🧪 → 🟡. <em>Self-consistency only; degree 1 at human scale carries the weekly's 5.50 % order caveat (<code>WF-7</code> step 0b, 2026-09-19).</em> <strong>Step 1 DONE 2026-09-21 (09:30 slot, heavy, <code>-n 8</code>, one window 372 s, Status 0; new <code>tests/validation/test_wf7_f_human_ring_matrix.py</code>, no <code>src/</code>; <code>20260921T093429Z_WF-7-step1.log</code>):</strong> (i) 507 266 cells, +5.200e-03 vs 504 642 inside <code>CELL_COUNT_BAND</code> 0.01 (<code>:10480</code>); 1 factorisation (33.65 s) + 31 held (0.51–0.70 s), summed <code>ru_maxrss</code> 11.012 GiB (<code>:10484–10516</code>); (ii) reciprocity <strong>9.200731e-15</strong> ≤ 1e-3 (<code>:10518</code>); (iii) σ_max <strong>0.999914648</strong> ≤ <code>MATRIX_PASSIVITY_CEILING</code> 1.0, margin +8.535e-05 (<code>:10519</code>); (iv) <strong>18</strong> C16 × mirror classes from measured azimuths / sheet-centre z, worst azimuth residual 5.684e-14°, worst spread <strong>3.6997 %</strong> (other ring, 2 steps) ≤ 5 % — first measurement on this fixture (<code>:10520–10539</code>); (v) exact discrete power identity max <strong>2.835e-15</strong> ≤ 1e-6 on <strong>drives 1, 9, 17, 25 only</strong> — the first identity evaluation cost 17.31 s &gt; the item's 15 s stop rule, so the item's own fallback ran (<code>:10481–10483</code>, <code>:10540</code>); P_src,exact &gt; 0 on each. Controls: <em>asserted</em> default-orientation build (504 642 cells, 132.90 s, no solve) max sheet extent along φ̂ 2.816e-17 m &lt; 1e-12 while the longitudinal chord / min extent is 1.716154e-02 m (<code>:20224</code>); <em>asserted</em> P17 column × 1.01 lifts the ratio to 2.064468e-03 = 2.244e+11× the measured (bar 1e6×, <code>:10542</code>); <em>predicted, printed</em> 2.064468e-03 vs the 2e-3 <code>MATRIX_CONTROL_MARGIN</code> bar — at/above, inside the review's 1.5–2.1e-3 prediction (<code>:10543</code>). Printed only: terminal residual 4.061e-03–4.624e-03 beside pooled C/terminal−1 4.591e-03–4.689e-03; column sums 0.895287–0.896108; S_driven(P17) 0.407423+0.344417j = the step-0 record digits at <code>-n 8</code> (<code>:10541</code>). ⇒ <code>WF-7</code> 🧪 → 🟡. <strong>Self-consistency identities on one fixture at degree 1 — no field, B₁⁺, SAR or absolute S; degree 1 at human scale carries the weekly's 5.50 % order caveat (<code>WF-7</code> step 0b, 2026-09-19).</strong> <strong>Step 2 (chain H4; §9 item 36, written 2026-09-23 review under rule (4)) — Done-when (added by that review, rule (j)):</strong> on the same F-human fixture at 64 MHz, degree 1, the 32-port ccw quadrature drive superposed through <code>superpose_drives</code> with <code>POST-6</code> step 3's weights: the worst of the fifteen C16 images of the CG1 <code>|B₁⁺|_ccw</code> map, the mirror identity <code>|B₁⁻|_cw(Mx)</code> vs <code>|B₁⁺|_ccw(x)</code> — both ≤ the imported <code>C4_COVARIANCE_BAND</code> — <code>PORT-16</code>'s exact discrete identity on the superposed field ≤ <code>DISCRETE_IDENTITY_RTOL</code>, and the unit-weight identity (<code>UNIT_WEIGHT_CONTROL_RTOL</code>), asserted green in one logged window with elapsed, plus the rule-(a) re-run of <code>POST-6</code> step 3 green ⇒ the row records step 2; <code>WF-7</code> stays 🟡 (step 3, the 10 g hotspot, is the chunk's title). <em>C16 invariance of <code>|B₁⁺|</code> at human scale only — no homogeneity, absolute <code>B₁⁺</code>, SAR or Larmor-accuracy claim; carries the 5.50 % order caveat.</em> </p>
+<h3 id="9-item-213-2026-10-04-chain-h15a">§9 item 213 — 2026-10-04 (chain H15a)<a class="headerlink" href="#9-item-213-2026-10-04-chain-h15a" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-04 03:00 daily review; the review reviews it.</em></p>
+<p><strong><code>WF-7</code> step 0e, prerequisite half (§10 H15a): a save knob <code>FEM_EM_WF7_SAVE_NPZ</code> on <code>tests/validation/test_wf7_f_human_ring_matrix.py</code>, with the degree-1 32×32 reproduced through the saved file at the imported reproduction band.</strong> It unlocks <code>docs/testing/xl-pending.md</code> entry 29 (H15b, degree 2, κ off, saved).
+- <strong>Executor:</strong> implementer. <strong>Tier:</strong> heavy, <code>-n 8</code>, complex (W1); W0 standard, <code>-n 1</code>. <strong>Class:</strong> chain step (solve), measured median ≈ 18 min.
+- <strong>Cost:</strong> ≈ 18 measured / ≈ 40 predicted min (15 fixed + ≈ 15 code + W0 ≈ 1 min + W1 ≈ 7.5 min + ≈ 2 spare).
+- <strong>Depends on:</strong> nothing. The module is as <code>POST-7</code> step 1 left it (knobs at <code>:168–187</code>); check <code>git log -1 -- tests/validation/test_wf7_f_human_ring_matrix.py</code> before editing.
+- <strong>Family:</strong> <code>WF-7</code> step 0e (H15), attempt 1 of 4.</p>
+<p><strong>The contract with entry 29 (binding).</strong> The knob is named exactly <code>FEM_EM_WF7_SAVE_NPZ</code>, beside <code>FEM_EM_WF7_DEGREE</code> and <code>FEM_EM_WF7_IDENTITY_COLUMNS</code>. The implementer who lands this green edits <strong>only entry 29's Status line</strong>, in the same commit: PENDING PREREQUISITE → READY, citing W1's log and the knob's value convention (below). It does <strong>not</strong> write, issue, queue or edit entry 29's command, and it does not touch <code>docs/testing/xl-queue.d/</code>. The command is the review's to issue ("entry 21's shape with <code>FEM_EM_WF7_DEGREE=2</code>, all 32 columns, the save knob set"). If any other name lands, the review re-issues entry 29; nobody edits it.</p>
+<p><strong>Code (tests only, no <code>src/</code>; additive; rule (a), with W1 as the re-gate).</strong> All changes go in <code>test_wf7_f_human_ring_matrix.py</code>.
+- <strong><code>_save_knob()</code></strong> is a new function. Do not change <code>_post7_knobs()</code>'s return signature. It reads the env at call time:
+  - unset or empty ⇒ <code>None</code>: no file, and behaviour otherwise unchanged;
+  - otherwise the value is an <strong>absolute path under <code>/workspace/logs/</code> ending <code>.npz</code></strong> (e.g. <code>/workspace/logs/wf7/wf7-s32-degree1-n8.npz</code>). Anything else raises <code>ValueError</code> before the mesh is built;
+  - set together with <code>FEM_EM_WF7_IDENTITY_COLUMNS</code> ⇒ <code>ValueError</code>. The file holds only the full 32×32.
+  - Add the value to the <code>start:</code> line's knob print.
+- <strong>Save point:</strong> inside <code>if matrix:</code>, straight after <code>s</code> is formed (<code>:412–415</code>). That is before any further print or assert, before the default-orientation control build (<code>:476–496</code>, ≈ 125 s), and before the asserts (<code>:500–550</code>). So a degree-2 red at (ii)–(iv), or a kill during the control build, still leaves the matrix on disk.
+- <strong>Write:</strong> rank 0 runs <code>os.makedirs(dirname, exist_ok=True)</code> and <code>np.savez(...)</code>, then <code>comm.bcast</code>s an ok flag; all ranks hit <code>comm.Barrier()</code>. Every rank raises if the write failed, so no rank is left waiting in a Barrier.
+- <strong>Keys:</strong> <code>ans:8</code>'s schema (<code>examples/ansys_benchmarks/ans8_f_human_quadrature_mode_content_64MHz/08_f_human_quadrature_mode_content.py:241–245</code>), so <code>_slot_port_map</code> / <code>ring_mode_rows_v2</code> read it unchanged:
+  - <code>s32</code> (complex128, rows and columns in <code>order</code>), <code>order</code> (<code>driven_ids</code>, P17…P48, a numpy unicode array);
+  - <code>slot_k</code>, <code>slot_sign</code> from <code>_ring_quadrature_slots</code> (<code>test_port_drive_superposition.py:1208</code>) on <code>[{"ordinal": i, "tag": SHEET_IFACE + i, "azimuth_deg": azimuth[i], "z": centre_z[i]} for i in ring_ports]</code>;
+  - <code>kappa</code> (P17's pooled C/terminal − 1, a diagnostic), <code>cells</code>, <code>freq_hz</code>, <code>degree</code>, <code>reciprocity</code>, <code>sigma_max</code>;
+  - plus <code>kappa_applied=False</code> (the module's widths are already area/chord, <code>:255</code>), <code>pooled_kappa</code> per column (NaN where the identity was not evaluated), and <code>ranks</code>.
+- <strong>Reload, "through it":</strong> after the Barrier, every rank runs <code>np.load(path, allow_pickle=False)</code>.
+  - The class means are computed from the <strong>reloaded</strong> array by a new <code>_class_means(s, az, zc)</code>, lifted verbatim from <code>:423–439</code>.
+  - The inline (iv) block is <strong>not</strong> rewritten, so the gate code path stays as it was.
+- <strong>W0's test:</strong> a new <code>test_wf7_save_knob_contract</code>. It uses <code>monkeypatch</code> env only, builds no mesh, and is not <code>complex_only</code>.
+- <strong>Leave alone:</strong> <code>_sheet_centre_z</code>. <code>test_wf7_f_human_b1_quadrature.py:112</code> imports it, so every <code>WF-7</code> step 2/3 and <code>WF-12</code> module depends on it.</p>
+<p><strong>Anchors (asserted).</strong>
+- Every existing anchor stays unchanged and is re-gated by W1 under rule (a): (i)–(v), the P17 reproduction at <code>REUSE_REPRODUCTION_RTOL</code>, and both asserted controls.
+- <strong>(L1) Round trip:</strong> <code>s32.dtype == complex128</code>, <code>np.array_equal(loaded, s)</code>, <code>order</code> equal, and 16 slots per ring in the stored map.
+- <strong>(L2) Degree-1 reproduction through the file:</strong> from the reloaded array, σ_max against <code>SIGMA_MAX_D1_RECORD = 0.999914648</code> (<code>20260928T093759Z_POST-7-step1-W1.log:10641</code>; equal to step 1's <code>20260921T093429Z_WF-7-step1.log:10519</code>), and each of the 18 C16 × mirror class means |S| against <code>CLASS_MEAN_D1_RECORD</code> (18 literals, <code>…POST-7-step1-W1.log:10643–10660</code>, entered with their lines).
+  - Each must be within the imported <code>REUSE_REPRODUCTION_RTOL</code> 1e-6 (<code>test_port_birdcage_ring_matrix.py:171</code>), asserted at degree 1 and printed at degree ≠ 1, as the module already does for P17 (<code>:394–404</code>).
+  - The records' print resolution is ≤ 5e-10 relative, 2000× under the band. The fixture is deterministic at <code>-n 8</code>: P17 reproduced across two windows to 2.4e-11 (<code>…W1.log:10638</code>, <code>…W2.log:10606</code>).
+- <strong>W0:</strong> <code>_save_knob()</code> is <code>None</code> when unset. It raises on a relative path, on a path outside <code>/workspace/logs/</code>, on a non-<code>.npz</code> suffix, and when <code>FEM_EM_WF7_IDENTITY_COLUMNS</code> is set. No file is written.</p>
+<p><strong>Negative controls (rule (e)).</strong>
+- <em>Asserted (arithmetic, on the reloaded array):</em> scaling column P17 by <code>CONTROL_COLUMN_SCALE</code> (1.01) must move the worst class-mean reproduction by ≥ 10 × <code>REUSE_REPRODUCTION_RTOL</code>.
+  - <strong>Ceiling:</strong> one column supplies 1 of the 32 entries in an n = 32 class, or 2 of the 64 in an n = 64 class, so the shift is ≈ 0.01/32 ≈ 3.1e-4, i.e. ≈ 310× the band.
+  - The 10× bar sits 31× under that ceiling. Predicted range [2e-4, 4e-4].
+- <em>Predicted, printed, never asserted:</em> the same reproduction on <code>s.astype(np.complex64)</code> moves the worst class mean by ≈ 1e-8 to 1e-7. That is <strong>below</strong> the 1e-6 band. The band alone cannot see a single-precision save, which is why (L1) asserts the dtype and bit-equality.
+- <em>Binary:</em> W0 shows that the unset knob writes no file.</p>
+<p><strong>Printed against predictions written first.</strong> W1 should reproduce the 09-28 W1 digits:
+- cells 507 266;
+- reciprocity ≈ 1.29e-14, σ_max 0.999914648, worst spread 3.6997 %;
+- (v) ≤ 2.6e-15 on all 32 drives (the stop rule does not fire: measured projection 389 s ≤ 540 s), NEG ≈ 479×;
+- npz ≈ 17 KiB, save plus reload &lt; 1 s.</p>
+<p><strong>Tier and windows.</strong> Bash <code>timeout: 660000</code>, foreground. Each harness call is bare and whole. Run with <code>-s</code>.
+- <strong>Measured basis, <code>POST-7</code> step 1 W1</strong> (this module, knobs unset, degree 1, <code>-n 8</code>, all 32 drives with the identity):
+  - 437 s wall, pytest 434.8 s, window 399.8 s, summed <code>ru_maxrss</code> 11.254 GiB;
+  - build 124.16 s, factorising drive 29.67 s, held drives 0.50–0.66 s, identity 2.10 s per drive, control build ≈ 125 s (<code>20260928T093759Z_POST-7-step1-W1.log:10600–10664, 20346, 20870</code>).
+  - W2 (one column): 279.7 s window, 316 s wall, 11.03 GiB (<code>20260928T094524Z_POST-7-step1-W2.log:20289, 20813</code>).
+  - <code>WF-7</code> step 1 (four-drive identity fallback): 372 s, 11.012 GiB.
+- <strong>W0</strong>, standard, <code>-n 1</code>, predicted ≤ 60 s:
+  <code>scripts/testing/run_and_log.sh WF-7-H15a-W0 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 180 mpiexec -n 1 python3 -m pytest tests/environment tests/validation/test_wf7_f_human_ring_matrix.py::test_wf7_save_knob_contract -v -s --tb=short'"</code>
+- <strong>W1</strong>, heavy, <code>-n 8</code>, predicted [420, 480] s wall and ≈ 11.3 GiB. It uses §5.1 durable capture because it runs within ≈ 2 min of the 590 s ceiling:
+  <code>scripts/testing/run_and_log.sh WF-7-H15a-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; mkdir -p /workspace/logs/wf7 &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_WF7_SAVE_NPZ=/workspace/logs/wf7/wf7-s32-degree1-n8.npz timeout -k 30 590 mpiexec -n 8 python3 -m pytest tests/environment tests/validation/test_wf7_f_human_ring_matrix.py -v -s --tb=short &gt; /workspace/logs/wf7-h15a-w1-raw.log 2&gt;&amp;1; rc=\$?; echo \"[capture] rc=\$rc\" &gt;&gt; /workspace/logs/wf7-h15a-w1-raw.log; cat /workspace/logs/wf7-h15a-w1-raw.log; exit \$rc'"</code>
+  - W1 also collects W0's test, which is cheap, so <code>monkeypatch</code> must not leak env into the heavy test.</p>
+<p><strong>Traps.</strong>
+- <strong>Save before anything can raise</strong> (see "Save point"). Rank 0 writes, then bcast, then Barrier.
+- Load with <code>allow_pickle=False</code>; <code>order</code> is a numpy unicode array, as <code>ans:8</code> stores it.
+- <code>/workspace/logs/</code> is the gitignored top-level <code>/logs/</code> (<code>.gitignore:82</code>). Never write under the tracked <code>docs/testing/logs/</code>.
+- The knob never bypasses the identity stop rule (<code>:347–360</code>).
+- <code>-s</code>, or the prints are captured. Copy the durable-capture idiom verbatim, trailing <code>; exit $rc</code> kept. No pipe or <code>| tail</code> in the harness call.
+- Status 124 is the finding. Run <code>pgrep -c python3</code> in the container, then the cache sweep. Never lengthen the timeout.
+- No module edit after W1 starts (rule (i)).</p>
+<p><strong>Scope.</strong> Degree 1, <code>-n 8</code>, σ = 800 S/m coil, 64 MHz, the existing fixture. <strong>Not covered:</strong>
+- degree 2 (H15b, entry 29);
+- <code>C_mode</code> or any <code>ring_mode_rows_v2</code> readout;
+- <code>ANS-8</code> rows, copper, any band;
+- issuing entry 29's command.</p>
+<p><strong>Status it can move.</strong>
+- <code>xl-pending.md</code> entry 29: PENDING PREREQUISITE → <strong>READY</strong> (Status line only, same commit).
+- The §7 <code>WF-7</code> row records the knob (✅ unchanged).
+- §10 H15a lands, so H15b becomes the review's to queue.</p>
+<p><strong>Negative result.</strong>
+- <strong>(L1) red:</strong> a save-path defect. Park on <code>attempt/</code>, mark BLOCKED (rule (d)); entry 29 stays PENDING.
+- <strong>(L2) red with (L1) green:</strong> the degree-1 fixture has moved since 09-28, through an image or mesher change. Stop and report all 18 deltas, BLOCKED. Re-recording falls under the (1*) licence (<code>record-reconciler</code>) and never happens in-slot; entry 29 stays PENDING.
+- <strong>Any existing anchor red:</strong> the module moved. Stop and park.
+- <strong>W1 over 540 s, or Status 124:</strong> the price is the finding. Report it.
+- There is no <code>PREDICTED RED</code> line.</p>
+<p><strong>Outcome (2026-10-04 04:30 slot, take-next, implementer):</strong> BLOCKED, parked on <code>attempt/WF-7-step0e-20261004T1007Z</code> (test module only). W0 <code>20261004T095522Z_WF-7-H15a-W0.log</code> Status 0, 13 passed, 100 s. W1 <code>20261004T095709Z_WF-7-H15a-W1.log</code> <strong>Status 124 at 591 s</strong>, no Python traceback (PETSc signal 15 at <code>:11552</code>, during the orientation-control build) — an overrun: the box ran ≈ 2× slow against 09-28 (build 239.36 s vs 124.16 s, factorising drive 48.24 s vs 29.67 s, first identity 7.69 s vs 2.10 s), so the identity stop rule fired (projection 706 s &gt; 540 s; (v) on drives 1 / 9 / 17 / 25 only). Printed before the kill, asserts not reached: cells 507 266, reciprocity 8.06e-15, σ_max 0.999914648, worst spread 3.6997 %, (v) max 1.97e-15, NEG 480.7×, P17 reproduction 2.4e-11; npz 20 823 B, save + reload 0.027 s; (L1) all True; (L2) σ_max 2.6e-10, worst class mean 4.3e-10 (band 1e-6); column-scale control 3.147e-4 = 314.7× the band (predicted [2e-4, 4e-4]); float32 control 1.27e-8 (predicted 1e-8 to 1e-7). <code>pgrep -c python3</code> 0 after the kill. Entry 29 stays PENDING PREREQUISITE. Next: re-run W1 unchanged from the branch when the box is quiet (the 09-28 price was 437 s), or trim the default-orientation control build out of this window; never a longer timeout.</p>
+<p><strong>For the review (outside this item).</strong> W1's npz is a <strong>κ-off</strong> degree-1 32×32. Entry 29's readout puts degree 2 beside <code>20261002T050705Z_ANS-8-v2-W1-R.log</code>'s degree-1 rows. Those were built κ-corrected (<code>ans:8</code> stage S, <code>08_…py:221–222</code>), so read that way the order move and κ are confounded, the same caveat item 175 printed. Running <code>ring_mode_rows_v2</code> on this npz gives the κ-off degree-1 comparand at no solve cost. Whether to do that is the review's decision.</p>
+<h3 id="9-item-227-2026-10-04-chain-h15a-re-pose-of-item-213-attempt-2-of-4">§9 item 227 — 2026-10-04 (chain H15a, re-pose of item 213, attempt 2 of 4)<a class="headerlink" href="#9-item-227-2026-10-04-chain-h15a-re-pose-of-item-213-attempt-2-of-4" title="Permanent link">&para;</a></h3>
+<p><strong>Outcome (2026-10-04 12:00 slot, implementer):</strong> BLOCKED, parked on <code>attempt/WF-7-step0e-r2-20261004T1714Z</code> (module only, commit <code>57789717</code>). W0 <code>20261004T170126Z_WF-7-H15a-r2-W0.log</code> Status 0, <strong>14 passed</strong>, 60 s (as predicted). W1 <code>20261004T170232Z_WF-7-H15a-r2-W1-orientation.log</code> <strong>Status 124 at 590 s — an implementer defect, not price:</strong> 7 of 8 ranks printed <code>3 passed, 1 skipped in 131.6 s</code> (<code>:9818–9836</code>; the matrix test skipped before any build, as <code>only</code> requires); rank 0 never printed its <code>orientation control:</code> line because <code>test_wf7_default_orientation_control</code> calls <code>_rss_summed_gib(comm)</code> (an <code>allreduce</code>) inside <code>if comm.rank == 0:</code>, so rank 0 waited in a collective the other ranks never entered. The default build itself completed: one <code>[birdcage-mesh] mesh wall time 120.57 s</code> (<code>:9794</code>), and pytest's per-rank total 131.6 s ⇒ <strong>B ≈ 121–132 s, a normal-speed box</strong> (09-21: 132.90 s), so the price gate would have passed (≤ 285 s); the extent value and its assert were not printed on rank 0 (the other ranks passed the assert, but the reading is not on the log). <code>pgrep -c python3</code> 0 after the kill; cache sweep <code>20261004T171254Z_WF-7-H15a-r2-cache-sweep.log</code> found no orphans. W2 not run (rule (i): no module edit after W1 starts; the stop rule allows no third heavy window). Entry 29 stays PENDING PREREQUISITE. <strong>Next (attempt 3 of 4):</strong> on the branch, compute <code>rss = _rss_summed_gib(comm)</code> on every rank before the rank-0 print, then run W0 / W1 / W2 exactly as written above; the box was normal-speed at 12:00 CDT.</p>
+<p><em>Drafted by a general-purpose agent for the 2026-10-04 10:30 daily review; the review reviews it.</em></p>
+<p><strong><code>WF-7</code> step 0e, prerequisite half, re-posed (§10 H15a): the same target as item 213, with the default-orientation control build moved into its own window by an additive knob, so neither window can overrun at the ≈ 2× slowdown measured on 10-04.</strong> The target is unchanged: <code>FEM_EM_WF7_SAVE_NPZ</code> on <code>tests/validation/test_wf7_f_human_ring_matrix.py</code>; the reloaded degree-1 32×32 reproduces σ_max and the 18 C16 × mirror class means within the imported <code>REUSE_REPRODUCTION_RTOL</code>; <code>xl</code> entry 29 goes READY.
+- <strong>Executor:</strong> implementer. <strong>Tier:</strong> heavy, <code>-n 8</code>, complex (W1, W2); W0 standard, <code>-n 1</code>. <strong>Class:</strong> chain step (solve), measured median ≈ 18 min.
+- <strong>Cost:</strong> ≈ 18 measured / ≈ 45 predicted min (15 fixed + ≈ 12 code + W0 ≈ 2 + W1 ≈ 3–5 + W2 ≈ 5–8 + ≈ 3 spare).
+- <strong>Depends on:</strong> nothing. Main has not touched the module since the branch: <code>git log -1 main -- tests/validation/test_wf7_f_human_ring_matrix.py</code> is still <code>bfa8232c</code> (<code>POST-7</code> step 1), and the branch's merge base is <code>0054fe9d</code>. Re-check before starting.
+- <strong>Family:</strong> <code>WF-7</code> step 0 (0, 0b, 0c, 0d, 0e). The last sub-step that landed a gate is 0d: a registered record, <code>xxl</code> 2026-09-26, with reciprocity asserted. Since then: item 213 (BLOCKED, Status 124) = 1; <strong>this item = attempt 2 of 4.</strong></p>
+<p><strong>Why item 213 died, measured</strong> (<code>20261004T095709Z_WF-7-H15a-W1.log</code>). Every save-path reading printed in band. The window was killed at 591 s by price alone:
+- Longitudinal build 239.36 s (<code>:10617</code>) against 124.16 s on 09-28.
+- Factorising drive 48.24 s, first identity 7.69 s (<code>:10618, :10621</code>). So the stop rule fired (projection 706 s &gt; 540 s), and (v) ran on drives 1 / 9 / 17 / 25 only (<code>:10619–10620</code>).
+- Held drives 1.04–1.29 s, but ≈ 3.9 s of wall per drive (the <code>t=</code> stamps <code>:10622–10652</code>). Matrix complete and npz saved at t ≈ 447 s (<code>:10652–10657</code>).
+- The default-orientation control build then started. It reached gmsh 1-D meshing and was killed there (<code>:11550–11552</code>), with no assert run. That build is 132.90 s (09-21, <code>20260921T093429Z_WF-7-step1.log:20224</code>) / ≈ 125 s (09-28) on a normal box; at 2× it is ≈ 260 s.
+- <code>tests/environment</code> + collection cost ≈ 35 s on 09-28 (pytest 434.8 s vs window 399.8 s); that is ≈ 70 s at 2×.
+- Sum at 2×: ≈ 70 + 447 + 260 ≈ 780 s. No timeout fixes that, and <code>-n 12</code> does not help: the build is gmsh-serial, and <code>ANS-4</code> item 212 W2 measured <code>-n 12</code> <em>doubling</em> mesh time on this box. So the control comes out of the matrix window.</p>
+<p><strong>Start from the branch.</strong> <code>git checkout attempt/WF-7-step0e-20261004T1007Z -- tests/validation/test_wf7_f_human_ring_matrix.py</code>. This is a path checkout of code, not of a record. <code>git diff --stat</code> must show that one file. The save code, (L1), (L2), the column-scale and complex64 controls and <code>test_wf7_save_knob_contract</code> are kept <strong>as parked</strong>. Item 213's brief binds them: entry-29 contract, save point, keys, reload, <code>_class_means</code>, traps.</p>
+<p><strong>Additive code (tests only, no <code>src/</code>).</strong>
+- <strong><code>_orientation_knob()</code></strong> reads <code>FEM_EM_WF7_ORIENTATION_CONTROL</code> at call time:
+  - unset or empty ⇒ <code>"inline"</code>. The landed behaviour: the control is built inside the matrix test after the matrix, as today.
+  - <code>split</code> ⇒ the matrix test does <strong>not</strong> build the default mesh and does not run the one assert that reads it (<code>max(default_extent) &lt; DEGENERATE_EXTENT_M</code>, branch <code>:749–752</code>). It prints <code>orientation control: SPLIT — asserted by test_wf7_default_orientation_control in its own window</code>. It still asserts the two longitudinal checks (<code>chord</code>, <code>min(long_extent)</code> &gt; <code>DEGENERATE_EXTENT_M</code>, branch <code>:747–748</code>), because those read the longitudinal mesh it already holds.
+  - <code>only</code> ⇒ the matrix test calls <code>pytest.skip</code> before any mesh build, and the new standalone test runs.
+  - Anything else raises <code>ValueError</code>. So does <code>only</code> together with <code>FEM_EM_WF7_SAVE_NPZ</code> (there is no matrix to save).
+- <strong><code>_default_orientation_extent(comm, ring_ports)</code></strong> is lifted verbatim from branch <code>:684–698</code>. It contains the default <code>_params(…)</code> with its <code>"ring_sheet_orientation" not in</code> assert, <code>birdcage_port_domain</code>, <code>_interface_facet_tags</code>, and <code>_sheet_extent_along</code> against <code>phi_hat</code> from <code>_ring_gap_frame(i, LEG_COUNT)</code> (pure geometry, the same call as <code>:366</code>). It returns <code>(default_extent, default_cells, build_s)</code>. <strong>Both</strong> the inline path and the standalone test call it, so W1 executes the very lines the inline path runs.
+- <strong><code>test_wf7_default_orientation_control</code></strong> (<code>@complex_only</code>). It skips unless the knob is <code>only</code>. It calls the helper, prints the same <code>orientation control:</code> line as <code>:699–703</code> plus <code>build_s</code>, and asserts <code>max(default_extent) &lt; DEGENERATE_EXTENT_M</code>.
+- <strong>The identity stop rule is not edited.</strong> Under <code>split</code> its projection still adds <code>CONTROL_BUILD_ESTIMATE_S</code> (135 s), which overstates the window. The fallback therefore fires earlier, never later. Disclosed, and conservative.
+- <strong>W0 contract:</strong> a new <code>test_wf7_orientation_knob_contract</code> (the name is fixed, because W0 calls it by node id), with monkeypatch only and no mesh. Unset/empty → <code>"inline"</code>; <code>split</code> / <code>only</code> accepted; <code>"yes"</code> / <code>"0"</code> raise; <code>only</code> + save path raises. <code>test_wf7_save_knob_contract</code> stays as parked.
+- <strong>Leave alone:</strong> <code>_sheet_centre_z</code> (imported by <code>test_wf7_f_human_b1_quadrature.py:112</code>) and every knob's unset path.</p>
+<p><strong>Anchors (asserted).</strong> Every anchor of item 213 is unchanged:
+- (i)–(v);
+- the P17 reproduction at <code>REUSE_REPRODUCTION_RTOL</code>;
+- the column-scale reciprocity control;
+- <strong>(L1)</strong> round trip: dtype, <code>array_equal</code>, <code>order</code>, 16 slots per ring;
+- <strong>(L2)</strong> σ_max against <code>SIGMA_MAX_D1_RECORD</code> and the 18 <code>CLASS_MEAN_D1_RECORD</code> class means, each within the imported <code>REUSE_REPRODUCTION_RTOL</code> 1e-6, through the reloaded file.</p>
+<p>The mesh-level orientation control keeps its predicate. Only its window moves: W1 asserts it, and W2 asserts its longitudinal half.</p>
+<p><strong>Negative controls (rule (e)).</strong>
+- <em>Asserted, arithmetic, on the reloaded array:</em> P17 × 1.01 moves the worst class-mean reproduction by ≥ 10 × the band. The ceiling is 0.01/32 ≈ 3.1e-4 ≈ 310×. 10-04 measured <strong>3.147e-4 = 314.7×</strong> (<code>:10678</code>). Predicted range [2e-4, 4e-4].
+- <em>Asserted, mesh-level (W1):</em> the default-orientation sheets have extent along φ̂ &lt; 1e-12 m. 09-21 measured 2.816e-17 m against the longitudinal minimum 1.716154e-02 m, a separation of ≈ 6e14.
+- <em>Predicted, printed, never asserted:</em> the complex64 copy moves the worst class mean by ≈ 1e-8 to 1e-7, below the band. 10-04 measured 1.271e-8 (<code>:10679</code>). This is why (L1) asserts dtype and bit-equality.
+- <em>Binary (executor reads W2's log):</em> exactly <strong>one</strong> <code>[birdcage-mesh] mesh wall time</code> line appears in W2. A second one means <code>split</code> did not reach the code.</p>
+<p><strong>Printed against predictions written first.</strong>
+- <strong>W1:</strong> default cells 504 642. Extent along φ̂ ≈ 3e-17 m. Build 125–133 s on a normal box; ≈ 2× that if 10-04's load persists.
+- <strong>W2</strong> reproduces 10-04's digits:
+  - cells 507 266, reciprocity 8e-15 to 1.3e-14, σ_max 0.999914648, worst spread 3.6997 %;
+  - (v) max ≤ 2.6e-15 on all 32 drives on a normal box, or on drives 1 / 9 / 17 / 25 if the stop rule fires (both are the module's landed behaviour);
+  - NEG ≈ 480×; (L2) worst ≤ 5e-10 relative; npz 20 823 B; save plus reload &lt; 0.1 s.</p>
+<p><strong>Windows.</strong> Bash <code>timeout: 660000</code>, foreground. Every harness call bare and whole, <code>-s</code> everywhere. <strong>No module edit after W1 starts</strong> (rule (i)).
+- <strong>W0</strong>, standard, <code>-n 1</code>. Measured 100 s on 10-04 (<code>20261004T095522Z_WF-7-H15a-W0.log</code>, 13 passed):
+  <code>scripts/testing/run_and_log.sh WF-7-H15a-r2-W0 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 180 mpiexec -n 1 python3 -m pytest tests/environment tests/validation/test_wf7_f_human_ring_matrix.py::test_wf7_save_knob_contract tests/validation/test_wf7_f_human_ring_matrix.py::test_wf7_orientation_knob_contract -v -s --tb=short'"</code>
+  - Node ids, not <code>-k</code>: a <code>-k</code> filter would also deselect <code>tests/environment</code>.
+  - Predicted 14 passed.
+- <strong>W1</strong>, heavy, <code>-n 8</code>: the control alone <strong>and the box-speed probe</strong>. Predicted 140–150 s on a normal box, ≈ 280 s at 2×:
+  <code>scripts/testing/run_and_log.sh WF-7-H15a-r2-W1-orientation "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_WF7_ORIENTATION_CONTROL=only timeout -k 30 590 mpiexec -n 8 python3 -m pytest tests/validation/test_wf7_f_human_ring_matrix.py -v -s --tb=short'"</code>
+- <strong>Price gate (after W1, binding).</strong> Read W1's printed default-build seconds, B.
+  - W2's projected wall is ≈ 15 + (B / 129) × 450 s. This scales the 10-04 matrix-complete time (≈ 447 s at B-equivalent ≈ 2 × 129) linearly, plus startup without <code>tests/environment</code>.
+  - <strong>B ≤ 285 s</strong> (slowdown ≤ 2.2×, projection ≤ ≈ 510 s) ⇒ run W2.
+  - <strong>B &gt; 285 s</strong> ⇒ <strong>stop</strong>: do not start W2. Commit nothing to the module on <code>main</code>. Park on <code>attempt/</code> with W0 / W1 logs and the measured B; BLOCKED, "price — box &gt; 2.2× slow". Entry 29 stays PENDING.
+- <strong>W2</strong>, heavy, <code>-n 8</code>: the matrix, the save, (L1) / (L2), control split out, no <code>tests/environment</code> (W0 ran it in this slot). §5.1 durable capture, copied verbatim with the trailing <code>; exit $rc</code>. Predicted 290–330 s on a normal box and [440, 520] s at 2×:
+  <code>scripts/testing/run_and_log.sh WF-7-H15a-r2-W2 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; mkdir -p /workspace/logs/wf7 &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_WF7_ORIENTATION_CONTROL=split FEM_EM_WF7_SAVE_NPZ=/workspace/logs/wf7/wf7-s32-degree1-n8.npz timeout -k 30 590 mpiexec -n 8 python3 -m pytest tests/validation/test_wf7_f_human_ring_matrix.py -v -s --tb=short &gt; /workspace/logs/wf7-h15a-r2-w2-raw.log 2&gt;&amp;1; rc=\$?; echo \"[capture] rc=\$rc\" &gt;&gt; /workspace/logs/wf7-h15a-r2-w2-raw.log; cat /workspace/logs/wf7-h15a-r2-w2-raw.log; exit \$rc'"</code>
+  - W2 overwrites 10-04's npz at the same path. That is expected: (L1) and (L2) read the fresh file.
+- <strong>Rule (a).</strong> W1 + W2 re-run every test in the edited module under the two knobs, and between them they execute every original line. The unset (<code>inline</code>) path is the original control lines plus a call into the lifted helper, and it is <strong>not</strong> run in-slot: an unset degree-1 window is ≈ 440 s normal and ≈ 780 s at 2×. Its first run is entry 29's <code>xl</code> window, which asserts the inline control at degree 2. Disclosed; the review rules.</p>
+<p><strong>Stop rule.</strong> One W2 attempt per slot.
+- Status 124 on any window is the finding: run <code>pgrep -c python3</code> in the container first, then the cache sweep (rubric item 4, only when the count is 0). Park, BLOCKED, with the measured build and drive times.
+- Never a longer timeout, never <code>-n 12</code>, never a third heavy window in this slot.
+- <strong>A third consecutive price death is not a fourth attempt by default.</strong> If this item dies on price, the next review must either queue W2's command as an <code>xl</code> priced-family variant of entry 21 (the same module, degree 1, <code>-n 8</code>), or wait for a quiet box. It does not reletter.</p>
+<p><strong>Traps</strong> (item 213's, plus):
+- the knob must not move the stop rule (<code>:463–479</code>) or the <code>del fields</code> memory discipline;
+- <code>only</code> must skip <strong>before</strong> <code>birdcage_port_domain</code>, or W1 pays both builds;
+- W1 and W2 also collect both contract tests with the knobs set in the environment, so <code>test_wf7_orientation_knob_contract</code> must <code>monkeypatch.delenv</code> both knobs first, as the parked save contract already does;
+- the helper's <code>assert "ring_sheet_orientation" not in kwargs_default</code> travels with it;
+- W2 without <code>tests/environment</code> still sets <code>FEM_EM_REQUIRE_COMPLEX=1</code>, so a real-mode container fails loudly rather than skipping;
+- rank 0 writes, then bcast, then Barrier (parked code, unchanged);
+- never write under the tracked <code>docs/testing/logs/</code>;
+- no pipe or <code>| tail</code> in any harness call.</p>
+<p><strong>Scope.</strong> Degree 1, <code>-n 8</code>, σ = 800 S/m coil, 64 MHz, the existing fixture. <strong>Not covered:</strong> degree 2 (H15b, entry 29); <code>C_mode</code> / <code>ring_mode_rows_v2</code>; <code>ANS-8</code> rows; copper; any band; issuing or editing entry 29's command; the unset-path run (see rule (a)).</p>
+<p><strong>Status it can move.</strong>
+- <code>docs/testing/xl-pending.md</code> entry 29: <strong>PENDING PREREQUISITE → READY</strong>. Status line only, in the same commit. It cites W2's log and the knob's value convention, and adds one clause: <code>FEM_EM_WF7_ORIENTATION_CONTROL</code> unset is the landed inline path.
+- The §7 <code>WF-7</code> row records the two knobs (✅ unchanged).
+- §10 H15a lands, so H15b becomes the review's to queue.
+- <em>For the review, not the slot:</em> entry 29 may want <code>FEM_EM_WF7_ORIENTATION_CONTROL=split</code> to save ≈ 2–4 min of <code>xl</code> wall. That is a command change, and the review's to make.</p>
+<p><strong>Negative result.</strong>
+- <strong>W0 red:</strong> a knob-contract defect. Fix once in-slot before W1; if still red, park.
+- <strong>W1 red</strong> (the default build has φ̂ extent): the generator moved. Stop, park, open a known-issues entry; W2 does not run.
+- <strong>Price gate trips:</strong> see "Price gate". BLOCKED on price, attempt 2 spent.
+- <strong>(L1) red:</strong> a save-path defect. Park, BLOCKED; entry 29 stays PENDING.
+- <strong>(L2) red with (L1) green:</strong> the degree-1 fixture moved since 09-28. Report all 18 deltas, BLOCKED. Re-recording is <code>record-reconciler</code>'s under (1*), never in-slot.
+- <strong>Any (i)–(v) red:</strong> the module moved. Park.
+- <strong>W2 Status 124:</strong> see "Stop rule".
+- No <code>PREDICTED RED</code> line.</p>
+<h3 id="9-item-231-2026-10-04-chain-h15a-re-pose-of-item-227-attempt-3-of-4">§9 item 231 — 2026-10-04 (chain H15a, re-pose of item 227, attempt 3 of 4)<a class="headerlink" href="#9-item-231-2026-10-04-chain-h15a-re-pose-of-item-227-attempt-3-of-4" title="Permanent link">&para;</a></h3>
+<p><strong>Outcome (2026-10-04 19:30 slot, implementer):</strong> DONE — §10 H15a lands; <code>xl</code> entry 29 PENDING PREREQUISITE → READY. Module path-checked-out from <code>attempt/WF-7-step0e-r2-20261004T1714Z</code>, plus the one fix (<code>rss = _rss_summed_gib(comm)</code> on every rank before the rank-0 print); the binding grep found only <code>:348</code> (<code>:441</code> print-only, <code>:656</code> pure numpy/IO, <code>:711</code> all-rank <code>bcast</code>). W0 <code>20261005T003037Z_WF-7-H15a-r3-W0.log</code> Status 0, 14 passed, 60 s. W1 <code>20261005T003143Z_WF-7-H15a-r3-W1-orientation.log</code> Status 0, 131 s: 8 × <code>3 passed, 1 skipped</code>, exactly one <code>orientation control:</code> line (<code>:9795</code>) — 504 642 cells, φ̂ extent 2.816e-17 m (&lt; 1e-12, asserted), <strong>B = 128.39 s</strong> (normal box; price gate ≤ 285 s passed). W2 <code>20261005T003402Z_WF-7-H15a-r3-W2.log</code> Status 0, 361 s, <code>[capture] rc=0</code>, one mesh line (binary green): (i) 507 266 cells (5.200e-3 vs band 0.01); (ii) reciprocity 1.041e-14; (iii) σ_max 0.999914648; (iv) 18 classes, worst spread 3.6997 %; (v) all 32 drives, max 3.328e-15 (stop rule did not fire: projection 466 s &lt; 540 s); P17 reproduction 2.405e-11 / κ 5.996e-8; NEG 479.3×; npz 20 823 B, save + reload 0.014 s; <strong>(L1)</strong> all True; <strong>(L2)</strong> σ_max rel 2.596e-10, worst class-mean rel 4.279e-10 (band 1e-6); save control 3.147e-4 = 314.7× (inside [2e-4, 4e-4]); complex64 1.271e-8 (printed). Rule (i): module mtime 00:30:34Z &lt; W1 start 00:31:43Z. Rule (a) as disclosed: the unset inline path was not run in-slot; its first run is entry 29.</p>
+<p><em>Drafted by a general-purpose agent for the 2026-10-04 18:00 daily review; the review reviews it.</em></p>
+<p><strong><code>WF-7</code> step 0e, prerequisite half, re-posed (§10 H15a): item 227 exactly as written, plus one fix.</strong> Item 227 died on a rank-0-only collective, not on price. The fix moves the summed-RSS <code>allreduce</code> out of the rank-0 print. The target is unchanged: on <code>FEM_EM_WF7_SAVE_NPZ</code>, the reloaded degree-1 32×32 reproduces σ_max and the 18 C16 × mirror class means within the imported <code>REUSE_REPRODUCTION_RTOL</code>; <code>xl</code> entry 29 goes READY.
+- <strong>Executor:</strong> implementer. <strong>Tier:</strong> heavy, <code>-n 8</code>, complex (W1, W2); W0 standard, <code>-n 1</code>. <strong>Class:</strong> chain step (solve), measured median ≈ 23 min.
+- <strong>Cost:</strong> ≈ 23 measured / ≈ 32 predicted min (15 fixed + ≈ 3 fix and grep + W0 ≈ 1 + W1 ≈ 2.5 + W2 ≈ 5.5 + ≈ 5 spare). Measured basis: W0 60 s and W1's build 120.57 s on 10-04 12:00 (below).
+- <strong>Depends on:</strong> nothing. <code>git diff --stat b6f58e90 main -- tests/validation/test_wf7_f_human_ring_matrix.py</code> is empty (main's last touch is still <code>bfa8232c</code>), and the r2 branch's merge base is <code>b6f58e90</code>. Re-check this before starting.
+- <strong>Family:</strong> <code>WF-7</code> step 0 (0, 0b, 0c, 0d, 0e). The last gate is 0d (<code>xxl</code> 2026-09-26). Since then: item 213 = 1 (price), item 227 = 2 (deadlock), <strong>this item = attempt 3 of 4.</strong> A failure here leaves one re-pose. <strong>A fourth failure freezes the family</strong> (daily-review.md, family cap): the review must then re-scope at a higher altitude as a new numbered step, or bank the negative. It may not reletter.</p>
+<p><strong>Why item 227 died, measured</strong> (<code>20261004T170232Z_WF-7-H15a-r2-W1-orientation.log</code>, Status 124 at 590 s).
+- Ranks 1–7 each printed <code>3 passed, 1 skipped in 131.6 s</code> (<code>:9818–9836</code>).
+- Rank 0 sat in <code>_rss_summed_gib(comm)</code>, an <code>allreduce</code>. The branch calls it inside <code>if comm.rank == 0:</code> in <code>test_wf7_default_orientation_control</code> (<code>:348–353</code> at <code>57789717</code>), where no other rank enters it.
+- The default build completed: <code>mesh wall time 120.57 s</code> (<code>:9794</code>) ⇒ <strong>B ≈ 121 s, a normal-speed box.</strong>
+- No orphans (<code>20261004T171254Z_WF-7-H15a-r2-cache-sweep.log</code>).
+- W0 at <code>-n 1</code> cannot see this class of defect. W1 is the first window that can.</p>
+<p><strong>Start from the branch.</strong> <code>git checkout attempt/WF-7-step0e-r2-20261004T1714Z -- tests/validation/test_wf7_f_human_ring_matrix.py</code>. This is a module path checkout, never a record. <code>git diff --stat</code> must show that one file only. Everything item 213 and item 227 bound stays <strong>as parked</strong>: the save code, (L1), (L2), the controls, both knobs, both contract tests and the helper.</p>
+<p><strong>The fix (tests only, one edit).</strong> In <code>test_wf7_default_orientation_control</code>, compute the reduction on every rank before the branch:
+- write <code>rss = _rss_summed_gib(comm)</code> straight after the <code>_default_orientation_extent(...)</code> call;
+- inside <code>if comm.rank == 0:</code>, print <code>{rss:.3f}</code> in place of the call;
+- nothing else changes, including the line's text and the assert.</p>
+<p><strong>The grep (binding, before W0).</strong> Run <code>grep -n "comm.rank == 0" tests/validation/test_wf7_f_human_ring_matrix.py</code> and read every block it hits for a <code>comm.</code> call or a helper that makes one. The drafting agent's reading at <code>57789717</code> found three hits:
+- <strong><code>:348</code>:</strong> the defect.
+- <strong><code>:441</code>:</strong> <code>say()</code>'s body only prints. Its f-string arguments are evaluated on every rank before the call, so <code>say(f"… {_rss_summed_gib(comm)} …")</code> at <code>:607–608</code> and <code>:809–810</code> is safe.
+- <strong><code>:656</code>:</strong> the save block. It calls <code>os.makedirs</code>, <code>np.savez</code> and <code>_reciprocity_ratio(s)</code>, which is pure numpy (<code>test_port_birdcage_ring_column.py:776</code>).</p>
+<p>The <code>bcast</code> / <code>Barrier</code> at <code>:676–677</code> and <code>:711</code> run on all ranks. If the slot finds any other collective under a rank-0 branch, fix it the same way and list it in the commit.</p>
+<p><strong>Anchors, negative controls, predictions, scope.</strong> All are item 227's, unchanged: (i)–(v), the P17 reproduction, the column-scale control (asserted, ceiling ≈ 310×, 10-04 measured 314.7×), (L1), (L2) at <code>REUSE_REPRODUCTION_RTOL</code> 1e-6, the asserted mesh-level control (φ̂ extent &lt; 1e-12 m), the complex64 control (printed), and W2's one-mesh-line binary. This item adds two checks.
+- <strong>Added binary (W1):</strong> 8 <code>3 passed, 1 skipped</code> lines and <strong>exactly one</strong> <code>[WF-7 step1] orientation control:</code> line. A missing rank-0 line means the fix did not reach the code.
+- <strong>W1 predictions:</strong> 504 642 default cells, extent ≈ 3e-17 m, build 120–133 s, wall 140–160 s.</p>
+<p><strong>Windows.</strong> Bash <code>timeout: 660000</code>, foreground. Every harness call is the bare, whole command, with <code>-s</code> everywhere.
+- <strong>W0</strong>, standard, <code>-n 1</code>, predicted 14 passed, ≈ 60 s:
+  <code>scripts/testing/run_and_log.sh WF-7-H15a-r3-W0 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 180 mpiexec -n 1 python3 -m pytest tests/environment tests/validation/test_wf7_f_human_ring_matrix.py::test_wf7_save_knob_contract tests/validation/test_wf7_f_human_ring_matrix.py::test_wf7_orientation_knob_contract -v -s --tb=short'"</code>
+- <strong>W1</strong>, heavy, <code>-n 8</code>. It runs the control alone and is the box-speed probe:
+  <code>scripts/testing/run_and_log.sh WF-7-H15a-r3-W1-orientation "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_WF7_ORIENTATION_CONTROL=only timeout -k 30 590 mpiexec -n 8 python3 -m pytest tests/validation/test_wf7_f_human_ring_matrix.py -v -s --tb=short'"</code>
+- <strong>Price gate (after W1, binding, kept from item 227).</strong> Read W1's printed <code>build_s</code>, B.
+  - <strong>B ≤ 285 s</strong> ⇒ run W2.
+  - <strong>B &gt; 285 s</strong> ⇒ do not start W2. Park with W0 / W1 logs and the measured B: BLOCKED, "price — box &gt; 2.2× slow".
+- <strong>W2</strong>, heavy, <code>-n 8</code>, §5.1 durable capture with the trailing <code>; exit $rc</code> verbatim. Predicted 290–330 s:
+  <code>scripts/testing/run_and_log.sh WF-7-H15a-r3-W2 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; mkdir -p /workspace/logs/wf7 &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_WF7_ORIENTATION_CONTROL=split FEM_EM_WF7_SAVE_NPZ=/workspace/logs/wf7/wf7-s32-degree1-n8.npz timeout -k 30 590 mpiexec -n 8 python3 -m pytest tests/validation/test_wf7_f_human_ring_matrix.py -v -s --tb=short &gt; /workspace/logs/wf7-h15a-r3-w2-raw.log 2&gt;&amp;1; rc=\$?; echo \"[capture] rc=\$rc\" &gt;&gt; /workspace/logs/wf7-h15a-r3-w2-raw.log; cat /workspace/logs/wf7-h15a-r3-w2-raw.log; exit \$rc'"</code>
+- <strong>Rule (i):</strong> no module edit after W1 starts. Before committing, check the module's mtime against W1's start.
+- <strong>Rule (a):</strong> as item 227. The unset (<code>inline</code>) path is not run in-slot, and its first run is entry 29's <code>xl</code> window. Disclosed; the review rules.
+- <strong>Stop rule:</strong> item 227's. One W2 per slot, never a longer timeout, never <code>-n 12</code>, never a third heavy window. After any Status 124, run <code>pgrep -c python3</code> first, then the cache sweep only if the count is 0.</p>
+<p><strong>Traps</strong> (item 213's and 227's, plus):
+- Any <code>comm.</code> call, or any helper that makes one (<code>_rss_summed_gib</code>, <code>_sheet_centre_z</code>, <code>_sheet_extent_along</code>), inside <code>if comm.rank == 0:</code> is a deadlock. <code>-n 1</code> cannot show it.
+- Do not wrap a <code>say()</code> argument in a lambda or a rank-0 conditional: its collectives are safe only because every rank evaluates the f-string.</p>
+<p><strong>Status it can move.</strong>
+- <code>docs/testing/xl-pending.md</code> entry 29: <strong>PENDING PREREQUISITE → READY</strong>, on W1 and W2 green. Edit the Status line only, in the same commit. Cite W2's log and the knob's value convention, plus the clause that <code>FEM_EM_WF7_ORIENTATION_CONTROL</code> unset is the landed inline path.
+- The slot does not write, edit or queue entry 29's command, and does not touch <code>xl-queue.d/</code>.
+- The §7 <code>WF-7</code> row stays ✅ and records the two knobs (records only).
+- §10 H15a lands, so H15b becomes the review's to queue.</p>
+<p><strong>Negative result.</strong> In every case the slot parks on <code>attempt/</code>, marks BLOCKED in the same commit (rule (d)), and entry 29 stays PENDING.
+- <strong>W0 red:</strong> fix once in-slot before W1. If it is still red, the slot parks; the review re-poses the contract.
+- <strong>W1 Status 124, or a missing rank-0 line:</strong> the slot parks; the review reads the log for a second rank-0 collective against price.
+- <strong>W1 red</strong> (the default sheets have φ̂ extent): the slot parks with a known-issues entry; the review rules on the generator. W2 does not run.
+- <strong>Price gate trips:</strong> the slot parks; the review applies item 227's stop rule. That means W2's command as an <code>xl</code> priced-family variant of entry 21, or a quiet box, never a reletter.
+- <strong>(L1) red:</strong> the slot parks; the review rules the save path.
+- <strong>(L2) red with (L1) green:</strong> the slot parks and reports all 18 deltas; the review routes re-recording to <code>record-reconciler</code> under (1*), never in-slot.
+- <strong>Any (i)–(v) red:</strong> the slot parks; the review rules on what moved.
+- Any of these spends attempt 3; one remains before the freeze.
+- No <code>PREDICTED RED</code> line.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

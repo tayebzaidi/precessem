@@ -1,0 +1,835 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-126 — mri:27, two femem runs of one study file: the output bundle and its diff — deterministic keys bitwise, S within L0_BAND, and the three plants each layer catches - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-126-mri27-two-femem-runs-of-one-study-file-the-output-bundle-and-its-diff-deterministic-keys-bitwise-s-within-l0_band-and-the-three-plants-each-layer-catches" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-126 — mri:27, two femem runs of one study file: the output bundle and its diff — deterministic keys bitwise, S within L0_BAND, and the three plants each layer catches
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-504-2026-10-16-example-54-ramp-example-runner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 504 — 2026-10-16 (example, §5.4 ramp; example-runner)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-16-1800-item-504-overrides-the-brief-where-they-differ" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-16 18:00 (item 504; overrides the brief where they differ)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-17-0300-4-audit-pass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-17 03:00 — §4 audit: PASS
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-17-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-17 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-126-mri27-two-femem-runs-of-one-study-file-the-output-bundle-and-its-diff-deterministic-keys-bitwise-s-within-l0_band-and-the-three-plants-each-layer-catches">EX-126 — mri:27, two <code>femem run</code>s of one study file: the output bundle and its diff — deterministic keys bitwise, S within <code>L0_BAND</code>, and the three plants each layer catches<a class="headerlink" href="#ex-126-mri27-two-femem-runs-of-one-study-file-the-output-bundle-and-its-diff-deterministic-keys-bitwise-s-within-l0_band-and-the-three-plants-each-layer-catches" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<p><code>EX-126</code> (<code>mri:27</code>) is opened 2026-10-16 by the 18:00 daily review under daily-review.md step 5. It is the §5.4 ramp from <code>WF-2</code> (✅ 2026-10-09, 00:00 slot, §9 item 346; re-pose ratified by the 2026-10-10 weekly; audit PASS 2026-10-11 03:00 review).
+- <strong>Base.</strong> <code>tests/package/test_wf2_bundle_reproducible.py</code> (the item-346 gate module). The code under demonstration is <code>run_study_file</code> (<code>src/fem_em_solver/study_yaml.py:1125–1272</code>), which writes <code>summary.json</code> (schema <code>femem</code>, <code>source</code>, <code>sha256</code> of the file's bytes at <code>:1148</code>, <code>family</code>, <code>degree</code>, <code>frequency_hz</code>, <code>ranks</code>, <code>cells</code>, <code>s_matrix</code>, <code>z_matrix</code>, <code>touchstone</code>, <code>elapsed_s</code>) plus <code>&lt;stem&gt;.s4p</code> for a port study (<code>:1197–1204</code>), and <code>cli.main(["run", …])</code>, which calls it.
+- <strong>Runs of record.</strong>
+  - <code>docs/testing/logs/20261009T053110Z_WF-2-W2-four-port.log</code> (heavy by ceiling, <code>-n 2</code>, 5 passed in 75.06 s at <code>:3699</code>, Elapsed 77 s at <code>:3706</code>). It reads: run_a (cli.main) 36.8 s, run_b (run_study_file) 36.8 s, cells 117 206 (<code>:3686</code>); (F) per-rank keys <code>[[], ['elapsed_s']]</code> (<code>:3687</code>); (D) flags <code>[]</code>, key sets equal, <code>sha256</code> <code>7820a305a7b06c10ba6d5a03df95668bc769001ea631031f846199b2d67fa4f7</code> = recomputed (<code>:3688</code>); (F) True (<code>:3689</code>); (R) 5.010e-16 (<code>:3690</code>); (X) 9.557e-11 on both runs (<code>:3691</code>); Z printed 5.628e-16, cond(I − S_a) 1.928e+01 (<code>:3692</code>); (T) 5 / 5 header lines bitwise, <code>generated_utc</code> lines (1, 1), no <code>PLACEHOLDER</code>, parsed rel 5.521e-14 (<code>:3693</code>); (c1) flags <code>['degree']</code>, S miss 0.0495 (<code>:3694</code>); (c2) 0.2492 (<code>:3695</code>); (c5) 1.000e-08 (<code>:3696</code>).
+  - <code>docs/testing/logs/20261009T053015Z_WF-2-W1-sphere.log</code> (standard, <code>-n 2</code>, 6 passed in 46.84 s at <code>:291</code>, Elapsed 48 s at <code>:298</code>). It reads: (c3) <code>cells+1 ['cells']; sha256 digit ['sha256']; ranks deleted ['&lt;keyset&gt;']; elapsed_s changed []</code> (<code>:64</code>); sphere (D) / (F) / (R) 1.453e-12 / (X) 6.222e-11 (<code>:208–214</code>); (c1) 3.3757 % (<code>:215</code>); (c4) flags <code>['sha256', 'source']</code>, SAR rel 7.566e-12 (<code>:287–288</code>).</p>
+<p><strong>Fixture (decided: the F-small four-port file, <code>tests/package/wf1/f_small_four_port.yaml</code>, used in place).</strong>
+- <strong>Why the four-port, not the sphere.</strong> It is the stronger demonstration, and it costs ≈ 1 min more.
+  - <strong>(i) It is the whole bundle.</strong> A port study writes <code>summary.json</code> <strong>and</strong> the <code>.s4p</code>. The diff therefore covers the Touchstone header layer (T) as well as the summary. The <code>.s4p</code> is the file a user hands to a circuit tool. The sphere bundle is <code>summary.json</code> alone.
+  - <strong>(ii) The P1↔P2 swap exists only on S.</strong> The sphere has no S matrix, so its bundle cannot carry the swap plant at all. On the four-port, the degree plant (c1) and the swap (c2) are both backed on this fixture, at this width, with this comparator (W2 <code>:3694–3695</code>). The one-ULP σ plant (c4) becomes a new control here: its hash half is asserted and its float half is printed (see (2)).
+  - <strong>(iii) It has headroom against the band.</strong> The four-port's run-to-run S drift is 5.010e-16 (<code>:3690</code>), ≈ 2 × 10⁶ below <code>L0_BAND</code>. The sphere's is 1.453e-12 (W1 <code>:213</code>), ≈ 700× below. "Reproduces" reads cleanly on the four-port.
+  - <strong>Cost.</strong> The sphere is cheaper: three ≈ 15 s solves (W1 <code>:208</code>, <code>:287</code>), ≈ 48 s in all. The four-port is three ≈ 37 s solves (W2 <code>:3686</code>), ≈ 115 s plus outputs. Both fit one heavy-by-ceiling window at <code>-t 420</code>, so the ≈ 65 s difference does not change the tier.
+- <strong>The file is used in place, as <code>mri:21</code> uses its tune file</strong> (<code>examples/mri/21_femem_run_tune_section.py:7–9</code>). It is never copied. This keeps the deterministic layer comparable with a bundle written by an <strong>earlier process</strong>: <code>sha256</code> equals W2 <code>:3688</code> character for character, and <code>cells</code> equals <code>ANS4_EXACT_STRIP_CELL_RECORD</code>. The file is unchanged since <code>c8d3a532</code> (<code>git log -- tests/package/wf1/f_small_four_port.yaml</code>). W2 asserted <code>sha256</code> only against the hash recomputed in-process, so this cross-process check of the deterministic layer is new.</p>
+<p><strong>Gap (grep at drafting: <code>manifest</code>, <code>bundle</code>, <code>run_study_file</code>, <code>sha256</code>, <code>summary.json</code>, <code>cli.main</code> over <code>examples/mri/01</code>, <code>09</code>, <code>13</code>, <code>15</code>, <code>21</code>, <code>22</code> and <code>examples/ports/04</code>, <code>05</code>).</strong>
+- <code>mri:1</code> (<code>01_coil_phantom_fields.py:209–267</code>) writes <code>mri_01_coil_phantom_manifest.json</code>. That manifest holds existence flags, parameters and E / B means. It has no S and no SAR, and no run of it is ever compared with another run (<code>WF-2.md</code>, reason (a)).
+- <code>mri:9</code> (<code>EX-93</code>) runs each of <code>WF-1</code>'s two files <strong>once</strong> through <code>cli.main</code> and reads <code>summary.json</code> against the records (<code>09_study_from_yaml.py:131–157</code>). No two bundles are compared.
+- <code>mri:13</code> (<code>EX-97</code>) compares <code>cli.main</code>'s temperature block with <code>run_study_file</code>'s at <code>L0_BAND</code> (<code>13_temperature_from_yaml.py:24–25</code>). That is the floating half of (R) on a thermal summary. It has no deterministic-key layer, no hash plant and no Touchstone.
+- <code>mri:21</code> (<code>EX-115</code>) shows file equals memory, bitwise, for the <code>tune</code> block only ((I=), <code>21_femem_run_tune_section.py:13–14</code>). That is (F) on one block of one run.
+- <code>mri:15</code> prints the <code>sha256</code> of its <strong>input</strong> records (<code>15_figures_from_records.py:49</code>, <code>:268</code>). It does not hash or diff a run's bundle.
+- <code>mri:22</code> runs presets and reads one summary (<code>22_presets_priced_then_run.py:169–186</code>).
+- <code>ports:4</code> and <code>ports:5</code> contain no <code>manifest</code>, <code>sha256</code> or <code>run_study_file</code> (grep empty).
+- <strong>The angle (output quantity: the bundle manifest and its diff).</strong> This is the first example that writes <strong>two bundles of one study file</strong> and diffs them key by key at two layers:
+  - the deterministic layer, bitwise: summary keys, Touchstone header lines and the key set;
+  - the floating layer, at <code>L0_BAND</code>: S, and the parsed Touchstone.</p>
+<p>It then plants a changed degree, a P1↔P2 swap and a one-ULP σ config, and shows which layer catches each one. In particular, the hash catches a config change that the floats cannot see. The diff itself is the example's output, written as a CSV table beside the XDMF.</p>
+<h3 id="9-item-504-2026-10-16-example-54-ramp-example-runner">§9 item 504 — 2026-10-16 (example, §5.4 ramp; example-runner)<a class="headerlink" href="#9-item-504-2026-10-16-example-54-ramp-example-runner" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-16 18:00 daily review; the review reviews it.</em> <strong>This brief sets and moves no band, tolerance, record, Done-when of another chunk or validation target.</strong> Every band and comparator is imported from the item-346 gate module, which imports them from <code>tests/validation/</code>.</p>
+<p><strong>Executor:</strong> <code>example-runner</code>; it does not spawn agents. <strong>Class:</strong> example. <code>EX-126</code> (<code>mri:27</code>; the runner selects <code>mri:&lt;n&gt;</code> with the <code>%02d_*.py</code> glob in <code>scripts/run_examples.sh:206–210</code>; <code>mri:</code> sources the complex build; no runner edit) adds four tracked files and edits nothing else:
+- <code>examples/mri/27_femem_run_bundle_reproducible.py</code>;
+- <code>examples/mri/27_femem_run_bundle_reproducible_sigma_ulp.yaml</code>, the (c4) control. It is <code>tests/package/wf1/f_small_four_port.yaml</code> byte for byte except for two lines: the comment line (<code># EX-126 (mri:27): control (c4), f_small_four_port.yaml with the phantom sigma one ULP up.</code>) and <code>sigma: 0.5000000000000001</code> (= <code>repr(np.nextafter(0.5, 1.0))</code>). It sits beside the script, as <code>mri:9</code> / <code>mri:13</code> keep their YAMLs;
+- the same-stem guide <code>examples/mri/27_femem_run_bundle_reproducible.md</code>, with <code>## 1. What this demonstrates</code>, <code>## Setup figure</code>, <code>## 2. How to run it</code>, <code>## 3. How to analyze it, step by step</code> and <code>## Related</code> (<code>mri:21</code>'s order, <code>21_femem_run_tune_section.md:6</code>, <code>:85</code>, <code>:96</code>, <code>:110</code>, <code>:180</code>);
+- <code>examples/mri/figures/mri_27_femem_run_bundle_reproducible_setup.png</code>, ≤ 600 KiB (<code>mri:8</code>'s F-small figure is 410 KiB).</p>
+<p><strong>Collision check (the executor repeats it before writing).</strong> <code>ls examples/mri/27_*</code> is empty. No §7 row or chunk file other than this one names <code>EX-126</code> or <code>mri:27</code> (checked at drafting; <code>mri:24</code> is the highest file on <code>main</code>). If <code>25_</code> / <code>26_</code> are absent when the slot starts, the gap is harmless (the runner selects by number). If <code>27_</code> is taken, stop and report. Never renumber in-slot.</p>
+<p><strong>Output location (gitignored).</strong> Every bundle goes under <code>examples/mri/paraview_output/</code> (<code>.gitignore:63</code> <code>paraview_output/</code>), in fresh directories <code>mri_27_run_a</code>, <code>mri_27_run_b</code> and <code>mri_27_run_c</code> (<code>mri:21</code>'s <code>RUN_DIR</code> form, <code>21_femem_run_tune_section.py:77</code>). Every <code>cli.main</code> call passes <code>--output-dir</code>. Never write under <code>logs/wf2/</code>: those are the gate's bundles. Never omit <code>--output-dir</code>: the default <code>./femem_out/&lt;stem&gt;</code> (<code>study_yaml.py:1143–1147</code>) is <strong>not</strong> gitignored and would dirty the tree at the repo root.</p>
+<p><strong>Imports (never restated).</strong>
+- <code>import tests.package.test_wf2_bundle_reproducible as g</code> and use: <code>_same</code> (<code>:65–75</code>), <code>_bitwise_flags</code> (<code>:78–87</code>), <code>DETERMINISTIC</code> (<code>:54</code>), <code>KEYSET</code> (<code>:55</code>), <code>GENERATED_PREFIX</code> (<code>:56</code>), <code>_s</code> / <code>_z</code> (<code>:90–95</code>), <code>_load</code> (<code>:102–104</code>), and its re-exports <code>L0_BAND</code>, <code>_record</code>, <code>_rel</code>, <code>BIRDCAGE_FILE</code>, <code>_fresh_dir</code>, <code>_rc_all</code>, <code>ANS4_EXACT_STRIP_RECORD_RANK_WIDTH</code>, <code>cli</code>, <code>run_study_file</code>, <code>load_touchstone</code>.
+  - <strong>Never</strong> call <code>g._two_runs</code> (<code>:107–129</code>): it hard-codes <code>logs/wf2</code>. <strong>Never</strong> call <code>g._assert_d_and_f</code> (<code>:132–157</code>), or any <code>test_*</code> name.
+  - The Touchstone header filter <code>_hdr</code> is a closure inside the gate's test (<code>:296–297</code>). Copy its two lines with a provenance comment. It excludes by the exact prefix <code>g.GENERATED_PREFIX</code>, never by "all comment lines".
+- <code>from tests.package.test_wf1_study_yaml import _spec_diff</code> (<code>:145–154</code>); <code>from fem_em_solver import load_study</code>.
+- <code>ANS4_EXACT_STRIP_CELL_RECORD</code> from <code>tests.validation.test_ops61_exact_strip_ports</code> (<code>:64</code>), as <code>mri:8</code> imports it (<code>08_study_four_port_birdcage.py:83–84</code>).
+- Assert <code>g.L0_BAND is tests.validation.test_mat5_em_coupled_sphere.L0_BAND</code> and <code>g._record is tests.package.test_wf16_study_four_port._record</code>.
+- From <code>src</code>: <code>write_setup_figure</code>, <code>write_xdmf_with_tags</code>, <code>adopt_host_ownership</code>, <code>report_peak_rss</code> (<code>fem_em_solver.utils.instrumentation:92</code>).
+- Insert <code>_REPO_ROOT</code> into <code>sys.path</code>. Raise if <code>default_scalar_type</code> is not complex.
+- Record digits go only into an example-local <code>REC</code> dict, each entry commented with its <code>log:line</code>.</p>
+<p><strong>Structural asserts at start-up (parse only, no mesh).</strong>
+- <code>comm.size == g.ANS4_EXACT_STRIP_RECORD_RANK_WIDTH</code>.
+- <code>base = load_study(g.BIRDCAGE_FILE)</code> with <code>base.degree == 1</code> and <code>base.conductor is None</code>.
+- <code>ctrl = load_study(CONTROL_YAML)</code> with <code>_spec_diff(ctrl, base) == ["material.sigma"]</code> and <code>ctrl.material.sigma == float(np.nextafter(base.material.sigma, 1.0))</code>. This is <code>WF-1</code> (c1)'s parse-half form (<code>tests/package/test_wf1_study_yaml.py:216–222</code>), here on the four-port file.
+- <code>CONTROL_YAML.read_bytes() != g.BIRDCAGE_FILE.read_bytes()</code>, and the two files' line lists differ at exactly two indices (the comment and <code>sigma:</code>).</p>
+<p><strong>Record checks (the 2026-10-14 10:30 ruling's form, as <code>EX-120</code> adopted it).</strong>
+- <strong>Exact (deterministic, cross-process):</strong>
+  - run_a's <code>sha256</code> = <code>REC["sha256"]</code> = <code>7820a305…a4f7</code> (W2 <code>:3688</code>), the full 64-character string in <code>REC</code>;
+  - <code>cells == ANS4_EXACT_STRIP_CELL_RECORD</code> (117 206, W2 <code>:3686</code>);
+  - the Touchstone header (bar <code>generated_utc</code>) has 5 lines (<code>:3693</code>), with exactly one <code>generated_utc</code> line per file.
+- <strong>At a relative <code>10^-(d−2)</code>, d = printed significant digits:</strong>
+  - (c1) 0.0495 (<code>:3694</code>), d = 3 ⇒ 1e-1;
+  - (c2) 0.2492 (<code>:3695</code>), d = 4 ⇒ 1e-2;
+  - cond(I − S_a) 1.928e+01 (<code>:3692</code>), d = 4 ⇒ 1e-2.
+- <strong>Excluded</strong> (round-off readings, asserted at their band only and printed beside their line): (R) 5.010e-16 (<code>:3690</code>), (X) 9.557e-11 (<code>:3691</code>), (T) parsed 5.521e-14 (<code>:3693</code>), and Z 5.628e-16 (<code>:3692</code>, printed only, as in the gate). A record off by more than its tolerance stops the item.</p>
+<p><strong>(1) Anchor (item 346's gate on this file, imported comparator).</strong> Use <code>t_start = time.time()</code>. <code>g._fresh_dir</code> each of <code>run_a</code> and <code>run_b</code> (assert the two paths are distinct). Then:
+- run_a: <code>rc = g.cli.main(["run", str(g.BIRDCAGE_FILE), "--output-dir", str(DIR_A)])</code> with <code>g._rc_all(rc, comm) == (0, 0)</code>;
+- run_b: <code>run_b = g.run_study_file(g.BIRDCAGE_FILE, output_dir=DIR_B, comm=comm)</code>, as the gate splits them (<code>:115–119</code>), so that run_b's in-memory summary exists;
+- assert each <code>summary.json</code>'s mtime &gt; <code>t_start</code>;
+- read <code>a = g._load(DIR_A / "summary.json")</code> and <code>b = …</code>, on every rank, after the call returns.</p>
+<p>Then assert:
+- <strong>(D) Deterministic layer, bitwise.</strong> <code>g._bitwise_flags(a, b) == set()</code> (covers <code>DETERMINISTIC</code> + <code>touchstone</code>); <code>set(a) == set(b)</code>; <code>a["sha256"] == b["sha256"] == hashlib.sha256(g.BIRDCAGE_FILE.read_bytes()).hexdigest()</code>; <code>a["ranks"] == g.ANS4_EXACT_STRIP_RECORD_RANK_WIDTH</code>, <code>a["degree"] == 1</code>, <code>a["touchstone"] == "f_small_four_port.s4p"</code>. Plus the exact records above.
+- <strong>(F) File equals memory, bitwise.</strong> <code>writer = comm.bcast(run_b.summary if comm.rank == 0 else None, root=0)</code>, then <code>g._same(b, writer)</code>, the gate's fixed form (<code>:142–143</code>). Print the per-rank keys where the local <code>run_b.summary</code> differs from the file (predicted <code>[[], ['elapsed_s']]</code>, <code>:3687</code>).
+- <strong>(R) Floating layer.</strong> <code>g._rel(g._s(b), g._s(a)) ≤ g.L0_BAND</code>. Predicted ≈ 1e-15 (backing 5.010e-16, <code>:3690</code>).
+- <strong>(X) Against the earlier process's record.</strong> <code>g._rel(g._s(a), g._record(1)) ≤ g.L0_BAND</code>, and the same for <code>b</code>. Predicted 9.557e-11 on both (<code>:3691</code>).
+- <strong>(T) Touchstone.</strong> Use <code>DIR_A / a["touchstone"]</code> and <code>DIR_B / …</code>:
+  - header lines bar <code>GENERATED_PREFIX</code> bitwise equal, with <code>len &gt; 0</code>;
+  - one <code>generated_utc</code> line each;
+  - no <code>PLACEHOLDER</code> in either file;
+  - the two <code>load_touchstone</code> matrices within <code>g.L0_BAND</code>;
+  - example-side, the parsed run_a matrix against <code>g._s(a)</code> within <code>g.L0_BAND</code>. Predicted ≈ 5e-14, the file's print precision; the gate's (T) parsed rel read 5.521e-14 between two files (<code>:3693</code>).
+- <strong>Printed only:</strong> both <code>elapsed_s</code> and wall times; Z rel(b, a) beside cond(I − S_a) (the gate's ruling (4)); every reading ÷ <code>L0_BAND</code>.</p>
+<p><strong>(2) Negative controls (rule (e) labels).</strong>
+- <strong>(c1) Degree plant, asserted, backed.</strong> <code>plant = copy.deepcopy(b)</code>, set <code>plant["degree"] = 2</code> and <code>plant["s_matrix"] = [[[z.real, z.imag] for z in row] for row in g._record(2)]</code> (the gate's <code>:321–325</code>). Assert <code>g._bitwise_flags(a, plant) == {"degree"}</code> and <code>g._rel(g._s(plant), g._s(a)) &gt; g.L0_BAND</code>. Backing: 0.0495 = 4.95 × 10⁷ × the band (<code>:3694</code>), same comparison, fixture and width.
+- <strong>(c2) P1↔P2 swap, asserted, backed.</strong> <code>perm = [1, 0, 2, 3]</code>; <code>g._rel(g._s(b)[np.ix_(perm, perm)], g._s(a)) &gt; g.L0_BAND</code>. Backing: 0.2492 (<code>:3695</code>). The bitwise layer is blind to this plant <strong>by construction</strong>: the swap edits no deterministic key. Print <code>g._bitwise_flags(a, swapped_summary) == set()</code> and say so in the guide. That is why the bundle needs both layers.
+- <strong>(c4) One-ULP σ config, one extra solve.</strong> <code>g._fresh_dir(DIR_C)</code>; <code>rc = g.cli.main(["run", str(CONTROL_YAML), "--output-dir", str(DIR_C)])</code>; <code>(0, 0)</code>; mtime &gt; <code>t_start</code>; <code>c = g._load(…)</code>.
+  - <strong>Asserted, true by construction (the gate's (c4) form, <code>:259–260</code>, adapted):</strong> <code>c["sha256"] != a["sha256"]</code>; <code>c["sha256"] == hashlib.sha256(CONTROL_YAML.read_bytes()).hexdigest()</code>; <code>g._bitwise_flags(a, c) == {"source", "sha256", "touchstone"}</code>.
+    - <strong>Why three keys, not the gate's two.</strong> <code>_bitwise_flags</code> compares <code>touchstone</code> whenever both summaries carry it (<code>:83–86</code>). The <code>.s4p</code> is named after the study file's stem (<code>study_yaml.py:1199</code>), and the control file has its own stem, so <code>touchstone</code> differs by name. The sphere control in the gate wrote no Touchstone, so its set was <code>{source, sha256}</code> (W1 <code>:287</code>).
+    - <strong>What the set shows.</strong> <code>cells</code>, <code>degree</code>, <code>frequency_hz</code>, <code>ranks</code>, <code>family</code> and <code>femem</code> are all equal. <code>source</code> and <code>touchstone</code> record only <em>where</em> the file is and what it is called. <strong><code>sha256</code> is the only key derived from the file's content, and it is the one that sees the σ change.</strong> The guide says this in these terms.
+    - Never loosen the assertion to a subset or superset test.
+  - <strong>Predicted, printed only:</strong> <code>g._rel(g._s(c), g._s(a))</code>, predicted ≤ 1e-12 and therefore below <code>L0_BAND</code>: the float layer is blind. The basis is a 2⁻⁵³ relative change in σ plus the 5.010e-16 drift. It is unmeasured on this fixture; the sphere analogue read 7.566e-12 (W1 <code>:288</code>). Also print the Touchstone header (bar <code>generated_utc</code>) of <code>c</code> against <code>a</code>. It is predicted equal: the header carries port order, frequency and z0 only (<code>ports/touchstone.py:177–181</code>), so the <code>.s4p</code> header is blind too.
+- <strong>(c3) Key plants on the real run_b summary, asserted, true by construction</strong> (the gate ran them on a synthetic dict, W1 <code>:64</code>). On copies of <code>b</code>:
+  - <code>cells</code> + 1 is flagged as exactly <code>{cells}</code>;
+  - one hex digit of <code>sha256</code> changed is flagged as exactly <code>{sha256}</code>;
+  - a deleted <code>ranks</code> is flagged as exactly <code>{g.KEYSET}</code>;
+  - a changed <code>elapsed_s</code> is flagged as <code>set()</code> (wall clock is excluded by design).
+- <strong>(c5) Resolution plant, asserted, now backed.</strong> <code>g._rel(g._s(b) * (1 + 1e-8), g._s(a)) &gt; g.L0_BAND</code>. Backing: 1.000e-08 = 10.00 × the band (<code>:3696</code>). The gate printed it as a prediction; it is the same arithmetic on the same fixture, now measured. The ceiling is not relevant (the reading is arithmetic, ≈ 1e-8).</p>
+<p>No <code>PREDICTED RED:</code> line. A red anywhere stops the slot.</p>
+<p><strong>Output.</strong>
+- <strong>The diff table</strong> <code>examples/mri/paraview_output/mri_27_femem_run_bundle_reproducible_diff.csv</code>, written by rank 0 after every assertion. It has one row per summary key in <code>set(a) | set(c)</code>, plus one row per Touchstone header line. The columns are:
+  - <code>key</code>;
+  - <code>layer</code> (<code>deterministic</code> / <code>floating</code> / <code>wall_clock</code>);
+  - <code>a_vs_b</code> (<code>equal</code>, or the rel at 4 significant digits);
+  - <code>a_vs_c4</code>;
+  - <code>flagged_by</code> (which of (c1)–(c5) flag this key, or empty).</p>
+<p>It holds no S, Z or matrix entry, only rels and flags.
+- <strong>Setup figure</strong> on <code>run_b.result.mesh</code> / <code>run_b.result.cell_tags</code>, with <code>mri:8</code>'s call (<code>08_study_four_port_birdcage.py:127–148</code>): air hidden, phantom translucent, <code>slice_normal=(0, 0, 1)</code>, and the tag list gathered with <code>allgather</code> as there. Title ≤ 130 characters, e.g. "mri:27 -- two femem runs of one file: the F-small four-port bundle diffed (WF-2)". Over 600 KiB ⇒ re-render once with <code>show_edges_on_slice=False</code>.
+- <strong>Combined XDMF</strong> <code>examples/mri/paraview_output/mri_27_femem_run_bundle_reproducible_combined.xdmf</code>, written as <code>write_xdmf_with_tags(OUTPUT_DIR / f"{BASENAME}_combined", msh, run_b.result.cell_tags, {"owner_rank": r}, comm=comm)</code>, then <code>adopt_host_ownership(OUTPUT_DIR, comm=comm)</code>.
+  - <code>r</code> is a DG0 Function named <code>owner_rank</code>, whose owned cells hold <code>comm.rank</code> (real part; <code>scatter_forward</code>). It is the partition behind the bundle's <code>ranks: 2</code>.
+  - The guide labels it "the partition this run used", not a reproducibility claim. Its partition is not compared across runs.
+  - No field solve: <code>PortStudyResult.fields</code> is <code>None</code> (<code>study.py:660</code>), and <code>mri:8</code> already shows the P1 field.
+- <strong>Guide.</strong> <code>## Related</code>, by full filename:
+  - examples: <code>examples/mri/09_study_from_yaml.md</code> first, then <code>examples/mri/21_femem_run_tune_section.md</code>, <code>examples/mri/13_temperature_from_yaml.md</code> and <code>examples/mri/08_study_four_port_birdcage.md</code>;
+  - tests: <code>tests/package/test_wf2_bundle_reproducible.py</code> and <code>tests/package/test_wf1_study_yaml.py</code>.</p>
+<p>The guide explains:
+  - what the bundle is;
+  - the two layers and why <code>-n 2</code> MUMPS is not bitwise run to run (known-issues "Second fixture (2026-09-29)" row), so solve output is never compared bitwise;
+  - why <code>elapsed_s</code> and <code>generated_utc</code> are excluded;
+  - the table of plant × layer: (c1) is caught by both layers, (c2) by floats only, (c4) by the hash only;
+  - that the <code>sha256</code> / <code>cells</code> equality with a week-old log is the deterministic layer's cross-process check, on one image (an image change moves <code>cells</code>, which is the record-reconciler's job, not a reproducibility failure).</p>
+<p>How to use the diff CSV: open it in a spreadsheet and filter <code>layer</code>. ParaView: colour by <code>owner_rank</code>, threshold <code>CellTags</code>. State plainly: one fixture, degree 1, <code>-n 2</code>, one image, in-process <code>cli.main</code>; <strong>not a cross-width, cross-machine, degree-2 or physics claim</strong>. One sentence in <code>## 2</code>: <code>./scripts/run_examples.sh -e mri:27 -n 2 -t 420</code>, heavy by ceiling, the measured wall time. Write <code>≈</code>, never a tilde.
+- <strong>Docrefs (the <code>EX-115</code> item 477 lesson).</strong> The checker reduces every <code>.xdmf</code> / <code>.h5</code> / <code>.bp</code> / <code>.csv</code> / <code>.json</code> / <code>.png</code> / <code>.msh</code> token to its basename (<code>scripts/testing/check_example_doc_references.py:116</code>).
+  - <strong>The guide never writes <code>summary.json</code>.</strong> It lives in a run subdirectory and would read as dead. Say "the run's JSON summary" (<code>mri:21</code>'s phrase, <code>21_femem_run_tune_section.md:11</code>). Say "the <code>.s4p</code>", never its filename.
+  - The only output files the guide names are the combined XDMF, its <code>.h5</code>, the diff CSV and the setup PNG.
+  - Before the census windows, <code>grep -nE "summary\.json|\.(json|msh|bp|s1p|s4p)\b" examples/mri/27_femem_run_bundle_reproducible.md</code> must print only bare-extension mentions (<code>`.s4p`</code>), no filename.</p>
+<p><strong>(3) Tier, ranks, measured cost.</strong> Heavy by ceiling, <code>-n 2</code> (<code>g.ANS4_EXACT_STRIP_RECORD_RANK_WIDTH</code>, asserted), complex build. The runner takes <code>-t 420</code> (<code>mri:21</code>'s) and the container <code>timeout -k 30 420</code>. Every window is under 10 min, so the plain runner form is used and no durable capture is needed (§5.1).
+- <strong>Price basis:</strong>
+  - each four-port CLI run ≈ 36.8 s (<code>:3686</code>; mesh + sweep at 117 206 cells);
+  - three runs ≈ 110 s;
+  - start-up / import / JIT / prints ≈ 12 s (<code>EX-120</code>'s);
+  - setup figure (flagged run only) ≈ 15 s;
+  - DG0 + XDMF ≈ 2 s;
+  - the plants and the parse-only checks &lt; 1 s.
+- <strong>Flagged run predicted ≈ 140 s, range [100, 260] s; control ≈ 125 s, range [90, 240] s.</strong>
+- <strong>Memory:</strong> ≈ 2–4 GiB summed (<code>EX-120</code>'s 80 798-cell hole read 1.75 GiB). <code>report_peak_rss</code> is printed; &gt; 8 GiB is reported.
+- <strong>Cost:</strong> ≈ 8.8 measured (example class median) / ≈ 42 predicted min: 10 fixed + ≈ 12 script + ≈ 7 windows (two ≈ 2.5 min runs, dry run, four censuses) + ≈ 6 guide + ≈ 4 leak guard / commit + ≈ 3 spare.
+- <strong>Park if window 3 has not started by minute 28, or window 4 by minute 37</strong> (rule (d)).
+- <strong>Depends on:</strong> nothing open. Item 346 is on <code>main</code>. Never run beside another heavy window.
+- <strong>Shared files.</strong> Four new paths; nothing under <code>tests/</code> or <code>src/</code>. <strong>If anything under <code>tests/</code> or <code>src/</code> turns out to be needed, stop and report; do not edit it.</strong></p>
+<p><strong>Windows.</strong> Each runs in the foreground with Bash <code>timeout: 660000</code>, as one bare, whole, repo-relative harness call.
+0. Orphan check: <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0.
+1. <strong>Pre-censuses, before any file is written:</strong>
+   - <code>scripts/testing/run_and_log.sh EX-126-pre-figures "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_setup_figures.py'"</code>
+   - <code>scripts/testing/run_and_log.sh EX-126-pre-docrefs "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py'"</code></p>
+<p>Last readings on <code>main</code>: <code>examples=119 ok=119 missing=0 broken=0</code> (<code>20261016T184441Z_EX-122-post-figures.log:155</code>) and <code>dead=0 guide=0 stale=129</code> exit 2 (<code>20261016T184443Z_EX-122-post-docrefs.log:169</code>). Use whatever the pre-census reads: items queued beside this one may land first. Exit 2 is staleness information; exit 1 is a failure.
+2. <strong>Dry run</strong>, after the script exists: <code>scripts/testing/run_and_log.sh EX-126-dryrun "./scripts/run_examples.sh -e mri:27 -n 2 -t 420 --dry-run"</code>. It must print <code>(complex build)</code>. Copy its string for windows 3–4, adding only <code>-T</code> (and the flag in window 3).
+3. <strong>Run of record (flagged)</strong>, predicted ≈ 140 s, range [100, 260] s. Its form: <code>scripts/testing/run_and_log.sh EX-126 'docker compose exec -T -e FEM_EM_SETUP_FIGURES=1 fem-em-solver bash -lc "cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src timeout -k 30 420 mpiexec -n 2 python3 examples/mri/27_femem_run_bundle_reproducible.py"'</code>. Pass requires all of:
+   - Status 0;
+   - the structural asserts, (D), (F), (R), (X), (T), (c1)–(c5) green;
+   - the records as above;
+   - the closing "All assertions hold" line.
+4. <strong>Control:</strong> <code>git add</code> the PNG that window 3 wrote, then run the same line without the flag, label <code>EX-126-control</code>. It re-runs all three solves in a fresh process into fresh directories.
+   - Compare its readings with window 3's at the bands, never bitwise across runs (rule (j)).
+   - <strong>Read and quote</strong> (not asserted across windows): the two logs' <code>sha256</code>, <code>cells</code> and five header lines are character-identical with each other and with W2 <code>:3686</code> / <code>:3688</code> / <code>:3693</code>. That makes three processes, a week apart.
+5. <strong>The guide</strong>, written from window 3's log. Then the docrefs grep above, then <code>EX-126-post-figures</code> / <code>EX-126-post-docrefs</code> (window 1's commands with these labels).
+   - <strong>Prediction first:</strong> figures N → N + 1 with <code>missing=0 broken=0</code>; docrefs <code>dead=0</code>, exit ≠ 1.
+   - Any dead reference naming <code>mri_27_*</code> or <code>27_femem_run_bundle_reproducible.md</code> fails the item.
+6. <code>git status --porcelain examples/ tests/ src/</code> lists exactly the four new <code>examples/</code> paths. No <code>femem_out/</code> anywhere, and nothing under <code>logs/wf2/</code> touched.
+7. The pre-commit leak guard (<code>scripts/testing/check_private_leak.py</code>) on the staged logs.</p>
+<p><strong>(4) Traps already paid for.</strong>
+- <strong>(F) on rank-local memory deadlocks.</strong> The first <code>WF-2</code> W1 compared each rank's own <code>StudyRun.summary</code> with rank 0's file. Rank 1's <code>elapsed_s</code> differs by design, so its <code>assert f_eq</code> failed while rank 0 waited in the next collective: 1 failed / 5 passed, then Status 124 at the 180 s ceiling (<code>20261009T052650Z_WF-2-W1-sphere.log:223–238</code>). Compare the file against the <strong>writer's</strong> summary, broadcast (<code>:142</code>), on every rank. Every assertion is evaluated on every rank from the same file. No assertion sits inside a <code>rank == 0</code> branch, and no collective either (the <code>EX-115</code> item 456 crash).
+- <strong>Stale bundles pass vacuously.</strong> <code>g._fresh_dir</code> every output directory before its run, assert the directories are distinct, and assert each <code>summary.json</code>'s mtime &gt; <code>t_start</code> (the gate's <code>:111–123</code>). Never reuse <code>logs/wf1/</code> or <code>logs/wf2/</code>.
+- <strong>Rank 0 writes, then <code>Barrier</code>.</strong> Read <code>summary.json</code> only after <code>cli.main</code> / <code>run_study_file</code> returns. Reduce <code>rc</code> with <code>g._rc_all</code>.
+- <strong>No solve output is compared bitwise.</strong> <code>-n 2</code> MUMPS is not bitwise run to run (known-issues "Second fixture (2026-09-29)" row). Bitwise applies to deterministic keys, header lines and file-vs-memory only.
+- <strong><code>generated_utc</code> is excluded by its exact prefix</strong> <code>g.GENERATED_PREFIX</code>, never by "all <code>!</code> lines". The header filter is copied, not re-invented.
+- <strong>(c4)'s flag set is <code>{source, sha256, touchstone}</code>, not the gate's <code>{source, sha256}</code>.</strong> <code>_bitwise_flags</code> includes <code>touchstone</code> whenever either summary has it (<code>:83</code>), and the control's <code>.s4p</code> is named after its own stem (<code>study_yaml.py:1199</code>). Copying the sphere gate's two-key set turns (c4) red on a correct run. Never loosen it to a subset test.
+- <strong>Always pass <code>--output-dir</code>.</strong> The default <code>./femem_out/&lt;stem&gt;</code> is not gitignored. An untracked file on <code>main</code> cost a slot on 2026-09-28.
+- <strong>Import bands and records; never restate them:</strong> <code>L0_BAND</code>, <code>_record</code>, <code>_rel</code>, <code>ANS4_EXACT_STRIP_RECORD_RANK_WIDTH</code>, <code>ANS4_EXACT_STRIP_CELL_RECORD</code>. <code>LEG_D0_REPRODUCTION_BAND</code> equals <code>L0_BAND</code> by value, but the licence names <code>L0_BAND</code> (<code>WF-2.md:99</code>), so use <code>L0_BAND</code>.
+- <strong>The private-leak guard (<code>EX-112</code>).</strong> The F-small four-port S has private AED counterparts (<code>ANS-4</code>). Print every new value at ≤ 6 significant digits, and never print S, Z or a Touchstone data line with <code>repr</code> or whole. Header lines (port order, frequency, z0) and the <code>sha256</code> hex are safe and are printed. If the guard fires: never bypass it and never edit a log. Move the flagged logs unchanged into <code>logs/leak-held/</code>, commit the rest, mark item 504 BLOCKED, journal the <code>log:line</code> (never the figure), and stop.
+- <strong>The complex build.</strong> <code>.x.array</code> is complex: assign <code>owner_rank</code> as a complex-typed value with zero imaginary part, then <code>scatter_forward</code>. Name the Function (<code>EX-79</code>). Never use <code>cell_tags.values</code> for a count (it is rank-local); <code>cells</code> comes from the summary.
+- <strong>Subscripts (the <code>EX-114</code> <code>KeyError: -1</code>).</strong> <code>summary["s_matrix"]</code> is a list of rows of <code>[re, im]</code> pairs; use <code>g._s</code>, never index it by hand. <code>REC</code> is a dict; no negative index on a mapping. The output section runs after every assertion, so a subscript defect there costs the slot.
+- <strong>Harness shape.</strong> Bare, whole command. <code>./scripts/run_examples.sh</code> is host-side, emitted with <code>--dry-run</code>, never wrapped in <code>docker compose exec</code>. A docker-socket denial ⇒ stop and report the exact string. Never raise a timeout or <code>-n</code>. After a kill, run <code>pgrep -c python3</code> first, and only at 0 run the orphan-<code>.c</code> cache sweep (daily-review.md rubric item 4) labelled <code>EX-126-cache-sweep</code>.
+- <strong>Rule (i):</strong> no script or control-YAML edit after window 3 starts, no guide edit after window 5 starts; check mtimes before committing.</p>
+<p><strong>(5) Scope.</strong> One fixture: <code>WF-1</code>'s F-small four-port file (exact rectangles, κ off, degree 1, 64 MHz, 117 206 cells), <code>-n 2</code>, one image, in-process <code>cli.main</code> / <code>run_study_file</code>, plus one one-ULP σ variant of it. <strong>Not claimed</strong> (<code>WF-2</code>'s "Not claimed", held):
+- reproduction across widths (<code>-n 1</code> against <code>-n 2</code>), across machines or across images;
+- degree 2;
+- the sphere bundle and its SAR (the gate's W1 carries that half; this example demonstrates S only);
+- the <code>mri:1</code> example manifest (<code>_write_output_manifest</code>): its retire-or-rewire question (<code>WF-2.md</code> ruling Q2) stays the weekly's;
+- Z reproduction (printed only);
+- the thermal summary;
+- the installed <code>femem</code> console script or <code>femem run --ranks</code>;
+- any bundle-comparison <strong>package API</strong>: the comparator stays test-side and is imported. Promoting it is Phase 9 work for the weekly;
+- the physics or accuracy of S (<code>ANS-4</code> / <code>PORT-11</code>);
+- the partition in the XDMF as reproducible.</p>
+<p><code>WF-2</code>, <code>WF-1</code> and <code>ANS-4</code> do not move.</p>
+<p><strong>(6) Negative result.</strong> Report and stop. Journal in <code>docs/testing/attempts.md</code>, park on <code>attempt/EX-126-&lt;UTC&gt;</code>, and mark item 504 BLOCKED with the unblock condition in the same commit (rule (d)). <code>EX-126</code> stays ⬜. Never widen a band, never edit <code>tests/</code> or <code>src/</code>, never re-record from the example side.
+- <strong>(R), (X) or (T) red (a floating miss):</strong> this contradicts the same-fixture readings 5.010e-16 / 9.557e-11 / 5.521e-14. Print the reading. File a known-issues entry beside the "Second fixture (2026-09-29)" determinism row, keeping both bundles under <code>examples/mri/paraview_output/</code>. The review decides whether <code>WF-2</code> needs a re-audit.
+- <strong>(D) red, or <code>sha256</code> / <code>cells</code> off their records:</strong> a <code>sha256</code> difference between two runs of one unchanged file is a hashing defect. A <code>cells</code> difference between the two runs is meshing non-determinism; open a known-issues entry. <code>cells</code> equal between runs but ≠ <code>ANS4_EXACT_STRIP_CELL_RECORD</code> is an image or mesher change; stop, and the review routes it to <code>record-reconciler</code>. A <code>sha256</code> ≠ W2 <code>:3688</code> with the file unchanged since <code>c8d3a532</code> is a hashing defect; with the file changed, it is a stale record, and the review rules on it.
+- <strong>(F) red:</strong> the writer's memory and its own file disagree. That is a JSON round-trip defect; known-issues entry.
+- <strong>A control that does not fire, or a (c4) flag set other than <code>{source, sha256, touchstone}</code>:</strong> a blind comparator or a wrong control file. Most likely the YAML changes more than σ, which the structural asserts should already have caught. Stop.
+- <strong>(c4) float rel above <code>L0_BAND</code>:</strong> a printed miss of a prediction, with no status effect. Report it. It would mean the four-port S is more σ-sensitive, or more drift-prone, than the sphere's 7.566e-12, and the guide's "the float layer is blind" sentence would then be wrong for this fixture. The review decides whether the guide may still say it.
+- <strong>Leak guard fires:</strong> BLOCKED as in Traps, not ✅.
+- <strong>A defect after every assertion is green</strong> (the <code>EX-114</code> shape): BLOCKED with the <code>log:line</code> and returned to the review; no in-slot fix after window 3.
+- <strong>Status 124, over 420 s, or past the park minutes:</strong> park with the last printed line. The shrink is the review's to make (drop the setup-figure render from the control first); never raise <code>-t</code>.</p>
+<p><strong>(7) Status it can move.</strong>
+- <code>EX-126</code> ⬜ → ✅ under the §7 Done-when the review pastes in the same commit as this item (rule (j)).
+- Census <code>examples</code> +1 (N → N + 1 from the pre-census) with <code>broken=0</code>; docrefs <code>dead=0</code>.
+- <code>WF-2</code> unchanged: its W1 / W2 records stand. No §2 sentence moves.
+- The §10 Phase 9 (9a / 9c) ramp gains its first example of the reproducible-bundle promise ("rerun it and diff"), which the weekly reads beside the open question of a package-side bundle comparator.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Use the example-runner agent to execute <code>EX-126</code>, §9 item 504 (<code>docs/planning/chunks/EX-126.md</code>, heading <code>§9 item 504</code>). Read the brief and any review ruling beneath it first; the rulings hold. You are the executor — do not spawn agents, and never background a harness window. Pass <code>timeout: 660000</code> on every Bash call that runs a harness window, run every window in the foreground, and never delete a log. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Before window 1, run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> and require 0, and confirm <code>examples/mri/27_*</code> does not exist. Run both pre-censuses before writing any file. Edit nothing under <code>tests/</code> or <code>src/</code>. Use <code>tests/package/wf1/f_small_four_port.yaml</code> in place; the only new YAML is the one-ULP σ control beside the script, differing from it in the comment line and <code>sigma:</code> only. Import the comparator from <code>tests.package.test_wf2_bundle_reproducible</code>; never call <code>_two_runs</code>, <code>_assert_d_and_f</code> or any <code>test_*</code> name. Pass <code>--output-dir</code> on every <code>cli.main</code> call, into fresh directories under <code>examples/mri/paraview_output/</code>; never write under <code>logs/wf1/</code>, <code>logs/wf2/</code> or <code>femem_out/</code>. Compare (F) against the writer's broadcast summary on every rank; put no assertion and no collective inside a <code>rank == 0</code> branch. Assert the (c4) flag set as exactly <code>{source, sha256, touchstone}</code> (the control's <code>.s4p</code> has its own stem), not the sphere gate's two-key set. Print every new value at ≤ 6 significant digits; never print S, Z or a Touchstone data line whole; if <code>check_private_leak.py</code> blocks a log, move it unchanged to <code>logs/leak-held/</code>, mark item 504 BLOCKED (not ✅) and stop. The guide never writes <code>summary.json</code> or an <code>.s4p</code> filename; it names only the combined XDMF, its <code>.h5</code>, the diff CSV and the setup PNG. Emit the runner line with <code>--dry-run</code> and pass it to the harness; never wrap <code>run_examples.sh</code> in <code>docker compose exec</code>. Make no edit to the script or the control YAML after window 3 starts, or to the guide after window 5 starts. If the docker socket is denied, stop and report the exact command string. Return the windows' log names, every asserted and printed value beside its record (log:line) or prediction, the <code>sha256</code> / <code>cells</code> / header lines from both runs quoted beside W2 <code>:3686</code> / <code>:3688</code> / <code>:3693</code>, the census before / after with the docrefs <code>dead=</code> list, peak memory and elapsed."</p>
+<h3 id="review-ruling-2026-10-16-1800-item-504-overrides-the-brief-where-they-differ">Review ruling 2026-10-16 18:00 (item 504; overrides the brief where they differ)<a class="headerlink" href="#review-ruling-2026-10-16-1800-item-504-overrides-the-brief-where-they-differ" title="Permanent link">&para;</a></h3>
+<p>(1) <strong>F-small four-port file accepted</strong> over the sphere (the <code>.s4p</code> layer and the P1↔P2 plant exist only there). (2) <strong>(c5) asserted</strong> (backed, W2 <code>:3696</code>); <strong>(c4)'s flag set is <code>{source, sha256, touchstone}</code>.</strong> (3) <strong>The one-ULP σ float reading is predicted, unbacked on this fixture — printed only;</strong> the guide states what was measured, and a "float layer is blind" sentence appears only if the printed reading supports it. (4) Every run passes <code>--output-dir</code> under the gitignored <code>examples/mri/paraview_output/</code>; the default <code>femem_out/</code> is not gitignored.</p>
+<p><strong>DONE 2026-10-17 (§9 item 504, 21:00 CDT slot; provisional until the weekly ratifies):</strong> <code>mri:27</code> complex, <code>-n 2</code>, flagged window 111 s (script 108.3 s; predicted ≈ 140 s, range [100, 260]), control 111 s; summed peak RSS 2.06 / 1.84 GiB. Solves 35.1 / 34.6 / 35.4 s (W2 <code>:3686</code> 36.8 s). (D) flags ∅, key sets equal, <code>sha256</code> <code>7820a305…a4f7</code> = recomputed = W2 <code>:3688</code>; cells 117206 = <code>ANS4_EXACT_STRIP_CELL_RECORD</code> (<code>EX-126.log:5479</code>, <code>:5482</code>). (F) file = writer's broadcast summary, per-rank local diffs <code>[[], ['elapsed_s']]</code> (<code>:5481</code>, <code>:5483</code>). (R) 1.183e-15 (W2 5.010e-16), (X) 9.557e-11 on both runs (W2 9.557e-11), Z printed 1.075e-15, cond(I − S_a) 19.28 (<code>:5484–5486</code>). (T) 5 / 5 header lines bitwise equal, one <code>generated_utc</code> each, no PLACEHOLDER, parsed rel(b, a) 0, parsed run_a vs summary 9.952e-14 (<code>:5487–5497</code>). (c1) <code>{degree}</code>, miss 0.04954 (W2 0.0495); (c2) miss 0.2492 (W2 0.2492), bitwise flags on the swap ∅; (c3) <code>{cells}</code> / <code>{sha256}</code> / <code>{&lt;keyset&gt;}</code> / ∅; (c4) control <code>sha256</code> <code>b9eba5c4…3ebd</code>, flags exactly <code>{sha256, source, touchstone}</code>, float rel(c, a) 2.467e-15 printed (≤ 1e-12 predicted; ruling (3) satisfied, so the guide's "float layer is blind" sentence is supported by the reading); (c5) 1e-08 = 10 × band (<code>:5498–5503</code>). Control window (<code>20261017T020430Z_EX-126-control.log:5469–5501</code>) green at the bands; its (R) and Z read exactly 0 (MUMPS bitwise that time, not relied on); <code>sha256</code> / cells / five header lines character-identical to window 3 and W2 — three processes, a week apart. Census: figures 120 → 121 <code>missing=0 broken=0</code> (<code>20261017T020725Z_EX-126-post-figures.log:157</code>); docrefs <code>dead=0 guide=0 stale=132</code> exit 2 (<code>…020726Z_EX-126-post-docrefs.log:172</code>). PNG 419 126 bytes. No <code>tests/</code> or <code>src/</code> edit. Logs: <code>20261017T020049Z_EX-126-pre-figures.log</code>, <code>…020052Z_EX-126-pre-docrefs.log</code>, <code>…020227Z_EX-126-dryrun.log</code>, <code>…020230Z_EX-126.log</code>, <code>…020430Z_EX-126-control.log</code>, <code>…020725Z_EX-126-post-figures.log</code>, <code>…020726Z_EX-126-post-docrefs.log</code>.</p>
+<h3 id="review-ruling-2026-10-17-0300-4-audit-pass">Review ruling 2026-10-17 03:00 — §4 audit: PASS<a class="headerlink" href="#review-ruling-2026-10-17-0300-4-audit-pass" title="Permanent link">&para;</a></h3>
+<p><code>auditor</code> PASS, re-cited by the review: <code>20261017T020230Z_EX-126.log</code> "All assertions hold. Total elapsed 108.3 s." <code>:5508</code>, Exit Status 0, Elapsed 111 s <code>:5510–5512</code>; control <code>…020430Z_EX-126-control.log:5503–5505</code> (Status 0, 111 s); <code>sha256</code> and cells 117206 equal to <code>20261009T053110Z_WF-2-W2-four-port.log:3684–3696</code>; asserts at <code>examples/mri/27_femem_run_bundle_reproducible.py:312–341</code>, bands imported by identity (<code>:121–123</code>); census 120 → 121 (<code>…020725Z_EX-126-post-figures.log:157</code>), docrefs <code>dead=0</code> exit 2. Notes, no status: the control's (R) and Z read exactly 0 (MUMPS bitwise that run; the gate does not rely on it); §9 item 504's stale NOT STARTED annotation is removed with its collapse.</p>
+<h2 id="7-row-moved-verbatim-2026-10-17-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-17 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-17-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p><strong>Two <code>femem run</code>s of one study file: the output bundle and its diff — deterministic keys bitwise, S within <code>L0_BAND</code>, and which layer catches each plant</strong> (<code>mri:27</code>; <code>example-runner</code>; opened 2026-10-16 18:00 daily, §5.4 ramp from <code>WF-2</code> (§9 item 346), §9 item 504; no example diffs two bundles — <code>mri:9</code> runs each file once, <code>mri:13</code> compares only a thermal block) <em>(history: <code>docs/planning/chunks/EX-126.md</code>)</em> <strong>Done-when:</strong> <code>examples/mri/27_femem_run_bundle_reproducible.py</code> + same-stem guide (three required headings + <code>## Setup figure</code> + <code>## Related</code>, PNG ≤ 600 KiB) + the one-ULP σ control YAML; complex, <code>-n 2</code>, <code>f_small_four_port.yaml</code> in place, three CLI runs into fresh gitignored dirs; no <code>tests/</code> or <code>src/</code> edit; comparator and bands imported from <code>test_wf2_bundle_reproducible</code>. Asserted beside <code>20261009T053110Z_WF-2-W2-four-port.log:3686–3696</code>: (D) flags ∅, <code>sha256</code> = recomputed = <code>:3688</code>, cells = <code>ANS4_EXACT_STRIP_CELL_RECORD</code>; (F) file = writer's memory; (R) / (X) / (T) ≤ <code>L0_BAND</code>; (c1) <code>{degree}</code> + miss; (c2) swap miss; (c3) key plants; (c4) <code>{source, sha256, touchstone}</code> (float layer printed); (c5) &gt; band. Output: diff CSV + combined XDMF (<code>owner_rank</code>, CellTags). Census +1, <code>broken=0</code>, docrefs <code>dead=0</code>, elapsed recorded ⇒ ✅. Not claimed: cross-width / cross-image reproduction, degree 2, the sphere SAR bundle, the <code>mri:1</code> manifest, Z, a bundle-diff API, S physics. | ✅ 2026-10-17 (§9 item 504): complex, <code>-n 2</code>, 111 s (flagged) / 111 s (control), summed RSS 2.06 GiB; (D) flags ∅, <code>sha256</code> = recomputed = W2 <code>:3688</code>, cells 117206 = record; (F) True, per-rank <code>[[], ['elapsed_s']]</code>; (R) 1.183e-15, (X) 9.557e-11 both, (T) 5/5 headers equal, parsed rel 0, parsed vs summary 9.952e-14 (band 1e-9); (c1) <code>{degree}</code> + 0.04954, (c2) 0.2492 (bitwise blind), (c3) planted, (c4) <code>{sha256, source, touchstone}</code> with float rel 2.467e-15 printed (below band — the float layer is blind), (c5) 1e-08; control window green, <code>sha256</code> / cells / headers character-identical; figures 120 → 121 <code>missing=0 broken=0</code>, docrefs <code>dead=0</code> exit 2 (<code>20261017T020230Z_EX-126.log</code>, <code>…020430Z_EX-126-control.log</code>, <code>…020725Z_EX-126-post-figures.log</code>, <code>…020726Z_EX-126-post-docrefs.log</code>) </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

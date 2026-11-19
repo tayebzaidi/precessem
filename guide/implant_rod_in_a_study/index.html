@@ -1,0 +1,931 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>An implant rod in the coil-driven phantom - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#an-implant-rod-in-the-coil-driven-phantom" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              An implant rod in the coil-driven phantom
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-will-compute" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you will compute
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-it-from-python" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run it from Python
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-should-see" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you should see
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#with-capacitor-sheets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        With capacitor sheets
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#one-step-from-the-study-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        One step from the study file
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-this-does-not-tell-you" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What this does not tell you
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-this-page-is-tested" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How this page is tested
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="an-implant-rod-in-the-coil-driven-phantom">An implant rod in the coil-driven phantom<a class="headerlink" href="#an-implant-rod-in-the-coil-driven-phantom" title="Permanent link">&para;</a></h1>
+<h2 id="what-you-will-compute">What you will compute<a class="headerlink" href="#what-you-will-compute" title="Permanent link">&para;</a></h2>
+<p>The 4×4 <strong>S-matrix</strong> of the F-small birdcage (exact port rectangles, κ off,
+degree 1, 64 MHz) with a thin <strong>conducting rod</strong> inside its saline phantom,
+through a <code>Study</code>, and the 1 g mass-averaged SAR at the two rod tips. The rod is
+a hole in the mesh with a perfectly conducting wall. You will do it twice, from
+Python and from a study file, and both give the same S-matrix.</p>
+<h2 id="before-you-start">Before you start<a class="headerlink" href="#before-you-start" title="Permanent link">&para;</a></h2>
+<p>You need the complex DolfinX build (<code>source /usr/local/bin/dolfinx-complex-mode</code>)
+and <strong>2 MPI ranks</strong>. The Python block takes ≈ 2.5 min and the study file ≈ 1 min.</p>
+<h2 id="run-it-from-python">Run it from Python<a class="headerlink" href="#run-it-from-python" title="Permanent link">&para;</a></h2>
+<p>```python implant-rod
+from fem_em_solver import FourPortBirdcageGeometry, LumpedPortDrive, Study
+from fem_em_solver.materials import GelledSalinePhantomMaterial</p>
+<p>rod = {"radius": 1.0e-3, "length": 0.030, "centre": (0.015, 0.0, 0.0), "axis": (0.0, 0.0, 1.0)}
+study = Study(
+    FourPortBirdcageGeometry(implant_rod=rod),
+    GelledSalinePhantomMaterial(0.5, 78.0, 64.0e6),
+    LumpedPortDrive(),
+    frequency_hz=64.0e6,
+    degree=1,
+)
+result = study.solve()
+print(f"cells = {result.cells}")</p>
+<p>tips = [(0.015, 0.0, 0.016), (0.015, 0.0, -0.016)]
+sar = study.sar(mass_g=1.0, centres=tips)
+print(sorted(sar), [len(per_centre) for per_centre in sar.values()])</p>
+<pre><code>
+`radius` and `length` are in metres, and `length` is the cylinder between the
+centres of the two rounded caps. The two `tips` are the caps' apexes, 1 mm past
+those centres. `Study.sar` is per 1 V drive, one entry per port.
+
+## Run it from a study file
+
+Save this as `implant_rod.yaml`:
+
+```yaml implant-rod-file
+femem: 1
+study:
+  frequency_hz: 64000000.0
+  degree: 1
+geometry:
+  kind: four_port_birdcage
+  preset: f_small
+material:
+  sigma: 0.5
+  epsilon_r: 78.0
+excitation:
+  kind: lumped_port_drive
+implant:
+  rod:
+    radius_m: 0.001
+    length_m: 0.03
+    centre_m: [0.015, 0.0, 0.0]
+    axis: [0.0, 0.0, 1.0]
+</code></pre>
+<p>Then run it:</p>
+<pre><code class="language-text">mpiexec -n 2 femem run implant_rod.yaml
+</code></pre>
+<p>The run writes a JSON summary carrying the S-matrix, and <code>implant_rod.s4p</code>,
+into <code>femem_out/implant_rod/</code>. All four <code>rod</code> keys are required. <code>implant:</code> is
+refused on any other geometry and beside <code>load_result:</code>, and the Palace backend
+refuses a rod.</p>
+<h2 id="what-you-should-see">What you should see<a class="headerlink" href="#what-you-should-see" title="Permanent link">&para;</a></h2>
+<p>After the mesher's own output, at 2 ranks, the Python block prints:</p>
+<p>```text implant-rod-expected
+cells = 168507</p>
+<pre><code>
+The cell count can change with the mesher's version. The S-matrix from the
+Python block, from the study file, and from the fixture built directly without a
+`Study` agree to this relative band:
+
+```text implant-rod-bands
+Python vs YAML vs the direct build: 1e-12
+</code></pre>
+<p>The test, not the block, computes these readings. The rod changes the S-matrix
+by far more than that band, and the test checks that too.</p>
+<h2 id="with-capacitor-sheets">With capacitor sheets<a class="headerlink" href="#with-capacitor-sheets" title="Permanent link">&para;</a></h2>
+<p><code>CapacitorSheets</code> closes one port sheet with a series capacitor and its ESR —
+here sheet <code>P2</code>, 66.29 pF with 0.2 Ω — and the solve returns the 3×3 S-matrix of
+the other three ports. The rod is the same <strong>perfectly conducting</strong> rod as
+above, on the same mesh:</p>
+<p>```python implant-rod-caps
+from fem_em_solver import CapacitorSheets, FourPortBirdcageGeometry, Study
+from fem_em_solver.materials import GelledSalinePhantomMaterial</p>
+<p>rod = {"radius": 1.0e-3, "length": 0.030, "centre": (0.015, 0.0, 0.0), "axis": (0.0, 0.0, 1.0)}
+study = Study(
+    FourPortBirdcageGeometry(implant_rod=rod),
+    GelledSalinePhantomMaterial(0.5, 78.0, 64.0e6),
+    CapacitorSheets(6.629e-11, esr_ohm=0.2, on=("P2",)),
+    frequency_hz=64.0e6,
+    degree=1,
+)
+result = study.solve()
+print(f"cells = {result.cells}; ports = {[p.port_id for p in result.port_definitions]}")</p>
+<pre><code>
+At 2 ranks it prints:
+
+```text implant-rod-caps-expected
+cells = 168507; ports = ['P1', 'P3', 'P4']
+</code></pre>
+<p>Its 3×3 agrees with the same capacitor-terminated fixture built directly,
+without a <code>Study</code>, to this relative band:</p>
+<p>```text implant-rod-caps-bands
+Python vs the direct build: 1e-12</p>
+<pre><code>
+This route is **degree 1 only**, and only `Study.solve` on the perfectly
+conducting rod takes it. At degree 2 the same `Study` is refused before any
+mesh:
+
+```python implant-rod-caps-refused
+from fem_em_solver import CapacitorSheets, FourPortBirdcageGeometry, Study
+from fem_em_solver.materials import GelledSalinePhantomMaterial
+
+rod = {&quot;radius&quot;: 1.0e-3, &quot;length&quot;: 0.030, &quot;centre&quot;: (0.015, 0.0, 0.0), &quot;axis&quot;: (0.0, 0.0, 1.0)}
+study = Study(
+    FourPortBirdcageGeometry(implant_rod=rod),
+    GelledSalinePhantomMaterial(0.5, 78.0, 64.0e6),
+    CapacitorSheets(6.629e-11, esr_ohm=0.2, on=(&quot;P2&quot;,)),
+    frequency_hz=64.0e6,
+    degree=2,
+)
+study.solve()  # raises ValueError
+</code></pre>
+<p>The two refusals read, first at degree 2 and then on the copper hole route
+(<code>as_hole=True</code> with a <code>LeontovichWall</code> conductor):</p>
+<p>```text implant-rod-caps-refusals
+solve: implant_rod at degree 2 is not gated; it needs degree 1 (WF-15 step 12)
+solve: implant_rod with CapacitorSheets is not gated (WF-15 step 12); only Study.solve on the PEC four-port at degree 1 is (WF-15 step 13)</p>
+<pre><code>
+## Heating the phantom around the rod
+
+`Study.temperature` with `drive=&quot;P1&quot;` heats the gel phantom with port `P1`
+driven at 1 V on the rod `Study` above: the SAR of that one drive is the heat
+source, the gel conducts it and cools through its outer boundary into air at
+20 °C, and the rod's wall is adiabatic. It steps 40 Crank–Nicolson steps to
+t\* = 1254 s and returns the volume mean and the 1 g ball means around the two
+tips. Temperatures are rises above 20 °C, per watt dissipated in the
+phantom: the block reads that power P from the EM solve and scales the heat
+source by 1/P.
+
+```python implant-rod-heating
+from fem_em_solver import FourPortBirdcageGeometry, LumpedPortDrive, RobinCooling, Study, TransientSpec
+from fem_em_solver.materials import GelledSalinePhantomMaterial
+from fem_em_solver.post.sar import mean_sar
+
+rod = {&quot;radius&quot;: 1.0e-3, &quot;length&quot;: 0.030, &quot;centre&quot;: (0.015, 0.0, 0.0), &quot;axis&quot;: (0.0, 0.0, 1.0)}
+study = Study(
+    FourPortBirdcageGeometry(implant_rod=rod),
+    GelledSalinePhantomMaterial(0.5, 78.0, 64.0e6),
+    LumpedPortDrive(),
+    frequency_hz=64.0e6,
+    degree=1,
+)
+transient = TransientSpec(dt_s=31.35, n_steps=40, rho_c_j_per_m3_k=4.18e6, theta=0.5,
+                          startup_half_steps=2)
+tips = [[0.015, 0.0, 0.016], [0.015, 0.0, -0.016]]
+study.sar(mass_g=1.0, centres=tips, drives=[&quot;P1&quot;])
+fields = study.fields_result.fields[&quot;P1&quot;]
+P = mean_sar(fields.e_complex, sigma=fields.sigma_field, rho=study.density_kg_m3,
+             cell_tags=study.fields_result.cell_tags,
+             subdomain_ids=study.geometry.phantom_tag)[&quot;dissipated_power_w&quot;]
+cooling = RobinCooling(k_w_per_m_k=0.6, h_w_per_m2_k=10.0, t_inf_c=20.0, source_scale=1.0 / P)
+heat = study.temperature(cooling, transient=transient, balls={&quot;mass_g&quot;: 1.0, &quot;centres&quot;: tips},
+                         drive=&quot;P1&quot;)
+print(f&quot;cells = {heat.cells}&quot;)
+for ball in heat.balls:
+    print(ball[&quot;centre&quot;], f&quot;{ball['theta_k'][-1]:.6e} K&quot;)
+</code></pre>
+<p>The same run from the tracked study file
+<a href="../../tests/package/wf15/rod_heating.yaml">tests/package/wf15/rod_heating.yaml</a>,
+copied into the working directory. The tracked file omits
+<code>thermal.source_scale</code>, so as tracked it reads per 1 V on <code>P1</code>; add
+<code>source_scale: &lt;1/P&gt;</code> under <code>thermal:</code> to read per watt. The test runs exactly
+that copy with the Python block's P:</p>
+<p>```python implant-rod-heating-file
+from fem_em_solver.study_yaml import run_study_file</p>
+<p>run = run_study_file("rod_heating.yaml")
+for ball in run.summary["temperature"]["balls"]:
+    print(ball["centre"], f"{ball['theta_k'][-1]:.6e} K")</p>
+<pre><code>
+The two blocks' tip temperatures at t\* agree, and the run's energy balance
+and the volume heating slope of one backward-Euler step hold, to these bands:
+
+```text implant-rod-heating-bands
+Python vs the study file, tip temperature at t*: 1e-12
+energy balance (E): 1e-09
+volume slope (S2): 1e-04
+</code></pre>
+<p>The test, not the block, computes these readings, and checks each tip against
+the recorded value of the gated rod-heating test to its printed last digit.</p>
+<h2 id="one-step-from-the-study-file">One step from the study file<a class="headerlink" href="#one-step-from-the-study-file" title="Permanent link">&para;</a></h2>
+<p>The heating slopes are read from the study file too. <code>rod_heating_step.yaml</code>
+is the tracked file with the <code>source_scale</code> line added as above, and its
+<code>transient:</code> replaced by one backward-Euler step: <code>dt_s: 0.0015675</code>,
+<code>n_steps: 1</code>, <code>theta: 1.0</code>, <code>startup_half_steps: 0</code>. The block prints the
+volume mean rise and each tip ball's mean rise after that one step:</p>
+<p>```python implant-rod-heating-step
+from fem_em_solver.study_yaml import run_study_file</p>
+<p>run = run_study_file("rod_heating_step.yaml")
+t = run.summary["temperature"]
+print(f"volume mean {t['volume_mean_k'][1]:.6e} K")
+for ball in t["balls"]:
+    print(ball["centre"], f"{ball['theta_k'][1]:.6e} K")</p>
+<pre><code>
+The test prints the step's tip and volume heating slopes beside the Python
+route's one step (`study.temperature` with the same transient) and checks each
+against the volume slope band above. Their agreement is printed, not gated: one
+small step resolves the slopes only to the arithmetic of the step itself. The
+study-file gate is the tip temperature at t\* from the file block above, which
+the test checks equal to the Python route's to the identity band.
+
+The rod file has no duty cycle: a `thermal.duty` key is refused as an unknown
+key, and `Study.temperature(..., duty=...)` on the rod study raises
+`ValueError`. [The malformed rod file](../../tests/package/wf15/malformed_rod_heating_duty.yaml)
+carries one, and the check names that field and fails:
+
+```bash implant-rod-heating-check
+femem check malformed_rod_heating_duty.yaml
+</code></pre>
+<h2 id="what-this-does-not-tell-you">What this does not tell you<a class="headerlink" href="#what-this-does-not-tell-you" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>No two-port drive:</strong> every reading is one port driven at 1 V, so this is not
+  the quadrature drive of a clinical coil.</li>
+<li><strong>No 1 g rung:</strong> the 1 g average is read on this one mesh, with no refined
+  rung beside it.</li>
+<li><strong>No published comparand:</strong> the tip SAR, and its ratio to the same point with
+  no rod, have no external value to agree with. The test prints the ratio as a
+  reading with no record.</li>
+<li><strong>No tissue:</strong> the phantom is uniform saline, and the rod is a perfect
+  conductor with no coating.</li>
+<li><strong>No other route:</strong> a rod <code>Study</code> at any degree but 1 is refused before any
+  mesh, and so is a rod with <code>CapacitorSheets</code> anywhere but <code>Study.solve</code> on the
+  perfectly conducting rod, because no test gates them. The capacitor section
+  is not a tuned, rod-loaded coil, and the rod there is not copper. The
+  heating section is degree 1, one port (<code>P1</code>) scaled to 1 W in the phantom,
+  in gel, and makes no compliance claim.</li>
+</ul>
+<h2 id="how-this-page-is-tested">How this page is tested<a class="headerlink" href="#how-this-page-is-tested" title="Permanent link">&para;</a></h2>
+<p><a href="../../tests/package/test_wf17_implant_rod_tutorial.py">tests/package/test_wf17_implant_rod_tutorial.py</a>
+execs the Python block and runs the study file through <code>femem run</code> at 2 ranks in
+the complex build, and compares both S-matrices and the direct build at the band
+above. It also runs the Python block with the rod removed and checks that it
+misses, and checks the refusals named above. It also execs the capacitor block
+and compares its 3×3 with the direct build at its band, and runs the degree-2
+block and the copper hole route and checks that each raises the text quoted.
+<a href="../../tests/package/test_wf17_implant_rod_heating_tutorial.py">tests/package/test_wf17_implant_rod_heating_tutorial.py</a>
+execs both heating blocks at 2 ranks and checks the bands of the heating
+section, and checks that the heating block with the rod removed is refused
+before any mesh.
+<a href="../../tests/package/test_wf17_implant_rod_heating_yaml_tutorial.py">tests/package/test_wf17_implant_rod_heating_yaml_tutorial.py</a>
+runs the one-step study file and prints its slopes beside the Python route's,
+re-checks the study file's tip temperature at t* against the Python route's,
+and checks that the rod route refuses a duty cycle in YAML and in Python.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

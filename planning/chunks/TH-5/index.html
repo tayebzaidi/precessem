@@ -1,0 +1,1338 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>TH-5 — absorbing boundary condition: step history - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#th-5-absorbing-boundary-condition-step-history" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              TH-5 — absorbing boundary condition: step history
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#step-1b-0-the-dipole-sphere-reflection-anchor-numpy-only-9-item-107-2026-09-30-1200-slot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1b-0 — the dipole / sphere-reflection anchor, numpy only (§9 item 107, 2026-09-30 12:00 slot)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1b-the-dipole-gate-on-the-sphere-fem-9-item-114-2026-09-30-1330-slot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1b — the dipole gate on the sphere, FEM (§9 item 114, 2026-09-30 13:30 slot)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-01-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-01 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="§7 row moved verbatim 2026-10-01 (rotate_plan_archive.py chunks)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#9-item-277-2026-10-06-lane-2-th-5-step-2a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 277 — 2026-10-06 (lane 2, TH-5 step 2a)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-item-290-2026-10-06-lane-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 290 — 2026-10-06 (lane 2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-07-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-07 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="§7 row moved verbatim 2026-10-07 (rotate_plan_archive.py chunks)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#9-item-320-2026-10-08-lane-2-th-5-step-2c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 320 — 2026-10-08 (lane 2 — TH-5 step 2c)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-item-596-2026-10-22-th-5-step-3-lane-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 596 — 2026-10-22 (TH-5 step 3, lane 2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-22-0300-item-596-step-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-22 03:00 (item 596, step 3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-item-628-2026-10-25-10-lane-2-th-5-step-3b-the-pml-at-oblique-incidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 628 — 2026-10-25 (§10 lane 2, TH-5 step 3b: the PML at oblique incidence)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-24-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-24 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="§7 row moved verbatim 2026-10-24 (rotate_plan_archive.py chunks)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#9-item-644-2026-10-25-9-rule-5-lane-2-th-5-step-3c-the-graded-pmls-angular-law-at-45-on-the-closed-leg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 644 — 2026-10-25 (§9 rule (5) lane 2, TH-5 step 3c: the graded PML's angular law at 45°, on the closed leg)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#review-ruling-2026-10-26-0300-item-644" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-10-26 03:00 (item 644)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-item-649-2026-10-26-9-rule-5-lane-2-th-5-step-3c-re-posed-the-parked-45-module-run-unedited-testsenvironment-in-its-own-window" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 649 — 2026-10-26 (§9 rule (5) lane 2, TH-5 step 3c re-posed: the parked 45° module run unedited, tests/environment in its own window)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="th-5-absorbing-boundary-condition-step-history">TH-5 — absorbing boundary condition: step history<a class="headerlink" href="#th-5-absorbing-boundary-condition-step-history" title="Permanent link">&para;</a></h1>
+<p>The §7 row and entry carry the status and the Done-when; this file carries
+the step narrative (<code>OPS-46</code>). Earlier steps (1a, attempts 1–2) are recorded
+in the entry itself.</p>
+<h2 id="step-1b-0-the-dipole-sphere-reflection-anchor-numpy-only-9-item-107-2026-09-30-1200-slot">Step 1b-0 — the dipole / sphere-reflection anchor, numpy only (§9 item 107, 2026-09-30 12:00 slot)<a class="headerlink" href="#step-1b-0-the-dipole-sphere-reflection-anchor-numpy-only-9-item-107-2026-09-30-1200-slot" title="Permanent link">&para;</a></h2>
+<p><strong>Why a sphere, not the box (10:30 review, journal
+<code>docs/planning/reviews/2026-09-30-daily-1030.md</code> §4).</strong> The entry's original
+step-1b clause cannot produce a band, for two reasons:</p>
+<ol>
+<li><strong>R(θ) is planar.</strong> Jin (9.48) is the reflection of a plane wave off a flat
+   first-order ABC. Its rms over a cube, weighted by the dipole's power
+   pattern sin²θ_z, is ρ ≈ 0.113 whatever the box size (measured here:
+   0.11309, max |R| 0.26795 in the corner direction). No box size makes
+   that number smaller, so it cannot set a band that tightens as the box
+   grows.</li>
+<li><strong>Curvature is missing.</strong> On a curved boundary the first-order condition
+   also reflects through the 1/(2(k₀R)²) term: 5.1 % at 0.5 λ₀. A box has
+   no closed-form reflection. A sphere has one.</li>
+</ol>
+<p><strong>The anchor.</strong> Take a z-directed Hertzian dipole with e^{+jωt}, x = k₀r,
+C = 1, f = 1 − j/x − 1/x² and g = 1 − j/x:</p>
+<ul>
+<li>E_r = 2C cosθ (1/x² − j/x³) e^{−jx}</li>
+<li>E_θ = C sinθ (j f/x) e^{−jx}</li>
+<li>η₀H_φ = C sinθ (j g/x) e^{−jx}</li>
+</ul>
+<p>These are the standard small-dipole fields (Balanis, <em>Antenna Theory</em>,
+eqs. 4-8 / 4-10). That citation is from memory and <strong>not verified in-repo</strong>;
+the converted Jin text does not carry the dipole. For that reason (n1) and
+(n2) verify the field independently.</p>
+<p>On r = R the first-order ABC n × ∇ × E + jk₀ n × n × E = 0 (Jin §9.2 (9.44)
+at s = 1, §9.3 (9.54)) reduces to E_θ = η₀H_φ. Write the field as
+E = A·E_out + B·conj(E_out); the incoming wave's field is H_in = −conj(H_out).
+For a general surface impedance E_θ = z η₀ H_φ this gives</p>
+<p>Γ(z) = B/A = (f − z g) e^{−2jx} / (f̄ + z ḡ)</p>
+<p>and four special cases:</p>
+<ul>
+<li>z = 1 (the ABC): Γ_sph = −e^{−2jx}/(2x² − 1 + 2jx), with |Γ_sph| = 1/√(1 + 4x⁴).</li>
+<li>z = f/g (the exact impedance): Γ = 0.</li>
+<li>z = 0 (PEC): Γ = (f/f̄) e^{−2jx}, with |Γ| = 1.</li>
+<li>z = −1 (γ → −γ): |Γ| = √(1 + 4x⁴).</li>
+</ul>
+<p>The ABC reflects a fraction 1/(2x²) of the wave for x ≫ 1, and fully as x → 0.</p>
+<p><strong>Verified (<code>tests/validation/test_th5_dipole_sphere.py</code>,
+<code>docs/testing/logs/20260930T171635Z_TH-5-step1b0-W1.log</code>, 46 s, 17 passed,
+<code>-n 2</code>, complex image; numpy only):</strong></p>
+<ul>
+<li><strong>(n1)</strong> ∇×∇×E − k₀²E by nested central differences, at 20 off-axis points
+  in 0.2 ≤ r ≤ 0.5:</li>
+<li>δ = 1e-3: 3.614e-4. δ = 2e-3: 1.445e-3. The ratio is 3.998, i.e. pure δ²
+    truncation.</li>
+<li>δ = 2.5e-4: <strong>2.259e-5 ≤ 1e-4</strong> (<code>:88</code>).</li>
+<li><strong>Step-size finding.</strong> At the item's δ = 1e-3 the 1e-4 bound is red by
+    3.6×. The item's trap clause ("a red by a factor ≲ 10 with the residual
+    falling as δ² is a step-size finding") applies. The bound was not
+    touched: it is asserted at 2.5e-4, and the δ² ratio is asserted in
+    [3.8, 4.2]. The first window is <code>20260930T171523Z_TH-5-step1b0-W1.log:88</code>.</li>
+<li>(H) The analytic η₀H is (j/k₀)∇×E to 3.902e-6 at δ = 1e-4 (<code>:89</code>).</li>
+<li><strong>(n2)</strong> The radiated power at r = 0.3 equals 4πC²/(3η₀k₀²) to 1.33e-15
+  (64-point Gauss–Legendre, exact for this polynomial integrand).</li>
+<li><strong>(n3)</strong> On the standing wave E_out + Γ_sph·conj(E_out), with H from a
+  central-difference curl of E at δ = 1e-4, max |E_θ − η₀H_φ|/|E_θ| over
+  20 polar angles:</li>
+<li>x = π: 2.427e-7.</li>
+<li>x = 2π: 4.817e-8.</li>
+<li>At δ = 1e-3 both are 100× larger, the δ² signature.</li>
+<li>Control: Γ = 0 misses by 0.106275, equal to |f − g|/|f|.</li>
+<li><strong>(n4)</strong> Reflection magnitudes:</li>
+<li>|Γ_sph(π)| = 0.0505957066, |Γ_sph(2π)| = 0.0126641323, ratio 3.9952.</li>
+<li>|Γ_sph(1e-3) − 1| = 1.3e-9.</li>
+<li>Γ(z = f/g) = 2.9e-17.</li>
+<li>Γ(z = 1) matches Γ_sph to 3.5e-18.</li>
+<li>The PEC case equals (f/f̄)e^{−2jx} to 1.6e-16.</li>
+<li>|Γ(z = −1)| = 19.7645.</li>
+<li><strong>(n5)</strong> ρ = 0.11309 against the predicted 0.113, and max |R| = 0.26795.</li>
+</ul>
+<p><strong>Consequence.</strong> The derivation holds, so the entry's conditional step-1b
+clause (the FEM gate on a sphere at k₀R = π, §9 item 114) is effective. The
+bar it may not freeze above is |Γ_sph(π)|/3 = 1.69e-2. <code>TH-5</code> stays 🟡.</p>
+<h2 id="step-1b-the-dipole-gate-on-the-sphere-fem-9-item-114-2026-09-30-1330-slot">Step 1b — the dipole gate on the sphere, FEM (§9 item 114, 2026-09-30 13:30 slot)<a class="headerlink" href="#step-1b-the-dipole-gate-on-the-sphere-fem-9-item-114-2026-09-30-1330-slot" title="Permanent link">&para;</a></h2>
+<p><strong>Fixture.</strong> <code>MeshGenerator.ball_domain(radius=0.5)</code>, λ₀ = 1 m (k₀R = π),
+degree 1, vacuum. Every dof of the cells with r ≤ 0.15 is pinned to E_out
+(r clamped ≥ 0.05). The shell carries A E_out + B conj(E_out), and Γ = B/A
+is read by a volume least-squares projection over 0.22 &lt; r &lt; 0.42 (χ is DG0
+by midpoints, quadrature degree 8). E_out is written as
+e^{−jx}[2cosθ(1/x² − j/x³) r̂ + (jf/x)(cosθ r̂ − ẑ)], in numpy for the drive
+and in UFL for the projection, so nothing divides by ρ. New code sits in
+<code>tests/validation/test_th5_dipole_sphere.py</code> (tests only); <code>_assemble_complex</code>
+is imported from the step-1a module.</p>
+<p><strong>W1</strong> (<code>20260930T184708Z_TH-5-step1b-W1.log</code>, <code>BAND = None</code>, 19 passed,
+214 s, <code>-n 2</code>):</p>
+<ul>
+<li><strong>(P)</strong> A planted Γ = 0.01 − 0.02j is recovered to 8.4e-15 (<code>:108</code>).</li>
+<li><strong>Ladder</strong> (<code>:112–124</code>):</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>λ₀/20 (19 553 cells)</th>
+<th>λ₀/40 (151 498 cells)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(E) |Γ_E|</td>
+<td>5.0600e-3</td>
+<td>1.7695e-3</td>
+</tr>
+<tr>
+<td>(A) |Γ_A − Γ_sph|</td>
+<td>5.2789e-3</td>
+<td>1.8336e-3</td>
+</tr>
+</tbody>
+</table>
+<p>The predictions were 3.8e-3 and 9.5e-4 (× / 3). λ₀/20 is inside that
+  range. λ₀/40 is 1.9× above its prediction, still inside × 3, and the
+  observed rate over the pair is 1.52 against the TEM line's 2.0. Each fine
+  solve took 37–45 s, above the 20–31 s the item composed.
+- <strong>Band candidate</strong> <code>:125</code>: 3 × 1.7695e-3 = 5.31e-3, rounded up to <strong>6e-3</strong>.
+  The ceiling is 1.69e-2, so it was frozen.
+- <strong>Controls</strong> (printed, <code>:126–127</code>):
+  - PEC: Γ = 0.782555 − 0.623784j (predicted 0.777 − 0.629j).
+  - |Γ_PEC|/|Γ_A| = 21.61. The item predicted 18–22 and gave a ceiling of
+    19.76. The excess over the ceiling is the discretisation error on |Γ_A|
+    at λ₀/20, since that ceiling holds only for the exact Γ_sph.
+  - The miss ratio is 198.6 (predicted 275, range 90–830).
+  - The conjugated γ gives |Γ| = 21.65.
+- <strong>Printed only</strong> (<code>:128–130</code>):
+  - k₀R = 2π at λ/20: |Γ_A| 0.009915 against 0.012664, difference 4.64e-3.
+    This is the λ/20 error at a smaller reflection, not a gate.
+  - Degree 2 at res 0.1 (2 502 cells, R/h = 5): the (E) / (A) errors are
+    3.18e-2 / 3.34e-2. That rung is too coarse to read.
+  - The box leg was not run: it is printed-only and unpriced in-slot.</p>
+<p><strong>W2</strong> (<code>20260930T185052Z_TH-5-step1b-W2.log</code>, <code>BAND = 6e-3</code>, the only
+edit): 19 passed in 183 s, with the same figures to the printed digit. It
+asserts |Γ_E| ≤ B, |Γ_A − Γ_sph| ≤ B at λ₀/40, B ≤ 1.69e-2, and that
+PEC misses Γ_sph by &gt; B (≈ 1.05).</p>
+<p><strong>Reading.</strong> The first-order ABC term imposes E_θ = η₀H_φ on a curved,
+faceted boundary as well as on the plane, to 1.8e-3 at λ₀/40, which is
+27.6× below |Γ_sph|. The exact-impedance premise (E) reads the same error
+floor, so the residual is discretisation and faceting, not the ABC. <code>TH-5</code>
+stays 🟡: ✅ stays step 2 and the §2.1 line, and the weekly ratifies the
+sphere re-pose.</p>
+<h2 id="7-row-moved-verbatim-2026-10-01-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-01 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-01-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p>Absorbing boundary condition (ABC) — <strong>feature ladder B1</strong> (operator directive 2026-09-04, §9 item 5; HFSS <em>Radiation</em> boundary; entry below) | 🟡 <em>(<strong>Step 1a DONE 2026-09-30 (04:30 take-next slot, §9 item 94, attempt 2 of 4) ⇒ <code>TH-5</code> ⬜ → 🟡: read by volume projection, the first-order ABC's TEM-line reflection falls as h² to 5.9e-5.</strong> New <code>src/fem_em_solver/core/boundary_terms.py</code> (additive: <code>impedance_boundary_term</code>, <code>first_order_abc_term</code>, <code>abc_first_order_reflection_te</code>; no existing <code>src/</code> file or <code>core/__init__.py</code> edited) and <code>tests/validation/test_th5_abc_reflection.py</code>, both from the parked attempt; <code>_box</code>, <code>_solve</code>, <code>_fit_gamma</code> and <code>boundary_terms.py</code> byte-identical to it, the test gains the projection. <strong>(P)</strong> planted Γ = 0.01 − 0.02j recovered to 6.2e-15 (band 1e-10); ∫χ dV = 0.60·(2h)² to ≤ 2.7e-13 at all four rungs (band 1e-12; <code>20260930T094044Z_TH-5-step1a2-W1.log:94–101</code>). <strong>(N), degree 1, by projection over x ∈ [0.15, 0.75] m: |Γ| 3.814e-3 / 9.500e-4 / 2.373e-4 / 5.932e-5 at λ₀/20 / 40 / 80 / 160</strong> — ≤ 1e-3 at /80 and /160, strictly decreasing, <strong>LSQ rate 2.0021</strong> against ≥ 1.5 (<code>:105–112</code>); predicted 2.3e-3 / 5.7e-4 / 1.4e-4 / 3.5e-5 within ×3 (read ×1.66–1.69 above, same h² law). The same four solves through attempt 1's 41-point fit reproduce its ladder to four figures (4.916e-3 / 2.018e-3 / 1.531e-3 / 1.296e-3, rate 0.6169), so the solves did not change and <strong>the degree-1 floor was the point sampling</strong>, by the item's pre-registered test (≤ 4.3e-4 / ≤ 1.1e-4 at /80 / /160). (O1) 1.161e-4 and (O2) |Γ + 1/3| 2.621e-4 by the 41-point fit, inside 3e-3 (<code>:124–125</code>); numpy anchors green (<code>:80</code>). Printed only: (O2) by projection 2.815e-4 (predicted 2.6e-4); degree 2 at λ₀/40 (N) 1.369e-7 by projection against 2.319e-5 by points, (O2) 1.070e-6 against 4.122e-6; controls at λ₀/80 by projection — PEC Γ = −1.000000 + 0.000538j, |1 + Γ(0)| 1.1751, PMC +1.000000 − 0.000471j, 1.6183, factor 4 214 (predicted ≈ 7 000, range 2 300–21 000); (O) PEC |1 + Γ(0)| 2.0000, factor 2 544 (<code>:114–129</code>). <strong>Two predictions missed low, recorded not gated (rule (e)):</strong> Im Γ_PEC reads 5.38e-4 against a predicted 3.2e-3 (÷× 3) — the point fit's 0.0272 was the in-cell bias, and what remains is below the dispersion estimate; k_fit − k₀ reads +5.59e-4 rad/m on both the ABC and PEC solves against a predicted +1.8e-3, i.e. the fixture's numerical dispersion is ≈ 3× smaller than the <code>TH-6</code>-scaled figure; |Γ| at k_fit 2.126e-4 (<code>:117–119</code>). W1 16 passed, 82 s, <code>-n 2</code>, complex, first try, no edit after it. Not claimed: TM / second order / PML, the dipole gate (1b), D∞ (step 2), any open-boundary birdcage figure. ✅ stays steps 1b and 2.)</em> <em>(step 1a attempt 1 BLOCKED 2026-09-30, §9 item 90: numpy anchors, (O1) 1.161e-4 and (O2) |Γ + 1/3| 2.621e-4 green; (N) degree-1 TEM ladder |Γ| 4.916e-3 / 2.018e-3 / 1.531e-3 / 1.296e-3 at λ₀/20…/160 against ≤ 1e-3 at /80 and /160, LSQ rate 0.617 (<code>20260930T022458Z_TH-5-step1a-W1.log:95–102,119–121</code>); degree 2 at λ₀/40 prints 2.3e-5. Unattributed; the executor's hypothesis is fit-point spacing off the cell lattice (0.01575 m) leaking the degree-1 in-cell error into B — (O) samples at 2h and reaches 1e-4. Code on <code>attempt/TH-5-step1a-20260930T022458Z</code>. <strong>Ruled 2026-09-30 03:00 review (journal §4):</strong> no band moves; (N)'s Γ is read by a volume least-squares projection, with this 41-point ladder printed beside it — attempt 2 of 4, §9 item 94, entry amended.)</em> <em>(<strong>Step 1b DONE 2026-09-30 (13:30 take-next slot, §9 item 114, attempt 2 of 4 since 1a's gate) — the first-order ABC on a curved boundary: the dipole on the ball k₀R = π reflects Γ_sph(π) to 1.83e-3, band 6e-3 frozen from W1; 🟡 held (✅ stays step 2 and the §2.1 line; the weekly ratifies the sphere re-pose).</strong> (P) 8.4e-15; at λ₀/40 (151 498 cells) |Γ_E| 1.7695e-3 and |Γ_A − Γ_sph| 1.8336e-3, both against 6e-3 ≤ |Γ_sph|/3; PEC misses Γ_sph by ≈ 1.05 &gt; B. <code>20260930T184708Z_TH-5-step1b-W1.log:108–131</code> (band None), <code>…185052Z_TH-5-step1b-W2.log</code> (asserted, 19 passed, 183 s). Narrative: <code>docs/planning/chunks/TH-5.md</code>.)</em> <em>(<strong>Step 1b-0 DONE 2026-09-30 (12:00 take-next slot, §9 item 107):</strong> the dipole field and Γ_sph(x) = −e^{−2jx}/(2x² − 1 + 2jx) are verified in numpy — |Γ_sph(π)| 0.0505957066, the first-order condition holds on the standing wave to 2.4e-7, and the radiated power matches to 1.3e-15. The (n1) curl-curl residual at the item's δ = 1e-3 is a δ² step-size finding (3.6e-4, ratio 4.00), asserted at δ = 2.5e-4 (2.3e-5 ≤ 1e-4). Item 114's gate is now effective. Narrative: <code>docs/planning/chunks/TH-5.md</code>; <code>20260930T171635Z_TH-5-step1b0-W1.log:88–104</code>. 🟡 held. <strong>Confirmed 2026-09-30 18:00 review:</strong> the δ change is the item's own pre-registered step-size branch (a truncation bound, not a physics band; red ≲ 10× with a measured δ² ratio 4.00, first window <code>20260930T171523Z_TH-5-step1b0-W1.log:88</code> kept); no bound moved.)</em> </p>
+<h3 id="9-item-277-2026-10-06-lane-2-th-5-step-2a">§9 item 277 — 2026-10-06 (lane 2, TH-5 step 2a)<a class="headerlink" href="#9-item-277-2026-10-06-lane-2-th-5-step-2a" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-06 03:00 daily review; the review reviews it.</em> Licence: §9 rule (5) lane 2, the weekly's enumerated target (PROJECT_PLAN §10, "Lane 1 and lane 2, targets for the daily": "<code>TH-5</code> 2a / 2b as re-posed 09-30"); the re-pose is in <code>docs/planning/plan-archive.md</code> (grep <code>step 2 — re-posed in two parts</code>). <strong>No band, tolerance, Done-when or validation target is set or moved here.</strong> The [0.3, 0.7] band and the sign clause are the weekly's; every other number is imported by name or labelled predicted.</p>
+<p><strong><code>TH-5</code> step 2a — the first-order ABC on <code>PORT-1</code>'s two-torus box: a banked negative.</strong> Three solves at <code>PORT-1</code>'s 3b-xi paddings W = 0.08 / 0.10 / 0.12 m, with the PEC wall replaced by the first-order ABC (Jin 3e §9.2 (9.44) at s = 1; plane-wave reflection (9.48); the curved-boundary form §9.1.2 (9.21); this file's 1b-0 Γ_sph). At 10 MHz the box sits at k₀·half-width ≈ 0.022–0.035 (k₀ = 0.20958 rad/m), where |Γ_sph| = 1/√(1 + 4x⁴) ≈ 1 − 2e-6. There the ABC is a reflector, equal to the natural (magnetic) wall to O(k₀R). The sphere model's static reaction fields (+2 under PEC, −1 under a magnetic wall; entry step-2 note) predict that the box term <strong>flips sign and halves</strong>. The item measures that, and banks the entry's original "≥ 5× fall" as unreachable.</p>
+<ul>
+<li><strong>Executor:</strong> implementer. <strong>Tier:</strong> heavy (one window ≈ 5–6 min, over standard's 180 s), complex build, <code>-n 2</code> (<code>PORT-1</code> / <code>GEO-4</code>'s width). <strong>Class:</strong> lane-2 solve. <strong>Cost:</strong> ≈ 7 measured (the weekly's lane median) / <strong>≈ 40 predicted</strong> min: 15 fixed + ≈ 12 code + W1 ≈ 6 + W2 ≈ 1 + ≈ 6 spare. <strong>If W1 is not green by minute 40, park</strong> (rule (d)).</li>
+<li><strong>Depends on:</strong> nothing. <strong>Attempt:</strong> 1 of 4. <strong>No <code>src/</code> edit:</strong> the ABC term exists (<code>fem_em_solver.core.boundary_terms.first_order_abc_term</code>, step 1a), and the solver takes it through <code>TimeHarmonicSolver.solve(extra_bilinear_terms=…)</code> (<code>core/time_harmonic.py:400, 556–559</code>, <code>PORT-9</code>'s hook). No re-gate under rule (c).</li>
+</ul>
+<p><strong>Settled from the code (read before designing).</strong>
+- <strong>The box term, as the entry defines it.</strong> The §7 entry's step 2 says "the box term <code>D∞</code>", and its step-2 note says "the box term would flip sign and about halve". Both mean B(W) = deficit(W) − D∞, where D∞ is the free-exponent extrapolated box-free deficit. <strong>Read here (for the review to ratify):</strong> the weekly's "|D∞^ABC| / |D∞^PEC|" is the ratio of <em>box terms</em>, r(W) = |B^ABC(W)| / |B^PEC(W)|, and the sphere model's 0.5 is that ratio. Under the same model the extrapolated <em>box-free</em> deficits would agree (ratio ≈ 1), so the literal reading contradicts its own 0.5.
+- <strong>PEC leg: no new solve beyond the premise.</strong> <code>PORT1_PADDING_RUNGS_M</code> (0.08, 0.10, 0.12) / <code>PORT1_PADDING_DEFICITS_PP</code> (−8.0324, −5.0256, −3.2733) and <code>_free_exponent_fit</code> (<code>src/fem_em_solver/io/mesh.py:436–440</code>) give D∞ = +1.6934077797 pp, p = 1.6574 (<code>GEO-4</code> (A0), bitwise the probe, <code>docs/planning/chunks/GEO-4.md:11</code>). Hence B^PEC = −9.7258 / −6.7190 / −4.9667 pp at the three rungs. The common reference is D∞^PEC: the mesh, drive and discretisation are shared per rung, so the discretisation part of the deficit cancels in B.
+- <strong>Fixture.</strong> <code>MeshGenerator.two_torus_domain</code> returns <code>(msh, cell_tags, facet_tags)</code>, and <strong>facet tag 1 is the outer boundary</strong> (<code>io/mesh.py:1353–1354</code>). Deficit = 100·(Im Z₂₁ / ωM₁₂ − 1) on one driven column (tag 1), as in <code>GEO-4</code>'s <code>gate_deficits_pp</code> (<code>tests/validation/test_geo4_box_padding_heuristic.py:236–249</code>). The reaction is <code>Z = −∫_tag E·J / (I_d I_t)</code> (<code>test_port_reaction_impedance.py:227–239</code>).
+- <strong><code>_solve_reaction_z</code> hard-codes <code>boundary_condition="pec_zero_tangential_a"</code> and takes no surface terms</strong> (<code>test_port_reaction_impedance.py:261–317</code>). Do <strong>not</strong> add a kwarg to it: that edits <code>PORT-1</code>'s gated module and buys its re-gate. Instead, copy its mesh / current / solve / <code>_reaction</code> lines into the new module as <code>_solve_z_column(padding, wall)</code> with <code>wall ∈ {"pec", "natural", "abc"}</code>, where <code>"abc"</code> = <code>boundary_condition="natural"</code> <strong>plus</strong> <code>extra_bilinear_terms=[first_order_abc_term(msh, facet_tags, 1, OMEGA)]</code>. Import the constants (<code>MAJOR_RADIUS</code>, <code>MINOR_RADIUS</code>, <code>SEPARATION</code>, <code>H_FAR</code>, <code>H_WIRE</code>, <code>CURRENT_A</code>, <code>TORUS_TAGS</code>, <code>OMEGA</code>, <code>FREQUENCY_HZ</code>), <code>_azimuthal_current_density</code>, <code>_tag_volume</code>, <code>_reaction</code> and <code>mutual_inductance</code>. Skip the step-2f energy bookkeeping.
+- <strong>The volume form's scaling matches the ABC term's.</strong> The solver assembles (1/μᵣ)∫∇×u·∇×v̄ − k₀²∫ε_c u·v̄ with load −jωμ₀∫J′·v̄ (<code>time_harmonic.py:520–549</code>). That is the convention <code>boundary_terms.py:3–10</code> assumes (γ = +jk₀).</p>
+<p><strong>New test module <code>tests/validation/test_th5_abc_two_torus.py</code></strong> (tests only). One module-scoped fixture runs five solves: PEC at 0.08 m (premise), ABC at 0.08 / 0.10 / 0.12 m, and natural at 0.08 m (control). <code>@complex_only</code> on every solve node.</p>
+<p><strong>Anchors (asserted).</strong>
+- <strong>(P0) Premise.</strong> The copied solver at W = 0.08 m under PEC reproduces <code>GEO-4</code>'s 0.11-image rung −8.0404 pp within <code>P0_BAND_PP</code> (0.05 pp, imported from <code>test_geo4_box_padding_heuristic.py</code>). This proves the copy is the fixture.
+- <strong>(S) Sign (the weekly's clause).</strong> B^ABC(W) = deficit^ABC(W) − D∞^PEC <strong>&gt; 0</strong> at all three rungs, against B^PEC(W) &lt; 0. Predicted ≈ +4.86 / +3.36 / +2.48 pp.
+- <strong>(R) Ratio (the weekly's band).</strong> |B^ABC(W)| / |B^PEC(W)| ∈ [0.3, 0.7] at all three rungs; the sphere model gives 0.5. Predicted ABC deficits (r = 0.5): +6.556 / +5.053 / +4.177 pp. The band maps to [4.611, 8.501] / [3.709, 6.397] / [3.183, 5.170] pp.
+- <strong>(E) The ABC term is in the matrix (sign asserted).</strong> Under ABC, Re Z₁₁ &gt; 0 (the boundary absorbs). Under PEC, |Re Z₂₁| ≤ 1e-9·|Z₂₁| (<code>PORT-1</code>'s structural-zero test, <code>IDENTITY_TOLERANCE</code>).
+  - Printed beside it, not asserted: the Galerkin power identity Re Z₁₁·I₁² = ∮_{tag 1}|n × E_h|² ds / η₀. It is the imaginary part of the weak form at v = E_h; ∫_tag E·J = ∫E·J′ still holds under the ABC because n × ∇q = 0 for q ∈ CG1 ∩ H¹₀. Relative residual <strong>predicted ≤ 1e-6</strong>.
+  - Re Z₁₁ itself is predicted at ≈ 1e-4–5e-3 Ω and printed: the free-space loop R_rad of 9.7e-7 Ω times the near-field factor ≈ 1 + 1/(k₀R)² ≈ 800–2 000. Here the ABC acts as a resistive η₀ wall on the near field.</p>
+<p><strong>Negative controls (rule (e)).</strong>
+- <strong>(c1) PEC in the ABC's place — asserted.</strong> A broken ABC run that leaves the Dirichlet set on, or drops the term into a PEC solve, returns the PEC deficit. (S) separates the two by |B^ABC − B^PEC| ≈ 14.6 pp at 0.08 m (predicted), against a rung precision of 5e-5 pp. Asserted through (S) and (P0) on the same mesh.
+- <strong>(c2) Conjugated γ — asserted via (E).</strong> γ = −jk₀ makes the boundary a source and gives Re Z₁₁ &lt; 0 (the 1b trap: |Γ(z = −1)| = 19.76). (E)'s sign catches it.
+- <strong>(c3) Natural wall at 0.08 m — predicted, printed only.</strong> |deficit^ABC − deficit^NAT| is predicted ≤ 0.05·|B^PEC(0.08)| ≈ 0.5 pp (expected ≈ (k₀R)²·|B| ≈ 0.01 pp). It shows that the ABC is the magnetic wall here. It is <strong>not</strong> step 2b's combination and gates nothing.</p>
+<p><strong>Printed (not asserted).</strong>
+- Cell counts per rung (0.08 m: 119 533 on the 0.11 image, <code>GEO-4.md:13</code>), per-solve seconds, and the complex Z₂₁ and Z₁₁.
+- The free-exponent fit through the three ABC deficits (<code>_free_exponent_fit</code>): D∞^ABC, p^ABC, and |D∞^ABC − D∞^PEC|, predicted ≈ 0 under the sphere model. The fit may fail if the ABC ladder is not monotone; if so, print the failure.
+- The entry's original bar, |B^ABC| ≤ |B^PEC|/5. (R)'s lower bound 0.3 &gt; 0.2 makes it false by construction: <strong>that is the banked negative</strong>.</p>
+<p><strong>Windows.</strong> Foreground; each harness call bare and whole; Bash <code>timeout: 660000</code>; <code>-s</code>; node IDs only, never <code>-k</code>; <code>tests/environment</code> first; no pipe or redirect (the window is under 10 min, so no durable capture).
+- <strong>W1</strong> (heavy). Predicted ≈ 330 s, bracket 250–450 s: environment ≈ 45 s plus five mesh-and-solves. The rung costs come from <code>GEO-4</code> at 43 / ≈ 52 / ≈ 70 s for the 0.08 / 0.10–0.11 / 0.12–0.14 m rungs (<code>20261003T035018Z_GEO-4-W1.log</code>: 226 s for three solves).
+  <code>scripts/testing/run_and_log.sh TH-5-step2a-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 590 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_th5_abc_two_torus.py -v -s --tb=short'"</code>
+- <strong>W2</strong> (real build: collection and skips, ≈ 15 s).
+  <code>scripts/testing/run_and_log.sh TH-5-step2a-W2 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 120 mpiexec -n 1 python3 -m pytest tests/environment tests/validation/test_th5_abc_two_torus.py -v -s --tb=short'"</code></p>
+<p><strong>Traps already paid for.</strong>
+- <strong>Signed deficits and signed box terms</strong> (<code>GEO-4</code>). Never compose relative percents. C is negative in the commissioning convention. (S) is on signed B; (R) is on magnitudes.
+- <strong><code>project_source</code> stays at its default, <code>True</code></strong> (CG1 ∩ H¹₀, pinned exterior): the projection every PEC rung was measured with. <code>"matched"</code> would unpin the exterior under the natural mode and change the drive between the walls.
+- <strong>A conjugated γ is a source</strong> (<code>boundary_terms.py:10–11</code>). Use <code>first_order_abc_term</code> as it is; never re-derive γ.
+- <strong>The ABC needs <code>boundary_condition="natural"</code>.</strong> Under PEC the Dirichlet rows overwrite it silently (c1).
+- <strong>Rank-safety.</strong> Allreduce every <code>assemble_scalar</code> (the reaction and the ∮|n × E|² integral). Take global counts via <code>index_map(…).size_global</code>. Print on rank 0.
+- <strong>Complex build.</strong> No <code>ufl.max_value</code> and no ordering on complex operands. The boundary integral is <code>ufl.inner(ufl.cross(n, E), ufl.cross(n, E))</code>, with the real part taken after the allreduce. Pin <code>metadata={"quadrature_degree": …}</code> on any <code>SpatialCoordinate</code>-bearing facet integral (<code>POST-5</code>).
+- <strong>A kill at 590 s is not a result.</strong> Run <code>pgrep -c python3</code> in the container first, and sweep orphan <code>.c</code> files only when it reads 0. Never lengthen the timeout or change <code>-n</code>. Status 124 is a finding.
+- <strong>Rule (i):</strong> no edit to the new module after its last green window. Write ≈, never <code>~</code>, in tracked Markdown.</p>
+<p><strong>Scope.</strong>
+- <strong>Covered:</strong> one fixture (<code>PORT-1</code>'s two-torus, d = 0.04 m, 10 MHz, degree 1, <code>-n 2</code>), with the first-order ABC on the whole outer box at three paddings.
+- <strong>Not this item:</strong> step 2b (the ⅓ PEC + ⅔ natural mixed wall, its weights and its ≤ |B^PEC| / 5 gate); the §2.1 boundary-model line; any second-order ABC or PML; any birdcage or open-boundary figure; any statement about larger boxes (k₀R ≳ π belongs to 1b). <code>PORT-1</code>'s ✅ and <code>GEO-4</code>'s heuristic are untouched.</p>
+<p><strong>Status it can move.</strong> No glyph: <code>TH-5</code> stays 🟡. Its Done-when as re-posed 09-30 is ✅ on 1a, 1b, 2a, 2b and the §2.1 line. On green, the §7 row gains a step-2a record sentence (the B^ABC signs and r(W) at three rungs, the fit's D∞^ABC, elapsed time). The §10 lane-2 entry marks 2a DONE, and 2b becomes the lane's next step with the measured ratio beside the sphere model's.</p>
+<p><strong>Negative result.</strong> In every case: report the measurement, park on <code>attempt/TH-5-step2a-*</code>, mark item 277 BLOCKED in the same commit (rule (d)), and journal it in attempts.md. No band moves.
+- <strong>(P0) red:</strong> the copied solver is not the fixture. Stop before reading (S) / (R).
+- <strong>(E) red</strong> (Re Z₁₁ ≤ 0 under ABC): the term did not enter <code>a</code>, or entered with the wrong sign. Stop: this is a code defect, not a physics reading.
+- <strong>(S) red</strong> (B^ABC &lt; 0 at any rung) with (E) green: the box does not behave as a magnetic wall. That contradicts 1b-0's closed form at x → 0; a finding for the weekly.
+- <strong>(R) red with (S) green:</strong> the cube departs from the sphere model, recorded as that (the weekly's own disposition in the plan-archive re-pose). The measured r(W) goes into the §7 row as the 2a record. The weekly decides whether 2a stands closed on the record, and re-derives 2b's weights from it.
+- <strong>W1 killed or over 450 s:</strong> BLOCKED without a result. The review shrinks the case (drop (c3), or split the rungs over two windows).</p>
+<p>No <code>PREDICTED RED:</code> line. The asserted clauses (P0, S, R, E) are all predicted green. The banked negative is the original ≥ 5× bar, which is printed and never asserted.</p>
+<p><strong>Outcome (2026-10-07 00:00 slot, attempt 1 of 4): 🚫 BLOCKED — (R) red with (S) green.</strong> (P0) −8.0404 pp (|Δ| 0.0080); (E) Re Z₁₁ &gt; 0 at all rungs; (S) B^ABC +4.7133 / +2.3965 / +1.1256 pp; (R) r(W) = 0.4846 / 0.3567 / 0.2266 against [0.3, 0.7], red at 0.12 m. <code>20261007T052330Z_TH-5-step2a-W1.log</code> (313.7 s) on <code>attempt/TH-5-step2a-20261007T052330Z</code>. Recorded in the §7 row; the weekly rules on 2a and on 2b's weights.</p>
+<h3 id="9-item-290-2026-10-06-lane-2">§9 item 290 — 2026-10-06 (lane 2)<a class="headerlink" href="#9-item-290-2026-10-06-lane-2" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-06 18:00 daily review; the review reviews it.</em> Licence: §9 rule (5) lane 2, the weekly's enumerated target (PROJECT_PLAN §10, "Lane 1 and lane 2, targets for the daily": "<code>TH-5</code> 2a / 2b as re-posed 09-30"); the re-pose text is in <code>docs/planning/plan-archive.md</code> (grep <code>step 2 — re-posed in two parts</code>): "<strong>2b (the mixed wall):</strong> the ⅓ PEC + ⅔ natural-wall combination, weights from the sphere model's +2 / −1 reaction fields and stated before the run — asserted, its box term ≤ |D∞^PEC| / 5 at the smallest padding; red ⇒ the cube's weights differ, a record." <strong>No band, tolerance, Done-when or validation target is set or moved here.</strong> The ⅓ / ⅔ weights and the ÷ 5 bar are the weekly's; every other number is imported by name or labelled predicted.</p>
+<p><strong><code>TH-5</code> step 2b — the mixed wall on <code>PORT-1</code>'s two-torus box.</strong> Two solves at <code>PORT-1</code>'s smallest 3b-xi padding W = 0.08 m (PEC, the premise; natural, the measurement), and two printed natural rungs at 0.10 / 0.12 m. The mixed impedance is the post-solve combination Z^mix = ⅓ Z^PEC + ⅔ Z^NAT (the §7 entry's "mixed average", PROJECT_PLAN §7 <code>TH-5</code> entry, step-2 note ≈ line 2441). It is not a boundary condition and not a face split.</p>
+<ul>
+<li><strong>Executor:</strong> implementer. <strong>Tier:</strong> heavy (W1 predicted ≈ 230 s, above standard's 180 s), complex build, <code>-n 2</code> (<code>PORT-1</code> / <code>GEO-4</code>'s width). <strong>Class:</strong> lane-2 solve. <strong>Cost:</strong> ≈ 7 measured (lane-2 median) / <strong>≈ 35 predicted</strong> min: 15 fixed + ≈ 10 code + W1 ≈ 4 + W2 ≈ 1 + ≈ 5 spare. <strong>If W1 is not green by minute 40, park</strong> (rule (d)).</li>
+<li><strong>Depends on:</strong> nothing. Step 2b carries its own premise (P0) and its own natural solve; it does <strong>not</strong> need item 277's ABC term or its result. <strong>Code source, deterministic:</strong> if <code>tests/validation/test_th5_abc_two_torus.py</code> is on <code>main</code> with <code>_solve_z_column(padding, wall)</code>, import it (no edit to that module, rule (i)); otherwise write the copy item 277's brief specifies (this file, §9 item 277, "Settled from the code", the <code>_solve_z_column</code> bullet), restricted to <code>wall ∈ {"pec", "natural"}</code>, into the new module. Either path is proven to be the fixture by (P0). Its effect on the glyph needs 277 (see "Status it can move"). <strong>Attempt:</strong> 1 of 4. <strong>No <code>src/</code> edit</strong>; no re-gate under rule (c).</li>
+</ul>
+<p><strong>The anchor — the sphere model's reaction weights (stated before the run).</strong> Take a magnetic dipole m at the centre of a sphere of radius R, quasi-static (k₀R ≈ 0.03–0.04 here; 1b-0's |Γ_sph| = 1/√(1 + 4x⁴) → 1). The uniform interior reaction field that cancels B_r at r = R (PEC) is −2m/(4πR³); the one that cancels H_θ (magnetic / natural wall) is +m/(4πR³). For a general l-pole the two coefficients are (l + 1)/l and −1 (interior potential C r^l P_l against the source A r^{−(l+1)} P_l, with ∂_r Φ = 0 vs Φ = 0 at R). Hence on the l = 1 term <strong>B^NAT = −½ B^PEC</strong> (the §7 entry's "+2/R³ under PEC and −1/R³ under a magnetic wall", ≈ line 2435), and the weights w<em>PEC = ⅓, w_NAT = ⅔ (2w_PE</em> − w<strong>AT = 0, w_PEC + w_NAT = 1) cancel</strong>t. The residual for l ≥ 2 is (1 − l)/(3l) of each pole's PEC term. The loops sit ±d/2 = ±0.02 m off-centre and a/R ≈ 0.36, so a residual of a few percent of |B^PEC| is expected, plus the cube's departure from a sphere, which has no closed form. Dipole-field form: Jackson, <em>Classical Electrodynamics</em> 3e §5.6 — <strong>from memory, not held in the repo</strong>; the derivation above is two lines, and the executor may check it in numpy beside the run (printed only).</p>
+<p><strong>Settled from the code and the records (read before designing).</strong>
+- <strong>Deficit and box term, as item 277 defines them</strong> (the 03:00 review's ruling on item 277: the weekly's "D∞" ratio is a ratio of box terms). d^X(W) = 100·(Im Z₂₁^X / ωM₁₂ − 1) pp on one driven column (tag 1), <code>GEO-4</code>'s <code>gate_deficits_pp</code> form (<code>tests/validation/test_geo4_box_padding_heuristic.py:236–249</code>). B^X(W) = d^X(W) − D∞, with D∞ = D∞^PEC = +1.6934077797 pp from <code>_free_exponent_fit(PORT1_PADDING_RUNGS_M, PORT1_PADDING_DEFICITS_PP)</code> (<code>src/fem_em_solver/io/mesh.py:436–440</code>; <code>GEO-4</code> (A0)). Because the weights sum to 1, <strong>B^mix = ⅓ B^PEC + ⅔ B^NAT = d^mix − D∞</strong>, and d^mix is the deficit of Z^mix (the same ωM₁₂ denominator, so linear).
+- <strong>The bar, read as 277 reads D∞:</strong> |B^mix(0.08)| ≤ |B^PEC(0.08)| / 5, with both from this window's solves. Predicted B^PEC(0.08) = −8.0404 − 1.6934 = <strong>−9.7338 pp</strong> (<code>20261003T035018Z_GEO-4-W1.log:294</code>; <code>GEO-4</code> (C1) measured 9.7338), so the bar is <strong>≈ 1.947 pp</strong>. Algebra: B^mix = B^PEC(⅓ − ⅔r) with r = |B^NAT| / |B^PEC|, so the bar is met iff <strong>r ∈ [0.2, 0.8]</strong>; item 277's (R) band [0.3, 0.7] lies inside it. <strong>Literal reading, printed only:</strong> |D∞^PEC| / 5 = 0.3387 pp, met iff r ∈ [0.448, 0.552] (a question for the review).
+- <strong>Fixture.</strong> <code>MeshGenerator.two_torus_domain</code> returns <code>(msh, cell_tags, facet_tags)</code>; facet tag 1 is the outer boundary (<code>io/mesh.py:1353–1354</code>). The natural wall is <code>boundary_condition="natural"</code> with no surface term: no Dirichlet rows, no <code>extra_bilinear_terms</code>. Constants and helpers come from <code>tests/validation/test_port_reaction_impedance.py</code> (<code>MAJOR_RADIUS</code> 0.04, <code>SEPARATION</code> 0.04, <code>H_FAR</code> 0.03, <code>FREQUENCY_HZ</code> 10 MHz, <code>OMEGA</code>, <code>TORUS_TAGS</code>, <code>CURRENT_A</code>, <code>_azimuthal_current_density</code>, <code>_reaction</code>, <code>mutual_inductance</code>, <code>IDENTITY_TOLERANCE</code> = 1e-9 at <code>:192</code>). <code>_solve_reaction_z</code> hard-codes PEC (<code>:316</code>): <strong>do not add a kwarg to it</strong> (that edits <code>PORT-1</code>'s gated module).
+- <strong>One mesh per padding, both walls on it.</strong> At 0.08 m build the mesh once and solve PEC and natural on it, so the discretisation part of the deficit is shared and cancels in B.</p>
+<p><strong>New test module <code>tests/validation/test_th5_mixed_wall_two_torus.py</code></strong> (tests only). Constants at module top, before any solve: <code>W_PEC = 1.0 / 3.0</code>, <code>W_NAT = 2.0 / 3.0</code>, <code>MIX_BAR_DIVISOR = 5.0</code> (the weekly's). One module-scoped fixture runs four solves: PEC and natural at 0.08 m, and natural at 0.10 and 0.12 m. <code>@complex_only</code> on every solve node.</p>
+<p><strong>Anchors (asserted).</strong>
+- <strong>(P0) Premise.</strong> The PEC solve at 0.08 m reproduces <code>P0_RUNG_PP</code> (−8.0324 pp) within <code>P0_BAND_PP</code> (0.05 pp), both imported from <code>test_geo4_box_padding_heuristic.py</code>. This is exactly <code>GEO-4</code>'s premise (measured there: −8.0404, |Δ| 0.0080).
+- <strong>(E) Lossless identity.</strong> Under both walls |Re Z₂₁| ≤ <code>IDENTITY_TOLERANCE</code>·|Z₂₁|. There is no loss term, so the system is real up to the j of the load; <code>GEO-4</code> printed Re Z = 0.000000e+00 under PEC (<code>:290</code>).
+- <strong>(S) Sign flip of the natural wall.</strong> B^NAT(0.08) &gt; 0 against B^PEC(0.08) &lt; 0. Predicted d^NAT(0.08) ≈ +6.56 pp at r = 0.5 (range +3.64 … +9.48 for r ∈ [0.2, 0.8]).
+- <strong>(M) The weekly's gate.</strong> |B^mix(0.08)| ≤ |B^PEC(0.08)| / <code>MIX_BAR_DIVISOR</code>. Predicted ≈ 0 (sphere model), and ≤ ≈ 1.3 pp across 277's band; the bar is ≈ 1.947 pp.</p>
+<p><strong>Negative controls (rule (e)).</strong>
+- <strong>(c1) Wall not switched — asserted via (S).</strong> A run that leaves the Dirichlet set on returns d^NAT = d^PEC bitwise and B^mix = B^PEC, missing (M) by exactly 5× (the ceiling, by construction). (S) separates the two by |B^NAT − B^PEC| ≈ 14.6 pp (predicted) against a rung precision of ≈ 5e-5 pp. Also assert that d^NAT(0.08) and d^PEC(0.08) differ by more than <code>P0_BAND_PP</code>.
+- <strong>(c2) Swapped weights — asserted, conditional on (M) green.</strong> ⅔ PEC + ⅓ NAT gives B^swap = B^PEC(⅔ − ⅓r); assert |B^swap(0.08)| &gt; the bar. <strong>Ceiling computed:</strong> |B^swap| / bar = 5(⅔ − ⅓r) = <strong>2.5</strong> at r = 0.5, and 3.0 … 2.0 across r ∈ [0.2, 0.8]. So any r that passes (M) makes (c2) miss by ≥ 2.0×: the weights discriminate, not any mixture passes. Equal weights (½, ½) miss by only 1.25× at r = 0.5: printed, not asserted.</p>
+<p><strong>Printed (not asserted).</strong>
+- Cell counts per rung (0.08 m: 119 533 on the 0.11 image), per-solve seconds, complex Z₂₁ and Z₁₁ per wall, and the reaction/energy residual per solve.
+- r_NAT(W) and B^mix(W) at 0.10 / 0.12 m against B^PEC from the fit (−6.7190 / −4.9667 pp; labelled fit-referenced, since no PEC solve runs there).
+- The weights that would zero B^mix on this cube, w_PEC* = r/(1 + r), beside ⅓; and the literal-reading margin, |B^mix| against 0.3387 pp.
+- If item 277 has landed: its (c3) natural deficit at 0.08 m beside this one (it should agree to print precision: same code, same mesh recipe).</p>
+<p><strong>Windows.</strong> Foreground; each harness call bare and whole; Bash <code>timeout: 660000</code>; <code>-s</code>; node IDs only, never <code>-k</code>; <code>tests/environment</code> first; no pipe or redirect (the window is under 10 min, so no durable capture).
+- <strong>W1</strong> (heavy). Predicted ≈ 230 s, bracket 180–340 s. Priced from <code>20261003T035018Z_GEO-4-W1.log</code>: environment and overhead ≈ 53 s (226 s total, less three rungs); the 0.08 m mesh 18.4 s + solve 19.1 s (<code>:288</code>), so PEC + natural ≈ 57 s; 0.10 m ≈ 52 s and 0.12 m ≈ 65 s, interpolated between the 0.08 / 0.11 / 0.14 m rungs (<code>:288, 474, 671</code>). A natural-wall solve has no measured price on this fixture (no Dirichlet rows; MUMPS on an indefinite system). If W1 passes 340 s, drop the two printed rungs, never the asserted pair.
+  <code>scripts/testing/run_and_log.sh TH-5-step2b-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 590 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_th5_mixed_wall_two_torus.py -v -s --tb=short'"</code>
+- <strong>W2</strong> (real build: collection and skips, ≈ 15 s).
+  <code>scripts/testing/run_and_log.sh TH-5-step2b-W2 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 120 mpiexec -n 1 python3 -m pytest tests/environment tests/validation/test_th5_mixed_wall_two_torus.py -v -s --tb=short'"</code></p>
+<p><strong>Traps already paid for.</strong>
+- <strong>Weights are constants, never fitted.</strong> Solving for the w that zeroes B^mix makes (M) a tautology; w_PEC* is printed only.
+- <strong>Signed deficits and signed box terms</strong> (<code>GEO-4</code>). Combine Z, or signed d on the shared ωM₁₂; never compose relative percents with different denominators. (S) is on signed B; (M) and (c2) are on magnitudes.
+- <strong><code>project_source</code> stays at its default, <code>True</code>,</strong> under both walls (item 277's trap: <code>"matched"</code> unpins the exterior under the natural mode and changes the drive between the walls). The tori sit ≥ 0.08 m from the wall, so no boundary-node gradient overlaps J′.
+- <strong>The natural wall needs <code>boundary_condition="natural"</code>.</strong> Under PEC the Dirichlet rows win silently (c1).
+- <strong>Rank-safety.</strong> Allreduce every <code>assemble_scalar</code> (the reaction). Take global counts via <code>index_map(…).size_global</code>. Print on rank 0.
+- <strong>Complex build.</strong> No <code>ufl.max_value</code>, no ordering on complex operands, no <code>sqrt</code> inside a comparison; take real and imaginary parts after the allreduce.
+- <strong>A kill at 590 s is not a result.</strong> Run <code>pgrep -c python3</code> in the container first, and sweep orphan <code>.c</code> stems only when it reads 0 (the rubric's one-call sweep). Never lengthen the timeout or change <code>-n</code>. Status 124 is a finding.
+- <strong>Rule (i):</strong> no edit to the new module after its last green window, and never an edit to item 277's module. Write ≈, never <code>~</code>, in tracked Markdown.</p>
+<p><strong>Scope.</strong>
+- <strong>Covered:</strong> one fixture (<code>PORT-1</code>'s two-torus, d = 0.04 m, 10 MHz, degree 1, <code>-n 2</code>), and the post-solve ⅓ / ⅔ combination at one asserted padding.
+- <strong>Not this item:</strong> a mixed wall as a boundary condition any user can set; any second-order ABC or PML; any birdcage or open-boundary figure; a padding heuristic for the mixed combination; the §2.1 line itself (the review's). <code>PORT-1</code>'s ✅ and <code>GEO-4</code>'s heuristic are untouched.</p>
+<p><strong>Status it can move.</strong> <code>TH-5</code>'s Done-when as re-posed 09-30 is ✅ on 1a, 1b, 2a, 2b and the §2.1 line "valid for k₀R ≳ π; a reflector for small boxes". On green, the §7 row gains a step-2b record sentence (B^PEC, B^NAT and B^mix at 0.08 m, r_NAT(W) at three rungs, (c2)'s miss, elapsed time), and the §10 lane-2 entry marks 2b DONE. <strong>If item 277 is DONE</strong>, the row then lacks only the §2.1 line: the next review writes it and flips 🟡 → ✅ after an <code>auditor</code> PASS. <strong>If 277 is not DONE</strong>, 🟡 holds and 2b stands as a record awaiting 2a. The implementer holds 🟡 in either case.</p>
+<p><strong>Negative result.</strong> In every case: report the measurement, park on <code>attempt/TH-5-step2b-*</code>, mark item 290 BLOCKED in the same commit (rule (d)), and journal it in attempts.md. No band, weight or divisor moves.
+- <strong>(P0) red:</strong> the copied solver is not the fixture. Stop before reading (S) / (M).
+- <strong>(E) red:</strong> a loss term entered a lossless solve, which is a code defect. Stop.
+- <strong>(S) red</strong> (B^NAT ≤ 0): first check whether d^NAT == d^PEC bitwise (c1's signature: the wall did not switch). If not, the box does not act as a magnetic wall at k₀R ≈ 0.03, contradicting 1b-0's closed form as x → 0: a finding for the weekly.
+- <strong>(M) red with (S) green:</strong> r_NAT(0.08) ∉ [0.2, 0.8]. <strong>The cube's weights differ</strong>, which is the weekly's own disposition: a record. r_NAT, w_PEC* and B^mix go into the §7 row as the 2b record, and the weekly decides whether 2b closes on it.
+- <strong>W1 killed or over 450 s:</strong> BLOCKED without a result. The review shrinks the case (drop the 0.10 / 0.12 m rungs).</p>
+<p><strong>Outcome (2026-10-07 04:30 slot, attempt 1 of 4): ✅ DONE — every asserted clause green, first try.</strong> (P0) −8.0404 pp (|Δ| 0.0080); (E) |Re Z₂₁|/|Z₂₁| = 0 under both walls; (S) B^PEC −9.7338, B^NAT +4.4889 pp, (c1) separation 14.2227 pp; (M) B^mix −0.2520 pp ≤ bar 1.9468 pp, r_NAT(0.08) 0.4612, w_PEC* 0.3156; (c2) 2.5647×. Printed: r_NAT 0.3359 / 0.2080 at 0.10 / 0.12 m (fit-referenced). Cells 119 533 / 135 685 / 153 952; solves 21.4 + 20.6 / 30.4 / 35.6 s. <code>20261007T093129Z_TH-5-step2b-W1.log:621–636</code> (240 s), W2 <code>20261007T093540Z_TH-5-step2b-W2.log</code> (65 s). <strong>Correction to the anchor paragraph (printed numpy check, W1 <code>:79–81</code>):</strong> the l ≥ 2 residual (1 − l)/(3l) is in the source normalisation; as a fraction of each pole's PEC term it is (1 − l)/(3(l + 1)) (−1/9 at l = 2, not −1/6). Gates nothing. 🟡 held: 2a is BLOCKED.</p>
+<p>No <code>PREDICTED RED:</code> line: (P0), (E), (S), (M) and (c2) are all predicted green.</p>
+<h2 id="7-row-moved-verbatim-2026-10-07-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-07 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-07-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p>Absorbing boundary condition (ABC) | 🟡 Steps 1a (first-order ABC reflection on the TEM line falling at LSQ rate 2.0021 by volume projection), 1b-0 and 1b (the dipole on a curved ball boundary) all landed 2026-09-30. ✅ still needs step 2 and the §2.1 line; the sphere re-pose was ratified by the 2026-09-30 weekly. <em>(<strong>Step 2a record 2026-10-07 (§9 item 277, attempt 1, BLOCKED — (R) red with (S) green):</strong> first-order ABC on <code>PORT-1</code>'s two-torus box, degree 1, <code>-n 2</code>, 10 MHz. (P0) PEC 0.08 m deficit −8.0404 pp (|Δ| 0.0080 ≤ <code>P0_BAND_PP</code>); (E) Re Z₁₁ +3.784e-3 / +2.620e-3 / +1.924e-3 Ω &gt; 0, PEC |Re Z₂₁|/|Z₂₁| = 0, power identity Re Z₁₁·I₁² = ∮|n × E|²/η₀ to ≤ 1.2e-11 (printed); (S) green, B^ABC = +4.7133 / +2.3965 / +1.1256 pp against B^PEC −9.7258 / −6.7190 / −4.9667 pp; <strong>(R) r(W) = 0.4846 / 0.3567 / 0.2266 at 0.08 / 0.10 / 0.12 m against [0.3, 0.7] — red at 0.12 m</strong>, falling with W rather than holding at the sphere model's 0.5. ABC deficits +6.4067 / +4.0899 / +2.8190 pp; the free-exponent fit through them fails (printed); (c3) |deficit^ABC − deficit^NAT| at 0.08 m 0.2245 pp (predicted ≤ 0.486, printed); original ≥ 5× bar false at all rungs (banked negative). Executor's hypothesis, untested: the ABC ladder approaches a box-free limit below D∞^PEC, so B^ABC measured against D∞^PEC carries that offset and r(W) drifts. <code>20261007T052330Z_TH-5-step2a-W1.log:952–974</code> (on <code>attempt/TH-5-step2a-20261007T052330Z</code>), 313.7 s. The weekly decides whether 2a stands closed on this record and re-derives 2b's weights.)</em> <em>(<strong>Step 2b DONE 2026-10-07 (04:30 slot, §9 item 290, attempt 1 of 4) — the ⅓ PEC + ⅔ natural mixed wall meets the weekly's ≤ |B^PEC|/5 bar at 0.08 m; 🟡 held (2a is BLOCKED, so 2b stands as a record awaiting the weekly's 2a ruling).</strong> Post-solve Z^mix = ⅓ Z^PEC + ⅔ Z^NAT on one mesh, degree 1, <code>-n 2</code>, 10 MHz, new <code>tests/validation/test_th5_mixed_wall_two_torus.py</code> (tests only, own <code>_solve_z_column</code> copy). (P0) PEC 0.08 m −8.0404 pp (|Δ| 0.0080 ≤ 0.05); (E) |Re Z₂₁|/|Z₂₁| = 0 under both walls; (S) B^PEC −9.7338 pp, B^NAT +4.4889 pp (d^NAT +6.1823; (c1) |d^NAT − d^PEC| 14.2227 pp); <strong>(M) B^mix −0.2520 pp against the bar 1.9468 pp</strong>, r_NAT(0.08) 0.4612, w_PEC</em> 0.3156 against ⅓; (c2) swapped weights miss by 2.5647× (predicted 2.5); literal-reading bar 0.3387 pp also met (printed). Printed, fit-referenced: r_NAT 0.3359 / 0.2080 and |B^mix|/|B^PEC| 0.1094 / 0.1947 at 0.10 / 0.12 m — the cancellation weakens as the box grows, the same fall as 2a's r(W). <code>20261007T093129Z_TH-5-step2b-W1.log:621–636</code> (16 passed, 240 s, first try), W2 real build <code>20261007T093540Z_TH-5-step2b-W2.log</code> (9 passed, 7 skipped, 65 s).)* <em>History: <code>docs/planning/chunks/TH-5.md</code>.</em> </p>
+<h3 id="9-item-320-2026-10-08-lane-2-th-5-step-2c">§9 item 320 — 2026-10-08 (lane 2 — TH-5 step 2c)<a class="headerlink" href="#9-item-320-2026-10-08-lane-2-th-5-step-2c" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-08 03:00 daily review; the review reviews it.</em> Licence: §9 rule (5) lane 2, the 2026-10-07 weekly's ruling (<code>PROJECT_PLAN.md:4454–4468</code>, "<code>TH-5</code> step 2a — stands on its record; (R) retired as posed"), enumerated as "<strong>Lane 2: <code>TH-5</code> 2c</strong> … ⇒ <code>TH-5</code> ✅" (<code>:4777–4778</code>) and flagged for this review (<code>:4892, 4899</code>). <strong>No band, tolerance, Done-when or target is set or moved.</strong> Every gated number below is imported by name or from a log; the §2.1 sentence is the weekly's, copied verbatim.</p>
+<p><strong><code>TH-5</code> step 2c — land 2a's module with (R) retired, re-run 2b, write the §2.1 line.</strong> Three windows, no new physics. The change to 2a's module is one deletion: the <code>RATIO_BAND</code> assertion loop at the end of <code>test_s_r_box_term_sign_and_ratio</code>. The weekly ruled that (R) was the sphere model's 0.5 applied to a cube ladder whose reference D∞^PEC is itself a fit, and that 2b's natural wall shows the same fall (r_NAT 0.46 → 0.34 → 0.21). That is a changed quantity, not a loosened band (the T21′ pattern).</p>
+<ul>
+<li><strong>Executor:</strong> implementer. <strong>Tier:</strong> heavy (W1 ≈ 280 s and W2 ≈ 200 s, each over standard's 180 s), complex build, <code>-n 2</code> (2a's and 2b's width). <strong>Class:</strong> lane-2 land-and-close. <strong>Cost:</strong> ≈ 10 measured (2b's slot: 04:30 CDT start → journal 09:40Z) / <strong>≈ 45 predicted</strong> min = 15 fixed + ≈ 5 code + ≈ 10 compute (W1 + W2 + W3) + ≈ 9 docs (row, §2.1, §10, this file) + ≈ 6 spare. <strong>If W1 is not green by minute 35, park</strong> (rule (d)).</li>
+<li><strong>Depends on:</strong> nothing. Both modules' fixtures and imports are on <code>main</code>; 2b's module (<code>6b27711d</code>) is independent of 2a's (its own <code>_solve_z_column</code> copy). <strong>Attempt:</strong> 1 of 4. <strong>No <code>src/</code> edit; no edit to 2b's module, <code>PORT-1</code>'s or <code>GEO-4</code>'s</strong> (rule (c) not triggered).</li>
+</ul>
+<p><strong>Settled from the branch (read before editing).</strong> <code>git diff --name-status main...attempt/TH-5-step2a-20261007T052330Z</code> = <code>A tests/validation/test_th5_abc_two_torus.py</code> (261 lines), <code>A docs/testing/logs/20261007T052330Z_TH-5-step2a-W1.log</code>, <code>M docs/testing/test-results.md</code> (one row). Branch tip <code>0a90dee7</code>.
+- <strong>Take the code by path, only the code:</strong> <code>git checkout attempt/TH-5-step2a-20261007T052330Z -- tests/validation/test_th5_abc_two_torus.py</code>. <strong>Never path-checkout <code>docs/testing/test-results.md</code> or any <code>docs/testing/logs/</code> file from the branch</strong> (rubric item 4, <code>8d4cf58</code> dropped nine rows). 2c's own windows append their own rows. 2a's W1 log stays cited "on the attempt branch", as the §7 row already says.
+- <strong>Edits to the module, and nothing else:</strong> (1) delete <code>for r in ratios: assert RATIO_BAND[0] &lt;= r &lt;= RATIO_BAND[1]</code>; (2) delete the <code>RATIO_BAND</code> constant, and in the S/R print replace <code>(band {RATIO_BAND})</code> with <code>(record; (R) retired, weekly 2026-10-07; sphere model 0.5)</code>; (3) in the docstring, move (R) from "Asserted" to "Printed (record)" and add "§9 item 320". Keep the test names and every other line byte-identical, so the log lines read like 2a's. Before W1, show <code>git diff attempt/TH-5-step2a-20261007T052330Z -- tests/validation/test_th5_abc_two_torus.py</code> in the journal: it must contain only those three hunks.</p>
+<p><strong>Anchors (asserted; all inherited unchanged from item 277's brief, this file <code>:165–171</code>).</strong>
+- <strong>(P0)</strong> PEC 0.08 m deficit within <code>P0_BAND_PP</code> of <code>P0_RUNG_PP</code> (<code>test_geo4_box_padding_heuristic.py</code>). 2a record −8.0404 pp, |Δ| 0.0080.
+- <strong>(E)</strong> Re Z₁₁^ABC &gt; 0 at all three rungs (record +3.784e-3 / +2.620e-3 / +1.924e-3 Ω), and PEC |Re Z₂₁| ≤ <code>IDENTITY_TOLERANCE</code>·|Z₂₁| (record 0).
+- <strong>(S)</strong> B^PEC &lt; 0 and B^ABC &gt; 0 at 0.08 / 0.10 / 0.12 m (record B^ABC +4.7133 / +2.3965 / +1.1256 pp).
+- <strong>2b re-run:</strong> its own (P0), (E), (S), (M), (c2) as on <code>main</code>. Record: (M) B^mix −0.2520 pp against bar 1.9468 pp; (c2) 2.5647×.
+- <strong>Printed record, not asserted:</strong> r(W) = 0.4846 / 0.3567 / 0.2266; the power-identity residual (≤ 1.2e-11); (c3) 0.2245 pp; the failed free-exponent fit; the original ≥ 5× bar false. Same code, image and <code>-n 2</code>, so everything is <strong>predicted to reproduce 2a's / 2b's digits as printed</strong>.</p>
+<p><strong>Negative controls (rule (e)).</strong>
+- <strong>(c1) PEC in the ABC's place — asserted via (S) + (P0).</strong> Separation |B^ABC − B^PEC| 14.4391 pp at 0.08 m (2a record) against a rung precision of ≈ 5e-5 pp.
+- <strong>(c2) Conjugated γ — asserted via (E)'s sign.</strong> It makes the boundary a source and gives Re Z₁₁ &lt; 0.
+- <strong>2b's (c1) / (c2) — asserted in 2b's module.</strong> Swapped weights miss by 2.5647× (ceiling 2.0–3.0 for r ∈ [0.2, 0.8], item 290).
+- <strong>(L) the landed code is 2a's code — journal check, not a test.</strong> The three-hunk diff above. A module rewritten instead of lifted voids 2a's record as the comparand.</p>
+<p><strong>Windows.</strong> Foreground; each harness call bare and whole; Bash <code>timeout: 660000</code>; <code>-s</code>; node IDs only, never <code>-k</code>; <code>test_complex_mode.py</code> first. Each window is under 10 min, so no durable capture. Priced from <code>20261007T052330Z_TH-5-step2a-W1.log</code> (313.68 s with all of <code>tests/environment</code>, footer 315 s) and <code>20261007T093129Z_TH-5-step2b-W1.log</code> (240 s) / <code>…093540Z_…-W2.log</code> (65 s). Dropping the other three environment files saves ≈ 35–45 s.
+- <strong>W1</strong> (heavy; 2a's module). Predicted ≈ 280 s, bracket 230–450 s.
+  <code>scripts/testing/run_and_log.sh TH-5-step2c-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 590 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/validation/test_th5_abc_two_torus.py -v -s --tb=short'"</code>
+- <strong>W2</strong> (heavy; 2b re-run). Predicted ≈ 200 s, bracket 160–340 s.
+  <code>scripts/testing/run_and_log.sh TH-5-step2c-W2 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 590 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/validation/test_th5_mixed_wall_two_torus.py -v -s --tb=short'"</code>
+- <strong>W3</strong> (real build: collection and skips for both modules, ≈ 30–65 s).
+  <code>scripts/testing/run_and_log.sh TH-5-step2c-W3 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 180 mpiexec -n 1 python3 -m pytest tests/environment/test_complex_mode.py tests/validation/test_th5_abc_two_torus.py tests/validation/test_th5_mixed_wall_two_torus.py -v -s --tb=short'"</code>
+- W1 and W2 run serially, never concurrently, and never beside another heavy window. Combined into one window they would total ≈ 505 s against 590 s, which is too thin.</p>
+<p><strong>Traps already paid for.</strong>
+- <strong>Path-checkout of records</strong> (above). After the commit is staged, <code>git diff --cached --stat</code> must show only insertions on <code>docs/testing/test-results.md</code>.
+- <strong>(R) is retired, not relaxed.</strong> No replacement band and no new constant that reads as a bound. "Sphere model 0.5" is a printed comparand. Never re-assert r(W) at a wider interval.
+- <strong>Rule (i):</strong> the module is edited once, before W1, and never after its last green window. 2b's module is not touched at all.
+- <strong><code>project_source</code> stays <code>True</code>; the ABC needs <code>boundary_condition="natural"</code>; a conjugated γ is a source.</strong> All three are already in the lifted code (item 277 traps, <code>:191–193</code>), so do not touch them.
+- <strong>Rank-safety and complex build:</strong> already in the lifted code (allreduce before the real part; the <code>ds</code> integral has no <code>SpatialCoordinate</code>).
+- <strong>A kill at 590 s is not a result:</strong> run <code>pgrep -c python3</code> in the container first; use the rubric's one-call orphan-<code>.c</code> sweep only when it reads 0; status 124 is a finding. Never lengthen the timeout or change <code>-n</code>.
+- <strong>Branch deletion is not this item's job</strong> (flag 6, <code>PROJECT_PLAN.md:4909–4910</code>, is the review's). Write ≈, never <code>~</code>.</p>
+<p><strong>Scope.</strong>
+- <strong>Covered:</strong> <code>PORT-1</code>'s two-torus at 10 MHz, degree 1, <code>-n 2</code>, at three paddings (k₀·half-width ≈ 0.02–0.04), plus 1a / 1b's closed forms at k₀R ≳ π.
+- <strong>Not this item:</strong> the band k₀R ∈ (0.04, π) between them, which includes the 64 / 128 MHz birdcage box (§7 entry step 3's question stays open); a second-order ABC or PML; a user-settable mixed wall; any open-boundary birdcage, SAR or HFSS-<em>Radiation</em> parity figure; any reading of <em>why</em> r(W) falls (cube vs sphere, or the D∞^PEC reference — 2a's untested hypothesis stays untested).</p>
+<p><strong>Status it can move.</strong> On W1–W3 green, with the printed records reproducing 2a's / 2b's digits:
+- the §7 row (<code>PROJECT_PLAN.md:2136</code>) 🟡 → ✅, with a step-2c record sentence (passed counts, elapsed, logs);
+- §2.1 gains the weekly's line verbatim (<code>:4464–4467</code>) as a new bullet after "Layered impedance boundary" (<code>:360</code>);
+- the §10 lane-2 entry marks 2c DONE;
+- an outcome line goes under this brief.</p>
+<p>The next review owes an <code>auditor</code> run ("audit TH-5 closed at <sha>") and the flag-6 branch deletion.</p>
+<p><strong>Negative result.</strong> In every case: report the measurement, park on <code>attempt/TH-5-step2c-*</code>, mark item 320 BLOCKED in the same commit (rule (d)), and journal it in attempts.md. 🟡 holds, the §2.1 line is not written, and no band moves.
+- <strong>(P0) / (E) / (S) red in W1, or any 2b assertion red in W2:</strong> something on <code>main</code> changed under a fixture that was green on 10-07 (image, an imported helper, <code>boundary_terms.py</code>). That is a finding for the review, not for re-posing here.
+- <strong>Every assertion green, but a printed record drifts</strong> (r(W) at two figures, |B^mix| at 0.25 pp, or (P0) beyond its fourth decimal): do <strong>not</strong> write the §2.1 line, because its numbers would no longer be what the logs read. Record both readings in the row; the review rules.
+- <strong>W1 or W2 killed, or over 450 s:</strong> BLOCKED without a result. The review shrinks the case (split 2a's rungs).</p>
+<p>No <code>PREDICTED RED:</code> line: every asserted clause is predicted green, on a record of the same code.</p>
+<p><strong>Review rulings (2026-10-08 03:00 daily review, item 320).</strong> (1) <strong>The 2a W1 log lands on <code>main</code> by path</strong> (<code>git checkout attempt/TH-5-step2a-20261007T052330Z -- docs/testing/logs/&lt;that log&gt;</code> — a new file, nothing overwritten) and its <code>test-results.md</code> row <strong>by hand</strong>, in the item's commit, so the §7 citation survives the branch's deletion; never a path checkout of <code>test-results.md</code>. (2) The implementer flips 🟡 → ✅ and writes the weekly's §2.1 line verbatim, as drafted; the next review audits. (3) The drift stop is confirmed: all asserts green but a printed record that does not reproduce 2a / 2b to their printed digits ⇒ no §2.1 line, hold 🟡, report. (4) The line goes where drafted (after "Layered impedance boundary"). (5) Yes: the slot adds a rule (j) annotation to the stale §7 entry-body text (<code>:2382</code>, <code>:2399–2400</code>, <code>:2434–2445</code> at drafting) in the same commit; no Done-when is moved.</p>
+<p><strong>Outcome (2026-10-08 13:30 slot, attempt 1 of 4): ✅ DONE — every asserted clause green, every printed record reproduces 2a / 2b to its printed digit.</strong> (L) diff against the branch: the three edits, as four hunks (docstring; <code>RATIO_BAND</code> constant and print text; assert loop). W1 7 passed, 225 s: (P0) −8.0404 pp (|Δ| 0.0080); (E) Re Z₁₁^ABC +3.784e-3 / +2.620e-3 / +1.924e-3 Ω, PEC |Re Z₂₁|/|Z₂₁| 0, power residual ≤ 1.216e-11; (S) B^ABC +4.7133 / +2.3965 / +1.1256 pp against B^PEC −9.7258 / −6.7190 / −4.9667; r(W) 0.4846 / 0.3567 / 0.2266 (record); (c1) 14.4391 pp; (c3) 0.224456 pp; ABC fit fails (printed) — <code>20261008T183105Z_TH-5-step2c-W1.log:928–943</code>. W2 8 passed, 169 s: B^PEC −9.7338, B^NAT +4.4889, (c1) 14.2227 pp, (M) B^mix −0.2520 pp vs 1.9468, (c2) 2.5647×, w_PEC* 0.3156 — <code>20261008T183455Z_TH-5-step2c-W2.log:597–613</code>. W3 real build 2 passed, 9 skipped, 2 s — <code>20261008T183751Z_TH-5-step2c-W3.log</code>. 2a's W1 log and its row now on <code>main</code> (ruling (1)). §7 row ✅, §2.1 line written verbatim after "Layered impedance boundary", §10 lane 2 marked, rule (j) annotations added at the three stale entry-body spans. Owed by the next review: the <code>auditor</code> run and the 2a branch deletion.</p>
+<h3 id="9-item-596-2026-10-22-th-5-step-3-lane-2">§9 item 596 — 2026-10-22 (<code>TH-5</code> step 3, lane 2)<a class="headerlink" href="#9-item-596-2026-10-22-th-5-step-3-lane-2" title="Permanent link">&para;</a></h3>
+<p><em>Drafted read-only for the 2026-10-22 03:00 daily review; the review rules on it.</em></p>
+<p><strong>Licence.</strong> §10, 2026-10-21 weekly: "<strong><code>TH-5</code> lane 2 — step 3 opened (the PML),</strong> the one Tier B member left: a polynomial-graded PML on the TEM line, its reflection against the graded-PML closed form (Jin 3e ch. 9 — the daily cites the equation from <code>INDEX.md</code> when it briefs), ≤ 1e-4 at λ₀/40 where the first-order ABC reads 9.5e-4 (step 1a's record); the ABC's own ladder is the negative control. Additive <code>boundary_terms.py</code>; no birdcage use." (<code>PROJECT_PLAN.md:4826–4831</code>). The step is also listed as "Lane 2: <code>TH-5</code> step 3 (the PML)" (<code>:4999–5000</code>), priced in the weekly's supply sheet at the chain-solve median 16.7 (<code>:5014</code>), and queued last in the flagged order (<code>:5114</code>, <code>:5122</code>). The §7 entry's own step 3 is "(optional, review's call)" (<code>:2464–2466</code>). <strong>No band, tolerance, Done-when or validation target is set or moved.</strong> The 1e-4 bar is the weekly's. The PML design constants below (thickness, grading order, the two design reflections) are the item's fixture parameters, stated before the run. <strong>The read the bar is applied to is a question for the review (For the review, 1), because at step 1a's own read the bar sits under that read's floor.</strong></p>
+<p><strong>The anchor in Jin (cited from the converted text; the equation bodies are not in it).</strong> <code>INDEX.md</code> lists only section titles, and states that equations are placeholders <code>[eq (n)]</code> numbered as in print (<code>docs/references/jin-fem-3e/INDEX.md:3–6</code>). The PML is §9.6, <code>09_absorbing-boundary-conditions.md:761–1209</code>:
+- <strong>§9.6.1 (9.133)</strong> (<code>:877–881</code>): the metal-backed PML with a constant stretch s = s′ − js″. Its reflection is "reduced systematically by increasing the value of s″L", with |R| = exp(−2κ₂ s″ L cosθ) (the form the prose describes, assuming κ₂ is real).
+- <strong>§9.6.4 (9.165)</strong> (<code>:1039–1043</code>): the polynomial profile of s_z across N layers, "where m can be 0, 1, 2, or 3", with δ_max "the maximum loss tangent" (<code>:1047</code>).
+- <strong>(9.166) / (9.167)</strong> (<code>:1045–1049</code>): Jin's <em>discrete</em> R^TM / R^TE of the N-layer PML, computed by the 1D FEM of §3.4. They are not closed forms.
+- <strong>§9.6.2 (9.152)–(9.154)</strong> (<code>:961–973</code>): the anisotropic absorber Λ.
+- <strong>§9.6.3 (9.157)</strong> (<code>:993–995</code>): the FE vector wave equation with Λ.
+- <code>:1027</code> is the item's premise: "Although the PML interface is reflectionless in the continuum space, this is not the case in the discretized space [41]."</p>
+<p><strong>The graded closed form is (9.133) with s″L replaced by its integral over (9.165)'s profile.</strong> For s(ξ) = 1 − j s″_max (ξ/d)^m on 0 &lt; ξ &lt; d, PEC-backed, e^{+jωt}, θ = 0:</p>
+<p>Γ_c = −e^{−2jk₀d} · exp(−2k₀ s″_max d / (m + 1)),</p>
+<p>or in σ form (s″ = σ/(ωε₀)), |R| = exp(−2η₀ σ_max d cosθ / (m + 1)). <strong>It is not a numbered equation in the converted text.</strong> That (9.165) is s_z = 1 − jδ_max(z/L)^m, i.e. δ_max ≡ s″_max, is the drafter's reading of the prose, unverified against print (For the review, 2).</p>
+<p><strong>What exists (read 2026-10-22).</strong>
+- <strong><code>src/fem_em_solver/core/boundary_terms.py</code> (61 lines, <code>ac65e2fe</code>):</strong>
+  - the convention docstring (<code>:3–16</code>: e^{+jωt}; the weak form ∫∇×u·∇×v̄ − k₀²∫u·v̄ + …; "Nothing here is exported from <code>core/__init__.py</code>");
+  - <code>first_order_abc_term</code> (<code>:33–41</code>), <code>_tangential_mass_term</code> (<code>:44–51</code>), <code>abc_first_order_reflection_te</code> (<code>:54–61</code>).
+  - Importers: the three <code>TH-5</code> modules (<code>test_th5_abc_reflection.py</code>, <code>test_th5_dipole_sphere.py</code>, <code>test_th5_abc_two_torus.py</code>) and <code>study.py:2276</code> (<code>impedance_boundary_term</code> only). No generated API page names the module.
+- <strong>The TEM-line fixture, <code>tests/validation/test_th5_abc_reflection.py</code> (393 lines):</strong>
+  - λ₀ = 1 m, <code>K0</code>, <code>OMEGA</code> (<code>:58–61</code>); tags (<code>:63</code>); <code>L_N</code> = 0.9 (<code>:66</code>); <code>PROJ_N</code> = (0.15, 0.75) (<code>:70</code>);
+  - <code>_box</code> (<code>:106–134</code>, tags <code>TAG_TERM</code> at x = length, cells allreduced);
+  - <code>_solve</code> (<code>:137–168</code>; terminations <code>abc</code> / <code>exact</code> / <code>pec</code> / <code>pmc</code> only, <strong>no extra-term argument</strong>);
+  - <code>_assemble_complex</code> (<code>:185–187</code>);
+  - <code>_Projection</code> (<code>:190–240</code>): a volume LSQ onto e^{∓jβx} over a DG0 window set in numpy. <code>k_fit</code> (<code>:233–240</code>) is a 21-point residual scan at ±5e-3 relative with a parabolic vertex, and returns <code>(k, Γ(k), interior)</code>;
+  - <code>_tem_box</code> (W = 2h, 2 × 2 cells across; <code>:247–250</code>) and <code>_tem(comm, h, degree, termination, scan)</code> (<code>:253–265</code>);
+  - the ABC ladder test (<code>:317–364</code>) and the TE10 test (<code>:367–393</code>).
+- <strong>Step 1a's record</strong> (<code>docs/testing/logs/20260930T094044Z_TH-5-step1a2-W1.log.gz</code>; 16 passed, 82 s, <code>-n 2</code>, complex):
+  - degree 1, projection at k₀: |Γ| 3.814078e-3 / <strong>9.499917e-4</strong> / 2.373045e-4 / 5.931735e-5 at λ₀/20 / 40 / 80 / 160 (<code>:105</code>, <strong><code>:107</code></strong>, <code>:109</code>, <code>:111</code>), rate 2.0021 (<code>:112</code>);
+  - degree 2 at λ₀/40: 1.368981e-7 (<code>:114</code>);
+  - PEC control at λ₀/80: Γ = −1.000000 + 0.000538j (<code>:115</code>);
+  - <strong>k_fit at λ₀/80:</strong> ABC k_fit − k₀ = +5.5894e-4 rad/m, |Γ| at k_fit <strong>2.126188e-4</strong> (<code>:118</code>); PEC +5.5789e-4 (<code>:119</code>).
+- <strong>Solver hook (not used here; the term has its shape):</strong> <code>TimeHarmonicSolver.solve(extra_bilinear_terms=…)</code> (<code>src/fem_em_solver/core/time_harmonic.py:400</code>, <code>:556–559</code>).</p>
+<p><strong>The floor of step 1a's read at λ₀/40 (rubric element 2: the ceiling, here a floor, is computed before the bar is applied).</strong> On the TEM line at normal incidence the first-order ABC is <em>exact</em> in the continuum: R(0) = 0 (Jin (9.48); <code>abc_first_order_reflection_te(1.0) == 0</code>, <code>test_th5_abc_reflection.py:87</code>). So the ABC's 9.5e-4 at λ₀/40 is discretisation only, and the comparison the weekly asks for is discrete against discrete.
+- The fixture's discrete wavenumber is k_h ≠ k₀. The record measures k_fit − k₀ = +5.59e-4 rad/m at λ₀/80 on both ABC and PEC solves (<code>:118–119</code>); h² scaling gives ≈ +2.24e-3 rad/m at λ₀/40.
+- <strong>A perfectly reflectionless forward wave e^{−jk_h x}, projected at k₀ over <code>PROJ_N</code>, reads |Γ| = 1.18e-4–1.20e-4 at λ₀/40.</strong> This is a drafter's stdlib computation (piecewise-linear interpolant, six-point Gauss per cell, 1a's window), unlogged, a reading and not a window. It is the read's own dispersion leak. It does not depend on the termination.
+- <strong>Cross-check against the record:</strong> the same computation gives 2.97e-5 at λ₀/80, against the record's measured gap between the k₀ and k_fit reads of the ABC, 2.373045e-4 − 2.126188e-4 = 2.47e-5 (<code>:109</code>, <code>:118</code>; a vector leak bounds the magnitude gap from above).
+- <strong>So at the k₀ read the weekly's ≤ 1e-4 at λ₀/40 is below the read's floor (≈ 1.2e-4), whatever terminates the line.</strong> Including a PML's own discrete reflection, the predicted band at the k₀ read is [0.9e-4, 1.6e-4]. The bar sits inside it, so a green there would be cancellation luck, not absorption, and a red would not be a finding about the PML. This band straddles the bar, so it cannot be written as a <code>PREDICTED RED</code> range either.
+- <strong>At the k_fit read</strong> (1a's own <code>_Projection.k_fit</code>, recorded at λ₀/80) the leak is removed. The predicted PML reading is <strong>≈ 5e-6</strong>, bracket [2e-6, 5e-5]. <strong>The bar is reachable with ≈ 2–50× margin (point ≈ 19×).</strong></p>
+<p><strong>The discretisation estimate (drafter's stdlib 1D model, unlogged; predictions only).</strong>
+- <strong>The model.</strong> On the TEM line, E = E_z(x) ẑ, and Λ reduces to −(u′/s)′ − k₀² s u = 0: the yy entry of Λ⁻¹ and the zz entry of Λ, since ∇×(E_z ẑ) = −E_z′ ŷ. The model discretises this with 1D P1 elements, the mass a blend α · consistent + (1 − α) · lumped.
+- <strong>Calibration of α:</strong> α = 0.674 reproduces the record's dispersion (k_h − k₀ 5.61e-4 against 5.59e-4 at λ₀/80).
+  - It reproduces the record's <strong>ABC k_fit read at λ₀/80 to 0.15 %</strong> (2.123e-4 against 2.126188e-4, <code>:118</code>).
+  - It sits 1.25× below the record's k₀ reads (7.57e-4 against 9.50e-4 at λ₀/40), because the leak's phase differs.
+  - α = 0.5 (no dispersion) brackets it from the other side (ABC 1.03e-3 at λ₀/40).
+- <strong>Design scan, PEC-backed, m ∈ {1, 2, 3}, d ∈ {0.5, 1, 1.5, 2} λ₀, design R ∈ {1e-3 … 1e-6}:</strong>
+  - d = 0.5 λ₀ (20 cells) floors at ≥ 4e-4 at λ₀/40, whatever s″_max is.
+  - d = 1.0 λ₀ reaches 3.3e-5–4.6e-5 at the k_fit read (R = 1e-6, m = 2), only 2–3× under the bar.
+  - <strong>d = 1.5 λ₀, m = 2 reaches 5.2e-6 (α 0.674) / 1.4e-5 (α 0.5).</strong> These are the item's design constants.</p>
+<p><strong><code>TH-5</code> step 3 — a polynomial-graded PML (Jin's anisotropic absorber) on step 1a's TEM line, PEC-backed, read by step 1a's projection; its reflection against the graded closed form at λ₀/40 at the weekly's 1e-4, with the first-order ABC on the same line and the same read as the negative control.</strong>
+- <strong>Executor:</strong> implementer.
+- <strong>Tier:</strong> standard (W1 predicted ≈ 100 s), complex build, <code>-n 2</code> (1a's width; the read's assemblies are allreduced).
+- <strong>Class:</strong> lane-2 feature step. <strong>Cost:</strong> ≈ 10.6 measured (= 46 predicted × 0.231). The 10-21 weekly's supply sheet priced it at 16.7 (<code>PROJECT_PLAN.md:5014</code>).
+  - The ≈ 46 predicted minutes are: 15 fixed, ≈ 15 code (≈ 60 lines in <code>boundary_terms.py</code> and a ≈ 220-line module), W1 ≈ 2, W2 ≈ 1, docs (§7 row sentence, §10, outcome line) ≈ 8, and ≈ 5 spare.
+  - The window prices come from 1a's W1: 82 s for all of <code>tests/environment</code> plus the 1a module at <code>-n 2</code> (<code>20260930T094044Z_TH-5-step1a2-W1.log.gz</code>, footer). Dropping the other three environment files saves ≈ 35–45 s (2c's measurement, this file <code>:315</code>).
+  - The PML meshes are 1 152 / 2 304 / 4 608 / 9 216 cells at λ₀/20 … /160 (length 2.4 m × 24 cells per x-step), each solve well under 1 s. The cost is the one complex JIT of the PML form.
+- <strong>Depends on:</strong> nothing. <strong>Daytime:</strong> no. <strong>Slot-first:</strong> no. <strong>Attempt:</strong> 1 of 4.</p>
+<p><strong>Code.</strong> No edit to any existing function in <code>boundary_terms.py</code>, to <code>core/__init__.py</code>, <code>time_harmonic.py</code>, <code>study.py</code>, or any <code>TH-5</code> test module (1a, 1b, 2a, 2b).
+- <strong><code>src/fem_em_solver/core/boundary_terms.py</code>, additive only (appended below <code>abc_first_order_reflection_te</code>; the module docstring gains one line naming step 3):</strong>
+  - <code>pml_slab_term(msh, x_start, thickness, s_max, order, omega_rad_s)</code> returns <code>f(trial, test)</code>, the <em>correction</em> that turns the vacuum form into Jin's anisotropic-absorber PML (§9.6.2 (9.152)–(9.154), §9.6.3 (9.157)) in the slab x_start &lt; x &lt; x_start + thickness. The slab's normal is x̂, outgoing +x.
+    - The correction is ∫ χ [(Λ⁻¹ − I)∇×u·∇×v̄ − k₀²(Λ − I)u·v̄] dx.
+    - Λ = diag(1/s, s, s) and Λ⁻¹ = diag(s, 1/s, 1/s), built with <code>ufl.as_matrix</code>.
+    - s = 1 − j s_max χ ξ^m, ξ = (x[0] − x_start)/thickness (the (9.165) profile).
+    - χ is a DG0 indicator <strong>set in numpy at cell midpoints</strong> (1a's pattern, <code>test_th5_abc_reflection.py:201–203</code>), never a UFL comparison.
+    - The measure has <code>metadata={"quadrature_degree": 6}</code> pinned (1a's <code>_Projection</code> degree, <code>:209</code>).
+    - The tensor sits on the trial side, and the test function is conjugated by <code>ufl.inner</code> (the docstring convention, <code>:3–10</code>).
+    - It is vacuum only, like <code>first_order_abc_term</code>. The docstring states that <code>s_max &lt; 0</code> is the conjugated, amplifying stretch (the γ trap's analogue, <code>:10–11</code>), kept callable for the negative control.
+  - <code>pml_reflection_pec_backed(s_max, thickness, order, k0, cos_theta=1.0)</code> returns the complex Γ_c = −exp(−2jk₀cosθ d) · exp(−2k₀cosθ s_max d/(m + 1)) above. Its docstring cites (9.133) and (9.165), says the graded integral is the drafter's derivation and not a numbered equation, and gives the σ form.
+  - <code>pml_s_max_for_reflection(r, thickness, order, k0, cos_theta=1.0)</code> = −ln r · (m + 1)/(2k₀cosθ d).
+- <strong>New module <code>tests/validation/test_th5_pml_reflection.py</code></strong> (tests only).
+  - It imports from <code>tests.validation.test_th5_abc_reflection</code>: <code>L_N</code>, <code>PROJ_N</code>, <code>K0</code>, <code>OMEGA</code>, <code>LAMBDA0</code>, the tags, <code>_box</code>, <code>_Projection</code>, <code>_assemble_complex</code> and <code>_tem</code> (1b's precedent, this file <code>:96–98</code>), plus <code>IDENTITY_TOLERANCE</code> (<code>tests/validation/test_port_reaction_impedance.py:192</code>, 1e-9).
+  - <strong>Constants at module top, before any solve:</strong>
+    - <code>PML_REFLECTION_BAR = 1e-4</code>, with a comment quoting the weekly (<code>PROJECT_PLAN.md:4829</code>);
+    - <code>PML_D = 1.5</code> (λ₀; 60 cells at λ₀/40), <code>PML_M = 2</code>;
+    - <code>R_ABSORB = 1e-6</code> (leg A, s″_max = 2.19880) and <code>R_CLOSED = 1e-3</code> (leg C, s″_max = 1.09940), both through <code>pml_s_max_for_reflection</code>.
+    - d = 1.5 λ₀ makes e^{−2jk₀d} = 1, so Γ_c = −R.
+  - <strong>Own solve, copied from 1a's <code>_solve</code> (<code>:139–168</code>, the <code>pec</code> path):</strong> <code>_solve_terms(msh, tags, degree, drive, pec_tags, extra)</code> adds <code>sum(t(u, v) for t in extra)</code> to <code>a</code>, with PEC on <code>TAG_Z</code> and <code>TAG_TERM</code>.
+  - <strong><code>_pml_tem(comm, h, s_max, scan=True)</code>:</strong>
+    - builds <code>_box(comm, L_N + PML_D, 2h, 2h, round((L_N + PML_D)/h), 2, 2)</code>, with node planes at x = 0.9 and 2.4 at every rung (0.9/h = 18 / 36 / 72 / 144);
+    - solves with <code>pml_slab_term(msh, L_N, PML_D, s_max, PML_M, OMEGA)</code>;
+    - reads <code>_Projection(e_h[2], msh, *PROJ_N, K0)</code> at k₀ (<code>.gamma(K0, L_N)</code>) and at <code>.k_fit(K0, L_N)</code>;
+    - returns both, plus the cell count and seconds.
+  - <code>test_pml_closed_form_numpy</code>: ungated, numpy only.
+  - <code>test_pml_tem_line</code>: <code>@complex_only</code> (1a's marker, copied), <code>@pytest.mark.integration</code>; one solve set, every assertion and print.</p>
+<p><strong>Anchors (asserted).</strong>
+- <strong>(Z) numpy identities, each ≤ <code>IDENTITY_TOLERANCE</code>:</strong>
+  - |Γ_c| = R for both designs;
+  - <code>pml_s_max_for_reflection</code> inverts <code>pml_reflection_pec_backed</code>;
+  - the σ form equals the s″ form;
+  - s_max = 0 gives |Γ_c| = 1;
+  - |Γ_c(θ)| = |Γ_c(0)|^{cosθ}.
+  - Predicted ≤ 1e-15.
+- <strong>(V) premises at every rung:</strong>
+  - ∫χ_slab dV = PML_D·(2h)² and 1a's window ∫χ dV = 0.60·(2h)², each relative ≤ <code>IDENTITY_TOLERANCE</code>. 1a read ≤ 2.7e-13 on the window (<code>:94–101</code>); predicted ≤ 1e-12.
+  - The cell count is 24 · round(2.4/h).
+- <strong>(K) every k_fit read that an assertion uses has <code>interior</code> True.</strong> k_fit − k₀ is predicted ≈ +2.24e-3 rad/m at λ₀/40, inside the scan's central step (3.1e-2 rad/m half-width, 3.1e-3 rad/m step).
+- <strong>(A) absorption leg, λ₀/40, k_fit read:</strong> |Γ − Γ_c| ≤ <code>PML_REFLECTION_BAR</code> at R_ABSORB. Predicted 5.2e-6 (α 0.674) / 1.4e-5 (α 0.5), bracket [2e-6, 5e-5].
+- <strong>(C) closed-form leg, λ₀/40, k_fit read:</strong> |Γ − Γ_c| ≤ <code>PML_REFLECTION_BAR</code> at R_CLOSED, where Γ_c = −1e-3, so the bar is 10 % of the closed form. Predicted |Γ| ≈ 1.005e-3 and |Γ − Γ_c| ≈ 5.5e-6 (both models), bracket [2e-6, 3e-5]. <strong>This leg is what makes the comparison a test of the closed form.</strong> At R_ABSORB, Γ_c is invisible under the discretisation term.
+- <strong>The 1a module runs green in the same window</strong> (its three tests, unedited). This is the regression for the additive <code>src/</code> edit; rule (c) is satisfied in-slot.</p>
+<p><strong>Negative controls (rule (e)).</strong>
+- <strong>(NC-ABC) the ABC on the same line and read, λ₀/40: asserted.</strong> The run uses <code>_tem(comm, LAMBDA0/40, 1, "abc", scan=True)</code> from 1a.
+  - <strong>At the k₀ read, asserted &gt; <code>PML_REFLECTION_BAR</code>, backed:</strong> the record 9.499917e-4 (<code>:107</code>, the same code and fixture). The ceiling is 9.5× the bar.
+  - <strong>At the k_fit read, asserted &gt; <code>PML_REFLECTION_BAR</code>; the floor is the weekly's bar and the factor is predicted:</strong> ≈ 8.5e-4 (model 8.498e-4), backed in kind by the λ₀/80 record 2.126188e-4 &gt; 1e-4 (<code>:118</code>). The ceiling is ≈ 8.5×.
+  - <strong>Printed:</strong> the k₀ read against 9.499917e-4 (predicted to reproduce to every printed digit: same code, image and <code>-n 2</code>), and |Γ_ABC| / |Γ_PML| at k_fit (predicted ≈ 160, 74–180 across the models).
+  - <strong>"The ABC's own ladder"</strong> is 1a's ladder test, re-run green in the same window: ≤ 1e-4 is reached only at λ₀/160 (5.93e-5, <code>:111</code>), where the PML is asserted at λ₀/40.
+- <strong>(NC-0) s″_max = 0 (the term enters but does not absorb; also catches a dropped term): asserted.</strong> |Γ| &gt; <code>PML_REFLECTION_BAR</code> at λ₀/40, with the floor imported and the factor predicted. Predicted |Γ| = 1.000000: vacuum to a PEC at 2.4 m, the 1a PEC control's analogue, 1.000000 at λ₀/80 (<code>:115</code>).
+- <strong>Printed only (new comparisons):</strong>
+  - <strong>(NC-conj)</strong> s_max = −1.09940 (the conjugated stretch): |Γ| predicted ≈ 9.9e2–1.0e3, i.e. 1/R_CLOSED: the layer amplifies.
+  - <strong>(NC-grade)</strong> leg C against the un-graded (9.133) exponent (R = e^{−2k₀s″d} = 1e-9): miss predicted 1.0e-3, ceiling exactly |Γ_c|/bar = 10.
+  - Leg C against the m = 3 formula applied to the m = 2 profile (R = 5.62e-3): miss predicted 4.6e-3.
+  - Together these show the anchor resolves the 1/(m + 1) grading factor.</p>
+<p><strong>Predictions (written first; printed, never asserted).</strong> The k_fit read is the α 0.674 model, the k₀ read the same model's:
+- <strong>Leg A ladder at λ₀/20 / 40 / 80 / 160, k_fit read:</strong> 1.9e-5 / 5.2e-6 / 1.7e-6 / 1.0e-6. It flattens at /160 onto the design's continuum 1e-6; the LSQ rate over /20–/80 is ≈ 1.7–1.9, printed. At the k₀ read: 4.8e-4 / 1.16e-4 / 2.8e-5 / 6.5e-6.
+- <strong>Leg C at λ₀/40, k₀ read:</strong> |Γ − Γ_c| ≈ 1.16e-4, the floor above.
+- <strong>ABC at k_fit:</strong> k_fit − k₀ ≈ +2.24e-3 rad/m at λ₀/40, and |Γ| 3.41e-3 / 8.50e-4 / 2.12e-4 / 5.31e-5 at /20 … /160 (only /40 is run here).
+- <strong>The 3D/1D level ratio is unmeasured for the PML.</strong> The ×3 brackets above cover it, and the α 0.5 model is the upper bracket.</p>
+<p><strong>Windows.</strong> Each runs in the foreground, with Bash <code>timeout: 660000</code>, <code>-s</code>, node paths only (never <code>-k</code>), and no pipe or redirect. Both are under 10 min, so no durable capture. <strong>The harness call is the whole Bash command.</strong>
+- <strong>W1</strong> (standard, <code>-n 2</code>; predicted ≈ 100 s, bracket 60–170 s):
+  <code>scripts/testing/run_and_log.sh TH-5-step3-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/validation/test_th5_abc_reflection.py tests/validation/test_th5_pml_reflection.py -v -s --tb=short'"</code>
+- <strong>W2</strong> (real build: collection, skips and the numpy test; ≈ 15–30 s):
+  <code>scripts/testing/run_and_log.sh TH-5-step3-W2 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 120 mpiexec -n 1 python3 -m pytest tests/environment/test_complex_mode.py tests/validation/test_th5_abc_reflection.py tests/validation/test_th5_pml_reflection.py -v -s --tb=short'"</code>
+- Before W1, put <code>git diff --stat src/fem_em_solver/core/boundary_terms.py</code> in the journal: insertions only.</p>
+<p><strong>Traps already paid for.</strong>
+- <strong>Never assert at the k₀ read.</strong> Its floor (≈ 1.2e-4 at λ₀/40) is above the bar. A k₀-read green comes from leak cancellation: the model's d = 1.0, m = 3, R = 1e-4 cell reads 1.8e-5 at k₀ by phase luck. <strong>Design constants are fixed at module top before W1 and never tuned between windows.</strong>
+- <strong>No UFL comparison anywhere in the slab.</strong> χ is DG0 and set in numpy (no <code>ufl.conditional</code>, <code>ufl.gt</code>, <code>ufl.max_value</code>, or <code>sqrt</code> in a comparison: <code>OPS-22</code>, <code>WF-6</code> 4c). ξ^m with integer m on a negative ξ outside the slab is harmless only because χ = 0 multiplies it. Keep χ inside s, not outside the form.
+- <strong>Pin the quadrature degree.</strong> The integrand carries the rational 1/s and a <code>SpatialCoordinate</code> (<code>POST-5</code>'s compile trap, by analogy).
+- <strong>Sign convention:</strong> s = 1 − js″ absorbs under e^{+jωt}, and the conjugate amplifies (the γ trap, <code>boundary_terms.py:10–11</code>). Never re-derive it; (NC-conj) prints it.
+- <strong>Node planes:</strong> x = 0.9 and 2.4 must be mesh planes at every rung, or χ mis-assigns a straddling cell. Do not change <code>PML_D</code> to a value that breaks 0.9/h, 2.4/h ∈ ℤ.
+- <strong><code>_solve</code> cannot take the term.</strong> Copy its lines (<code>:139–168</code>). Never add a kwarg to 1a's module: rule (i), and it is a gated module.
+- <strong>Rank-safety:</strong> <code>_Projection</code> and <code>_box</code> allreduce already. Take any new scalar (∫χ_slab dV) through <code>_assemble_complex</code>. Print on rank 0.
+- <strong>A kill at 180 s is not a result.</strong> Run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> first, and the rubric's one-call orphan-<code>.c</code> sweep only if it reads 0. Never lengthen the timeout or change <code>-n</code>.
+- <strong>Rule (i):</strong> no edit to either file after W1 starts. Write ≈, never <code>~</code>, in tracked Markdown.</p>
+<p><strong>Scope.</strong> Covered: one fixture (1a's TEM line, normal incidence, degree 1, vacuum, <code>-n 2</code>), one PML design family (d = 1.5 λ₀, m = 2, PEC-backed), and the k_fit read. <strong>Not claimed:</strong>
+- oblique incidence: the TE10-60° guide, where the ABC's continuum −1/3 is what a PML would actually beat (<code>:125</code>);
+- degree 2: the ABC already reads 1.4e-7 at λ₀/40 (<code>:114</code>);
+- an ABC-backed or complementary PML (Jin §9.6.5–9.6.6);
+- curved or corner PMLs;
+- any use through <code>TimeHarmonicSolver</code>, <code>Study</code> or YAML;
+- the 64 / 128 MHz birdcage box (the entry's step-3 question, <code>PROJECT_PLAN.md:2464–2466</code>);
+- any HFSS <em>Radiation</em> or PML parity statement;
+- the §2.1 line's "What this is not: … PML" clause (<code>:396–399</code>), which stays until the review re-words it.</p>
+<p><strong>Negative result.</strong> In every case: report the measurement, park on <code>attempt/TH-5-step3-*</code>, mark item 596 BLOCKED in the same commit (rule (d)), and journal it in attempts.md. No band, design constant or read moves in-slot.
+- <strong>(Z) or (V) red:</strong> a code defect in the closed form or the slab indicator. Stop.
+- <strong>(K) red:</strong> the k_fit vertex sits at the scan edge, and that read is invalid. Report k_fit − k₀; never widen <code>half_width</code> in-slot.
+- <strong>(NC-0) red</strong> (|Γ| ≤ bar with s″ = 0): the term absorbs when it should not, a code defect. Stop.
+- <strong>(NC-ABC) red at the k₀ read:</strong> 1a's record did not reproduce, so something on <code>main</code> changed under the fixture. This is a finding for the review.
+- <strong>(A) or (C) red with every control green:</strong> the degree-1 PML's discrete reflection at λ₀/40 exceeds the bar on this design. The measured ladder goes into the §7 row as the step-3 record, and the weekly decides (a thicker layer is a new design, not an in-slot change).
+- <strong>(C) red with (A) green:</strong> the grading or the closed form is mis-implemented. Read the printed (NC-grade) misses and report.</p>
+<p>No <code>PREDICTED RED:</code> line: with the k_fit read every asserted clause is predicted green. At the k₀ read no valid range exists, because the floor's band [0.9e-4, 1.6e-4] straddles the bar.</p>
+<p><strong>Status it can move.</strong> No glyph. <code>TH-5</code> is ✅, and its entry Done-when ("Steps 1–2 executed and asserted; §2.1 gains the boundary-model line") was met at 2c (<code>PROJECT_PLAN.md:2467–2473</code>, row <code>:2216</code>); step 3 is the entry's optional step, so rule (j) binds nothing. On W1–W2 green:
+- the §7 row gains a step-3 record sentence (legs A / C, the ladder, the ABC control at both reads, elapsed time, logs);
+- the §10 lane-2 entry marks step 3 DONE, and <strong>Tier B is complete</strong> (ladder row B1, <code>:3804</code>, gains the record);
+- an outcome line goes under this brief.</p>
+<p>The §2.1 boundary line's "a second-order ABC or PML" exclusion is the review's to re-word, not the implementer's.</p>
+<p><strong>For the review.</strong>
+1. <strong>The read (the item's crux).</strong> At step 1a's k₀ read the weekly's ≤ 1e-4 at λ₀/40 is <strong>below that read's floor (≈ 1.2e-4)</strong>, whatever the termination. Same lesson as step 2: on 2026-09-30 the 10:30 review kept step 2 out of the queue because its ≥ 5× bar sat above the sphere model's ≈ 2× ceiling (<code>PROJECT_PLAN.md:2524–2535</code>). 2a then measured the banked negative (r(W) 0.4846 → 0.2266, this file <code>:214</code>), and 2c closed on the re-pose (10-08). Here the analogue is a floor, and the fix is in the reading, not the physics. The drafter's default asserts at 1a's existing k_fit read and prints the k₀ read beside it.
+   - <strong>Whether that is the item's measurement definition (the review's) or a change to the weekly's target (back to the 10-24 weekly) is the ruling asked for.</strong>
+   - Alternatives if the k₀ read binds: λ₀/80, where the floor is ≈ 3e-5 but the PML's k₀ read is predicted at ≈ 2.8e-5, so marginal again; or degree 2. Both re-pose the weekly's "at λ₀/40".
+2. <strong>Citation.</strong> The converted Jin carries the equation <em>numbers</em> but not their bodies (<code>INDEX.md:3–6</code>).
+   - The graded closed form is (9.133)'s exponent integrated over (9.165)'s profile. It is a two-line derivation and <strong>not a numbered equation</strong>.
+   - "δ_max ≡ s″_max with s_z = 1 − jδ_max(z/L)^m" is read from the prose.
+   - A check against the print copy is owed (the operator's, if the review wants it before W1). The item does not depend on Jin's exact notation, because (Z) asserts the derived form's own identities.
+3. <strong>Design constants:</strong> d = 1.5 λ₀, m = 2, legs at R = 1e-6 and 1e-3. d = 1.0 λ₀ has only 2–3× margin in the model.
+4. <strong>Leg C.</strong> The drafter reads "its reflection against the graded-PML closed form, ≤ 1e-4" as |Γ − Γ<strong>| ≤ 1e-4, and adds the R</strong> 1e-3 leg so that the closed form is visible. Leg A alone only shows "small". Ratify, or drop leg C.
+5. <strong>What t</strong> fixture can and cannot show.** At normal incidence the first-order ABC is exact in the continuum, so this compares discretisation errors (a PML at λ₀/40 against an ABC that needs λ₀/160). The PML's continuum advantage, oblique incidence, is untested. A TE10-60° PML leg on 1a's guide would be the natural next step; that is the weekly's to open.
+6. <strong>Price.</strong> By the lane-2 rule (× 0.231) this is ≈ 10.6 measured. The weekly's supply sheet used 16.7.</p>
+<p><strong>Execution order.</strong> Read the brief and any review ruling under it → code (<code>boundary_terms.py</code> additions, new module) → journal the <code>git diff --stat</code> → W1 → W2 → commit (both files, both harness logs, the §7 row sentence, the §10 lane-2 mark, the outcome line here) → journal.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Execute §9 item 596 — <code>TH-5</code> step 3 (§10 lane 2, the PML) — per <code>docs/planning/chunks/TH-5.md</code> §9 item 596. Read the brief and any review ruling beneath it first; the rulings hold, in particular on which read the 1e-4 bar is asserted at. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Run W1 then W2, in the foreground, with <code>timeout: 660000</code> on every Bash call that runs a window, pytest with -s, container <code>timeout -k 30</code>, never <code>-k</code> on pytest. Add only the three functions named in the brief to <code>src/fem_em_solver/core/boundary_terms.py</code>, appended, with no existing line changed and nothing exported from <code>core/__init__.py</code>; create only <code>tests/validation/test_th5_pml_reflection.py</code>. Do not edit <code>tests/validation/test_th5_abc_reflection.py</code>, any other <code>TH-5</code> module, <code>time_harmonic.py</code> or <code>study.py</code>. Fix the design constants (<code>PML_D</code> = 1.5, <code>PML_M</code> = 2, <code>R_ABSORB</code> = 1e-6, <code>R_CLOSED</code> = 1e-3, <code>PML_REFLECTION_BAR</code> = 1e-4) before W1 and never change them between windows. Never assert at the k₀ read unless the review's ruling says so. No edit to either file after W1 starts. You are the executor — do not spawn agents, never background a harness window. If the docker socket is denied, stop and report the exact command string. After any killed window, run <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> first. On a red, park on <code>attempt/TH-5-step3-*</code>, mark item 596 BLOCKED in the same commit, and report."</p>
+<h3 id="review-ruling-2026-10-22-0300-item-596-step-3">Review ruling 2026-10-22 03:00 (item 596, step 3)<a class="headerlink" href="#review-ruling-2026-10-22-0300-item-596-step-3" title="Permanent link">&para;</a></h3>
+<p>Binds over the brief. Queued with the reflection <strong>asserted at step 1a's own k_fit read</strong> (the residual-minimising read the module already carries), with the k₀ read printed beside it: the drafter's floor arithmetic (k₀ read ≈ 1.2e-4 for a reflectionless wave at λ₀/40, checked against the λ₀/80 record, 2.97e-5 predicted vs 2.47e-5) shows the k₀ read cannot resolve 1e-4. The bar (≤ 1e-4 at λ₀/40), the fixture and the ABC control are the weekly's, unmoved; <strong>the read is a provisional execution reading the 10-24 weekly ratifies or reverts</strong> (rule (h): the same physics, the PML's reflection, with the fixture's dispersion leak removed). (1) The Jin citation — §9.6.1 eq. (9.133) integrated over the §9.6.4 (9.165) profile — is a derivation; the print-copy check is the operator's (the converted text's equations are image placeholders). (2) Design constants (d = 1.5 λ₀, m = 2, legs at 1e-6 / 1e-3) stand under rule (f), provisional. (3) Normal incidence only: no oblique-incidence claim.</p>
+<p><strong>Outcome 2026-10-22 (20:00 slot, attempt 1 of 4): DONE, every assertion green.</strong> W1 <code>20261022T203122Z_TH-5-step3-W1.log</code> (10 passed, 47 s, <code>-n 2</code>, complex); W2 <code>20261022T203218Z_TH-5-step3-W2.log</code> (3 passed / 7 skipped, real, <code>-n 1</code>). <code>boundary_terms.py</code> +63 insertions, 0 deletions. (Z) worst identity 1.332e-15; (V) slab / window volumes ≤ 2.93e-13 rel; (K) k_fit − k₀ +2.2451e-3 rad/m at λ₀/40, interior. (A) R 1e-6: k_fit read |Γ − Γ_c| 1.6680e-5 / <strong>1.3859e-6</strong> / 1.6651e-7 / 2.4307e-8 at λ₀/20 / 40 / 80 / 160, |Γ| flattening at ≈ 1.0e-6 (the design value); LSQ rate /20–/80 3.323 (predicted 1.7–1.9: faster than the 1D model, recorded, not asserted). (C) R 1e-3: Γ = −9.985820e-4 + 7.597845e-6j, |Γ − Γ_c| <strong>7.7290e-6</strong> (predicted ≈ 5.5e-6). NC-grade misses 9.9861e-4 / 4.6248e-3 (predicted 1.0e-3 / 4.6e-3). NC-ABC k₀ read 9.499917e-4 = record to every digit, k_fit read 8.5100e-4 (predicted 8.50e-4), ratio 784.5 (predicted ≈ 160: the PML reads ≈ 5× below the model). NC-0 |Γ| 1.000000; NC-conj 9.1059e+2. PML k₀ reads at λ₀/40: leg A 1.1821e-4, leg C 1.2434e-4 — the read's floor as predicted (≈ 1.2e-4), printed only.</p>
+<h3 id="9-item-628-2026-10-25-10-lane-2-th-5-step-3b-the-pml-at-oblique-incidence">§9 item 628 — 2026-10-25 (§10 lane 2, <code>TH-5</code> step 3b: the PML at oblique incidence)<a class="headerlink" href="#9-item-628-2026-10-25-10-lane-2-th-5-step-3b-the-pml-at-oblique-incidence" title="Permanent link">&para;</a></h3>
+<p><em>Written by the 2026-10-25 03:00 daily review from the 10-24 weekly's lane-2 target (§9 rule (5); <code>PROJECT_PLAN.md</code> § 10, "Lane 1 and lane 2"). Two execution readings below go to the 10-26 weekly.</em></p>
+<p><strong>Question.</strong> Does step 3's graded, PEC-backed PML reflect a TE10 mode at 60° by its closed form R(θ) = R(0)^{cos θ} (magnitude), within step 3's absolute band at λ₀/40?</p>
+<p><strong>Execution readings (this review's):</strong>
+1. <strong>Degree 2, not 1.</strong> On step 1a's TE10 guide at degree 1, the matched termination's own point-fit floor already reads 1.16e-4 at λ₀/80 (<code>EX-143</code>'s (O1), <code>20261024T003217Z_EX-143.log:55</code>). The ABC's discretisation miss at λ₀/40 is 1.03e-3 at degree 1 against <strong>4.12e-6 at degree 2</strong> (<code>20260930T094044Z_TH-5-step1a2-W1.log.gz:127–128</code>). A 1e-4 bar at degree 1 sits at or below the read's floor, which would make the target unassertable. Degree 2 is the production default (order rule, 2026-10-01), and the weekly's target names no degree. So the gate is asserted <strong>at degree 2</strong>, with degree 1 printed beside it.
+2. <strong>The read.</strong> Step 3 asserted at 1a's <code>_Projection.k_fit</code> read (ratified 10-24). The TE10 helper <code>_te10</code> has no k_fit read (<code>test_th5_abc_reflection.py:269</code>); the k_fit scan exists only in <code>_tem</code> (<code>:254</code>, <code>_Projection.k_fit</code> at <code>:233–240</code>). The new module adds the same scan on the TE10 projection (β scanned ±5e-3 relative about k₀ cos θ, 21 points, weighted by sin(πy/a)), imported if <code>_Projection</code> takes the weight. If it does not, the scan is copied with the source lines cited. The k₀ cos θ read is printed beside it.</p>
+<p><strong>Anchors.</strong>
+- <strong>(B)</strong> |Γ_h − Γ_c(θ)| ≤ <code>PML_REFLECTION_BAR</code> (1e-4, <code>tests/validation/test_th5_pml_reflection.py:55</code>) at λ₀/40, degree 2, θ = 60°, R(0) = <code>R_ABSORB</code> = 1e-6 (s_max from <code>pml_s_max_for_reflection</code> at normal incidence, <code>S_ABSORB</code> 2.19881).
+- Γ_c(θ) comes from <code>pml_reflection_pec_backed(…, cos_theta=0.5)</code> (<code>src/fem_em_solver/core/boundary_terms.py:107</code>): −exp(−2jk₀ cos θ · d) · exp(−2k₀ cos θ · s_max · d/(m + 1)). At d = <code>PML_D</code> = 1.5 λ₀ the phase factor is e^{−3πj} = −1, so <strong>Γ_c = +1.000e-3</strong>, with magnitude R(0)^{cos θ} = 1e-3. Print both.
+- <strong>(Z)</strong> |Γ_c(θ)| = |Γ_c(0)|^{cos θ}, already asserted in the numpy test (<code>:86</code>); re-run, not re-written.
+- <strong>Closed form:</strong> Jin 3e §9.6.1, eq. (9.133) (the PEC-backed reflection, attenuation exp(κ₂ s″ z cos θ), <code>docs/references/jin-fem-3e/09_absorbing-boundary-conditions.md:877–879</code>) over the polynomial profile (9.165) (§9.6.4, <code>:1041</code>). The graded form R(0)^{cos θ} is (9.133) integrated over (9.165), not a numbered equation, and the print-copy check is the operator's (dashboard item 0).</p>
+<p><strong>Control (asserted, backed).</strong> <strong>(Cabc)</strong> On the same guide, mesh and degree, the first-order ABC termination's |Γ| is ≈ 1/3 (Jin (9.48); <code>EX-143</code>'s (O2) −3.332454e-01). Assert |Γ_ABC| / |Γ_PML| &gt; 100. Ceiling: (1/3) / 1e-3 = 333, so 100 is reachable with margin 3.3×, and the ratio is printed. <strong>(NC-0)</strong> s_max = 0 (the PML switched off, PEC at the end) reads |Γ| ≈ 1, as step 3's NC-0 does (<code>20261022T203122Z_TH-5-step3-W1.log:129</code>). Assert |Γ| &gt; 0.9.</p>
+<p><strong>Route.</strong> New module <code>tests/validation/test_th5_pml_oblique.py</code> (the gated <code>test_th5_abc_reflection.py</code> and <code>test_th5_pml_reflection.py</code> are not edited).
+- <strong>Mesh:</strong> step 1a's <code>_te10</code> geometry (<code>A_O</code> = λ₀/(2 sin 60°), <code>L_O</code> = 1.5, PEC on <code>TAG_Y</code> / <code>TAG_Z</code>, the drive sin(πy/a)·ẑ; <code>:75–80</code>, <code>:269–277</code>), extended by <code>PML_D</code> in x as <code>_pml_tem</code> extends the TEM line (<code>test_th5_pml_reflection.py:128–135</code>), PEC backing at the far end. The PML term is <code>pml_slab_term</code> (<code>boundary_terms.py:68</code>), <code>PML_M</code> = 2, χ DG0, quadrature degree 6.
+- <strong>Solve:</strong> step 3's <code>_solve_terms</code> (<code>test_th5_pml_reflection.py:98</code>), imported.
+- <strong>Fit window:</strong> <code>FIT_O</code> = (0.25, 1.25) (<code>:79</code>), inside the physical guide.</p>
+<p><strong>Windows.</strong>
+1. W0: the numpy (Z) node, ≈ 5 s.
+2. W1 <code>TH-5-step3b-W1</code>: degree 2 at λ₀/40 with PML, the ABC control, NC-0, and degree 1 printed; <code>-n 2</code>, complex, standard, <code>timeout -k 30 180</code>.</p>
+<p><strong>Price:</strong> step 3's TEM line at λ₀/40 solved in 1.0 s (2 304 cells). This guide at λ₀/40 is ≈ 120 × 23 × 2 hexes ≈ 33 k tets; degree 2 is ≈ 2 × 10⁵ dofs, a few seconds per solve. With compiles, W1 ≈ 40–90 s.</p>
+<p><strong>Tier:</strong> standard, <code>-n 2</code>. <strong>Class:</strong> lane-2 feature. <strong>Cost:</strong> ≈ 27.9 measured / 40 predicted slot-minutes. <strong>Executor:</strong> implementer. <strong>Depends on:</strong> nothing. <strong>Family:</strong> <code>TH-5</code> step 3b, attempt 1 of 4.</p>
+<p><strong>Traps already paid for.</strong>
+- <code>ufl</code> comparisons on complex operands. The χ indicator is DG0 from coordinates, built in numpy: never <code>ufl.conditional</code> on a complex <code>SpatialCoordinate</code> expression, and no <code>sqrt</code> in a comparison (rubric 4).
+- Pin <code>quadrature_degree</code> on every facet / volume form that carries the PML profile.
+- The fit is collective: reduce before the LSQ.
+- Point-sample bytes depend on the batch: compare call by call (item 537).
+- <code>-k 30</code>; never background a window; orphan <code>.c</code> sweep only with <code>pgrep -c python3</code> reading 0.</p>
+<p><strong>Scope boundary.</strong> One angle, one thickness, one profile. Not closed: other angles or a sweep in θ, evanescent modes, the PML at the birdcage's box (k₀R below π, unchanged), a TH-5 glyph change. <code>TH-5</code> stays ✅ on step 2c; step 3b is a record on the optional step, like step 3.</p>
+<p><strong>A negative result means:</strong>
+- (B) red at degree 2 with (Cabc) and NC-0 green: a measured negative on the oblique PML. Record it in <code>TH-5.md</code> with the degree-1 / degree-2 pair and the k₀ / k_fit reads, and park. Never loosen <code>PML_REFLECTION_BAR</code>.
+- (Cabc) not separating: the read is broken. Stop.</p>
+<p><strong>Status it can move.</strong> §10 lane 2 <code>TH-5</code> 3b → DONE. <code>TH-5</code>'s row gains "step 3b: oblique incidence (TE10 at 60°), degree 2" as a record. Dashboard item 4's open <code>TH-5</code> question closes.</p>
+<p><strong>Outcome 2026-10-25 (06:00 slot, attempt 1 of 4): DONE, every assertion green.</strong> New module <code>tests/validation/test_th5_pml_oblique.py</code> only (no edit to <code>boundary_terms.py</code>, <code>test_th5_abc_reflection.py</code> or <code>test_th5_pml_reflection.py</code>; <code>_Projection</code> takes the weight, so the scan is imported, not copied). W0 <code>20261025T111701Z_TH-5-step3b-W0.log</code> (step 3's numpy (Z) node, 1 passed, worst identity 1.332e-15, <code>:50</code>, 2 s). W1 <code>20261025T111709Z_TH-5-step3b-W1.log</code> (1 passed, 131 s, <code>-n 2</code>, complex; predicted 40–90 s, the degree-2 solve took 66.4 s). Γ_c(60°) = 1.000000e-03 − 3.2e-18j, |Γ_c|/|Γ_c(0)|^{cos θ} − 1 = 1.110e-15 (<code>:52</code>). <strong>(B)</strong> degree 2, λ₀/40 (33 120 cells): k_fit read Γ = 9.999865e-04 + 1.094756e-07j, <strong>|Γ − Γ_c| 1.1031e-07</strong> (bar 1e-4), k_fit − β −2.5009e-06 rad/m, interior; k₀cos θ read |Γ − Γ_c| 2.8512e-07 (<code>:53</code>). Degree 1 (printed): k_fit read |Γ − Γ_c| 6.6733e-05, k₀cos θ read 1.8789e-04, k_fit − β +1.5765e-03 (<code>:54</code>) — the degree-1 k₀ read would have missed the bar, as the review's reading 1 predicted. <strong>(Cabc)</strong> degree-2 ABC Γ = −3.333334e-01 (Jin (9.48): −1/3), |Γ_ABC|/|Γ_PML| <strong>333.3</strong> (bar 100, ceiling 333) (<code>:59</code>). <strong>(NC-0)</strong> s_max = 0: |Γ| 1.000000 (<code>:60</code>). The ABC control ran on 1a's own L_O guide (same cross-section, h and degree; no PML extension).</p>
+<h2 id="7-row-moved-verbatim-2026-10-24-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-24 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-24-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p>Absorbing boundary condition (ABC) | ✅ <strong>Step 3b DONE 2026-10-25 (§9 item 628, attempt 1 of 4; record on the optional step): oblique incidence (TE10 at 60°), degree 2</strong> — step 3's PML (m = 2, d = 1.5 λ₀, s_max from R(0) = 1e-6) on 1a's TE10 guide, read at 1a's weighted projection's k_fit: (B) |Γ − Γ_c(60°)| 1.1031e-07 against Γ_c = +1e-3 = R(0)^{cos θ} (bar 1e-4); degree 1 printed 6.6733e-05 (k₀cos θ read 1.8789e-04); (Cabc) ABC Γ = −0.3333334, ratio 333.3; NC-0 |Γ| 1.000000. W1 1 passed, 131 s (<code>20261025T111709Z_TH-5-step3b-W1.log</code>). One angle, one thickness, one profile. <strong>Step 3 DONE 2026-10-22 (§9 item 596, attempt 1 of 4; the PML, record on the optional step):</strong> a polynomial-graded (m = 2, d = 1.5 λ₀) PEC-backed PML (<code>pml_slab_term</code>, additive in <code>boundary_terms.py</code>) on 1a's TEM line, degree 1, <code>-n 2</code>, asserted at 1a's k_fit read (03:00 ruling, provisional; the 10-24 weekly ratifies): (A) R = 1e-6, |Γ − Γ_c| 1.3859e-6 at λ₀/40 (bar 1e-4; ladder 1.6680e-5 / 1.3859e-6 / 1.6651e-7 / 2.4307e-8 at /20…/160, rate /20–/80 3.323); (C) R = 1e-3, Γ = −9.985820e-4 + 7.597845e-6j against Γ_c = −1e-3, |Γ − Γ_c| 7.7290e-6; controls: ABC k₀ read 9.499917e-4 (record, every digit), k_fit read 8.5100e-4, |Γ_ABC|/|Γ_PML| 784.5; s″ = 0 |Γ| 1.000000; conjugated stretch |Γ| 9.1059e+2; NC-grade misses 9.9861e-4 (un-graded) / 4.6248e-3 (m = 3); PML k₀ read at λ₀/40 1.1821e-4 (the read's floor, printed only). W1 10 passed, 47 s (<code>20261022T203122Z_TH-5-step3-W1.log</code>); W2 real build 3 passed / 7 skipped (<code>20261022T203218Z_TH-5-step3-W2.log</code>). Normal incidence only. <strong>Step 2c DONE 2026-10-08 (§9 item 320, attempt 1 of 4):</strong> 2a's module landed on <code>main</code> with (R) retired (r(W) printed, never asserted); W1 7 passed, 225 s — (P0) −8.0404 pp (|Δ| 0.0080), (E) Re Z₁₁^ABC +3.784e-3 / +2.620e-3 / +1.924e-3 Ω, PEC |Re Z₂₁|/|Z₂₁| 0, (S) B^ABC +4.7133 / +2.3965 / +1.1256 pp, r(W) 0.4846 / 0.3567 / 0.2266 (record) — every digit 2a's (<code>20261008T183105Z_TH-5-step2c-W1.log:928–943</code>); W2 2b re-run 8 passed, 169 s, (M) B^mix −0.2520 pp against 1.9468 pp, (c2) 2.5647× (<code>20261008T183455Z_TH-5-step2c-W2.log:604–607</code>); W3 real build 2 passed, 9 skipped, 2 s (<code>20261008T183751Z_TH-5-step2c-W3.log</code>); 2a's W1 log now on <code>main</code> (<code>20261007T052330Z_TH-5-step2a-W1.log</code>). §2.1 line written (weekly 2026-10-07, verbatim). Prior state: steps 1a / 1b-0 / 1b landed 2026-09-30; step 2b (2026-10-07, §9 item 290) meets the mixed-wall bar at 0.08 m (|B^mix| 0.2520 pp against 1.9468 pp) and step 2a (item 277) is a banked negative — (S) green at every padding, (R) red at 0.12 m because r(W) 0.4846 / 0.3567 / 0.2266 falls with W as the natural wall's does. Ruled 2026-10-07 (weekly, §10 lane 2): 2a stands on its record, (R) retired as a sphere-model band on a cube; ✅ on step 2c (the module landed with (S) asserted, (R) printed) and the §2.1 line. <em>History: <code>docs/planning/chunks/TH-5.md</code>.</em> </p>
+<h3 id="9-item-644-2026-10-25-9-rule-5-lane-2-th-5-step-3c-the-graded-pmls-angular-law-at-45-on-the-closed-leg">§9 item 644 — 2026-10-25 (§9 rule (5) lane 2, <code>TH-5</code> step 3c: the graded PML's angular law at 45°, on the closed leg)<a class="headerlink" href="#9-item-644-2026-10-25-9-rule-5-lane-2-th-5-step-3c-the-graded-pmls-angular-law-at-45-on-the-closed-leg" title="Permanent link">&para;</a></h3>
+<p><em>Written by the 2026-10-25 18:00 daily review (fact sheet: the step 3b module, the Γ_c function and the angle table). Lane 2's anchor is a closed form (Jin 3e, cited below) at an imported band; no band, tolerance, record or Done-when is set or moved. Step 3b's own scope said "one angle … Not closed: other angles or a sweep in θ" (<code>:593</code> of this file).</em></p>
+<p><strong>Why 45° and why the closed leg.</strong> At step 3b's absorbing design (R(0) = <code>R_ABSORB</code> = 1e-6), |Γ_c(θ)| = R(0)^{cos θ} sits <em>below</em> <code>PML_REFLECTION_BAR</code> (1e-4) at every angle under 60° (5.7e-5 at 45°, 6.4e-6 at 30°), so a run returning Γ = 0 would pass (the trap step 3 named: "at R_ABSORB, Γ_c is invisible under the discretisation term", <code>:465</code>). On step 3's <strong>closed leg</strong> (<code>R_CLOSED</code> = 1e-3, <code>S_CLOSED</code>, <code>test_th5_pml_reflection.py:59</code>, <code>:61</code>), |Γ_c(45°)| = (1e-3)^{0.7071} ≈ 7.6e-3 = 76× the bar, and its phase −2k₀ cos θ d (d = 1.5 λ₀) is not a multiple of π, so Γ_c is complex. <strong>30° is excluded:</strong> TE20 is exactly at cut-off on that guide (k_c2 = 2k₀ sin 30° = k₀). <strong>75° is excluded:</strong> (Cabc)'s ceiling there is 21, under <code>CABC_RATIO_BAR</code>, and λ_g = 3.9 m is 4× the 1 m fit window. 45° is clean: a = λ₀/√2 ≈ 0.707 m, β = k₀/√2 ≈ 4.443 rad/m, λ_g ≈ 1.414 m, TE20 evanescent (k_c2 = 2√2 π &gt; k₀).</p>
+<p><strong>The anchor.</strong> <code>pml_reflection_pec_backed(S_CLOSED, PML_D, PML_M, K0, cos_theta=cos 45°)</code> (<code>src/fem_em_solver/core/boundary_terms.py:107–119</code>): Γ_c = −e^{−2jk₀ cos θ d}·exp(−2k₀ cos θ s_max d/(m + 1)), Jin 3e §9.6.1 eq. (9.133) integrated over the §9.6.4 profile (9.165) — the same citation as step 3b (the operator's print-copy check, dashboard item 0, still stands). Asserted:
+- <strong>(Gc45)</strong> <code>| |Γ_c(45°)| / |Γ_c(0)|^{cos 45°} − 1 | ≤ IDENTITY_TOLERANCE</code> (imported from <code>test_port_reaction_impedance</code>, as step 3b does), and <code>| |Γ_c(45°)| − R_CLOSED^{cos 45°} | ≤ 1e-12·R_CLOSED^{cos 45°}</code>.
+- <strong>(B45)</strong> degree 2, λ₀/40, PML at <code>S_CLOSED</code>, read at k_fit (step 3b's read, β scanned ±5e-3 relative, 21 points, <code>scan_interior</code> asserted): <code>|Γ_h − Γ_c(45°)| ≤ PML_REFLECTION_BAR</code>.</p>
+<p><strong>The negative control (asserted, ceiling computed).</strong> <strong>(Law)</strong> the normal-incidence law — the reflection a PML that ignored the angle would give on this leg, Γ_c(cos θ = 1) = −e^{−2jk₀d}·R_CLOSED = −1e-3 (d = 1.5 λ₀) — misses: <code>|Γ_h − Γ_c(cos θ = 1)| &gt; 10 × PML_REFLECTION_BAR</code>. Ceiling: |Γ_c(45°) − Γ_c(0)| ≥ 7.6e-3 − 1e-3 = 6.6e-3 = 66× the bar, so the 10× bar has ≥ 6.6× margin. Also printed (not asserted): the 60° law on this leg, |Γ_h − Γ_c(cos 60°)| (|Γ_c(60°)| = 3.16e-2). <strong>(Cabc) is printed only:</strong> at 45° on the closed leg its ceiling is |Γ_ABC|/|Γ_c| = 0.1716/7.6e-3 ≈ 22.6, under <code>CABC_RATIO_BAR</code> by construction — the step-3b control does not transfer to this leg, and the brief does not pretend it does. <strong>Degree 1 printed</strong> (its λ₀/40 floor ≈ 1.2e-4 is at the bar, step 3b's reading).</p>
+<p><strong>Route — a new module, no gate module edited.</strong> <code>tests/validation/test_th5_pml_angle.py</code> (knob-free; <code>@complex_only</code>, <code>@pytest.mark.integration</code>). Write <code>_guide_at(comm, theta, n_per_lambda, degree, s_max)</code> modelled on step 3b's <code>_guide</code> (<code>test_th5_pml_oblique.py:76–98</code>), computing <strong>locally</strong> a = λ₀/(2 sin θ), β = k₀ cos θ, <code>ny = int(a / h)</code>, a local drive ẑ sin(πy/a), and the <code>_Projection</code> weight sin(πy/a). Import by name: from <code>test_th5_abc_reflection</code> — <code>FIT_O</code>, <code>K0</code>, <code>L_O</code>, <code>LAMBDA0</code>, <code>OMEGA</code>, <code>TAG_Y</code>, <code>TAG_Z</code>, <code>_box</code>, <code>_Projection</code>, <code>_solve</code>, <code>complex_only</code>; from <code>test_th5_pml_reflection</code> — <code>PML_D</code>, <code>PML_M</code>, <code>PML_REFLECTION_BAR</code>, <code>R_CLOSED</code>, <code>S_CLOSED</code>, <code>_solve_terms</code>; from <code>test_th5_pml_oblique</code> — <code>N_GATE</code>, <code>CABC_RATIO_BAR</code> (printed beside the ratio); <code>pml_reflection_pec_backed</code>, <code>pml_slab_term</code> from <code>fem_em_solver.core.boundary_terms</code>. <strong>Never import <code>A_O</code>, <code>BETA_O</code>, <code>THETA_O</code> or <code>COS_O</code></strong> — they are 60°'s. The ABC guide for the printed (Cabc) uses <code>_solve(..., "abc")</code> on the 45° box. Γ_ABC(45°) closed form (Jin (9.48)): (cos θ − 1)/(cos θ + 1) = −0.1716, printed beside it.</p>
+<p><strong>Windows.</strong>
+- <strong>W0</strong> (smoke, <code>-n 1</code>, complex): <code>--collect-only</code> plus the numpy node if you write one — the (Gc45) identity and the (Law) ceiling, no mesh.
+- <strong>W1</strong> (heavy, <code>-n 2</code>, complex, <code>timeout -k 30 300</code>, after <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0): <code>scripts/testing/run_and_log.sh TH-5-step3c-W1 "docker compose exec -T fem-em-solver bash -lc 'source /usr/local/bin/dolfinx-complex-mode &amp;&amp; cd /workspace &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 PYTHONPATH=/workspace/src timeout -k 30 300 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_th5_pml_angle.py -v -s --tb=short'"</code>. Then re-run step 3b's module unedited in the same window or a second one (<code>test_th5_pml_oblique.py</code>, 131 s), as the regression for the shared imports.
+- <strong>Prediction:</strong> the 45° box has ≈ 1.2× step 3b's cells (ny 28 against 23; ≈ 40 000 at degree 2); degree-2 PML ≈ 80 s, degree 1 ≈ 14 s, ABC ≈ 19 s, mesh and scan ≈ 10 s ⇒ ≈ 125–160 s. Over 300 s is a kill: park, never raise the timeout.</p>
+<p><strong>The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped.</strong></p>
+<p><strong>Executor:</strong> implementer. <strong>Tier:</strong> heavy, <code>-n 2</code>, complex. <strong>Class:</strong> lane-2 feature. <strong>Cost:</strong> ≈ 7.3 measured / 40 predicted slot-minutes. <strong>Depends on:</strong> nothing. <strong>Family:</strong> step 3c, attempt 1 of 4. <strong>Daytime:</strong> no.</p>
+<p><strong>Traps already paid for.</strong>
+- Γ_c(45°) is complex: never port step 3b's <code>abs(gc - 1e-3)</code> literal (<code>test_th5_pml_oblique.py:132</code>); assert the magnitude identity and compare Γ_h to the complex Γ_c.
+- Importing the module-level 60° constants silently re-builds the 60° guide; compute a, β, cos θ locally.
+- Degree 1 at λ₀/40 sits at the bar (step 3b's execution reading) — print it, do not gate it.
+- <code>ufl.max_value</code> and ordering comparisons on complex operands do not compile (<code>OPS-22</code>); a <code>SpatialCoordinate</code> facet integral needs a pinned <code>quadrature_degree</code>.
+- <code>assemble_scalar</code> is rank-local; pytest captures prints without <code>-s</code>; durable capture with the trailing <code>; exit $rc</code> if you redirect; never pipe the harness command.</p>
+<p><strong>Scope.</strong> One more angle on the closed leg — the angular law R(0)^{cos θ} read at a second θ where the comparand is above the bar. <strong>Not claimed:</strong> the absorbing leg at 45° (Γ_c under the bar), a sweep in θ, grazing incidence, evanescent modes, the birdcage's box, any change to step 3b's gates.</p>
+<p><strong>Negative result.</strong> (B45) red with (Law) green: the PML misses its closed form at 45° — record both distances, park on <code>attempt/TH-5-step3c-*</code>, item 644 BLOCKED, known-issues entry if the miss reproduces. (Law) red: the solve cannot tell the angular law from the normal-incidence one at this fixture — report, stop. Never loosen <code>PML_REFLECTION_BAR</code>. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> §7 <code>TH-5</code> stays ✅; its state line gains "step 3c: the angular law at 45° on the closed leg" as a registered record (green), or a known-issues entry (red). The dashboard's PML line ("works at 60°") becomes "at 45° and 60°".</p>
+<p><strong>Executor spawn prompt (verbatim, if delegated).</strong> "Execute §9 item 644 — <code>TH-5</code> step 3c — per <code>docs/planning/chunks/TH-5.md</code> "§9 item 644". Read the brief and any review ruling beneath it first; the rulings hold. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Write a new module; never edit <code>test_th5_pml_oblique.py</code>, <code>test_th5_pml_reflection.py</code> or <code>test_th5_abc_reflection.py</code>, and never import their 60° constants. Spawned executors run every window foreground with Bash <code>timeout: 660000</code>."</p>
+<h3 id="review-ruling-2026-10-26-0300-item-644">Review ruling 2026-10-26 03:00 (item 644)<a class="headerlink" href="#review-ruling-2026-10-26-0300-item-644" title="Permanent link">&para;</a></h3>
+<p>Binds over the brief above. It rests on a <code>log-pathologist</code> ruling on <code>20261026T005627Z_TH-5-step3c-W1.log</code> (on <code>attempt/TH-5-step3c-20261026T0104Z</code>).
+- <strong>The window is UNCOUNTABLE</strong> (Status 124, Elapsed 300, <code>W1:105–106</code>). (B45) 8.8931e-08 and (Law) 6.8743e-03 are prints from a killed run (<code>W1:93–95</code>). They are not passes and are not banked.
+- <strong>The journal's "rank 1 passed both nodes" is overruled.</strong> The stream holds 26 <code>PASSED</code> tokens, 13 per rank. So neither rank finished <code>test_pml_angle_45_closed_leg</code>. The <code>PASSED</code> at the end of <code>W1:76</code> is rank 0's last migration verdict, landing on rank 1's node line. <code>_box</code> builds on <code>COMM_WORLD</code> (<code>test_th5_abc_reflection.py:107–134</code>), so rank 1 could not have finished the solve alone. The real cost is both ranks running the migration sweep. The rank-0 lag was a few seconds. The attempts entry (2026-10-26T01:03Z) and the known-issues 2026-10-26 Symptom row carry this correction.
+- <strong>The cost reading fits but is not shown.</strong> The log has no per-phase times for <code>tests/environment</code>, and it cannot exclude a hang inside the (Cabc) solve. <strong>The re-posed window is the discriminator.</strong> It prints <code>[TH-5 s3c Cabc] … N s</code> with its own duration (module <code>:151</code>). Two outcomes:
+  - It finishes in ≈ 140–175 s: the cost reading is confirmed and a hang is excluded.
+  - It dies after (Law) again, well under 300 s: report it as a hang. Do not retry.
+- <strong>Re-posed as §9 item 649</strong> (attempt 2 of 4) under the environment-first ruling (journal <code>2026-10-26-daily.md</code> §4). The parked module runs unedited.</p>
+<h3 id="9-item-649-2026-10-26-9-rule-5-lane-2-th-5-step-3c-re-posed-the-parked-45-module-run-unedited-testsenvironment-in-its-own-window">§9 item 649 — 2026-10-26 (§9 rule (5) lane 2, <code>TH-5</code> step 3c re-posed: the parked 45° module run unedited, <code>tests/environment</code> in its own window)<a class="headerlink" href="#9-item-649-2026-10-26-9-rule-5-lane-2-th-5-step-3c-re-posed-the-parked-45-module-run-unedited-testsenvironment-in-its-own-window" title="Permanent link">&para;</a></h3>
+<p><em>Written by the 2026-10-26 03:00 daily review. This re-poses item 644 (attempt 2 of 4). The anchor (Jin 3e §9.6.1 (9.133) over (9.165)), the (Gc45) / (B45) gates, the (Law) control and its ceiling, the printed (Cabc) and degree 1, the scope, the negative-result disposition and the status it can move are item 644's above, unchanged. Nothing here sets or moves a band, tolerance, record, Done-when or target.</em></p>
+<p><strong>Land the parked work first (code and logs by path, record rows by hand).</strong>
+1. <code>git checkout attempt/TH-5-step3c-20261026T0104Z -- tests/validation/test_th5_pml_angle.py docs/testing/logs/20261026T005619Z_TH-5-step3c-W0.log docs/testing/logs/20261026T005627Z_TH-5-step3c-W1.log</code>.
+2. Append the branch's two <code>test-results.md</code> rows <strong>by hand</strong> (<code>git diff main...attempt/TH-5-step3c-20261026T0104Z -- docs/testing/test-results.md</code>). <strong>Never path-checkout <code>test-results.md</code>.</strong> <code>git diff --stat</code> on it must show insertions only.
+3. Do not edit the module.</p>
+<p><strong>Pre-check (the pathologist's first step).</strong> The 300 s kill may have landed inside an FFCx compile. When <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0, run the rubric's orphan-stem sweep as one bare harness call, labelled <code>TH-5-step3c-cache-sweep</code>. Report any orphan it deletes. A red in W1b that follows a deleted orphan is read against the stub signature before it is counted.</p>
+<p><strong>Windows</strong> (foreground, Bash <code>timeout: 660000</code>, <code>-s</code>; the harness call is the whole Bash command: bare, repo-relative, nothing chained or piped; <code>pgrep -c python3</code> reads 0 before each).
+- <strong>W1b</strong> (heavy, <code>-n 2</code>, complex, <code>timeout -k 30 300</code>): <code>scripts/testing/run_and_log.sh TH-5-step3c-W1b "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 300 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/validation/test_th5_pml_angle.py -v -s --tb=short'"</code>. <strong>Prediction ≈ 150 s (range ≈ 140–175 s; pathologist's estimate):</strong> startup ≈ 3 s, degree-2 PML 103.4 s and degree 1 16.3 s (measured in the killed W1), (Cabc) ≈ 19–25 s (scaled from 3b's 15.9 s at ny 23 → 28). Every node must be PASSED on both ranks: count <code>PASSED</code> tokens per test ID, never by line adjacency.
+- <strong>Wreg</strong> (heavy, <code>-n 2</code>, complex, <code>timeout -k 30 300</code>): step 3b's module unedited, as the regression for the shared imports: <code>scripts/testing/run_and_log.sh TH-5-step3c-Wreg "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 300 mpiexec -n 2 python3 -m pytest tests/environment/test_complex_mode.py tests/validation/test_th5_pml_oblique.py -v -s --tb=short'"</code>. <strong>Prediction ≈ 131 s</strong> (<code>20261025T111709Z_TH-5-step3b-W1.log</code>).
+- <strong>W-env</strong> (heavy by measurement, <code>-n 1</code>, <code>timeout -k 30 300</code>): <code>scripts/testing/run_and_log.sh TH-5-step3c-Wenv "docker compose exec -T fem-em-solver bash -lc 'source /usr/local/bin/dolfinx-complex-mode &amp;&amp; cd /workspace &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 PYTHONPATH=/workspace/src timeout -k 30 300 python3 -m pytest tests/environment -v --tb=short --durations=5'"</code>. <strong>Prediction ≈ 150–165 s.</strong></p>
+<p><strong>Executor:</strong> implementer. <strong>Tier:</strong> heavy, <code>-n 2</code> (W1b, Wreg) / <code>-n 1</code> (W-env), complex. <strong>Class:</strong> lane-2 feature. <strong>Cost:</strong> ≈ 7.3 measured / 25 predicted slot-minutes. <strong>Depends on:</strong> nothing. <strong>Family:</strong> step 3c, attempt 2 of 4. <strong>Daytime:</strong> no.</p>
+<p><strong>Traps already paid for</strong> (item 644's, plus): the rank-interleave trap above; a W1b that dies after (Law) <strong>well under</strong> 300 s is a hang, so report it and do not retry. A kill <strong>at</strong> 300 s is a price miss: park, never raise the timeout, and report the last phase line each rank printed.</p>
+<p><strong>Status it can move:</strong> as item 644. In the closing commit, delete <code>attempt/TH-5-step3c-20261026T0104Z</code> once its module, logs and rows are on <code>main</code>.</p>
+<p><strong>Executor spawn prompt (verbatim, if delegated).</strong> "Execute §9 item 649 — <code>TH-5</code> step 3c re-posed — per <code>docs/planning/chunks/TH-5.md</code> "§9 item 649". Read the brief, item 644's brief above it and the 2026-10-26 03:00 review ruling first; the ruling holds. Land the parked module and logs by path and the test-results rows by hand; never edit the module, <code>test_th5_pml_oblique.py</code>, <code>test_th5_pml_reflection.py</code> or <code>test_th5_abc_reflection.py</code>. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Spawned executors run every window foreground with Bash <code>timeout: 660000</code>."</p>
+<p><strong>Outcome (2026-10-26, 09:46 UTC / 04:30 CDT slot, attempt 2 of 4) — DONE, green; <code>TH-5</code> stays ✅ and gains the step-3c record.</strong> Run inline by the slot. Landed by path from <code>attempt/TH-5-step3c-20261026T0104Z</code>: the module and its two logs. The branch's two <code>test-results.md</code> rows were appended by hand (2 insertions, 0 deletions). The module is unedited.
+- <strong>Cache sweep</strong> <code>20261026T094629Z_TH-5-step3c-cache-sweep.log</code> (164 s, Status 0) ran after <code>pgrep -c python3</code> read 0. It found <strong>no orphan</strong>, so the 300 s kill had not left a half-written compile.
+- <strong>W1b</strong> <code>20261026T094918Z_TH-5-step3c-W1b.log</code> (<code>-n 2</code>, complex, <strong>109 s</strong> against a predicted ≈ 150, Status 0). Both rank summaries read "6 passed", with 12 <code>PASSED</code> tokens, two per test ID.
+  - (Gc45) identity 6.661e-16.
+  - Γ_c(45°) = −5.469868e-3 + 5.222615e-3j.
+  - <strong>(B45)</strong> degree 2, 40 320 cells (ny 28), 73.9 s: |Γ_h − Γ_c(45°)| = <strong>8.8931e-08</strong> ≤ <code>PML_REFLECTION_BAR</code> 1e-4.
+  - <strong>(Law)</strong> 6.8743e-03, 68.7× the bar (asserted &gt; 10×).
+  - Printed only:
+    - degree 1: 3.8115e-05 (12.5 s);
+    - the 60° law: 3.7459e-02;
+    - <strong>(Cabc)</strong>: 19.5 s, Γ_ABC −1.715730e-01 against Jin (9.48) −1.715729e-01, ratio 22.69, under <code>CABC_RATIO_BAR</code> by construction, as the brief said.
+  - <strong>The ruling's discriminator:</strong> (Cabc) printed its own duration, and the window finished well inside the ceiling. That excludes a hang. Item 644's kill was the migration sweep's cost: (B45) and (Law) match the killed run's prints to the digit.
+- <strong>Wreg</strong> <code>20261026T095117Z_TH-5-step3c-Wreg.log</code> (<code>-n 2</code>, 121 s, Status 0). Step 3b's module ran unedited: "5 passed" per rank, 10 tokens. (B) 1.1031e-07 / degree 1 6.6733e-05 equal <code>20261025T111709Z_TH-5-step3b-W1.log:61</code> to the digit.
+- <strong>W-env</strong> <code>20261026T095326Z_TH-5-step3c-Wenv.log</code> (<code>-n 1</code>, 105 s, Status 0): 12 passed.
+- The attempt branch is deleted in this slot. The dashboard's PML line ("at 45° and 60°") is the daily review's to update.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,646 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>PORT-21 — history - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#port-21-history" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              PORT-21 — history
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-140-2026-10-01-chain-f13-queued-by-the-1030-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 140 — 2026-10-01 (chain F13; queued by the 10:30 review)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-row-moved-verbatim-2026-10-01-rotate_plan_archivepy-chunks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 row moved verbatim 2026-10-01 (rotate_plan_archive.py chunks)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="port-21-history">PORT-21 — history<a class="headerlink" href="#port-21-history" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history moved out of PROJECT_PLAN §9 (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<h3 id="9-item-140-2026-10-01-chain-f13-queued-by-the-1030-review">§9 item 140 — 2026-10-01 (chain F13; queued by the 10:30 review)<a class="headerlink" href="#9-item-140-2026-10-01-chain-f13-queued-by-the-1030-review" title="Permanent link">&para;</a></h3>
+<p><code>PORT-21</code> step 5 — the κ-corrected width as an <code>"in_run"</code> option on both four-port sweep constructors (implementer; heavy, <code>-n 2</code>, complex; ≈ 10 measured / ≈ 62 predicted min; depends on 126, landed <code>8df8c98b</code>). <strong>Why first:</strong> T11b (in-run degree-2 κ on <code>ANS-7</code>) is serial on it, and the 2026-10-01 10:30 review's <code>log-pathologist</code> ruling holds <code>xl</code> entry 24 until T11b supplies a degree-matched κ.</p>
+<ul>
+<li><strong>Framing.</strong> <code>PORT-11</code>'s gates run on <code>_four_port_rung</code> (<code>tests/validation/test_port_birdcage_leg_offset_sweep.py</code>), which has no width-correction keyword. <code>build_four_port_sweep</code> already takes a float κ, but nothing computes κ in-run; <code>PORT-22</code> and <code>PORT-21</code> each do it by hand (<code>_kappa_at</code>, <code>test_port22_driven_sweep_resonance.py:156</code>; inline at <code>test_port21_feed_sensitivity.py:403–440</code>). F13 here means <code>width_correction_kappa="in_run"</code> on both constructors.</li>
+<li><strong>Code (tests only, additive; no <code>src/</code>).</strong></li>
+<li><code>build_four_port_sweep</code> (<code>test_port_birdcage_four_port.py:219</code>): <code>width_correction_kappa</code> also accepts the string <code>"in_run"</code>. <code>None</code> (every gate's value) stays byte-identical; a float behaves as now. <code>"in_run"</code> runs <code>PORT-14</code> step 3's route at the sweep's own degree: one uncorrected P1 <code>_solve_driven</code>, then pooled <code>terminal_form_deficit</code>, then the corrected four drives. Returns <code>"kappa"</code> and <code>"kappa_per_sheet"</code>. Any other string raises <code>ValueError</code>.</li>
+<li><code>_four_port_rung</code> (<code>test_port_birdcage_leg_offset_sweep.py:199</code>): new <code>width_correction_kappa=None</code> keyword with the same three cases, forwarded to each <code>LumpedSheetPortSpec</code>. Additive return keys <code>mesh</code>, <code>problem</code>, <code>specs</code>, <code>facet_tags</code> (what <code>_solve_driven</code> reads, <code>test_birdcage_b1_plus_map.py:142</code>).</li>
+<li><code>test_port_birdcage_larmor_gate.py</code>: knob <code>FEM_EM_PORT11_WIDTH_CORRECTION=in_run</code>. The 64 MHz gated rung and the displaced rung are re-swept κ-on with <code>reuse=</code>. The 10 MHz control rung stays κ-off (the harness control).</li>
+<li><code>test_port22_driven_sweep_resonance.py</code>: knob <code>FEM_EM_PORT22_WIDTH_ROUTE=option</code> routes the corrected sweep through <code>"in_run"</code>; at 64 MHz only it also runs the hand-rolled route and compares the two.</li>
+<li><strong>Anchors (asserted).</strong></li>
+<li>(D) Knob unset: the larmor module's existing assertions hold — the 10 MHz rung matches <code>LEG_D_S_MATRIX_10MHZ</code> within <code>FREQUENCY_CONTROL_BAND</code> 1e-6 and <code>LEG_D0_Z_COLUMN</code> within 1e-9; the four-port module stays green, 5 passed (34 s, <code>20260925T094757Z_GEO-34-step1b-ruleA.log:1879</code>).</li>
+<li>(G) Knob on, κ-on 64 MHz rung: <code>RECIPROCITY_BAND</code>, <code>PASSIVITY_SIGMA_TOLERANCE</code> with column powers ≤ 1, and <code>ADJACENT_SPREAD_BAND</code> 0.5 % with pooled ≥ <code>POOLED_SEPARATION_FLOOR</code> × the worst intra-class spread.</li>
+<li>(P) <code>PORT-22</code> through the option: (i) and (ii) ≤ <code>REDUCTION_BAND</code> at every grid point; (iii) one sign change of Im Z_in in [60, 64] MHz. At 64 MHz, option vs hand-rolled: κ equal and max|ΔS|/max|S| ≤ 1e-12 (predicted 0.0 — the same calls in the same order).</li>
+<li><strong>Negative controls (rule (e)).</strong></li>
+<li>(N1) κ-on vs κ-off self-class move &gt; <code>KNOB_REACHES_THE_SOLVE</code> 1e-6, asserted as a wiring floor. Size <em>predicted</em> ≈ 1.55e-2 from <code>PORT-21</code> (a)'s degree-1 64 MHz move 1.552110e-02 on the other constructor (<code>20260921T094925Z_PORT-21.log:5795–5810</code>), printed only; ceiling O(κ) ≈ 1e-2, so the floor sits ≈ 1.5e4× below it.</li>
+<li>(N2) The module's existing displaced-rung breakage applies to the κ-on displaced rung: (iii′) breaks while (i) holds — asserted as breakage only, no factor.</li>
+<li><code>PORT-22</code>'s 0.5 × C_tuned miss stays asserted (record |S₁₁| 0.846071753).</li>
+<li><strong>Printed.</strong> In-run κ at 64 MHz on both paths beside <code>PORT-22</code>'s 1.060762155e-02 (<code>20260920T110503Z_PORT-22.log:2128</code>) — predicted ≤ 5e-10 apart (10-digit rounding), not asserted (cross-path). The 64 MHz κ-off S beside <code>PORT11_S_64MHZ_RECORD</code> (an older image); per-sheet κ on the displaced rung; the residual beside 8.256069e-05 (<code>:2129</code>).</li>
+<li><strong>Windows</strong> (in order; none reaches ≈ 10 min, so no durable capture).</li>
+<li>W0 (≈ 40 s): <code>scripts/testing/run_and_log.sh PORT-21-step5-W0 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_port_birdcage_four_port.py -s -v --tb=short'"</code></li>
+<li>W1 (≈ 180 s; <code>PORT-11</code> step 2 measured 179 s): the same with <code>timeout -k 30 400</code> and <code>tests/validation/test_port_birdcage_larmor_gate.py</code>, labelled <code>PORT-21-step5-W1</code>.</li>
+<li>W2 (≈ 260 s): W1 with <code>FEM_EM_PORT11_WIDTH_CORRECTION=in_run</code> and <code>timeout -k 30 500</code>, labelled <code>PORT-21-step5-W2</code>.</li>
+<li>W3 (≈ 220 s; <code>PORT-22</code> W1 measured 191 s): <code>scripts/testing/run_and_log.sh PORT-21-step5-W3 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; mkdir -p /workspace/logs &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_PORT22_WIDTH_ROUTE=option FEM_EM_PORT22_RESULTS_DIR=/workspace/logs/port22-option FEM_EM_PORT22_FREQUENCIES_MHZ=44,48,52,56,60,64 timeout -k 30 500 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_port22_driven_sweep_resonance.py -s -v --tb=short'"</code></li>
+<li>W4 (≈ 170 s; measured 167 s): the same with <code>=68,72,76,80,84</code>, labelled <code>PORT-21-step5-W4</code>.</li>
+<li><strong>Traps.</strong> <code>test_birdcage_b1_plus_map</code> imports <code>build_four_port_sweep</code>, so import <code>_solve_driven</code> inside the <code>"in_run"</code> branch (<code>PORT-21</code>'s <code>:404</code> precedent). Under <code>reuse</code>, <code>offsets</code> is not read. κ is computed at the sweep's degree (<code>_solve_driven(degree=None)</code>). A separate results directory keeps (iii) from mixing in the 09-20 JSONs. The larmor module has not run since 2026-08-26: if W1 is red, that is drift — stop before W2. <code>-s</code> on every window; harness bare and whole, foreground, <code>timeout: 660000</code>; no edit after the last window (rule (i)).</li>
+<li><strong>Scope.</strong> Degree 1 on the 116 085-cell fixture. Not: degree 2, <code>th14._build_ladder</code> (T11b's), F12, variant (b), T6, any absolute <code>S₁₁</code>, AED.</li>
+<li><strong>Status it can move.</strong> No glyph. The <code>PORT-21</code> row records step 5 (Done-when written by the 10:30 review); <code>PORT-11</code> and <code>PORT-22</code> gain an annotation; T11b becomes queueable.</li>
+<li><strong>Negative result.</strong> W1 red: a harness or image finding — report it, do not run F13's windows. (G) red with κ on and green with κ off in the same window: the corrected convention breaks a fixture identity — known-issues entry, BLOCKED, T11b stays unqueued. Route identity &gt; 1e-12: a code-path bug — fix once; still red, park.</li>
+<li><strong>Outcome (2026-10-01 12:00 slot, <code>implementer</code>): DONE — a record, no glyph.</strong> W0 <code>20261001T171043Z_PORT-21-step5-W0.log</code> (Status 0, 97 s, 17 passed); W1 <code>…171226Z_…-W1.log</code> (0, 220 s, 18 passed 1 skipped): (D) 10 MHz S 1.158e-10 vs 1e-6, Z column ≤ 2.6e-10 vs 1e-9. W2 <code>…171613Z_…-W2.log</code> (0, 257 s, 19 passed): (G) κ on at 64 MHz reciprocity 9.856e-16, σ_max 0.999760402, max column power 0.820504574, spreads 0.0577 / 0.0602 / 0.0374 %, pooled 40.47 % = 672× the worst intra-class spread (floor 10×); κ off in the same window green (0.0573 / 0.0599 / 0.0370 %). (N1) self move 1.552110e-02 (predicted 1.552110e-02), adjacent 8.605e-03, opposite 7.093e-03. (N2) displaced κ-on rung breaks (iii′) at 13.15 / 28.15 / 7.89 % with (i) 1.708e-15; per-sheet κ there P1 3.742042e-02, others ≈ 1.0605e-02 — the in-run κ follows the displaced sheet's geometry. W3 <code>…172038Z_…-W3.log</code> (0, 302 s, 17 passed 1 skipped), W4 <code>…172549Z_…-W4.log</code> (0, 219 s, 15 passed 3 skipped): (P) (i) 8.256069e-05, (ii) ≤ 8.256e-05 at all 11 points, (iii) one sign change in [60, 64] MHz (−5.868 Ω → +2.03e-3 Ω); half-C_tuned control 1.116902 (1117×), |S₁₁| 0.846071753. Route identity: κ bit-equal (1.06076215456141210e-02), max|ΔS|/max|S| <strong>1.129e-15</strong> — under 1e-12 but not the predicted 0.0. κ(64) both paths vs <code>PORT-22</code>'s 09-20 value: 4.386e-12 apart. κ-off 64 MHz S vs <code>PORT11_S_64MHZ_RECORD</code> ≤ 1.45e-10. Windows ran 1 095 s total against ≈ 870 s predicted.</li>
+</ul>
+<h2 id="7-row-moved-verbatim-2026-10-01-rotate_plan_archivepy-chunks">§7 row moved verbatim 2026-10-01 (rotate_plan_archive.py chunks)<a class="headerlink" href="#7-row-moved-verbatim-2026-10-01-rotate_plan_archivepy-chunks" title="Permanent link">&para;</a></h2>
+<p><em>(history and §9 briefs: <code>docs/planning/chunks/PORT-21.md</code>)</em> <strong>What the lumped-sheet port adds to <code>S₁₁</code>: the self-class feed systematic, measured on our side</strong> — <code>ANS-4</code>'s order-matched comparison disagrees on the self class at 10 and 64 MHz and agrees on the couplings (known-issues 2026-09-19; verdict qualitative, numbers private); this chunk measures how much our own <code>S₁₁</code> moves under each port-model convention an independent code could legitimately differ in, so the private residual can be read against a public sensitivity table (opened 2026-09-19 by the weekly; <strong>step 1 serial on nothing; step 2 serial on <code>xl</code> entries 7 and 11 having run</strong>) | 🟡 <strong>Step 5 landed 2026-10-01 (12:00 CDT slot, §9 item 140, chain F13) — a record, no glyph; tests only, no <code>src/</code>, no band moved.</strong> <code>width_correction_kappa="in_run"</code> on <code>build_four_port_sweep</code> and <code>_four_port_rung</code>; knobs <code>FEM_EM_PORT11_WIDTH_CORRECTION=in_run</code>, <code>FEM_EM_PORT22_WIDTH_ROUTE=option</code>. Unset: 10 MHz control at 1.158e-10 (band 1e-6), four-port module green (W0 / W1 <code>20261001T171043Z</code> / <code>…171226Z_PORT-21-step5-W*.log</code>, 97 / 220 s). κ on at 64 MHz (W2 <code>…171613Z</code>, 257 s): reciprocity 9.856e-16, σ_max 0.999760, spreads ≤ 0.0602 %, pooled separation 672×; N1 self move 1.552110e-02 (as predicted); displaced rung breaks (iii′) with (i) green. <code>PORT-22</code> through the option (W3 / W4 <code>…172038Z</code> / <code>…172549Z</code>, 302 / 219 s): (i) / (ii) ≤ 8.256069e-05, (iii) one sign change in [60, 64] MHz, half-C_tuned control 1117× band; option vs hand-rolled κ identical, max|ΔS|/max|S| <strong>1.129e-15</strong> (predicted 0.0, ≤ 1e-12). In-run κ(64) 1.0607621546e-02 on both paths. T11b queueable. <strong>Step 4 landed 2026-10-01 (04:30 CDT slot, §9 item 126, chain F11) — a record, no glyph; tests only, no <code>src/</code>, no band moved.</strong> Module now stores <code>s_diagonal</code> for every run and <code>class_means</code> for (a) and c′; new <code>test_degree2_10mhz_reproduces_w3</code>. <strong>W_R</strong> (degree 2, 10 MHz, <code>-n 8</code>, 280 s, 17 passed 3 skipped, <code>20261001T093143Z_PORT-21-step4-WR.log:3053–3064</code>): F6's W3 reproduced — max diagonal residual <strong>1.410e-10</strong>, κ 8.3e-11 relative (band 1e-9); negative control (a) vs W3's control′ misses at <strong>0.1846</strong> (asserted). <strong>W1 / W2</strong> (64 / 128 MHz, degree 2, <code>-n 8</code>, 284 / 288 s, <code>…094205Z_…-W1.log</code>, <code>…094656Z_…-W2.log</code>): every imported gate green on control′ and (a) — reciprocity ≤ 3.0e-14, σ_max ≤ 0.999821, spreads ≤ 0.0358 %; (a) self move 7.255e-02 / 2.773e-02 &gt; 1e-6; control′ degree 2 vs degree 1 self 8.198e-02 / 6.089e-02 &gt; 1e-6. <strong>Printed:</strong> κ (degree 2) <strong>5.2106e-02 / 5.2147e-02</strong> at 64 / 128 MHz — flat in f, ≈ 4.9× degree 1, as predicted; (a) vs control′ at degree 2 self / adj / opp 1.846e-01 / 4.92e-02 / 4.64e-02 (10), 7.255e-02 / 4.18e-02 / 3.43e-02 (64), 2.773e-02 / 2.99e-02 / 1.86e-02 (128) — the self move falls with f at degree 2 as at degree 1. <strong>W0</strong> (128 MHz degree 1, <code>-n 2</code>, 100 s, <code>…093630Z_…-W0.log</code>) wrote <code>f_128.000MHz_p1_hdefault.json</code> with control′ class means (run with <code>VARIANTS=control_prime,a</code> kept); <strong>W0b</strong> (64 MHz degree 1 <code>RESOLUTION=0.0075</code>, <code>-n 4</code>, 216 s, <code>…093824Z_…-W0b.log</code>) wrote <code>f_64.000MHz_p1_h0.0075.json</code>, arming <code>xl</code> entry 22's 64 MHz knob test — run <strong>without</strong> W5's <code>&gt; raw.log; rc=$?</code> capture (the permission layer denied <code>$rc</code>; 216 s, well under the durable-capture threshold). F13 unblocks; T6 clause (ii)'s public inputs are in place for the weekly. <strong>Step 3 landed 2026-09-27 (11:00 UTC slot, §9 item 53, chain F6) — degree / resolution / variant knobs on the module, tests only, no <code>src/</code>, no band moved.</strong> <code>FEM_EM_PORT21_DEGREE</code>, <code>FEM_EM_PORT21_RESOLUTION</code>, <code>FEM_EM_PORT21_VARIANTS</code> (<code>control</code> / <code>a</code> / <code>control_prime</code> / <code>c_prime</code>) exactly as <code>xl</code> entry 19 spells them; frequencies split on commas or spaces; degree forwarded through <code>build_four_port_sweep</code> (new <code>degree=1</code> keyword, returned as <code>"degree"</code>), <code>_solve_driven</code> and <code>_terminated_three_port</code> (both default to the sweep's own order); per-frequency JSON tagged <code>_p&lt;deg&gt;_h&lt;res&gt;</code>; with <code>control</code> unselected (a) is built on control′'s congruent mesh and read against control′; the gate-record control tests skip, named, under any knob. <strong>W1</strong> (knobs unset, 10+64 MHz, <code>-n 2</code>, 361 s, 18 passed 1 skipped, <code>20260927T110318Z_PORT-21-step3-W1.log</code>): step 1 reproduced digit for digit — control Z column 1.071e-10 … 2.568e-10 vs 1e-9 (<code>:11519–11522</code>), (a) residual 5.359129e-05 (<code>:11570</code>), (a) self moves 3.411387e-02 / 1.552110e-02 asserted string-equal (<code>:11596–11597</code>), gates green on all four runs. <strong>W3</strong> (degree 2, 10 MHz, <code>control_prime a</code>, <code>-n 8</code>, 270 s, 16 passed 3 skipped, <code>20260927T110931Z_PORT-21-step3-W3.log</code>): 746 144 dofs on 116 118 cells; factorisation 39.8 s; control′ sweep 97.6 s (mesh 24.8 + four drives 72.6), (a) route 135.5 s (κ solve ≈ 65.8 + sweep 69.7); <strong>the κ solve is a third factorisation per frequency</strong>; live RSS returns to ≈ 3 GiB after every sweep (factor freed), peak sum over ranks 18.3 → 19.2 GiB; gates green (reciprocity 2.1e-13 / 3.1e-13, σ_max 0.999992 / 0.999995, spreads ≤ 0.0387 %). <strong>Negative control (asserted):</strong> control′ degree 2 vs degree 1 self / adj / opp <strong>1.356684e-01 / 3.971685e-02 / 3.785204e-02</strong> (&gt; 1e-6; <code>:3041</code>). <strong>Printed, first degree-2 <code>PORT-21</code> reading:</strong> κ = <strong>5.209037e-02</strong> (degree 1: 1.059204e-02); (a) vs control′ self / adj / opp <strong>1.846263e-01 / 4.916121e-02 / 4.639129e-02</strong> (degree 1, vs gate control: 3.411387e-02) — at degree 2 κ and (a)'s move grow ≈ 5×, the opposite of a coarse-mesh artefact collapsing; a reading, not a claim. <strong>W5</strong> (degree 1, 10 MHz, <code>RESOLUTION=0.0075</code>, <code>-n 4</code>, 198 s, <code>20260927T111420Z_PORT-21-step3-W5.log</code>): control′ <strong>281 731 cells ≠ 116 118</strong> (asserted, <code>:2146</code>); κ = 9.831208e-04, (a) self move 3.090765e-03 (printed); gates green (reciprocity 7.1e-15 / 4.8e-15, spreads ≤ 0.0377 %). <strong><code>xl</code> entry 19 stays PENDING</strong> — the knob names landed as spelled and memory stays at one factor, but the measured count is 3 factorisations per frequency (6 + 2 mesh builds for "10 64"), ≈ 8 600–9 500 s on the 1 476.9 s family price, outside its 5 500–7 000 s bracket; price written beside the entry. No absolute <code>S₁₁</code>. <strong>Step 1 CLOSED on <code>main</code> 2026-09-21 (09:30 slot, §9 item 22, step 1b) — every asserted anchor green in two windows, no band moved, no <code>src/</code>.</strong> Module landed by path from <code>attempt/PORT-21-20260920T114000Z</code> with variant (c) <strong>replaced</strong> by (c′) = <code>c4_congruent_sheets=True</code> + <code>conductor_resolution = 0.5 × CONDUCTOR_RESOLUTION</code> (259 543 cells), read against its own <strong>control′</strong> = <code>c4_congruent_sheets=True</code> (116 118 cells, = the record); the uncongruent (c) numbers stay as a printed record with the three parked logs cited, its assert removed because the variant is replaced. <strong>Asserted green:</strong> control reproduces leg (d0)'s record at 10 MHz (band 1e-9) on 116 085 cells; (a) <code>PORT-14</code> step 3 residual <strong>5.359129e-05</strong> (0.054× <code>REDUCTION_BAND</code>, <code>20260921T094335Z_PORT-21.log:11519</code>); reciprocity / passivity / <strong>0.5 %</strong> C4 spread on every run incl. control′ and (c′) — (c′) spreads self/adj/opp <strong>0.0403 / 0.0220 / 0.0228 %</strong> (10 MHz, <code>…094335Z:11495</code>), <strong>0.0204 / 0.0491 / 0.0263 %</strong> (64, <code>:11516</code>), <strong>0.0337 / 0.0837 / 0.0515 %</strong> (128, <code>20260921T094925Z_PORT-21.log:5786</code>) — the pre-registered negative branch did <strong>not</strong> fire; knob floor cleared by ≥ 6.3e3× (c′ ≥ 1.538e4×). <strong>Printed beside, not asserted:</strong> control′ spreads 0.0475 / 0.0529 / 0.0366 % at 64 MHz and 0.0739 / 0.0822 / 0.0506 % at 128 MHz reproduce the records to every printed digit (<code>…094335Z:11510–11511</code>, <code>…094925Z:5780–5781</code>); <strong>new at 10 MHz:</strong> 0.0316 / 0.0244 / 0.0115 % (<code>…094335Z:11489</code>). <strong>Table (printed, never asserted; <code>…094925Z:5795–5810</code>):</strong> self-class <code>\|ΔS\|/\|S\|</code> (a) 3.411387e-02 / 1.552110e-02 / 6.327010e-03 (FALLS with f); (c′) <strong>1.885271e-02 / 1.538416e-02 / 1.679098e-02</strong> (non-monotonic; adjacent 6.025982e-03 / 6.669000e-03 / 1.332517e-02, opposite 4.185679e-03 / 9.536233e-03 / 1.761714e-02) at 10 / 64 / 128 MHz. (b) skipped and named. Windows: <code>20260921T094335Z_PORT-21.log</code> (10+64 MHz, Status 0, <strong>341 s</strong>, 5 passed) and <code>20260921T094925Z_PORT-21.log</code> (128 MHz, Status 0, <strong>158 s</strong>, 3 passed 2 skipped) — <code>-n 2</code>, complex, <code>timeout -k 30 590</code>, durable capture, <code>-s</code>; heavy by count, measured standard/heavy. No absolute <code>S₁₁</code>/<code>Z_in</code> at 10 or 64 MHz is claimed. Step 2 (the 09-26 weekly, private) reads this table. <strong>Earlier record:</strong> Step 1 attempted and measured 2026-09-20 (06:00 slot, second item) — the table is complete and printed, but the step's "every variant passes the imported gates" anchor is RED on variant (c), so step 1 does NOT close; the module is parked unmerged on <code>attempt/PORT-21-20260920T114000Z</code> and §9 item 13 is BLOCKED on a review ruling.** Green: the control reproduces leg (d0)'s gate record at <strong>1.071e-10 … 2.568e-10</strong> against the imported 1e-9 at all three frequencies on 116 085 cells (<strong>no record drift on <code>main</code></strong>); variant (a) reproduces <code>PORT-14</code> step 3's registered residual at <strong>5.359129e-05 = 0.054× <code>REDUCTION_BAND</code></strong>, in-run κ = 1.059204e-02 / 1.060762e-02 / 1.064828e-02 (the 64 MHz value reproducing <code>PORT-14</code> step 2d's 1.060762e-02); every variant cleared the 1e-6 knob-reaches-the-solve floor by ≥ 6.3e3× (smallest move 6.327e-03, largest 3.411e-02); reciprocity ≤ 1.79e-14 and passivity σ_max ≤ 0.999993 / max column power ≤ 0.8704 pass on <strong>every</strong> run including (c). Red: <strong>variant (c)</strong> (conductor-side grading halved, 8.0000e-04 m vs <code>CONDUCTOR_RESOLUTION</code> 1.6000e-03 m, re-meshing to <strong>259 509 cells</strong>) misses the imported <strong>0.5 %</strong> C4 class-spread band at all three frequencies — 10 MHz self <strong>2.3607 %</strong> / adj 1.2387 % / opp 1.0399 %; 64 MHz self <strong>1.0508 %</strong> / adj 0.9719 % / opp 0.9038 %; 128 MHz self <strong>0.5553 %</strong> / adj 0.6751 % / opp 0.6914 % — where the control and (a) sit at ≤ 0.1013 % on the same runs. <strong>No band was moved, no <code>src/</code> touched, nothing diagnosed further.</strong> Variant <strong>(b)</strong> is <strong>skipped and named, not built</strong>, as the row directs: <code>build_four_port_sweep</code> narrows every sheet with a module-level <code>GATED_WIDTH_FRACTION</code> and exposes no width-fraction parameter, so building the knob would be the generator change the step forbids. <strong>The sensitivity table (printed, never asserted; <code>|ΔS|/|S|</code> per C4 class, variant against the control on the same fixture):</strong> (a) self <strong>3.411387e-02 / 1.552110e-02 / 6.327010e-03</strong>, adjacent 1.002216e-02 / 8.605348e-03 / 6.344015e-03, opposite 9.459542e-03 / 7.093172e-03 / 3.992451e-03 at 10 / 64 / 128 MHz — the self-class move <strong>FALLS</strong> monotonically with frequency; (c) self <strong>5.982326e-03 / 1.607415e-02 / 1.668383e-02</strong>, adjacent 2.205190e-03 / 6.406405e-03 / 1.296737e-02, opposite 7.502789e-04 / 1.110089e-02 / 1.846200e-02 — it <strong>RISES</strong>. That opposite frequency trend between the two conventions is the table's readable content and is what step 2 (the weekly's, private) reads the residual against; <strong>no absolute <code>S₁₁</code> figure is licensed here</strong> (known-issues 2026-09-19) and nothing under <code>docs/private/</code> or <code>aed_results/</code> was opened in the slot. <strong>Open question for the review (the unblock condition):</strong> whether (c)'s anchor is re-scoped onto <code>c4_congruent_sheets=True</code> (<code>GEO-32</code>'s mechanism — the executor's <em>untested</em> reading is that the re-cut sheets on a 259 509-cell mesh are no longer C4-congruent, so the 0.5 % band belongs to the 116 085-cell gate cut and not to that one) or re-registered as "green on (a), red on (c) with the mesh-congruence cause named", closing on the table. The parked module runs as-is either way; no re-solve is needed to land it. <strong>Logs:</strong> <code>20260920T111725Z_PORT-21.log</code> (10+64 MHz, Status 1, 264 s), <code>20260920T112242Z_PORT-21.log</code> (128 MHz, Status 1, 127 s), <code>20260920T112548Z_PORT-21.log</code> (10+64 MHz re-run against the module <strong>as parked</strong> — rule (i) — Status 1, 263 s, and the window that supplied the 64 MHz (c) row the first short-circuited past); all <code>-n 2</code>, complex, <code>timeout -k 30 590</code>, durable capture, <code>-s</code>. <em>(Original step text below.)</em> ⬜ <strong>Step 1 (heavy by count, <code>-n 2</code>, 116 085-cell F-small gate mesh, degree 1, factor reuse; ≈ 45 s per 4-drive solve from <code>PORT-15</code> step 3's measured 19.6 s + 25.3 s build).</strong> At 10 / 64 / 128 MHz print the driven-column class entries under three variants, one knob each, against the gate record (reproduced first at rtol 1e-9 — the control): (a) sheet width told as <code>w/(1 + κ)</code> with the in-run κ (<code>PORT-14</code> step 3's opt-in); (b) full-width sheet <code>f = 1.0</code> against the gated interior half <code>f = 0.5</code>; (c) the port-box interior's conductor-side grading halved (the stub-face fringe). A variant whose knob the generator does not already expose is skipped and named, not built — this step adds no <code>src/</code> surface. <strong>Asserted (identity):</strong> every variant still passes the imported reciprocity / passivity / C4 gates, and variant (a) reproduces <code>PORT-14</code> step 3's registered residual. <strong>Printed, never asserted:</strong> <code>\|ΔS\|/\|S\|</code> per class per variant per frequency — the sensitivity table — and whether each variant's self-class move <strong>falls with frequency</strong> (the signature the private residual has). 🧪 by the §3 rule unless the identities are what a review counts; closes nothing absolute. <strong>Step 2 (weekly, private).</strong> The weekly reads the table against the private residual and the 3e / 3g <code>h</code>-convergence statements and rules: a variant whose self-class move matches the residual in size and frequency trend is named the feed systematic and written into §2.2 with its public size; none matching ⇒ the disagreement stays open against <code>ANS-6</code>'s PEC column. <strong>Done-when (§4):</strong> step 1's identities asserted and the table logged with elapsed; step 2's ruling written in §10. Never tunes a port parameter toward the external code — variants are conventions, fixed before the private file is opened. <strong>Step 1 attempted 2026-09-20 (06:00 slot, parked <code>attempt/PORT-21-20260920T114000Z</code>; logs <code>20260920T111725Z</code> / <code>…112242Z</code> / <code>…112548Z_PORT-21.log</code>):</strong> control reproduces the gate record at 1.071e-10…2.568e-10 (band 1e-9); (a) reproduces <code>PORT-14</code> step 3's residual at 5.359129e-05; self-class <code>|ΔS|/|S|</code> for (a) 3.411387e-02 / 1.552110e-02 / 6.327010e-03 at 10 / 64 / 128 MHz (falls with f); (b) skipped and named (no width-fraction parameter). <strong>Record (2026-09-21 review ruling):</strong> variant (c) as first built — halved conductor grading <em>without</em> the congruent cut, 259 509 cells — reads C4 class spreads 2.3607 / 1.2387 / 1.0399 % (10 MHz), 1.0508 / 0.9719 / 0.9038 % (64), 0.5553 / 0.6751 / 0.6914 % (128) against the imported 0.5 % band: a spread up to 4× the move it was to measure (5.982326e-03 / 1.607415e-02 / 1.668383e-02), so that row is mesh asymmetry (<code>GEO-30</code>…<code>-32</code>'s mechanism), <strong>not</strong> a feed sensitivity. The band is unmoved; <strong>step 1b (§9 item 22)</strong> rebuilds (c) on <code>c4_congruent_sheets=True</code> against its own congruent control′, with a pre-registered negative branch. <strong>Step 4 (§10 F11; written 2026-10-01 03:00 review, rule (j)):</strong> degree-2 ×1-cut identities green at 64 and 128 MHz for control′ and (a), class means and diagonals stored in the JSON for every variant, F6's W3 10 MHz diagonals and κ reproduced at <code>LEG_D0_REPRODUCTION_BAND</code> 1e-9, elapsed recorded — a record, no glyph (§9 item 126). <code>PORT-21</code> → ✅ when T6 is decided either way (F12 for clause (i), F9 for clause (ii)) and §2.2 is written. <strong>Step 5 (§10 F13; written 2026-10-01 10:30 review, rule (j); §9 item 140):</strong> <code>width_correction_kappa="in_run"</code> on <code>build_four_port_sweep</code> and <code>_four_port_rung</code> (<code>PORT-14</code> step 3's route at the sweep's degree), default <code>None</code> digit-identical (<code>PORT-11</code>'s frequency control and the four-port module green unset); with it on, <code>PORT-11</code>'s three gates green at 64 MHz and the displaced control breaks (iii′); <code>PORT-22</code>'s (i)–(iii) green through the option, option = hand-rolled route ≤ 1e-12 at 64 MHz — a record, no glyph. Serial on step 4 (landed). </p>
+<p><strong>2026-10-08 03:00 daily review (§10 F29, lane 1).</strong> The §7 Done-when's stale "F12 for clause (i), F9 for clause (ii)" is replaced by T6's clauses as decided by the 2026-10-05 weekly — (ii) at ×1, (i′) on the h = 0.0075 exact rung (<code>xl</code> entry 27 / F18b), (i″) on the conductor-halved rung (F18a). The ✅ is unchanged; the edit is text only.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,583 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>TH-17 — Birdcage eigenmodes - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#th-17-birdcage-eigenmodes" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              TH-17 — Birdcage eigenmodes
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="th-17-birdcage-eigenmodes">TH-17 — Birdcage eigenmodes<a class="headerlink" href="#th-17-birdcage-eigenmodes" title="Permanent link">&para;</a></h1>
+<p><strong>Birdcage eigenmodes</strong> — the <code>TH-9</code> eigensolver on the loaded birdcage with a PEC coil (<code>TH-15</code>) and <code>PORT-14</code>'s capacitor sheets; mode frequencies vs the ladder-network closed form, Phase 6's named first target — <strong>feature ladder B3</strong> (operator directive 2026-09-04; serial on <code>TH-15</code>, <code>PORT-14</code>) | ✅ <strong>Gates (c) and (d′) EXECUTED 2026-10-01 (07:30 CDT slot, §9 item 131, chain T5c) — GREEN; with (a), (b) (step 3) and (e) (item 117) the amended Done-when is met. Flag (rule (j)): gate (a) is closed as step 3 re-posed it (the k = 1 pair within κ of 64 MHz at <code>C_mode</code>, not at <code>C_tuned</code> — the mis-posing note below); the weekly confirms that reading.</strong> <strong>Audited PASS 2026-10-01 10:30 review</strong> (<code>20261001T124058Z_TH-17-gate-c-W1.log:1445,1449,1711–1713</code>; <code>…124451Z…W2.log:1776–1777,2039–2041</code>; W3 <code>:996,1360</code> reproduces <code>20260928T095346Z_TH-17-step3.log:995,1359–1360</code> digit for digit). <strong>Gate (a) amended under rule (j), same review:</strong> (a) reads "the k = 1 pair within κ of 64 MHz <strong>at <code>C_mode</code></strong>" — the 2026-09-26 weekly's re-pose (T5b; <code>plan-archive.md:34745–34751</code>, <code>:34798–34801</code>), band unchanged; at <code>C_tuned</code> the pencil's lowest pair is 129.6 MHz by construction (W2 <code>:962–963</code>). <code>test_gate_c_k2_identity_c_mode</code> / <code>test_gate_c_k2_identity_c_tuned</code> (env-gated <code>FEM_EM_TH17_GATE_C=1</code>; tests only; steps 2 / 3 bodies untouched — their closures copied into <code>_CircuitSide</code>). <strong>(c-M)</strong> circuit k = 2 zero 7.798269895e+07 Hz vs the pencil's k = 2 singlet 7.838759746e+07 Hz: <strong>5.165e-03 = 0.487 κ</strong>; <strong>(c-T)</strong> 1.581275645e+08 vs 1.589189395e+08 Hz: <strong>4.980e-03 = 0.469 κ</strong> (step 2's zero reproduced to 3.1e-10 ≤ 1e-9); <strong>(d′)</strong> <code>|(f̄_pair(2C)/f̄_pair(C))·√2 − 1|</code> = <strong>3.772e-03 = 0.356 κ</strong>. Singlet: nearest other eigenvalue to f₂ 17.9 % (M) / 18.4 % (T) away (band 0.5 %). f₁ &lt; f₂ asserted on both sides, both legs; no k = 0 sign change in 60–100 MHz (M) or 100–200 MHz (T). <strong>Negative controls asserted:</strong> (N1) k = 2 zero vs the k = 1 pair 2.122e-01 = 20.00 κ (M), 2.201e-01 = 20.75 κ (T); (N2) vs the pencil's k = 2 at 2·<code>C_mode</code> (5.558095900e+07 Hz) 4.031e-01 = 38.00 κ. Printed: k = 2 √2 ratio 1.002752 (predicted 1.002771); fixed-point re-solve at ω_lin = 2π·Re f₂ −3.45e-07 (M), −1.81e-05 (T); DFT off-diagonal per grid point in the logs. <code>20261001T124058Z_TH-17-gate-c-W1.log</code> (Status 0, 226 s), <code>20261001T124451Z_TH-17-gate-c-W2.log</code> (Status 0, 228 s), W3 rule (i) re-run of step 3 verbatim <code>20261001T124845Z_TH-17-gate-c-W3.log</code> (Status 0, 195 s; every step 3 digit reproduced); heavy, <code>-n 4</code>, complex, 13 passed each. <strong>Not claimed:</strong> no eigenvector class label, no (C5) fit, no AED, B₁ or human-scale statement. Prior status: 🟡 <strong>Step 3 EXECUTED 2026-09-28 (09:30 UTC slot, §9 item 59, chain T5b) — GREEN: tuned by the eigen route, (a) and (b) pass at 64 MHz; (e) green, <code>20260930T200647Z_TH-17-gate-e-W1.log</code>; (c) open, so the glyph stays 🟡.</strong> <em>(2026-09-30 15:00 slot, §9 item 117: gate (e) — σ = 0 on the phantom, ε_r kept, PEC coil — <code>|Im λ|/Re λ</code> (H1, C_mode, 64 MHz) 4.789e-18 / 3.674e-18, (H2, <code>c_tuned_farad()</code>, 128 MHz) 2.169e-20 / 8.159e-19, all ≤ <code>CONTROL_IM_RE_BOUND</code> 1e-10 (<code>:1025</code>); negative control (L) σ = <code>SALINE_SIGMA</code> 6.563e-4 / 6.541e-4, Im f +2.111e4 / +2.104e4 Hz, pair equal to step 3's record to ≤ 6e-11; Re f shift (H1) − (L) −4.51e-6 / −4.49e-6 relative (<code>:1020</code>); (H2) vs <code>STEP2_RECORDED_PAIR_HZ</code> −1.480e-4 / −1.464e-4 (printed, no prior); <code>|Im(xᴴBx)|/|xᴴBx|</code> 2.3e-20 at σ = 0, 1.05e-2 at σ = 0.5 (<code>:1023–1024</code>). 13 passed, 123 s, <code>-n 4</code>, heavy.)</em> <em>(2026-09-30 10:30 review: gate (e) queued, §9 item 117, read by its parenthetical — σ → 0 on the phantom with ε_r kept, PEC coil; "machine zero" read as <code>TH-14</code>'s imported <code>CONTROL_IM_RE_BOUND</code> 1e-10 on the same GNHEP routine. Both readings are for the weekly to confirm; (c) stays the weekly's to re-pose.)</em> <code>test_th17_birdcage_eigenmodes.py::test_step3_eigen_route_tuning</code> (env-gated <code>FEM_EM_TH17_STEP3=1</code>; tests only, no <code>src/</code>, step 2's paths untouched, no band widened). <code>20260928T095346Z_TH-17-step3.log</code>, Status 0, <strong>186 s</strong> (heavy; <code>-n 4</code>, complex, <code>FEM_EM_REQUIRE_COMPLEX=1</code>, <code>timeout -k 30 600</code>, <code>-s</code>, <code>tests/environment</code> first, 13 passed); 13 four-drive sweeps + 3 eigen solves, rank-0 peak RSS 0.63 GiB. Fixture item 51's (80 181 cells, 111 121 dofs). <strong><code>C_mode</code>:</strong> one sweep at 64 MHz (physical σ), <code>z₁</code> = avg(z₁, z₃) = 0.5547 + <strong>37.515j Ω</strong> (|z₁ − z₃|/|z₁| 8.5e-16 — reciprocity, no C4 claim; DFT off-diagonal 2.8e-05); <strong>Im z₁ &gt; 0 asserted</strong>; <code>C_mode = 1/(ω₆₄ Im z₁)</code> = <strong>6.628769508e-11 F</strong> (predicted 6.63e-11 from the <code>L_eff</code> fit — 0.02 %). <strong>Eigen at <code>C_mode</code></strong> (ω_lin = 2π·64 MHz, <code>z_ref_hz=None</code>, target 64 MHz; 25.2 s): pair <strong>6.432991449e+07 / 6.433349959e+07 Hz</strong> (Im f ≈ +2.1e+04 Hz), <strong>(a) asserted:</strong> <code>|Re f − 64|/64</code> = <strong>5.155e-03 / 5.211e-03 ≤ κ 1.060762e-02</strong> (0.49 κ — step 2's +0.49 % carried over, as predicted, landing near 64.3 MHz); <strong>(b) asserted:</strong> split <strong>5.57e-05 ≤ 0.005</strong>. Next eigenvalue above the pair 7.838759746e+07 Hz (printed). <strong>Circuit side at <code>C_mode</code></strong> (60–100 MHz, 5 MHz grid + secant; printed): k = 1 (≡ k = 3) zero at 6.400000005e+07 Hz (|Im|/|z| 1.0e-07 — by construction); k = 2 sign change interpolated at 7.80e+07 Hz (the pencil's 7.839e+07 Hz, 0.47 % above); k = 0: no sign change in 60–100 MHz. Ordering (printed, not asserted): k = 1 lowest, k = 2 above, no k = 0 — low-pass, as step 2. <strong>Negative control asserted:</strong> at 2·<code>C_mode</code> (target 64/√2 MHz, 9.6 s) the pair 4.565970696e+07 / 4.566223088e+07 Hz misses 64 MHz by <strong>2.865e-01 = 27.0 κ</strong> (predicted ≈ 27.4 κ, ceiling 27.6); (f_neg/f_pair)/(1/√2) = 1.003772 (printed). <strong>Fixed-point re-solve (printed):</strong> ω_lin = 2π·Re f₁, <code>z_ref_hz = Re f₁</code>: 6.432990943e+07 Hz, shift <strong>−7.9e-08</strong>. <strong>Not claimed:</strong> no (C5) fit, no PEC control (e), no AED, no physical-capacitor claim; (a) is a first reading beside 1c's two-torus 2.053 %. Prior status: 🟡 <strong>Step 2 EXECUTED 2026-09-27 (09:30 UTC slot, second item, §9 item 51, chain T5a) — GREEN: re-posed (a) and (b) pass and the fixed-point shift is recorded; (c)–(e) stay open, so the glyph stays 🟡.</strong> <code>test_th17_birdcage_eigenmodes.py::test_step2_circuit_eigen_identity</code> (env-gated <code>FEM_EM_TH17_STEP2=1</code>; no <code>src/</code>; additive <code>z_ref_hz=None</code> keyword on the module's own <code>_capacitor_mass_forms</code> / <code>solve_modes</code> — unset path byte-identical — because <code>Z_p = 1/(jωC)</code> was evaluated at 64 MHz while <code>L1</code> used <code>ω_ref</code>, so at <code>ω_lin ≠ 2π·64 MHz</code> the capacitor mass scaled by <code>ω₆₄/ω_ref</code>; the re-solve passes <code>ω_ref/2π</code>). <code>20260927T094905Z_TH-17-step2.log</code>, Status 0, <strong>279 s</strong> (heavy; <code>-n 4</code>, complex, <code>timeout -k 30 590</code>, <code>-s</code>, <code>tests/environment</code> first, 13 passed), 31 four-drive sweeps (≈ 6.4 s each) + 2 eigen solves. Fixture exactly 1b (ii)'s (80 181 cells, 111 121 dofs, sheets 211–214 at azimuth 0/90/180/270°, <code>h/w</code> 1.096773, <code>C_tuned</code> 1.556993028e-11 F on all four). Live eigen pair <strong>1.295936260e+08 / 1.296011466e+08 Hz — 1b (ii)'s record reproduced to all ten digits</strong> (<code>:965–966</code>). Circuit side: matched-sweep S → open-circuit <code>Z = z0(I+S)(I−S)⁻¹</code>, <code>z_k = diag(F·Z·Fᴴ)</code> (DFT off-diagonal residual 7.1e-05 → 2.7e-04 across 100–200 MHz, printed), phantom σ·f/64 MHz. Zeros of <code>Im z_k − 1/(ωC)</code>, classified by <code>TUNING_IM_Z_RTOL</code>: <strong>k = 1 and k = 3 at 1.289622334e+08 Hz</strong> (|Im|/|z| 2.1e-09), k = 2 at 1.581275645e+08 Hz (printed; the pencil's 1.589189395e+08 Hz, 0.50 % above — same sign and size as k = 1, not gated), k = 0 none in 100–200 MHz. <strong>(i) asserted:</strong> <code>|f_circ − Re f_eig|/Re f_eig</code> = <strong>4.872e-03 / 4.930e-03 ≤ κ 1.060762e-02</strong> (<code>:1897</code>) — the circuit zero sits 0.49 % below the eigen pair, ≈ 0.46 κ. <strong>(ii) asserted:</strong> eigen split 5.803e-05 ≤ 0.005. <strong>(iii) asserted:</strong> circuit split <strong>0.000e+00</strong> ≤ 0.005 — <em>reading for the review:</em> with <code>Z</code> symmetric (reciprocity), <code>diag(F·Z·Fᴴ)</code> gives <code>z₁ = z₃</code> identically, so (iii) is a reciprocity identity, not an independent C4 check; the C4 content is the printed off-diagonal residual. <strong>Negative control asserted:</strong> at 0.5·C_tuned on the same grid Z(f), the k = 1 zero at 1.770855e+08 Hz misses Re f_eig by 3.664e-01 = <strong>34.5 κ</strong>; the rule-(e) prediction (≈ 1.8328e+08 Hz, √2 × 129.6 MHz) printed, not asserted (measured 3.4 % below it). <strong>Fixed-point shift (printed):</strong> eigen re-solve at <code>ω_lin = 2π·1.295936e+08</code> gives 1.295784580e+08 / 1.295861517e+08 Hz, <strong>−1.170e-04</strong> (&lt; 0.1 %, the Done-when's threshold); physical-σ circuit zero 1.289468618e+08 Hz, −1.192e-04 vs linearised. <strong>Not claimed:</strong> no 64 MHz statement (T5b), no AED. Unexplained beside it: 1c's two-torus circuit ↔ eigen reading of 2.053 % (≈ 2κ) vs 0.49 % here. Prior status: 🟡 <strong>Step 1c EXECUTED 2026-09-21 (11:00 UTC slot, §9 item 24) — GREEN: the pencil-with-sheet-mass machinery is validated against a closed form (one LC loop).</strong> <code>test_th17_birdcage_eigenmodes.py::test_step1c_lc_loop_closed_form</code> (env-gated <code>TH17_STEP1C=1</code>; no <code>src/</code>), <code>20260921T110359Z_TH-17.log</code>, Status 0, <strong>394 s</strong> (heavy; <code>-n 4</code>, complex, <code>timeout -k 30 1100</code>, durable capture, <code>-s</code>). Fixture <code>two_torus_domain(port_gap, emit_port_sheet, as_hole)</code>, every constant imported: 161 461 cells, 195 296 N1curl deg-1 dofs; the loop's sheet is facet tag <strong>211</strong> (the item said 201 — on the hole route 201/202 do not exist; 211 is torus 1's port sheet), <code>h</code> 1.395505060e-02 m, <code>w = A/h</code> 1.040000000e-02 m, <code>h/w</code> 1.341831788 (<code>:539</code>). <strong><code>L_fem = Im Z_in/ω</code> (printed, <code>:541–543</code>):</strong> 1.062839664e-07 H at 10 MHz, <strong>1.073064785e-07 H at 64 MHz</strong> (used); Grover 1.085172998e-07 H beside, ratios 0.979420 / 0.988842 — never gated; <code>Z₂₁/Z₁₁</code> = 0.1604 / 0.1613 (the open loop's residual coupling, printed). <code>C = 1/((2π·64e6)²·L_fem)</code> = 5.763076340e-11 F in-run. <strong>(a) asserted:</strong> nearest eigenvalue <code>Re f</code> = 6.268576548e+07 Hz vs <code>f_LC</code> = 6.4e+07 Hz, <strong>2.053 %</strong> ≤ 5 % (<code>:571</code>; Im f +2.6e-09 Hz). <strong>(b) asserted:</strong> at <code>2·C</code>, <code>Re f</code> = 4.444741942e+07 Hz, ratio 0.7090512 vs 1/√2 = 0.7071068, <strong>0.275 %</strong> ≤ 2 % (<code>:572</code>). <strong>Negative control asserted:</strong> capacitor form removed ⇒ <strong>0</strong> eigenvalues in <code>f_LC·[0.8, 1.2]</code> (<code>:573</code>); the shift-invert at <code>f_LC</code> with <code>nev = 6</code> converged only the gradient cluster (<code>Re f</code> 8.1–9.1 kHz), so the predicted ≳ 0.5 GHz first cavity mode was <strong>not reached at this target — prediction untested, printed as "none"</strong> (rule (e)). Solve walls 96 / 124 / 99 s. <strong>Consequence (item 24's "under green"):</strong> the 1b (ii) ≈ 129.6 MHz floor stands as the F-small fixture's spectrum under the four-port loading, handed to the 09-26 weekly with the review's reading that row gate (a) may be mis-posed (below); no slot re-scopes gate (a). Prior status: 🟡 <strong>Step 1 part (i) executed 2026-09-19 04:30 slot (second item, take-next) — the cost probe is CHEAP and the pencil assembles, but NO EIGENVALUE LANDS NEAR THE 64 MHz TARGET, so parts (ii)/(iii) did not run and the (C5) third-residual band is NOT pre-registered.</strong> Landed additive and green on <code>main</code>: <code>core/cavity.py</code> gains <code>complex_relative_permittivity</code>, <code>general_mesh_pencil</code>, <code>solve_general_mesh_modes</code> (<code>_cavity_forms</code> and every box path byte-identical — nothing above the <code>TH-17</code> banner comment was touched), and <code>tests/validation/test_th17_birdcage_eigenmodes.py::test_cost_probe</code> (env-gated <code>TH17_PROBE=1</code>, so the default collection is unchanged). <strong>Probe, <code>-n 4</code>, <code>20260919T094827Z_TH-17.log:899–915</code>, 51 s wall:</strong> 80 181 cells, 111 121 N1curl deg-1 dofs, mesh 20.62 s + eigensolve 26.70 s = 47.80 s total, <code>ru_maxrss</code> 0.612 / 0.521 / 0.529 / 0.516 GiB (summed 2.179). Against the §9-item STOP rule (&gt; 15 min or &gt; 40 GiB at <code>-n 4</code>) that is <strong>0.797 min and 2.179 GiB — PROCEED, by ≈19× in time and ≈18× in memory</strong>; this step does <em>not</em> re-price to XL. <code>C_tuned</code> imported live from <code>PORT-15</code> step 3 (<code>tuning_sweep</code> + <code>select_c_tuned</code> on <code>S_64MHZ_EPS0_RECORD</code>) at 1.556993028375804e-11 F, never restated. <strong>The blocker (the whole finding):</strong> with <code>nev = 6</code> and shift-invert at <code>k₀² = (2π·64 MHz/c)² ≈ 1.799</code>, the nine converged eigenvalues are the <strong>N1curl gradient (null-space) cluster</strong> — λ ∈ [1.448e-09, 2.294e-09], i.e. <code>Re f</code> ≈ 1.8–2.3 kHz, <code>|λ − target| ≈ 1.8</code> for every one of them. Nothing in the pencil sits at 64 MHz. The capacitor term's sign and scale are as derived (<code>B_sheet = −(c²/ω_ref²)·L1(ω_ref)</code> = <code>+(C·h/w)/ε₀ ∫(n×u)·(n×v)</code>, positive-definite added mass, which is the direction that pulls the air box's \~GHz cavity modes down), so the leading hypothesis is that <strong>the added surface mass is orders of magnitude too small to move any mode from \~GHz to 64 MHz, and/or the gradient cluster must be deflated before shift-invert can reach the physical branch</strong> — the <code>TH-9</code> path discards it by a <code>null_cutoff_fraction</code>, which this general-mesh path does not yet do. Next attempt: (1) deflate/filter the null space (or solve the <code>k₀² &gt; 0</code> branch with <code>EPS.setDeflationSpace</code> / a larger <code>ncv</code>), (2) print the un-loaded (C = 0) spectrum on the same mesh to locate the physical branch, (3) only then re-price nev/target. Prior state: ⬜ <strong>Step 1 written 2026-09-18</strong> (interactive operator session under the enumerated-chain licence, §9 rule (4); it is §10 chain step 5 — <em>the internal "tuned birdcage" milestone</em>; queued as §9 item 5). <strong>Fixture:</strong> <code>TH-15</code> step 3's hole mesh (<code>birdcage_port_domain(…, as_hole=True)</code>, the coil PEC by the exterior default, <code>test_th15_birdcage_pec_hole.py</code>) with the phantom (σ 0.5 S/m, εᵣ 78) and <code>PORT-14</code>'s four gap sheets as <strong>capacitor sheets at <code>PORT-15</code> step 3's <code>C_tuned</code></strong> (imported from <code>test_port_circuit_layer_field.step3_tuning</code> — <code>tuned["c_f"]</code> — never restated); no source, no termination. <strong>Formulation:</strong> the lumped-sheet bilinear term (L1, <code>ports/lumped.py</code>) with <code>Z_p = 1/(jωC)</code> is <code>−ω²μ₀(h/w)C ∫(n×u)·(n×v)</code> — a surface <em>mass</em> term (<code>h/w</code> by (L2): <code>R = Z_p·w/h</code>, so <code>1/R = (h/w)·jωC</code>; the row said <code>w/h</code> until 2026-09-19 — a typo the 04:30 slot caught; the landed code derives and implements <code>h/w</code>) — and the phantom's conduction is linearised as a complex permittivity at <code>ω_lin</code> exactly as <code>TH-14</code> step 1 linearised the Leontovich wall (<code>core/cavity.py: solve_impedance_wall_cavity_mode</code>, one fixed-point re-solve at <code>Re ω</code>), so the whole problem is one non-Hermitian generalised pencil <code>A x = λ (B + B_sheet(C)) x</code>, shift-invert at <code>k₀² = (2π·64 MHz/c)²</code> (<code>_solve_pencil_nonhermitian</code>), <code>nev ≥ 6</code>. Additive <code>src/</code>: a general-mesh pencil builder beside <code>_cavity_forms</code> (the box path byte-identical; <code>TH-9</code> and <code>TH-14</code> step 1 gate modules re-run green). <strong>Readout:</strong> the complex eigenfrequencies nearest 64 MHz — the <code>k = 1</code> degenerate pair (mode 1), the <code>k = 0</code> end-ring mode above it and the <code>k = 2</code> mode below (high-pass ordering, <code>ports/circuit.py: birdcage_highpass_mode_frequencies</code> (C5)), each with <code>Q = Re ω/(2|Im ω|)</code>. <strong>Gates (asserted):</strong> (a) mode-1 <code>Re f</code> at 64 MHz within <code>PORT-14</code>'s named κ systematic (≈ 1 %; the constant imported from the <code>PORT-14</code> step 3 module, named in the §9 item) — <code>C_tuned</code> put the driven port's reduced network at series resonance there, so this is the circuit-layer ↔ eigen-layer consistency identity; (b) the pair degenerate to the imported <code>PORT-11</code> C4 spread band (0.5 %); (c) <strong>closed-form structure:</strong> <code>f_0 &gt; f_1 &gt; f_2</code> fit (C5) <code>ω_k⁻² = C(L_r + 2L_l sin²(πk/4))</code> with <strong>positive</strong> <code>L_r</code>, <code>L_l</code> (two unknowns, three equations; the third residual asserted ≤ a band the cost probe sets and the §9 item pre-registers before the gated run) — this replaces the chain's "step-2 inductances", which <code>PORT-15</code> step 2 read off <em>negative</em> (gap capacitance dominating); (d) <strong>negative control:</strong> at <code>2·C_tuned</code> mode 1 moves by the (C5) factor <code>1/√2</code> on <code>Re f</code> to the same band; (e) <strong>PEC-phantom control</strong> (σ → 0, Hermitian pencil): <code>Im ω</code> at machine zero, the <code>Re f</code> shift printed. <strong>Done-when:</strong> (a)–(e) through the harness at <code>-n 4</code>, the fixed-point shift recorded (&lt; 0.1 % or the band re-read), elapsed recorded ⇒ <strong><code>TH-17</code> → ✅ and Phase 6's first physics target ticked.</strong> <strong>Not claimed:</strong> no absolute mode frequency against AED (<code>ANS-6</code>'s), no B₁ homogeneity, no human scale. <strong>Cost probe first (§5.1):</strong> mesh + one shift-invert solve at <code>-n 4</code>, printed dofs / time / <code>ru_maxrss</code> — unmeasured on this mesh (<code>TH-9</code> / <code>TH-14</code> were boxes). <strong>Step 1 part (i) ran 2026-09-19 (04:30 slot, <code>f085e51</code>): the probe is cheap (47.8 s, 2.18 GiB at <code>-n 4</code>; <code>general_mesh_pencil</code> / <code>solve_general_mesh_modes</code> landed additively in <code>core/cavity.py</code>, <code>TH-9</code>/<code>TH-14</code> gates re-run green <code>941fa15</code>) but shift-invert at the 64 MHz target returned only the N1curl gradient cluster (nine pairs at <code>Re f</code> ≈ 2 kHz), i.e. no eigenvalue anywhere in (0, ≈ 90 MHz) — parts (ii)–(iii) BLOCKED.</strong> <strong>Step 1b (written 2026-09-19, operator session; §9 item 10) — locate the missing mode or the defect, with a closed form:</strong> (i) assemble the sheet mass alone and print <code>‖B_sheet‖</code> against <code>‖B‖</code> restricted to the sheet dofs — a zero says the (L1) forms never reached the pencil (facet tags / restriction), the first thing to rule out; (ii) a target scan — shift-invert at 1, 4, 16, 32, 64, 128, 256, 512 MHz with <code>nev = 6</code>, printing every converged eigenvalue with <code>Re f</code> &gt; 1 MHz — to find where the capacitor-loaded modes actually sit; (iii) <strong>the closed-form LC control:</strong> a PEC circular loop (torus, major radius <code>a</code>, wire radius <code>r</code>) with <strong>one</strong> capacitor sheet in a gap resonates at <code>f = 1/(2π√(LC))</code> with <code>L = μ₀a(ln(8a/r) − 2)</code> (the loop closed form already in the repo, <code>tests/validation/test_port_self_impedance_energy.py</code>, imported), <code>C</code> chosen to put <code>f</code> near 64 MHz; the pencil's nearest eigenvalue asserted within 5 % on a mesh where the loop's own <code>L</code> (from <code>PORT-1</code>'s energy route) is within 2 % of the closed form. (iii) is the gate that decides between <em>the pencil is wrong</em> (known-issues entry, the §7 formulation re-derived) and <em>the birdcage's eigen-resonance at <code>C_tuned</code> is simply not at 64 MHz</em> (a finding about the circuit-layer identity, and (ii) says where it is). Heavy by measurement of (i) (seconds); <code>-n 4</code>. <strong>Step 1b parts (i) and (ii) EXECUTED 2026-09-20 04:30 slot — the sheet mass is present and locally dominant, and the loaded spectrum's floor is ≈ 129.6 MHz, not 64 MHz.</strong> <code>20260920T093810Z_TH-17.log</code>, Status 0, <strong>232 s</strong>, 3 passed, <code>-n 4</code>, 111 121 dofs; both new tests env-gated behind <code>TH17_STEP1B=1</code> (default collection unchanged), plus an additive <code>target_hz</code> keyword on the module's own <code>solve_modes</code> wrapper — <strong>no <code>src/</code> change</strong>. <strong>(i) printed, never gated (<code>:1742–1747</code>):</strong> the four gap sheets each carry 26 owned facets, area 5.835299e-05 m², <code>h</code> 8.000000e-03 m, <code>w</code> 7.294124e-03 m, <code>h/w</code> 1.096773e+00 (tags 211–214, identical — the C4 fixture). <code>‖B_volume‖_F</code> = 1.634083724e+01 vs <code>‖B_sheet‖_F</code> = 1.364209336e+01 (ratio 8.348e-01), and <strong>on a sheet-dof indicator the sheet form dominates the volume form by 1.569208687e+03</strong> (1.760307187e+02 vs 1.121780169e-01). So the (L1) forms <em>do</em> reach the pencil and the added surface mass is <em>not</em> negligible where it acts: the "too small to move a mode" half of step 1's hypothesis is <strong>refuted</strong>, and the facet-tag/restriction failure mode (i) existed to rule out is ruled out. <strong>(ii) printed, never gated (<code>:1753–1800</code>):</strong> the eight-target scan converges 6–14 pairs per target but finds <strong>nothing with <code>Re f</code> &gt; 1 MHz at the 1, 4, 16, 32 or 64 MHz targets</strong> — the gradient cluster only, reproducing step 1 at its own target. Thirteen eigenvalues above 1 MHz appear from 128 MHz up: the <strong>lowest physical modes are a near-degenerate pair at 1.295936260e+08 and 1.296011466e+08 Hz</strong> (split 5.80e-05 relative, i.e. 0.0058 % — the C4 pair, well inside <code>PORT-11</code>'s 0.5 % spread band), then 1.589189395e+08 Hz, then a heavily damped 2.966755624e+08 Hz (λ = 2.559e+01 + 4.497e+01j), with the 256 and 512 MHz targets re-finding the same three and adding 5.283e+08 / 5.551e+08 / 5.553e+08 Hz. <strong>The finding:</strong> the loaded pencil's spectrum has a hard floor at ≈ 129.6 MHz and nothing in (2 kHz, 129.6 MHz); the 64 MHz target is in a genuine spectral gap, so shift-invert returning only the null space there is the correct answer to the question asked, not a solver defect. <strong>Not yet decided</strong> — which is what (iii) exists for: whether the ≈ 129.6 MHz floor is the physical <code>C_tuned</code> resonance (making step 1's gate (a) the false premise) or the pencil mis-scales the sheet term, cannot be settled by (i)/(ii), because neither carries a closed form. <strong>Part (iii), the LC loop control — the step's only asserted anchor — is NOT executed, and its pre-condition is contradicted by the repo's own record (§9 standing rule (e), reported not decided):</strong> item 10 asserts the loop's <code>PORT-1</code> energy route must give <code>L</code> within <strong>2 %</strong> of the closed form as the mesh pre-condition, but that fixture's <em>recorded</em> reading is <code>4ωW_m/I² = 7.437 Ω</code> against Grover's 6.818 Ω — <strong>9.1 %</strong>, measured 2026-08-03 and carried there as <strong>printed, not gated</strong>, attributed to the 0.08 m PEC-box padding (<code>test_port_self_impedance_energy.py</code>, module docstring and <code>test_magnetic_energy_reactance_against_grover</code>). The 2 % pre-condition is therefore unreachable on <code>PORT-1</code>'s fixture as it stands, and (iii) needs a padding/resolution rung for <code>L</code> — unpriced — before its 5 % eigenvalue anchor is honest. Both anchors left untouched. Also for whoever writes (iii): the helper is named <strong><code>grover_loop_inductance</code></strong>, not <code>loop_inductance</code> as item 10 has it. <strong>Step 1c (written 2026-09-21 03:00 review, §9 item 24, rule (f) applied by the review):</strong> (iii) is re-registered on a fixture that exists — <code>two_torus_domain(port_gap, emit_port_sheet, as_hole)</code>, torus 1's sheet carrying <code>C</code>, torus 2's gap open — with <code>L</code> taken from <strong>that fixture's own driven lumped-sheet route</strong> (<code>Im Z_in/ω</code>), so both sides of the unchanged 5 % are the fixture's numbers; Grover is printed beside, never gated (no single-loop generator exists; <code>PORT-1</code>'s 9.1 % is an impressed-current fixture at a fixed 0.08 m padding). Adds the <code>2·C → 1/√2</code> closed form at 2 % and the sheet-removed negative control. <strong>Reading handed to the 09-26 weekly, not ruled here:</strong> this module's pencil loads <strong>all four</strong> ports with <code>C_tuned</code> (<code>_capacitor_mass_forms</code>, <code>live=None</code>), while <code>PORT-22</code>'s driven sweep feeds P1 and tunes <code>Im Z_in(P1) = 0</code>; an eigenfrequency of the four-capacitor structure satisfies <code>Im Z_in(P1) = 1/(ωC_tuned)</code> instead, so the 1.2959e+08 Hz floor and <code>PORT-22</code>'s 63.9986 MHz zero answer different equations and are not in conflict — <strong>gate (a) ("mode 1 at 64 MHz") may be mis-posed for this termination</strong>; no slot re-scopes it. <strong>Amended 2026-10-01 03:00 review (rule (j), on the 2026-09-30 weekly's re-pose, §10 T5c):</strong> (c) := T5a's identity (i) on the k = 2 class at <code>C_mode</code> and at <code>c_tuned_farad()</code> (k = 0 too if a sign change falls in the grid), <code>|f_circ − Re f_eig|/Re f_eig ≤ κ</code> (<code>STEP2D_C_OVER_TERMINAL_64MHZ_P1</code>), with f₁ &lt; f₂ asserted on both sides — the (C5) high-pass fit is retired (the four-leg gap layout is low-pass); (d) := at 2·<code>C_mode</code>, <code>|(f̄_pair(2C)/f̄_pair(C))·√2 − 1| ≤ κ</code> (step 3 printed 3.772e-3 and never asserted it). The Done-when's (a)–(e) read with these two clauses (§9 item 131). </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

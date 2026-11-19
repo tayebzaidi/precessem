@@ -1,0 +1,965 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>ANS-12 — the ASTM-box-loaded F-clinical-3T birdcage under the two-port quadrature drive at its in-model Larmor root, 128 MHz - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ans-12-the-astm-box-loaded-f-clinical-3t-birdcage-under-the-two-port-quadrature-drive-at-its-in-model-larmor-root-128-mhz" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              ANS-12 — the ASTM-box-loaded F-clinical-3T birdcage under the two-port quadrature drive at its in-model Larmor root, 128 MHz
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#commissioned-2026-11-09-weekly-planning-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Commissioned — 2026-11-09 weekly planning review
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Commissioned — 2026-11-09 weekly planning review">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#9-item-930-2026-11-10-10-c48-chain-c-rule-4-the-11-09-weeklys-step-lane-1-chain-step-no-solve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 930 — 2026-11-10 (§10 C48, chain C — rule (4), the 11-09 weekly's step; lane 1 → chain step (no solve))
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-item-931-2026-11-10-10-c49-chain-c-rule-4-the-11-09-weeklys-step-lane-1-chain-step-no-solve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 931 — 2026-11-10 (§10 C49, chain C — rule (4), the 11-09 weekly's step; lane 1 → chain step (no solve))
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-item-989-2026-11-15-10-c58-chain-c-rule-4-the-11-14-weeklys-step-chain-step-no-solve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 989 — 2026-11-15 (§10 C58, chain C — rule (4), the 11-14 weekly's step; chain step (no solve))
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ans-12-the-astm-box-loaded-f-clinical-3t-birdcage-under-the-two-port-quadrature-drive-at-its-in-model-larmor-root-128-mhz">ANS-12 — the ASTM-box-loaded F-clinical-3T birdcage under the two-port quadrature drive at its in-model Larmor root, 128 MHz<a class="headerlink" href="#ans-12-the-astm-box-loaded-f-clinical-3t-birdcage-under-the-two-port-quadrature-drive-at-its-in-model-larmor-root-128-mhz" title="Permanent link">&para;</a></h1>
+<p><em>History file for the §7 <code>ANS-12</code> row (<code>OPS-46</code> layout): the row holds the
+state line and the Done-when; everything else lives here.</em></p>
+<h2 id="commissioned-2026-11-09-weekly-planning-review">Commissioned — 2026-11-09 weekly planning review<a class="headerlink" href="#commissioned-2026-11-09-weekly-planning-review" title="Permanent link">&para;</a></h2>
+<p>Posed by <code>xl</code> entry 58's pre-registered decision rule ("every assertion
+green ⇒ … the 3 T <code>ANS</code> case is posed by that weekly beside C7"): entry 58
+(<code>20261109T080008Z_GEO-38-C6-3T.log</code>, 2026-11-09 02:00) ran with every gate
+green at the 3 T degree-1 root 44.0525 pF (entry 57) and is the record column.
+The adjudication column is the 3 T degree-2 set (<code>xl-pending.md</code> entry 66,
+<code>xxl</code> Saturday 2026-11-21, PENDING on the 3 T degree-2 root — entry 64 then
+its 0.25 pF refinement — and on C52 / entry 61).</p>
+<p><strong>SPEC v1</strong> (<code>examples/ansys_benchmarks/ans12_f_clinical_3t_box_loaded_128MHz/SPEC.md</code>):
+the geometry, materials, 64 ESR capacitor sheets, the two feeds and the rows
+are <code>ANS-11</code>'s with the 3 T fixture's dimensions and 128 MHz; the node is TBD
+(SPEC v2, the weekly that reads the refinement). The row-3 tie clause is
+<code>ANS-11</code> v2.1's.</p>
+<p><strong>Slot steps (§10 chain C):</strong> C48 — the <code>ans:12</code> record page (imports C21's
+module, parses entry 58's tracked log through C33's parser; (X) / (D) / (R)
+anchors as the <code>ans:11</code> page's); C49 — <code>COMPARISON.md</code> from C36's script
+parametrised on the 3 T log, the degree-2 and AED columns blank, row 3's tie
+set listed. Both lane 1, no solve.</p>
+<p><strong>Operator (dashboard W11):</strong> build the geometry now; enter the capacitor only
+when SPEC v2 names it.</p>
+<h3 id="9-item-930-2026-11-10-10-c48-chain-c-rule-4-the-11-09-weeklys-step-lane-1-chain-step-no-solve">§9 item 930 — 2026-11-10 (§10 C48, chain C — rule (4), the 11-09 weekly's step; lane 1 → chain step (no solve))<a class="headerlink" href="#9-item-930-2026-11-10-10-c48-chain-c-rule-4-the-11-09-weeklys-step-lane-1-chain-step-no-solve" title="Permanent link">&para;</a></h3>
+<p><em>Written by the 2026-11-10 03:00 daily review from the 11-09 weekly's C48 (<code>PROJECT_PLAN.md</code> §10 chain C), under §9 rule (4). It does not count against rule (6). Family <code>ANS-12</code> page, attempt 1 of 4. <strong>Executor: implementer, in-slot.</strong> This follows the <code>ans:11</code> precedent: item 833, the <code>ans:11</code> record page, and its two follow-ups C36 / C43 (items 871 / 880) were all run by the implementer (<code>ANS-11.md</code> outcomes). <code>example-runner</code> is for <code>EX-*</code> chunks. The 2026-11-05 03:00 ruling in <code>ANS-11.md</code> binds by analogy: a record reader, no solve, no mesh. The weekly's target binds: "entry 58's log tokens and the SPEC v1 table".</em></p>
+<p><strong>Two readings of the step text against the files (execution detail, target unchanged).</strong>
+1. <strong>"Every SPEC-quoted token is found once" means each token is matched once, to its row's parsed field.</strong> It cannot mean "occurs once in the log", which is false by construction for four tokens:
+   - the centroid mean is printed at <code>:12235</code> and <code>:12237</code>;
+   - the c* SAR is printed at <code>:12253</code> and <code>:12256</code>;
+   - the cw Y_in at P33 is printed at <code>:12233</code> and <code>:12234</code>;
+   - S₁₂ = S₂₁ appears twice on <code>:12228</code> (all in <code>20261109T080008Z_GEO-38-C6-3T.log</code>).
+   The raw multiplicity is printed.
+2. <strong>"(R) byte-regeneration of the SPEC's record table" is the lattice table</strong> (<code>SPEC.md:178–182</code>, the header, the separator and three rows of 6 × 2 six-digit entries). Every byte of it follows from the log. The quantity table (<code>:163–173</code>) carries prose and a "Log line" column, and <strong>that column is off on three rows</strong>:
+   - S is cited <code>:12227</code>; it is <code>:12228</code>;
+   - Y_in ccw is cited <code>:12233</code>; it is <code>:12232</code>;
+   - Y_in cw is cited <code>:12234</code>; it is <code>:12233</code>.
+   The header's price citation <code>:12260</code> is the <code>wrote</code> line; the price line is <code>:12261</code>. So the quantity table goes through (X) token by token, and the page prints each parsed line beside the SPEC's. <strong>The mismatches are a SPEC transcription question for the weekly, printed, never asserted, never edited.</strong></p>
+<p><strong>Code: new files only.</strong> No SPEC edit, no edit to C21's, C33's or C6a's module or to the <code>ans:11</code> page, and no <code>src/</code> edit.
+- <strong><code>examples/ansys_benchmarks/ans12_f_clinical_3t_box_loaded_128MHz/12_f_clinical_3t_box_loaded_128MHz.py</code>.</strong> Pure functions, then <code>main()</code>, wrapped so that a raise calls <code>MPI.COMM_WORLD.Abort(1)</code> (<code>imp:26</code>).
+  - <strong>Imports by name, never re-implemented.</strong>
+    - C21's module (<code>tests/validation/test_geo38_f_clinical_3t_box_loaded.py</code>): through <code>c21._modules()</code>, take C6a's <code>_lattice</code>, <code>BRIEF_LATTICE_N</code> and <code>C6A_LATTICE_DZ_M</code>, and <code>t3.FREQUENCY_3T_HZ</code> (printed).
+    - C33's parser (<code>tests/validation/test_geo38_c33_field_strength_reader.py</code>): <code>_load_page</code>, <code>find_log</code>, <code>side</code>, <code>check_side</code>, <code>ratios</code>, <code>_half_ulp_rel</code>, <code>ENTRY58_GLOB</code>, <code>ENTRY58_NODE_PF</code> and <code>ENTRY52_NODE_PF</code>.
+    - Through <code>_load_page()</code>, the <code>ans:11</code> page's <code>parse_c6_log</code>, <code>derived</code>, <code>_read_log</code>, <code>_spec_num</code>, <code>SOURCE_LOG</code> and <code>CW</code>.
+    - Never import a <code>test_*</code> name. Never call <code>_c33_body</code>, <code>print_table</code> or <code>custody_json</code>.
+  - <strong>Reads.</strong>
+    - Entry 58 is <code>find_log(ENTRY58_GLOB)</code>, which must return <code>"tracked"</code>.
+    - Entry 52 is <code>SOURCE_LOG</code>, used only for row <code>:173</code>'s ratios.
+    - One local regex is new, for the line the <code>ans:11</code> parser does not cover: <code>(C21) mean |B1+|_ccw: centroid mean … lattice mean … over the 18-point lattice</code> (<code>:12235</code>).
+    - One local SPEC parser is new, <code>parse_spec_3t(path)</code>. By regex, never by line number, it reads the quantity rows (<code>:165–173</code>), the lattice rows (<code>:180–182</code>), the tie-set sentence (<code>:184–186</code>) and the header's gate tokens (<code>:158–161</code>). The <code>ans:11</code> page's <code>parse_spec</code> does not match ANS-12's row titles.
+  - <strong>Prints.</strong>
+    - Every <code>[PASS]</code> / <code>[FAIL]</code> line.
+    - The 18 rows with all digits and per P_acc: |B₁⁺|/√P_acc and SAR10g/P_acc, from <code>derived</code>. This is the SPEC's "the <code>ans:12</code> page carries all digits and the per-P_acc columns" (<code>:175–176</code>).
+    - The tie set with its percentages.
+    - The SPEC-line vs parsed-line table.
+    - (N-sense): the cw / ccw P_acc ratio, printed only.
+  - <strong>Writes nothing</strong> except (R-cmp)'s check, which only reads.
+  - <strong>Rank safety:</strong> <code>_load_page()</code> on every rank before the rank-0 parse, because the page import is collective (<code>EX-193</code>, deviation 2). Run at <code>-n 1</code>.
+- <strong>Same-stem guide <code>.md</code></strong>, with <code>ans:11</code>'s headings:
+  - the run line <code>./scripts/run_examples.sh -e ans:12 -n 1 -t 180</code>;
+  - what is parsed, from which lines;
+  - "a degree-1 record at the degree-1 root 44.0525 pF, not the node to enter; the adjudication column is entry 66";
+  - the tie set;
+  - links to <code>SPEC.md</code>, and to <code>COMPARISON.md</code> <strong>only if item 931 has landed</strong> (otherwise name it as C49's, unlinked).
+  - It quotes only closing-log digits. Write <code>≈</code>, never a tilde.
+- <strong>Setup figure:</strong> a <code>cmp</code>-identical copy of <code>examples/meshing/figures/meshing_16_f_clinical_3t_coil_astm_box_setup.png</code> (62 827 B, <code>mesh:16</code>'s render of the 3 T coil with the box), saved as <code>figures/ans12_f_clinical_3t_box_loaded_128MHz_setup.png</code>. Disclose it as <code>EX-193</code> did. The rod sub-volume is gel-mapped (SPEC <code>:73–80</code>).
+- <strong><code>tests/unit/test_ans12_record_page.py</code></strong> (the <code>ans:11</code> test's loader shape, under its own <code>sys.modules</code> name) carries the gates and controls below.</p>
+<p><strong>Gates (asserted in the script's <code>[PASS]</code> lines and in the unit test).</strong>
+- <strong>(X) Extraction.</strong>
+  - The 18 lattice labels equal <code>_lattice()</code> in order.
+  - The node string equals <code>ENTRY58_NODE_PF</code> ("44.0525").
+  - Every SPEC token of rows <code>:165–172</code> equals its parsed field by string, after <code>_spec_num</code>: S ×3, Y_in ccw ×2 and cw ×2, the lattice mean (<code>:12235</code>), the centroid mean / |B₁⁻| / Sense / CV, c* (SAR, cw ball, r, az, and x / z from the label's lattice point), P_box / P_src / P_acc, SAR per P_acc, and the centroid mean per √P_acc.
+  - Row <code>:172</code>'s lattice mean per √P_acc (8.581609e-08) and row <code>:173</code>'s four ratios equal <code>side(p58)</code> / <code>ratios(side(p52), side(p58))</code> at <code>.6e</code>. C33 printed them at <code>20261109T103557Z_GEO-38-C33-W1-r2.log:195–198</code>.
+  - The 36 six-digit entries (<code>:180–182</code>) equal <code>f"{float(tok):.6e}"</code>.
+  - The header's gate tokens each occur in the log's C6a block:
+    - (R1) 1.893e-13 at <code>:12228</code>; (P) 5.120e-13 / 1.810e-12 and NEG 1.2375e-02 / 1.2827e-02 at <code>:12229–12230</code>; (P_RC) at <code>:12231</code>; coverage 2.975e-14 / 3.220e-15 at <code>:12257</code>; build 448.3, columns 194.1 / 13.4 and readouts 117.1 at <code>:12261</code>;
+    - 780 s is the footer's <code>Elapsed (s): 780</code> (<code>:12350</code>);
+    - 33.48 GiB is <code>f"{35948146688 / 2**30:.2f}"</code> from <code>:12345</code>.
+  - Every SPEC token is matched to exactly one row field, and none is unmatched.
+- <strong>(D) Derived, at half a unit in the last printed digit.</strong>
+  - C33's own <code>check_side(p58, ENTRY58_NODE_PF, "3 T (entry 58)")</code>, every check green:
+    - (D-Pacc), <code>_p_acc_spec</code> against P_acc at ≤ 1e-8;
+    - (D-box), (D-sar) and (D-cen), each at C33's Σ half-unit bound;
+    - argmax = c*, the c* string equals its lattice line's, S₁₂ = S₂₁, and (Node).
+    - C33 read these green on the same log (<code>…C33-W1-r2.log:186–193</code>): (D-Pacc) rel 5.755e-10; (D-box) 1.324e-08 ≤ 2.565e-07; (D-sar) 3.825e-08 ≤ 5.416e-08; (D-cen) 2.584e-07 ≤ 4.388e-07. They are therefore <em>asserted</em> (rule (e)).
+  - <strong>(D-lat):</strong> the mean of the 18 parsed tokens equals the printed lattice mean at <code>:12235</code> within <code>_half_ulp_rel</code> (printed) + the max over the inputs. Review arithmetic (unlogged) gives equality to 10 digits, 1.174932617e-08. The <code>(C21)</code> line's centroid half equals <code>means.b1p_ccw</code> by string.
+  - <strong>(D-latP):</strong> the lattice mean per √P_acc against SPEC's 8.581609e-08, at the same kind of bound.
+- <strong>(R) Regeneration.</strong>
+  - The page renders the lattice table from the parsed tokens. <strong>It equals <code>SPEC.md:178–182</code> byte for byte</strong>, including the Unicode minus in the row and column labels.
+  - <strong>The tie set.</strong> The lattice balls with SAR10g within 1 % of the lattice maximum (the 11-09 tie clause, SPEC <code>:150</code>) are {x+105mm dz+50mm, x+105mm dz−50mm}. Each is listed with <code>f"{100 * (s / smax - 1):.2f}"</code>, and the nearest outsider x−105mm dz−50mm likewise. The strings −0.82 and −1.97 equal the SPEC's (<code>:184–186</code>; review arithmetic −0.8170 / −1.9700).
+- <strong>(R-cmp), conditional.</strong> If item 931 has landed (ANS-12's <code>COMPARISON.md</code> exists and the <code>ans:11</code> page has its <code>"ans12"</code> case), the page re-renders it through that case and asserts byte identity. Otherwise it prints "absent — item 931 (C49)". This makes Done-when (1)'s closing window <code>-e ans:12</code> cover <code>COMPARISON.md</code> once both items have landed.
+- <code>docrefs</code> <code>dead=0</code>.</p>
+<p><strong>Controls (asserted).</strong>
+- <strong>(N-digit-log):</strong> in a <code>tmp_path</code> copy of entry 58's log, change the 4th significant digit of the c* lattice line's SAR (<code>:12253</code>). (D-cstar), (X) and (R) go red.
+- <strong>(N-drop):</strong> delete one lattice line. <code>parse_c6_log</code> raises (17 ≠ <code>BRIEF_LATTICE_N</code>).
+- <strong>(N-doc):</strong> a one-digit change in a tmp SPEC copy's lattice table fails (R).
+- <strong>(N-tie):</strong> in a tmp log copy, replace x+105mm dz−50mm's SAR token <code>1.734192670e-04</code> with <code>1.714192670e-04</code> (−1.96 %). The tie set has one member.
+- <strong>Printed only (rule (e)):</strong> (N-sense), the cw / ccw P_acc ratio.</p>
+<p><strong>Windows.</strong> Bare, foreground, Bash <code>timeout: 660000</code>. <code>pgrep -c python3</code> in the container reads 0 first. <code>FEM_EM_ANS_SKIP_PRIVATE=1</code> on every pytest call.
+1. Census-pre: <code>scripts/testing/run_and_log.sh ANS-12-page-census-pre "./scripts/run_examples.sh --list"</code>. The expected count is 188 (<code>EX-193</code>'s census-post, <code>20261110T043418Z_EX-193-census-post.log</code>), with ans 9. Read it; never assume it.
+2. Docrefs-pre: <code>scripts/testing/run_and_log.sh ANS-12-page-docrefs-pre "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code>.
+3. Code, guide and figure.
+4. <strong>W1</strong> <code>ANS-12-page-W1</code>: <code>scripts/testing/run_and_log.sh ANS-12-page-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_ANS_SKIP_PRIVATE=1 PYTHONPATH=/workspace/src:/workspace timeout -k 30 180 python3 -m pytest tests/environment/test_complex_mode.py tests/unit/test_ans12_record_page.py tests/unit/test_doc_reference_exit_codes.py -v -s --tb=short &gt; /workspace/logs/ans12-page-w1-raw.log 2&gt;&amp;1; rc=\$?; echo \"[capture] rc=\$rc\" &gt;&gt; /workspace/logs/ans12-page-w1-raw.log; cat /workspace/logs/ans12-page-w1-raw.log; exit \$rc'"</code>. This is C36's W1 form (<code>20261108T120606Z_ANS-11-C36-W1.log:12</code>; 39 passed, 23 s, <code>:977</code>, <code>:982</code>).
+5. <strong>Closing</strong> <code>ANS-12-page</code>: <code>scripts/testing/run_and_log.sh ANS-12-page "./scripts/run_examples.sh -e ans:12 -n 1 -t 180"</code>. The <code>ans:11</code> page's closing window took 2 s (<code>20261108T152642Z_ANS-11-C43-page.log:126</code>). Nothing is edited after it, the guide included.
+6. Census-post (189, ans 10), docrefs-post, and figures: <code>scripts/testing/run_and_log.sh ANS-12-page-figures "timeout -k 30 60 python3 scripts/testing/check_example_setup_figures.py"</code>.</p>
+<p><strong>Tier.</strong> Standard, <code>-n 1</code>, complex (the <code>ans:</code> group sources it; C21's import pulls in dolfinx), no solve, no mesh. <strong>Class:</strong> example (census +1; item 833's class). <strong>Cost:</strong> ≈ 10.3 measured / 50 predicted min. The windows sum to ≈ 1 min; the hour goes on the SPEC parser and the guide. If W1 is not green by minute 45, park.</p>
+<p><strong>Traps already paid for.</strong>
+- Pytest output is interleaved on log lines: use <code>re.search</code>, never <code>startswith</code>. Retention gzips logs: read either suffix through <code>_read_log</code>, and cite the base name.
+- <strong>The <code>ans:11</code> page import is collective.</strong> <code>_load_page()</code> on rank 0 alone hung <code>EX-193</code>'s first two W1s (<code>20261110T043240Z_EX-193-W1.log</code>).
+- <strong>C33's closing log holds two tables.</strong> Its own self-test prints a table on a renamed copy (<code>EX-193</code>, deviation 1). This page computes the ratios through <code>ratios()</code> and never parses C33's log.
+- <strong>The leak hook</strong> (<code>MIN_SIGNIFICANT_DIGITS = 8</code>): derived prints use ≤ 7 significant digits. Raw log tokens are quoted as the <code>ans:11</code> page quotes them. On a refusal, move the log unchanged to <code>logs/leak-held/</code>, report it, and never use <code>--no-verify</code>.
+- Never write under <code>/workspace/logs/geo38</code> (C33's JSON; entry 66's outputs). Tmp copies go to <code>tmp_path</code>.
+- Read no <code>aed_results/</code>, <code>COMPARISON_private.md</code> or <code>docs/private/</code>, and enter no AED value. The SPEC's status ticks are the weekly's.
+- <strong><code>c21.K_NODE_3T_PF</code> is 44.0615</strong> (entry 49's chord). Never print it as the node: the node is the log's (Z) token.
+- Never delete a log, a red one included.</p>
+<p><strong>Scope.</strong> The degree-1 record page on entry 58. <strong>Not claimed:</strong>
+- the degree-2 rows (entry 66);
+- SPEC v2's node;
+- an adjudication or any AED number;
+- a box-wide maximum (the grid was off in entry 58);
+- any tuning, compliance or homogeneity statement.</p>
+<p><strong>Negative result.</strong>
+- <strong>(X) red:</strong> the parser or the log has moved, or a SPEC token is mistranscribed. Report the first mismatch, and edit neither file. A SPEC mismatch is the weekly's (SPEC v2). Mark BLOCKED.
+- <strong>(D) red with (X) green:</strong> a printed figure does not follow from its printed inputs. That is a finding on C6a's writer. Park and mark BLOCKED; never retune.
+- <strong>(R) red:</strong> the SPEC's lattice table is not the log's at six digits. Same disposition as (X).
+- No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong>
+- §10 C48 → DONE; census +1 (188 → 189, ans 9 → 10).
+- <strong><code>ANS-12</code> ⬜ → 🟡 when items 930 and 931 have both landed.</strong> That is Done-when (1): the page, (X) / (D) / (R), <code>COMPARISON.md</code> with the tie set, and the closing window. This brief reads the row's Done-when and matches it (rule (j)). Done-when (2) is the adjudication.</p>
+<p><strong>Depends on:</strong> nothing. Item 931 may run before or after it. If 931 has landed, (R-cmp) is live and the guide links <code>COMPARISON.md</code>.</p>
+<p><strong>Executor spawn prompt (verbatim, if delegated).</strong> "Execute §9 item 930 — <code>ANS-12</code> <code>ans:12</code> record page (C48) — per <code>docs/planning/chunks/ANS-12.md</code> "§9 item 930". New files only (page, guide, unit test, figure copy); no SPEC, C21, C33, C6a, <code>ans:11</code> or <code>src/</code> edit. No solve, no mesh. <code>FEM_EM_ANS_SKIP_PRIVATE=1</code>; open nothing under <code>aed_results/</code> or <code>docs/private/</code>. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped; foreground, Bash <code>timeout: 660000</code>. Never delete a log. Never <code>--no-verify</code>. Do not spawn agents."</p>
+<p><strong>Outcome (2026-11-10, 04:30 slot; implementer): DONE, every gate green.</strong> Closing window <code>20261110T104306Z_ANS-12-page.log</code> (<code>-e ans:12 -n 1</code>, 2 s, exit 0): 61 <code>[PASS]</code>, 0 <code>[FAIL]</code> — (X) 46 lines (labels, node 44.0525, 28 quantity tokens, the 36 six-digit entries, 14 header gate tokens incl. 780 s / 33.48 GiB, the one-match coverage line "28 of 28, 14 of 14"); (D) C33's <code>check_side</code> 8 of 8 at C33's printed rel values, (D-lat) rel 1.419e-11 ≤ 7.679e-10 and the centroid string, (D-latP) rel 1.113e-08 ≤ 5.874e-08; (R) lattice table 662 B byte-identical to <code>SPEC.md:178–182</code>, tie set {x+105mm dz+50mm, x+105mm dz−50mm} at 0.00 / −0.82, outsider x−105mm dz−50mm −1.97. (R-cmp) printed "absent — item 931 (C49)". W1 <code>20261110T104239Z_ANS-12-page-W1-r2.log</code>: 33 passed, 23 s (the unit test's 9 nodes, controls (N-digit-log) / (N-drop) / (N-doc) / (N-tie) red as predicted). W1 r1 <code>20261110T104200Z_ANS-12-page-W1.log</code> was red 3 / 33 in <code>test_doc_reference_exit_codes.py</code> only: the copied setup PNG was not yet in the git index, so the pinned set (rule-admitted figure) exceeded <code>git ls-files</code>; staged, re-run green — no code change. Probe <code>20261110T104046Z_ANS-12-page-probe.log</code> (the script once, before W1). Census <code>…103758Z_ANS-12-page-census-pre.log</code> 188 (ans 9) → <code>…104314Z_ANS-12-page-census-post.log</code> 189 (ans 10); docrefs <code>dead=0</code> pre and post (exit 2, stale 121 unchanged, 188 → 189 guides); figures <code>…104318Z_ANS-12-page-figures.log</code> exit 0, <code>ans:12</code> ok. <strong>Printed, never asserted (the weekly's, SPEC v2):</strong> the SPEC "Log line" column is off on four citations — S <code>:12227</code> (parsed <code>:12228</code>), Y_in ccw <code>:12233</code> (<code>:12232</code>), Y_in cw <code>:12234</code> (<code>:12233</code>), header price <code>:12260</code> (<code>:12261</code>); the other five agree. (N-sense) cw / ccw P_acc ratio 1.0116, printed. <strong>Deviations:</strong> c*'s r and az are compared as floats, not strings (the SPEC prints <code>0.105</code> / <code>0</code> beside the log's <code>0.105000</code> / <code>0.000</code>), and its x / z numerically against the label's lattice point, as the brief says; the item 931 helpers <code>TIE_REL</code> / <code>tie_set</code> are local to this page (931 adds its own to the <code>ans:11</code> page). <code>ANS-12</code> §7 row stays ⬜ until item 931 lands.</p>
+<h3 id="9-item-931-2026-11-10-10-c49-chain-c-rule-4-the-11-09-weeklys-step-lane-1-chain-step-no-solve">§9 item 931 — 2026-11-10 (§10 C49, chain C — rule (4), the 11-09 weekly's step; lane 1 → chain step (no solve))<a class="headerlink" href="#9-item-931-2026-11-10-10-c49-chain-c-rule-4-the-11-09-weeklys-step-lane-1-chain-step-no-solve" title="Permanent link">&para;</a></h3>
+<p><em>Written by the 2026-11-10 03:00 daily review from the 11-09 weekly's C49 (<code>PROJECT_PLAN.md</code> §10 chain C), under §9 rule (4). It does not count against rule (6). Family C49, attempt 1 of 4. <strong>Executor: implementer, in-slot</strong> (C36 / item 871 precedent). The weekly's target binds: "the <code>ANS-11</code> rows regenerate byte-identical", "our degree-1 rows from entry 58, the degree-2 and AED columns blank until entry 66, row 3's tie set; <code>docrefs</code> 0 dead".</em></p>
+<p><strong>What "C36's comparison script" is.</strong> It is not a separate file. Item 871 put it inside the <code>ans:11</code> page, <code>examples/ansys_benchmarks/ans11_f_clinical_1p5t_box_loaded_64MHz/11_f_clinical_1p5t_box_loaded_64MHz.py</code>:
+- <code>render_comparison</code> (<code>:667–737</code>), <code>build_metrics</code> (<code>:642–660</code>), <code>comparison_cells</code> (<code>:444</code>), <code>degree2_cells</code> (<code>:401</code>) and the <code>Q_*</code> labels (<code>:346–361</code>).
+- "Parametrised, one branch" therefore edits that page. <strong>C33's reader loads the page</strong> through <code>_load_page()</code> (<code>test_geo38_c33_field_strength_reader.py:37–63</code>), and <code>mri:41</code> (<code>EX-193</code>) loads C33. Both are regression windows below.</p>
+<p><strong>Code: the <code>ans:11</code> page, <code>tests/unit/test_ans11_record_page.py</code>, and the new <code>examples/ansys_benchmarks/ans12_f_clinical_3t_box_loaded_128MHz/COMPARISON.md</code>. Nothing else.</strong>
+1. <strong>A <code>CASES</code> table.</strong>
+   - <code>"ans11"</code> holds today's literal strings: the title, the preamble, the column headers, Q_GRID's "not read in entry 52 (the C6b reader was off)", Q_CU's "… <code>:12282–12284</code>", and the provenance lines.
+   - <code>"ans12"</code> holds the 3 T strings:
+     - 128 MHz, entry 58, node 44.0525 pF "(entry 57's degree-1 root; not the node to enter, SPEC v2)";
+     - the degree-2 header "ours, degree 2 (entry 66, pending)";
+     - Q_GRID "not read in entry 58 (the C6b reader was off)" (no grid line in the log);
+     - Q_CU "not printed by entry 58 (per-column partitions only, <code>:12229–12231</code>)";
+     - the script name.
+   - <code>render_comparison(m, c19=None, case="ans11")</code> and <code>build_metrics(parsed, d, case="ans11")</code>. <strong>The defaults are byte-identical.</strong>
+2. <strong><code>SOURCE_LOG_3T_BASENAME = "20261109T080008Z_GEO-38-C6-3T.log"</code></strong>, in the shape of <code>SOURCE_LOG_BASENAME</code> (<code>:76</code>). <strong>Do not import C33's module from this page:</strong> C33 loads this page, so the import is a cycle.
+3. <strong><code>tie_set(parsed, rel=TIE_REL)</code></strong>, with <code>TIE_REL = 0.01</code>, cited to the 11-09 weekly's tie clause (<code>ANS-11</code> v2.1; ANS-12 SPEC <code>:150</code>). It is the weekly's value, not a band set here. It returns the members (label, SAR string, <code>f"{100 * (s / smax - 1):.2f}"</code>) and the nearest outsider. In the <code>"ans12"</code> case it renders a "## Row 3 tie set" section; the <code>"ans11"</code> case renders none (the 1.5 T tie set is on the degree-2 column, C37).
+4. <strong><code>main(argv=None)</code></strong> gains <code>--case ans12</code>. It parses entry 58, renders, writes ANS-12's <code>COMPARISON.md</code> only and prints. No ANS-12 <code>metrics.json</code> is written, so <code>LISTED_EXAMPLE_ARTIFACTS</code> is unchanged. The default path writes <code>ans:11</code>'s two files exactly as today. <code>run_examples.sh</code> passes no argument.
+5. <strong>No 3 T degree-2 reader.</strong> The node is TBD (SPEC v2), so <code>c19=None</code> and the degree-2 column is blank.</p>
+<p><strong>Gates (asserted in the unit test).</strong>
+- <strong>(K) The <code>ANS-11</code> rows regenerate byte-identical.</strong> The default render of entry 52 equals the committed <code>COMPARISON.md</code> (4 566 B), and <code>build_metrics</code> equals <code>metrics.json</code> (6 025 B). After the closing <code>-e ans:11</code> window, <code>git diff --stat</code> on both files is empty. Every existing <code>test_ans11_record_page.py</code> node is green; C43's W1 read 42 passed per rank (<code>20261108T152614Z_ANS-11-C43-W1-r2.log:1943</code>).
+- <strong>(X3T).</strong> Every degree-1 cell of ANS-12's <code>COMPARISON.md</code>, read by <code>comparison_cells</code>, contains entry 58's parsed token string for its row: the 17 main rows (raw cells) and the 18 lattice rows (|B₁⁺|, SAR, and their log lines <code>:12238–12255</code>). Derived cells use the page's existing formats (≤ 7 significant digits).
+- <strong>(Tie).</strong> The section lists exactly {x+105mm dz+50mm (0.00, the maximum), x+105mm dz−50mm (−0.82)}, plus the nearest outsider x−105mm dz−50mm (−1.97). The two percentages equal ANS-12 SPEC <code>:184–186</code>'s strings, parsed by regex.
+- <strong>(Blank).</strong> The degree-2 and AED cells are <code>""</code> on every main row.
+- <strong>(R3T).</strong> Re-rendering from the log equals the committed ANS-12 <code>COMPARISON.md</code> byte for byte.
+- <code>docrefs</code> <code>dead=0</code> (<code>COMPARISON.md</code> links <code>SPEC.md</code>).</p>
+<p><strong>Controls (asserted).</strong>
+- <strong>(N-case):</strong> entry 52 rendered with <code>case="ans12"</code> fails (X3T), and entry 58 rendered with <code>case="ans11"</code> differs from the committed ANS-12 file.
+- <strong>(N-tie):</strong> in a <code>tmp_path</code> log copy with x+105mm dz−50mm's SAR token set to <code>1.714192670e-04</code>, the tie set has one member.
+- <strong>(N-doc):</strong> a one-digit change to a tmp copy of ANS-12's <code>COMPARISON.md</code> differs from the render.
+- C36's existing controls stay as they are.</p>
+<p><strong>Windows.</strong> Bare, foreground, Bash <code>timeout: 660000</code>. <code>pgrep -c python3</code> reads 0 first.
+1. Code.
+2. <strong>Wgen</strong> <code>ANS-12-C49-gen</code>: <code>scripts/testing/run_and_log.sh ANS-12-C49-gen "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 120 python3 examples/ansys_benchmarks/ans11_f_clinical_1p5t_box_loaded_64MHz/11_f_clinical_1p5t_box_loaded_64MHz.py --case ans12'"</code>. It writes ANS-12's <code>COMPARISON.md</code>.
+3. <strong>W1</strong> <code>ANS-12-C49-W1</code>: C36's W1 command (<code>20261108T120606Z_ANS-11-C36-W1.log:12</code>), labelled, with raw log <code>ans12-c49-w1-raw.log</code>. Add <code>tests/validation/test_geo38_c33_field_strength_reader.py</code> to the paths, knob unset, since it loads this page. Expect C43's 42 plus the new nodes plus C33's.
+4. <strong>Closing (K)</strong> <code>ANS-12-C49-ans11-page</code>: <code>scripts/testing/run_and_log.sh ANS-12-C49-ans11-page "./scripts/run_examples.sh -e ans:11 -n 1 -t 180"</code>. 71 <code>[PASS]</code> at C43 (<code>20261108T152642Z_ANS-11-C43-page.log</code>, 2 s, <code>:126</code>). Then run <code>git diff --stat</code> on <code>ans:11</code>'s <code>metrics.json</code> / <code>COMPARISON.md</code>: it must be empty.
+5. <strong>Wreg</strong> <code>ANS-12-C49-mri41</code>: <code>scripts/testing/run_and_log.sh ANS-12-C49-mri41 "./scripts/run_examples.sh -e mri:41 -n 2 -t 120"</code>. This is <code>EX-193</code>'s closing form (<code>20261110T043404Z_EX-193.log</code>, 4 s, <code>:117</code>; 35 of 35 gates). It is a regression only and edits nothing.
+6. <strong>If item 930 has landed:</strong> <code>scripts/testing/run_and_log.sh ANS-12-C49-ans12-page "./scripts/run_examples.sh -e ans:12 -n 1 -t 180"</code>. (R-cmp) is then live and green. This is the closing window of Done-when (1).
+7. <strong>Docrefs</strong> <code>ANS-12-C49-docrefs</code>: item 871's form, <code>dead=0</code>.</p>
+<p><strong>Tier.</strong> Standard, <code>-n 1</code> (<code>mri:41</code> at its own <code>-n 2</code>), complex, no solve. <strong>Class:</strong> chain step (no solve). <strong>Cost:</strong> ≈ 5.0 measured / 35 predicted min. The windows sum to ≈ 1.5 min.</p>
+<p><strong>Traps already paid for.</strong>
+- Item 871's list: <code>re.search</code>, never <code>startswith</code>; either log suffix; ≤ 7 significant digits on derived values; <code>FEM_EM_ANS_SKIP_PRIVATE=1</code>; a regenerated file is restored unless byte-identical.
+- <strong>No import cycle.</strong> This page must not import C33's module.
+- <strong>No edit to <code>parse_c6_log</code>, <code>derived</code> or <code>parse_spec</code>:</strong> C33 and <code>mri:41</code> read them.
+- The page import is collective (<code>EX-193</code>): any test that loads it under <code>mpiexec</code> loads it on every rank.
+- The leak hook: never <code>--no-verify</code>. On a refusal, move the log unchanged to <code>logs/leak-held/</code>.
+- No AED file is opened. Never delete a log.
+- <strong>No module or page is edited after its last window</strong> (rule (i)). If the page changes after the <code>-e ans:11</code> window, re-run it.</p>
+<p><strong>Scope.</strong> The comparison renderer's 3 T branch and ANS-12's <code>COMPARISON.md</code> with the degree-1 column. <strong>Not claimed:</strong>
+- any degree-2 value or reader (entry 66; the node is SPEC v2's);
+- the 1.5 T tie set (C37);
+- an adjudication or any AED number;
+- a SPEC edit.</p>
+<p><strong>Negative result.</strong>
+- <strong>(K) red:</strong> the parametrisation leaked into the 1.5 T render. Fix the default path, keep the first log, and re-run once (rule (i)).
+- <strong>(X3T) red:</strong> a parse or label error. Report it and stop, BLOCKED.
+- <strong>(Tie) red against the SPEC strings:</strong> a SPEC transcription question for the weekly. Edit neither file; BLOCKED.
+- <strong>A C33 or <code>mri:41</code> regression red:</strong> stop, BLOCKED, and leave the known-issues decision to the review.
+- No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong>
+- §10 C49 → DONE.
+- With item 930 landed, <code>ANS-12</code> ⬜ → 🟡 (Done-when (1)). Otherwise <code>ANS-12</code> is "one page (C48) away", as the weekly wrote.
+- <code>ANS-11</code> stays 🟡.</p>
+<p><strong>Depends on:</strong> nothing. It may run before item 930; it edits none of 930's files.</p>
+<p><strong>Outcome (2026-11-10, 04:30 slot; implementer): DONE, every gate green.</strong> The <code>ans:11</code> page gains <code>CASES</code> (<code>"ans11"</code> today's strings, <code>"ans12"</code> the 3 T strings), <code>SOURCE_LOG_3T_BASENAME</code>, <code>COMPARISON_MD_3T</code>, <code>TIE_REL = 0.01</code>, <code>tie_set</code>, <code>render_comparison(m, c19=None, case="ans11")</code>, <code>build_metrics(parsed, d, case="ans11")</code> and <code>main(argv=None)</code> with <code>--case ans12</code> (writes ANS-12's <code>COMPARISON.md</code> only; no ANS-12 <code>metrics.json</code>); <code>parse_c6_log</code> / <code>derived</code> / <code>parse_spec</code> untouched, no C33 import. Wgen <code>20261110T104926Z_ANS-12-C49-gen.log</code> (2 s, exit 0) wrote 5 051 B and printed the tie set x+105mm dz+50mm (0.00), x+105mm dz−50mm (−0.82); outsider x−105mm dz−50mm (−1.97). W1 <code>20261110T104946Z_ANS-12-C49-W1.log</code> (<code>-n 2</code>, 23 s): <strong>67 passed, 1 skipped per rank</strong> (C43's 42 + 9 new C49 nodes + C33's file + <code>test_ans12_record_page.py</code>; the skip is C33's knob-gated <code>test_geo38_c33_reader</code>, knob unset as briefed). Gates: (K) default render 4 566 B and <code>build_metrics</code> 6 025 B equal the committed files; (X3T) 0 misses over 17 main rows + 18 lattice rows (tokens and <code>:12238–12255</code> line cells); (Tie) members / outsider and the SPEC <code>:184–186</code> percentage strings −0.82 / −1.97 by regex; (Blank) 17 rows, degree-2 and AED <code>""</code>; (R3T) 5 051 B byte-identical. Controls: (N-case) entry 52 as <code>ans12</code> gives 45 (X3T) misses, entry 58 as <code>ans11</code> differs; (N-tie) one member; (N-doc) differs. Closing (K) <code>20261110T105022Z_ANS-12-C49-ans11-page.log</code> 71 [PASS], 2 s, then <code>git diff --stat</code> on <code>ans:11</code>'s <code>metrics.json</code> / <code>COMPARISON.md</code> empty. <code>mri:41</code> <code>20261110T105032Z_ANS-12-C49-mri41.log</code> 35 of 35, 2 s. <code>ans:12</code> <code>20261110T105035Z_ANS-12-C49-ans12-page.log</code> 62 [PASS], (R-cmp) live 5 051 B vs 5 051 B, 2 s. Docrefs <code>20261110T105043Z_ANS-12-C49-docrefs.log</code> <code>dead=0</code>, stale 121 unchanged (exit 2). <code>LISTED_EXAMPLE_ARTIFACTS</code> unchanged: <code>.md</code> is not in <code>ARTIFACT_SUFFIXES</code>. <strong>Deviations:</strong> none to a gate; the tie section is a 4-column table (point, SAR string, %, role); 930's guide still names <code>COMPARISON.md</code> unlinked (930's file, not edited here). <code>ANS-12</code> ⬜ → 🟡 (Done-when (1)); §10 C49 left to the weekly.</p>
+<p><strong>Executor spawn prompt (verbatim, if delegated).</strong> "Execute §9 item 931 — <code>ANS-12</code> C49, <code>COMPARISON.md</code> — per <code>docs/planning/chunks/ANS-12.md</code> "§9 item 931". Edit only the <code>ans:11</code> page script and <code>tests/unit/test_ans11_record_page.py</code>, and write ANS-12's <code>COMPARISON.md</code> through the script's <code>--case ans12</code>; <code>ans:11</code>'s <code>metrics.json</code> / <code>COMPARISON.md</code> must stay byte-identical. No solve. <code>FEM_EM_ANS_SKIP_PRIVATE=1</code>; open nothing under <code>aed_results/</code> or <code>docs/private/</code>. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped; foreground, Bash <code>timeout: 660000</code>. Never delete a log. Never <code>--no-verify</code>. Do not spawn agents."</p>
+<h3 id="9-item-989-2026-11-15-10-c58-chain-c-rule-4-the-11-14-weeklys-step-chain-step-no-solve">§9 item 989 — 2026-11-15 (§10 C58, chain C — rule (4), the 11-14 weekly's step; chain step (no solve))<a class="headerlink" href="#9-item-989-2026-11-15-10-c58-chain-c-rule-4-the-11-14-weeklys-step-chain-step-no-solve" title="Permanent link">&para;</a></h3>
+<p><em>Enumerated by the 11-14 weekly at <code>PROJECT_PLAN.md:5211–5219</code>. Brief written by the 2026-11-15 03:00 daily review as execution detail. A record: no band is set or moved. Family C58, attempt 1 of 4. <strong>Executor:</strong> the implementer, in-slot (items 930 / 983 precedent). The weekly's target binds: "the entry-66 reader — C37's 3 T twin written ahead of its window: the <code>ans:12</code> page's degree-2 column parses entry 66's tracked log when the ledger names it, with a tree-independent "(Pend)" premise (the item 918 pattern) while it does not; stub-tested on entry 62's log shape — (K) the same parser reproduces C37's 53 degree-2 fields from <code>20261114T080009Z_GEO-38-C19.log</code> by string; <code>docrefs</code> 0 dead. Validation target: (K) exact; no solve."</em></p>
+<p><strong>What the step is.</strong> C37 (item 983) gave the <code>ans:11</code> page a degree-2 column parsed from <code>xxl</code> entry 62's tracked log. C58 writes the 3 T twin's reader into the <strong><code>ans:12</code> page</strong> before <code>xxl</code> entry 66 (C19-3T) runs. The reader finds entry 66's log through <code>docs/testing/xxl-ledger.md</code>. While the ledger names no such row, the page prints "(Pend)", and its premise test proves that state on empty tmp roots, not on the real tree. (K) runs the same reader on entry 62's tracked log and requires C37's 53 degree-2 field strings, exactly.</p>
+<p><strong>Facts verified against the tree (this review, by <code>grep</code> / reading; unlogged, not a record).</strong>
+- <strong>The <code>ans:12</code> page</strong> is <code>examples/ansys_benchmarks/ans12_f_clinical_3t_box_loaded_128MHz/12_f_clinical_3t_box_loaded_128MHz.py</code> (503 lines).
+  - It loads the <code>ans:11</code> page through <code>c33._load_page()</code> (<code>:71–73</code>, a collective import) and reads entry 58 through that page's <code>parse_c6_log</code> (<code>:221</code>).
+  - <code>main()</code> (<code>:448–489</code>) prints the <code>[PASS]</code> / <code>[FAIL]</code> lines, and any <code>[FAIL]</code> returns 1.
+  - Last window: <code>20261114T181222Z_ANS-11-C37-ans12-page.log</code>, 3 s, <strong>62 <code>[PASS]</code></strong>, 0 <code>[FAIL]</code>, (R-cmp) live 5051 B == 5051 B (<code>:102</code>).
+  - Its unit test <code>tests/unit/test_ans12_record_page.py</code> has 9 nodes. They are green on both ranks in <code>20261114T181121Z_ANS-11-C37-W1.log</code>: 76 passed per rank over <code>test_complex_mode.py</code> + the <code>ans11</code> / <code>ans12</code> / <code>ans13</code> page tests + <code>test_doc_reference_exit_codes.py</code>, 24 s, command at <code>:12</code>.
+- <strong>ANS-12's <code>COMPARISON.md</code> is written by the <code>ans:11</code> page</strong>, not by the <code>ans:12</code> page: <code>main_ans12</code>, <code>11_f_clinical_1p5t_box_loaded_64MHz.py:1108–1125</code>, through <code>CASES["ans12"]</code>. The <code>ans:12</code> page only re-renders it for (R-cmp) (<code>:412–425</code>).
+- <strong>C37's parser</strong> (the <code>ans:11</code> page):
+  - <code>parse_c6_log</code> <code>:146–172</code> (any second match of a singleton line raises);
+  - <code>_GRID_RE</code> / <code>parse_c19_grid</code> <code>:748–766</code> (exactly one grid line, else <code>ValueError</code>);
+  - <code>degree2_block</code> <code>:811–825</code>, which pins the node to <code>C19_NODE_PF = "185.7629"</code> (<code>:368</code>);
+  - <code>custody_c19</code> <code>:898–942</code>.
+- <strong>The 53 fields</strong> are <code>custody_c19</code>'s pair names: <code>s2.s11/s12/s21/s22</code> (4); <code>y_in.{ccw,cw}.{p33,p41}</code>, each <code>"&lt;re&gt; &lt;im&gt;"</code> (4); <code>lattice.&lt;label&gt;.{b1p_ccw,sar10g}</code> for 18 labels (36); <code>c_star.label/sar10g/sar10g_cw</code> (3); <code>mean_b_plus.ccw</code> (1); <code>p_box/p_src/p_acc</code> (3); <code>grid.star_label/sar10g</code> (2). C37 measured <code>n_fields 53, mismatches 0</code> against the host JSON (<code>ANS-11.md</code> § item 983 Outcome).
+- <strong>The tracked comparand for (K)</strong> is <code>ans:11</code>'s <code>metrics.json</code>, key <code>degree2_c19</code>, written by C37's closing window <code>20261114T181245Z_ANS-11-C37-page-r.log</code>. Read at this review, it carries <code>source_log</code> <code>20261114T080009Z_GEO-38-C19.log</code>, plus <code>parsed</code> (S2 <code>:12379</code>, Y_in ccw <code>:12383</code>, the 18 lattice lines from <code>:12388</code>, c*, means, normalisers) and <code>grid</code> (<code>:12407</code>, <code>x+157.5mm y+0.0mm dz+0.0mm</code>), all as printed strings.
+- <strong>Entry 66</strong> (<code>docs/testing/xl-pending.md:2547–2557</code>):
+  - chunk <code>GEO-38-C19-3T</code>, so its log is <code>&lt;stamp&gt;_GEO-38-C19-3T.log</code>;
+  - the queue file <code>xxl-queue.d/20261121-GEO-38-C19-3T.env</code> is <strong>not written</strong>: only <code>20261128-GEO-38-P33-d2.env</code> is queued;
+  - the 11-18 weekly writes the command in entry 62's two-call shape, after entry 68.
+- <strong><code>docs/testing/xxl-ledger.md</code></strong> has its header at <code>:18</code> and rows at <code>:20–27</code>, with <strong>no <code>GEO-38-C19-3T</code> row</strong>.
+  - The 1.5 T row <code>:27</code> has chunk <code>GEO-38-C19</code>, a prefix of the 3 T name: a glob or regex <code>GEO-38-C19*</code> matches both.
+  - Row <code>:26</code> (C5d) shows a leak-held log's form: the backticked base name, then "— <strong>held by the private-leak guard, not in git</strong>".
+- <strong>Entry 66's node is not written.</strong> It is <code>ANS-12</code> SPEC v2's (the 11-18 weekly's, after entry 68), so no node constant can be asserted. The reader prints the node token only.
+- <strong>The grid on entry 66 depends on its command.</strong> Entry 62's call 1 set <code>FEM_EM_GEO38_C6_GRID=1</code> (<code>20261114T080009Z_GEO-38-C19.log:12</code>), and the log has one result line (<code>:12407</code>; <code>:12162</code> is the census line, which <code>_GRID_RE</code> does not match). Neither foreign list names the grid knob (<code>test_geo38_f_clinical_box_loaded.py:63–73</code>, <code>test_geo38_f_clinical_3t_box_loaded.py:67–75</code>), and item 819's (K8-grid-3T) ran C6b on the 3 T box (<code>:581</code>). Whether entry 66 carries it is the 11-18 weekly's choice.
+- <strong>Item 918's pattern</strong> (<code>GEO-38.md</code> § "§9 item 918"): a premise test monkeypatches the reader's roots to empty <code>tmp_path</code> directories (rank 0 creates them, then a bcast) and asserts "pending" by construction. It never asserts absence on the real tree.
+- <strong>Premise corrected (1): where the degree-2 column can land.</strong> The <code>ans:11</code> page directly imports <code>xxl</code> entry 69's own module: <code>import tests.validation.test_geo38_f_clinical_box_heating as p61</code> in <code>main_ans13</code>, <code>11_f_clinical_1p5t_box_loaded_64MHz.py:1315</code>; <code>tests/unit/test_ans11_record_page.py:723</code> does the same. <strong>So both are held until entry 69 runs (11-28).</strong>
+  - C58 therefore <strong>cannot</strong> fill ANS-12's <code>COMPARISON.md</code> degree-2 cells, because <code>CASES["ans12"]</code> lives in that held page.
+  - "The <code>ans:12</code> page's degree-2 column" is the <code>ans:12</code> page's reader and its printed column. ANS-12's <code>COMPARISON.md</code> stays byte-identical, and (R-cmp) checks that.
+- <strong>Premise corrected (2): what (K) compares.</strong> The weekly's "53 fields" is (J62)'s count, a JSON-against-log custody list. (K) compares the new reader's strings with C37's committed parse (<code>metrics.json</code>), which is tracked. It never reads the gitignored host JSON.
+- <strong>Module hold (the 03:00 11-15 digest, <code>PROJECT_PLAN.md:3985–3989</code>).</strong> C58 edits the <code>ans:12</code> page script, <code>tests/unit/test_ans12_record_page.py</code> and, optionally, the page guide <code>12_f_clinical_3t_box_loaded_128MHz.md</code>.
+  - None is a queued window's own module, and none is in entry 64's, 65's or 69's forward import closure (AST walk at this review: 69 / 55 / 116 modules).
+  - None directly imports any of those windows' own modules (grep, both directions; the only other loaders of the page script are its own test and two path constants, <code>SPEC_3T</code> / <code>COMPARISON_MD_3T</code>).
+  - The page imports C33's module (free) and C21's <code>test_geo38_f_clinical_3t_box_loaded.py</code>. C21 is in entry 69's closure and is itself a direct importer of entry 65's module (<code>:773</code>), so it is held; importing it is allowed, and C58 does not edit it.
+  - The page also loads the held <code>ans:11</code> page; again allowed, and not edited.
+  - <strong>Result: takeable now.</strong></p>
+<p><strong>Code.</strong> Two files, plus the guide optionally (one sentence, no digits). Every other file stays byte-identical, including the <code>ans:11</code> page, its test, C33, C21, both SPECs, both <code>COMPARISON.md</code> files and <code>ans:11</code>'s <code>metrics.json</code>.
+1. <strong>Constants (page):</strong>
+   - <code>XXL_LEDGER = _REPO_ROOT / "docs" / "testing" / "xxl-ledger.md"</code>;
+   - <code>TRACKED_LOG_DIR = _REPO_ROOT / "docs" / "testing" / "logs"</code>;
+   - <code>ENTRY66_CHUNK = "GEO-38-C19-3T"</code>;
+   - <code>ENTRY62_LOG_BASENAME = "20261114T080009Z_GEO-38-C19.log"</code>;
+   - <code>D2_FIELDS_N = 53</code>, commented as C37's (J62) count, a record;
+   - <code>_ROW66_RE = re.compile(r"^\| \d{4}-\d{2}-\d{2} \| GEO-38-C19-3T \|</code>(\d{8}T\d{6}Z_GEO-38-C19-3T.log)<code>")</code>. The chunk column is matched exactly between pipes, so row <code>:27</code> cannot match.
+2. <strong><code>entry66_log(ledger=XXL_LEDGER, log_dir=TRACKED_LOG_DIR)</code>.</strong> It collects the base names matched across the ledger and prints <code>(rows, distinct)</code>.
+   - 0 distinct ⇒ <code>None</code>.
+   - More than 1 distinct ⇒ <code>ValueError</code> naming the count.
+   - Exactly 1 ⇒ the path under <code>log_dir</code>, either suffix. If neither suffix exists (a leak-held or untracked log), it raises <code>ValueError</code> naming the file: the page reads tracked logs only, and a held log is the review's.
+3. <strong><code>degree2_fields(path)</code></strong> — a pure function with the <code>ans:11</code> page's parsers <strong>unedited</strong>:
+   - it runs <code>p = page.parse_c6_log(path)</code> and counts <code>page._GRID_RE</code> matches per line (<code>re.search</code>);
+   - 0 matches ⇒ no grid fields (51 fields, "grid: not run" printed); 1 ⇒ <code>page.parse_c19_grid(path)</code> (53 fields); more than 1 ⇒ <code>ValueError</code>;
+   - it returns <code>{"log", "node": (token, line), "fields": [(name, token)], "grid_lines": n}</code>, with names exactly <code>custody_c19</code>'s, in its order.
+4. <strong><code>fields_from_metrics(path=page.METRICS_JSON)</code></strong> builds the same <code>[(name, token)]</code> from <code>metrics.json["degree2_c19"]["parsed"]</code> / <code>["grid"]</code>. It reads a tracked file and nothing else.
+5. <strong><code>check_k(…)</code></strong> returns <code>[(name, ok, detail)]</code>. Do not reuse the <code>ans:11</code> page's <code>check_k</code> name in a way that shadows it: call this one <code>check_k_d2</code>. It holds:
+   - <strong>(K-n)</strong> <code>len(fields) == D2_FIELDS_N</code> on entry 62's log;
+   - <strong>(K)</strong> every name's token <code>==</code> the metrics string (exact string equality), with mismatches listed;
+   - <strong>(K-src)</strong> <code>metrics["degree2_c19"]["source_log"] == ENTRY62_LOG_BASENAME == page.C19_LOG_BASENAME</code>, and the parsed node token <code>== page.C19_NODE_PF</code>.
+6. <strong><code>main()</code>:</strong>
+   - appends <code>check_k_d2</code>'s lines to <code>results</code>, so the page's <code>failed</code> covers them;
+   - prints <code>[ANS-12 page] degree 2: (Pend) entry 66 pending — xxl-ledger.md names no GEO-38-C19-3T row (rows 0, distinct 0)</code> while <code>entry66_log()</code> is <code>None</code>;
+   - once the ledger names entry 66, it prints that log's node token and line, its <code>grid_lines</code> count and the 53 / 51 fields with their lines, and asserts only that the parse succeeds.
+   - Every existing print and <code>[PASS]</code> line stays unchanged, so the count goes 62 → 65.
+7. <strong>Unit test nodes</strong> (rank 0 writes every tmp file and broadcasts the path — C45's <code>_on_root</code>, <code>test_geo36_c40_rod_frequency_reader.py:67–79</code>, own copy):
+   - <code>test_c58_k</code> — (K-n) / (K) / (K-src) on the real tracked files. This is tree-independent, because both files are tracked and entry 62 has run.
+   - <code>test_c58_pend</code> — <strong>(Pend)</strong>: a tmp ledger holding only the real header lines and an empty tmp log dir ⇒ <code>None</code>. A tmp ledger holding only a verbatim copy of row <code>:27</code> (1.5 T) ⇒ <code>None</code>.
+   - <code>test_c58_stub66</code> — <strong>(Stub66)</strong>: a tmp ledger with one row <code>| 2099-01-01 | GEO-38-C19-3T | \</code>20990101T000000Z_GEO-38-C19-3T.log` | 16 | … |<code>and a tmp dir holding entry 62's log under that name (</code>page._read_log<code>, written uncompressed). The reader returns 53 fields equal by string to</code>test_c58_k<code>'s, with node token</code>185.7629<code>.
+   - Controls:</code>test_c58_n_twin<code>,</code>_n_absent<code>,</code>_n_digit<code>,</code>_n_grid2<code>and</code>_nogrid`, below.</p>
+<p><strong>Gates (asserted; no band set or moved).</strong>
+- (K-n), (K) exact, (K-src);
+- (Pend) on empty roots; (Stub66);
+- every existing <code>ans:12</code> gate unchanged: (X), (D), (R), and (R-cmp) live with ANS-12's <code>COMPARISON.md</code> 5051 B byte-identical;
+- every existing node in the W1 set green, unedited;
+- <code>docrefs</code> <code>dead=0</code>.</p>
+<p><strong>Negative controls (asserted).</strong>
+- <strong>(N-twin):</strong> a tmp ledger with two distinct <code>GEO-38-C19-3T</code> base names raises, naming 2. The same row repeated is accepted, with rows 2 / distinct 1 printed: the "exactly one distinct" rule.
+- <strong>(N-absent):</strong> a tmp ledger row naming a log that is absent from the tmp dir raises, naming it.
+- <strong>(N-digit):</strong> a tmp copy of entry 62's log with the last digit of one lattice <code>sar10g</code> token changed gives exactly one (K) mismatch, naming that label. String equality resolves any digit, so this control has no ceiling issue.
+- <strong>(N-grid2):</strong> a tmp copy with <code>:12407</code> duplicated raises.
+- <strong>(N-nogrid)</strong> (entry 66's possible shape): a tmp copy with <code>:12407</code> deleted gives 51 fields, no <code>grid.*</code> names, and "grid: not run" printed.</p>
+<p><strong>Printed.</strong>
+- (K)'s field count and its first and last names with their lines;
+- the real tree's entry-66 status line — "(Pend)" today;
+- the ledger's <code>(rows, distinct)</code> count.</p>
+<p><strong>Windows</strong> (bare and foreground, Bash <code>timeout: 660000</code>; <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reads 0 first; <code>FEM_EM_ANS_SKIP_PRIVATE=1</code> where the command carries it):
+1. Code (and the guide sentence, if any). <strong>Rule (i):</strong> no page, test or guide edit after its last window.
+2. <strong>W1</strong> <code>ANS-12-C58-W1</code>: C37's W1 command verbatim (<code>20261114T181121Z_ANS-11-C37-W1.log:12</code>: <code>-n 2</code>, <code>timeout -k 30 180</code>, the same five paths) with label <code>ANS-12-C58-W1</code> and raw log <code>ans12-c58-w1-raw.log</code>. Expect <strong>84 passed per rank</strong> (76 + 8 new), 0 failed / skipped, <code>[capture] rc=0</code>; count by token.
+3. <strong>Page</strong> (the closing window): <code>scripts/testing/run_and_log.sh ANS-12-C58-page "./scripts/run_examples.sh -e ans:12 -n 1 -t 180"</code>. Expect 65 <code>[PASS]</code>, 0 <code>[FAIL]</code>, (R-cmp) 5051 B == 5051 B, and the (Pend) line. Then <code>git diff --stat</code> on ANS-12's <code>COMPARISON.md</code> and <code>ans:11</code>'s <code>metrics.json</code> / <code>COMPARISON.md</code> must be empty.
+4. <strong>Docrefs</strong> <code>ANS-12-C58-docrefs</code>: <code>scripts/testing/run_and_log.sh ANS-12-C58-docrefs "timeout -k 30 60 python3 scripts/testing/check_example_doc_references.py"</code> (item 983's form, <code>20261114T181259Z_ANS-11-C37-docrefs.log:12</code>). Expect <code>dead=0 guide=0</code>; exit 2 on the stale report is the precedent.</p>
+<p><strong>Price / Tier / Class / Cost.</strong>
+- Standard, <code>-n 1</code> (the page; W1 at <code>-n 2</code>), complex build (the C6 import chain), no solve.
+- <strong>Class:</strong> chain step (no solve). <strong>Cost:</strong> ≈ 10.8 measured (class median) / 40 predicted min.
+- The windows sum to ≈ 35 s: C37's W1 24 s plus ≈ 3 s for the new nodes' tmp copies of a 1.6 MB log, the page 3 s, docrefs 2 s.</p>
+<p><strong>Traps already paid for.</strong>
+- Items 871 / 930 / 931 / 983's lists: <code>re.search</code>, never <code>startswith</code>; either log suffix; derived values at ≤ 7 significant digits; open no <code>aed_results/</code>, <code>COMPARISON_private.md</code> or <code>docs/private/</code> file.
+- <strong>Do not edit the <code>ans:11</code> page or <code>test_ans11_record_page.py</code>.</strong> Both are held by <code>xxl</code> entry 69 (premise 1). Do not edit <code>parse_c6_log</code>, <code>parse_c19_grid</code>, <code>_GRID_RE</code>, <code>custody_c19</code> or <code>CASES</code> either: call or read them only.
+- <strong>No top-level import added</strong> to the <code>ans:12</code> page. The <code>ans:11</code> page's objects come through <code>_page()</code>.
+- <strong>The page import is collective</strong> (<code>EX-193</code>): any test that loads it under <code>mpiexec</code> loads it on every rank.
+- <strong>The <code>GEO-38-C19</code> prefix:</strong> match the chunk column exactly; never glob <code>*C19*</code>.
+- <strong>(Pend) is tree-independent:</strong> never assert "absent" against the real ledger or log dir (items 905–907 → 918).
+- <strong>A pending window's reader parses its tracked log, never the host JSON</strong> (<code>/workspace/logs/geo38/</code> is gitignored). (K) reads <code>metrics.json</code>, a tracked file.
+- <strong>A generator constant a landed test pins is never extended</strong> (03:00 11-14): <code>D2_FIELDS_N</code> is new. Grep <code>D2_FIELDS_N</code> / <code>ENTRY66</code> across <code>tests/</code> first.
+- Never write under <code>/workspace/logs/geo38</code> or <code>/workspace/logs/geo36</code>. Count pytest verdicts per rank, by token. Never delete a log, red or not.
+- The leak hook: never <code>--no-verify</code>. On a refusal, move the log unchanged to <code>logs/leak-held/</code> and name the hook's line by number only.</p>
+<p><strong>Scope.</strong> The <code>ans:12</code> page's degree-2 reader and its "(Pend)" state, with (K) on entry 62. <strong>Not claimed:</strong>
+- any 3 T degree-2 value (entry 66 has not run);
+- ANS-12's <code>COMPARISON.md</code> degree-2 cells (they need the held <code>ans:11</code> page — after 11-28);
+- the node (SPEC v2);
+- the order rule on the 3 T column (entry 66's reading);
+- any adjudication or AED number;
+- the rod rows (entry 66's call 2; the C56 family).</p>
+<p><strong>Negative result.</strong>
+- <strong>(K) mismatch or (K-n) ≠ 53:</strong> the <code>ans:12</code> route and C37's committed parse disagree on entry 62. That is a custody finding: stop, BLOCKED, and leave the known-issues entry to the review.
+- <strong><code>parse_c6_log</code> raising on entry 62:</strong> this contradicts C37's landed facts. Name the line, stop.
+- <strong>(R-cmp) red, or any landed node red:</strong> something shared was edited. Stop, BLOCKED.
+- No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong>
+- §10 C58 → DONE. <code>ANS-12</code> stays 🟡.
+- Entry 66's reading becomes a slot step on its mechanical green, as the weekly wrote: the page parses the log the moment the ledger row names it.
+- <strong>Flag for the review:</strong> filling ANS-12's <code>COMPARISON.md</code> degree-2 cells needs the <code>ans:11</code> page, which is held until <code>xxl</code> entry 69 runs. If entry 66 runs on 11-21 and entry 69 on 11-28, that half of entry 66's reading waits a week, or the weekly rules otherwise.</p>
+<p><strong>Depends on:</strong> nothing open. It is independent of item 988 (C56). It is never in the same slot as another item that edits the <code>ans:12</code> page or its test (none is queued).</p>
+<p><strong>Outcome commit.</strong> The logs, the two (or three) files, this file's Outcome paragraph, and the §9 line marked DONE with the local (CST) slot, in one commit through the hook.</p>
+<p><strong>Outcome (12:00 slot, 2026-11-15, first try; GREEN).</strong> The page gained <code>XXL_LEDGER</code>, <code>TRACKED_LOG_DIR</code>, <code>ENTRY66_CHUNK</code>, <code>ENTRY62_LOG_BASENAME</code>, <code>D2_FIELDS_N = 53</code>, <code>_ROW66_RE</code>, <code>entry66_scan</code> / <code>entry66_log</code>, <code>degree2_fields</code>, <code>fields_from_metrics</code>, <code>check_k_d2</code> and <code>render_d2</code>; no top-level import added, the <code>ans:11</code> page's parsers called unedited through <code>_page()</code>. The test gained 8 nodes (<code>test_c58_k</code>, <code>_pend</code>, <code>_stub66</code>, <code>_n_twin</code>, <code>_n_absent</code>, <code>_n_digit</code>, <code>_n_grid2</code>, <code>_nogrid</code>) with an own copy of C45's <code>_on_root</code>. Guide not edited.
+- <strong>W1</strong> <code>20261115T181205Z_ANS-12-C58-W1.log</code> (<code>-n 2</code>, 27 s): <strong>93 passed per rank</strong>, 0 failed / skipped, <code>[capture] rc=0</code>. The brief's expected 84 counted C37's W1 (76); the other 9 are <code>test_ans11_record_page.py</code> nodes (34 → 43 per rank by node-token count, C37 W1 vs this log) that landed after C37's W1 (<code>79a8e180</code>, item 984, the only later commit to that file) — this slot did not edit that file. The <code>ans12</code> file has 17 nodes (9 + 8).
+- <strong>Page</strong> <code>20261115T181338Z_ANS-12-C58-page.log</code> (<code>-n 1</code>, 2 s): <strong>65 <code>[PASS]</code>, 0 <code>[FAIL]</code></strong>; (K-n) 53 vs 53, (K) 53 fields 0 mismatches, 0 unmatched metrics names, (K-src) <code>source_log</code> <code>20261114T080009Z_GEO-38-C19.log</code>, node 185.7629 (<code>:12160</code>); (R-cmp) live, 5051 B == 5051 B; (K) first field <code>s2.s11</code> (<code>:12379</code>), last <code>grid.sar10g</code> (<code>:12407</code>); the real-tree status line "(Pend) entry 66 pending — … (rows 0, distinct 0)". <code>git diff --stat</code> on ANS-12's <code>COMPARISON.md</code> and <code>ans:11</code>'s <code>metrics.json</code> / <code>COMPARISON.md</code> empty.
+- <strong>Docrefs</strong> <code>20261115T181347Z_ANS-12-C58-docrefs.log</code> (2 s): <code>dead=0 guide=0</code>, exit 2 on the stale report (precedent).
+- Controls, all green in W1: (N-twin) raises naming 2, the repeated row reads rows 2 / distinct 1; (N-absent) raises naming the stub base name; (N-digit) exactly one mismatch, <code>lattice.x-105mm dz-250mm.sar10g</code>; (N-grid2) raises on 2 grid lines; (N-nogrid) 51 fields, no <code>grid.*</code>, "grid: not run" rendered.
+- Next: entry 66's reading becomes a slot step when the ledger names its row; ANS-12's <code>COMPARISON.md</code> degree-2 cells still wait on the <code>ans:11</code> page's hold (<code>xxl</code> entry 69).</p>
+<p><strong>Executor spawn prompt (verbatim, if delegated).</strong> "Execute §9 item 989 — <code>ANS-12</code> C58 — per <code>docs/planning/chunks/ANS-12.md</code> "§9 item 989". Edit only <code>examples/ansys_benchmarks/ans12_f_clinical_3t_box_loaded_128MHz/12_f_clinical_3t_box_loaded_128MHz.py</code>, <code>tests/unit/test_ans12_record_page.py</code> and, optionally, one digit-free sentence in the page's guide <code>.md</code>. Never edit the <code>ans:11</code> page or <code>test_ans11_record_page.py</code> (held by <code>xxl</code> entry 69), nor <code>parse_c6_log</code>, <code>parse_c19_grid</code>, <code>_GRID_RE</code>, <code>custody_c19</code> or <code>CASES</code>. ANS-12's <code>COMPARISON.md</code> and <code>ans:11</code>'s <code>metrics.json</code> / <code>COMPARISON.md</code> stay byte-identical. (K) compares string-exact against <code>ans:11</code>'s tracked <code>metrics.json</code>, never the host JSON; (Pend) runs on empty tmp roots. No solve, no mesh. <code>FEM_EM_ANS_SKIP_PRIVATE=1</code>; open nothing under <code>aed_results/</code> or <code>docs/private/</code>. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped; foreground, Bash <code>timeout: 660000</code>; container <code>timeout -k 30</code>; pytest <code>-s</code>. <code>pgrep -c python3</code> reads 0 first. Never edit a pattern, literal or band to rescue a red. On a red, park on <code>attempt/ANS-12-C58-*</code> and mark §9 item 989 BLOCKED in the same commit. Never delete a log. Never <code>--no-verify</code>. Do not spawn agents."</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,642 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-167 — mri:37: a rod in the coil-driven phantom through a Study, against the same study with the rod removed - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-167-mri37-a-rod-in-the-coil-driven-phantom-through-a-study-against-the-same-study-with-the-rod-removed" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-167 — mri:37: a rod in the coil-driven phantom through a Study, against the same study with the rod removed
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-733-2026-11-01-example-54-ramp-from-wf-15-step-10-u97-wf-17-step-25-u98-chain-u" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 733 — 2026-11-01 (example; §5.4 ramp from WF-15 step 10 / U97′, WF-17 step 25 / U98; chain U)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-167-mri37-a-rod-in-the-coil-driven-phantom-through-a-study-against-the-same-study-with-the-rod-removed">EX-167 — <code>mri:37</code>: a rod in the coil-driven phantom through a <code>Study</code>, against the same study with the rod removed<a class="headerlink" href="#ex-167-mri37-a-rod-in-the-coil-driven-phantom-through-a-study-against-the-same-study-with-the-rod-removed" title="Permanent link">&para;</a></h1>
+<p><em>History file for the §7 <code>EX-167</code> row (<code>OPS-46</code>). Opened by the 2026-11-01 10:30 daily review under daily-review.md step 5's example ramp, from <code>WF-15</code> step 10 / U97′ and <code>WF-17</code> step 25 / U98 (§9 items 709, 717; <code>91ff91e1</code>, <code>0bcb5508</code>). §10 U98 names it: "next: an <code>mri:</code> example".</em>
+- <strong>The gates, <code>-n 2</code>, complex:</strong> cells 168 507 = direct = record, S = direct 9.801e-14 against <code>IDENTITY_BAND</code> 1e-12, (i) 5.605e-16, σ_max 0.999767876817, (M) 6.235e-04, (E) 0.0, tag-402 facets 4 958 / 0 (<code>20261101T104952Z_WF-15-s10-W1.log:5588–5600</code>, 209 s). Off block 117 206 cells, missing the rod S by 1.462391e-04 (<code>20261101T134820Z_WF-17-s25-W1-r2.log</code>).
+- <strong>No example drives a rod through the public <code>implant:</code> / <code>implant_rod=</code> route.</strong> <code>imp:3</code>, <code>imp:10</code> and <code>imp:15</code> call the generators directly. <code>grep -rln 'FourPortBirdcageGeometry(implant_rod' examples</code> is empty (2026-11-01 10:30).</p>
+<p><strong>Gap check.</strong> At execution, that grep must still be empty (window 0).</p>
+<p><strong>Done-when.</strong>
+- <code>examples/mri/37_implant_rod_through_a_study.py</code> and its same-stem guide <code>.md</code> exist.
+- <code>./run_examples.sh -e mri:37 -n 2 -t 560</code> exits 0 with every gate below asserted.
+- Bands and helpers imported by name, never restated; no gate-module or <code>src/</code> edit.
+- A combined XDMF under <code>examples/mri/paraview_output/</code>: |E| for the P1 drive with the rod, on the phantom. A setup figure through <code>write_setup_figure</code>.
+- Census +1, figures <code>missing=0</code>, docrefs <code>dead=0</code>.</p>
+<h3 id="9-item-733-2026-11-01-example-54-ramp-from-wf-15-step-10-u97-wf-17-step-25-u98-chain-u">§9 item 733 — 2026-11-01 (example; §5.4 ramp from <code>WF-15</code> step 10 / U97′, <code>WF-17</code> step 25 / U98; chain U)<a class="headerlink" href="#9-item-733-2026-11-01-example-54-ramp-from-wf-15-step-10-u97-wf-17-step-25-u98-chain-u" title="Permanent link">&para;</a></h3>
+<p><strong>Licence.</strong> Daily-review.md step 5. The angle is <strong>the geometry through the public surface</strong>: the rod is one argument on a <code>Study</code>, and the rod's effect is what changes between two otherwise identical studies. No band or target is set or moved. It is not a chain step and does not count on chain U's cap.</p>
+<p><strong>What the example does.</strong> Item 709's run through the public API: the rod <code>Study</code>, the same <code>Study</code> with <code>implant_rod=None</code>, and the direct <code>_build_rod</code> + <code>build_four_port_sweep</code> as the gate's comparand.
+- <strong>Imports, by name:</strong> <code>ROD_EXACT_CELL_RECORD</code> and the band names from <code>tests/package/test_wf15_study_implant_rod.py</code>; <code>IDENTITY_BAND</code>, <code>ROD</code>, <code>_build_rod</code>, <code>build_four_port_sweep</code>, <code>GATED_WIDTH_FRACTION</code>, as <code>tests/package/test_wf17_implant_rod_tutorial.py:42–60</code> imports them. <strong>Never</strong> import a <code>test_*</code> name or fixture.</p>
+<p><strong>Gates (asserted; bands imported; collected first, then asserted).</strong>
+- <strong>(Cells)</strong> rod 168 507, off 117 206 (<code>ANS4_EXACT_STRIP_CELL_RECORD</code>).
+- <strong>(S)</strong> rod <code>Study</code> vs direct ≤ <code>IDENTITY_BAND</code>.
+- <strong>(i)</strong> ≤ <code>RECIPROCITY_BAND</code>; <strong>(ii)</strong> σ_max and column power at item 235's bands; <strong>(E)</strong> ≤ <code>PEC_WALL_MAX_E</code>.
+- <strong>(c-off), asserted:</strong> the off <code>Study</code> misses the rod S by &gt; <code>IDENTITY_BAND</code>. Ceiling: item 717's 1.462e-04, so the bar is reachable. Print it against <code>POOLED_SEPARATION_FLOOR</code>.</p>
+<p><strong>Printed only.</strong> The tip 1 g Q per drive, item 717's reading with no record: P1 5.13 / 4.29, the others 1.18–3.90. The off arm's phantom cannot hold a 1 g ball (item 664), so <strong>it is not a tip ratio</strong>, and the guide says so.</p>
+<p><strong>Guide (<code>37_implant_rod_through_a_study.md</code>).</strong> Use <code>mri:36</code>'s headings. Explain the <code>implant_rod</code> mapping and its YAML twin, how small the rod's effect on S is against its effect at the tip, what the rod's PEC wall tag does, and that the page <code>docs/guide/implant_rod_in_a_study.md</code> is the tutorial and this is the demonstration. Related: <code>imp:3</code>, <code>imp:15</code>, <code>mri:35</code>. Write <code>≈</code>, never a tilde.</p>
+<p><strong>Executor:</strong> <code>example-runner</code>. <strong>Tier:</strong> heavy, <code>-n 2</code>, complex.
+- <strong>Prediction:</strong> item 709's W1 took 209 s for three build + solve pairs; with the XDMF and figure, ≈ 280–400 s. Use <code>-t 560</code>, with <code>-k 30</code> on every container <code>timeout</code>; the 600 s ceiling holds.
+- <strong>Class:</strong> example. <strong>Cost:</strong> ≈ 6.0 measured / 30 predicted slot-minutes. <strong>Depends on:</strong> nothing. <strong>Family:</strong> <code>EX-167</code>, attempt 1 of 4.
+- <strong>Skip this slot</strong> if <code>pgrep -c python3</code> in the container reads above 0, or <code>uptime</code> loadavg (1 min) reads ≥ 16.</p>
+<p><strong>Windows.</strong> As <code>EX-162.md</code>, with the label <code>EX-167</code>, the group <code>mri:37</code>, <code>-n 2</code> and <code>-t 560</code>.</p>
+<p><strong>The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped.</strong> Examples close on <code>./run_examples.sh &lt;id&gt;</code> through the harness (10-31 weekly).</p>
+<p><strong>Traps already paid for.</strong>
+- <code>f_small()</code> takes no argument: use <code>FourPortBirdcageGeometry(implant_rod=rod)</code> (item 717).
+- The mesher prints ahead of a block's first line (item 717's first W1): never assert print order.
+- (E) needs <code>mesh_facet_tags</code>, which the result does not keep; a wrapper on <code>build</code> captures them (item 709). Keep it in the example, disclosed.
+- <strong>The leak guard fires on 8-digit figures:</strong> print 7 digits or fewer, and <code>σ_max</code> at the printed digits of the record's own log only.
+- Rank-local values: reduce before asserting; evaluate through <code>post.evaluation.evaluate_vector_field_parallel</code>.
+- A crash in the example's own print or XDMF code before any gate value exists may be fixed and re-run once at the same <code>-t</code>, first log kept and disclosed.</p>
+<p><strong>Scope.</strong> The example and its guide. <strong>Not claimed:</strong> a tip ratio, a coil-driven tip SAR accuracy, a sweep, degree 2, a tissue model.</p>
+<p><strong>Negative result.</strong> A gate red: stop, report, keep the log. Never edit a gate or a band. A kill at <code>-t 560</code>: park on <code>attempt/EX-167-*</code>, BLOCKED. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> §7 <code>EX-167</code> ⬜ → ✅; census +1.</p>
+<p><strong>Executor spawn prompt (verbatim, if delegated).</strong> "Execute §9 item 733 — <code>EX-167</code> — per <code>docs/planning/chunks/EX-167.md</code> "§9 item 733". Foreground only: the harness call is the whole Bash command, bare, repo-relative, nothing chained or piped, Bash <code>timeout: 660000</code>. Do not spawn agents, and do not edit the script after its last run."</p>
+<p><strong>Outcome 2026-11-01 (15:00 slot, item 733): DONE — <code>EX-167</code> ✅, <code>mri:37</code>.</strong> <code>example-runner</code>, foreground, one run, no re-run; the slot checked the report against the logs. <code>20261101T212457Z_EX-167.log</code> (<code>-n 2</code>, <code>-t 560</code>, complex, <code>pgrep</code> 0 first): Status 0, 211 s against ≈ 280–400 predicted, "red: none of 12" (<code>:5581</code>). (Cells) rod = direct = record 168 507, off 117 206, tag-402 owned facets 4 958 / 0 (<code>:5570</code>, <code>:5575</code>). (S) 1.295e-15 against <code>IDENTITY_BAND</code> 1e-12 (<code>:5571</code>). (i) 9.935e-16; (ii) σ_max 0.999767876817, column power ≤ 0.8205266 (<code>:5572</code>). (E) 0.0 on 7 437 rod-wall dofs (<code>:5574</code>). (c-off) 1.462391e-04, equal to item 717's reading, 1.462e+08 × <code>IDENTITY_BAND</code>, with <code>POOLED_SEPARATION_FLOOR</code> printed beside it (<code>:5576</code>). Printed only: (M) worst 6.235e-04 (<code>:5573</code>), and the tip 1 g Q per drive (<code>:5577–5580</code>), P1 5.1258 / 4.2916 and the others 1.1803–3.8962, not a tip ratio, as the guide says. Census 163 → 164, predicted +1, the pre-census before any file was written (<code>20261101T212316Z_EX-167-census-pre.log</code>, <code>20261101T212840Z_EX-167-census-post.log</code>). Figures <code>examples=164 ok=164 missing=0 broken=0</code> (<code>…212841Z…</code>). Docrefs <code>dead=0 guide=0 stale=193 exit=2</code>, staleness only, unchanged from the pre-window (<code>…212317Z…</code>, <code>…212843Z…</code>). Dry run logged (<code>…212453Z…</code>). PNG 363 KiB.</p>
+<p><strong>Three disclosures, for the review.</strong> (1) <strong>The <code>build</code> wrapper:</strong> (E) needs facet tags the result does not keep, so the example wraps <code>FourPortBirdcageGeometry.build</code> for the run and restores it, as the brief allows. (2) <strong>Fields:</strong> the example calls the public <code>Study.sar</code> and reads <code>study.fields_result</code>, where item 709 called the private <code>_solve_port_fields</code>. (3) <strong>Imports beyond the brief's list:</strong> <code>_sweep</code> and <code>_parent_wall_count</code>, by name from the gate modules items 709 and 717 use. No gate, band, <code>src</code> or <code>tests</code> edit. <strong>Not claimed:</strong> a tip ratio, a coil-driven tip SAR accuracy, a sweep, degree 2, a tissue model.</p>
+<p><strong>Status moved.</strong> §7 <code>EX-167</code> ⬜ → ✅; census +1.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

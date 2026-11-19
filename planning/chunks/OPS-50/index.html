@@ -1,0 +1,583 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>OPS-50 — Close the writer-side hole in the EX-14 VTX read-back gate, and port the last dead-API adios2 reader - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ops-50-close-the-writer-side-hole-in-the-ex-14-vtx-read-back-gate-and-port-the-last-dead-api-adios2-reader" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              OPS-50 — Close the writer-side hole in the EX-14 VTX read-back gate, and port the last dead-API adios2 reader
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ops-50-close-the-writer-side-hole-in-the-ex-14-vtx-read-back-gate-and-port-the-last-dead-api-adios2-reader">OPS-50 — Close the writer-side hole in the <code>EX-14</code> VTX read-back gate, and port the last dead-API <code>adios2</code> reader<a class="headerlink" href="#ops-50-close-the-writer-side-hole-in-the-ex-14-vtx-read-back-gate-and-port-the-last-dead-api-adios2-reader" title="Permanent link">&para;</a></h1>
+<p><strong>Close the writer-side hole in the <code>EX-14</code> VTX read-back gate, and port the last dead-API <code>adios2</code> reader</strong> — the survey <code>OPS-48</code> left open, done by the 2026-09-18 03:00 review (read-only sweep; exactly three files in the repo touch <code>adios2</code>). <strong>(a)</strong> <code>mag:1</code> / <code>mag:2</code> wrap each <code>io.VTXWriter</code> in <code>try/except Exception</code> that only prints <code>⚠ VTX output of B failed</code>, and the gate is then called as <code>if not (vtx_B_written and _check_vtx_roundtrip(…))</code> (<code>01_straight_wire.py:412–432</code>, <code>02_circular_loop.py:357–377</code>) — a writer failure short-circuits the read-back away and the example prints "XDMF files were still created" and <strong>exits 0</strong>: the same silently-disabled-gate mode <code>OPS-48</code> fixed on the reader side, reached through the writer. <strong>(b)</strong> <code>scripts/probes/post4_step5_probe.py:215–232</code> (<code>read_vtx_block</code>) still calls the pre-2.10 top-level <code>adios2.ADIOS()</code> / <code>adios2.Mode.*</code>; on the 0.11 image (<code>adios2</code> 2.12.1) it dies with an <code>AttributeError</code> — loud, not silent, but it is the probe the dashboard names as the regenerator for the operator's "does ParaView open a DG1 <code>.bp</code>" check, and it has not run since 2026-08-12 (<code>20260812T200532Z_POST-4-step5-n2.log</code>, v0.7.2 image). Known-issues 2026-09-18. <strong>Done-when (§4):</strong> (a) a <code>B</code> writer failure <strong>raises</strong> in both examples (the <code>A</code> writer may stay tolerant — no gate reads it); asserted control: a harness window that runs <code>mag:1</code> with <code>dolfinx.io.VTXWriter</code> monkeypatched to raise exits <strong>non-zero</strong>, and the same wrapper on the example file taken from the pinned pre-change commit exits <strong>0</strong> (the defect); the unpatched <code>mag:1</code> and <code>mag:2</code> reproduce <code>OPS-48</code>'s printed digits (<code>relative difference = 0.000e+00</code>, control <code>1.000e+00</code>) at <code>-n 2</code>; <code>PARAVIEW_GUIDE.md:166–170</code> reworded (both failure paths now exit non-zero). (b) the probe ported to <code>adios2.bindings</code> (the <code>OPS-48</code> edit, verbatim) and run at <code>-n 2</code> on the complex build printing <code>PROBE_RESULT PASS</code> with its own round-trip anchor and <code>PIN_REPRO_RTOL</code> unchanged — or, if the fixture pin has moved on the 0.11 image, the printed drift reported and (b) held 🟡 (a version-tagged record is <code>record-reconciler</code>'s, not this chunk's — <em><strong>amended 2026-09-20 03:00 review, §9 rule (j):</strong> that agent's ≈ 0.5 % drift gate forbids it this re-record, step 2's two-instrument table licenses it, and the implementer performs it once as step 3 (§9 item 15): <code>STEP4_CELLS</code> and the three medians version-tagged to the 0.11 image, B to five significant digits, <code>PIN_REPRO_RTOL</code> untouched, the pinned pre-change probe still failing as the control; <code>PROBE_RESULT PASS</code> then closes (b)</em>). Censuses <code>broken=0</code> / docrefs <code>exit != 1</code>, elapsed recorded, the known-issues entry retired in the same commit. Opened 2026-09-18 03:00 review (§9 item 1). <strong>(a) closed 2026-09-18 implementer slot; (b) 🟡 on the item's pre-registered negative-result branch — the probe imports and runs, and fails its own step-4 fixture pin.</strong> <strong>(a):</strong> a <code>B</code> writer failure now <code>raise</code>s a <code>RuntimeError</code> in both examples after printing the <code>⚠</code> line (the <code>A</code> writer stays tolerant by comment — nothing reads <code>A</code> back), and <code>_check_vtx_roundtrip</code> is called unconditionally; the <code>vtx_B_written</code> flag and the "XDMF files were still created" fallback line are gone. <strong>Asserted control, binary separation by exit status, same wrapper (<code>logs/ops50_control_wrapper.py</code>: <code>dolfinx.io.VTXWriter</code> replaced by a raising callable on every rank, then <code>runpy.run_path(..., run_name="__main__")</code>), <code>-n 2</code>, real build:</strong> post-change <code>mag:1</code> exits <strong>1</strong> with <code>⚠ VTX output of B failed</code> on both ranks and the raise at both (<code>20260918T093606Z_OPS-50-control-raises.log:283,287,389,408</code>, Status 1, <strong>6 s</strong>); the same wrapper on the file pinned at <code>a33be1d</code> exits <strong>0</strong> printing <code>Note: XDMF files were still created and can be used instead</code> (<code>…093622Z_OPS-50-control-prechange.log:266–267,303</code>, Status 0, <strong>7 s</strong>) — the recorded defect. <strong>Unpatched anchors reproduced, <code>-n 2</code>, real build:</strong> <code>mag:1</code> <code>relative difference = 0.000e+00</code> (tol 1e-10, unchanged), control <code>1.000e+00</code> (<code>…093320Z_OPS-50-mag1.log:404–405</code>, Status 0, <strong>8 s</strong>; <code>max|B| = 4.972902974704e-05 T</code> against <code>OPS-48</code>'s <code>4.972891321210e-05</code> — a 2.3e-6 relative mesher-side drift in the <em>physics</em> value, not in the round-trip identity, which is exact on both); <code>mag:2</code> <code>0.000e+00</code> / <code>1.000e+00</code> on <code>7.861367746496e-05 T</code>, <code>OPS-48</code>'s digits to the last place (<code>…093336Z_OPS-50-mag2.log:340–341</code>, Status 0, <strong>141 s</strong>). <code>PARAVIEW_GUIDE.md</code> "VTX files not created" rewritten: neither <code>B</code> failure path is tolerated, the <code>A</code> warning is, and XDMF is not a substitute. <strong>(b) 🟡:</strong> the port landed (<code>from adios2 import bindings as adios2b</code> plus the two <code>Mode</code> references, <code>OPS-48</code>'s edit verbatim; the <code>BlocksInfo</code> → <code>SetBlockSelection</code> → <code>Get</code> walk untouched) and the probe runs end to end at <code>-n 2</code> on the complex build with its <strong>own</strong> round-trip anchor exact — <code>RT_DOF A/B/E max_abs_diff=0.000000e+00</code>, every <code>DISAGREE RT_*</code> line <code>rel_max=0.000000e+00</code> (<code>…093644Z_OPS-50-probe.log:381–389</code>) — but <code>PROBE_RESULT FAIL</code>, Status 1, <strong>5 s</strong>: <code>FAIL FIXTURE: 9291 cells != step-4 record 9261</code> and <code>FAIL REPRO A/B/E</code> at drifts of <strong>11.4273% / 10.1019% / 7.8110%</strong> against <code>PIN_REPRO_RTOL</code> 0.02 (unchanged), plus <code>FAIL PIN E</code> (the vertex/midpoint localisation ordering flipped) (<code>:393,400,407,418–423</code>). Per the item's scope that is a version-tagged record for <code>record-reconciler</code>, not this chunk's to move; <code>PIN_REPRO_RTOL</code> was not widened. Censuses <code>20260918T093746Z_OPS-50-census2.log</code>: setup figures <code>SUMMARY: examples=54 ok=14 missing=40 broken=0</code>, docrefs <code>RESULT: dead=0 guide=0 stale=27 stale_severity=report exit=2</code> (≠ 1; the 27 stale entries are the pre-existing regenerable ParaView artifacts). The first census pass (<code>…093713Z_OPS-50-census.log:92–95</code>) read <code>dead=2</code> — bare <code>`A.bp`</code> / <code>`B.bp`</code> tokens the guide reword had introduced, which the docref checker resolves as artifact references; the guide was reworded to name the directories instead, not the checker relaxed. No <code>src/</code>, no <code>tests/</code>. The known-issues 2026-09-18 entry is <strong>narrowed to the probe</strong>, not deleted: (a) is recorded there as retired, (b) stands open with the measured drift. <strong>Ruling, 2026-09-19 03:00 review:</strong> the residue is <em>not</em> <code>record-reconciler</code>'s — its own drift-sanity gate (≈ 0.5 %) forbids re-recording medians that moved 7.8–11.4 %, and the E-field vertex/midpoint ordering flipped (<code>PIN_SEP E</code> 1.2281× against step 4's 0.6835×); only the cell count (0.32 %) is in class. <strong>Step 2 (executed 2026-09-19 implementer slot, measurement-only; §9 item 4):</strong> <code>post4_step4_probe.py</code> unmodified imports and runs on 0.11 (no dead-API death), its conforming-source control exact — <code>CTRL_P1</code> MID and VTX all-zero against <code>CONTROL_MAX = 1e-10</code>, DG1 discriminator ≤ 4.15e-17 against <code>DISCRIM_MAX = 1e-14</code> (<code>20260919T110204Z_OPS-50-step2-probe4.log:389–396,407</code>) — so the table is readable. Both probes print <code>cells=9291</code> (<code>…probe4.log:377</code>, <code>20260919T110225Z_OPS-50-step2-probe5.log:372</code>) on a bit-identical mesh fingerprint. MID rel med, step-4 probe vs step-5 probe: A <code>4.532338e-01</code>/<code>4.532338e-01</code> (<strong>0.00e+00</strong>), B <code>4.717160e-01</code>/<code>4.717141e-01</code> (<strong>4.03e-06</strong>), E <code>2.175825e-01</code>/<code>2.175825e-01</code> (<strong>0.00e+00</strong>); VTX/MID separation <code>0.8198×/0.8520×/1.2281×</code> identical in both, against v0.7.2's <code>0.4185×/0.4818×/0.6835×</code>. So the 7.8–11.4 % drift and the flipped E ordering <strong>are properties of the 0.11 mesh</strong> — the instrument that made the records reads them too — and the first known-issues entry's <em>Cause</em> moves from asserted to measured. The 1e-6 anchor <strong>fails on B</strong> (4.03e-06), the pre-registered negative branch: filed as a second known-issues entry, but <em>not</em> with that branch's stated cause — a step-4-probe repeat 34 s later reprints B at <code>4.717154e-01</code> (<code>…probe4-repeat.log:399</code>) and the step-5 probe's two runs differ by 3.39e-06, so 4.03e-06 is inside each instrument's own spread on B while A and E are bit-identical across all four windows. B's ≈4e-6 reproducibility floor is <strong>not diagnosed</strong> (candidate: the rank-partitioned <code>DG1</code> projection of <code>curl A</code>, unmeasured — the <code>-n 1</code> vs <code>-n 2</code> spread ladder is the next window). <code>OPS-50</code> stays 🟡; the review's question is now whether a 4e-6-reproducible B median clears the bar for a version-tagged re-record or B must be recorded to 5 digits. Nothing re-recorded; <code>PIN_REPRO_RTOL</code> untouched; no <code>src/</code>, <code>tests/</code> or <code>scripts/probes/</code> file edited. Three windows, 5 / 5 / 4 s at <code>-n 2</code>, standard, all Status 1 by design. <code>PIN_REPRO_RTOL</code> is never widened; <code>POST-4</code> ✅ stands on its own v0.7.2 logs. The "mesher-side" attribution of <code>mag:1</code>'s 2.3e-6 <code>max|B|</code> move above is a guess — the value carries no band and no status, and is recorded, not chased. <strong>Step 3 (executed 2026-09-20 07:30 implementer slot, §9 item 15) — the licensed re-record is measured and correct, and it does NOT close (b): a <em>fifth</em> pin the licence did not name still fails, so this is the item's pre-registered negative-result branch and the change is parked, not merged.</strong> Negative control first, the probe file at the pinned pre-change sha <code>30cfd74</code> extracted into the gitignored <code>/workspace/logs/</code> and run unmodified: <code>PROBE_RESULT FAIL</code>, Status 1, <strong>5 s</strong>, <code>cells=9291</code> against <code>step-4 record 9261</code>, <code>REPRO</code> drifts <strong>11.4273% / 10.1016% / 7.8110%</strong> (A/B/E) plus <code>FAIL PIN E</code> (<code>20260920T125551Z_OPS-50-step3-prechange.log:372,418–423</code>) — the recorded defect, reproduced in-slot. Then the re-record per the licence: <code>STEP4_CELLS</code> 9261 → <strong>9291</strong>, <code>STEP4_MID_REL_MED</code> A <strong>4.532338e-01</strong> / B <strong>4.7172e-01</strong> (five significant digits) / E <strong>2.175825e-01</strong>, GEO-16 comment style (image tag, date, both instrument logs, the v0.7.2 values and their log kept in-comment), and the separations comment given the 0.11 reading 0.8198× / 0.8520× / 1.2281× beside v0.7.2's with the E-ordering-flip sentence. <code>PIN_REPRO_RTOL</code>, <code>PIN_MID_MEDIAN_MIN</code>, <code>ROUNDTRIP_MAX</code>, <code>DG1_VS_SOURCE_MAX</code> untouched; nothing loosened. <strong>Post-change window, <code>-n 2</code>, complex build, 4 s</strong> (<code>20260920T125627Z_OPS-50-step3-probe.log</code>): all four licensed pins go green — <code>MESH_FINGERPRINT cells=9291 (step-4 record 9291)</code> (<code>:372</code>), <code>REPRO</code> drifts <strong>8.293724e-08 / 9.705529e-06 / 1.167741e-07</strong> against <code>PIN_REPRO_RTOL</code> 0.02 (<code>:393,400,407</code>), i.e. the licence's predicted ≤ 1e-5 in all three fields; round-trip anchors exact, <code>RT_DOF A/B/E max_abs_diff=0.000000e+00</code> against <code>ROUNDTRIP_MAX</code> 1e-14 (<code>:383,386,389</code>). <strong>But <code>PROBE_RESULT FAIL</code>, Status 1, on one remaining line:</strong> <code>FAIL PIN E: P1 vertex scaled median 2.126638e-01 now exceeds midpoint 1.731650e-01 — step 4's measured localization has flipped</code> (<code>:418</code>), i.e. the <code>vtx_s &gt; mid_s</code> guard at <code>post4_step5_probe.py:540</code> — a <strong>fifth</strong> version-dependent pin. §9 item 15 licensed exactly four ("the step-5 probe's four fixture pins") and named four constants as untouchable; it did not license this guard, and re-scoping it is loosening an assertion, which an implementer may not do. The flip is <em>measured</em>, not new: <code>PIN_SEP E</code> reads <strong>1.2281×</strong> in all four 0.11-image windows across both instruments against v0.7.2's 0.6835×, and the review's own comment text (which this change carries) states it. So a one-line review ruling — version-tag the ordering guard to the 0.11 image, or restrict it to A and B with the E flip recorded — is all that stands between the parked change and <code>PROBE_RESULT PASS</code>. The change is committed on <code>attempt/OPS-50-20260920T125900Z</code> (<code>e2dd9ef</code>), <code>main</code> left with no <code>scripts/probes/</code> edit; the 2026-09-18 probe known-issues entry is <strong>not</strong> retired, and the B-nondeterminism entry stays open as ruled. Two windows, 5 / 4 s at <code>-n 2</code>, standard, both Status 1 (the first by design). <strong>Ruled 2026-09-21 03:00 review (Done-when (b) amended again, rule (j)):</strong> the <code>vtx_s &gt; mid_s</code> ordering guard is a fixture-drift tripwire frozen from v0.7.2's separations; it is re-expressed as a <strong>two-sided</strong> version-tagged record <code>STEP4_SEP</code> = 0.8198 / 0.8520 / 1.2281 (A / B / E, 0.11 image, identical in all four 0.11 windows on both instruments) at the <strong>unchanged</strong> <code>PIN_REPRO_RTOL</code> 0.02 — stricter than the guard it replaces (which admitted any separation ≤ 1), v0.7.2's 0.4185 / 0.4818 / 0.6835 kept in-comment. Step 4's <code>REFUTED</code> verdict ("not O(50×)") holds on every field on both images. Executed by §9 item 26 (step 3b) from <code>attempt/OPS-50-20260920T125900Z</code>. <strong>Step 3b (executed 2026-09-21 11:00 UTC implementer slot, §9 item 26) — (b) closed, <code>OPS-50</code> ✅.</strong> <code>e2dd9ef</code>'s probe taken by path; the <code>vtx_s &gt; mid_s</code> ordering guard replaced by <code>STEP4_SEP</code> = A 0.8198 / B 0.8520 / E 1.2281 (0.11 image, dated, logs cited, v0.7.2 0.4185 / 0.4818 / 0.6835 in-comment), each separation required to reproduce within the unchanged <code>PIN_REPRO_RTOL</code> 0.02, two-sided; <code>PIN_MID_MEDIAN_MIN</code>, <code>ROUNDTRIP_MAX</code>, <code>DG1_VS_SOURCE_MAX</code>, <code>PIN_REPRO_RTOL</code> and <code>post4_step4_probe.py</code> untouched. <strong>Negative control (asserted, binary):</strong> the <code>e2dd9ef</code> blob run from <code>/workspace/logs/</code> ends <code>FAIL PIN E: P1 vertex scaled median 2.126638e-01 now exceeds midpoint 1.731650e-01</code> / <code>PROBE_RESULT FAIL</code>, Status 1, <strong>4 s</strong> (<code>20260921T111404Z_OPS-50-step3b-prechange.log:418–419,422</code>). <strong>Post-change, the committed probe, <code>-n 2</code>, complex build:</strong> <code>PROBE_RESULT PASS</code>, Status 0, <strong>4 s</strong> (<code>20260921T111436Z_OPS-50-step3b-probe.log:421,424</code>): <code>cells=9291</code> (<code>:372</code>); <code>RT_DOF A/B/E max_abs_diff=0.000000e+00</code> against 1e-14 (<code>:383,386,389</code>); <code>REPRO</code> drifts 8.293724e-08 / 1.122198e-05 / 1.167740e-07 against 0.02 (<code>:393,400,407</code> — B's 1.12e-05 is the open B-nondeterminism spread, 1 800× inside the pin); <code>PIN_SEP_REPRO</code> drifts A 5.118413e-06 / B 3.490732e-06 / E 7.381801e-07 against 0.02 (<code>:412,414,416</code>). Known-issues 2026-09-18 probe entry retired; the B-nondeterminism entry stays open. | ✅ </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

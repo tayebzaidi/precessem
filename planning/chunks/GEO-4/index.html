@@ -1,0 +1,679 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>GEO-4 — history - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#geo-4-history" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              GEO-4 — history
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-185-2026-10-02-lane-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 185 — 2026-10-02 (lane 1)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="geo-4-history">GEO-4 — history<a class="headerlink" href="#geo-4-history" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record.</p>
+<h3 id="9-item-185-2026-10-02-lane-1">§9 item 185 — 2026-10-02 (lane 1)<a class="headerlink" href="#9-item-185-2026-10-02-lane-1" title="Permanent link">&para;</a></h3>
+<p><strong>Outcome (2026-10-03 22:30 CDT slot): DONE — W1 29 passed, W2 20 passed / 9 skipped; <code>GEO-4</code> 🧪 → ✅.</strong></p>
+<ul>
+<li><strong>Code (rule (c), additive, disclosed):</strong> <code>src/fem_em_solver/io/mesh.py</code> +113 lines — <code>PORT1_PADDING_RUNGS_M</code> / <code>_DEFICITS_PP</code>, <code>_free_exponent_fit</code> (verbatim from the probe), <code>_padding_for_box_term</code> (the ceil with the 1e-12 guard, shared by C2), and <code>MeshGenerator.two_torus_box_padding</code>. Its pre-existing gate <code>tests/mesh/test_domain_sizing_heuristics.py</code> is green in both windows.</li>
+<li><strong>Windows:</strong> smoke <code>20261003T034956Z_GEO-4-smoke.log</code> (real, Status 1, before W1; see the disclosure below), W1 <code>20261003T035018Z_GEO-4-W1.log</code> (complex <code>-n 2</code>, 226 s, predicted ≈ 190 s), W2 <code>20261003T035410Z_GEO-4-W2.log</code> (real <code>-n 1</code>, 55 s). No edit after W1.</li>
+<li><strong>(A0):</strong> D∞ 1.6934077797495957 pp, C −0.1478719225310089, p 1.6574194246323086, <code>==</code> the probe. <strong>(A1):</strong> τ = 6 → 0.11 m (unrounded 0.1070673, |B| 5.737202; |B(0.10)| 6.719 &gt; 6); τ = 4 → 0.14 m (0.136742, 3.846889; |B(0.13)| 4.350 &gt; 4).</li>
+<li><strong>Disclosure, A1 approximate values:</strong> the executor first pinned the brief's "≈ 0.10706 / B 3.8467" to ½ unit of the last printed digit; the smoke window measured 0.1070673 and 3.846889 (the brief's digits were truncated / rounded), and these two informational checks were re-pinned to 1e-4 relative before W1. The brief's asserted A1 clauses (predicted(padding) ≤ τ &lt; predicted(padding − q); predicted(unrounded) = τ to 1e-12) are unchanged and green.</li>
+<li><strong>(P0):</strong> −8.0404 pp at 0.08 m vs 3b-xi −8.0324 (|Δ| 0.0080 ≤ 0.05; 119 533 cells vs 119 738).</li>
+<li><strong>(G):</strong> −4.0256 pp at 0.11 m (145 101 cells), −2.2071 pp at 0.14 m (175 228 cells); |deficit − D∞| 5.7190 / 3.9005 pp, margins +0.2810 / +0.0995 pp (fit predicted +0.2628 / +0.1531). The p = 3 fit predicted −3.9912 / −2.6718 pp and would fail τ = 4 (4.365 &gt; 4); the free exponent is 0.054 pp off at 0.14 m.</li>
+<li><strong>(C1):</strong> box term at 0.08 m 9.7258 pp (fit) / 9.7338 pp (measured) = 1.62× τ = 6, 2.43× τ = 4. <strong>(C2):</strong> p = 3 → 0.10 m for τ = 4, recorded 6.7190 pp &gt; 4 (asserted); τ = 6 → 0.09 m at 8.001 pp (printed).</li>
+<li><strong>Record for <code>PORT-1</code>:</strong> −2.2071 pp at 0.14 m, a fourth 3b-xi rung (factor 1.75).</li>
+</ul>
+<p><em>Drafted by a read-only <code>Plan</code> agent and reviewed by the 2026-10-02 18:00 daily review.</em></p>
+<p><strong><code>GEO-4</code> step 2 — the box-term padding heuristic on <code>PORT-1</code>'s fit.</strong>
+- <strong>Executor:</strong> implementer. <strong>Tier:</strong> heavy, complex, <code>-n 2</code>.
+- <strong>Cost:</strong> ≈ 4 measured / ≈ 40 predicted min.
+- <strong>Depends on:</strong> item 182 having landed or been marked BLOCKED (file order only: 182 takes <code>io/mesh.py</code> by path from its branch, and this item adds to it). <strong>Attempt:</strong> 1 of 4.</p>
+<p><strong>What changed since the rejection.</strong> The 09-29 18:00 review rejected <code>GEO-4</code>'s 0.35·extent rule as a tautological formula. The weekly now names a physical target: <code>PORT-1</code>'s decision-(4) fit.
+- The fit is deficit(W) = D∞ + C·W^(−p), with D∞ = +1.6934 pp, C = −1.478719e-01 and p = 1.6574 (<code>20260812T213337Z_PORT-1-dec4-fit.log</code>, <code>[fit]</code> block).
+- It was fitted on 3b-xi's rungs: −8.0324 / −5.0256 / −3.2733 pp at W = 0.08 / 0.10 / 0.12 m (<code>scripts/probes/port1_padding_fit.py:72–73</code>).
+- The box term is B(W) = C·W^(−p).</p>
+<p><strong>Code (additive, rule (c)), in <code>src/fem_em_solver/io/mesh.py</code> beside <code>coil_phantom_domain_sizing_diagnostics</code>.</strong>
+- <strong>Constants:</strong> <code>PORT1_PADDING_RUNGS_M</code> and <code>PORT1_PADDING_DEFICITS_PP</code>, with provenance.
+- <strong>Fit helper:</strong> <code>_free_exponent_fit</code>, copied <strong>verbatim</strong> from the probe's <code>power_law_extrapolation</code> (<code>:81–127</code>).
+- <strong><code>MeshGenerator.two_torus_box_padding(tolerance_pp, *, quantum_m=0.01)</code>.</strong>
+  - It returns <code>padding_m</code> = ceil((|C|/τ)^(1/p) / q)·q, with a 1e-12 guard, plus <code>unrounded_padding_m</code>, <code>predicted_box_term_pp</code>, <code>d_inf_pp</code>, <code>c_pp</code> and <code>p</code>.
+  - It raises <code>ValueError</code> for τ ≤ 0 or when there is no fit.
+- <strong>Do not hard-code the printed C and p.</strong> Rounded, they reproduce the 0.08 m rung only to 5e-4 pp. Recompute the fit from the rungs.</p>
+<p><strong>Test: new <code>tests/validation/test_geo4_box_padding_heuristic.py</code>.</strong>
+- <strong>Imports.</strong>
+  - The probe, loaded by <code>importlib</code> (as <code>test_post8_owner_rule_ans2.py:107</code> does).
+  - From <code>test_port_reaction_impedance</code>: <code>_solve_reaction_z</code>, <code>MAJOR_RADIUS</code>, <code>OMEGA</code>, <code>SEPARATION</code>, <code>TORUS_TAGS</code> and <code>mutual_inductance</code>.
+  - From <code>test_port_box_padding_sweep.py:87–88</code>: <code>STEP2F_DEFICIT_AT_008</code> / <code>_TOLERANCE</code>.
+- <strong>(A0)</strong> The rung constants <code>==</code> the probe's. The fit <code>==</code> the probe's output bitwise, and lies within ½ ulp of the printed D∞ / C / p.
+- <strong>(A1)</strong> τ = 6 gives 0.11 m (unrounded ≈ 0.10706, predicted B 5.737). τ = 4 gives 0.14 m (≈ 0.13674, B 3.8467).
+  - Asserted: predicted(padding) ≤ τ &lt; predicted(padding − q).
+  - Asserted: predicted(unrounded) = τ to 1e-12.
+- <strong>(P0) Premise: one solve at 0.08 m.</strong>
+  - Within the step-2f pin.
+  - |deficit − (−8.0324)| ≤ 0.05 pp, a third of the smaller margin.
+  - This band is <strong>predicted</strong>: the fixture has no 0.11-image run, and only <code>20260807T124038Z_PORT-1-step3bxi-gate.log</code> prints these deficits.
+- <strong>(G) The gate: one solve each at 0.11 and 0.14 m</strong> (one driven column, as 3b-xi <code>:109–117</code>).
+  - Every deficit &lt; 0.
+  - |deficit| strictly decreasing over 0.08 → 0.11 → 0.14.
+  - |deficit_pp(W_τ) − D∞| ≤ τ, with margins 0.263 / 0.153 pp under the fit.
+  - Printed beside the readings: the p = 3 fit's predictions, −3.99 / −2.67 pp. At 0.14 m that fit gives |B| = 4.37 &gt; 4, so <strong>0.14 m tells the two exponents apart</strong>: they differ by 0.52 pp against a rung precision of 5e-5.</p>
+<p><strong>Negative controls.</strong>
+- <strong>(C1) Un-sized padding (asserted).</strong> The production padding 0.08 m has box term ≈ 9.726 pp, which is 1.62× τ = 6 and 2.43× τ = 4. Backing: the 3b-xi log <code>:438</code> measured the same fixture and comparison, and P0 re-measures it.
+- <strong>(C2) The dipolar-exponent heuristic</strong> (p = 3, C = −3.410151e-3, from the probe's diagnostic). No extra solve.
+  - <strong>Asserted</strong> for τ = 4: it returns 0.0948 → 0.10 m, whose recorded box term is 6.719 pp &gt; 4 (<code>:828</code>).
+  - <strong>Predicted, printed</strong> for τ = 6: 0.0828 → 0.09 m, at ≈ 8.0 pp.</p>
+<p><strong>Windows.</strong> Foreground, Bash <code>timeout: 660000</code>, each harness call bare and whole.
+- <strong>W1</strong> (≈ 190 s, on 3b-xi timings: mesh + solve 43 / ≈ 52 / ≈ 70 s; ≈ 145 k and ≈ 177 k cells, under the 250 k MUMPS line):</p>
+<p><code>scripts/testing/run_and_log.sh GEO-4-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 590 mpiexec -n 2 python3 -m pytest tests/environment tests/mesh/test_domain_sizing_heuristics.py tests/validation/test_geo4_box_padding_heuristic.py -v -s --tb=short'"</code>
+- <strong>W2</strong> (real build, ≈ 15 s; the solve tests skip):</p>
+<p><code>scripts/testing/run_and_log.sh GEO-4-W2 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 120 mpiexec -n 1 python3 -m pytest tests/environment tests/mesh/test_domain_sizing_heuristics.py tests/validation/test_geo4_box_padding_heuristic.py -v -s --tb=short'"</code></p>
+<p><strong>Traps:</strong>
+- <strong>Signed deficits.</strong> The deficits are signed pp; never compose relative percents.
+- <strong>Sign of C.</strong> C is negative in the commissioning convention; the gate uses |B|.
+- <strong>Solve tests.</strong> Mark them <code>complex_only</code> and share them through one module-scoped fixture.
+- <strong>A kill at 590 s is not a result.</strong> Run <code>pgrep -c python3</code> first, and never lengthen the timeout.
+- <strong>Run discipline.</strong> Run with <code>-s</code>. Make no edit after W1.</p>
+<p><strong>Scope:</strong>
+- The heuristic is two-torus only, an effective-range fit, not a converged box-free deficit.
+- The coil+phantom 0.35 rule stays as it is.
+- <code>PORT-1</code>'s ✅ is untouched. The 0.14 m reading is a fourth-rung <strong>record</strong> for <code>PORT-1</code> (factor 1.75, short of the named factor ≥ 2).</p>
+<p><strong>Status it can move:</strong> <code>GEO-4</code> 🧪 → ✅ on the Done-when this review wrote into its row (rule (j)). The τ = 4 leg may go red honestly: 0.14 m is outside the fit's range, and the p = 3 fit predicts a miss there. That would be an informative negative.</p>
+<p><strong>Negative result:</strong>
+- <strong>P0 off by more than 0.05 pp:</strong> the fit's data moved on 0.11. Stop before the gate; re-registering the fit is the review's job under (1*).
+- <strong>(G) red at τ = 4 with τ = 6 green:</strong> the fit does not extrapolate to 0.14 m. Record the rung under <code>PORT-1</code> 3b-xi in §7, park, and mark BLOCKED; the weekly re-poses.
+- <strong>τ = 6 red:</strong> stop.
+- There is no PREDICTED RED line.</p>
+<p><strong>Audit, 2026-10-03 03:00 daily review (§4): PASS.</strong> The anchor is <code>assert excess &lt;= tau</code> (<code>test_geo4_box_padding_heuristic.py:305</code>), which passed at τ = 6 and at τ = 4 (<code>20261003T035018Z_GEO-4-W1.log:684–689</code>). The window ran 226 s with Status 0 (W1:823–824).
+- The fit constants trace to <code>20260812T213337Z_PORT-1-dec4-fit.log.gz:52–59</code>.
+- The smoke red, and the A1 re-pin to 1e-4 relative before W1, are disclosed (<code>…034956Z_GEO-4-smoke.log:68–80</code>). The binding A1 asserts are unchanged.
+- Caveats: the gate is internally referenced, since D∞ is the fit's own extrapolation. The τ = 4 margin is thin (+0.0995 pp), and 0.14 m lies outside the fit's 0.08–0.12 m range. C2's asserted leg is arithmetic on recorded rungs, not a fresh solve. The row's "3.901" rounds the log's 3.9005.
+- Review spot-check: W1:689 re-read, and it matches.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

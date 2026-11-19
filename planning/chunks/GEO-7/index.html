@@ -1,0 +1,695 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>GEO-7 — history (also carries GEO-2 and GEO-6) - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#geo-7-history-also-carries-geo-2-and-geo-6" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              GEO-7 — history (also carries GEO-2 and GEO-6)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-184-2026-10-02-lane-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 184 — 2026-10-02 (lane 1)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="geo-7-history-also-carries-geo-2-and-geo-6">GEO-7 — history (also carries GEO-2 and GEO-6)<a class="headerlink" href="#geo-7-history-also-carries-geo-2-and-geo-6" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 rows are the status of record. One utility serves <code>GEO-2</code>, <code>GEO-6</code> and <code>GEO-7</code> (the 2026-09-30 weekly's lane-1 target); their briefs live here.</p>
+<h3 id="9-item-184-2026-10-02-lane-1">§9 item 184 — 2026-10-02 (lane 1)<a class="headerlink" href="#9-item-184-2026-10-02-lane-1" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a read-only <code>Plan</code> agent and reviewed by the 2026-10-02 18:00 daily review.</em></p>
+<p><strong><code>GEO-2</code> / <code>GEO-6</code> / <code>GEO-7</code>: one CAD-identity QA utility.</strong> This is the 09-30 weekly's target.
+- <strong>Executor:</strong> implementer. <strong>Tier:</strong> standard, real build, <code>-n 2</code> then <code>-n 1</code>.
+- <strong>Cost:</strong> ≈ 4 measured / ≈ 35 predicted min.
+- <strong>Depends on:</strong> nothing. <strong>Attempt:</strong> 1 of 4.</p>
+<p><strong>Why these rows were rejected before</strong> (09-29 18:00 review §6): <code>GEO-7</code> was string formatting, <code>GEO-6</code> had no identity on graded cells (its report compares cell-count ratios), and <code>GEO-2</code>'s title and code disagree. This item gives all three one volume-identity anchor.</p>
+<p><strong>Code (additive, rule (c) disclosure): <code>src/fem_em_solver/io/mesh_qa.py</code>.</strong>
+- New function:</p>
+<p><code>cad_identity_report(mesh, cell_tags, *, expected_tags, box_volume=None, exact_volumes=None, record_volumes=None, rtol=1e-9, comm=None)</code>
+- It returns a frozen <code>CadIdentityReport</code> with these fields:
+  - <code>tag_volumes</code>, <code>total_volume</code>;
+  - <code>missing_tags</code>, <code>unexpected_tags</code>;
+  - <code>partition_rel</code> = |Σ_expected V_t / V_mesh − 1|;
+  - <code>box_rel</code>, <code>exact_rel{tag}</code>, <code>record_rel{tag}</code>;
+  - <code>flags</code>, a subset of <code>tag_set</code> / <code>partition</code> / <code>box</code> / <code>exact_volume</code> / <code>record</code>;
+  - <code>passed</code>.
+- Tag sets come from <strong>owned</strong> cells only (<code>indices &lt; size_local</code>), allgathered.
+- Volumes use <code>tests/mesh/helpers.py:74–88</code>'s expressions <strong>verbatim</strong>: <code>subdomain_id=(int(tag),)</code>, <code>Constant(1.0)</code>, <code>assemble_scalar</code>, <code>allreduce</code> SUM, <code>np.real</code>.
+- Export it from <code>io/__init__.py</code>. The default <code>rtol</code> is <code>VOLUME_PARTITION_BAND</code> (<code>helpers.py:71</code>).</p>
+<p><strong>Test: new <code>tests/mesh/test_mesh_qa_cad_identity.py</code>.</strong> It imports the existing modules' constants and calls and restates none of them.
+- <strong>(A0)</strong> The <code>rtol</code> default <code>==</code> <code>VOLUME_PARTITION_BAND</code>.
+- <strong>(A1)</strong> Every <code>tag_volumes[t]</code> and <code>total_volume</code> <code>==</code> <code>helpers.tag_volume</code> / <code>helpers.total_volume</code>, bitwise, on all three meshes.
+- <strong>(A2) Records reproduced, with <code>passed</code> True on each:</strong>
+  - <strong>R1, <code>coil_phantom_domain</code></strong> (<code>test_mesh_tag_integrity.py:35–43</code>, called as at <code>:101</code>):
+    - tag set {1, 2, 3, 4};
+    - <code>record_volumes = UNIFORM_VOLUMES_RECORD</code> (<code>:89–94</code>) at 1e-9, the gate's own band (<code>:212–218</code>), reproduced on 0.11 at <code>20260930T123217Z_GEO-5-W1.log:605–609</code>;
+    - <code>box_volume = test_coil_phantom_conforming._analytic_box_volume()</code> (<code>:61–80</code>), the identity at <code>:129</code>;
+    - the partition identity (<code>:136</code>).
+  - <strong>R2, <code>two_torus_domain</code></strong> (<code>test_two_torus_conforming.py:36–49</code>, call copied from <code>:75–84</code>):
+    - tag set {1, 2, 3} (<code>:86</code>);
+    - box from <code>_analytic_box_volume(…)</code> (<code>:52–55</code>, identity at <code>:97</code>);
+    - partition (<code>:104</code>).
+  - <strong>R3, <code>birdcage_port_domain</code></strong> in box-port mode at <code>BASELINE_CONTROL_RESOLUTION</code> 4.8e-3 (<code>test_birdcage_conductor_sizing.py:101</code>, call <code>:108–123</code>; constants <code>test_birdcage_port_tags.py:22–32</code>):
+    - tag set {1, 2, 3, 101…104};
+    - box from <code>test_birdcage_port_tags._analytic_box_volume()</code> (<code>:35–52</code>);
+    - partition;
+    - <code>exact_volumes</code> {101…104: 0.010·0.008·0.010 = 8.0e-7}, the identities at <code>:168–184</code>;
+    - cells printed against 33 185 (<code>20260826T093202Z_GEO-21-step2-gate.log:11075</code>), not asserted.</p>
+<p><strong>Negative controls (planted on the built meshes, no remesh).</strong> Each verdict pattern is <strong>asserted</strong>, since it holds by construction of the plant. Each numeric miss is <strong>predicted</strong> and printed beside the reading (rule (e)).
+- <strong>(N1) Tag merged.</strong> Relabel every R1 tag-3 value to 4 (owned and ghost).
+  - Expect flags == {<code>tag_set</code>} (missing {3}), with partition and box still ≤ 1e-9.
+  - Pass no records.
+- <strong>(N2) Ungrouped cell.</strong> Drop one owned tag-3 cell from R1's MeshTags, on the lowest rank that owns one.
+  - Expect flags == {<code>partition</code>}.
+  - The miss is that cell's volume / V_mesh, predicted ≥ 1e-7 (≥ 100× the band) and printed.
+- <strong>(N3) Port box re-tagged</strong> (<code>GEO-2</code>). Re-tag one owned tag-101 cell to 2 on R3.
+  - Expect flags == {<code>exact_volume</code>}, for 101 only.
+  - The miss is that cell's volume / 8e-7, predicted ≥ 1e-3 and printed.</p>
+<p><strong>Windows.</strong> Foreground, Bash <code>timeout: 660000</code>, each harness call bare and whole.
+- <strong>W1</strong> (≈ 90 s):</p>
+<p><code>scripts/testing/run_and_log.sh GEO-7-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 180 mpiexec -n 2 python3 -m pytest tests/environment tests/mesh/test_mesh_qa_cad_identity.py tests/io/test_mesh_qa_diagnostics.py tests/mesh/test_mesh_tag_integrity.py tests/mesh/test_geometry_sanity_report.py tests/mesh/test_birdcage_port_tags.py::test_birdcage_port_layout_diagnostics_match_the_closed_forms tests/mesh/test_birdcage_port_tags.py::test_birdcage_port_layout_rejects_too_small_or_overlapping_port_regions -v -s --tb=short'"</code>
+- <strong>W2</strong> (≈ 40 s): the same with <code>-n 1</code>, labelled <code>GEO-7-W2</code>, and only <code>tests/environment tests/mesh/test_mesh_qa_cad_identity.py</code>.</p>
+<p><strong>Traps:</strong>
+- <strong>Planted tags:</strong> build them with <code>dolfinx.mesh.meshtags</code> on a <strong>copy</strong> of <code>values</code>, with sorted, unique, int32 indices.
+- <strong>Rank-local tags:</strong> <code>cell_tags.values</code> is rank-local, and the birdcage mesh is ghosted (<code>shared_facet</code>, <code>mesh.py:4052</code>). Read owned cells only.
+- <strong>Test selection:</strong> never select with <code>-k</code>; node IDs are fine. Import constants and helpers only, never <code>test_*</code> names.
+- <strong>Do not run the ungraded birdcage partition test.</strong> It is red; that is item 186's business. Items 184 and 186 both read <code>test_birdcage_port_tags.py</code>, but only 186 edits it. They are independent.
+- <strong>Run hygiene:</strong> use <code>-s</code>. Make no edit after the last window (rule (i)).</p>
+<p><strong>Scope:</strong>
+- <code>coil_phantom_geometry_sanity_report</code> (cell ratios) stays as it is: a print, not a gate.
+- <code>helpers.py</code> is not rewired onto the utility.
+- Port-face facet areas and sheet ports (<code>GEO-18</code>, <code>TH-16</code> 3a) are out of scope.
+- No band moves.</p>
+<p><strong>Status it can move:</strong> <code>GEO-2</code>, <code>GEO-6</code> and <code>GEO-7</code> each go 🧪 → ✅ on the Done-whens this review wrote into their rows (rule (j)).</p>
+<p><strong>Negative result:</strong>
+- <strong>(A1) not bitwise:</strong> the expression differs. Fix it once, then park.
+- <strong>An (A2) record misses 1e-9:</strong> the generator drifted. Print every reading, open a known-issues entry, and stop. Never re-record in-slot.
+- <strong>A plant raises a second flag, or misses its own:</strong> stop.
+- <strong>On any stop:</strong> park on <code>attempt/GEO-7-&lt;UTC&gt;</code> and mark BLOCKED in the same commit (rule (d)).
+- There is no PREDICTED RED line.</p>
+<p><strong>Outcome — DONE 2026-10-03 (19:30 CDT slot, implementer).</strong></p>
+<p>Windows:
+- W1 (<code>-n 2</code>): <code>20261003T005340Z_GEO-7-W1.log</code>, 91 s, 25 passed, 4 skipped. The skips are the complex-only environment tests.
+- W2 (<code>-n 1</code>): <code>20261003T005520Z_GEO-7-W2.log</code>, 73 s, 15 passed, 4 skipped.</p>
+<p>Anchors:
+- <strong>(A0)</strong> Green.
+- <strong>(A1)</strong> Bitwise on R1, R2 and R3.
+- <strong>R1, <code>coil_phantom_domain</code>:</strong> <code>record_rel</code> is 1.55e-10 / 4.1e-11 / 8.9e-11 / 1.68e-10 for tags 1–4. Partition and box are ≤ 4.2e-15.
+- <strong>R2, <code>two_torus_domain</code>:</strong> partition and box are ≤ 9.1e-15.
+- <strong>R3, the birdcage:</strong> the four port boxes read 8.000000000e-07, with <code>exact_rel</code> ≤ 4.4e-16. Partition and box are ≤ 1.6e-14. Cells are 33 185, equal to the record (printed only).</p>
+<p>Controls:
+- <strong>(N1)</strong> {<code>tag_set</code>}, missing {3}.
+- <strong>(N2)</strong> {<code>partition</code>}. The miss is 1.88e-5 / 2.33e-5 against a predicted ≥ 1e-7. The cell differs per width.
+- <strong>(N3)</strong> {<code>exact_volume</code>}, tag 101 only. The miss is 4.17e-2 against a predicted ≥ 1e-3.</p>
+<p>Disclosed (rule (c)): the change to <code>io/mesh_qa.py</code> and <code>io/__init__.py</code> is additive. <code>src/</code> cannot import <code>tests/</code>, so the default band is a module constant, <code>CAD_IDENTITY_RTOL = 1e-9</code>. (A0) asserts it equals <code>helpers.VOLUME_PARTITION_BAND</code>.</p>
+<p><code>GEO-2</code>, <code>GEO-6</code> and <code>GEO-7</code> all go 🧪 → ✅.</p>
+<p><strong>Audit, 2026-10-03 03:00 daily review (§4; one <code>auditor</code> per row).</strong> Item 184 shares two windows across three rows.
+- <strong><code>GEO-2</code>: PASS.</strong> The anchors are <code>report.flags == frozenset()</code> (test <code>:211–212</code>) and the N3 flag pattern (<code>:289–291</code>). Port boxes read 8.000000000e-07 (<code>20261003T005340Z_GEO-7-W1.log:1998</code>), <code>exact_rel</code> 4.441e-16 (W1:2001), and the window took 91 s (W1:3518–3520). Caveats: the Done-when cites <code>test_birdcage_port_tags.py:86</code> / <code>:261</code>, but the tests sit at <code>:96</code> / <code>:304</code>, a line-number slip in an unchanged file. The layout tests ran at <code>-n 2</code> only, which is what the Done-when asks for.
+- <strong><code>GEO-6</code>: PASS on substance. The auditor's DEMOTE was on the tier word alone, and this review overrules it.</strong> The row read "smoke" against windows of 91 s (W1) and 73 s (<code>…005520Z_GEO-7-W2.log:2071–2073</code>), so the tier is relabelled <strong>standard</strong> with no re-run. That follows the 09-30 precedent: a tier-word DEMOTE is overruled and the cell is corrected, as for <code>MAT-15</code>. Caveat: the row's "≤ 1.6e-14 on both generators" is R3's figure. <code>GEO-6</code>'s two generators read 4.2e-15 / 9.1e-15 (W2:323, W2:481).
+- <strong><code>GEO-7</code>: PASS.</strong> All three generators pass with <code>flags=[]</code>: R1 at W1:343, R2 at W1:502 and R3 at W1:1997. The merged-tag control flags exactly <code>tag_set</code> (W1:2007–2009). Caveat: the row does not state its elapsed time. The 91 s is in the footer and the <code>test-results.md</code> row.
+- <strong>All three rows:</strong> the log headers name the parent commit <code>7e33984d</code>, because the code was uncommitted at run time. The file mtimes (19:52:53 / 19:53:30 CDT) precede W1, which started at 19:53:41 CDT.
+- <strong>Review spot-check:</strong> W1:1998 re-read, and it matches.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

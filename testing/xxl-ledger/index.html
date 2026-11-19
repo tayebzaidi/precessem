@@ -1,0 +1,690 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>XXL-tier ledger — the Saturday window, one run per week, 754 GiB / 8 h - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#xxl-tier-ledger-the-saturday-window-one-run-per-week-754-gib-8-h" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              XXL-tier ledger — the Saturday window, one run per week, 754 GiB / 8 h
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="xxl-tier-ledger-the-saturday-window-one-run-per-week-754-gib-8-h">XXL-tier ledger — the Saturday window, one run per week, 754 GiB / 8 h<a class="headerlink" href="#xxl-tier-ledger-the-saturday-window-one-run-per-week-754-gib-8-h" title="Permanent link">&para;</a></h1>
+<p>Operator directive 2026-09-10 (PROJECT_PLAN §5.1). The <code>fem-em-solver-xxl</code>
+compose service (profile <code>xxl</code>, 754 G limit) exists for the cases a 2 h <code>xl</code>
+window cannot hold. Commissioned like <code>xl</code> — by the weekly planning review or
+the operator, with a pre-registered readout — and gated by the same guard,
+which counts the rows below against a budget of <strong>one per trailing 7 days</strong>.</p>
+<p><code>run_and_log.sh</code> appends the row when a window <strong>starts</strong>, so a killed or
+failed run has still spent the week. Fill the last four columns by hand from
+the footer and commit the row with the log.</p>
+<p>Why 754 GiB: this WSL VM's whole allocation, half of the machine's 1.5 TB. A
+container limit equal to the VM's total memory means the kernel OOM killer
+reaches a runaway before the cgroup does — recorded in <code>docker-compose.yml</code>
+rather than silently softened.</p>
+<table>
+<thead>
+<tr>
+<th>Date (UTC)</th>
+<th>Chunk</th>
+<th>Log</th>
+<th>Ranks</th>
+<th style="text-align: right;">Cells</th>
+<th style="text-align: right;">Peak memory (GiB)</th>
+<th style="text-align: right;">Elapsed (s)</th>
+<th>Readout</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-09-19</td>
+<td>WF-7-step0b</td>
+<td><code>20260919T070008Z_WF-7-step0b.log</code></td>
+<td>16</td>
+<td style="text-align: right;">507 266 (both legs; vs the 504 642 record, rel 5.200e-03, INSIDE the imported 1 % band — the window's only assertion, <code>:10603</code>, <code>:21174</code>)</td>
+<td style="text-align: right;"><strong>106.1</strong> (<code>memory.peak</code> 113 950 359 552 B, <code>:21181–21182</code>, a high-water mark over both legs; degree-2 summed <code>ru_maxrss</code> 107.917, max rank 7.851, <code>:21172</code>)</td>
+<td style="text-align: right;">673</td>
+<td><strong>Both legs rc 0, <code>[capture] rc=0</code> last, Status 0</strong> (<code>:10607</code>, <code>:21178</code>, <code>:21183–21188</code>); orphans 0 before and after (<code>:35–36</code>, <code>:21179–21180</code>); command identical to the queue file. Filled by the 2026-09-19 03:00 review from a <code>log-pathologist</code> reading (CONFIRMED countable; a real solve, not a stop branch), lines re-read by the review. <strong>Degree 1 (control, <code>-n 16</code>):</strong> 607 039 unknowns, solve (assemble + factorise + solve) 24.61 s, cumulative 166.77 s, summed <code>ru_maxrss</code> 13.419 GiB (<code>:10600–10601</code>); <code>S_driven(P17)</code> <code>0.407423+0.344417j</code> — step 0's <code>-n 8</code> digits to the last printed place, <strong>printed, not asserted</strong> at this width (<code>:10602</code>). <strong>Degree 2:</strong> <strong>3 256 418 unknowns</strong> (ZMUMPS <code>N</code>, <code>:20998</code>), factorisation 242.5 s (<code>:21112</code>), solve 347.56 s = 5.79 min, cumulative 497.05 s (<code>:21169–21171</code>); <code>S_driven(P17)</code> <code>0.436656+0.346994j</code> (<code>:21170</code>). <strong>The price is about a third of the prediction on both axes</strong> (≈ 235 GiB / ≈ 17 min predicted; the probe prints OUTSIDE, <em>below</em>, on both brackets) — decision-rule branch (c) does not fire. <strong>Public readout (the review's arithmetic from the two printed values, not a probe print):</strong> <code>|S₂ − S₁| / |S₁|</code> = <strong>5.50 %</strong> (magnitude +4.54 %). <strong>One reading the weekly should not miss:</strong> the printed, never-asserted power-accounting residual is <strong>1.104e-02 at degree 2 against 4.187e-03 at degree 1</strong> (<code>:21170</code>, <code>:10599</code>) — 2.6× <em>worse</em> at the higher order. Not attributed; nothing about the degree-2 <code>S</code> is asserted. Label defects in this log (known-issues 2026-09-19, <code>OPS-52</code>): the degree-2 leg prints <code>phase 4 flag-off control … vs the step-0 record</code> over the order-sensitivity readout (<code>:21173</code> — not a drift red), the degree-1 time bracket 3–8 min has never been met (24.61 s here, 37.02 s at step 0), and <code>solve … (solve)</code> dropped step 0's "(assemble+factorise+solve)" qualifier. Branch (a) vs (b) is the 09-19 weekly's.</td>
+</tr>
+<tr>
+<td>2026-09-26</td>
+<td>WF-7-step0d</td>
+<td><code>20260926T070009Z_WF-7-step0d.log</code></td>
+<td>16</td>
+<td style="text-align: right;">507 266 (vs the 504 642 record, rel 5.200e-03, INSIDE the imported 1 % band — asserted, <code>:10420</code>, <code>:11908</code>)</td>
+<td style="text-align: right;"><strong>103.06</strong> (<code>memory.peak</code> 110 657 101 824 B, <code>:11916</code>; summed <code>ru_maxrss</code> 104.781, max rank 7.913, <code>:11903</code> — already 104.781 at drive 1, <code>:10601</code>, so a held column's memory is not separable from the high-water mark)</td>
+<td style="text-align: right;">646</td>
+<td><strong><code>[capture] rc=0</code> last, Status 0</strong> (<code>:11917</code>, <code>:11920–11921</code>); <strong>orphans 0 before / 0 after, measured</strong> (<code>:35–36</code>, <code>:11913–11914</code>, container namespace only); command CONFIRMED byte-identical to <code>xl-pending.md</code> entry 9 (queue file at <code>cb24dab^</code>). <strong>The price (chain H2): the F-human degree-2 32-drive set is one factorisation plus 31 back-substitutions</strong> — 3 256 418 unknowns (ZMUMPS <code>N</code>, <code>:10427</code>), mesh build 130.58 s, drive 1 322.95 s (analysis 62.6 s, numeric factorisation 231.57 s, <code>:10488</code>, <code>:10541</code>, <code>:10598</code>), held drives 4.19–6.40 s printed but <strong>5.73 s each by the cumulative counter</strong> ((639.26 − 461.63)/31, <code>:10600</code>, <code>:11902</code>), cumulative <strong>639.26 s = 10.65 min</strong>. Against entry 9's brackets: time <strong>INSIDE</strong> 10–20 min (near the lower edge); memory <strong>OUTSIDE, below</strong> 105–130 GiB on both measures (small margins) — the whole 32×32 is slightly cheaper than step 0b's single drive (106.1 GiB). <strong>Asserted in-window</strong> (probe <code>:394–427</code>): the cell band, <strong>full 32×32 reciprocity 9.715e-14 ≤ the imported 1e-3</strong> (<code>:11905</code>, <code>:11909</code>), drive 2 ≠ drive 1 by 1.168e-03. <strong>Printed only:</strong> σ_max 0.999914 (<code>:11906</code>); <code>|S_jj|</code> spread 1.4437e-03 (beside <code>OPPOSITE_SPREAD_BAND</code> — a self-class spread beside the opposite-class constant, gates nothing); full-column Σ|S_ij|² 0.896150–0.897253 (<code>:11907</code>). <strong>The per-column terminal accounting residual is 1.081e-02 – 1.179e-02 on all 32 columns</strong> (min P31 <code>:11187</code>, max P36 <code>:11397</code>; degree 1 at step 0c: 4.061–4.624e-03) ⇒ step 0b's 1.104e-02 is <strong>every column, not P17</strong> — entry 9's rule sends that to a <code>POST</code> item (the accounting's degree-2 quadrature or sheet term), never a band change; the weekly commissions it. <code>S_driven(P17)</code> <code>0.436656+0.346994j</code> reproduces 0b to every printed digit (<code>:10599</code>), so the 5.50 % order move at <code>:11904</code> is 0b's number reprinted, not a second measurement. <strong>Entry 9's decision rule:</strong> the full degree-2 set fits one window at ≈ 103 GiB ⇒ the human-scale degree-2 S sweep is an ordinary <code>xl</code>-sized job (fits the 512 GiB service); no reciprocity / passivity miss at degree 2 ⇒ no <code>PORT</code> finding. <strong>Label traps:</strong> 31 × "OUTSIDE measured single-drive price … 2.9–11.59 min" on held drives compare a back-substitution to a factorising bracket (an underrun); the 32 memory "INSIDE … 53.96–215.83 GiB" labels are <code>OPS-52</code>'s widened bracket, not entry 9's 105–130; "negative control" on the σ_max line is a passivity ceiling that gates nothing; <code>[XL] memory.peak</code> on an <code>xxl</code> window; "the rest of the 32 ring sheets terminated" is an empty set under <code>PORTS=all</code> (per drive the other 31 are). Entry 9's own warning that stale brackets would print was overtaken by <code>OPS-52</code>. Warm/cold FFCx state and the pre-window recreate are not logged. Columns filled by the 2026-09-26 03:00 review from a <code>log-pathologist</code> reading (claims 1–6 CONFIRMED; 7 time INSIDE / memory OUTSIDE-below), residual range and factorisation lines re-read by the review.</td>
+</tr>
+<tr>
+<td>2026-10-03</td>
+<td>PORT-21-step3b</td>
+<td><code>20261003T070008Z_PORT-21-step3b.log</code></td>
+<td>16</td>
+<td style="text-align: right;">592 550 (all four builds, <code>:2653</code>, <code>:3171</code>, <code>:5451</code>, <code>:5969</code>; ≠ the 116 118 default record — the resolution-knob inequality, asserted at 10 MHz only, <code>:6145</code>)</td>
+<td style="text-align: right;"><strong>291.36</strong> (<code>memory.peak</code> 312 846 401 536 B, <code>:7347</code>; summed <code>ru_maxrss</code> 320.577, max rank 27.902, <code>:5989</code> — a sum of per-rank high-water marks, not the price)</td>
+<td style="text-align: right;">9361</td>
+<td><strong>Status 1, <code>[capture] rc=1</code> last</strong> (<code>:7348–7351</code>): 1 failed, 15 passed, 4 skipped, identical on all 16 ranks (<code>:6263</code> … <code>:7343</code>). <strong>The one red is a missing prerequisite, not a gate:</strong> <code>test_the_step3_knobs_reach_the_solve</code> needs a degree-1 JSON at h = 0.005 that no commissioned command writes (<code>:6198</code>; the message's "run W1 (knobs unset)" remedy is wrong) — known-issues OPEN 2026-10-03. Imported identity gates green at 10 and 64 MHz (reciprocity ≤ 1.47e-13, σ_max ≤ 0.999995519, spreads ≤ 0.032 %, <code>:6071–6090</code>). Six degree-2 factorisations, ZMUMPS N = 3 827 268 each, 1 246.6–1 426.7 s; sweeps 1 480–1 588 s; meshing 109.6 / 129.6 s. <strong>Printed:</strong> κ = 2.134404611e-02 (10 MHz, <code>:3193</code>) / 2.135524972e-02 (64 MHz, <code>:5991</code>); (a)'s self move vs control′ 7.03e-02 / 2.93e-02 (asserted only over the 1e-6 floor, <code>:6109–6110</code>); readings persisted to the gitignored <code>logs/port21/*_p2_h0.005.json</code> before the module tests ran. <strong>Price INSIDE both brackets</strong> (8 600–9 500 s; 275–295 GiB). <strong>Decision rule: not fired</strong> — its deciding half is private (the weekly's, F9); entry 22 (h = 0.0075) has not run, so the corrected sequence is two rungs long. Orphans 0 / 0 (<code>:36–37</code>, <code>:7344–7345</code>); service stopped. <strong>Label traps:</strong> FAILED / PASSED glued to other tests' names by 16-rank interleaving (<code>:6013</code>–<code>:6191</code>); <code>sigma_max=1.000e+00</code> is rounding; "pooled off-diagonal … (band 0.5%)" is ungated; "(a) kappa route 2865.98 s" spans two factorisations. Columns filled by the 2026-10-03 10:30 review from a <code>log-pathologist</code> reading (claims 1, 2, 4 CONFIRMED).</td>
+</tr>
+<tr>
+<td>2026-10-17</td>
+<td>WF-10-step1e-H26</td>
+<td><code>20261017T070008Z_WF-10-step1e-H26.log</code></td>
+<td>16</td>
+<td style="text-align: right;">369 387 (hole mesh, (A0) rel 0, <code>:6611</code>; npz cells equal, <code>:6613</code>; 2 570 024 degree-2 unknowns = 2E + 2F asserted exact, <code>:6612</code>)</td>
+<td style="text-align: right;"><strong>91.09</strong> (<code>memory.peak</code> 97 802 375 168 B, <code>:10071–10072</code>; summed <code>ru_maxrss</code> 104.90 GiB, 5.62–7.72 per rank, <code>:8641</code>)</td>
+<td style="text-align: right;">4018</td>
+<td><strong>17 passed, 1 skipped on all 16 ranks (<code>:9093</code> … <code>:10068</code>; the skip is <code>test_wf10_step1e_build_only</code>, selector unset — by elimination, the interleaved verdict lines do not name it), <code>[capture] rc=0</code> last (<code>:10073</code>), Status 0; orphans 0 / 0 (<code>:36–37</code>, <code>:10069–10070</code>), service stopped.</strong> Every asserted degree-2 gate green: (A0) / (iv) none (<code>:6611</code>, <code>:6613</code>), (Deg) (<code>:6612</code>), kinds <code>["solve", "held"]</code> on the Z50 pair and all eight nodes (<code>:6826</code>, <code>:7057</code> … <code>:8639</code>), (P50) 1.465e-13 (<code>:6828</code>; entry 32 d2 1.468e-13 beside), NEG 119.0× (bar 10×, <code>:6829</code>), (P_RC) 9.0e-13 – 3.4e-12 at every node (<code>:7049</code> … <code>:8631</code>); (R) 1.4e-02 / 2.4e-02 and (Z50) 3.5e-02 are degree-1 comparands, printed only (<code>:6827</code>, <code>:6832</code>) — d1 → d2 moves, not reds. Price: build 204.8 s, Z50 pair 375.2 s, node pairs 379.7–436.5 s (<code>:8641</code>), pytest 4 013.5 s; wall 4 018 s inside the 2 800–4 500 s bracket and 91.09 GiB inside 87–110 GiB, though the build and every node pair sit above their 145–161 s / 328–361 s parts (cause not in the log); no per-node RSS printed. <strong>Readout (record; the 10-17 weekly reads it):</strong> Im Y_in changes sign once, − → +, on the eight-node grid on all four readings, every bracket [115.5000, 116.0000] pF (<code>:8662–8673</code>); C_in,F-human(d2) = <strong>115.520946 pF</strong> (P17 (1,+1j), ruling (2), <code>:8674</code>), four-reading spread 0.035723 pF (3.092e-04 rel), against 118.2437 pF at degree 1 (−2.30 %). The 118.2437 node re-measures entry 35's Y_in on all four readings to every printed digit (Im(P17, (1,+1j)) +1.345872717e-02 S, <code>:8634</code> vs <code>20261016T070008Z_WF-10-step4-H20.log:6836</code>). Entry 39's rule: <strong>first branch</strong> — the degree-2 root exists; the grid-miss flag does not arise. The root is a secant estimate on a 0.5 pF bracket (4.3e-03 rel), not a solved node: the eight <code>h17-node-&lt;pF&gt;-d2.json</code> (<code>:7058</code> … <code>:8640</code>) are not what the 10 g / B₁⁺ modules read (<code>h9p-node-118.2437-d2.json</code>, fixed by <code>C_IN_F_HUMAN_PF</code>; <code>sar10g</code> asserts equality), so H27 at the degree-2 node needs a node knob first. R_in / Q not read. <strong>Label traps:</strong> rank-interleaved verdict lines (<code>:403</code>, <code>:8710</code>, <code>:8751</code>, <code>:8767</code>, <code>:8786</code>) — count only the 16 summaries; "fixture DEGREE 1" at <code>:403</code> is the module constant; (Deg) carries H20a's <code>[WF-10 step4a]</code> prefix; the <code>circuit-only</code> Y_in lines use the degree-1 npz and are not a sign prediction. Columns filled by the 2026-10-17 10:30 review from a <code>log-pathologist</code> reading (claims 1–4 CONFIRMED, 5 REFUTED as worded: no node record at the root), <code>:8641</code> and <code>:10072</code> re-read by the review.</td>
+</tr>
+<tr>
+<td>2026-10-24</td>
+<td>GEO-38-C3</td>
+<td><code>20261024T070008Z_GEO-38-C3.log</code></td>
+<td>16</td>
+<td style="text-align: right;">1 147 366 ((A0) rel 0, <code>:12110</code>; U₁ 1 525 193 exact)</td>
+<td style="text-align: right;"><strong>46.85</strong> (<code>memory.peak</code> 50 308 194 304 B, <code>:14841</code>; summed RSS 48.82 GiB double-counts shared pages)</td>
+<td style="text-align: right;">1233</td>
+<td><strong>Countable, Status 0, <code>[capture] rc=0</code> last, orphans 0 / 0</strong> (<code>:36–37</code>, <code>:14838–14846</code>); 16 / 16 rank summaries <code>5 passed, 6 skipped</code> (the six are the module's coding tests, skipped by design whenever the knob is set; the gated sweep passed on every rank, <code>:14790–14837</code>). <strong>Every module assertion green:</strong> kinds 1 solve / 63 held; (P) — <code>TH-14</code>'s copper identity — worst rel 2.177e-12 against 1e-6, NEG ≥ 1.6173e-04 (<code>:14747</code>); (ii) reciprocity 1.887168e-14 (<code>:14748</code>); (iii) σ_max 0.999970196163 ≤ 1.0 (<code>:14749</code>); (iv′) worst class spread 9.2621e-03 against <code>OPPOSITE_SPREAD_BAND</code> 0.05 (<code>:14784</code>). <strong>Readout question, returned to the 10-24 weekly:</strong> entry 44 names the classes "at <code>ADJACENT_SPREAD_BAND</code> (asserted)"; one class of 34 — other ring, one step, 0.9262 % (<code>:14768</code>) — exceeds that 0.5 % band (every other ≤ 0.3217 %); the substitution was disclosed before the window (module docstring <code>:24–28</code>) but no ruling named a band, so read as written this is decision-rule branch 2 (class-spread red, reciprocity green), read at the module's band branch 1. PRICE (<code>:14746</code>): t_b 350.3 s, t_col 152.3 s (+ 27.6 s post), held cadence 11.04 s mean (≈ 9 s of it unpriced post-processing; held solves ≈ 1.5–2.2 s); window 1226.2 s — inside the readout brackets [450, 1 500] s and [40, 90] GiB, above the 480–900 s prediction. The 64×64 saved to <code>logs/geo38/c3-cu-s64-d1.npz</code> (<code>:14786</code>), C10's input (§9 item 611). Filled by the 2026-10-24 03:00 review from a <code>log-pathologist</code> reading (claims 1, 2, 4, 5, 6 CONFIRMED; 3 REFUTED as worded — disclosed, never ruled), <code>:14746–14749</code>, <code>:14768</code>, <code>:14784</code> re-read by the review.</td>
+</tr>
+<tr>
+<td>2026-10-31</td>
+<td>GEO-38-C5a</td>
+<td><code>20261031T070008Z_GEO-38-C5a.log</code></td>
+<td>16</td>
+<td style="text-align: right;">1 147 366 ((A0) rel 0, <code>:12142</code>; npz cells equal, <code>:12149</code>; 7 885 674 degree-2 unknowns = 2E + 2F asserted exact, <code>:12148</code>)</td>
+<td style="text-align: right;"><strong>472.42</strong> (<code>memory.peak</code> 507 256 434 688 B, <code>:12650</code>; summed RSS 525.24 GiB, <code>:12595</code>, sums non-simultaneous per-rank highs, not the price; the budget tracks MUMPS INFOG(19), 498 030 MB at <code>:12482</code>, peak = that + 9.2 GB)</td>
+<td style="text-align: right;">6315</td>
+<td><strong>Status 0, <code>[capture] rc=0</code> last (<code>:12651–12655</code>); 5 passed, 8 skipped on all 16 ranks by token (PASSED 80, SKIPPED 128; the summaries <code>:12601</code> … <code>:12646</code>; the gated test's 16 PASSED <code>:12599</code>; the skips are the module's 8 coding tests); orphans 0 / 0 (<code>:36–37</code>, <code>:12647–12648</code>), service stopped.</strong> <strong>Asserted green at degree 2:</strong> (A0), census 64 (<code>:12143</code>), (Deg), kinds solve / held on both pairs (<code>:12362</code>, <code>:12589</code>), (P50) 1.946e-12 (band 1e-6, <code>:12363</code>), NEG 153.4× (bar 1×, Z50 pair only, <code>:12364</code>), (P_RC) 5.329e-14 (band 1e-6, <code>:12584</code>). (Z50) 5.476548e-02 (<code>:12367</code>) is a degree-1 comparand, printed only (module <code>:678</code>): a d1 → d2 move, not a red, though entry 50's Readout still lists it, the mismatch entry 39 had corrected. <strong>Price:</strong> build 341.8 s, Z50 pair 2 892.1 s, node pair 3 056.9 s (<code>:12595</code>), two factorisations 2 524.98 / 2 700.21 s (<code>:12285</code>, <code>:12506</code>); the Z50 factor is freed before the node factorises (<code>JOB = -2</code> <code>:12370</code> before analysis <code>:12374</code>). Inside both readout brackets ([1 200, 7 200] s; [200, 700] GiB) and inside the 340–480 GiB prediction; ≈ 2× above the 1 900–3 100 s prediction, which priced one factorisation, and this "one node" is two. <strong>Readout (record; the 10-31 weekly reads it):</strong> Im Y_in at 193.5996 pF: P33 +5.389409e-02, P41 +3.287107e-02 under (1, +1j); P33 +3.309348e-02, P41 +5.367140e-02 under (1, −1j) (<code>:12591–12594</code>). On degree-1's shape the root lies below the node; one node gives a sign, no degree-2 slope and no root. Entry 50's rule: <strong>first branch reads as firing</strong>; a node pair is 50.9 min, under the rule's 1 h, so the tier reads <code>xl</code>, at 92 % of its limit. <strong>Label traps:</strong> <code>test_geo38_c4_esr_root SKIPPED</code> at <code>:313</code>, <code>:348–353</code> is interleaving, another rank's verdict; "roots none" at <code>:12591</code> is the single-node branch, not a finding, and "(RECORD…)" is a fixed suffix; the circuit-only <code>+5.82e-02j</code> at <code>:12587</code> looks like a prediction of <code>:12585</code> and is degree-1 npz with local loads, a coincidence; (U1) at <code>:12146</code> is the degree-1 record, the degree-2 count is <code>:12148</code>; every "PREDICTED" here is print-only, and (P_RC)'s gate is 1e-6, not 1e-10; "band 1e-06" beside 5.5e-02 at <code>:12367</code> is printed only; <code>[XL]</code> at <code>:12649</code> is an <code>xxl</code> window. Columns filled by the 2026-10-31 10:30 review from a <code>log-pathologist</code> reading (claims 1, 2, 3, 5 CONFIRMED; claim 4's arithmetic CONFIRMED, "rise with C" REFUTED as worded, "root below" UNCOUNTABLE from this log alone), <code>:12591</code>, <code>:12595</code> and <code>:12650</code> re-read by the review.</td>
+</tr>
+<tr>
+<td>2026-11-07</td>
+<td>GEO-38-C5d</td>
+<td><code>20261107T080008Z_GEO-38-C5d.log</code> — <strong>held by the private-leak guard, not in git</strong>: moved unchanged to the gitignored <code>logs/leak-held/</code> (sha256 <code>260ab898…2ec84</code>) by the 2026-11-07 10:30 review. The launcher's five commit attempts and four slots' attempts were refused on one line (<code>:14216</code>), a MUMPS back-substitution timing the solver printed, not a reading. Which token matched, and why, is in the gitignored <code>docs/private/</code>, never here</td>
+<td>16</td>
+<td style="text-align: right;">1 147 366 ((A0) rel 0, <code>:12174</code>; (Deg) 7 885 674 degree-2 unknowns = 2E + 2F asserted exact, <code>:12179</code>; U₁ 1 525 193 exact, <code>:12178</code>)</td>
+<td style="text-align: right;"><strong>498.33</strong> (<code>memory.peak</code> 535 079 415 808 B, <code>:14906</code>; summed RSS 499.35 GiB, <code>:14811</code>, double-counts shared pages; MUMPS INFOG(19) 534 330 MB, <code>:12290</code>)</td>
+<td style="text-align: right;">5364</td>
+<td><strong>Status 0, <code>[capture] rc=0</code> last (<code>:14907–14911</code>); 5 passed, 10 skipped on all 16 ranks by token (PASSED 80, SKIPPED 160, FAILED / ERROR 0; the gated test's 16 PASSED at <code>:14855</code>; the ten skips are the module's <code>@_coding</code> tests, skipped by design whenever <code>FEM_EM_GEO38_C3</code> is set, up from six at entry 44 as items 705 / 706 added four); orphans 0 / 0 (<code>:36–37</code>, <code>:14903–14904</code>).</strong> <strong>Every gate green at degree 2:</strong> kinds 1 solve / 63 held; (P), <code>TH-14</code>'s copper identity, worst rel 2.734e-12 against 1e-6, NEG ≥ 1.5300e-04 (<code>:14812</code>); (ii) reciprocity 1.488791e-13 against 1e-3 (<code>:14813</code>); (iii) σ_max 0.999932072111 ≤ 1.0, column Σ|S|² 0.984344–0.985574 (<code>:14814</code>); (iv′) worst class spread 6.4235e-03 against <code>OPPOSITE_SPREAD_BAND</code> 0.05 (<code>:14849</code>). <strong>Class readout:</strong> 1 of 34 classes is above <code>ADJACENT_SPREAD_BAND</code> 0.5 %, the same class as entry 44's, <strong>other ring, 1 step, 0.6424 %</strong> (<code>:14833</code>; degree 1: 0.9262 %, a fall of ≈ 1.44×). The next is other ring, 2 steps, at 0.2662 % (<code>:14834</code>), and every other class is ≤ 0.2662 % (degree 1: ≤ 0.3217 %). The 64×64 is saved to <code>logs/geo38/c3-cu-s64-d2.npz</code> (<code>:14851</code>), the input for C18 / U129. <strong>Price:</strong> build 382.4 s; factorising column 3 040.4 s + 22.9 s post; held cadence mean 30.07 s, max 33.42 s (<code>:14811</code>; each held drive ≈ 15–19 s solve + 12–15 s post). Window 5 364 s and 498.33 GiB are inside both readout brackets ([3 600, 10 800] s; [440, 700] GiB) and inside the 4 600–7 000 s / 472–520 GiB prediction. <strong>Entry 54's decision rule, read as written: branch 2</strong> — every gate green, one class above the band. The class is compared with entry 44's here; no band moves. Known-issues 2026-10-27's ≥ 2× clause is C18's to read and the weekly's to rule. <strong>Label traps:</strong> <code>[XL] memory.peak</code> on an <code>xxl</code> window (<code>:14905</code>); rank-interleaved verdict lines (<code>:138</code> … <code>:389</code>, and the gated PASSED at <code>:14855</code> on a line with no test name); "PREDICTED ≈1e-14" (<code>:14813</code>), "entry 44 names 1 + 1e-09" (<code>:14814</code>) and the 1.28× <code>ADJACENT_SPREAD_BAND</code> ratio (<code>:14849</code>) are printed only; the P33 × 1.01 control above 1e-3 (<code>:14850</code>) is the deliberate perturbation (ceiling ≈ 1.77e-03), not a red; the module <code>SAVE_PATH</code> reads <code>-d1</code> but this run saved <code>SAVE_PATH_D2</code> (<code>:14851</code>); the <code>[GEO-38 C3]</code> tag is the module's name. Columns filled by the 2026-11-07 10:30 review from a <code>log-pathologist</code> reading (claims 1–8 CONFIRMED; line 14216 confirmed as MUMPS's own solve-phase timing), <code>:12174</code>, <code>:12179</code>, <code>:14811–14814</code>, <code>:14833</code>, <code>:14849–14851</code> and <code>:14906–14911</code> re-read by the review in the held copy.</td>
+</tr>
+<tr>
+<td>2026-11-14</td>
+<td>GEO-38-C19</td>
+<td><code>20261114T080009Z_GEO-38-C19.log</code></td>
+<td>16</td>
+<td style="text-align: right;">1 217 025 ((A0) rel 0, <code>:12151</code>; (Deg) U₂ 8 327 394 = 2E + 2F asserted exact, <code>:12157–12158</code>; U₁ 1 606 744 exact, <code>:12155</code>)</td>
+<td style="text-align: right;"><strong>486.57</strong> (<code>memory.peak</code> 522 453 643 264 B, <code>:25458</code>; summed RSS 535.7 GiB, <code>:25197</code>, sums per-rank maxima; MUMPS INFOG(19) 514 874 MB call 1, 504 996 / 510 004 MB call 2 arms M / R)</td>
+<td style="text-align: right;">10902</td>
+<td><strong>Status 0, <code>[capture] rc=0</code> last (<code>:25459</code>); <code>rc1=0</code> (<code>:12703</code>), <code>rc2=0</code> (<code>:25454</code>); orphans 0 / 0 (<code>:36–37</code>, <code>:25455–25456</code>); 16 / 16 rank summaries per call by token — call 1 <code>6 passed, 14 skipped</code> (<code>:12657–12702</code>; the passes are the four complex-mode tests, <code>test_geo38_c6a_box_loaded</code> and <code>test_c34_deg_c_degree1_count_is_not_degree2</code>), call 2 <code>1 passed, 13 skipped</code> (<code>:25408–25453</code>; <code>test_geo36_i36_rod_drive</code>); PASSED 112, SKIPPED 432, FAILED / ERROR 0 (the skips are the modules' <code>_coding</code> tests, by design with the knob set).</strong> <strong>Every asserted gate green at degree 2.</strong> Build (both calls): (A0), (D-rod) G4 6.457e-11 against 1e-9 (<code>:12147</code>), (C) 64 specs, (W) 2.44e-15, (Az), (U1), (F), (Deg) exact. C6a: (Z) rel 0 (<code>:12160</code>); (A0m) the 18 lattice points in tag 3 (<code>:12161</code>); (C6b) 90 of 91 grid points kept (<code>:12162</code>); (R1) 2.415e-13 against 1e-3 (<code>:12379</code>); (P) P33 2.607e-12 / P41 4.272e-12 against 1e-6, NEG 2.03e-2 / 1.92e-2 (<code>:12380–12381</code>); (P_RC) at the node 2.607e-12 (<code>:12382</code>); grid max ≥ lattice max (<code>:12407</code>); (i) ball power 4.7e-15 / mass 7.6e-15 against 1e-10 (<code>:12408</code>). I36 arms M / R: (R1) 1.283e-13 / 1.114e-13; (P) ≤ 4.271e-12; (P_RC) arm M 2.620e-12; (A0m) exact (<code>:25185–25194</code>). <strong>Readout (record; the 11-16 weekly reads it by entry 62's rule):</strong> centroid mean <code>\|B₁⁺\|</code>_ccw 2.063058069e-08 T over 400 / 400 (<code>:12387</code>); c* x−105mm dz−50mm, SAR10g 1.346502340e-04 W/kg (<code>:12406</code>); the box-wide grid's g* x+157.5mm y+0.0mm dz+0.0mm, SAR10g 3.151138314e-04 W/kg, 2.340 × c* (<code>:12407</code>); P_box 3.112805571e-03 W, P_acc 5.964895108e-02 W, P_box / P_acc 5.218542e-02 and the per-watt figures (<code>:12410</code>); S2 (<code>:12379</code>), Y_in ccw / cw (<code>:12383–12384</code>); I36 tip 1 g Q 4.145 / 4.133 / 4.116 / 4.089, η_rod(T1) 3.443491, rod power share 3.1332e-05 (<code>:25188</code>, <code>:25195</code>). The log prints <strong>no degree-1 comparand and no lattice mean</strong>: the degree-1 → degree-2 moves and the 2 % order rule are C37's to compute from entry 52's log (§9 item 983). <strong>Price:</strong> call 1 build 480.2 s (gmsh 447.0), MUMPS analysis + factorisation 166.6 + 2 691.8 s, grid 626.7 s (72 new balls, median 8.50 s, <code>:12386</code>), readouts 794.9 s, window 4 301.9 s (<code>:12412</code>); call 2 build 504.8 s, arm M 169.8 + 2 446.3 s, arm R 191.6 + 2 953.0 s, window 6 590.9 s (<code>:25197</code>). Wall 10 902 s and 486.57 GiB inside both readout brackets ([9 000, 21 000] s; [440, 700] GiB) and below the 12 000–14 000 s / 500–540 GiB prediction; an operator <code>GEO-34</code> window (104 s) ran inside it (<code>test-results.md:6887</code>, 09:34–09:36 UTC), so the price is lightly contended. <strong>Entry 62's decision rule: the green branch</strong> — the degree-2 column exists. <strong>Label traps:</strong> rank-interleaved verdict lines (<code>:12413</code>, <code>:12504</code>, <code>:12506</code>, <code>:12514</code>, <code>:25207</code> — <code>test_i36a_k0_knob_parsing PASSED</code> there is another rank's I36 verdict); <code>PREDICTED window 850-1000 s</code> (<code>:235</code>) is a stale print; "P_rod" in call 1 (<code>:12380</code>) is tag 403 counted as gel; NEG ≈ 2e-2 is the asserted blind control, not a miss; (Dz) 0.656 (<code>:12382</code>, <code>:25193</code>) is a printed control; Q ≈ 4.1 beside "(3.48, 3.56)" (<code>:25195</code>) sets <code>IMP-3</code>'s interval for reference, not a gate; <code>[XL] memory.peak</code> on an <code>xxl</code> window (<code>:25457</code>). Columns filled by the 2026-11-14 10:30 review from a <code>log-pathologist</code> reading (claims 1–3 and 5 CONFIRMED; claim 4's values CONFIRMED, the moves UNCOUNTABLE from this log alone), <code>:12379</code>, <code>:12407</code>, <code>:12410</code>, <code>:12703</code>, <code>:25454</code> and <code>:25458</code> re-read by the review.</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

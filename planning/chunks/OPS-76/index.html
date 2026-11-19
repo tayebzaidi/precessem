@@ -1,0 +1,672 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>OPS-76 — femem run on a swept file with no tune.at_hz ends in an uncaught ValueError - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ops-76-femem-run-on-a-swept-file-with-no-tuneat_hz-ends-in-an-uncaught-valueerror" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              OPS-76 — femem run on a swept file with no tune.at_hz ends in an uncaught ValueError
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-754-2026-11-02-lane-1-known-issues-item-744s-disclosure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 754 — 2026-11-02 (lane 1, known-issues; item 744's disclosure)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-ruling-2026-11-02-1030-item-754-attempt-1-the-pin-moves-re-posed-as-item-758" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review ruling 2026-11-02 10:30 (item 754, attempt 1) — the pin moves; re-posed as item 758
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-758-2026-11-02-lane-1-known-issues-ops-76-attempt-2-of-4-item-754-re-posed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 758 — 2026-11-02 (lane 1, known-issues; OPS-76 attempt 2 of 4; item 754 re-posed)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ops-76-femem-run-on-a-swept-file-with-no-tuneat_hz-ends-in-an-uncaught-valueerror">OPS-76 — <code>femem run</code> on a swept file with no <code>tune.at_hz</code> ends in an uncaught <code>ValueError</code><a class="headerlink" href="#ops-76-femem-run-on-a-swept-file-with-no-tuneat_hz-ends-in-an-uncaught-valueerror" title="Permanent link">&para;</a></h1>
+<p><em>History file for the §7 <code>OPS-76</code> row (<code>OPS-46</code>). Opened by the 2026-11-02 03:00 daily review, lane 1, from item 744's disclosure (<code>WF-17</code> U114) and the known-issues entry of the same date.</em></p>
+<p><strong>The defect.</strong> <code>_run_load_result</code> (<code>src/fem_em_solver/study_yaml.py:2034</code>) refuses a bad <code>tune.at_hz</code> by field, but not a missing one. A multi-frequency <code>load_result:</code> with no <code>tune.at_hz</code> reaches <code>Study.tune</code> (<code>study.py:1232</code>), which raises a plain <code>ValueError</code>. <code>cli.py:209</code> catches only <code>StudyConfigError</code>, so <code>femem run</code> ends in a traceback instead of the rc 2 by-field refusal that item 730's three refusals give. The page says the API raises <code>ValueError</code>; it says nothing false about the CLI, but the CLI's route is the one the user meets.</p>
+<p><strong>Done-when.</strong> <code>femem run</code> on that file exits 2 and prints the field <code>tune.at_hz</code>, on every rank's return code, with no output written and no solve; the API's <code>ValueError</code> naming <code>at_hz</code> is unchanged; the known-issues entry is retired in the same commit.</p>
+<h3 id="9-item-754-2026-11-02-lane-1-known-issues-item-744s-disclosure">§9 item 754 — 2026-11-02 (lane 1, known-issues; item 744's disclosure)<a class="headerlink" href="#9-item-754-2026-11-02-lane-1-known-issues-item-744s-disclosure" title="Permanent link">&para;</a></h3>
+<p><strong>Why.</strong> Item 744's executor found it and correctly left it: "A one-line <code>src</code> fix is not licensed here and is the review's call." This is that call. It is a defect in a landed refusal, not a new step, so it does not count on chain U's cap.</p>
+<p><strong>Anchor.</strong> New node(s) in <code>tests/package/test_wf1_yaml_load_result_sweep.py</code> if that module exists, otherwise the module that item 730 landed (grep <code>tune.at_hz</code> under <code>tests/package/</code>). On item 730's fixture YAML with the <code>at_hz</code> line removed:
+- <strong>(Rc)</strong> <code>cli.main(["run", path])</code> returns 2 at <code>-n 2</code> on both ranks, and rank 0's stderr names <code>tune.at_hz</code>.
+- <strong>(S0)</strong> 0 mesh builds and 0 solves, by the raising wrapper those nodes already use.
+- <strong>(O)</strong> no summary file is written.
+- <strong>(API=)</strong> <code>Study.load_result</code> then <code>tune(1)</code> still raises <code>ValueError</code> matching <code>at_hz</code>, so the fix moved no behaviour of the API. <code>test_wf17_loaded_tune_tutorial.py:434</code> is the imported pin and stays unedited.</p>
+<p><strong>Negative control.</strong> A single-frequency <code>load_result:</code> with no <code>tune.at_hz</code> still tunes, bit-equal to the record that node already pins: the check must not fire on the common case.</p>
+<p><strong>Execution.</strong> In <code>_run_load_result</code>, after <code>loaded = …</code>: when <code>len(loaded.frequencies_hz) &gt;= 2</code> and <code>"at_hz"</code> is not in <code>outputs["tune"]</code>, raise <code>StudyConfigError(path, "tune.at_hz", "a multi-frequency load_result needs at_hz")</code>. Every rank has read the file by then, as the comment at <code>:2039</code> says. Add one sentence to the saved-tune page's refusal paragraph and to <code>study_yaml.py:117–120</code>'s docstring. The page sentence is pinned at <code>test_wf17_loaded_tune_tutorial.py:102–105</code>, so extend that tuple in the same commit (<strong>licensed here, one line</strong>) and name it in the commit message. No other <code>src/</code> edit.</p>
+<p><strong>Tier, ranks, wall clock.</strong> Standard, <code>-n 2</code>, complex, <code>timeout -k 30 170</code>; the nodes it adds are no-solve, and the neighbouring module took 8 s (<code>20261102T015645Z_WF-17-s28-W1.log</code>). W-env, since <code>src/</code> moves. <strong>Class:</strong> ops / docs. <strong>Cost:</strong> ≈ 5.5 measured / 15 predicted min. <strong>Depends on:</strong> nothing.</p>
+<p><strong>Traps already paid for.</strong> The refusal must fire before anything writes, and every rank must raise, or <code>-n 2</code> hangs in a collective. <code>StudyConfigError</code> subclasses <code>ValueError</code> (<code>study_yaml.py:203</code>), so an existing <code>pytest.raises(ValueError)</code> on the YAML route stays green, and that is not evidence the rc changed: assert the return code. <code>cli.main</code> returns and never exits. <code>-k a or b</code> splits inside a quoted container command.</p>
+<p><strong>Scope.</strong> One refusal on one route. <strong>Not claimed:</strong> any change to <code>tune</code>, to what <code>at_hz</code> selects, or to the other families.</p>
+<p><strong>Negative result.</strong> A landed node that pinned the old traceback goes red: stop, keep the log, BLOCKED, and name it. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>OPS-76</code> ✅; the known-issues entry of 2026-11-02 retired.</p>
+<p><strong>Outcome (2026-11-02T10:42Z, 04:30 CST slot, third item): BLOCKED — a landed node pinned the old traceback, the brief's named negative result; every new gate green.</strong> W1 <code>20261102T103825Z_OPS-76-W1.log</code> (<code>-n 2</code>, complex, <code>timeout -k 30 170</code>, 58 s, the full <code>tests/environment</code> leading): 1 failed, 23 passed, 3 skipped per rank, Status 1 (<code>:223</code>, <code>:285</code>, <code>:288–289</code>). Fix, page sentence, the licensed <code>SWEPT_REFUSAL_SENTENCES</code> line and the new node are parked on <code>attempt/OPS-76-20261102T104100Z</code>. <code>main</code> carries no <code>src/</code> change, and the known-issues entry stays open.</p>
+<p><strong>The red, named.</strong> <code>tests/package/test_wf17_loaded_tune_yaml_tutorial.py::test_wf17_s28_stale_lines_corrected</code>, <code>:292–293</code>: <code>pytest.raises(ValueError, match="at_hz")</code> around <code>cli.main(["run", …])</code> reads <code>DID NOT RAISE</code> on both ranks (<code>:218–222</code>, <code>:228</code>, <code>:284</code>), because <code>cli.main</code> now returns 2, which is the defect fixed. The node's <code>:304</code> print reads <code>err_cli</code> too. The <code>FAILED</code> on the <code>test_wf17_s20b_blocks_and_refusals</code> line (<code>:159</code>) is the other rank's <code>s28</code> verdict: that node's own tokens read <code>PASSED</code>, and both summaries name <code>s28</code> alone (by token, the 2026-10-26 rule).</p>
+<p><strong>Green on the branch, new node <code>test_ops76_no_at_hz_refused_by_field</code></strong> (<code>:120–124</code>). (Rc) rc (2, 2), rank 0's stderr names <code>tune.at_hz</code>. (S0) 0 calls. (O) no output directory. (API=) <code>tune(1)</code> raises a plain <code>ValueError</code> naming <code>at_hz</code>, type asserted. Control: a one-frequency file with no <code>at_hz</code> tunes, <code>C_mode</code> hex-equal to the API, differing []. The page's new sentence passed its pin. <code>test_wf16_load_result_sweep.py:182</code>'s run-route <code>ValueError</code> still holds, as <code>StudyConfigError</code> subclasses it.</p>
+<p><strong>Ruling asked.</strong> License editing <code>test_wf17_loaded_tune_yaml_tutorial.py:292–293</code> and <code>:304</code> to assert the return code, rc (2, 2) with the field in stderr, as the node now pins the behaviour this chunk removes. Then take the branch and re-run the same window at the same <code>-t</code>. <code>docs/guide/tuning_a_saved_result_from_yaml.md:72–73</code> says the run stops with a <code>ValueError</code> naming <code>at_hz</code>: still true of <code>run_study_file</code>, and the CLI's status 2 is unsaid there; the same ruling may want a sentence, which the brief did not license.</p>
+<p><strong>Not done, deliberately.</strong> The landed node was not edited: the brief licenses one line elsewhere and names this outcome as a stop. The comment at <code>test_wf16_load_result_sweep.py:180</code> ("tune's own refusal") goes stale with the fix, and it is not edited either.</p>
+<p><strong>Disclosed.</strong> The three skips are <code>test_wf17_s23_yaml_loaded_tune</code>, <code>test_wf17_s20b_loaded_tune_block</code> and <code>test_wf16_s17_on_the_sweep_file</code>, none of them on this route's refusal; the reasons were not read. <code>test_wf1_yaml_load_result.py</code>, where the brief's control record lives, was not in the window; the control compares against the API instead.</p>
+<p><strong>Status moved.</strong> None; §9 item 754 BLOCKED, unblock on that ruling. Attempt 1.</p>
+<h3 id="review-ruling-2026-11-02-1030-item-754-attempt-1-the-pin-moves-re-posed-as-item-758">Review ruling 2026-11-02 10:30 (item 754, attempt 1) — the pin moves; re-posed as item 758<a class="headerlink" href="#review-ruling-2026-11-02-1030-item-754-attempt-1-the-pin-moves-re-posed-as-item-758" title="Permanent link">&para;</a></h3>
+<p><strong>The red is the fix working, and the brief named this outcome.</strong> <code>test_wf17_s28_stale_lines_corrected:292–293</code> asserted that <code>cli.main</code> raises <code>ValueError</code>, which is the uncaught traceback this chunk exists to remove. A test that pins a defect is not evidence against the fix. The slot stopped correctly and did not edit it.</p>
+<p><strong>Licensed, in item 758 only:</strong>
+1. <code>tests/package/test_wf17_loaded_tune_yaml_tutorial.py:292–293</code>: <code>cli.main</code> returns; assert its return code is 2 on both ranks and rank 0's stderr names <code>tune.at_hz</code>. <strong>This is stricter than the old pin,</strong> which any <code>ValueError</code> passed. No band is involved.
+2. <code>:304</code>'s print reads the return code in place of <code>err_cli</code>.
+3. <code>docs/guide/tuning_a_saved_result_from_yaml.md:72–73</code>, one sentence, as below. A search of <code>tests/</code> finds no pin on the old text.
+4. <code>tests/package/test_wf16_load_result_sweep.py:180</code>, comment only, since "tune's own refusal" is no longer the route. The <code>pytest.raises(ValueError, …)</code> under it stays, because <code>StudyConfigError</code> subclasses <code>ValueError</code>.</p>
+<p><code>:290–291</code>'s <code>run_study_file</code> assertion stays unedited, and so does the API pin at <code>test_wf17_loaded_tune_tutorial.py:434</code>.</p>
+<h3 id="9-item-758-2026-11-02-lane-1-known-issues-ops-76-attempt-2-of-4-item-754-re-posed">§9 item 758 — 2026-11-02 (lane 1, known-issues; <code>OPS-76</code> attempt 2 of 4; item 754 re-posed)<a class="headerlink" href="#9-item-758-2026-11-02-lane-1-known-issues-ops-76-attempt-2-of-4-item-754-re-posed" title="Permanent link">&para;</a></h3>
+<p><strong>Why.</strong> A defect in a landed refusal with its fix already written and green on a branch. No new cap count on chain U.</p>
+<p><strong>Anchor.</strong> Unchanged from item 754: (Rc) rc (2, 2) and rank 0's stderr names <code>tune.at_hz</code>, (S0) 0 calls, (O) no output directory, (API=) <code>tune(1)</code> raises a plain <code>ValueError</code> naming <code>at_hz</code>, type asserted. New: (Pin) <code>test_wf17_s28_stale_lines_corrected</code> green with the return-code assertion.</p>
+<p><strong>Negative control.</strong> The one-frequency file with no <code>at_hz</code> still tunes, hex-equal to the API (the branch's node). Item 754's W1 is the other direction: the old assertion reads <code>DID NOT RAISE</code> on the fixed route.</p>
+<p><strong>Execution.</strong>
+1. Take the branch's code by path, not by merge: <code>git checkout attempt/OPS-76-20261102T104100Z -- docs/guide/tuning_a_saved_result.md src/fem_em_solver/study_yaml.py tests/package/test_wf17_loaded_tune_tutorial.py tests/package/test_wf1_yaml_load_result_sweep.py</code>. No commit since the branch point touches <code>tests/package</code>, <code>docs/guide</code> or <code>src</code> (read 2026-11-02 10:30), so this drops nothing. Then delete the branch.
+2. Replace <code>:292–293</code>, at the same indent inside the <code>with</code>, by three lines: <code>capsys.readouterr()</code>, then <code>rc_cli = cli.main(["run", str(no_yml), "--output-dir", str(d / "no_cli")])</code>, then <code>err_text = capsys.readouterr().err</code>. Beside <code>n_calls</code>: <code>rcs = tuple(comm.allgather(rc_cli))</code> and <code>named = comm.bcast("tune.at_hz" in err_text, root=0)</code>. Assert <code>rcs == (2, 2)</code> and <code>named</code> with the node's other asserts. <code>:304</code> prints <code>rcs</code>.
+3. Guide <code>:72–73</code>: replace "without it the run stops with a <code>ValueError</code> naming <code>at_hz</code>." with "without it <code>run_study_file</code> stops with a <code>ValueError</code> naming <code>at_hz</code>, and <code>femem run</code> refuses the field <code>tune.at_hz</code> with status 2." Re-wrap to the page's width. The test module's <code>:34</code> docstring stays true.
+4. Comment at <code>test_wf16_load_result_sweep.py:180</code>: "the by-field refusal, a <code>ValueError</code> subclass (<code>OPS-76</code>)".
+5. Retire the known-issues entry of 2026-11-02 in the same commit and flip the §7 row.</p>
+<p><strong>Tier, ranks, wall clock.</strong> Standard, <code>-n 2</code>, complex, <code>timeout -k 30 170</code>: item 754's W1 command with <code>tests/package/test_wf1_yaml_load_result.py</code> added as the last path, the control-record module the first window left out. W1 took 58 s. If the added module takes the window past 170 s that is a size kill: split it into a second window at the same <code>-t</code>, never raise it. <strong>Class:</strong> ops / docs. <strong>Cost:</strong> ≈ 5.5 measured / 15 predicted min. <strong>Depends on:</strong> nothing. <strong>Family:</strong> attempt 2 of 4.</p>
+<p><strong>Traps already paid for.</strong> Item 754's traps stand. Assert the return code, not an exception. <code>capsys.readouterr()</code> before the call, or the module's earlier prints land in the text. Rank 0 alone may print the refusal, so <code>bcast</code> rank 0's reading. Path checkouts take code only. Count verdicts per rank by token.</p>
+<p><strong>Scope.</strong> One refusal on one route. <strong>Not claimed:</strong> any change to <code>tune</code> or to what <code>at_hz</code> selects.</p>
+<p><strong>Negative result.</strong> Any other red: stop, keep the log, BLOCKED, and name it. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> <code>OPS-76</code> ✅; the known-issues entry of 2026-11-02 retired.</p>
+<p><strong>Outcome (2026-11-02T18:02Z, 12:00 CST slot, first item): complete.</strong> <code>20261102T180047Z_OPS-76-item758-W1.log</code> (<code>-n 2</code>, complex, <code>timeout -k 30 170</code>, the full <code>tests/environment</code> leading, <code>test_wf1_yaml_load_result.py</code> last): Status 0, 87 s, 26 passed, 3 skipped per rank (<code>:1189–1196</code>). (Rc) rc (2, 2), rank 0's stderr names <code>tune.at_hz</code> (<code>:120</code>). (S0) 0 calls (<code>:121</code>). (O) no output directory (<code>:122</code>). (API=) <code>tune(1)</code> a plain <code>ValueError</code> naming <code>at_hz</code> (<code>:123</code>). Control: the one-frequency file hex-equal to the API, <code>0x1.7ae3f5a5c44f3p-35</code>, differing [] (<code>:124</code>). (Pin) <code>test_wf17_s28_stale_lines_corrected</code> green: <code>cli.main rcs (2, 2)</code> (<code>:158</code>).</p>
+<p><strong>Disclosed.</strong> The branch's four paths were taken as the brief says, and the branch is deleted. The three skips are the same three as item 754's. The <code>s28</code> node's assertion sits one line after <code>selected == FREQS[1]</code>, and the print's words around <code>rcs</code> are the old sentence's. <code>run_study_file</code>'s <code>ValueError</code> at <code>s28 M</code> is now a <code>StudyConfigError</code> by type (<code>StudyConfigError True</code>, <code>:158</code>): still a <code>ValueError</code>, the page's sentence still true, and the node's <code>:290–291</code> is unedited.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,660 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>EX-157 — th:23: a broadened two-pole (Cole–Cole) dielectric — the plane wave decays as k₀√ε̂(f), and both a Debye-reduced and a frozen-frequency medium miss - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ex-157-th23-a-broadened-two-pole-colecole-dielectric-the-plane-wave-decays-as-k0f-and-both-a-debye-reduced-and-a-frozen-frequency-medium-miss" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EX-157 — th:23: a broadened two-pole (Cole–Cole) dielectric — the plane wave decays as k₀√ε̂(f), and both a Debye-reduced and a frozen-frequency medium miss
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-652-2026-10-26-example-54-ramp-from-mat-3-step-1b-lane-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 652 — 2026-10-26 (example; §5.4 ramp from MAT-3 step 1b; lane 3)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ex-157-th23-a-broadened-two-pole-colecole-dielectric-the-plane-wave-decays-as-k0f-and-both-a-debye-reduced-and-a-frozen-frequency-medium-miss">EX-157 — <code>th:23</code>: a broadened two-pole (Cole–Cole) dielectric — the plane wave decays as k₀√ε̂(f), and both a Debye-reduced and a frozen-frequency medium miss<a class="headerlink" href="#ex-157-th23-a-broadened-two-pole-colecole-dielectric-the-plane-wave-decays-as-k0f-and-both-a-debye-reduced-and-a-frozen-frequency-medium-miss" title="Permanent link">&para;</a></h1>
+<p><em>History file for the §7 <code>EX-157</code> row (<code>OPS-46</code>). Opened by the 2026-10-26 03:00 daily review under daily-review.md step 5's example ramp, from <code>MAT-3</code> step 1b (§9 item 648, the re-pose of item 646). <strong>It is queued only behind item 648:</strong> the gate it narrates lands with item 648, and until then this example has no gated record to import. <code>th:20</code> (<code>EX-145</code>) shows a <strong>single Debye pole</strong> (α = 0). No example runs a broadened pole (α &gt; 0) or more than one pole, which is the shape Gabriel tissues take.</em></p>
+<p><strong>Gap check.</strong> At execution, <code>grep -rl "test_mat3_cole_cole_plane_wave" examples --include=*.py</code> must be empty (window 0).</p>
+<p><strong>Done-when.</strong>
+- <code>examples/time_harmonic/23_cole_cole_plane_wave.py</code> and its same-stem guide <code>.md</code> exist.
+- <code>./run_examples.sh -e th:23 -n 2 -t 420</code> (the <code>th:</code> group sources the complex build) exits 0 with every gate below asserted.
+- <code>BAND</code>, the medium and the helpers imported by name from <code>tests/validation/test_mat3_cole_cole_plane_wave.py</code>, plus <code>_solve_plane_wave</code> from <code>tests/validation/test_lossy_plane_wave.py</code>; never restated; no gate module or <code>src/</code> edit.
+- A combined XDMF under <code>examples/time_harmonic/paraview_output/</code> (the 24³ solve at 127.74 MHz) and a setup figure through <code>write_setup_figure</code>.
+- Census +1, the setup-figure census logged as its own window reading <code>missing=0</code>, docrefs <code>dead=0</code>.
+- <code>MAT-3</code> stays 🟡 (step 2 is not touched).</p>
+<h3 id="9-item-652-2026-10-26-example-54-ramp-from-mat-3-step-1b-lane-3">§9 item 652 — 2026-10-26 (example; §5.4 ramp from <code>MAT-3</code> step 1b; lane 3)<a class="headerlink" href="#9-item-652-2026-10-26-example-54-ramp-from-mat-3-step-1b-lane-3" title="Permanent link">&para;</a></h3>
+<p><strong>Depends on item 648 landing DONE</strong> (the gate module on <code>main</code>, its W1b green). If item 648 is not DONE, skip this item; skipping costs no attempt.</p>
+<p><strong>Licence.</strong> Daily-review.md step 5 and §9 rule (5) lane 3 (<code>MAT-3</code>'s material). The angle is <strong>materials</strong>: a two-pole, broadened Cole–Cole medium, ε̂(f) = ε∞ + Σ Δεₙ/(1 + (j2πfτₙ)^(1−αₙ)) − jσ/(2πfε₀), on the fixture <code>th:20</code> shows with one Debye pole. No band, tolerance, record, Done-when or target is set or moved. The one band is imported by name.</p>
+<p><strong>What the example does.</strong> It runs the gate's solves and narrates them, modelled on <code>th:20</code> (<code>examples/time_harmonic/20_debye_plane_wave.py</code>; read it, do not import an example).
+- <strong>Imports, all by name</strong>, from <code>tests/validation/test_mat3_cole_cole_plane_wave.py</code>: <code>BAND</code>, <code>F_HIGH</code>, <code>F_LOW</code>, <code>EPS_INF</code>, <code>POLES</code>, <code>SIGMA_IONIC</code>, <code>COLE_COLE</code>, <code>DEBYE_REDUCED</code>, <code>_eps_cmath</code>, <code>_truth</code>, <code>_wrong_f_truth</code>, <code>_solve</code>. From <code>tests/validation/test_lossy_plane_wave.py</code>: <code>_solve_plane_wave</code>. Never a <code>test_*</code> name. Check every name at execution.
+- <strong>Solves (the gate's, <code>test_mat3_cole_cole_plane_wave.py:145–175</code>):</strong>
+  - <code>_truth(F_HIGH, COLE_COLE)</code> and <code>_truth(F_LOW, COLE_COLE)</code>; their internal identity asserts run too.
+  - <code>_solve(12, F_HIGH, COLE_COLE)</code>.
+  - The 24³ rung at 127.74 MHz through <code>_solve_plane_wave(24, hm.sigma, return_fields=True, frequency_hz=F_HIGH, epsilon_r=hm.epsilon_r)</code> with <code>hm = COLE_COLE.as_homogeneous(F_HIGH)</code>. That is the call <code>_solve</code> makes, plus <code>th:20</code>'s fields keyword.
+  - <code>_solve(24, F_LOW, COLE_COLE)</code>.
+  - Control (a′): <code>_solve(16, F_HIGH, DEBYE_REDUCED)</code>.
+  - Control (b′): <code>_solve(16, F_HIGH, COLE_COLE, material_f=F_LOW)</code>.</p>
+<p><strong>Gates (asserted; <code>BAND</code> imported). These are the gate's own asserts (<code>:109</code>, <code>:178–186</code>).</strong>
+- <strong>(Ev)</strong> <code>COLE_COLE.complex_permittivity(f)</code> against <code>_eps_cmath(f)</code> ≤ 1e-12 relative at both frequencies. This is the gate's literal bound at <code>:109</code>, which has no module name to import. The example cites it by file:line as the gate's bound and sets no bound of its own.
+- <strong>(i)</strong> at 127.74 MHz: 24³ rel L2 below 12³'s, rate &gt; 0.9, 24³ rel L2 &lt; <code>BAND</code>, and α and β within <code>BAND</code>.
+- <strong>(ii)</strong> at 63.87 MHz, 24³: α and β within <code>BAND</code>.
+- <strong>(a′)</strong> the Debye-reduced medium misses the Cole–Cole α by &gt; <code>BAND</code> (closed-form ceiling 19.91 %).
+- <strong>(b′)</strong> the frozen-frequency medium misses by &gt; <code>BAND</code> (ceiling 29.77 %).</p>
+<p>Records are item 648's W1b (cite it by full filename). The parked probe read α 0.0415 % / β 0.0947 % at 127.74 MHz, rate 0.9994, and misses 20.05 % / 30.11 %.</p>
+<p><strong>Printed only.</strong>
+- The table: ε̂, α and β at both frequencies.
+- The β misses of both controls.
+- ε̂(f) of the Cole–Cole medium and of its Debye-reduced twin at both frequencies, side by side. This shows the depression broadening causes.
+- Cells and solve seconds.</p>
+<p><strong>Guide (<code>23_cole_cole_plane_wave.md</code>).</strong> Use the headings of <code>th:20</code>. Explain:
+- what α &gt; 0 does to a pole (the depressed arc; the <code>(jωτ)^(1−α)</code> principal branch);
+- why two poles, a γ-like one near 100 MHz and a β-like one near 1 MHz, shape ε̂ at the Larmor frequencies;
+- what each control proves.</p>
+<p>Say what is not shown: any tissue's published σ / ε_r (<code>MAT-3</code> step 2, the operator's table), broadband or time-domain solves, temperature dependence. Related: <code>th:1</code>, <code>th:20</code>. Write <code>≈</code>, never a tilde.</p>
+<p><strong>Executor:</strong> <code>example-runner</code>. <strong>Tier:</strong> standard, complex, <code>-n 2</code>.
+- <strong>Prediction:</strong> the gate's FEM node ran in the 45 s probe window at <code>-n 2</code>, and <code>th:20</code> ran in 33 s. With the export, this run is ≈ 40–90 s. <code>-t 420</code>, and <code>-k 30</code> on every container <code>timeout</code>.
+- <strong>Class:</strong> example. <strong>Cost:</strong> ≈ 5.5 measured / 30 predicted slot-minutes. <strong>Depends on:</strong> item 648. <strong>Family:</strong> <code>EX-157</code>, attempt 1 of 4. <strong>Daytime:</strong> no.</p>
+<p><strong>Windows.</strong> As <code>EX-152.md</code> § item 640, with the label <code>EX-157</code>, the group <code>th:23</code> and <code>-t 420</code>:
+1. the gap grep and census-pre;
+2. <code>--dry-run</code>, which must print <code>(complex build)</code>;
+3. the run with <code>-e FEM_EM_SETUP_FIGURES=1</code>, after <code>pgrep -c python3</code> reads 0;
+4. census-post;
+5. <code>EX-157-figures</code> (<code>missing=0</code>);
+6. docrefs.</p>
+<p><strong>The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped.</strong></p>
+<p><strong>Traps already paid for.</strong>
+- e^{+jωt}: the ionic term is −jσ/(ωε₀), and Im k &lt; 0 on the decaying wave (<code>_truth</code> asserts it).
+- <code>(jωτ)^(1−α)</code> is the principal branch. Never re-spell it in the example; use the imported <code>_eps_cmath</code>.
+- <code>assemble_scalar</code> is rank-local. pytest-free scripts print on rank 0 only.
+- The private-leak guard; rule (i); no pipe; never delete a log.</p>
+<p><strong>Scope.</strong> <code>MAT-3</code> step 1b's gates narrated on the plane-wave fixture. <strong>Not claimed:</strong> tissue data, any other fixture, a broadband sweep.</p>
+<p><strong>Negative result.</strong> Report and stop. Park on <code>attempt/EX-157-*</code>, item 652 BLOCKED (rule (d)). No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> §7 <code>EX-157</code> ⬜ → ✅ on its Done-when; census +1. <code>MAT-3</code> does not move.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Execute §9 item 652 — <code>EX-157</code> (<code>th:23</code>) — per <code>docs/planning/chunks/EX-157.md</code> "§9 item 652". First check that §9 item 648 is DONE and <code>tests/validation/test_mat3_cole_cole_plane_wave.py</code> is on <code>main</code>; if not, stop and report. Read the brief and any review ruling beneath it; the rulings hold. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Import the names the brief lists; never import a <code>test_*</code> name and never edit a gate module. Spawned executors run every window foreground with Bash <code>timeout: 660000</code>."</p>
+<p><strong>Outcome (2026-10-26, 11:02 UTC slot, attempt 1 of 4) — DONE, green.</strong> Executor <code>example-runner</code> (foreground). <strong>Run</strong> <code>20261026T110247Z_EX-157.log</code> (<code>-n 2</code>, complex, Status 0, 35 s harness / 31.8 s in-script): (Ev) 1.306e-16 / 1.687e-16 (bound 1e-12, the gate's literal at <code>:109</code>); (i) 127.74 MHz 12³ rel L2 9.49618e-02 → 24³ 4.75018e-02, rate 0.9994, α / β 0.0415 % / 0.0947 %; (ii) 63.87 MHz 24³ α / β 0.0334 % / 0.0520 %; (a′) Debye-reduced α miss 20.0464 % (β 42.8355 %), (b′) wrong-f α miss 30.1096 % (β 10.6734 %) — all equal W1b's record. Closed-form ceilings 19.9130 % / 29.7715 %. Census 153 → predicted 154 → measured 154 (<code>20261026T110130Z_EX-157-census-pre.log</code>, <code>20261026T110334Z_EX-157-census-post.log</code>); figures <code>ok=154 missing=0 broken=0</code> (<code>20261026T110422Z_EX-157-figures.log</code>; the first figures window <code>20261026T110339Z_EX-157-figures.log</code> read <code>missing=1</code> because the guide was not yet written — superseded); docrefs <code>dead=0 guide=0</code>, exit 2 staleness only (<code>20261026T110428Z_EX-157-docrefs.log</code>); W-env <code>20261026T110436Z_EX-157-Wenv.log</code> 8 passed, 4 skipped, 102 s. Setup PNG 58 KiB.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

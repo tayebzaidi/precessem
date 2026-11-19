@@ -1,0 +1,777 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>GEO-27 — Phantom-resolution cost probe for the 1 g SAR rung - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#geo-27-phantom-resolution-cost-probe-for-the-1-g-sar-rung" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              GEO-27 — Phantom-resolution cost probe for the 1 g SAR rung
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-377-2026-10-11-geo-27-step-2-the-1-g-rungs-price-at-degree-2-on-exact-rectangles-lane-1-revalidation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 377 — 2026-10-11 (GEO-27 step 2 — the 1 g rung's price at degree 2 on exact rectangles; lane-1 revalidation)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="geo-27-phantom-resolution-cost-probe-for-the-1-g-sar-rung">GEO-27 — Phantom-resolution cost probe for the 1 g SAR rung<a class="headerlink" href="#geo-27-phantom-resolution-cost-probe-for-the-1-g-sar-rung" title="Permanent link">&para;</a></h1>
+<p><strong>Phantom-resolution cost probe for the 1 g SAR rung</strong> — opened 2026-09-07 10:30 review from <code>MAT-4</code> step 4's printed 1 g column (worst C4 pair 6.8383% on the 7.5 mm rung, <code>20260907T003548Z_MAT-4-step4.log:1934–1947</code>: a 6.2 mm ball spanning ≈1.7 cells is a mesh statement, not an operator one, and the route to a 1 g gate is <code>h</code>). Executor <strong><code>mesh-probe</code></strong>, measurement-only, asserts nothing — 🧪 by the §3 rule until a gate consumes it. A ladder on <code>MeshGenerator.birdcage_port_domain(phantom_resolution=…)</code> exactly as <code>tests/mesh/test_birdcage_phantom_resolution.py</code> calls it (F-small defaults, real build, no solve): rungs <strong>0.0075</strong> (the record rung — the control that must reproduce 120 499 cells / 2 746 phantom cells, <code>20260907T140658Z_EX-53.log:1875</code>), <strong>0.005</strong>, <strong>0.00375</strong>, <strong>0.0025</strong>; per rung print total cells, phantom cells (tag 3), mesh wall time, the phantom share of the cells, and the cells across the two C95.3 balls, <code>2a_1g/h</code> and <code>2a_10g/h</code> (<code>a_1g</code> = 6.2 mm, <code>a_10g</code> = 13.4 mm at ρ = 1000 kg/m³, the gate's own <code>averaging_ball_radius</code>); the table lands in this row and the script as <code>scripts/probes/geo27_phantom_resolution_probe.py</code>. <strong>Stop rule:</strong> a rung above 300 k cells or 120 s to mesh is recorded and the ladder stops there — no finer rung is attempted. <strong>Tier / cost:</strong> the 120 499-cell mesh builds in ≈23–29 s (<code>20260906T213913Z_TH-15.log:2628</code>, <code>…093741Z_TH-15.log</code> solid 28.70 s); four rungs ≈ 200 s class ⇒ <code>-n 2</code>, <code>timeout -k 30 600</code>, heavy by ceiling, standard by expectation. <strong>Traps:</strong> the meshing happens on rank 0 and the counts are <code>size_global</code> after distribution — print the global count, never <code>cell_tags.values</code> lengths; the <code>PHANTOM_GROWTH_BAND</code> in the resolution module is a gate on the 0.0075 rung only and is not re-asserted here. <strong>Question the probe answers:</strong> the first rung with ≥ 4 cells across the 1 g ball and its cell count — the input to a <code>MAT-4</code> step 5 (the 1 g column gated at that rung, or ruled ungateable on this box) that a review scopes from the table, never the slot that runs it. <strong>Negative result:</strong> the 0.0075 control not reproducing 120 499 is a mesher-drift finding (<code>OPS-18</code> class) — record, stop. <strong>Executed 2026-09-08 (22:30 slot, <code>mesh-probe</code>, one window <code>-n 2</code>, <code>timeout -k 30 600</code>, elapsed 132 s, <code>20260908T033218Z_GEO-27.log</code>).</strong> All four rungs meshed; the ladder ran to completion. <strong>The control REPRODUCED to the integer</strong> — 120 499 cells / 2 746 tag-3 cells against the record (<code>:1803–1810</code>), so no <code>OPS-18</code>-class drift and the ladder proceeded. <strong>The stop rule was never approached</strong> — the worst rung is 199 920 cells (67% of the 300 k ceiling) and 36.27 s to mesh (30% of the 120 s ceiling); no rung failed to mesh, and the log carries no "overlapping facets" and no <code>MeshAdapt</code> fallback, so there is no <code>GEO-23</code>-class record either. The table (<code>:7152–7155</code>): | <code>h_p</code> (m) | cells (<code>size_global</code>) | phantom cells (tag 3) | phantom share | mesh s | <code>2a_1g/h</code> | <code>2a_10g/h</code> | — | <strong>0.0075</strong> | 120 499 | 2 746 | 0.0228 | 25.26 | <strong>1.65</strong> | 3.57 | — | <strong>0.005</strong> | 129 505 | 8 497 | 0.0656 | 25.94 | <strong>2.48</strong> | 5.36 | — | <strong>0.00375</strong> | 144 212 | 18 570 | 0.1288 | 28.81 | <strong>3.31</strong> | 7.15 | — | <strong>0.0025</strong> | 199 920 | 58 866 | 0.2944 | 36.27 | <strong>4.96</strong> | 10.72 |. <strong>Answer:</strong> the first rung with ≥ 4 cells across the 1 g ball is <strong><code>h_p</code> = 0.0025 m</strong> at <strong>4.96</strong> across (10.72 across the 10 g ball), costing <strong>199 920 cells</strong> (1.66× the record rung), 58 866 phantom cells (21.4× it), a 29.4% phantom share, and 36.27 s to mesh (1.44× it) — the three coarser rungs reach only 1.65 / 2.48 / 3.31, the 0.0075 figure confirming <code>MAT-4</code> step 4's "≈1.7 cells" reading. <strong>Two ungated observations for the review that scopes <code>MAT-4</code> step 5:</strong> (i) the cost is cheap in <em>total</em> cells because the refinement stays confined to the phantom — total cells grow 1.66× and mesh time 1.44× while phantom cells grow 21.4× — so a 1 g-resolved F-small mesh is a ≈200 k-cell / ≈36 s build, not the runaway the phantom's <code>1/h³</code> alone suggests; (ii) the phantom count tracks <code>(h_ref/h)³</code> from slightly below throughout (3.09× vs 3.38, 6.76× vs 8, 21.4× vs 27) and cell growth is monotone in <code>1/h</code> on every rung (no <code>GEO-22</code>-class non-monotonicity here). <strong>Caveat the consuming step must carry:</strong> the three finer rungs are <strong>single readings</strong> — only the 0.0075 rung has a cross-process repeat (today against 2026-09-02) — so none of them may be pinned as a record without its own repeat. Nothing was asserted, no band moved, no <code>src/</code> change, <code>PHANTOM_GROWTH_BAND</code> not re-asserted; the row stays 🧪 until a gate consumes the table. | 🧪 <em>(opened 2026-09-07; <strong>table delivered 2026-09-08</strong>; measurement-only, no band, no <code>src/</code>)</em> </p>
+<h3 id="9-item-377-2026-10-11-geo-27-step-2-the-1-g-rungs-price-at-degree-2-on-exact-rectangles-lane-1-revalidation">§9 item 377 — 2026-10-11 (<code>GEO-27</code> step 2 — the 1 g rung's price at degree 2 on exact rectangles; lane-1 revalidation)<a class="headerlink" href="#9-item-377-2026-10-11-geo-27-step-2-the-1-g-rungs-price-at-degree-2-on-exact-rectangles-lane-1-revalidation" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-11 03:00 daily review; the review reviews it.</em></p>
+<p><strong>Weekly re-pose being executed.</strong> The 2026-10-10 weekly (<code>PROJECT_PLAN.md:4810–4814</code>, listed under "Lane 2 (revalidation / Tier B)") reads: "<code>GEO-27</code> 🧪 re-posed as step 2 — the 1 g rung's price on the exact-rectangle degree-2 F-small fixture (<code>h_p</code> = 0.005 / 0.0025 m, <code>-n 8</code>): cells, unknowns, time, memory in a table, <code>MAT-4</code> step 5's 1 g C4 identity asserted at the imported band on the rung that fits ⇒ ✅ (a measurement with one imported gate)".
+- It is 🧪 → ✅ work, so it falls in the revalidation class (§9 rule (5)'s lane 1 by kind).
+- <strong>Target: the weekly's text.</strong> No band, tolerance or validation target is set or moved. <code>C4_COVARIANCE_BAND</code> is <code>MAT-4</code>'s, imported.
+- The row's Done-when must be amended to match (rule (j); exact text below).</p>
+<p><strong>Executor and cost.</strong>
+- <strong>Executor:</strong> implementer. It is not <code>mesh-probe</code>: the item solves and asserts.
+- <strong>Tier:</strong> heavy, <code>-n 8</code>, complex build. <strong>Class:</strong> lane-1 revalidation (median 17).
+- <strong>Cost:</strong> ≈ M measured / ≈ 50 predicted min: 15 fixed + 15 code + W0 ≈ 1 + W1 ≈ 4 + W2 ≈ 7 + spare.
+- <strong>Depends on:</strong> nothing.
+- <strong>Memory guard: coarse first, with the stop rule below.</strong></p>
+<p><strong>The fixture is already priced at 0.0025 m (read this first).</strong> The exact-rectangle degree-2 F-small at <code>h_p</code> = 0.0025 m is <code>IMP-3</code> I14's <em>off</em> arm.
+- <strong>Construction:</strong> <code>_build(True, phantom_resolution=PHANTOM_RESOLUTION_1G_RUNG, leg_sheet_strip_fraction=GATED_WIDTH_FRACTION)</code> → <code>build_four_port_sweep(built=…, build_only=True, degree=2)</code> → <code>run_n_port_sparameter_sweep(…, keep_fields=True, degree=2)</code> (<code>tests/validation/test_imp3_tip_ratio_1g.py:121–178</code>).
+- <strong>Measured</strong> at <code>-n 8</code> on 2026-10-06 (<code>20261006T111406Z_IMP-3-item263-W2-d2off.log:2029, :2080–2084</code>): 201 072 cells, 1 284 856 degree-2 dofs = 2E + 2F; build 43.59 s; one-factorisation 4-port sweep 246.15 s; 12 ball SARs 26.26 s; window 397 s; <strong>summed peak RSS 44.17 GiB</strong>.
+- The integers are registered as <code>I14_OFF_CELLS, I14_OFF_DOFS</code> (<code>tests/validation/test_imp3_tip_ladder_1g.py:94</code>).
+- <strong>So 0.0025 m is predicted to fit the heavy tier at <code>-n 8</code>.</strong> 44 GiB is well under the container's 128 GiB limit (<code>docker/docker-compose.yml:34</code>), and the window is under the 590 s container ceiling even on the 1.32× box (≈ 525 s).
+- That run was at 64 MHz. This item runs at <code>MAT-4</code>'s 10 MHz (<code>build_four_port_sweep</code>'s default <code>FREQUENCY_HZ</code> = 10.0e6, <code>tests/validation/test_port_reaction_impedance.py:108</code>). It is the same matrix pattern, so the price carries over.
+- The 0.005 m rung has <strong>no</strong> degree-2 measurement on this fixture; it is predicted below.</p>
+<p><strong>Why not <code>_build_mass_averaged</code>.</strong> <code>MAT-4</code> steps 4–5 call <code>_build_mass_averaged(phantom_resolution=…)</code> (<code>tests/validation/test_birdcage_sar_mass_averaged.py:209–331</code>). That routine:
+- builds the ragged default fixture (no <code>built=</code>, no strip fraction);
+- runs at degree 1 (<code>build_four_port_sweep</code>'s default);
+- solves with <strong>four fresh factorisations</strong> (<code>_solve_driven</code> per port, <code>:249</code>). At degree 2 on 1.28 M dofs that is ≈ 4 × 200 s, which does not fit.</p>
+<p>Editing it (an additive <code>built=</code> / <code>degree=</code> / held-factor path) would owe re-runs of <code>MAT-4</code> steps 4 and 5b under rule (a). Instead this item copies its centres-and-pairing block (<code>:239–331</code>) with a provenance comment (base commit, line span) and feeds it I14's one-factorisation sweep fields. <code>run_n_port_sparameter_sweep</code> holds one factorisation; with matched 50 Ω terminations its held drives equal fresh single-drive solves (the <code>PORT-19</code> premise). The pairing, centres, radii, density map, operator and <code>QUADRATURE_DEGREE</code> stay <code>MAT-4</code>'s.</p>
+<p><strong>New module <code>tests/validation/test_geo27_one_gram_rung_degree2.py</code>.</strong>
+- <code>@complex_only</code>. Knob <code>FEM_EM_GEO27_STEP2</code> ∈ {<code>h005</code>, <code>h0025</code>}: unset ⇒ skip; any other value ⇒ <code>ValueError</code>. One test dispatches on it (never <code>-k</code>).
+- <strong>Imports (names only, never <code>test_*</code>):</strong>
+  - <code>_build</code>, <code>SHEET_IFACE</code> (<code>tests/mesh/test_birdcage_port_sheets.py</code>);
+  - <code>GATED_WIDTH_FRACTION</code> (<code>tests/validation/test_port_lumped_narrowed_sheet.py:132</code>);
+  - <code>build_four_port_sweep</code> (<code>test_port_birdcage_four_port.py:219</code>) and <code>run_n_port_sparameter_sweep</code>;
+  - <code>PHANTOM_CELL_TAG</code> (<code>test_port_birdcage_lumped_column.py</code>);
+  - <code>_sheet_areas</code> (<code>test_imp3_palace_twin.py:69</code>); <code>NOMINAL_STRIP_AREA</code> (<code>test_imp3_tip_ratio_1g.py:105</code>); <code>STRIP_BAND</code> (<code>test_ops61_exact_strip_ports.py:58</code>);
+  - <code>I14_OFF_CELLS</code>, <code>I14_OFF_DOFS</code> (<code>test_imp3_tip_ladder_1g.py:94</code>); <code>PHANTOM_RESOLUTION_1G_RUNG</code> (<code>test_birdcage_sar_1g_rung.py:114</code>);
+  - <code>C4_COVARIANCE_BAND</code> (<code>test_birdcage_b1_plus_map.py:120</code>);
+  - <code>CENTRE_RADIUS_M</code>, <code>WHOLE_PHANTOM_BALL_RADIUS_M</code>, <code>EXACT_IDENTITY_RTOL</code>, <code>PHANTOM_RHO_KG_PER_M3</code>, <code>_global_tag_cell_count</code> (<code>test_birdcage_sar_mass_averaged.py:149, :158, :163</code>);
+  - <code>ONE_GRAM_KG</code>, <code>TEN_GRAM_KG</code>, <code>QUADRATURE_DEGREE</code> (<code>test_mass_averaged_sar_standard_masses.py:121–124</code>);
+  - <code>_port_index</code>, <code>QUADRATURE_STEP_DEG</code> (<code>test_birdcage_b1_quadrature.py</code>);
+  - <code>DISCRETE_IDENTITY_RTOL</code>, <code>_exact_shares</code> (<code>test_birdcage_power_identity.py:227</code>);
+  - <code>RECIPROCITY_BAND</code> (<code>test_port_lumped_sheet_sweep.py</code>);
+  - <code>_matrix_quantities</code>, <code>_peak_rss_gib</code> (<code>test_imp3_rod_birdcage.py:275, :498</code>);
+  - <code>CELL_COUNT_BAND</code> (<code>tests/mesh/test_birdcage_port_sheet_prerequisite.py:57</code>).
+- <strong>Constants defined here:</strong>
+  - <code>PHANTOM_RESOLUTION_005 = 0.005</code>, step 1's rung (<code>20260908T033218Z_GEO-27.log:7152–7155</code>);
+  - <code>MAT4_STEP5B_ONE_GRAM_PAIRS = {0: 0.000957, 1: 0.001199, 2: 0.001305, 3: 0.001065}</code> and <code>MAT4_STEP5B_ONE_GRAM_CONTROL_K0 = 0.870143</code> (the k = 0 mis-paired control), both from <code>20260908T200629Z_MAT-4-step5b.log.gz:1990–1993</code>. They are printed comparands (degree 1, ragged sheets, same <code>h_p</code>), never bands.
+- <strong>Body (both modes):</strong>
+  1. Build at the mode's <code>h_p</code>. Then <code>build_four_port_sweep(built=…, build_only=True, degree=2)</code> with the default frequency.
+  2. <strong>Before the sweep:</strong> cells and (D) are checked, and the mode <code>h0025</code> checks the cells-and-dofs record.
+  3. <code>run_n_port_sparameter_sweep(…, keep_fields=True, degree=2)</code>, timed.
+  4. The copied <code>MAT-4</code> block:
+     - azimuths → <code>_port_index</code> → <code>by_k</code>; centres at <code>CENTRE_RADIUS_M</code> on each drive's azimuth, z = 0;
+     - ρ = <code>build_density_field</code> (0 off tag 3); σ = <code>result.fields[pid].sigma_field</code>;
+     - balls: 1 g diagonal (k, k) ×4; 1 g mis-paired (k, k+2) ×4; 10 g diagonal ×4; the whole-phantom ball and <code>mean_sar</code> on tag 3 for P1.
+  5. Per-drive exact power shares (<code>_exact_shares</code>, I14's <code>:181–184</code>).
+  6. Print the price line: <code>h_p</code>, cells, tag-3 cells, E, F, d2 dofs, build s, sweep s, balls s, test-body s, <code>_peak_rss_gib()</code> and ranks.
+  7. The <code>h005</code> window prints a <strong>stop-rule line</strong> (below).</p>
+<p><strong>Anchors (asserted; every band imported).</strong>
+- <strong>Both windows:</strong>
+  - (D) d2 dofs = 2E + 2F exactly.
+  - (G2) the four N_i strip areas equal <code>NOMINAL_STRIP_AREA</code> within <code>STRIP_BAND</code>. This is the exact-rectangle fixture tie; I14 read 5.600000000000e-05 ×4 (<code>…d2off.log:2029</code>).
+  - (i) ‖S − Sᵀ‖/‖S‖ ≤ <code>RECIPROCITY_BAND</code>.
+  - (P) P_src = P_vol + P_sheet per drive ≤ <code>DISCRETE_IDENTITY_RTOL</code>. I14 read ≤ 8.4e-15 at 64 MHz on the 0.0025 mesh.
+  - (ii) the whole-phantom ball: power = the tag-3 <code>mean_sar</code> power and mass = ρ·V(tag 3), both ≤ <code>EXACT_IDENTITY_RTOL</code>. This is <code>MAT-4</code> step 5's coverage anchor; it read 5.26e-14 at degree 1 (<code>…step5b.log.gz:1999</code>).
+- <strong>W2 (<code>h0025</code>) only — the gate:</strong>
+  - (R) cells within <code>CELL_COUNT_BAND</code> of <code>I14_OFF_CELLS</code>, and d2 dofs == <code>I14_OFF_DOFS</code>. Both integers are printed; mesh determinism on this fixture has been shown five times (GEO-36 W2, IMP-3 W1–W4, item 327 W1b).
+  - <strong>(C4-1g) <code>MAT-4</code> step 5's four cyclic 1 g C4 pairs</strong>, |SAR₁g(c_{k+1}; P_{k+1}) − SAR₁g(c_k; P_k)| / SAR₁g(c_k; P_k), each ≤ <code>C4_COVARIANCE_BAND</code>.
+  - The 10 g pairs are printed beside them.
+- <strong>W1 (<code>h005</code>):</strong> the 1 g and 10 g pairs are <strong>printed, not asserted.</strong> There is no prior measurement at this rung and order, and 2.48 cells across the 1 g ball is the regime where degree-1 ragged read 2.9–6.8 % at 1.65 cells (<code>MAT-4</code> step 4).</p>
+<p><strong>Negative controls (rule (e)).</strong>
+- <strong>(N1g) the mis-paired 1 g control:</strong> the far-side ball under the same drive, |SAR₁g(c_{k+2}; P_k) − SAR₁g(c_k; P_k)| / SAR₁g(c_k; P_k).
+  - <strong>The miss is asserted &gt; <code>C4_COVARIANCE_BAND</code></strong> in W2: a C4 "identity" met by a field that is constant across the phantom would fail it. The ceiling is 100 % (a ratio of positive SARs).
+  - <strong>Its size is predicted, not asserted:</strong> ≈ 87 %. Degree-1 ragged read 87.01–87.06 % at this <code>h_p</code> and frequency (<code>…step5b.log.gz:1990–1993</code>), on a different fixture (ragged sheets, degree 1). So the 5 % floor sits ≈ 17× under the prediction.
+- <strong>(N-sep, predicted, printed)</strong> worst 1 g C4 pair ÷ smallest N1g control: the separation the gate shows, predicted ≥ 100×.</p>
+<p><strong>Predictions</strong> (written first in the module, printed).
+- <strong>0.005 m.</strong> Cells in [128 k, 136 k]: ragged 129 505 (<code>GEO-27.log:7153</code>), plus the strip delta seen at 0.0025 (201 072 − 199 920 = 1 152).
+- Tag-3 cells ≈ 8 500 (ragged 8 497).
+- d2 dofs in [780 k, 900 k] (I14's 6.39 dofs per cell).
+- Sweep ≈ 246.15 s × (N/1 284 856)^{1.23…1.37}, about 130–150 s. Summed RSS ≈ 44.17 GiB × the same ratio, about 22–30 GiB. Window 190–320 s.
+- 1 g C4 pairs at 0.005 in [0.05 %, 3 %].
+- <strong>0.0025 m.</strong> Cells 201 072 and d2 dofs 1 284 856 (equal).
+- Sweep 230–330 s; summed RSS 42–50 GiB; window 330–520 s.
+- 1 g C4 pairs in [0.01 %, 0.5 %] (degree-1 ragged read 0.0957–0.1305 %, exact rectangles at degree 2 should not be worse); N1g ≈ 87 %; (ii) ≤ 1e-13.</p>
+<p><strong>Stop rule (coarse first; printed by W1, applied by the executor before W2).</strong>
+- Write N₁, T₁ and R₁ for W1's measured d2 dofs, test-body seconds and summed peak RSS.
+- W1 prints T̂₂ = T₁·(1 284 856/N₁)^1.37 and R̂₂ = R₁·(1 284 856/N₁)^1.37, beside I14's measured 397 s / 44.17 GiB.
+- <strong>Do not start W2 if R̂₂ &gt; 100 GiB</strong> (≈ 78 % of the 128 GiB container limit, headroom for MUMPS peaks) <strong>or if T̂₂ &gt; 540 s</strong>, which leaves room for the 590 s container ceiling.
+- In that case record the row "0.0025 m: does not fit heavy at <code>-n 8</code> (predicted T̂₂ s, R̂₂ GiB)" in the table and commit W1 as a record. The item <strong>holds 🧪</strong> and reports.
+- Whether W1's printed 0.005 pairs may then be the gate is the review's ruling (a rule (j) row matter), never in-slot.
+- <strong>Predicted: the rule does not fire</strong> (I14 measured this rung at 44 GiB and 397 s).</p>
+<p><strong>Windows</strong> (foreground; the harness call is the whole Bash command, bare; Bash <code>timeout: 660000</code>; <code>-s</code>; <code>tests/environment/test_complex_mode.py</code> first; §5.1 durable capture copied verbatim with the trailing <code>; exit $rc</code>).
+- <strong>First:</strong> <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> must read 0.
+- <strong>W0</strong> (smoke, <code>-n 1</code>): the module collects, the knob parser raises on a bad value, and the gated test skips when unset.</p>
+<p><code>scripts/testing/run_and_log.sh GEO-27-step2-W0 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 PYTHONPATH=/workspace/src:/workspace timeout -k 30 60 python3 -m pytest tests/environment/test_complex_mode.py tests/validation/test_geo27_one_gram_rung_degree2.py -v -s --tb=short'"</code>
+- <strong>W1</strong> (<code>h005</code>, heavy, <code>-n 8</code>, predicted 190–320 s):</p>
+<p><code>scripts/testing/run_and_log.sh GEO-27-step2-W1-h005 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; FEM_EM_REQUIRE_COMPLEX=1 FEM_EM_GEO27_STEP2=h005 PYTHONPATH=/workspace/src:/workspace timeout -k 30 590 mpiexec -n 8 python3 -m pytest tests/environment/test_complex_mode.py tests/validation/test_geo27_one_gram_rung_degree2.py -s -v --tb=short &gt; /workspace/logs/geo27-step2-w1-raw.log 2&gt;&amp;1; rc=\$?; echo \"[capture] rc=\$rc\" &gt;&gt; /workspace/logs/geo27-step2-w1-raw.log; cat /workspace/logs/geo27-step2-w1-raw.log; exit \$rc'"</code>
+- <strong>Then apply the stop rule; then run pgrep again (must read 0).</strong>
+- <strong>W2</strong> (<code>h0025</code>, heavy, <code>-n 8</code>, predicted 330–520 s; the window this step closes on): the same command with label <code>GEO-27-step2-W2-h0025</code>, <code>FEM_EM_GEO27_STEP2=h0025</code> and raw file <code>/workspace/logs/geo27-step2-w2-raw.log</code> (all three occurrences).
+- <strong>No module edit after W0 starts</strong> (rule (i)). No <code>src/</code> change and no edit to any imported module.</p>
+<p><strong>Traps already paid for.</strong>
+- <strong>Four factorisations at degree 2 do not fit.</strong> Use the one-factorisation sweep; never <code>_solve_driven</code> per port. I14's sweep is the measured price.
+- <strong><code>build_four_port_sweep(built=…)</code> ignores the sizing keywords</strong> (<code>:241</code>). <code>h_p</code> and the strip fraction go to <code>_build</code>, never to the sweep builder. (G2) is the guard that the exact strips arrived.
+- <strong>Orphan <code>.c</code> of any size</strong> (item 160). After a kill or status 124, run <code>pgrep -c python3</code> first, then the rubric's cache sweep (label <code>GEO-27-step2-cache-sweep</code>), then park. Never raise the timeout or <code>-n</code>; a killed W2 is the price record ("does not fit heavy").
+- <strong>Rank-local values.</strong> Use the reduced <code>_global_tag_cell_count</code>, <code>mass_averaged_sar</code> and <code>mean_sar</code>; never <code>cell_tags.values</code> lengths. Keep collectives out of <code>rank == 0</code> branches.
+- <strong>Complex build:</strong> ball centres as plain floats; <code>np.real</code> before every <code>float</code>.
+- <strong><code>-s</code> always; no <code>-k</code> inside the quoted command; no pipe.</strong> Copy the durable-capture idiom verbatim; a dropped <code>; exit $rc</code> reads 0 over a red (<code>WF-6</code> 4h).
+- <strong>Two heavy windows never run at once.</strong></p>
+<p><strong>Scope.</strong> Covered: F-small, exact-rectangle sheets (<code>GATED_WIDTH_FRACTION</code>, κ off), the solid σ = 800 S/m coil with 50 Ω terminations, 10 MHz, degree 2, phantom rungs 0.005 and 0.0025 m, <code>-n 8</code>. <strong>Not claimed:</strong>
+- 1 g convergence: two rungs are not a rate;
+- absolute SAR, C95.3 compliance or Larmor;
+- the copper / hole fixture or F-human;
+- a 1 g gate at 0.005 m (printed);
+- any <code>MAT-4</code> row change (<code>MAT-4</code> stays ✅ on its own degree-1 gate).</p>
+<p><strong>Negative result.</strong> Report and stop. Park on <code>attempt/GEO-27-step2-*</code> and mark item 377 BLOCKED in the same commit (rule (d)).
+- <strong>(D), (G2), (R), (i), (P) or (ii) red:</strong> the fixture or the sweep is not I14's. File a known-issues entry, never re-band.
+- <strong>(C4-1g) red:</strong> the 1 g C4 pairs at 0.0025 m, degree 2, exact rectangles miss the band that the degree-1 ragged fixture met by 38×. That is a finding about the degree-2 fixture's ball integration (<code>QUADRATURE_DEGREE</code> on P2 fields at 4.96 cells across). Record the per-pair table and the 10 g pairs, file a known-issues entry and hold 🧪. <strong>No band moves.</strong>
+- <strong>(N1g) not missing:</strong> the far-side ball is not far, so the centres or the drive map are wrong. Stop.
+- <strong>The stop rule firing:</strong> this is not a red. Record the row and hold 🧪 as above.
+- <strong>Status 124 / &gt; 590 s on W2:</strong> the "does not fit heavy" record; hold 🧪.
+- No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> §7 <code>GEO-27</code> 🧪 → ✅ on W2 green, but only with the Done-when amended in the queueing commit (rule (j)). The row today says "stays 🧪 until a gate consumes the table" (<code>PROJECT_PLAN.md:1864</code>). <strong>Recommended exact replacement for the row's state cell</strong> (≤ 2 KB):</p>
+<blockquote>
+<p>🧪 Step 1 (2026-09-08, <code>mesh-probe</code>): the phantom-resolution cost table on the ragged F-small — <code>h_p</code> 0.0075 / 0.005 / 0.00375 / 0.0025 m → 120 499 / 129 505 / 144 212 / 199 920 cells, 4.96 cells across the 1 g ball at 0.0025; only the 0.0075 rung repeated (<code>20260908T033218Z_GEO-27.log</code>, 132 s). <strong>Done-when (re-posed by the 2026-10-10 weekly; amended 2026-10-11 under rule (j)):</strong> step 2 — the 1 g rung priced on the exact-rectangle degree-2 F-small fixture at <code>h_p</code> = 0.005 and 0.0025 m, <code>-n 8</code> (cells, degree-2 unknowns, wall time, summed peak memory in one table; a rung that does not fit the heavy tier is recorded as such), <strong>and</strong> <code>MAT-4</code> step 5's four cyclic 1 g C4 pairs asserted at the imported <code>C4_COVARIANCE_BAND</code> on the finest rung that fits, in one logged window ⇒ ✅. A measurement with one imported gate; no band moves, no convergence claim. <em>History: <code>docs/planning/chunks/GEO-27.md</code>.</em></p>
+</blockquote>
+<p>On green, the executor appends the two-row price table and the W2 pairs to this chunk file. The row gets one clause ("✅ 2026-10-1x: priced at 0.005 / 0.0025 m, degree 2, <code>-n 8</code>; 1 g C4 pairs ≤ x % at 0.0025 m (<code>&lt;W2 log&gt;</code>)"). Nothing else moves; §2 and <code>MAT-4</code> are untouched.</p>
+<p><strong>Execution order.</strong> pgrep → W0 → pgrep → W1 → stop rule → pgrep → W2 → commit (module, harness logs, the price table, the row amendment if the review has not already applied it) → journal.</p>
+<p><strong>Executor spawn prompt (verbatim).</strong> "Execute §9 item 377 — <code>GEO-27</code> step 2 (lane revalidation) — per <code>docs/planning/chunks/GEO-27.md</code> §9 item 377. Read the brief and any review rulings beneath it first; the rulings hold. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Pass timeout: 660000 on every Bash call that runs a window; run pytest with -s. Run W0, W1 (h005), then apply the stop rule, then W2 (h0025), foreground, with <code>docker compose -f docker/docker-compose.yml exec -T fem-em-solver pgrep -c python3</code> reading 0 before each heavy window. Never use per-port fresh factorisations; use the one-factorisation sweep. Never delete a log. No edit to the module after W0 starts; no edit to any imported module or <code>src/</code>. You are the executor — do not spawn agents, never background a harness window. If the docker socket is denied, stop and report the exact command string. If the stop rule fires, record the row and hold 🧪 (not a red). On a red, park on <code>attempt/GEO-27-step2-*</code>, mark item 377 BLOCKED in the same commit, and report."</p>
+<p><strong>Outcome (2026-10-12, 22:30 CDT slot, implementer) — GREEN, <code>GEO-27</code> ✅.</strong> Module <code>tests/validation/test_geo27_one_gram_rung_degree2.py</code>; W0 <code>20261012T034721Z_GEO-27-step2-W0.log</code> (3 s), W1 <code>20261012T034731Z_GEO-27-step2-W1-h005.log</code> (136 s), W2 <code>20261012T034956Z_GEO-27-step2-W2-h0025.log</code> (323 s), all <code>-n 8</code> complex except W0. Stop rule (W1): T̂₂ = 239.0 s, R̂₂ = 37.27 GiB — did not fire.</p>
+<table>
+<thead>
+<tr>
+<th><code>h_p</code> (m)</th>
+<th>cells</th>
+<th>tag-3</th>
+<th>E</th>
+<th>F</th>
+<th>d2 dofs</th>
+<th>build s</th>
+<th>sweep s</th>
+<th>balls s</th>
+<th>body s</th>
+<th>summed peak RSS (GiB)</th>
+<th>ranks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.005</td>
+<td>130 427</td>
+<td>8 498</td>
+<td>155 934</td>
+<td>262 511</td>
+<td>836 890</td>
+<td>30.49</td>
+<td>77.02</td>
+<td>22.17</td>
+<td>132.86</td>
+<td>20.72</td>
+<td>8</td>
+</tr>
+<tr>
+<td>0.0025</td>
+<td>201 072</td>
+<td>58 960</td>
+<td>238 627</td>
+<td>403 801</td>
+<td>1 284 856</td>
+<td>41.67</td>
+<td>246.74</td>
+<td>27.04</td>
+<td>319.07</td>
+<td>44.05</td>
+<td>8</td>
+</tr>
+</tbody>
+</table>
+<p>W2 pairs (<code>:1990–1995</code>), k→k+1: 1 g C4 0.0237 / 0.0446 / 0.0349 / 0.0140 % (<strong>asserted</strong> ≤ <code>C4_COVARIANCE_BAND</code> 5 %); 10 g 0.0114 / 0.0264 / 0.0361 / 0.0211 % (printed); N1g 84.7411 / 84.7312 / 84.7243 / 84.7287 % (asserted &gt; 5 %; predicted ≈ 87 %, read 2.3 points under); N-sep 1900.9× (predicted ≥ 100×). Anchors: (R) 201 072 / 1 284 856 equal I14; (G2) 5.600000000000e-05 ×4; (i) 1.265e-14; (P) ≤ 1.146e-14; (ii) power 1.432e-14, mass 3.331e-14. W1 (printed only): 1 g C4 0.0939 / 0.0323 / 0.1327 / 0.0066 %, 10 g 0.1269 / 0.0231 / 0.0233 / 0.1266 %, N1g 84.77–84.81 %. <strong>Prediction misses (recorded, none asserted):</strong> W1 sweep 77.02 s vs predicted 130–150 s, RSS 20.72 vs 22–30 GiB, window 136 vs 190–320 s (the 1.23–1.37 dof-power extrapolation from I14 over-predicted the coarse rung); W2 window 323 s under the 330–520 s band; W2 tag-3 58 960 (no prediction). No band moved, no <code>src/</code> or imported module edited; no convergence, absolute-SAR or <code>MAT-4</code> claim.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,831 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>IMP-4 — history - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#imp-4-history" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              IMP-4 — history
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-202-2026-10-03-lane-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 202 — 2026-10-03 (lane 3)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-206-2026-10-03-lane-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 206 — 2026-10-03 (lane 3)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#audit-2026-10-03-1800-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Audit — 2026-10-03 18:00 review
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="imp-4-history">IMP-4 — history<a class="headerlink" href="#imp-4-history" title="Permanent link">&para;</a></h1>
+<p>Item briefs and execution history (operator directive 2026-10-01). The §7 row is the status of record. Opened by the 2026-10-03 03:00 daily review under §9 rule (5), lane 3, inside Phase 7 subgoal (7a) (canonical conductors in a lossy host against closed forms); the weekly ratifies or reverts the opening.</p>
+<p><strong>Citation, corrected.</strong> The 2026-10-02 18:00 review named this candidate "the <code>IMP-1</code>-style finite cylinder (Jin §11.3)" and the eqs (11.56)–(11.63). In the repo's copy those equations sit in <strong>§11.2.1, Two-Dimensional Scattering</strong> (<code>docs/references/jin-fem-3e/11_fem-eigenfunction-expansion-methods.md:355–419</code>); §11.3 (<code>:575</code>) is the unimoment method.
+- What §11.2.1 contributes: eq (11.56), the outgoing expansion in H⁽²⁾ₙ(kρ)e^{jnφ} (stated in prose at <code>:383</code>), and <strong>Exercise 11.4</strong> (<code>:461</code>): plane-wave scattering by a circular conducting cylinder, for both polarisations, compared with Harrington.
+- The Bessel identities are Jin App. E: Bessel's equation (E.1) and the Wronskian (E.19) (<code>appE_special-functions.md:15, 69–71</code>).
+- The equation bodies in the repo's markdown are image placeholders (<code>[eq (11.56)]</code>), so only their numbers can be cited. The series itself is Harrington's (<em>Time-Harmonic Electromagnetic Fields</em>, §5-8), which the repo does not hold. That is the same footing as Carslaw &amp; Jaeger for <code>MAT-9</code>…<code>MAT-18</code>: the docstring derives every form.
+- "Finite-k" means a finite wavenumber, not the quasi-static limit. The cylinder is <strong>infinite</strong> and the problem is 2D-invariant. There is no closed form for a finite-length rod; that is <code>IMP-2</code>'s spheroid and <code>IMP-3</code>'s rod.</p>
+<h3 id="9-item-202-2026-10-03-lane-3">§9 item 202 — 2026-10-03 (lane 3)<a class="headerlink" href="#9-item-202-2026-10-03-lane-3" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-03 03:00 daily review; the review reviewed it.</em></p>
+<p><strong><code>IMP-4</code> step 0: the PEC circular cylinder in <code>IMP-1</code>'s lossy host at finite k, in closed form.</strong> It is numpy only, verified by residuals and by the current identity before any FEM.
+- <strong>Executor:</strong> implementer. <strong>Tier:</strong> standard, <code>-n 2</code>, real build. <strong>Class:</strong> lane-3 closed form (measured median 8 min).
+- <strong>Cost:</strong> ≈ 8 measured / ≈ 40 predicted min (15 fixed + ≈ 20 code + one ≈ 1-min window + spare).
+- <strong>Depends on:</strong> nothing. Shared file: item 199 also appends to <code>utils/analytical.py</code>. This item is <strong>append-only</strong> after item 199's <code>MAT-18</code> block; rebase if 199 lands first.</p>
+<p><strong>Not already covered.</strong> <code>IMP-1</code> (the sphere, quasi-static, then the exact l = 1 field) and <code>IMP-2</code> (the spheroid, quasi-static) have no 2D canonical conductor and no lead-current quantity. A 2D PEC wire under an axial field has <strong>no quasi-static limit</strong>: the n = 0 coefficient carries ln(ka). Finite k is intrinsic here, not a correction.</p>
+<p><strong>Fixture.</strong>
+- <strong>Host:</strong> <code>IMP-1</code>'s — σ 0.57 S/m (<code>SIGMA_HIGH</code>), εᵣ 78, 64 MHz, k = <code>K_FIXTURE</code> (<code>test_imp1_step3_exact_comparand.py:51–53</code>). Principal root ≈ 15.18 − 9.49j 1/m, |k| = 17.90 1/m (<code>IMP-2</code>'s W0 print, <code>docs/planning/chunks/IMP-2.md</code>).
+- <strong>Cylinder:</strong> radius a = 1 mm (<code>GEO-36</code>'s rod radius). Outer radius for step 1, c = 10 mm, so |k|c = 0.179, <code>MAT-4</code>'s gated reach and <code>IMP-1</code>'s box half-width.
+- Convention e^{+jωt}, with H⁽²⁾ as outgoing (Im k &lt; 0, so it decays outward).</p>
+<p><strong>Closed forms</strong> (single-mode drives; the docstring derives each):
+- <strong>TM_z, n = 0 (axial E):</strong> E_z = E₀[J₀(kρ) − J₀(ka)H₀⁽²⁾(kρ)/H₀⁽²⁾(ka)], with H_φ = ∂_ρE_z/(jωμ₀) from Faraday.
+- <strong>TE_z, n = 1 (transverse E):</strong> H_z = H₀[J₁(kρ) − J₁′(ka)H₁⁽²⁾(kρ)/H₁⁽²⁾′(ka)] cos φ, with H₀ = −2jωε_cE₀/k so that the incident field on the axis is E₀ŷ. E = ∇ × (H_zẑ)/(jωε_c). The PEC condition is E_φ(a) = 0 ⇔ ∂_ρH_z(a) = 0.</p>
+<p><strong>Code</strong> (additive in <code>utils/analytical.py</code>; scipy imported inside the functions):
+- <code>pec_cylinder_tm0_field(points, *, k, radius, e0=1.0, interior="zero")</code> and <code>pec_cylinder_te1_field(points, *, k, radius, omega, e0=1.0, interior="zero")</code>.
+  - Both take points of shape (N, 3) and return complex (N, 3) Cartesian E.
+  - <code>interior="zero"</code> returns 0 for ρ &lt; a, as <code>IMP-1</code>'s trace does for the chord points. <code>"continue"</code> evaluates the formula there, as <code>pec_prolate_spheroid_field</code> does (<code>analytical.py:1576</code>).
+- <code>pec_cylinder_tm0_current(*, k, radius, omega, e0=1.0)</code>, which returns 4E₀/(ωμ₀H₀⁽²⁾(ka)).
+- The test, <code>tests/validation/test_imp4_pec_cylinder_closed_form.py</code>.
+- <code>scipy.special.jv</code>, <code>hankel2</code>, <code>jvp</code> and <code>h2vp</code> all accept complex arguments; check that in the test rather than assume it.</p>
+<p><strong>Anchors (asserted).</strong>
+- <strong>(B1) Bessel's equation</strong> (Jin (E.1)) for both radial functions, with f′ and f″ from scipy's recurrence derivatives (<code>jvp</code>/<code>h2vp</code>, n = 1, 2), at 64 radii in [a, c]. The residual is bounded by ≤ 1e-12 of the <strong>sum of the term magnitudes</strong> |f″| + |f′/ρ| + |(k² − n²/ρ²)f|, the scale before cancellation (item 190's lesson).
+- <strong>(B2) Wronskian</strong> (Jin (E.19), written for H⁽²⁾): J_nH_n⁽²⁾′ − J_n′H_n⁽²⁾ = −2j/(πz) at z ∈ {ka, kc} for n ∈ {0, 1, 2}, ≤ 1e-13 relative.
+- <strong>(P) PEC traces</strong> on the Cartesian output at 64 points on ρ = a: the tangential components φ̂·E and ẑ·E are ≤ 1e-14·E₀ for both drives. This catches a bad Cartesian conversion, not just the radial algebra.
+- <strong>(I) Wire current:</strong> 2πa·H_φ(a), from the field's analytic ρ-derivative, equals <code>pec_cylinder_tm0_current</code> = 4E₀/(ωμ₀H₀⁽²⁾(ka)) to ≤ 1e-12 relative. This is the Wronskian applied to the axial-drive current. Predicted |I| ≈ 2.9e-3 A per V/m, from the small-argument H₀⁽²⁾(ka) ≈ 0.64 + 2.64j.
+- <strong>(Q) TE static limit:</strong> at k → s·k with s = 1e-6 (arg k kept), on 200 points with a ≤ ρ ≤ c, the field equals the 2D PEC-cylinder static field E_ρ = E₀(1 + a²/ρ²) sin φ, E_φ = E₀(1 − a²/ρ²) cos φ (potential −E₀(ρ − a²/ρ) sin φ) to ≤ 1e-9·E₀. Predicted ≲ 1e-11: the correction goes as (s|k|c)² ln.
+- <strong>(L) Layout:</strong> a dolfinx-style adapter on x of shape (3, N) returns the (N, 3) function's output transposed, bitwise. Step 1 passes it as <code>dirichlet_e_field</code>; this is <code>IMP-1</code> step 3(b)'s (L) lesson.</p>
+<p><strong>Printed (predicted, never asserted).</strong>
+- k, |k|a, |k|c.
+- The TM n = 0 scattering coefficient J₀(ka)/H₀⁽²⁾(ka) (predicted |·| ≈ 0.37).
+- |E_z|/E₀ at ρ = 1.2a, 1.5a, 2a: the axial field the wire suppresses.
+- The TE surface field |E_ρ(a, π/2)|/E₀, predicted ≈ 2.00, the static doubling; so the side-of-wire SAR is ≈ 4× the far-field SAR.
+- |I| and arg I.</p>
+<p><strong>Negative controls.</strong> Rule (e): all are predicted, since nothing has been measured on this fixture. Each is asserted only as missing its anchor's band, with the measured value printed beside the prediction.
+- <strong>(c1) H⁽¹⁾ in place of H⁽²⁾</strong> in the TM field, the wrong outgoing convention for e^{+jωt}, against (I). The current becomes −4E₀/(ωμ₀H₀⁽¹⁾(ka)), so the miss is predicted ≈ 0.7 from the small-argument forms. Asserted &gt; 1e-3. (B1) and (P) still pass, which is why (I) is the discriminating anchor.
+- <strong>(c2) The Dirichlet condition in TE</strong> (H_z(a) = 0 instead of ∂_ρH_z(a) = 0), against (P). The tangential E_φ(a) is predicted O(E₀). Asserted &gt; 1e-3·E₀.
+- <strong>(c3) σ dropped</strong> (real k = k₀√εᵣ) in the current, against (I) evaluated at <code>K_FIXTURE</code>. Predicted miss ≈ 0.15. Asserted &gt; 1e-3.</p>
+<p><strong>Window.</strong> Foreground, Bash <code>timeout: 660000</code>. The harness call is the whole Bash command: bare, repo-relative, nothing chained or piped. Predicted 45–60 s: <code>IMP-1</code> step 3(a) took 45 s (<code>20261001T142052Z_IMP-1-step3a-W1.log:263</code>) and <code>IMP-2</code> step 0 W1b 45 s (<code>20261001T142617Z_IMP-2-step0-W1b.log:308</code>), both numpy windows in the real build.</p>
+<p><code>scripts/testing/run_and_log.sh IMP-4-step0-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 120 mpiexec -n 2 python3 -m pytest tests/environment tests/unit/test_analytical_lightweight.py tests/validation/test_imp4_pec_cylinder_closed_form.py -s -v --tb=short'"</code></p>
+<p>The lightweight test is the rule (c) re-gate of the additive <code>analytical.py</code> change.</p>
+<p><strong>Traps.</strong>
+- <strong>Convention:</strong> e^{+jωt} throughout, H⁽²⁾ outgoing. <code>K_FIXTURE</code> is the principal root (Re &gt; 0, Im &lt; 0, <code>:53</code>); never <code>np.sqrt</code> of a negated ε_c.
+- <strong>Derivatives:</strong> use analytic or recurrence derivatives. An FD check on these functions would need δ ≳ 1e-2·a and the Richardson or ratio form (<code>IMP-2</code>'s (F) ruling); none is pre-registered here.
+- <strong>The ρ = 0 axis</strong> is outside [a, c]. The TE Cartesian conversion still divides by ρ, so guard ρ = 0 and never sample it.
+- <strong>Normalise (B1) by the parts before cancellation,</strong> never by |f|: J₁ and H₁ are small or large at small kρ.
+- <strong>Run hygiene:</strong> print on rank 0; the real build skips the four complex-only environment tests, as expected; <code>-s</code>; rule (i) — no edit after the last window.
+- <strong>Rule (f)</strong> applies to a parameter (s, the radii), never to a bound.
+- <strong>Shared file:</strong> append at the end of <code>analytical.py</code>, and rebase if item 199 lands first.</p>
+<p><strong>Scope.</strong> Numpy only, two single-mode drives on an infinite cylinder. <strong>Not included:</strong>
+- the FEM (step 1);
+- the plane-wave multi-mode series;
+- a finite rod or its tip (<code>IMP-2</code>, <code>IMP-3</code>);
+- a coil, heating, or any published-data comparison.</p>
+<p><strong>Status it can move.</strong> The proposed §7 <code>IMP-4</code> row moves ⬜ → 🟡 on its step-0 Done-when, which this item matches (rule (j)). The review adds the row in the commit that queues this item, and names it in the dashboard for the weekly to ratify (rule (5) lane 3). Step 1 then becomes draftable.</p>
+<p><strong>Negative result.</strong>
+- <strong>(B1), (B2), (P) or (L) red:</strong> a code bug. Fix it in-slot, run W1b, and disclose.
+- <strong>(I) red with (B2) green:</strong> a sign or convention error in H_φ. Print both sides and their ratio, then stop.
+- <strong>(Q) red:</strong> print the miss at s ∈ {1e-4, 1e-5, 1e-6}. If it scales as s² ln s, s is a parameter: re-register it under rule (f), disclosed; otherwise stop.
+- <strong>On a stop:</strong> park on <code>attempt/IMP-4-step0-&lt;UTC&gt;</code> and mark BLOCKED in the same commit (rule (d)); the row stays ⬜.
+- There is no PREDICTED RED line.</p>
+<p><strong>Outcome — DONE 2026-10-03 (12:00 CDT slot, second item, implementer).</strong> W1 <code>20261003T172120Z_IMP-4-step0-W1.log</code> passed first time: <code>-n 2</code>, real build, 55 s, 25 passed, 4 skipped (complex-only environment tests). No W1b.</p>
+<p>Anchors:
+- <strong>(B1)</strong> residual over term sum 1.8e-16 – 2.6e-16 (J₀, H₀, J₁, H₁, both radial functions).
+- <strong>(B2)</strong> 4.467e-16. <strong>(P)</strong> TM φ̂ 0 / ẑ 2.235e-16; TE φ̂ 1.142e-16 / ẑ 0 (·E₀).
+- <strong>(I)</strong> 2.601e-16; I = 6.92952e-4 − 2.83487e-3j A per V/m.
+- <strong>(Q)</strong> 9.302e-15·E₀ at s = 1e-6 (predicted ≲ 1e-11). <strong>(L)</strong> bitwise, both drives.</p>
+<p>Controls: (c1) 0.6749 (predicted ≈ 0.7; the H⁽¹⁾ field still passes B1 2.3e-16 and P 2.3e-16); (c2) 1.999·E₀ (predicted O(1)); (c3) 0.1443 (predicted ≈ 0.15).</p>
+<p>Printed: k = 15.178 − 9.48858j 1/m, |k|a 0.0179, |k|c 0.179; J₀(ka)/H₀⁽²⁾(ka) magnitude 0.3687 (H₀⁽²⁾(ka) = 0.644055 + 2.63483j); |E_z|/E₀ 0.0428 / 0.0952 / 0.1627 at 1.2a / 1.5a / 2a; TE surface |E_ρ(a, π/2)|/E₀ 2.00022; |I| 2.91833e-3, arg −1.33106 rad.</p>
+<p>Disclosed:
+- Private control keywords (<code>_hankel_kind</code>, <code>_condition</code> on the public functions; <code>hankel_kind</code> / <code>condition</code> on the radial helpers); defaults are the brief's forms.
+- (P) evaluates with <code>interior="continue"</code>, because <code>hypot</code> can return ρ a hair below a, and <code>"zero"</code> would then pass vacuously. A guard asserts that the normal TE component on that ring is &gt; E₀.
+- The TE field is independent of <code>omega</code> (μ = μ₀ host; −H₀/(jωε_c) = 2E₀/k); the ρ = 0 axis is guarded.
+- An extra <code>test_scipy_accepts_complex_arguments</code> checks <code>jv</code> against the power series for J₀ and J₁ to 1e-14. That bound is the executor's choice and was not pre-registered.
+- Fixture constants are imported from <code>test_imp1_step3_exact_comparand.py</code>.</p>
+<p>Row ⬜ → 🟡; step 1 (item 206) is unblocked.</p>
+<p><strong>What step 1 would be (not briefed; for the row).</strong>
+- <strong>Mesh:</strong> <code>TH-15</code>'s hole route, degree 2. An additive <code>as_hole=True</code> on <code>MeshGenerator.cylindrical_domain</code> (<code>io/mesh.py:833</code>, today a fragment): the inner cylinder is cut, the cavity wall gets facet tag 2 from the <strong>meshed</strong> boundary (<code>TH-15</code>'s lesson, <code>:2335–2340</code>), the outer lateral wall tag 1, the end annuli a new tag 3, with graded cavity sizing as in <code>IMP-2</code>. <code>False</code> stays bit-identical, re-gated by <code>tests/mesh/test_cylindrical_domain.py</code> and <code>tests/solver/test_cylinder.py</code>.
+- <strong>Boundary conditions:</strong> <code>TimeHarmonicProblem(boundary_condition="pec_zero_tangential_a", dirichlet_e_field=…, pec_facet_tags=…)</code>, <code>IMP-1</code>'s <code>_solve</code> pattern (<code>test_imp1_pec_sphere_lossy_host.py:198–257</code>).
+  - TM constrains tags {1, 2, 3}: the exact z-invariant field has zero tangential E on the end planes, so PEC there is exact.
+  - TE constrains {1, 2} and leaves the ends natural, which is PMC (<code>core/time_harmonic.py:345–354</code>). That is exact because n × curl E = 0 there.
+- <strong>Gates at each drive:</strong>
+  - the complex LSQ amplitude of the closed-form scattered field on probe circles at ρ = 1.2a, 1.5a, 2a in the mid-plane: |β − 1| ≤ <code>TH15_BETA_BAND</code>;
+  - the annulus-mean |E|² (a &lt; ρ &lt; 1.5a) against the closed form on the same discrete mask: ≤ <code>MAT4_BAND</code>;
+  - the cavity dofs are zero;
+  - control: the natural cavity misses.
+- <strong>Price:</strong> <code>IMP-1</code> at degree 2 ran 54 524 cells in 101.8 s (<code>20261001T033100Z_IMP-1-land-W1.log:446</code>), so ≈ 20–40k cells per solve here and a heavy window.</p>
+<h3 id="9-item-206-2026-10-03-lane-3">§9 item 206 — 2026-10-03 (lane 3)<a class="headerlink" href="#9-item-206-2026-10-03-lane-3" title="Permanent link">&para;</a></h3>
+<p><em>Drafted by a general-purpose agent for the 2026-10-03 daily review; the review reviews it.</em></p>
+<p><strong><code>IMP-4</code> step 1: the FEM half. The PEC cylinder is cut from a coaxial host annulus, the outer wall carries step 0's exact finite-k trace, and the end planes carry the condition that makes the 3D solve z-invariant for each drive.</strong>
+- <strong>Executor:</strong> implementer. <strong>Tier:</strong> heavy, <code>-n 2</code>; complex build for W1–W2, real build for W0. <strong>Class:</strong> lane-3 closed form (measured median 8 min).
+- <strong>Cost:</strong> ≈ 8 measured / ≈ 65 predicted min (15 fixed + ≈ 25 code + W0 ≈ 4 + W1 ≈ 6 + W2 ≈ 5 + ≈ 10 spare).
+- <strong>Depends on item 202 (step 0's closed form); if it did not land, skip.</strong> The check is <code>grep -n 'def pec_cylinder_tm0_field' src/fem_em_solver/utils/analytical.py</code> non-empty, plus 202's W1 green in <code>test-results.md</code>. This item <strong>does not edit <code>utils/analytical.py</code></strong>: it imports 202's three functions, and the incident-mode split is test-local. Should an edit become necessary, the file is append-only after items 199 / 201 / 202's blocks; rebase if any lands first.</p>
+<p><strong>Why this fixture is exact, not approximate.</strong> The z-invariant reduction is Jin §1.4.2 (eqs (1.44), (1.45), <code>01_basic-electromagnetic-theory.md:265–277</code>) and §11.2.1 eq (11.53) (<code>11_fem-eigenfunction-expansion-methods.md:361</code>): ϕ = E_z for E_z-polarisation, ϕ = H_z for H_z-polarisation. A finite slab of the infinite problem reproduces the infinite solution exactly when every boundary condition is one that the exact z-invariant field already satisfies. With the solve well posed (lossy host), the FEM's continuous solution is then the closed form, and only discretisation and faceting remain.
+- <strong>TM_z, n = 0</strong> (E = E_zẑ, H = H_φφ̂). On a plane z = const, n̂ = ±ẑ:
+  - n̂ × E = 0 identically, so the <strong>PEC</strong> end condition (Jin §1.5.2 eq (1.52), <code>01:315–321</code>; the Dirichlet "electric wall" n̂ × E = 0, <code>08_vector-finite-elements.md:1533</code>) is exact.
+  - n̂ × H = ∓H_φ ẑ × φ̂ ≠ 0, so the natural end (the Neumann "magnetic wall" n̂ × (∇ × E) = 0, <code>08:1533</code>; <code>core/time_harmonic.py:345–348</code> "NATURAL … is PMC") is <strong>wrong</strong>: it forces H_φ = 0 on the ends and breaks z-invariance.
+  - The ends are therefore tag 3 <strong>constrained</strong>: pec tags (1, 2, 3).
+- <strong>TE_z, n = 1</strong> (H = H_zẑ, E transverse). On the end planes:
+  - n̂ × E = (E_x, E_y) rotated ≠ 0, so a PEC end is <strong>wrong</strong>.
+  - n̂ × H = H_z ẑ × ẑ = 0, so the natural (PMC) end is exact.
+  - The ends are tag 3 <strong>left out</strong>: pec tags (1, 2).
+- <strong>This is the step-0 brief's assignment</strong> (<code>:92–93</code>), and the §7 row's ("end planes PEC (TM) or natural/PMC (TE)"). The opposite pairing (PMC ends for E_z, PEC for TE) is the trap, not the fixture.
+- <strong>Truncation.</strong> The outer wall ρ = c carries the exact total field's tangential trace from step 0, so it is exact at finite k. Jin's own §11.2.1 route, the global third-kind condition (11.61)/(11.63) from the outgoing expansion (11.56), is <strong>not</strong> implemented or tested here. Imposing the exact trace is the <code>IMP-1</code> step 3(b) idiom, and it removes truncation from the error budget.
+- <strong>The sizing rule does not bind.</strong> The rule "(|k|c)² under a third of the band" (<code>IMP-2.md:9</code>) bounded a quasi-static comparand. Here comparand and trace are exact at finite k. c = 10 mm keeps |k|c = 0.179, <code>IMP-1</code>'s and <code>MAT-4</code>'s reach, for continuity only.</p>
+<p><strong>Fixture.</strong>
+- <strong>Host:</strong> step 0's, which is <code>IMP-1</code>'s. Import <code>FREQUENCY_HZ</code>, <code>SIGMA_HIGH</code>, <code>EPSILON_R_HOST</code>, <code>E0</code>, <code>DEGREE</code> = 2, <code>OUTER_BOUNDARY_TAG</code> = 1, <code>CAVITY_TAG</code> = 2, <code>TH15_BETA_BAND</code>, <code>MAT4_BAND</code>, <code>_assemble_real</code> and <code>_cavity_dofs</code> from <code>test_imp1_pec_sphere_lossy_host.py</code>. Import <code>K_FIXTURE</code> from <code>test_imp1_step3_exact_comparand.py:53</code>. Import <code>_owned_masked_cells</code> and <code>_numpy_quadrature_mean</code> from <code>test_imp2_spheroid_fem.py:172–201</code>. Never re-derive these.
+- <strong>Geometry:</strong> a = 1 mm, c = 10 mm, length L = 4 mm, centred on z = 0.
+- <strong>Permittivity:</strong> ε_c = K_FIXTURE²/(ω²μ₀) wherever the TE normalisation needs it. That keeps the incident split consistent with the k step 0 used; never rebuild ε_c from σ and εᵣ separately.</p>
+<p><strong>Code.</strong>
+- <strong>Mesher (additive; rule (c), disclosed).</strong> Add keyword-only <code>*, as_hole=False, resolution_wall=None, resolution_far=None</code> to <code>MeshGenerator.cylindrical_domain</code> (<code>io/mesh.py:833</code>). <code>as_hole=False</code> takes the existing branch untouched; passing either resolution without <code>as_hole</code> raises, so nothing is silently ignored. Under <code>as_hole=True</code>, modelled on <code>sphere_in_box_domain</code>'s branch (<code>:2403–2436</code>):
+  - <code>occ.cut</code> the inner cylinder from the outer; exactly one volume remains (raise otherwise). Volume tag 2.
+  - Facet groups come from <code>getBoundary</code> of the <strong>meshed</strong> air volume (<code>TH-15</code>'s rule, <code>:2338–2341</code>), classified <strong>z first</strong>. Faces with z-extent &lt; tol at |z| = L/2 are tag 3. Then bbox r_max within tol of c is tag 1. The rest is the cavity, tag 2. Raise if any group is empty, and print the face count per group.
+  - Use tol = <code>_WALL_TOL_FRACTION</code>·(c − a) = 9e-5 m, ≥ 10× OCC's 1e-7 bbox padding (<code>IMP-2</code>'s W0 failure <code>20261001T200341Z</code>).
+  - Sizing: <code>Distance</code> from the cavity faces → <code>Threshold</code> (SizeMin <code>resolution_wall</code> = a/6 at DistMin 0, SizeMax <code>resolution_far</code> = c/6 at DistMax c − a), set as the background mesh. This is h(ρ) = ρ/6 exactly, the radial grading the ln and 1/ρ² fields want. Turn off <code>MeshSizeExtendFromBoundary</code>, <code>MeshSizeFromPoints</code> and <code>MeshSizeFromCurvature</code> as <code>sphere_in_box_domain</code> does. <code>generate(3)</code> only, with no Netgen optimise on this branch. Print the minimum SICN.
+- <strong>Module</strong> <code>tests/validation/test_imp4_pec_cylinder_fem.py</code>:
+  - <strong>Trace:</strong> <code>lambda x: np.ascontiguousarray(f(x.T).T).astype(PETSc.ScalarType)</code> around <code>pec_cylinder_tm0_field</code> / <code>pec_cylinder_te1_field</code> with <code>interior="zero"</code>. This is <code>IMP-2</code>'s <code>_dirichlet_axial</code> pattern and step 0's (L).
+  - <strong>Incident split (test-local, numpy):</strong>
+    - TM: E_inc = E₀J₀(kρ)ẑ.
+    - TE: H_inc = H₀J₁(kρ) cos φ with H₀ = −2jωε_cE₀/k, and E_inc = ∇ × (H_incẑ)/(jωε_c) in Cartesian form via <code>jv</code> / <code>jvp</code>.
+    - The scattered basis is E_s = E_cf − E_inc.
+  - <strong>Probes:</strong> 24 points on each of ρ = 1.2a, 1.5a and 2a at z = 0, angles (i + ½)·2π/24, evaluated with <code>evaluate_vector_field_parallel</code> on <code>e_real</code> and <code>e_imag</code>; raise unless every point is valid. β is the <strong>complex</strong> LSQ over all components, β = Σ conj(E_s)·(E_h − E_inc) / Σ |E_s|². Do not use <code>IMP-1</code>'s Re-only fit: arg k = −32°, and the 18:00 pathologist found the Re-only fit absorbs h² error (<code>IMP-1.md:33</code>).
+  - <strong>Annulus mask:</strong> a DG0 indicator of cell midpoints with x² + y² &lt; (1.5a)², numpy only. Φ_h = ⟨|E_h|²⟩/E₀² by UFL at <code>quadrature_degree</code> 8. Φ_cf,h comes from <code>_numpy_quadrature_mean</code> over the same owned cells, using the closed form with <strong><code>interior="continue"</code></strong>: quadrature points in the chord sliver have ρ &lt; a, and the "zero" mask would read them as zero (<code>IMP-1</code>'s trap, item 146).
+  - <strong>Solve:</strong> a module-local <code>_solve_cylinder(drive, pec_tags)</code> following <code>test_imp2_spheroid_fem.py:213–295</code>, using <code>boundary_condition="pec_zero_tangential_a"</code>, <code>dirichlet_e_field</code>, <code>pec_facet_tags=pec_tags</code>. It returns β, Φ_h, Φ_cf,h, the cavity dof count and max |E|, cells, seconds and summed RSS.
+  - <strong>Tests:</strong> <code>test_census_and_numpy</code> (W0, <strong>not</strong> <code>complex_only</code>: mesh, numpy and real UFL only), <code>test_both_drives</code> (W1, <code>complex_only</code>), <code>test_natural_cavity_controls</code> (W2, <code>complex_only</code>).</p>
+<p><strong>Anchors (asserted).</strong>
+- <strong>W0 (census, before any solve):</strong>
+  - (Guard) global cells ≤ <strong>60 000</strong>. Predicted 20–45 k: h = ρ/6 gives 6·216·2πL(1/a − 1/c) ≈ 29 k, calibrated on <code>IMP-1</code> a/6's ≈ 6.1 tets per h³ (13 467 cells, <code>20261001T033100Z_IMP-1-land-W1.log:370</code>).
+  - (Tag) reduced <code>ds(t)</code> areas (pinned <code>quadrature_degree</code> 2): tag 1 against 2πcL, tag 2 against 2πaL, tag 3 against 2π(c² − a²), each within 2 %. The faceting deficit is predicted ≤ 0.5 % ((Δφ)²/6 at Δφ = 1/6). A mis-tag is O(1): annuli tagged 1 would read +250 %.
+  - (M′) on the annulus mask, the numpy quadrature of the 2D static PEC-cylinder TE field E = (2E₀a²xy/ρ⁴, E₀ + E₀a²(y² − x²)/ρ⁴, 0) equals the same field's UFL cell integral at degree 8 to ≤ 1e-12 relative. The field is a polynomial ratio, so it needs no <code>sqrt</code> and no comparison. The continuous value 1 + ⟨a⁴/ρ⁴⟩ = 1.4444 is printed beside it.
+  - (S) the incident split: TM (E_cf,z − E₀J₀(kρ))/H₀⁽²⁾(kρ) is constant and equals −E₀J₀(ka)/H₀⁽²⁾(ka); TE E_cf − E_inc equals E_inc's formula with J₁ → H₁⁽²⁾ (and J₁′ → H₁⁽²⁾′) times −J₁′(ka)/H₁⁽²⁾′(ka). Each holds to ≤ 1e-12 relative on 64 points in [1.2a, 2a].
+- <strong>W1, per drive</strong> (TM pec tags (1, 2, 3); TE pec tags (1, 2)). These are the §7 row's step-1 Done-when, verbatim in substance:
+  - (i) |β − 1| ≤ <code>TH15_BETA_BAND</code> (4.886 %);
+  - (ii) |Φ_h/Φ_cf,h − 1| ≤ <code>MAT4_BAND</code> (10 %);
+  - (iii) cavity dofs located &gt; 0 (reduced), with max |E| &lt; 1e-12 (reduced with <code>MPI.MAX</code>).</p>
+<p><strong>Printed (predicted, never asserted; rule (e)).</strong>
+- <strong>TM, faceting-led.</strong> Faceting puts the effective wall at a(1 − (Δφ)²/12) ≈ a(1 − 0.23 %).
+  - Φ_cf,h is ≈ 3.6e-3: |E_z|/E₀ ≈ 0.235 ln(ρ/a) by the small-argument forms, and ⟨ln²⟩ = 0.0661 over the annulus. Note that this is <strong>small</strong>, so it is the fragile gate.
+  - The miss is predicted <strong>positive, +1 to +3 %</strong>: 2·0.23 %·⟨ln⟩/⟨ln²⟩ ≈ 1.7 %, plus discretisation.
+  - |β − 1| is predicted ≤ 1.5 %; faceting alone gives ≈ 0.235·0.23 % ≈ 0.05 %.
+- <strong>TE.</strong>
+  - β is predicted ≈ 0.995, since the 2D dipole goes as a_eff². |β − 1| ≤ 1.5 %.
+  - Φ_cf,h ≈ 1.444, with a miss of ≲ 1 %.
+- <strong>For each drive:</strong> Φ_cf,h beside the continuous annulus value (a numpy radial / angular quadrature of step 0's field), which isolates faceting; cells, degree-2 dofs, seconds and summed RSS; h_wall/a; min SICN.
+- <strong>z-invariance:</strong> max|E_h(z = ±L/4) − E_h(0)| / max|E_h(0)| on the 1.5a circle, predicted ≲ 1e-3. A large value means an end condition is wrong.
+- <strong>TM current:</strong> β·<code>pec_cylinder_tm0_current</code> (|I| ≈ 2.9e-3 A per V/m from step 0), the induced current the fitted amplitude implies.</p>
+<p><strong>Negative controls</strong> (rule (e): nothing has been measured on this fixture, so each is predicted and asserted only as missing the band).
+- <strong>(c1) TM, natural cavity</strong> (pec tags (1, 3)), which makes the wire PMC: H_φ(a) = 0.
+  - <strong>Prediction.</strong> The scattered coefficient J₁(ka)/H₁⁽²⁾(ka) is O((ka)²) ≈ 1e-3. The annulus therefore carries the regular mode pinned to the trace, E_z ≈ C₁J₀(kρ) with C₁ = E_cf(c)/J₀(kc) ≈ 0.525 + 0.128j (|C₁| 0.54). The LSQ β is then ≈ 0.53 − 0.13j, so |β − 1| ≈ <strong>0.49 (range [0.3, 0.7])</strong>, and Φ_h ≈ |C₁|² ≈ 0.29 against Φ_cf,h ≈ 3.6e-3 gives a miss ≈ +7 900 % (range [+3 000, +15 000] %).
+  - <strong>Ceilings.</strong> On β, 0.49/0.04886 ≈ <strong>10×</strong> the band. On Φ there is no saturation, because the comparand is small.
+  - <strong>Asserted:</strong> |β − 1| &gt; <code>TH15_BETA_BAND</code> and |Φ_h/Φ_cf,h − 1| &gt; <code>MAT4_BAND</code>.
+- <strong>(c2) TE, natural cavity</strong> (pec tags (1,)), which makes H_z(a) = 0, the void cylinder.
+  - <strong>Prediction.</strong> In the static annulus, ψ = A(ρ + a²/ρ) sin φ with ∂_ρψ(a) = 0 and ψ(c) on the PEC trace gives A = −E₀(1 − (a/c)²)/(1 + (a/c)²). Hence β ≈ <strong>−0.980</strong>, and |β − 1| ≈ 1.98, with a ceiling of 1.98/0.04886 ≈ <strong>40×</strong>. The uniform residual (A + E₀) is orthogonal to the dipole on full circles, so it does not leak into β.
+  - <strong>Calibration of the method.</strong> The same annulus argument for <code>IMP-1</code>'s 3D control, A = −(1 − (a/b)³)/(1 + (a/b)³/2), gives −0.41 against the measured −0.433 / −0.439 (<code>IMP-1.md:94</code>; <code>20261001T033747Z_IMP-1-land-W2.log:152</code>), on a box rather than a sphere.
+  - <strong>Asserted:</strong> |β − 1| &gt; <code>TH15_BETA_BAND</code> <strong>only</strong>.
+  - <strong>Φ cannot discriminate in TE.</strong> A 2D line dipole of either sign carries the same annulus-mean |E|², A²(1 + ⟨q²⟩) against 1 + ⟨q²⟩. The predicted miss is 1 − A² ≈ <strong>3.9 %</strong>, inside the band. It is printed beside its prediction, and not asserted either way. <strong>For the review:</strong> the row's "natural-cavity control misses" is met on β for TE, and on β and Φ for TM.</p>
+<p><strong>Windows</strong> (foreground, Bash <code>timeout: 660000</code>; each harness call is the whole Bash command, bare and repo-relative; <code>-s</code>; no <code>-k</code>; no pipes). <code>PYTHONPATH</code> carries <code>:/workspace</code> because the module imports <code>tests.validation.*</code>, as <code>IMP-1</code> / <code>IMP-2</code>'s windows do.
+- <strong>W0</strong> (real build). Predicted 2–5 min; the two re-gate modules are unmeasured as a pair, the rest is <code>IMP-2</code> W0's 109 s (<code>20261001T201413Z_IMP-2-step1-W0.log</code>). This window is the rule (c) re-gate of <code>as_hole=False</code> (bit-identical branch), step 0's module re-run as the dependency check, and the census:
+  <code>scripts/testing/run_and_log.sh IMP-4-step1-W0 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; PYTHONPATH=/workspace/src:/workspace timeout -k 30 400 mpiexec -n 2 python3 -m pytest tests/environment tests/mesh/test_cylindrical_domain.py tests/solver/test_cylinder.py tests/validation/test_imp4_pec_cylinder_closed_form.py tests/validation/test_imp4_pec_cylinder_fem.py::test_census_and_numpy -v -s --tb=short'"</code>
+- <strong>W1</strong> (complex). Predicted 250–400 s: two solves at 20–45 k cells, against <code>IMP-2</code>'s 105.8 s / 83.3 s per solve at 37 359 / 44 304 cells and 6.46 GiB summed (<code>20261001T201608Z_IMP-2-step1-W1.log:381,449</code>), where that W1 took 307 s.
+  <code>scripts/testing/run_and_log.sh IMP-4-step1-W1 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 590 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_imp4_pec_cylinder_fem.py::test_both_drives -v -s --tb=short'"</code>
+- <strong>W2</strong> (complex). Predicted 250–350 s: two solves, against <code>IMP-2</code> W2's 179 s for one at 76.8 s (<code>20261001T202123Z_IMP-2-step1-W2.log:151</code>).
+  <code>scripts/testing/run_and_log.sh IMP-4-step1-W2 "docker compose exec -T fem-em-solver bash -lc 'cd /workspace &amp;&amp; source /usr/local/bin/dolfinx-complex-mode &amp;&amp; PYTHONPATH=/workspace/src:/workspace FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 590 mpiexec -n 2 python3 -m pytest tests/environment tests/validation/test_imp4_pec_cylinder_fem.py::test_natural_cavity_controls -v -s --tb=short'"</code></p>
+<p><strong>Traps (all paid for).</strong>
+- <strong>End conditions are polarisation-specific</strong> (above). Swapping them is an O(1) wrong field that the probes would read as a β miss, not a small error.
+- <strong>Mesh classification.</strong> <code>cylindrical_domain</code>'s existing bbox-r_max classification would put the end annuli (r_max = c) into tag 1, so classify z first. The cavity group comes from the meshed boundary, never the cut tool (<code>TH-15</code>).
+- <strong>Masks and fields.</strong> Use the "zero" interior for the trace and "continue" for Φ_cf,h. Guard N = 0 on a rank inside every callable. Never sample ρ = 0 (the TE conversion divides by ρ).
+- <strong>Complex build:</strong> no UFL comparison and no <code>ufl.max_value</code>. Real operands do not save a comparison containing <code>sqrt</code> (<code>OPS-22</code>, <code>WF-6</code> 4c). Every mask is numpy.
+- <strong>Quadrature:</strong> every <code>SpatialCoordinate</code>-bearing form carries <code>metadata={"quadrature_degree": …}</code> (<code>POST-5</code> step 1); the <code>ds</code> area forms are pinned too.
+- <strong>Rank safety.</strong>
+  - <code>assemble_scalar</code>, <code>cell_tags.values</code> and local max/min are rank-local; reduce before asserting.
+  - Do the RSS <code>allreduce</code> <strong>outside</strong> any rank-0 branch: <code>IMP-2</code>'s W0 failure <code>20261001T200855Z</code>.
+  - Owned cells only (<code>size_local</code>). Read the <code>geometry.dofmap</code> shape at runtime.
+- <strong>JIT cache.</strong> If an earlier window today was killed, sweep orphan <code>.c</code> stems first, and only when <code>pgrep -c python3</code> in the container reads 0, with the rubric's one bare harness call (<code>&lt;ID&gt;</code> = <code>IMP-4-step1</code>). Never clear the cache wholesale.
+- <strong>Run hygiene.</strong> Foreground; container <code>timeout -k 30</code>; never pipe or filter inside the harness command. Print on rank 0. Rule (i): no edit to a file after its last window.
+- <strong>Rule (f)</strong> reaches a parameter (a resolution, L), never a bound.</p>
+<p><strong>Scope.</strong> One mesh, degree 2, two single-mode drives on an infinite PEC cylinder with an exact trace. These are accuracy-level bands, <strong>not a convergence claim</strong>. <strong>Not included:</strong>
+- Jin's (11.63) global boundary condition;
+- the plane-wave multi-mode series of Exercise 11.4 proper;
+- modes n ≥ 2;
+- a finite rod or tip (<code>IMP-2</code>, <code>IMP-3</code>);
+- a coil, heating, 1 g SAR, or published data.</p>
+<p><strong>Status it can move.</strong> The <code>IMP-4</code> §7 row, whose Done-when reads: "<em>Step 1</em> (FEM, degree 2, <code>TH-15</code> hole route): additive <code>as_hole=True</code> on <code>cylindrical_domain</code>; exact trace on the outer wall; end planes PEC (TM) or natural/PMC (TE); per drive |β − 1| ≤ <code>TH15_BETA_BAND</code>, annulus ⟨|E|²⟩ on the same mask ≤ <code>MAT4_BAND</code>, cavity dofs zero, natural-cavity control misses ⇒ ✅".
+- With step 0 green (🟡), this item green moves <strong>🟡 → ✅</strong>, auditable. The opening itself is the weekly's to ratify (rule (5) lane 3), as <code>IMP-1</code>'s was.
+- The review may then add <code>IMP-4</code> to §2's closed-form-lane sentence: imposed trace, no coil.
+- <strong>Flag for the review (rule (j)):</strong> the control clause is read as β for TE, because Φ cannot miss there (see (c2)).</p>
+<p><strong>Negative result.</strong>
+- <strong>Over the cell guard in W0:</strong> stop before any solve, report the counts, BLOCKED.
+- <strong>(Tag), (S) or (M′) red:</strong> a mesher or helper bug. Fix it in-slot, run W0b, and disclose.
+- <strong>A re-gate red on <code>as_hole=False</code>:</strong> the branch is not bit-identical. Fix it; if it was red at <code>HEAD</code> already, cite known-issues and continue.
+- <strong>(i) or (ii) red with (iii), (M′) and (Tag) green:</strong> print h_wall/a, Φ_cf,h against the continuous value and the z-invariance number. Park on <code>attempt/IMP-4-step1-&lt;UTC&gt;</code> and mark BLOCKED in the same commit (rule (d)); no band moves. If TM (ii) is the red, positive, and near the faceting prediction, the review may re-pose the wall resolution (a/10) under rule (f).
+- <strong>A control inside its band:</strong> the cavity condition is not reaching the probes, which points at a tag or solver bug. Stop and report.
+- There is no PREDICTED RED line.</p>
+<p><strong>Outcome (2026-10-03 15:00 slot): DONE, row 🟡 → ✅.</strong> Executor <code>implementer</code>, foreground; W0 / W1 / W2 green on first run, rule (i) holds (both files predate W0).
+- <strong>Windows:</strong> <code>20261003T200309Z_IMP-4-step1-W0.log</code> (real, 22 passed / 4 skipped, 96 s; re-gates <code>test_cylindrical_domain.py</code>, <code>test_cylinder.py</code> and step 0 green); <code>20261003T200454Z_IMP-4-step1-W1.log</code> (complex, 13 passed, 123 s); <code>20261003T200703Z_IMP-4-step1-W2.log</code> (complex, 13 passed, 117 s).
+- <strong>W0:</strong> 25 568 cells (guard 60 000), faces 1 / 1 / 2, min SICN 0.2988, h_wall/a 0.396. (Tag) −0.088 % / −0.088 % / −0.455 % (band 2 %). (M′) 2.0e-15 (numpy 1.443486, continuous 1.4444). (S) TM 3.0e-16, TE 6.0e-16.
+- <strong>W1:</strong> TM β 0.999655 − 0.000093j (|β − 1| 0.036 %), Φ_h 3.742e-3 vs Φ_cf,h 3.705e-3 (+1.01 %; Φ_cf,h vs continuous +1.77 %, the predicted faceting offset); TE β 0.992258 (0.774 %), Φ −0.23 %. Cavity 10 704 dofs, max|E| 3.7e-20 / 2.1e-34. 174 112 dofs, ≈ 37 / 29 s per solve, 4.28 GiB summed. TM current β·I |I| 2.917e-3 vs 2.918e-3 A per V/m.
+- <strong>W2 controls:</strong> c1 β 0.527 − 0.126j (|β − 1| 0.489, predicted 0.49), Φ +7 790 % (predicted ≈ +7 900 %); c2 β −0.972 (|β − 1| 1.97, predicted 1.98), Φ −4.0 % (printed, predicted ≈ 3.9 %).
+- <strong>Off prediction (printed only):</strong> z-invariance 7.3e-3 (TM) / 1.3e-2 (TE) against ≲ 1e-3. Every gate is tight, so this is not read as a wrong end condition; the executor attributes it to unstructured discretisation differing between z-planes — untested.
+- <strong>Disclosed <code>src/</code> change (rule (c)):</strong> <code>cylindrical_domain</code> gains keyword-only <code>as_hole</code> / <code>resolution_wall</code> / <code>resolution_far</code>; the <code>as_hole=False</code> body moved verbatim into <code>_cylindrical_fragment_domain</code>; the new branch is the module-level <code>_cylindrical_hole_domain</code>.</p>
+<h3 id="audit-2026-10-03-1800-review">Audit — 2026-10-03 18:00 review<a class="headerlink" href="#audit-2026-10-03-1800-review" title="Permanent link">&para;</a></h3>
+<p><strong>PASS</strong> (<code>auditor</code>, closing commit <code>9b8fefc7</code>). Evidence: <code>20261003T200454Z_IMP-4-step1-W1.log:134–135</code> (TM |β − 1| 0.0357 %, Φ +1.0110 %), <code>:140–141</code> (TE 0.7742 %, −0.2345 %), <code>:136,142</code> (cavity max|E| ≤ 3.7e-20), <code>:294–296</code> (Status 0, 123 s); controls <code>…200703Z…W2.log:133–143</code> (c1 |β − 1| 48.92 %, Φ +7 789.79 %; c2 |β − 1| 197.23 %); W0 <code>…200309Z…W0.log:465–470</code>. Caveats (no demotion): the z-invariance prints 7.3e-3 (TM) / 1.3e-2 (TE) against a pre-registered ≲ 1e-3 — a 7–13× miss on an unasserted print whose plane-to-plane explanation is untested (for the weekly); one mesh at degree 2, no convergence claim; the TE Φ control cannot see a wrong cavity condition (the 10:30 rule (j) ruling), while the β control does; the opening awaits the weekly's ratification. Journal: <code>docs/planning/reviews/2026-10-03-daily-1800.md</code> §3.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

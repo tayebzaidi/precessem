@@ -1,0 +1,632 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>OPS-74 — the four example closures' owed windows, and the first real ./run_examples.sh through the harness - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ops-74-the-four-example-closures-owed-windows-and-the-first-real-run_examplessh-through-the-harness" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              OPS-74 — the four example closures' owed windows, and the first real ./run_examples.sh through the harness
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing/test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#9-item-738-2026-11-01-ops-the-10-31-weeklys-closing-window-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 item 738 — 2026-11-01 (ops; the 10-31 weekly's closing-window rule)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ops-74-the-four-example-closures-owed-windows-and-the-first-real-run_examplessh-through-the-harness">OPS-74 — the four example closures' owed windows, and the first real <code>./run_examples.sh</code> through the harness<a class="headerlink" href="#ops-74-the-four-example-closures-owed-windows-and-the-first-real-run_examplessh-through-the-harness" title="Permanent link">&para;</a></h1>
+<p><em>History file for the §7 <code>OPS-74</code> row (<code>OPS-46</code>). Opened by the 2026-11-01 18:00 daily review under the 10-31 weekly's closing-window rule ("a closure whose last window is anything else is audited with the caveat and the daily re-queues the one window").</em></p>
+<p><strong>The defect.</strong>
+- <code>EX-166</code> … <code>EX-169</code> are the first closures since the rule, and all four closed on the dry-run's emitted line with <code>-T</code> and <code>FEM_EM_SETUP_FIGURES=1</code> added. All four audited PASS with that caveat (2026-11-01 18:00 journal §3).
+- <strong>The rule has never been observed to run.</strong> No plain harness log carries a non-dry <code>run_examples</code> command line (grep of <code>docs/testing/logs/*.log</code>, 2026-11-01 18:00; <code>.gz</code> logs not swept).
+- <strong>Three standing texts say the opposite of the rule:</strong> <code>scripts/run_examples.sh:30–43</code>, <code>docs/automation/implementer-run.md:133–150</code> and <code>.claude/agents/example-runner.md:57–67</code> all make emit-then-harness the supported path. The rule's premise is that the harness is sandbox-exempt, so <code>./run_examples.sh</code> inside it reaches the socket. Those texts' failures were all direct, unwrapped calls. That is a reading, not an observation.
+- <strong><code>scripts/run_examples.sh:285</code> has no <code>-T</code>,</strong> and a harness window has no TTY, so the real form may stop on "the input device is not a TTY". Not observed.</p>
+<p><strong>Done-when.</strong> Each of <code>EX-166</code> … <code>EX-169</code> has a Status 0 harness log whose Command line is <code>./scripts/run_examples.sh …</code>, cited in its §7 row beside the existing log; or the window's failure is recorded here and the rule returned to the weekly with the measurement.</p>
+<h3 id="9-item-738-2026-11-01-ops-the-10-31-weeklys-closing-window-rule">§9 item 738 — 2026-11-01 (ops; the 10-31 weekly's closing-window rule)<a class="headerlink" href="#9-item-738-2026-11-01-ops-the-10-31-weeklys-closing-window-rule" title="Permanent link">&para;</a></h3>
+<p><strong>Why.</strong> The weekly told the daily to re-queue these, and each brief below this one inherits the rule. This item is also the rule's first test, so it goes first.</p>
+<p><strong>Anchor.</strong> Every gate in each example, unchanged, asserted by the run itself: exit 0 and the script's own final line. Per example, the asserted records equal the §7 row's at the printed digits, or the difference is named.</p>
+<p><strong>Negative control.</strong> <code>scripts/testing/run_and_log.sh OPS-74-Wc "./scripts/run_examples.sh -e mat:999 -n 2 -t 60"</code> reads a non-zero Status and runs no example: the footer tells a bad selector from a pass. Run it first.</p>
+<p><strong>Execution, run inline, not through <code>example-runner</code></strong> (its definition says the opposite). Each is a bare harness call, cheapest first:
+1. <code>scripts/testing/run_and_log.sh EX-169-close "./scripts/run_examples.sh -e mat:33 -n 2 -t 300"</code> (74 s)
+2. <code>scripts/testing/run_and_log.sh EX-166-close "./scripts/run_examples.sh -e mat:32 -n 2 -t 480"</code> (117 s)
+3. <code>scripts/testing/run_and_log.sh EX-168-close "./scripts/run_examples.sh -e imp:19 -n 4 -t 480"</code> (190 s)
+4. <code>scripts/testing/run_and_log.sh EX-167-close "./scripts/run_examples.sh -e mri:37 -n 2 -t 560"</code> (211 s)</p>
+<p><strong>Licensed, and only this:</strong>
+- <strong>If step 1 stops on the TTY message before any example code ran:</strong> add <code>-T</code> to <code>scripts/run_examples.sh:285</code>, and to the echoed <code>[dry-run]</code> line at <code>:283</code> so the two stay equal. Re-run step 1 under the same label. Keep the first log. Nothing else in that script changes.
+- <strong><code>examples/materials/33_gel_box_pre_equilibration_bias.md:43</code> reads "All equal the gate's real-build records at the printed digits", which its own bullet above contradicts</strong> (audit). Change that sentence to say (I), (c-ref) and (c-Dz) equal them, and (E) and (Sym′) differ at round-off on the complex build, with the new log's digits.
+- <strong>Each §7 row</strong> gains the new log, tagged "closing window", and keeps the old one.</p>
+<p><strong>Tier, ranks, wall clock.</strong> The examples' own tiers, ≈ 10 min of compute in four calls, none over 600 s. Bash <code>timeout: 660000</code>, foreground. Pre-check <code>pgrep -c python3</code> 0 before each. <strong>Class:</strong> ops / docs. <strong>Cost:</strong> ≈ 5.6 measured (the class median; expect ≈ 15) / 25 predicted min. <strong>Depends on:</strong> nothing.</p>
+<p><strong>Traps already paid for.</strong> <code>run_examples.sh</code> is host-side: never wrap it in <code>docker compose exec</code> (Status 127, three times). A direct, unwrapped call from a sandboxed session gets <code>permission denied</code> from the docker API. <code>set -e</code> means one red example aborts. The harness call is the whole Bash command, nothing chained or piped. No <code>FEM_EM_SETUP_FIGURES</code>: the figures exist, and setting it would be a variation on the rule's command. A kill parks the item; never raise a <code>-t</code>.</p>
+<p><strong>Scope.</strong> Four windows and one flag. <strong>Not claimed:</strong> any new gate. <strong>Not to edit:</strong> the header at <code>scripts/run_examples.sh:30–43</code> or <code>implementer-run.md</code>; the review amends those from this item's result, and <code>.claude/agents/example-runner.md</code> is read-only in <code>main</code> (the operator's worktree session).</p>
+<p><strong>Negative result.</strong> Step 1 fails with <code>-T</code> in place and no example code run, for any reason: stop, BLOCKED, keep every log, skip steps 2–4. That is the measurement the weekly needs: the rule as written cannot run from a slot, and it decides between amending the rule and adding the sandbox exclusion (the operator's). An example gate red on this form that was green on the emitted form is a divergence: stop and report. No <code>PREDICTED RED:</code> line.</p>
+<p><strong>Status it can move.</strong> The §7 rows <code>EX-166</code> … <code>EX-169</code> gain a closing-window log; the audit caveats retire; the 10-31 rule gets its first observation, either way. <code>OPS-74</code> ✅ on four green windows.</p>
+<p><strong>Outcome (2026-11-01, 19:30 slot): complete, <code>OPS-74</code> ✅.</strong> The rule's form runs from a slot. Negative control <code>20261102T013018Z_OPS-74-Wc.log</code>: Status 2, "No mat example found for number: 999", no example run. Windows, each Status 0 with its script's own final line: <code>mat:33</code> 74 s, <code>mat:32</code> 112 s, <code>imp:19</code> 183 s, <code>mri:37</code> 203 s (<code>…013021Z_EX-169-close.log</code>, <code>…013146Z_EX-166-close.log</code>, <code>…013342Z_EX-168-close.log</code>, <code>…013649Z_EX-167-close.log</code>). <code>pgrep -c python3</code> read 0 before each.
+- <strong>No TTY stop:</strong> compose v5.6.1's <code>docker compose exec</code> ran without <code>-T</code> under the harness, so the licensed edit to <code>scripts/run_examples.sh</code> was not made and the script is unchanged. The socket reached fine, which observes the rule's premise.
+- <strong>Records against the §7 rows, by <code>diff</code> of the old and new logs:</strong> every asserted value equal at the printed digits except round-off terms. <code>mat:32</code>: (E) 2.218e-13 against 2.248e-13, the (Q-wf) / (Win-wf) rels ≤ 4.1e-15. <code>imp:19</code>: (E) 5.740e-12 against 5.910e-12, (Q-hd) / (Win-hd) rels ≤ 1.1e-15. <code>mat:33</code>: (E) and (Sym′), now on the guide. <code>mri:37</code>: (S) 6.598e-14 against 1.295e-15, (i) 1.767e-15 against 9.935e-16, cells, σ_max, (c-off) equal.
+- <strong>(S) on <code>mri:37</code> moved by a factor ≈ 51 between two runs of one script</strong> and now clears <code>IDENTITY_BAND</code> 1e-12 by ≈ 15 times, not ≈ 770. Green, not diagnosed; the two runs differ in <code>FEM_EM_SETUP_FIGURES</code> and <code>-T</code> only.
+- <strong>Guide:</strong> <code>33_gel_box_pre_equilibration_bias.md:43</code> corrected as licensed, after the window; the script does not read it. <code>OPS-74-Wdoc</code> <code>dead=0 guide=0</code> (Status 2, staleness only) and <code>OPS-74-Wpin</code> 20 passed ran after the edit.
+- <strong>Left to the review:</strong> <code>scripts/run_examples.sh:30–43</code> and <code>implementer-run.md:133–150</code> still say the opposite of the rule, and <code>.claude/agents/example-runner.md:57–67</code> is the operator's worktree session.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

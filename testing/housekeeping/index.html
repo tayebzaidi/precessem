@@ -1,0 +1,701 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MRI-focused FEM EM solver documentation">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>Housekeeping sweeps - FEM Electromagnetics Solver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#housekeeping-sweeps" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="FEM Electromagnetics Solver" class="md-header__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FEM Electromagnetics Solver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Housekeeping sweeps
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="FEM Electromagnetics Solver" class="md-nav__button md-logo" aria-label="FEM Electromagnetics Solver" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FEM Electromagnetics Solver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tayebzaidi/precessem" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tayebzaidi/precessem
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../status/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Current Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Status (2026-07-31)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../validation/helmholtz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helmholtz Coil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../test-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Results Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="housekeeping-sweeps">Housekeeping sweeps<a class="headerlink" href="#housekeeping-sweeps" title="Permanent link">&para;</a></h1>
+<p>Append-only record of <code>scripts/maintenance/housekeeping.py --apply</code> runs under docs/testing/retention-policy.md. Deleted logs remain indexed in test-results.md and recoverable from git history.</p>
+<table>
+<thead>
+<tr>
+<th>UTC date</th>
+<th style="text-align: right;">Compressed</th>
+<th style="text-align: right;">Deleted</th>
+<th style="text-align: right;">Log volume after (MB)</th>
+<th>gc</th>
+<th>Breaches</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-09-03</td>
+<td style="text-align: right;">821</td>
+<td style="text-align: right;">287</td>
+<td style="text-align: right;">61.1</td>
+<td>yes</td>
+<td>log volume 111.3 MB &gt; 25.0 MB; loose objects 310 MiB &gt; 50 MiB; docs/testing/attempts.md 17215 lines &gt; 6000</td>
+</tr>
+<tr>
+<td>2026-09-06</td>
+<td style="text-align: right;">170</td>
+<td style="text-align: right;">39</td>
+<td style="text-align: right;">54.9</td>
+<td>no</td>
+<td>non-gating log volume 29.7 MB &gt; 25.0 MB; docs/testing/attempts.md 19826 lines &gt; 6000; PROJECT_PLAN.md 9786 lines &gt; 9000</td>
+</tr>
+<tr>
+<td>2026-09-13</td>
+<td style="text-align: right;">233</td>
+<td style="text-align: right;">230</td>
+<td style="text-align: right;">32.6</td>
+<td>yes</td>
+<td>non-gating log volume 30.1 MB &gt; 25.0 MB; loose objects 78 MiB &gt; 50 MiB; docs/testing/attempts.md 17981 lines &gt; 6000; PROJECT_PLAN.md 9698 lines &gt; 9000</td>
+</tr>
+<tr>
+<td>2026-09-20</td>
+<td style="text-align: right;">227</td>
+<td style="text-align: right;">273</td>
+<td style="text-align: right;">32.4</td>
+<td>yes</td>
+<td>loose objects 90 MiB &gt; 50 MiB</td>
+</tr>
+<tr>
+<td>2026-09-27</td>
+<td style="text-align: right;">280</td>
+<td style="text-align: right;">132</td>
+<td style="text-align: right;">38.4</td>
+<td>yes</td>
+<td>loose objects 55 MiB &gt; 50 MiB</td>
+</tr>
+<tr>
+<td>2026-09-27 (<code>OPS-65</code> restore, not a sweep)</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">40.0 (gating)</td>
+<td>no</td>
+<td>citing set += <code>docs/planning/chunks/*.md</code>, <code>docs/planning/reviews/*.md</code>, xl/xxl ledgers, <code>xl-pending.md</code>; cited-but-missing <strong>284 → 74</strong>; <strong>210 restored</strong> from <code>&lt;deleting sha&gt;^</code> in their deleted form; <strong>74 unrecoverable</strong> (no deletion in <code>git log</code> — never committed, <code>…</code>-elided prose names, or automation logs): 20260804T111728Z_...-regress-dodddeeds.log, 20260804T140354Z_PORT-1-step3bii-costprobe.log, 20260804T140612Z_PORT-1-step3bii-diagnostic.log, 20260807T050637Z_...-collect.log, 20260808T200001Z_implementer.log, 20260809T003001Z_implementer.log, 20260812T170128Z_...-mesh6e4-repointed.log, 20260812T170317Z_...-solve6e4.log, 20260818T140102Z_...-complex-thsmoke.log, 20260818T140137Z_...-solver-tail.log, 20260818T140954Z_...-complex-solver-tail2.log, 20260818T170002Z_implementer.log, 20260819T020934Z_...-collect-validation-full.log, 20260819T020943Z_...-collect-all.log, 20260819T021017Z_...-complex-validation-subset1.log, 20260819T021242Z_...-subset2.log, 20260819T034936Z_...-circularloop-onaxis-clean.log, 20260819T170254Z_...-complex-batchA.log, 20260819T171016Z_...-batchB.log, 20260819T171126Z_...-batchC.log, 20260819T230001Z_daily-review.log, 20260820T124108Z_...-collect.log, 20260820T124121Z_...-collect-complex.log, 20260820T140330Z_...-helmholtz-complex.log, 20260820T153001Z_daily-review.log, 20260820T183046Z_...-collect.log, 20260820T183128Z_...-collect2.log, 20260820T183218Z_...-dodd-reactance.log, 20260820T183929Z_...-dodd-knobs.log, 20260820T184907Z_...-dodd-knobs-n8.log, 20260820T185638Z_...-dodd-slab.log, 20260820T200125Z_...-dodd-boxtrunc-n8.log, 20260820T200816Z_...-dodd-projdrive.log, 20260820T200951Z_...-dodd-impedance-fast.log, 20260820T201027Z_...-dodd-impedance-integration.log, 20260820T213141Z_...-dodd-boxsize.log, 20260820T214121Z_...-dodd-wireres-projected.log, 20260820T214952Z_...-dodd-wireres-pinned.log, 20260821T003224Z_...-coil-cheap3.log, 20260821T004041Z_...-coil-probe-30mhz.log, 20260821T020103Z_...-coil-larmor-res.log, 20260821T020908Z_...-coil-meshcache.log, 20260821T021644Z_...-coil-thirdrung-fine.log, 20260821T033146Z_...-coil-richardson-baseline.log, 20260821T033534Z_...-sar-padding-group.log, 20260821T050352Z_...-collect-audit2.log, 20260823T123737Z_PORT-9-step3d1-mesh-rerun.log, 20260824T050001Z_implementer.log, 20260825T003622Z_...-run1.log, 20260825T003832Z_...-run2.log, 20260827T050123Z_...<em>m01-bcsel.log, 20260827T050605Z</em>...<em>m02-tolpolicy.log, 20260827T051201Z</em>..._m01-bcsel-complex.log, 20260907T020614Z_TH-15.log, 20260907T213308Z_TH-15.log, 20260908T020506Z_TH-15.log, 20260908T050511Z_WF-6.log, 20260908T051300Z_WF-6.log, 20260908T110445Z_TH-15.log, 20260908T111059Z_TH-15.log, 20260908T230001Z_daily-review.log, 20260911T070001Z_xl-run.log, 20260911T153001Z_daily-review.log, 20260912T070001Z_xxl-run.log, 20260912T080001Z_daily-review.log, 20260912T153002Z_daily-review.log, 20260912T230001Z_daily-review.log, 20260913T153001Z_daily-review.log, 20260913T230001Z_daily-review.log, 20260914T070001Z_xl-run.log, 20260914T080001Z_daily-review.log, 20260916T070001Z_xl-run.log, 20260916T080001Z_daily-review.log, 20260926T123246Z_EX-57.log. Census <code>20260927T113033Z</code> → <code>113111Z_OPS-65-census-*.log</code>.</td>
+</tr>
+<tr>
+<td>2026-10-04</td>
+<td style="text-align: right;">331</td>
+<td style="text-align: right;">186</td>
+<td style="text-align: right;">83.7</td>
+<td>yes</td>
+<td>loose objects 201 MiB &gt; 50 MiB</td>
+</tr>
+<tr>
+<td>2026-10-11</td>
+<td style="text-align: right;">728</td>
+<td style="text-align: right;">161</td>
+<td style="text-align: right;">85.1</td>
+<td>yes</td>
+<td>loose objects 181 MiB &gt; 50 MiB</td>
+</tr>
+<tr>
+<td>2026-10-18</td>
+<td style="text-align: right;">731</td>
+<td style="text-align: right;">267</td>
+<td style="text-align: right;">96.6</td>
+<td>yes</td>
+<td>loose objects 212 MiB &gt; 50 MiB</td>
+</tr>
+<tr>
+<td>2026-10-25</td>
+<td style="text-align: right;">830</td>
+<td style="text-align: right;">242</td>
+<td style="text-align: right;">81.5</td>
+<td>yes</td>
+<td>loose objects 183 MiB &gt; 50 MiB</td>
+</tr>
+<tr>
+<td>2026-11-01</td>
+<td style="text-align: right;">736</td>
+<td style="text-align: right;">333</td>
+<td style="text-align: right;">47.1</td>
+<td>yes</td>
+<td>loose objects 141 MiB &gt; 50 MiB</td>
+</tr>
+<tr>
+<td>2026-11-08</td>
+<td style="text-align: right;">391</td>
+<td style="text-align: right;">320</td>
+<td style="text-align: right;">73.0</td>
+<td>yes</td>
+<td>loose objects 236 MiB &gt; 50 MiB</td>
+</tr>
+<tr>
+<td>2026-11-15</td>
+<td style="text-align: right;">684</td>
+<td style="text-align: right;">72</td>
+<td style="text-align: right;">66.9</td>
+<td>yes</td>
+<td>loose objects 208 MiB &gt; 50 MiB</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>
